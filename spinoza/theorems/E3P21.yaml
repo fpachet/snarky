@@ -1,0 +1,36 @@
+schema_version: 1
+id: E3P21
+type: theorem
+source_unit: E3P21
+source_text: Qui imagine ce qu’il aime affecté de Joie ou de Tristesse, sera également affecté de Joie
+  ou de Tristesse ; et l’une et l’autre affections seront plus grandes ou moindres dans l’amant, selon
+  qu’elles le seront dans la chose aimée.
+reference_candidates:
+- E3P11
+- E3P19
+formalization_status: historical_reproduced
+result: proved
+forbidden_rules:
+- E3P21_as_direct_rule
+cases:
+- id: joie
+  initial_facts:
+  - (x0 aime y0)
+  - (x0 imagine (y0 est joyeux))
+  goals:
+  - (x0 est joyeux)
+  expected:
+    status: proved
+    minimum_depth: 2
+- id: tristesse
+  initial_facts:
+  - (x0 aime y0)
+  - (x0 imagine (y0 est triste))
+  goals:
+  - (x0 est triste)
+  expected:
+    status: proved
+    minimum_depth: 2
+allowed_rule_origins:
+- historical_model
+- historical_interpretation

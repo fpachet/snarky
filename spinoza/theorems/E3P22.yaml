@@ -1,0 +1,36 @@
+schema_version: 1
+id: E3P22
+type: theorem
+source_unit: E3P22
+source_text: Si nous imaginons que quelqu’un affecte de Joie la chose que nous aimons, nous serons affectés
+  d’Amour à son égard. Si, au contraire, nous imaginons qu’il l’affecte de Tristesse, nous serons tout
+  au rebours affectés de Haine contre lui.
+reference_candidates:
+- E3P13
+- E3P21
+formalization_status: historical_reproduced
+result: proved
+forbidden_rules:
+- E3P22_as_direct_rule
+cases:
+- id: amour
+  initial_facts:
+  - (x0 aime y0)
+  - (x0 imagine (z0 affecte_de_joie y0))
+  goals:
+  - (x0 aime z0)
+  expected:
+    status: proved
+    minimum_depth: 3
+- id: haine
+  initial_facts:
+  - (x0 aime y0)
+  - (x0 imagine (z0 affecte_de_tristesse y0))
+  goals:
+  - (x0 hait z0)
+  expected:
+    status: proved
+    minimum_depth: 3
+allowed_rule_origins:
+- historical_model
+- historical_interpretation

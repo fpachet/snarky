@@ -1,0 +1,30 @@
+schema_version: 1
+id: E3P33
+type: theorem
+source_unit: E3P33
+source_text: Quand nous aimons une chose semblable à nous, nous nous efforçons autant que nous pouvons,
+  de faire qu’elle nous aime à son tour.
+reference_candidates:
+- E3P12
+- E3P13
+- E3P29
+formalization_status: historical_reproduced_with_divergence
+result: proved
+forbidden_rules:
+- E3P33_as_direct_rule
+cases:
+- id: reciprocite
+  initial_facts:
+  - (x0 aime y0)
+  - (x0 est_semblable_a y0)
+  goals:
+  - (x0 s_efforce_que (y0 aime x0))
+  expected:
+    status: proved
+    minimum_depth: 5
+known_divergences:
+- La chaîne historique n'utilise pas le fait de similitude.
+- P13/2/2 est étendue du contexte imagine à s_efforce_que.
+allowed_rule_origins:
+- historical_model
+- historical_interpretation

@@ -1,0 +1,179 @@
+# Reconstruction exécutable des diapositives 10 à 17 de Gondran.ppt.
+# La provenance détaillée et les réserves critiques sont dans rule_catalog.yaml.
+
+RULE P13_1_1_amour
+WHEN
+    ($x aime $y)
+THEN
+    ADD ($x imagine ($y affecte_de_joie $x))
+END
+
+RULE P13_1_1_haine
+WHEN
+    ($x hait $y)
+THEN
+    ADD ($x imagine ($y affecte_de_tristesse $x))
+END
+
+RULE P13_1_2_amour_reciproque
+WHEN
+    ($x imagine ($y affecte_de_joie $x))
+    $x != $y
+THEN
+    ADD ($x aime $y)
+END
+
+RULE P13_1_2_haine_reciproque
+WHEN
+    ($x imagine ($y affecte_de_tristesse $x))
+    $x != $y
+THEN
+    ADD ($x hait $y)
+END
+
+RULE P13_2_1_amour_imagine
+WHEN
+    ($x imagine ($y aime $z))
+THEN
+    ADD ($x imagine ($z affecte_de_joie $x))
+END
+
+# P12/13/17 : les quatre substitutions de signes visibles sur la diapositive 11.
+RULE P12_13_17_joie_destruite
+WHEN
+    ($x imagine ($y est inexistant))
+    ($x imagine ($y affecte_de_joie $x))
+THEN
+    ADD ($x est triste)
+END
+
+RULE P12_13_17_joie_conservee
+WHEN
+    ($x imagine ($y est existant))
+    ($x imagine ($y affecte_de_joie $x))
+THEN
+    ADD ($x est joyeux)
+END
+
+RULE P12_13_17_tristesse_destruite
+WHEN
+    ($x imagine ($y est inexistant))
+    ($x imagine ($y affecte_de_tristesse $x))
+THEN
+    ADD ($x est joyeux)
+END
+
+RULE P12_13_17_tristesse_conservee
+WHEN
+    ($x imagine ($y est existant))
+    ($x imagine ($y affecte_de_tristesse $x))
+THEN
+    ADD ($x est triste)
+END
+
+RULE P12_13_17_joie_partagee
+WHEN
+    ($x imagine ($y est joyeux))
+    ($x imagine ($y affecte_de_joie $x))
+THEN
+    ADD ($x est joyeux)
+END
+
+RULE P12_13_17_tristesse_partagee
+WHEN
+    ($x imagine ($y est triste))
+    ($x imagine ($y affecte_de_joie $x))
+THEN
+    ADD ($x est triste)
+END
+
+# P22/1 : produit des signes des deux relations d'affect.
+RULE P22_1_joie_joie
+WHEN
+    ($x imagine ($z affecte_de_joie $y))
+    ($x imagine ($y affecte_de_joie $t))
+    $x != $y
+    $z != $t
+THEN
+    ADD ($x imagine ($z affecte_de_joie $t))
+END
+
+RULE P22_1_joie_tristesse
+WHEN
+    ($x imagine ($z affecte_de_joie $y))
+    ($x imagine ($y affecte_de_tristesse $t))
+    $x != $y
+    $z != $t
+THEN
+    ADD ($x imagine ($z affecte_de_tristesse $t))
+END
+
+RULE P22_1_tristesse_joie
+WHEN
+    ($x imagine ($z affecte_de_tristesse $y))
+    ($x imagine ($y affecte_de_joie $t))
+    $x != $y
+    $z != $t
+THEN
+    ADD ($x imagine ($z affecte_de_tristesse $t))
+END
+
+RULE P22_1_tristesse_tristesse
+WHEN
+    ($x imagine ($z affecte_de_tristesse $y))
+    ($x imagine ($y affecte_de_tristesse $t))
+    $x != $y
+    $z != $t
+THEN
+    ADD ($x imagine ($z affecte_de_joie $t))
+END
+
+RULE P12II_17II_effort_existence
+WHEN
+    ($x imagine ($z affecte_de_joie $x))
+    $x != $z
+THEN
+    ADD ($x s_efforce_que ($z est existant))
+END
+
+RULE P12II_17II_effort_inexistence
+WHEN
+    ($x imagine ($z affecte_de_tristesse $x))
+    $x != $z
+THEN
+    ADD ($x s_efforce_que ($z est inexistant))
+END
+
+RULE P27_1_imitation_affect
+WHEN
+    ($x imagine ($z affecte_de_joie $y))
+    ($x porte_sentiment_a $y) ' INEXISTANT
+    ($x est_semblable_a $y)
+THEN
+    ADD ($x imagine ($z affecte_de_joie $x))
+END
+
+RULE P12_29_effort_joie
+WHEN
+    ($x aime $y)
+    ($x s_efforce_que ($y est existant))
+THEN
+    ADD ($x s_efforce_que ($y est joyeux))
+END
+
+RULE P29_1_effort_affecter_joie
+WHEN
+    ($x s_efforce_que ($y est joyeux))
+THEN
+    ADD ($x s_efforce_que ($x affecte_de_joie $y))
+END
+
+# Interprétation requise par la dernière étape de la preuve P33 : la diapositive
+# imprime "imagine", mais l'instanciation bleue conserve "s_efforce_que".
+RULE P13_2_2_effort_amour_reciproque
+WHEN
+    ($x s_efforce_que ($z affecte_de_joie $y))
+    $z != $y
+THEN
+    ADD ($x s_efforce_que ($y aime $z))
+END

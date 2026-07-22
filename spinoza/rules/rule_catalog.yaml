@@ -1,0 +1,67 @@
+schema_version: 1
+source: docs/Gondran.ppt
+rules:
+  - ids: [P13_1_1_amour, P13_1_1_haine]
+    origin: historical_model
+    source_slides: [10, 14, 15, 16, 17]
+    attribution: E3P13S
+    fidelity: candidate
+  - ids: [P13_1_2_amour_reciproque, P13_1_2_haine_reciproque]
+    origin: historical_model
+    source_slides: [10, 16]
+    attribution: E3P13S
+    fidelity: stronger_than_source
+    note: La réciproque n'est pas énoncée comme telle dans le scolie de E3P13.
+  - ids: [P13_2_1_amour_imagine]
+    origin: historical_model
+    source_slides: [10]
+    attribution: E3P13S
+    fidelity: candidate
+  - ids:
+      - P12_13_17_joie_destruite
+      - P12_13_17_joie_conservee
+      - P12_13_17_tristesse_destruite
+      - P12_13_17_tristesse_conservee
+      - P12_13_17_joie_partagee
+      - P12_13_17_tristesse_partagee
+    origin: historical_model
+    source_slides: [11, 14, 15]
+    attribution: E3P12/E3P13/E2P17
+    fidelity: compiled_historical_schema
+  - ids:
+      - P22_1_joie_joie
+      - P22_1_joie_tristesse
+      - P22_1_tristesse_joie
+      - P22_1_tristesse_tristesse
+    origin: historical_model
+    source_slides: [11, 16]
+    attribution: E3P22
+    fidelity: stronger_than_source
+    note: La transitive algébrique et le produit des signes sont une généralisation du modèle.
+  - ids: [P12II_17II_effort_existence, P12II_17II_effort_inexistence]
+    origin: historical_model
+    source_slides: [12, 17]
+    attribution: E3P12/E2P17
+    fidelity: candidate
+  - ids: [P27_1_imitation_affect]
+    origin: historical_model
+    source_slides: [12]
+    attribution: E3P27
+    fidelity: candidate
+    note: Le statut INEXISTANT porte historiquement sur porte_sentiment_a.
+  - ids: [P12_29_effort_joie]
+    origin: historical_model
+    source_slides: [12, 17]
+    attribution: E3P12/E3P29
+    fidelity: candidate
+  - ids: [P29_1_effort_affecter_joie]
+    origin: historical_model
+    source_slides: [12, 17]
+    attribution: E3P29
+    fidelity: candidate
+  - ids: [P13_2_2_effort_amour_reciproque]
+    origin: historical_interpretation
+    source_slides: [10, 17]
+    attribution: E3P13S
+    fidelity: context_extension
+    note: La règle affichée porte sur imagine; P33 l'emploie sous s_efforce_que.

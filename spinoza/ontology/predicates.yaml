@@ -1,0 +1,27 @@
+schema_version: 1
+contexts:
+  - imagine
+  - s_efforce_que
+  - croit
+  - desire
+affects:
+  primitive:
+    - desir
+    - joie
+    - tristesse
+  relational:
+    - aime
+    - hait
+  causal:
+    - affecte_de_joie
+    - affecte_de_tristesse
+states:
+  - existant
+  - inexistant
+relations:
+  - est_semblable_a
+  - porte_sentiment_a
+modeling_principles:
+  - Les contextes intentionnels ne sont jamais aplatis.
+  - Les couples joie/tristesse et amour/haine restent des prédicats distincts.
+  - Toute généralisation par polarité doit être validée contre les règles explicites.

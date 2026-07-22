@@ -1,0 +1,36 @@
+schema_version: 1
+id: E3P19
+type: theorem
+source_unit: E3P19
+source_text: Qui imagine que ce qu’il aime est détruit, sera contristé ; et joyeux, s’il l’imagine conservé.
+reference_candidates:
+- E2P17
+- E3P11
+- E3P12
+- E3P13
+formalization_status: historical_reproduced
+result: proved
+forbidden_rules:
+- E3P19_as_direct_rule
+cases:
+- id: destruction
+  initial_facts:
+  - (x0 aime y0)
+  - (x0 imagine (y0 est inexistant))
+  goals:
+  - (x0 est triste)
+  expected:
+    status: proved
+    minimum_depth: 2
+- id: conservation
+  initial_facts:
+  - (x0 aime y0)
+  - (x0 imagine (y0 est existant))
+  goals:
+  - (x0 est joyeux)
+  expected:
+    status: proved
+    minimum_depth: 2
+allowed_rule_origins:
+- historical_model
+- historical_interpretation
