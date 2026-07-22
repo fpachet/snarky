@@ -3,6 +3,12 @@
 from .actions import AddFact, add
 from .engine import EngineLimits, ForwardEngine, InferenceLimitError, RunResult
 from .facts import Fact
+from .instantiation import (
+    IndexedInstantiationStrategy,
+    InstantiationMetrics,
+    InstantiationStrategy,
+    NaiveInstantiationStrategy,
+)
 from .matching import PatternMatcher
 from .parser import ParseError, parse_rules, parse_term
 from .premises import ComparisonOperator, ComparisonPremise, FactPremise
@@ -34,7 +40,11 @@ __all__ = [
     "FactPremise",
     "ForwardEngine",
     "InferenceLimitError",
+    "IndexedInstantiationStrategy",
+    "InstantiationMetrics",
+    "InstantiationStrategy",
     "Number",
+    "NaiveInstantiationStrategy",
     "ParseError",
     "PatternMatcher",
     "Proposition",

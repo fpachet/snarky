@@ -2,7 +2,15 @@ from pathlib import Path
 
 import yaml
 
-from snarky import Fact, ForwardEngine, Status, parse_rules, parse_term, render_term
+from snarky import (
+    Fact,
+    ForwardEngine,
+    IndexedInstantiationStrategy,
+    Status,
+    parse_rules,
+    parse_term,
+    render_term,
+)
 from snarky.serialization import load_facts
 
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
@@ -75,3 +83,17 @@ def test_refraction_terminates_a_sterile_self_cycle() -> None:
     assert result.facts == initial
     assert result.cycles == 1
     assert result.fired_activation_count == 1
+
+
+def test_indexed_strategy_preserves_relation_variables_and_statuses() -> None:
+    rules = parse_rules((FIXTURE_ROOT / "mini_snarky.rules").read_text())
+    initial_facts = load_facts(FIXTURE_ROOT / "initial_facts.yaml")
+
+    naive = ForwardEngine(rules).run(initial_facts)
+    indexed = ForwardEngine(
+        rules,
+        strategy=IndexedInstantiationStrategy(),
+    ).run(initial_facts)
+
+    assert indexed.facts == naive.facts
+    assert indexed.derivations == naive.derivations

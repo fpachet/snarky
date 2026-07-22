@@ -1,5 +1,13 @@
 """Interchangeable rule-instantiation strategies."""
 
-from .naive_join import Activation, NaiveInstantiationStrategy
+from .base import Activation, InstantiationMetrics, InstantiationStrategy
+from .indexed import IndexedInstantiationStrategy
+from .naive_join import NaiveInstantiationStrategy
 
-__all__ = ["Activation", "NaiveInstantiationStrategy"]
+__all__ = [
+    "Activation",
+    "IndexedInstantiationStrategy",
+    "InstantiationMetrics",
+    "InstantiationStrategy",
+    "NaiveInstantiationStrategy",
+]

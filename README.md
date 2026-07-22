@@ -53,8 +53,14 @@ Le contenu actuel comprend :
   sélection de corpus de règles externes ;
 - [`tests/rulebases/debug`](tests/rulebases/debug/README.md), une petite base
   native destinée au debug du moteur ;
+- [`tests/rulebases/fibonacci_explicit`](tests/rulebases/fibonacci_explicit/README.md),
+  une base récursive de trois règles qui construit explicitement l'arbre de
+  calcul de Fibonacci ;
 - [`docs/semantics.md`](docs/semantics.md), les décisions sémantiques du moteur
   de référence ;
+- [`docs/optimization_plan.md`](docs/optimization_plan.md), le plan mesurable
+  pour faire évoluer le moteur naïf vers des stratégies indexées, semi-naïves
+  et centrées sur les contraintes ;
 - [`src/snarky`](src/snarky), le package Python et son API publique.
 
 ## Démarrage rapide
@@ -90,6 +96,23 @@ facts = (
 )
 result = ForwardEngine((rule,)).run(facts)
 ```
+
+Le moteur naïf reste le comportement par défaut et sert d'oracle sémantique.
+Pour les bases plus importantes, la stratégie indexée réduit les candidats
+avant le matching sans modifier l'ordre des activations :
+
+```python
+from snarky import IndexedInstantiationStrategy
+
+result = ForwardEngine(
+    (rule,),
+    strategy=IndexedInstantiationStrategy(),
+).run(facts)
+```
+
+Le benchmark Fibonacci explicite mesure un passage de 8,800 s à 0,267 s pour
+`F(10)` sur la machine de développement. La commande reproductible et les
+compteurs sont décrits dans [`benchmarks/README.md`](benchmarks/README.md).
 
 ## Base de debug initiale
 

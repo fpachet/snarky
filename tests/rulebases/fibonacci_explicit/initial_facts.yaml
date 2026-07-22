@@ -1,0 +1,35 @@
+schema_version: 1
+facts:
+  # Calcul demande : F(8).
+  - entity: "(racine fibonacci 8)"
+    status: VRAI
+
+  # Arithmetique de n - 1. Deux applications donnent n - 2.
+  - entity: "(2 predecesseur 1)"
+    status: VRAI
+  - entity: "(3 predecesseur 2)"
+    status: VRAI
+  - entity: "(4 predecesseur 3)"
+    status: VRAI
+  - entity: "(5 predecesseur 4)"
+    status: VRAI
+  - entity: "(6 predecesseur 5)"
+    status: VRAI
+  - entity: "(7 predecesseur 6)"
+    status: VRAI
+  - entity: "(8 predecesseur 7)"
+    status: VRAI
+
+  # Sommes effectivement rencontrees lors du calcul de F(8).
+  - entity: "(1 plus 1)"
+    status: "2"
+  - entity: "(2 plus 1)"
+    status: "3"
+  - entity: "(3 plus 2)"
+    status: "5"
+  - entity: "(5 plus 3)"
+    status: "8"
+  - entity: "(8 plus 5)"
+    status: "13"
+  - entity: "(13 plus 8)"
+    status: "21"

@@ -1,0 +1,43 @@
+# Fibonacci explicite d'ordre 1.
+#
+# Un noeud est identifie par son chemin structurel dans l'arbre. Par exemple,
+# (racine branche_gauche 7) est le fils gauche de racine. Cela cree deux
+# calculs distincts lorsque le meme rang apparait dans deux branches.
+
+# F(1) = F(2) = 1.
+RULE fibonacci_base
+WHEN
+    ($noeud fibonacci $n)
+    $n >= 1
+    $n <= 2
+THEN
+    ADD ($noeud resultat 1)
+END
+
+# Pour n > 2, creer explicitement les calculs fils F(n - 1) et F(n - 2).
+# Les faits predecesseur fournissent l'arithmetique disponible dans la base.
+RULE fibonacci_creer_fils
+WHEN
+    ($noeud fibonacci $n)
+    $n > 2
+    ($n predecesseur $n_moins_1)
+    ($n_moins_1 predecesseur $n_moins_2)
+THEN
+    ADD ($noeud fils_gauche ($noeud branche_gauche $n_moins_1))
+    ADD ($noeud fils_droit ($noeud branche_droite $n_moins_2))
+    ADD (($noeud branche_gauche $n_moins_1) fibonacci $n_moins_1)
+    ADD (($noeud branche_droite $n_moins_2) fibonacci $n_moins_2)
+END
+
+# Attendre les deux resultats, puis les additionner.
+# La somme est portee par le statut numerique du fait ($gauche plus $droite).
+RULE fibonacci_additionner
+WHEN
+    ($noeud fils_gauche $fils_gauche)
+    ($noeud fils_droit $fils_droit)
+    ($fils_gauche resultat $gauche)
+    ($fils_droit resultat $droite)
+    ($gauche plus $droite) ' $somme
+THEN
+    ADD ($noeud resultat $somme)
+END

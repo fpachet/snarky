@@ -5,7 +5,7 @@ from __future__ import annotations
 from dataclasses import dataclass
 
 from ..facts import Fact
-from ..instantiation.naive_join import NaiveInstantiationStrategy
+from ..instantiation import InstantiationStrategy, NaiveInstantiationStrategy
 from ..rules import Rule
 from ..stores.naive import NaiveFactStore
 from ..terms import Term
@@ -48,7 +48,7 @@ class ForwardEngine:
     def __init__(
         self,
         rules: tuple[Rule, ...],
-        strategy: NaiveInstantiationStrategy | None = None,
+        strategy: InstantiationStrategy | None = None,
         limits: EngineLimits | None = None,
     ) -> None:
         self.rules = tuple(rules)
