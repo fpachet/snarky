@@ -2,11 +2,11 @@
 
 ## Objectif
 
-Snarky possède actuellement un moteur naïf, déterministe et volontairement
-simple. Il sert de définition exécutable de la sémantique et d’oracle de
-correction. L’objectif des optimisations n’est pas de le remplacer, mais
-d’ajouter des stratégies interchangeables qui produisent exactement les mêmes
-faits et les mêmes preuves minimales avec de meilleures performances.
+Snarky conserve un moteur naïf, déterministe et volontairement simple comme
+définition exécutable de la sémantique et oracle de correction. Le moteur
+utilise cependant la stratégie semi-naïve par défaut afin d'offrir des
+performances adaptées aux bases réelles. Toutes les stratégies doivent produire
+exactement les mêmes faits et les mêmes preuves minimales.
 
 Les optimisations doivent préserver les propriétés suivantes :
 
@@ -34,9 +34,10 @@ L'extension fonctionnelle `LET` est terminée : Fibonacci utilise désormais
 l'arithmétique native du moteur et ne dépend plus de tables de sommes et de
 prédécesseurs.
 
-La stratégie indexée est volontairement optionnelle : le moteur naïf reste le
-comportement par défaut et l'oracle de correction. Les tests différentiels
-vérifient l'égalité des faits, des dérivations, des cycles et des activations.
+La stratégie semi-naïve est le comportement par défaut. La stratégie naïve
+reste disponible explicitement avec `strategy=NaiveInstantiationStrategy()` et
+sert d'oracle de correction. Les tests différentiels vérifient l'égalité des
+faits, des dérivations, des cycles et des activations.
 
 La stratégie `SemiNaiveInstantiationStrategy` combine les index persistants,
 un delta propre à chaque règle et une planification locale des jointures. Sur
@@ -45,10 +46,10 @@ activations effectivement déclenchées, au lieu de 95 013.
 
 ## Situation initiale
 
-Le moteur actuel effectue une jointure exhaustive par backtracking. Pour chaque
-prémisse factuelle, il parcourt la totalité de la base. À chaque cycle, il
-recalcule également les instanciations anciennes avant de les éliminer par
-réfraction.
+Avant l'indexation, le moteur effectuait une jointure exhaustive par
+backtracking. Pour chaque prémisse factuelle, il parcourait la totalité de la
+base. À chaque cycle, il recalculait également les instanciations anciennes
+avant de les éliminer par réfraction.
 
 Les principaux coûts identifiés sont :
 
@@ -109,12 +110,12 @@ class InstantiationStrategy(Protocol):
     ) -> tuple[Activation, ...]: ...
 ```
 
-Les phases 1 à 3 feront évoluer cette interface vers une vue stable, un delta
-optionnel et un itérateur, sans modifier les modèles publics de règles et de
-faits.
+Les phases 2 et 3 ont enrichi cette interface avec un delta optionnel, sans
+modifier les modèles publics de règles et de faits. La phase 1 devra encore
+remplacer le tuple d'activations par un itérateur ou une vue bornée.
 
-Le moteur naïf restera disponible sous le nom
-`NaiveInstantiationStrategy`. Chaque nouvelle stratégie sera testée
+Le moteur naïf reste disponible sous le nom `NaiveInstantiationStrategy`.
+Chaque nouvelle stratégie est testée
 différentiellement contre lui sur de petites bases.
 
 Les optimisations devront être séparées en composants observables :

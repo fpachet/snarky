@@ -6,6 +6,7 @@ from snarky import (
     Fact,
     ForwardEngine,
     IndexedInstantiationStrategy,
+    NaiveInstantiationStrategy,
     SemiNaiveInstantiationStrategy,
     Status,
     parse_rules,
@@ -16,6 +17,14 @@ from snarky.serialization import load_facts
 
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
 FIXTURE_ROOT = PROJECT_ROOT / "tests/rulebases/debug"
+
+
+def test_semi_naive_is_default_and_naive_remains_available() -> None:
+    default_engine = ForwardEngine(())
+    naive_engine = ForwardEngine((), strategy=NaiveInstantiationStrategy())
+
+    assert isinstance(default_engine.strategy, SemiNaiveInstantiationStrategy)
+    assert isinstance(naive_engine.strategy, NaiveInstantiationStrategy)
 
 
 def test_mini_snarky_reaches_expected_fixed_point_with_provenance() -> None:
@@ -90,7 +99,10 @@ def test_indexed_strategy_preserves_relation_variables_and_statuses() -> None:
     rules = parse_rules((FIXTURE_ROOT / "mini_snarky.rules").read_text())
     initial_facts = load_facts(FIXTURE_ROOT / "initial_facts.yaml")
 
-    naive = ForwardEngine(rules).run(initial_facts)
+    naive = ForwardEngine(
+        rules,
+        strategy=NaiveInstantiationStrategy(),
+    ).run(initial_facts)
     indexed = ForwardEngine(
         rules,
         strategy=IndexedInstantiationStrategy(),

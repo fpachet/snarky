@@ -35,9 +35,9 @@ BOOJUM. Chaque fonctionnalité devra être qualifiée comme `HISTORICAL`,
 
 ## État actuel
 
-Le dépôt contient un moteur Python naïf servant de référence sémantique, une
-stratégie indexée exhaustive et une stratégie semi-naïve optionnelles. Le cœur
-prend en charge
+Le dépôt contient un moteur Python semi-naïf par défaut, une stratégie naïve
+servant de référence sémantique et une stratégie indexée exhaustive pour les
+comparaisons de performance. Le cœur prend en charge
 les termes et triplets récursifs immuables, les variables dans toutes les
 positions, le matching orienté, l’unification bidirectionnelle séparée, les
 statuts explicites, le chaînage avant jusqu’au point fixe, la réfraction et la
@@ -85,7 +85,7 @@ préchargés sous forme de tables.
 
 Les mises à jour et suppressions de faits, la création de symboles frais et le
 raisonnement par contraintes restent à implémenter. L’évaluation semi-naïve
-est disponible via `SemiNaiveInstantiationStrategy`.
+est le mode par défaut de `ForwardEngine`.
 
 ## Démarrage rapide
 
@@ -121,17 +121,20 @@ facts = (
 result = ForwardEngine((rule,)).run(facts)
 ```
 
-Le moteur naïf reste le comportement par défaut et sert d'oracle sémantique.
-Pour les bases récursives plus importantes, la stratégie semi-naïve maintient
-des index persistants et ne recalcule que les jointures contenant un fait
-nouveau, sans modifier l'ordre observable des activations :
+Le moteur utilise par défaut la stratégie semi-naïve. Elle maintient des index
+persistants et ne recalcule que les jointures contenant un fait nouveau, sans
+modifier l'ordre observable des activations. L'appel sans paramètre `strategy`
+dans l'exemple ci-dessus utilise donc directement cette implémentation.
+
+La stratégie naïve reste disponible comme oracle sémantique et comme option de
+diagnostic explicite :
 
 ```python
-from snarky import SemiNaiveInstantiationStrategy
+from snarky import NaiveInstantiationStrategy
 
 result = ForwardEngine(
     (rule,),
-    strategy=SemiNaiveInstantiationStrategy(),
+    strategy=NaiveInstantiationStrategy(),
 ).run(facts)
 ```
 
@@ -155,8 +158,8 @@ en quatre règles et neuf faits initiaux, tout en testant :
 5. une variable représentant une proposition complète ;
 6. un statut explicite `FAUX`.
 
-Le moteur naïf reproduit son point fixe attendu : six faits dérivés, dont un à
-profondeur de preuve deux. Voir :
+Le moteur semi-naïf par défaut et l'oracle naïf reproduisent le même point fixe
+attendu : six faits dérivés, dont un à profondeur de preuve deux. Voir :
 
 - [`mini_snarky.rules`](tests/rulebases/debug/mini_snarky.rules) ;
 - [`initial_facts.yaml`](tests/rulebases/debug/initial_facts.yaml) ;

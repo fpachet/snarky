@@ -1,0 +1,47 @@
+# E3D1 : une cause est adéquate quand son effet se connaît clairement et
+# distinctement par elle; elle est partielle quand l'effet ne se connaît pas
+# par elle seule.
+RULE E3D1_cause_adequate
+WHEN
+    ($effet est_percu_clairement_par $cause)
+    ($effet est_percu_distinctement_par $cause)
+THEN
+    ADD ($cause est_cause_adequate_de $effet)
+END
+
+RULE E3D1_cause_partielle
+WHEN
+    ($effet ne_peut_etre_connu_par_seul $cause)
+THEN
+    ADD ($cause est_cause_partielle_de $effet)
+END
+
+# E3D2 : activité et passivité sont définies par le type de causalité.
+RULE E3D2_activite_par_cause_adequate
+WHEN
+    ($effet advient_en_ou_hors_de $agent)
+    ($agent est_cause_adequate_de $effet)
+THEN
+    ADD ($agent est_actif_dans $effet)
+    ADD ($effet est_action_de $agent)
+END
+
+RULE E3D2_passivite_par_cause_partielle
+WHEN
+    ($effet advient_en_ou_hors_de $agent)
+    ($agent est_cause_partielle_de $effet)
+THEN
+    ADD ($agent est_passif_dans $effet)
+    ADD ($effet est_passion_de $agent)
+END
+
+# E3D3 : une affection corporelle et son idée constituent ensemble un affect.
+RULE E3D3_affect_corps_et_idee
+WHEN
+    ($affection affecte $corps)
+    ($affection modifie_puissance_agir_de $corps)
+    ($idee est_idee_de $affection)
+THEN
+    ADD ($affection est_affection_corporelle_de $corps)
+    ADD ($idee est_composante_ideelle_de $affection)
+END

@@ -1,0 +1,44 @@
+schema_version: 1
+model: ethics_iii_systematic_v1
+rules:
+  - ids: [E3D1_cause_adequate, E3D1_cause_partielle]
+    origin: textual
+    source: E3D1
+    status: validated_fragment
+  - ids: [E3D2_activite_par_cause_adequate, E3D2_passivite_par_cause_partielle]
+    origin: textual
+    source: E3D2
+    status: validated_fragment
+  - ids: [E3D3_affect_corps_et_idee]
+    origin: textual
+    source: E3D3
+    status: candidate
+  - ids: [E1P36_idee_donnee_effet_necessaire]
+    origin: external_textual
+    sources: [E1P36]
+    status: reconstructed_with_explicit_witness
+    note: >-
+      Le temoin d'effet est fourni comme fait initial faute de creation
+      existentielle dans le moteur.
+  - ids: [E2P11C_idee_adequate_cause_adequate]
+    origin: external_textual
+    sources: [E2P11C]
+    status: reconstructed_bridge
+  - ids: [E2P11C_idee_inadequate_cause_partielle]
+    origin: external_textual
+    sources: [E2P11C]
+    status: reconstructed_bridge
+  - ids: [E2P06_independance_causale_des_attributs]
+    origin: external_textual
+    sources: [E2P06, E2P07]
+    status: reconstructed_bridge
+  - ids: [E3P01_idee_adequate_implique_action, E3P01_idee_inadequate_implique_passion]
+    origin: textual_theorem
+    source: E3P01
+    status: validated_for_later_propositions
+  - ids: [COMP_action_origine_adequate, COMP_passion_origine_inadequate]
+    origin: compilation
+    source: E3P03
+    status: explicit_modeling_choice
+    note: >-
+      L'exclusivite est representee positivement sans negation par defaut.

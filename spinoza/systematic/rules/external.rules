@@ -1,0 +1,44 @@
+# Résultats des parties I et II utilisés dans les démonstrations initiales.
+# Ils sont formulés comme ponts d'inférence explicites et non comme conclusions
+# de la partie III.
+
+# E1P36 : une idée donnée produit nécessairement un effet. Le témoin de cet
+# effet est fourni explicitement car le moteur ne crée pas encore d'objet.
+RULE E1P36_idee_donnee_effet_necessaire
+WHEN
+    ($idee est_donnee VRAI)
+    ($effet est_temoignage_effet_de $idee)
+THEN
+    ADD ($effet suit_necessairement_de $idee)
+END
+
+# Reconstruction de E2P11C pour une idée adéquate dans une âme.
+RULE E2P11C_idee_adequate_cause_adequate
+WHEN
+    ($effet suit_necessairement_de $idee)
+    ($idee est_adequate_dans $ame)
+THEN
+    ADD ($ame est_cause_adequate_de $effet)
+END
+
+# Reconstruction de E2P11C : une idée inadéquate ne fait de l'âme qu'une cause
+# partielle de l'effet qui en suit.
+RULE E2P11C_idee_inadequate_cause_partielle
+WHEN
+    ($effet suit_necessairement_de $idee)
+    ($idee est_inadequate_dans $ame)
+THEN
+    ADD ($ame est_cause_partielle_de $effet)
+END
+
+# E2P6/E2P7 : un mode d'un attribut ne détermine pas un mode d'un attribut
+# distinct selon une détermination propre à ce second attribut.
+RULE E2P06_independance_causale_des_attributs
+WHEN
+    ($source mode_de $attribut_source)
+    ($cible mode_de $attribut_cible)
+    ($determination porte_sur_attribut $attribut_cible)
+    ($attribut_source est_distinct_de $attribut_cible)
+THEN
+    ADD ($source $determination $cible) ' FAUX
+END

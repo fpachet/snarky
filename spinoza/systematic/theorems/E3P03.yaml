@@ -1,0 +1,47 @@
+schema_version: 1
+id: E3P03
+model: ethics_iii_systematic_v1
+source_unit: E3P03
+source_text: >-
+  Les actions de l'Âme naissent des seules idées adéquates ; les passions
+  dépendent des seules idées inadéquates.
+fact_files:
+  - facts/postulates.yaml
+rule_files:
+  - rules/validated_theorems.rules
+  - rules/compilation.rules
+rule_catalog: rules/catalog.yaml
+forbidden_rules:
+  - E3P03_as_direct_rule
+allowed_rule_origins:
+  - textual_theorem
+  - compilation
+cases:
+  - id: origine_action
+    initial_facts:
+      - "(effet0 suit_necessairement_de idee0)"
+      - "(idee0 est_adequate_dans ame0)"
+      - "(effet0 advient_en_ou_hors_de ame0)"
+    goals:
+      - "(effet0 est_action_de ame0)"
+      - "(effet0 nait_seulement_d_idee_adequate idee0)"
+    expected:
+      status: proved
+      proof_depths: [1, 2]
+  - id: origine_passion
+    initial_facts:
+      - "(effet0 suit_necessairement_de idee0)"
+      - "(idee0 est_inadequate_dans ame0)"
+      - "(effet0 advient_en_ou_hors_de ame0)"
+    goals:
+      - "(effet0 est_passion_de ame0)"
+      - "(effet0 depend_seulement_d_idee_inadequate idee0)"
+    expected:
+      status: proved
+      proof_depths: [1, 2]
+formalization_status: proved_with_explicit_compilation_rule
+result: proved
+limitations:
+  - >-
+    Le mot « seules » est un prédicat positif ; il n'établit pas une négation
+    par défaut de toute autre origine possible.

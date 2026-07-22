@@ -1,0 +1,22 @@
+# Formes réutilisables de propositions déjà testées. Ces règles ne sont jamais
+# chargées par le manifeste de la proposition qu'elles représentent.
+
+RULE E3P01_idee_adequate_implique_action
+WHEN
+    ($effet suit_necessairement_de $idee)
+    ($idee est_adequate_dans $ame)
+    ($effet advient_en_ou_hors_de $ame)
+THEN
+    ADD ($ame est_actif_dans $effet)
+    ADD ($effet est_action_de $ame)
+END
+
+RULE E3P01_idee_inadequate_implique_passion
+WHEN
+    ($effet suit_necessairement_de $idee)
+    ($idee est_inadequate_dans $ame)
+    ($effet advient_en_ou_hors_de $ame)
+THEN
+    ADD ($ame est_passif_dans $effet)
+    ADD ($effet est_passion_de $ame)
+END

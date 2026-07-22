@@ -1,0 +1,20 @@
+# Règles de représentation : elles relient les faits causaux produits par E3P1
+# à la formulation « naissent des seules idées... » de E3P3.
+
+RULE COMP_action_origine_adequate
+WHEN
+    ($effet est_action_de $ame)
+    ($effet suit_necessairement_de $idee)
+    ($idee est_adequate_dans $ame)
+THEN
+    ADD ($effet nait_seulement_d_idee_adequate $idee)
+END
+
+RULE COMP_passion_origine_inadequate
+WHEN
+    ($effet est_passion_de $ame)
+    ($effet suit_necessairement_de $idee)
+    ($idee est_inadequate_dans $ame)
+THEN
+    ADD ($effet depend_seulement_d_idee_inadequate $idee)
+END

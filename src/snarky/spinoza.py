@@ -12,6 +12,7 @@ from .engine import ForwardEngine
 from .facts import Fact
 from .parser import parse_rules, parse_term
 from .rules import Rule
+from .serialization import load_facts
 from .terms import Status
 
 
@@ -23,11 +24,96 @@ class CaseResult:
     proved: bool
     proof_depths: tuple[int | None, ...]
     rule_names: tuple[str, ...]
+    rule_origins: tuple[str, ...]
 
 
 def load_historical_rules(root: Path) -> tuple[Rule, ...]:
     rules_path = root / "rules" / "historical.rules"
     return parse_rules(rules_path.read_text(encoding="utf-8"))
+
+
+def _load_manifest_rules(root: Path, payload: dict[str, Any]) -> tuple[Rule, ...]:
+    rule_files = payload.get("rule_files")
+    if rule_files is None:
+        return load_historical_rules(root)
+    if not isinstance(rule_files, list) or not all(
+        isinstance(item, str) for item in rule_files
+    ):
+        raise ValueError("rule_files must be a list of relative paths")
+    rule_source = "\n".join(
+        (root / relative_path).read_text(encoding="utf-8")
+        for relative_path in rule_files
+    )
+    return parse_rules(rule_source)
+
+
+def _load_manifest_fact(entry: Any) -> Fact:
+    if isinstance(entry, str):
+        return Fact(parse_term(entry), Status.VRAI)
+    if not isinstance(entry, dict):
+        raise ValueError("a theorem fact must be a string or a mapping")
+    entity = entry.get("entity")
+    status = entry.get("status", "VRAI")
+    if not isinstance(entity, str) or not isinstance(status, str):
+        raise ValueError("a theorem fact needs string entity and status values")
+    return Fact(parse_term(entity), parse_term(status))
+
+
+def _load_background_facts(root: Path, payload: dict[str, Any]) -> tuple[Fact, ...]:
+    fact_files = payload.get("fact_files", [])
+    if not isinstance(fact_files, list) or not all(
+        isinstance(item, str) for item in fact_files
+    ):
+        raise ValueError("fact_files must be a list of relative paths")
+    return tuple(
+        fact
+        for relative_path in fact_files
+        for fact in load_facts(root / relative_path)
+    )
+
+
+def _load_rule_origins(
+    root: Path,
+    payload: dict[str, Any],
+    active_rules: tuple[Rule, ...],
+) -> dict[str, str]:
+    catalog_path = payload.get("rule_catalog")
+    if catalog_path is None:
+        return {}
+    if not isinstance(catalog_path, str):
+        raise ValueError("rule_catalog must be a relative path")
+    loaded: Any = yaml.safe_load((root / catalog_path).read_text(encoding="utf-8"))
+    if not isinstance(loaded, dict) or not isinstance(loaded.get("rules"), list):
+        raise ValueError("rule_catalog must contain a rules list")
+    origins: dict[str, str] = {}
+    for entry in loaded["rules"]:
+        if not isinstance(entry, dict):
+            raise ValueError("each rule catalog entry must be a mapping")
+        identifiers = entry.get("ids")
+        origin = entry.get("origin")
+        if not isinstance(identifiers, list) or not isinstance(origin, str):
+            raise ValueError("each catalog entry needs ids and origin")
+        for identifier in identifiers:
+            if not isinstance(identifier, str) or identifier in origins:
+                raise ValueError(f"invalid or duplicate catalog id: {identifier!r}")
+            origins[identifier] = origin
+    missing = {rule.name for rule in active_rules} - origins.keys()
+    if missing:
+        raise ValueError(f"rules missing from catalog: {sorted(missing)!r}")
+    allowed = payload.get("allowed_rule_origins")
+    if allowed is not None:
+        if not isinstance(allowed, list) or not all(
+            isinstance(item, str) for item in allowed
+        ):
+            raise ValueError("allowed_rule_origins must be a list of strings")
+        disallowed = {
+            rule.name: origins[rule.name]
+            for rule in active_rules
+            if origins[rule.name] not in allowed
+        }
+        if disallowed:
+            raise ValueError(f"disallowed rule origins: {disallowed!r}")
+    return origins
 
 
 def run_case(
@@ -38,19 +124,24 @@ def run_case(
     rules: tuple[Rule, ...] | None = None,
 ) -> CaseResult:
     theorem_path = root / "theorems" / f"{theorem_id}.yaml"
-    payload: Any = yaml.safe_load(theorem_path.read_text(encoding="utf-8"))
+    loaded: Any = yaml.safe_load(theorem_path.read_text(encoding="utf-8"))
+    if not isinstance(loaded, dict):
+        raise ValueError(f"{theorem_path}: expected a theorem mapping")
+    payload: dict[str, Any] = loaded
     cases = payload.get("cases", [])
     selected = next((case for case in cases if case.get("id") == case_id), None)
     if selected is None:
         raise ValueError(f"unknown case {theorem_id}/{case_id}")
-    active_rules = rules if rules is not None else load_historical_rules(root)
+    active_rules = rules if rules is not None else _load_manifest_rules(root, payload)
+    rule_origins = _load_rule_origins(root, payload, active_rules)
     forbidden = set(payload.get("forbidden_rules", []))
     if any(rule.name in forbidden for rule in active_rules):
         raise ValueError(f"theorem {theorem_id} would be allowed to prove itself")
-    initial_facts = tuple(
-        Fact(parse_term(entity), Status.VRAI) for entity in selected["initial_facts"]
+    initial_facts = (
+        *_load_background_facts(root, payload),
+        *(_load_manifest_fact(entry) for entry in selected["initial_facts"]),
     )
-    goals = tuple(Fact(parse_term(entity), Status.VRAI) for entity in selected["goals"])
+    goals = tuple(_load_manifest_fact(entry) for entry in selected["goals"])
     result = ForwardEngine(active_rules).run(initial_facts)
     proof_depths = tuple(
         result.provenance.depth(goal) if goal in result.facts else None
@@ -74,7 +165,8 @@ def run_case(
         visiting.remove(fact)
 
     for goal in goals:
-        visit_proof(goal)
+        if goal in result.facts:
+            visit_proof(goal)
     return CaseResult(
         theorem_id=theorem_id,
         case_id=case_id,
@@ -82,4 +174,7 @@ def run_case(
         proved=all(goal in result.facts for goal in goals),
         proof_depths=proof_depths,
         rule_names=tuple(used_rules),
+        rule_origins=tuple(
+            rule_origins.get(rule_name, "unclassified") for rule_name in used_rules
+        ),
     )

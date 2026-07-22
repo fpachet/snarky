@@ -6,7 +6,10 @@ from dataclasses import dataclass
 
 from ..actions import AddFact, Let
 from ..facts import Fact
-from ..instantiation import InstantiationStrategy, NaiveInstantiationStrategy
+from ..instantiation import (
+    InstantiationStrategy,
+    SemiNaiveInstantiationStrategy,
+)
 from ..rules import Rule
 from ..stores.naive import NaiveFactStore
 from ..terms import Term
@@ -44,7 +47,7 @@ class RunResult:
 
 
 class ForwardEngine:
-    """Reference monotone engine using naïve instantiation and refraction."""
+    """Monotone engine with semi-naïve instantiation and refraction by default."""
 
     def __init__(
         self,
@@ -53,7 +56,11 @@ class ForwardEngine:
         limits: EngineLimits | None = None,
     ) -> None:
         self.rules = tuple(rules)
-        self.strategy = strategy or NaiveInstantiationStrategy()
+        self.strategy = (
+            strategy
+            if strategy is not None
+            else SemiNaiveInstantiationStrategy()
+        )
         self.limits = limits or EngineLimits()
 
     def run(self, initial_facts: tuple[Fact, ...]) -> RunResult:

@@ -71,6 +71,11 @@ première évaluation exhaustive, elle ne produit que les jointures contenant au
 moins un fait de ce delta. Si plusieurs prémisses peuvent recevoir un fait
 nouveau, les variantes sont partitionnées puis dédupliquées.
 
+`ForwardEngine` sélectionne cette stratégie semi-naïve par défaut. La stratégie
+exhaustive de référence reste accessible explicitement avec
+`strategy=NaiveInstantiationStrategy()` pour le diagnostic et les tests
+différentiels.
+
 Pour réduire les jointures intermédiaires, une variante semi-naïve commence par
 sa prémisse delta et choisit ensuite la prémisse factuelle ayant le moins de
 candidats. Les comparaisons forment des barrières textuelles qui ne sont jamais

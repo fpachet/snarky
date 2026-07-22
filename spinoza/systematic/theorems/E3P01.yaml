@@ -1,0 +1,47 @@
+schema_version: 1
+id: E3P01
+model: ethics_iii_systematic_v1
+source_unit: E3P01
+source_text: >-
+  Notre Âme est active en certaines choses, passive en d'autres : en tant
+  qu'elle a des idées adéquates, elle est nécessairement active ; en tant
+  qu'elle a des idées inadéquates, elle est nécessairement passive.
+fact_files:
+  - facts/postulates.yaml
+rule_files:
+  - rules/external.rules
+  - rules/definitions.rules
+rule_catalog: rules/catalog.yaml
+forbidden_rules:
+  - E3P01_idee_adequate_implique_action
+  - E3P01_idee_inadequate_implique_passion
+allowed_rule_origins:
+  - textual
+  - external_textual
+cases:
+  - id: idee_adequate
+    initial_facts:
+      - "(idee0 est_donnee VRAI)"
+      - "(effet0 est_temoignage_effet_de idee0)"
+      - "(idee0 est_adequate_dans ame0)"
+      - "(effet0 advient_en_ou_hors_de ame0)"
+    goals:
+      - "(ame0 est_actif_dans effet0)"
+      - "(effet0 est_action_de ame0)"
+    expected:
+      status: proved
+      proof_depths: [3, 3]
+  - id: idee_inadequate
+    initial_facts:
+      - "(idee0 est_donnee VRAI)"
+      - "(effet0 est_temoignage_effet_de idee0)"
+      - "(idee0 est_inadequate_dans ame0)"
+      - "(effet0 advient_en_ou_hors_de ame0)"
+    goals:
+      - "(ame0 est_passif_dans effet0)"
+      - "(effet0 est_passion_de ame0)"
+    expected:
+      status: proved
+      proof_depths: [3, 3]
+formalization_status: proved_with_external_textual_bridges
+result: proved

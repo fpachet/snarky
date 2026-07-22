@@ -1,6 +1,7 @@
 # Base de règles — Éthique III
 
-Ce dossier contient deux paliers distincts et explicitement qualifiés.
+Ce dossier contient deux paliers distincts et explicitement qualifiés, ainsi
+qu'un troisième chantier entièrement séparé.
 
 ## Palier A — reconstruction historique exécutable
 
@@ -87,3 +88,10 @@ python scripts/export_spinoza_dependencies.py \
 L'importeur vérifie les cardinalités attendues et stocke le SHA-256 du HTML.
 La régénération des théorèmes préserve les quatre fixtures historiques dans le
 script générateur.
+
+## Palier C — reconstruction systématique
+
+Le dossier [`systematic`](systematic/README.md) reprend la formalisation à
+partir des définitions, postulats et dépendances explicites. Il ne charge pas
+les règles historiques. Le premier fragment exécutable couvre E3P01–E3P03 et
+rend visibles les ponts importés des parties I et II.

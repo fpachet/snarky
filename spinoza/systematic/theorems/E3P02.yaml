@@ -1,0 +1,35 @@
+schema_version: 1
+id: E3P02
+model: ethics_iii_systematic_v1
+source_unit: E3P02
+source_text: >-
+  Ni le Corps ne peut déterminer l'Âme à penser ; ni l'Âme, le Corps au
+  mouvement ou au repos ou à quelque autre manière d'être que ce soit.
+fact_files:
+  - facts/postulates.yaml
+rule_files:
+  - rules/external.rules
+rule_catalog: rules/catalog.yaml
+forbidden_rules:
+  - E3P02_as_direct_rule
+allowed_rule_origins:
+  - external_textual
+cases:
+  - id: independance_des_attributs
+    initial_facts:
+      - "(corps0 mode_de etendue)"
+      - "(ame0 mode_de pensee)"
+      - "(determine_a_penser porte_sur_attribut pensee)"
+      - "(determine_au_mouvement porte_sur_attribut etendue)"
+      - "(etendue est_distinct_de pensee)"
+      - "(pensee est_distinct_de etendue)"
+    goals:
+      - entity: "(corps0 determine_a_penser ame0)"
+        status: FAUX
+      - entity: "(ame0 determine_au_mouvement corps0)"
+        status: FAUX
+    expected:
+      status: proved
+      proof_depths: [1, 1]
+formalization_status: proved_with_external_textual_bridge
+result: proved
