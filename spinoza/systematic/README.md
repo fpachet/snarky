@@ -23,7 +23,7 @@ règle qui contient déjà sa conclusion. Pour tester `E3Pxx`, le manifeste :
 4. demande au moteur de dériver des faits représentant l'énoncé ;
 5. conserve la chaîne minimale des règles effectivement employées.
 
-## Fragments exécutables : E3P01–E3P40
+## Fragments exécutables : E3P01–E3P44
 
 Le fragment initial formalise :
 
@@ -120,6 +120,13 @@ et action accomplie. La peur d'un mal plus grand, la honte, la colère et la
 vengeance deviennent exécutables. L'audit comparatif est publié dans
 [`reports/tranche_e3p37_e3p40.md`](reports/tranche_e3p37_e3p40.md).
 
+E3P41–E3P44 ferment cette séquence : amour réciproque, gloire, gratitude,
+cruauté et ingratitude sont distingués, puis la haine réciproque est séparée
+de la haine initiale. La victoire de l'amour résulte d'un ordre qualitatif
+explicite entre deux efforts et devient une transition affective qui conserve
+l'histoire de la haine. L'audit est publié dans
+[`reports/tranche_e3p41_e3p44.md`](reports/tranche_e3p41_e3p44.md).
+
 Le lanceur expose pour chaque cas le nombre de faits initiaux et dérivés, le
 nombre de dérivations et toutes les règles activées. Ces données permettent un
 audit en lecture seule de la clôture sans modifier le moteur d'inférence.
@@ -169,3 +176,9 @@ par le manifeste.
 E3P37–E3P38 restent qualitatifs. E3P39 exige un fait positif d'absence de
 crainte avant de libérer l'effort nuisible ; E3P40 exige séparément similitude,
 absence préalable d'affect et croyance de n'avoir donné aucune cause de haine.
+
+E3P41 reconstruit l'amour réciproque par une joie imitée dans son cas ground,
+mais sa règle publiée conserve les seules conditions de l'énoncé. E3P42 réifie
+l'attente de réciprocité ; E3P43–E3P44 comparent des efforts et affects sans
+addition numérique. L'extirpation n'efface jamais rétroactivement la haine et
+le refus de l'auto-dommage dans le scolie de E3P44 reste une réfutation bornée.

@@ -1,0 +1,124 @@
+schema_version: 1
+id: E3P41
+model: ethics_iii_systematic_v1
+source_unit: E3P41
+source_text: >-
+  Si quelqu'un imagine qu'il est aimé par un autre et croit ne lui avoir
+  donné aucune cause d'amour, il l'aimera à son tour.
+fact_files: [facts/postulates.yaml]
+rule_files:
+  - rules/validated/E3P13.rules
+  - rules/validated/E3P27.rules
+  - rules/validated/E3P30.rules
+  - rules/validated/E3P39.rules
+  - rules/validated/E3P40.rules
+  - rules/proofs/E3P41.rules
+rule_catalog: rules/catalog.yaml
+forbidden_rules:
+  - E3P41_amour_imagine_sans_cause_devient_reciproque
+  - E3P41S_cause_juste_produit_gloire
+  - E3P41S_bienfaits_reciproques_produisent_gratitude
+  - E3P41S_haine_prevalente_produit_cruaute
+allowed_rule_origins: [textual, textual_theorem]
+cases:
+  - id: reciprocite_sans_cause
+    initial_facts:
+      - "(autrui0 est_semblable_affectivement_pour ame0)"
+      - "(ame0 est_sans_affect_prealable_envers autrui0)"
+      - "(ame0 imagine (autrui0 aime ame0))"
+      - "(source_amour0 est_temoignage_joie_de (autrui0 aime ame0))"
+      - "(image_amour0 est_image_de (source_amour0 est_joie_de autrui0))"
+      - "(joie_imitee0 accompagne image_amour0)"
+      - "(joie_imitee0 est_temoignage_affectif_d_imitation_de source_amour0)"
+      - "(idee_autrui0 est_idee_de autrui0)"
+      - "(ame0 croit_n_avoir_donne_aucune_cause_d_amour_a autrui0)"
+    goals:
+      - "(ame0 imagine (source_amour0 est_joie_de autrui0))"
+      - "(joie_imitee0 est_joie_de ame0)"
+      - "(idee_autrui0 accompagne joie_imitee0)"
+      - "(ame0 aime autrui0)"
+      - "(ame0 s_efforce_de_faire_du_bien_a autrui0)"
+    must_not_derive:
+      - "(autrui0 aime ame0)"
+    expected:
+      status: proved
+      proof_depths: [1, 2, 3, 4, 5]
+  - id: juste_cause_produit_gloire
+    initial_facts:
+      - "(ame0 imagine (autrui0 aime ame0))"
+      - "(ame0 croit_avoir_donne_juste_cause_d_amour_a autrui0)"
+      - "(gloire0 est_temoignage_gloire_de (ame0 envers autrui0))"
+    goals:
+      - "(gloire0 est_joie_de ame0)"
+      - "(gloire0 est_gloire_de ame0)"
+    must_not_derive:
+      - "(ame0 aime autrui0)"
+    expected:
+      status: proved
+      proof_depths: [1, 2]
+  - id: gratitude_reciproque
+    initial_facts:
+      - "(autrui0 est_semblable_affectivement_pour ame0)"
+      - "(ame0 est_sans_affect_prealable_envers autrui0)"
+      - "(ame0 imagine (autrui0 aime ame0))"
+      - "(source_amour0 est_temoignage_joie_de (autrui0 aime ame0))"
+      - "(image_amour0 est_image_de (source_amour0 est_joie_de autrui0))"
+      - "(joie_imitee0 accompagne image_amour0)"
+      - "(joie_imitee0 est_temoignage_affectif_d_imitation_de source_amour0)"
+      - "(idee_autrui0 est_idee_de autrui0)"
+      - "(ame0 croit_n_avoir_donne_aucune_cause_d_amour_a autrui0)"
+      - "(ame0 imagine (autrui0 s_efforce_de_faire_du_bien_a ame0))"
+      - "(gratitude0 est_temoignage_gratitude_de (ame0 envers autrui0))"
+    goals:
+      - "(ame0 aime autrui0)"
+      - "(ame0 s_efforce_de_faire_du_bien_a autrui0)"
+      - "(gratitude0 est_reconnaissance_de ame0)"
+      - "(gratitude0 est_gratitude_de ame0)"
+    must_not_derive:
+      - "(ame0 a_fait_du_bien_a autrui0)"
+    expected:
+      status: proved
+      proof_depths: [4, 5, 6, 6]
+  - id: corollaire_amour_et_haine
+    initial_facts:
+      - "(ame0 imagine (autrui0 aime ame0))"
+      - "(source_amour0 est_temoignage_joie_de (autrui0 aime ame0))"
+      - "(image_amour0 est_image_de (source_amour0 est_joie_de autrui0))"
+      - "(joie_imitee0 accompagne image_amour0)"
+      - "(idee_autrui0 est_idee_de autrui0)"
+      - "(ame0 croit_n_avoir_donne_aucune_cause_d_amour_a autrui0)"
+      - "(ame0 hait autrui0)"
+    goals:
+      - "(ame0 aime autrui0)"
+      - "(ame0 aime_et_hait_en_meme_temps autrui0)"
+      - "(ame0 est_en fluctuation_de_l_ame)"
+    expected:
+      status: proved
+      proof_depths: [2, 3, 3]
+  - id: haine_prevalente_cruaute
+    initial_facts:
+      - "(ame0 aime autrui0)"
+      - "(ame0 hait autrui0)"
+      - "(amour0 est_amour_de (ame0 envers autrui0))"
+      - "(haine0 est_haine_de (ame0 envers autrui0))"
+      - "(haine0 est_plus_intense_que amour0)"
+      - "(action0 est_action_nuisible_envers autrui0)"
+      - "(cruaute0 est_temoignage_cruaute_de (ame0 envers autrui0))"
+    goals:
+      - "(haine0 prevaut_sur amour0)"
+      - "(ame0 s_efforce_de_faire_du_mal_a autrui0)"
+      - "(cruaute0 est_cruaute_de ame0)"
+    must_not_derive:
+      - "(ame0 a_fait action0)"
+    expected:
+      status: proved
+      proof_depths: [1, 1, 1]
+formalization_status: proved_with_scholium_and_corollary
+result: proved
+limitations:
+  - >-
+    La preuve ground reconstruit l'amour réciproque par imitation d'une joie
+    et exige donc les témoins de similitude et d'absence préalable d'affect.
+  - >-
+    L'effort bienfaisant propre et celui d'autrui imaginé ne sont jamais
+    transformés en bienfaits effectivement accomplis.

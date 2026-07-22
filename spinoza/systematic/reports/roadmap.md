@@ -240,7 +240,7 @@ La tranche est auditée dans
 
 ## Tranche 6 — E3P33–E3P44 : réciprocité, gloire et haine
 
-Statut : E3P33–E3P40 achevées ; E3P41 prioritaire.
+Statut : achevée.
 
 Objectifs : reprendre systématiquement E3P33, puis représenter l'amour
 réciproque, la gloire, la jalousie, les désirs issus des affects, la vengeance
@@ -264,11 +264,21 @@ Résultat E3P37–E3P40 : l'intensité du désir et de la haine reste un ordre
 qualitatif ; l'exception du mal plus grand inhibe explicitement l'effort
 nuisible ; haine réciproque, honte, colère et vengeance sont séparées. L'audit
 est publié dans
-[`tranche_e3p37_e3p40.md`](tranche_e3p37_e3p40.md). E3P41–E3P44 doivent
-maintenant traiter amour réciproque, gratitude, ingratitude et victoire de
-l'amour sur la haine.
+[`tranche_e3p37_e3p40.md`](tranche_e3p37_e3p40.md). Le dernier bloc devait
+traiter amour réciproque, gratitude, ingratitude et victoire de l'amour sur la
+haine.
+
+Résultat E3P41–E3P44 : l'amour imaginé sans cause devient réciproque sans
+aplatir l'imagination ; gloire, gratitude, cruauté et ingratitude ont des
+conditions distinctes. E3P43 sépare la haine initiale de la haine réciproque,
+puis compare explicitement les efforts issus de l'amour et de la haine. E3P44
+représente l'extirpation comme une transition et formalise le refus de
+l'auto-dommage par un statut `FAUX` explicite. L'audit est publié dans
+[`tranche_e3p41_e3p44.md`](tranche_e3p41_e3p44.md).
 
 ## Tranche 7 — E3P45–E3P59 : généralisation et affects actifs
+
+Statut : E3P45 prioritaire.
 
 Concepts principaux : transfert des affects aux classes d'individus,
 association des causes, étonnement, considération, considération de soi,

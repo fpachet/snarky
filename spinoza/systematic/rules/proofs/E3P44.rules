@@ -1,0 +1,71 @@
+# La haine extirpée est conservée comme histoire affective ; elle n'est pas
+# rendue simultanément vraie et fausse. L'amour vainqueur lui succède.
+RULE E3P44D_haine_vaincue_se_change_en_amour
+WHEN
+    ($haine est_haine_de ($ame envers $objet))
+    ($haine est_entierement_extirpee VRAI)
+    ($amour_vainqueur est_amour_de ($ame envers $objet))
+THEN
+    ADD ($amour_vainqueur succede_a $haine)
+    ADD ($ame aime $objet)
+END
+
+RULE E3P44D_amour_vainqueur_produit_joie
+WHEN
+    ($amour_vainqueur est_amour_de ($ame envers $objet))
+    ($ame aime $objet)
+    ($joie_amour est_temoignage_joie_de $amour_vainqueur)
+    ($idee_objet est_idee_de $objet)
+THEN
+    ADD ($joie_amour est_joie_de $ame)
+    ADD ($idee_objet accompagne $joie_amour)
+END
+
+# Une seconde joie vient de ce que l'effort d'écarter la tristesse enveloppé
+# par la haine est entièrement secondé.
+RULE E3P44D_effort_contre_tristesse_seconde_ajoute_joie
+WHEN
+    ($haine est_haine_de ($ame envers $objet))
+    ($haine est_entierement_extirpee VRAI)
+    ($effort est_effort_d_ecarter_tristesse_enveloppe_par $haine)
+    ($amour_vainqueur seconde_entierement $effort)
+    ($joie_supplementaire est_temoignage_joie_d_effort_seconde_de $effort)
+THEN
+    ADD ($joie_supplementaire est_joie_de $ame)
+    ADD ($joie_supplementaire nait_de_victoire_sur $haine)
+END
+
+RULE E3P44D_deux_joies_accroissent_amour_converti
+WHEN
+    ($amour_apres est_amour_ne_de_transformation_de $haine)
+    ($amour_sans est_amour_sans_haine_precedente_de ($ame envers $objet))
+    ($joie_amour est_joie_de $ame)
+    ($joie_supplementaire est_joie_de $ame)
+    ($joie_supplementaire nait_de_victoire_sur $haine)
+THEN
+    ADD ($amour_apres est_plus_intense_que $amour_sans)
+    ADD ($amour_apres varie_selon_degre_de $haine)
+END
+
+# Le raisonnement du scolie transmet qualitativement l'ordre des haines aux
+# amours issus de leur transformation, sans en faire un motif de rechercher la
+# haine.
+RULE E3P44S_ordre_haine_transmis_amour_converti
+WHEN
+    ($ame imagine ($haine_forte est_plus_intense_que $haine_faible))
+    ($amour_fort est_amour_ne_de_transformation_de $haine_forte)
+    ($amour_faible est_amour_ne_de_transformation_de $haine_faible)
+THEN
+    ADD ($amour_fort est_plus_intense_que $amour_faible)
+END
+
+# Le conatus exclut explicitement le projet de se porter dommage pour obtenir
+# une joie future. Il ne s'agit pas d'une négation par défaut.
+RULE E3P44S_conatus_exclut_desir_auto_dommage
+WHEN
+    ($ame s_efforce_de_perseverer_dans son_etre)
+    ($projet est_projet_de_se_porter_dommage_de $ame)
+    ($projet vise_a_produire_tristesse_pour_joie_future VRAI)
+THEN
+    ADD ($ame desire $projet) ' FAUX
+END

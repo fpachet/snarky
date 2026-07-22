@@ -1,0 +1,89 @@
+# Comme dans E3P40, l'affect imaginé d'autrui est d'abord exposé sous sa
+# valence primitive. L'amour imaginé reste un contenu intentionnel.
+RULE E3P41D_amour_imagine_devient_joie_source
+WHEN
+    ($ame imagine ($autrui aime $ame))
+    ($source est_temoignage_joie_de ($autrui aime $ame))
+THEN
+    ADD ($ame imagine ($source est_joie_de $autrui))
+    ADD ($source est_amour_imagine_de $autrui)
+END
+
+# Croire n'avoir fourni aucune cause rapporte la joie imitée à autrui. La
+# définition E3P13S peut alors conclure à l'amour réciproque.
+RULE E3P41D_absence_cause_rattache_joie_a_autrui
+WHEN
+    ($ame croit_n_avoir_donne_aucune_cause_d_amour_a $autrui)
+    ($joie est_joie_de $ame)
+    ($joie correspond_a_affect_imagine $source)
+    ($source est_amour_imagine_de $autrui)
+    ($idee_autrui est_idee_de $autrui)
+THEN
+    ADD ($idee_autrui accompagne $joie)
+END
+
+# Le corollaire part au contraire d'une haine déjà présente. Il réutilise le
+# résultat de la proposition sans imposer artificiellement l'absence d'affect
+# propre au cas ground précédent, puis E3P13S nomme l'amour.
+RULE E3P41C_haine_preexistante_amour_imagine_prepare_joie
+WHEN
+    ($ame hait $autrui)
+    ($ame imagine ($autrui aime $ame))
+    ($ame croit_n_avoir_donne_aucune_cause_d_amour_a $autrui)
+    ($source est_temoignage_joie_de ($autrui aime $ame))
+    ($image est_image_de ($source est_joie_de $autrui))
+    ($joie accompagne $image)
+    ($idee_autrui est_idee_de $autrui)
+THEN
+    ADD ($ame imagine ($source est_joie_de $autrui))
+    ADD ($source est_amour_imagine_de $autrui)
+    ADD ($joie est_joie_de $ame)
+    ADD ($joie correspond_a_affect_imagine $source)
+    ADD ($idee_autrui accompagne $joie)
+END
+
+# Scolie : une cause d'amour tenue pour juste rapporte la joie à l'agent et
+# prépare la gloire selon E3P30S.
+RULE E3P41S_cause_juste_prepare_gloire
+WHEN
+    ($ame imagine ($autrui aime $ame))
+    ($ame croit_avoir_donne_juste_cause_d_amour_a $autrui)
+    ($gloire est_temoignage_gloire_de ($ame envers $autrui))
+THEN
+    ADD ($gloire est_joie_de $ame)
+    ADD ($gloire a_pour_cause_interieure $ame)
+    ADD ($ame se_croit_loue VRAI)
+END
+
+# La gratitude exige les deux orientations bienfaisantes. L'effort d'autrui
+# reste imaginé et l'effort propre n'est jamais transformé en action accomplie.
+RULE E3P41S_amour_reciproque_et_bienfaits_gratitude
+WHEN
+    ($ame aime $autrui)
+    ($ame imagine ($autrui aime $ame))
+    ($ame s_efforce_de_faire_du_bien_a $autrui)
+    ($ame imagine ($autrui s_efforce_de_faire_du_bien_a $ame))
+    ($gratitude est_temoignage_gratitude_de ($ame envers $autrui))
+THEN
+    ADD ($gratitude est_reconnaissance_de $ame)
+    ADD ($gratitude est_gratitude_de $ame)
+    ADD ($gratitude a_pour_objet $autrui)
+END
+
+# Si la haine l'emporte sur l'amour simultané, l'effort nuisible est nommé
+# cruauté. La comparaison est un ordre qualitatif explicite.
+RULE E3P41S_haine_prevalente_nommee_cruaute
+WHEN
+    ($ame aime $autrui)
+    ($ame hait $autrui)
+    ($amour est_amour_de ($ame envers $autrui))
+    ($haine est_haine_de ($ame envers $autrui))
+    ($haine est_plus_intense_que $amour)
+    ($action est_action_nuisible_envers $autrui)
+    ($cruaute est_temoignage_cruaute_de ($ame envers $autrui))
+THEN
+    ADD ($haine prevaut_sur $amour)
+    ADD ($ame s_efforce_de_faire_du_mal_a $autrui)
+    ADD ($cruaute est_cruaute_de $ame)
+    ADD ($cruaute a_pour_objet $autrui)
+END

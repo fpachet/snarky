@@ -1,0 +1,99 @@
+schema_version: 1
+id: E3P44
+model: ethics_iii_systematic_v1
+source_unit: E3P44
+source_text: >-
+  La Haine qui est entièrement vaincue par l'Amour se change en Amour, et
+  l'Amour est pour cette raison plus grand que si la Haine n'eût pas précédé.
+fact_files: [facts/postulates.yaml]
+rule_files:
+  - rules/validated/E3P06.rules
+  - rules/validated/E3P43.rules
+  - rules/proofs/E3P44.rules
+rule_catalog: rules/catalog.yaml
+forbidden_rules:
+  - E3P44_haine_vaincue_devient_amour_plus_grand
+  - E3P44S_conatus_interdit_desir_auto_dommage
+allowed_rule_origins: [textual, textual_theorem]
+cases:
+  - id: haine_vaincue_convertie_en_amour
+    initial_facts:
+      - "(haine0 est_haine_de (ame0 envers objet0))"
+      - "(amour0 est_amour_de (ame0 envers objet0))"
+      - "(effort_amour0 est_effort_ne_de amour0)"
+      - "(effort_haine0 est_effort_ne_de haine0)"
+      - "(effort_amour0 est_plus_intense_que effort_haine0)"
+      - "(joie_amour0 est_temoignage_joie_de amour0)"
+      - "(idee_objet0 est_idee_de objet0)"
+      - "(effort_ecarter0 est_effort_d_ecarter_tristesse_enveloppe_par haine0)"
+      - "(amour0 seconde_entierement effort_ecarter0)"
+      - "(joie_supplementaire0 est_temoignage_joie_d_effort_seconde_de effort_ecarter0)"
+      - "(amour_apres0 est_amour_ne_de_transformation_de haine0)"
+      - "(amour_sans0 est_amour_sans_haine_precedente_de (ame0 envers objet0))"
+    goals:
+      - "(haine0 est_entierement_extirpee VRAI)"
+      - "(amour0 succede_a haine0)"
+      - "(ame0 aime objet0)"
+      - "(joie_amour0 est_joie_de ame0)"
+      - "(joie_supplementaire0 est_joie_de ame0)"
+      - "(amour_apres0 est_plus_intense_que amour_sans0)"
+      - "(amour_apres0 varie_selon_degre_de haine0)"
+    must_not_derive:
+      - entity: "(ame0 hait objet0)"
+        status: FAUX
+    expected:
+      status: proved
+      proof_depths: [1, 2, 2, 3, 2, 3, 3]
+  - id: haine_non_vaincue
+    initial_facts:
+      - "(haine0 est_haine_de (ame0 envers objet0))"
+      - "(amour0 est_amour_de (ame0 envers objet0))"
+      - "(effort_amour0 est_effort_ne_de amour0)"
+      - "(effort_haine0 est_effort_ne_de haine0)"
+      - "(effort_haine0 est_plus_intense_que effort_amour0)"
+      - "(joie_amour0 est_temoignage_joie_de amour0)"
+      - "(idee_objet0 est_idee_de objet0)"
+      - "(effort_ecarter0 est_effort_d_ecarter_tristesse_enveloppe_par haine0)"
+      - "(amour0 seconde_entierement effort_ecarter0)"
+      - "(joie_supplementaire0 est_temoignage_joie_d_effort_seconde_de effort_ecarter0)"
+      - "(amour_apres0 est_amour_ne_de_transformation_de haine0)"
+      - "(amour_sans0 est_amour_sans_haine_precedente_de (ame0 envers objet0))"
+    goals: []
+    must_not_derive:
+      - "(haine0 est_entierement_extirpee VRAI)"
+      - "(ame0 aime objet0)"
+      - "(amour_apres0 est_plus_intense_que amour_sans0)"
+    expected: {status: proved}
+  - id: ordre_deux_haines_converties
+    initial_facts:
+      - "(ame0 imagine (haine_forte0 est_plus_intense_que haine_faible0))"
+      - "(amour_fort0 est_amour_ne_de_transformation_de haine_forte0)"
+      - "(amour_faible0 est_amour_ne_de_transformation_de haine_faible0)"
+    goals:
+      - "(amour_fort0 est_plus_intense_que amour_faible0)"
+    expected:
+      status: proved
+      proof_depths: [1]
+  - id: scolie_refuse_auto_dommage
+    initial_facts:
+      - "(ame0 est_chose_singuliere VRAI)"
+      - "(effort0 est_effort_de ame0)"
+      - "(projet0 est_projet_de_se_porter_dommage_de ame0)"
+      - "(projet0 vise_a_produire_tristesse_pour_joie_future VRAI)"
+    goals:
+      - entity: "(ame0 desire projet0)"
+        status: FAUX
+    must_not_derive:
+      - "(ame0 desire projet0)"
+    expected:
+      status: proved
+      proof_depths: [2]
+formalization_status: proved_with_transition_and_explicit_refutation
+result: proved
+limitations:
+  - >-
+    La victoire de l'amour est une transition réifiée : la haine demeure dans
+    l'histoire affective sans être affirmée et niée au même instant.
+  - >-
+    Le scolie est une réfutation bornée du désir d'auto-dommage, non une preuve
+    générale par contradiction.

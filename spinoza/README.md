@@ -102,7 +102,7 @@ script générateur.
 Le dossier [`systematic`](systematic/README.md) reprend la formalisation à
 partir des définitions, postulats et dépendances explicites. Il ne charge pas
 les règles historiques. Les fragments exécutables couvrent désormais
-E3P01–E3P40 et rendent visibles les ponts importés des parties I et II.
+E3P01–E3P44 et rendent visibles les ponts importés des parties I et II.
 
 Cette couverture comprend notamment le conatus, les affects primitifs,
 l'imagination et la mémoire, les affects temporels, l'amour et la haine, leur
@@ -115,18 +115,23 @@ ajoutent la réciprocité amoureuse, l'intensité qualitative de la gloire, le
 triangle de jalousie et le désir des circonstances d'une jouissance passée.
 E3P37–E3P40 ajoutent l'intensité qualitative du désir et de la haine, la peur
 d'un mal plus grand, l'inhibition de l'action, la colère et la vengeance.
+E3P41–E3P44 ajoutent l'amour réciproque, la gratitude, la cruauté,
+l'ingratitude et la transformation de la haine en amour. L'affect initial et
+l'affect réciproque restent distincts, et la victoire de l'amour conserve
+l'histoire affective au lieu de la nier rétroactivement.
 
-Cinq rapports décrivent les derniers jalons et leur comparaison avec Gondran
+Six rapports décrivent les derniers jalons et leur comparaison avec Gondran
 et Cavarretta :
 
 - [`systematic/reports/milestone_e3p19_e3p22.md`](systematic/reports/milestone_e3p19_e3p22.md) ;
 - [`systematic/reports/tranche_e3p23_e3p26.md`](systematic/reports/tranche_e3p23_e3p26.md) ;
 - [`systematic/reports/tranche_e3p27_e3p32.md`](systematic/reports/tranche_e3p27_e3p32.md) ;
 - [`systematic/reports/tranche_e3p33_e3p36.md`](systematic/reports/tranche_e3p33_e3p36.md) ;
-- [`systematic/reports/tranche_e3p37_e3p40.md`](systematic/reports/tranche_e3p37_e3p40.md).
+- [`systematic/reports/tranche_e3p37_e3p40.md`](systematic/reports/tranche_e3p37_e3p40.md) ;
+- [`systematic/reports/tranche_e3p41_e3p44.md`](systematic/reports/tranche_e3p41_e3p44.md).
 
-La suite de tests comprend actuellement 70 tests réussis. La prochaine
-frontière est E3P41 : elle doit reconstruire l'amour réciproque
-et la gratitude en réutilisant E3P39–E3P40. Le
+La suite de tests comprend actuellement 74 tests réussis. La prochaine
+frontière est E3P45 : elle doit conserver le triangle entre l'amant, la chose
+aimée et celui qui la hait, avant la généralisation sociale de E3P46. Le
 [`plan de modélisation`](systematic/reports/roadmap.md) décrit l'ordre complet
 jusqu'à E3P59 et aux définitions finales des affects.

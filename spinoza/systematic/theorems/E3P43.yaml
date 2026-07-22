@@ -1,0 +1,95 @@
+schema_version: 1
+id: E3P43
+model: ethics_iii_systematic_v1
+source_unit: E3P43
+source_text: >-
+  La Haine est accrue par une haine réciproque et peut, au contraire, être
+  extirpée par l'Amour.
+fact_files: [facts/postulates.yaml]
+rule_files:
+  - rules/validated/E3P39.rules
+  - rules/validated/E3P40.rules
+  - rules/validated/E3P41.rules
+  - rules/proofs/E3P43.rules
+rule_catalog: rules/catalog.yaml
+forbidden_rules:
+  - E3P43_haine_reciproque_accroit_haine
+  - E3P43_amour_plus_fort_extirpe_haine
+allowed_rule_origins: [textual, textual_theorem]
+cases:
+  - id: haine_accrue_par_reciprocite
+    initial_facts:
+      - "(ame0 hait autrui0)"
+      - "(ame0 imagine (autrui0 hait ame0))"
+      - "(ame0 croit_n_avoir_donne_aucune_cause_de_haine_a autrui0)"
+      - "(haine_initiale0 est_haine_de (ame0 envers autrui0))"
+      - "(haine_reciproque0 est_temoignage_haine_reciproque_de (ame0 envers autrui0))"
+      - "(haine_accrue0 est_temoignage_haine_accrue_de (ame0 envers autrui0))"
+    goals:
+      - "(haine_reciproque0 nait_de (ame0 imagine (autrui0 hait ame0)))"
+      - "(haine_accrue0 est_composee_de haine_initiale0)"
+      - "(haine_accrue0 est_composee_de haine_reciproque0)"
+      - "(haine_accrue0 est_plus_intense_que haine_initiale0)"
+    must_not_derive:
+      - "(autrui0 hait ame0)"
+    expected:
+      status: proved
+      proof_depths: [1, 1, 1, 1]
+  - id: amour_plus_fort_extirpe_haine
+    initial_facts:
+      - "(ame0 hait autrui0)"
+      - "(ame0 imagine (autrui0 aime ame0))"
+      - "(ame0 croit_n_avoir_donne_aucune_cause_d_amour_a autrui0)"
+      - "(amour0 est_amour_de (ame0 envers autrui0))"
+      - "(haine0 est_haine_de (ame0 envers autrui0))"
+      - "(effort_amour0 est_effort_ne_de amour0)"
+      - "(effort_haine0 est_effort_ne_de haine0)"
+      - "(effort_amour0 est_plus_intense_que effort_haine0)"
+      - "(action_plaire0 est_action_pour_plaire_a autrui0)"
+      - "(action_nuisible0 est_action_nuisible_envers autrui0)"
+      - "(ame0 est_sans_crainte_de_retorsion_pour action_nuisible0)"
+    goals:
+      - "(ame0 aime autrui0)"
+      - "(ame0 se_considere_avec_joie VRAI)"
+      - "(ame0 s_efforce_de_faire_du_mal_a autrui0)"
+      - "(effort_amour0 vise_a_ecarter haine0)"
+      - "(effort_haine0 vise_a_nuire autrui0)"
+      - "(effort_amour0 prevaut_sur effort_haine0)"
+      - "(haine0 est_entierement_extirpee VRAI)"
+    must_not_derive:
+      - "(ame0 a_fait action_plaire0)"
+      - "(ame0 a_fait action_nuisible0)"
+    expected:
+      status: proved
+      proof_depths: [1, 2, 1, 2, 2, 3, 3]
+  - id: amour_plus_faible_ne_suffit_pas
+    initial_facts:
+      - "(ame0 hait autrui0)"
+      - "(ame0 imagine (autrui0 aime ame0))"
+      - "(ame0 croit_n_avoir_donne_aucune_cause_d_amour_a autrui0)"
+      - "(amour0 est_amour_de (ame0 envers autrui0))"
+      - "(haine0 est_haine_de (ame0 envers autrui0))"
+      - "(effort_amour0 est_effort_ne_de amour0)"
+      - "(effort_haine0 est_effort_ne_de haine0)"
+      - "(effort_haine0 est_plus_intense_que effort_amour0)"
+      - "(action_plaire0 est_action_pour_plaire_a autrui0)"
+      - "(action_nuisible0 est_action_nuisible_envers autrui0)"
+      - "(ame0 est_sans_crainte_de_retorsion_pour action_nuisible0)"
+    goals:
+      - "(ame0 aime autrui0)"
+      - "(effort_amour0 vise_a_ecarter haine0)"
+      - "(effort_haine0 vise_a_nuire autrui0)"
+    must_not_derive:
+      - "(haine0 est_entierement_extirpee VRAI)"
+    expected:
+      status: proved
+      proof_depths: [1, 2, 2]
+formalization_status: proved_with_qualitative_competing_efforts
+result: proved
+limitations:
+  - >-
+    La haine initiale, la haine réciproque et leur composition sont des
+    témoins distincts ; aucun coefficient numérique ne mesure leur somme.
+  - >-
+    L'extirpation exige un ordre positif entre les deux efforts. Une absence
+    de comparaison ne vaut jamais victoire de l'amour.

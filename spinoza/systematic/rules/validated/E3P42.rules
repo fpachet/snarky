@@ -1,0 +1,24 @@
+RULE E3P42_bienfait_amoureux_ingratitude_attriste
+WHEN
+    ($ame aime $autrui)
+    ($ame a_fait $bienfait)
+    ($bienfait est_bienfait_envers $autrui)
+    ($bienfait est_motive_par amour)
+    ($ame imagine ($reception est_reception_de $bienfait))
+    ($reception est_reception_ingrate_de $bienfait)
+    ($tristesse est_temoignage_tristesse_d_ingratitude_de $bienfait)
+THEN
+    ADD ($tristesse est_tristesse_de $ame)
+END
+
+RULE E3P42_bienfait_pour_gloire_ingratitude_attriste
+WHEN
+    ($ame a_fait $bienfait)
+    ($bienfait est_bienfait_envers $autrui)
+    ($bienfait est_motive_par espoir_de_gloire)
+    ($ame imagine ($reception est_reception_de $bienfait))
+    ($reception est_reception_ingrate_de $bienfait)
+    ($tristesse est_temoignage_tristesse_d_ingratitude_de $bienfait)
+THEN
+    ADD ($tristesse est_tristesse_de $ame)
+END

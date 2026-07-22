@@ -1,0 +1,57 @@
+# La haine initiale et la haine née de la réciprocité sont deux témoins
+# distincts. Leur composition représente l'accroissement sans dupliquer un
+# unique fait relationnel.
+RULE E3P43D_haine_reciproque_ajoute_nouvel_affect
+WHEN
+    ($ame hait $autrui)
+    ($ame imagine ($autrui hait $ame))
+    ($ame croit_n_avoir_donne_aucune_cause_de_haine_a $autrui)
+    ($haine_initiale est_haine_de ($ame envers $autrui))
+    ($haine_reciproque est_temoignage_haine_reciproque_de ($ame envers $autrui))
+    ($haine_accrue est_temoignage_haine_accrue_de ($ame envers $autrui))
+THEN
+    ADD ($haine_reciproque nait_de ($ame imagine ($autrui hait $ame)))
+    ADD ($haine_accrue est_composee_de $haine_initiale)
+    ADD ($haine_accrue est_composee_de $haine_reciproque)
+    ADD ($haine_accrue est_plus_intense_que $haine_initiale)
+END
+
+# L'amour imaginé produit une considération joyeuse de soi et un effort pour
+# plaire. Cet effort vise explicitement à écarter la haine initiale.
+RULE E3P43D_amour_reciproque_oriente_effort_contre_haine
+WHEN
+    ($ame hait $autrui)
+    ($ame aime $autrui)
+    ($ame imagine ($autrui aime $ame))
+    ($amour est_amour_de ($ame envers $autrui))
+    ($haine est_haine_de ($ame envers $autrui))
+    ($effort_amour est_effort_ne_de $amour)
+    ($action_plaire est_action_pour_plaire_a $autrui)
+THEN
+    ADD ($ame se_considere_avec_joie VRAI)
+    ADD ($ame s_efforce_de_faire $action_plaire)
+    ADD ($effort_amour vise_a_ecarter $haine)
+    ADD ($effort_amour varie_selon_degre_de $amour)
+END
+
+RULE E3P43D_haine_oriente_effort_nuisible
+WHEN
+    ($ame hait $autrui)
+    ($haine est_haine_de ($ame envers $autrui))
+    ($ame s_efforce_de_faire_du_mal_a $autrui)
+    ($effort_haine est_effort_ne_de $haine)
+THEN
+    ADD ($effort_haine vise_a_nuire $autrui)
+    ADD ($effort_haine varie_selon_degre_de $haine)
+END
+
+# La victoire n'est conclue que depuis une comparaison positive des efforts.
+RULE E3P43D_effort_amour_plus_fort_extirpe_haine
+WHEN
+    ($effort_amour vise_a_ecarter $haine)
+    ($effort_haine vise_a_nuire $autrui)
+    ($effort_amour est_plus_intense_que $effort_haine)
+THEN
+    ADD ($effort_amour prevaut_sur $effort_haine)
+    ADD ($haine est_entierement_extirpee VRAI)
+END

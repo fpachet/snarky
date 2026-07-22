@@ -1,0 +1,39 @@
+RULE E3P41_amour_imagine_sans_cause_devient_reciproque
+WHEN
+    ($ame imagine ($autrui aime $ame))
+    ($ame croit_n_avoir_donne_aucune_cause_d_amour_a $autrui)
+THEN
+    ADD ($ame aime $autrui)
+END
+
+RULE E3P41S_cause_juste_produit_gloire
+WHEN
+    ($ame imagine ($autrui aime $ame))
+    ($ame croit_avoir_donne_juste_cause_d_amour_a $autrui)
+    ($gloire est_temoignage_gloire_de ($ame envers $autrui))
+THEN
+    ADD ($gloire est_gloire_de $ame)
+END
+
+RULE E3P41S_bienfaits_reciproques_produisent_gratitude
+WHEN
+    ($ame aime $autrui)
+    ($ame imagine ($autrui aime $ame))
+    ($ame s_efforce_de_faire_du_bien_a $autrui)
+    ($ame imagine ($autrui s_efforce_de_faire_du_bien_a $ame))
+    ($gratitude est_temoignage_gratitude_de ($ame envers $autrui))
+THEN
+    ADD ($gratitude est_gratitude_de $ame)
+END
+
+RULE E3P41S_haine_prevalente_produit_cruaute
+WHEN
+    ($ame aime $autrui)
+    ($ame hait $autrui)
+    ($amour est_amour_de ($ame envers $autrui))
+    ($haine est_haine_de ($ame envers $autrui))
+    ($haine est_plus_intense_que $amour)
+    ($cruaute est_temoignage_cruaute_de ($ame envers $autrui))
+THEN
+    ADD ($cruaute est_cruaute_de $ame)
+END

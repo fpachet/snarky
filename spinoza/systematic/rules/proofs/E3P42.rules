@@ -1,0 +1,52 @@
+# Le bienfait mû par l'amour conserve l'effort de réciprocité établi par
+# E3P33. L'attente est réifiée afin que son exclusion puisse être représentée.
+RULE E3P42D_bienfait_amoureux_attend_reciprocite
+WHEN
+    ($ame aime $autrui)
+    ($autrui est_semblable_affectivement_pour $ame)
+    ($ame s_efforce_que ($autrui aime $ame))
+    ($ame a_fait $bienfait)
+    ($bienfait est_bienfait_envers $autrui)
+    ($bienfait est_motive_par amour)
+    ($attente est_attente_de_reciprocite_pour $bienfait)
+THEN
+    ADD ($attente porte_sur ($autrui aime $ame))
+    ADD ($attente est_cause_esperee_de joie)
+END
+
+# L'espoir de gloire constitue la seconde branche explicite de l'énoncé.
+RULE E3P42D_bienfait_pour_gloire_attend_reciprocite
+WHEN
+    ($ame a_fait $bienfait)
+    ($bienfait est_bienfait_envers $autrui)
+    ($bienfait est_motive_par espoir_de_gloire)
+    ($attente est_attente_de_reciprocite_pour $bienfait)
+THEN
+    ADD ($attente porte_sur ($autrui aime $ame))
+    ADD ($attente est_cause_esperee_de gloire)
+END
+
+RULE E3P42D_reception_ingrate_exclut_attente
+WHEN
+    ($ame imagine ($reception est_reception_de $bienfait))
+    ($reception est_reception_ingrate_de $bienfait)
+    ($attente est_attente_de_reciprocite_pour $bienfait)
+THEN
+    ADD ($reception exclut_existence_de $attente)
+END
+
+# L'exclusion imaginée réduit la puissance et E3P11S nomme ensuite la
+# tristesse. La réception imaginée ne devient jamais une réception réelle.
+RULE E3P42D_exclusion_attente_produit_passage_triste
+WHEN
+    ($ame imagine ($reception est_reception_de $bienfait))
+    ($reception exclut_existence_de $attente)
+    ($attente est_attente_de_reciprocite_pour $bienfait)
+    ($image est_image_de ($reception est_reception_de $bienfait))
+    ($tristesse accompagne $image)
+    ($tristesse est_passion_de $ame)
+THEN
+    ADD ($image reduit_attente_de $ame)
+    ADD ($tristesse fait_passer_ame_vers perfection_moindre)
+    ADD ($tristesse nait_de_reception_ingrate_de $bienfait)
+END

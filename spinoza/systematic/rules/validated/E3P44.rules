@@ -1,0 +1,19 @@
+RULE E3P44_haine_vaincue_devient_amour_plus_grand
+WHEN
+    ($haine est_haine_de ($ame envers $objet))
+    ($haine est_entierement_extirpee VRAI)
+    ($amour_apres est_amour_ne_de_transformation_de $haine)
+    ($amour_sans est_amour_sans_haine_precedente_de ($ame envers $objet))
+THEN
+    ADD ($ame aime $objet)
+    ADD ($amour_apres est_plus_intense_que $amour_sans)
+END
+
+RULE E3P44S_conatus_interdit_desir_auto_dommage
+WHEN
+    ($ame s_efforce_de_perseverer_dans son_etre)
+    ($projet est_projet_de_se_porter_dommage_de $ame)
+    ($projet vise_a_produire_tristesse_pour_joie_future VRAI)
+THEN
+    ADD ($ame desire $projet) ' FAUX
+END

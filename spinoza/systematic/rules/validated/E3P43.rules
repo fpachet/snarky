@@ -1,0 +1,20 @@
+RULE E3P43_haine_reciproque_accroit_haine
+WHEN
+    ($ame hait $autrui)
+    ($ame imagine ($autrui hait $ame))
+    ($ame croit_n_avoir_donne_aucune_cause_de_haine_a $autrui)
+    ($haine_initiale est_haine_de ($ame envers $autrui))
+    ($haine_accrue est_temoignage_haine_accrue_de ($ame envers $autrui))
+THEN
+    ADD ($haine_accrue est_plus_intense_que $haine_initiale)
+END
+
+RULE E3P43_amour_plus_fort_extirpe_haine
+WHEN
+    ($haine est_haine_de ($ame envers $autrui))
+    ($effort_amour est_effort_ne_de $amour)
+    ($effort_haine est_effort_ne_de $haine)
+    ($effort_amour est_plus_intense_que $effort_haine)
+THEN
+    ADD ($haine est_entierement_extirpee VRAI)
+END

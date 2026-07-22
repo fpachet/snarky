@@ -200,7 +200,9 @@ formalisation systématique des propositions concernées.
    La poursuite E3P37–E3P40 est auditée dans
    [`../systematic/reports/tranche_e3p37_e3p40.md`](../systematic/reports/tranche_e3p37_e3p40.md),
    notamment pour l'exception absente de E3P39 et la condition de similitude
-   de E3P40.
+   de E3P40. La clôture de la tranche est publiée dans
+   [`../systematic/reports/tranche_e3p41_e3p44.md`](../systematic/reports/tranche_e3p41_e3p44.md) :
+   elle garde distincts affect initial, affect réciproque et transition.
 4. Avant E3P45–E3P48, rendre visibles les conclusions annexes, contradictions
    et niveaux épistémiques.
 5. Après E3P59, évaluer séparément méta-ontologie, témoins frais et génération

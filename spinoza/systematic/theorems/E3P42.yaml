@@ -1,0 +1,89 @@
+schema_version: 1
+id: E3P42
+model: ethics_iii_systematic_v1
+source_unit: E3P42
+source_text: >-
+  Qui, mû par l'Amour ou un espoir de Gloire, a fait du bien à quelqu'un,
+  sera contristé s'il voit que son bienfait est reçu avec ingratitude.
+fact_files: [facts/postulates.yaml]
+rule_files:
+  - rules/validated/E3P11.rules
+  - rules/validated/E3P33.rules
+  - rules/proofs/E3P42.rules
+rule_catalog: rules/catalog.yaml
+forbidden_rules:
+  - E3P42_bienfait_amoureux_ingratitude_attriste
+  - E3P42_bienfait_pour_gloire_ingratitude_attriste
+allowed_rule_origins: [textual, textual_theorem]
+cases:
+  - id: bienfait_par_amour_recu_ingratement
+    initial_facts:
+      - "(ame0 aime autrui0)"
+      - "(autrui0 est_semblable_affectivement_pour ame0)"
+      - "(ame0 a_fait bienfait0)"
+      - "(bienfait0 est_bienfait_envers autrui0)"
+      - "(bienfait0 est_motive_par amour)"
+      - "(attente0 est_attente_de_reciprocite_pour bienfait0)"
+      - "(ame0 imagine (reception0 est_reception_de bienfait0))"
+      - "(reception0 est_reception_ingrate_de bienfait0)"
+      - "(image_reception0 est_image_de (reception0 est_reception_de bienfait0))"
+      - "(tristesse0 accompagne image_reception0)"
+      - "(tristesse0 est_passion_de ame0)"
+    goals:
+      - "(ame0 s_efforce_que (autrui0 aime ame0))"
+      - "(attente0 porte_sur (autrui0 aime ame0))"
+      - "(reception0 exclut_existence_de attente0)"
+      - "(tristesse0 nait_de_reception_ingrate_de bienfait0)"
+      - "(tristesse0 est_tristesse_de ame0)"
+    must_not_derive:
+      - "(reception0 est_reception_de bienfait0)"
+    expected:
+      status: proved
+      proof_depths: [1, 2, 1, 2, 3]
+  - id: bienfait_pour_gloire_recu_ingratement
+    initial_facts:
+      - "(ame0 a_fait bienfait0)"
+      - "(bienfait0 est_bienfait_envers autrui0)"
+      - "(bienfait0 est_motive_par espoir_de_gloire)"
+      - "(attente0 est_attente_de_reciprocite_pour bienfait0)"
+      - "(ame0 imagine (reception0 est_reception_de bienfait0))"
+      - "(reception0 est_reception_ingrate_de bienfait0)"
+      - "(image_reception0 est_image_de (reception0 est_reception_de bienfait0))"
+      - "(tristesse0 accompagne image_reception0)"
+      - "(tristesse0 est_passion_de ame0)"
+    goals:
+      - "(attente0 est_cause_esperee_de gloire)"
+      - "(reception0 exclut_existence_de attente0)"
+      - "(tristesse0 est_tristesse_de ame0)"
+    expected:
+      status: proved
+      proof_depths: [1, 1, 3]
+  - id: bienfait_recu_sans_ingratitude
+    initial_facts:
+      - "(ame0 aime autrui0)"
+      - "(autrui0 est_semblable_affectivement_pour ame0)"
+      - "(ame0 a_fait bienfait0)"
+      - "(bienfait0 est_bienfait_envers autrui0)"
+      - "(bienfait0 est_motive_par amour)"
+      - "(attente0 est_attente_de_reciprocite_pour bienfait0)"
+      - "(ame0 imagine (reception0 est_reception_de bienfait0))"
+      - "(image_reception0 est_image_de (reception0 est_reception_de bienfait0))"
+      - "(tristesse0 accompagne image_reception0)"
+      - "(tristesse0 est_passion_de ame0)"
+    goals:
+      - "(attente0 porte_sur (autrui0 aime ame0))"
+    must_not_derive:
+      - "(reception0 exclut_existence_de attente0)"
+      - "(tristesse0 est_tristesse_de ame0)"
+    expected:
+      status: proved
+      proof_depths: [2]
+formalization_status: proved_with_reified_expectation
+result: proved
+limitations:
+  - >-
+    L'attente de réciprocité est un témoin fini ; le moteur ne crée pas
+    existentiellement la cause de gloire ou de joie attendue.
+  - >-
+    Voir une réception ingrate est conservé sous imagine et ne prouve pas une
+    réception réelle du bienfait.

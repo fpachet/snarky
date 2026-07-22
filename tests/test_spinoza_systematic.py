@@ -711,8 +711,115 @@ def test_e3p40_separates_reciprocal_hate_shame_and_revenge() -> None:
     assert no_similarity.forbidden_violations == ()
 
 
+def test_e3p41_separates_love_gratitude_glory_and_cruelty() -> None:
+    reciprocity = run_case(
+        SYSTEMATIC_ROOT,
+        "E3P41",
+        "reciprocite_sans_cause",
+    )
+    gratitude = run_case(
+        SYSTEMATIC_ROOT,
+        "E3P41",
+        "gratitude_reciproque",
+    )
+    glory = run_case(
+        SYSTEMATIC_ROOT,
+        "E3P41",
+        "juste_cause_produit_gloire",
+    )
+    cruelty = run_case(
+        SYSTEMATIC_ROOT,
+        "E3P41",
+        "haine_prevalente_cruaute",
+    )
+
+    assert reciprocity.proved
+    assert reciprocity.proof_depths == (1, 2, 3, 4, 5)
+    assert reciprocity.forbidden_violations == ()
+    assert gratitude.proved
+    assert gratitude.proof_depths == (4, 5, 6, 6)
+    assert gratitude.forbidden_violations == ()
+    assert glory.proved
+    assert glory.proof_depths == (1, 2)
+    assert cruelty.proved
+    assert cruelty.forbidden_violations == ()
+
+
+def test_e3p42_requires_positive_ingratitude_to_derive_sadness() -> None:
+    ingratitude = run_case(
+        SYSTEMATIC_ROOT,
+        "E3P42",
+        "bienfait_par_amour_recu_ingratement",
+    )
+    no_ingratitude = run_case(
+        SYSTEMATIC_ROOT,
+        "E3P42",
+        "bienfait_recu_sans_ingratitude",
+    )
+
+    assert ingratitude.proved
+    assert ingratitude.proof_depths == (1, 2, 1, 2, 3)
+    assert ingratitude.forbidden_violations == ()
+    assert no_ingratitude.proved
+    assert no_ingratitude.forbidden_violations == ()
+
+
+def test_e3p43_distinguishes_added_hate_from_love_victory() -> None:
+    increased_hate = run_case(
+        SYSTEMATIC_ROOT,
+        "E3P43",
+        "haine_accrue_par_reciprocite",
+    )
+    love_wins = run_case(
+        SYSTEMATIC_ROOT,
+        "E3P43",
+        "amour_plus_fort_extirpe_haine",
+    )
+    love_loses = run_case(
+        SYSTEMATIC_ROOT,
+        "E3P43",
+        "amour_plus_faible_ne_suffit_pas",
+    )
+
+    assert increased_hate.proved
+    assert increased_hate.proof_depths == (1, 1, 1, 1)
+    assert increased_hate.forbidden_violations == ()
+    assert love_wins.proved
+    assert love_wins.proof_depths == (1, 2, 1, 2, 2, 3, 3)
+    assert love_wins.forbidden_violations == ()
+    assert love_loses.proved
+    assert love_loses.forbidden_violations == ()
+
+
+def test_e3p44_models_transition_without_erasing_affective_history() -> None:
+    conversion = run_case(
+        SYSTEMATIC_ROOT,
+        "E3P44",
+        "haine_vaincue_convertie_en_amour",
+    )
+    no_victory = run_case(
+        SYSTEMATIC_ROOT,
+        "E3P44",
+        "haine_non_vaincue",
+    )
+    self_harm = run_case(
+        SYSTEMATIC_ROOT,
+        "E3P44",
+        "scolie_refuse_auto_dommage",
+    )
+
+    assert conversion.proved
+    assert conversion.proof_depths == (1, 2, 2, 3, 2, 3, 3)
+    assert conversion.forbidden_violations == ()
+    assert no_victory.proved
+    assert no_victory.forbidden_violations == ()
+    assert self_harm.proved
+    assert self_harm.proof_depths == (2,)
+    assert self_harm.forbidden_violations == ()
+
+
 def test_each_systematic_manifest_since_e3p04_has_passing_counter_cases() -> None:
-    for proposition in range(4, 41):
+    for proposition in range(4, 45):
         theorem_id = f"E3P{proposition:02d}"
         manifest = yaml.safe_load(
             (SYSTEMATIC_ROOT / "theorems" / f"{theorem_id}.yaml").read_text(
@@ -762,7 +869,7 @@ def test_systematic_manifests_do_not_load_the_historical_model() -> None:
 
 
 def test_systematic_manifests_load_only_current_proof_and_prior_theorems() -> None:
-    for proposition in range(4, 41):
+    for proposition in range(4, 45):
         theorem_id = f"E3P{proposition:02d}"
         manifest = yaml.safe_load(
             (SYSTEMATIC_ROOT / "theorems" / f"{theorem_id}.yaml").read_text(
