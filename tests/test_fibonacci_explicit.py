@@ -5,9 +5,11 @@ from snarky import (
     Fact,
     ForwardEngine,
     IndexedInstantiationStrategy,
+    Let,
     NaiveInstantiationStrategy,
     Number,
     Triple,
+    Variable,
     parse_rules,
     parse_term,
 )
@@ -24,9 +26,16 @@ def test_fibonacci_explicit_builds_the_tree_and_computes_f8() -> None:
     result = ForwardEngine(rules).run(initial_facts)
 
     assert len(rules) == 3
-    assert Fact(parse_term("(racine resultat 21)")) in result.facts
+    root_result = Fact(parse_term("(racine resultat 21)"))
+    assert root_result in result.facts
     assert len(result.derived_facts) == 121
-    assert len(result.facts) == 135
+    assert len(result.facts) == 122
+    assert len(initial_facts) == 1
+    root_derivation = result.provenance.minimal_derivation(root_result)
+    assert root_derivation is not None
+    assert root_derivation.substitution[Variable("somme")] == Number(21)
+    assert isinstance(rules[1].actions[0], Let)
+    assert isinstance(rules[2].actions[0], Let)
 
     calculation_facts = {
         fact for fact in result.facts if _has_relation(fact, "fibonacci")

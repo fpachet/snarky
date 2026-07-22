@@ -1,7 +1,16 @@
 """Public API of the Snarky inference engine."""
 
-from .actions import AddFact, add
+from .actions import Action, AddFact, Let, add, let
 from .engine import EngineLimits, ForwardEngine, InferenceLimitError, RunResult
+from .expressions import (
+    ArithmeticEvaluationError,
+    BinaryArithmeticExpression,
+    BinaryArithmeticOperator,
+    NumericExpression,
+    UnaryArithmeticExpression,
+    UnaryArithmeticOperator,
+    evaluate_arithmetic,
+)
 from .facts import Fact
 from .instantiation import (
     IndexedInstantiationStrategy,
@@ -10,7 +19,7 @@ from .instantiation import (
     NaiveInstantiationStrategy,
 )
 from .matching import PatternMatcher
-from .parser import ParseError, parse_rules, parse_term
+from .parser import ParseError, parse_arithmetic_expression, parse_rules, parse_term
 from .premises import ComparisonOperator, ComparisonPremise, FactPremise
 from .rules import Rule, when
 from .substitutions import EMPTY_SUBSTITUTION, Substitution
@@ -32,7 +41,10 @@ __all__ = [
     "EMPTY_SUBSTITUTION",
     "Action",
     "AddFact",
+    "ArithmeticEvaluationError",
     "Atom",
+    "BinaryArithmeticExpression",
+    "BinaryArithmeticOperator",
     "ComparisonOperator",
     "ComparisonPremise",
     "EngineLimits",
@@ -43,8 +55,10 @@ __all__ = [
     "IndexedInstantiationStrategy",
     "InstantiationMetrics",
     "InstantiationStrategy",
+    "Let",
     "Number",
     "NaiveInstantiationStrategy",
+    "NumericExpression",
     "ParseError",
     "PatternMatcher",
     "Proposition",
@@ -54,16 +68,18 @@ __all__ = [
     "Substitution",
     "Term",
     "Triple",
+    "UnaryArithmeticExpression",
+    "UnaryArithmeticOperator",
     "Unifier",
     "Variable",
     "add",
+    "evaluate_arithmetic",
     "is_ground",
+    "let",
+    "parse_arithmetic_expression",
     "parse_rules",
     "parse_term",
     "render_term",
     "variables_in",
     "when",
 ]
-
-# Kept as a public spelling for type-oriented API documentation.
-Action = AddFact

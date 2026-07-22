@@ -42,8 +42,19 @@ La forme `entity ' status` matche simultanément l’entité et le statut du fai
 le statut peut être une variable. Les comparaisons sont évaluées après
 substitution et nécessitent des opérandes ground.
 
-Le premier jalon ne supporte que l’action monotone `ADD`. L’action applique la
-substitution à son entité et à son statut, puis refuse tout résultat non ground.
+Le moteur supporte l’action monotone `ADD` et la liaison arithmétique locale
+`LET`. Les actions sont exécutées dans leur ordre textuel. `LET` évalue une
+expression numérique déterministe, enrichit la substitution de l'activation
+et ne crée aucun fait. Les actions suivantes voient immédiatement la nouvelle
+liaison. `ADD` applique la substitution courante à son entité et à son statut,
+puis refuse tout résultat non ground.
+
+Les expressions `LET` acceptent les nombres, les variables, les parenthèses et
+les opérateurs `+`, `-`, `*` et `/` avec leur précédence usuelle. Leurs
+opérandes doivent être numériques et déjà liés ; il ne s'agit pas encore de
+résolution de contraintes. Une division par zéro ou un opérande invalide est
+une erreur d'exécution explicite. Voir [`arithmetic_actions.md`](arithmetic_actions.md).
+
 Les mises à jour, suppressions, négations par défaut et créations de symboles
 frais restent différées.
 
@@ -53,7 +64,9 @@ La stratégie naïve examine les prémisses dans leur ordre et joint les faits p
 backtracking. Une instanciation complète contient la substitution obtenue et
 les faits ayant satisfait les prémisses.
 
-Une activation est identifiée par `(règle, substitution)`. La réfraction
+Une activation est identifiée par `(règle, substitution des prémisses)`. Les
+liaisons locales calculées par `LET` sont déterministes et ne changent pas son
+identité. La réfraction
 empêche son second déclenchement. Les actions de toutes les nouvelles
 activations sont appliquées jusqu’à ce qu’un cycle n’ajoute plus aucun fait.
 Sur une base initiale finie et des règles monotones sans création de termes, ce
@@ -66,4 +79,5 @@ Chaque fait initial a une profondeur de preuve nulle. Chaque fait dérivé
 enregistre la règle, la substitution, les faits prémisses, le cycle et une
 profondeur égale à `1 + max(profondeur des prémisses)`. Plusieurs dérivations
 peuvent être conservées pour un même fait ; `proof_depth` renvoie la profondeur
-minimale connue.
+minimale connue. Pour un fait produit après `LET`, la substitution enregistrée
+inclut les liaisons arithmétiques locales.

@@ -58,10 +58,17 @@ Le contenu actuel comprend :
   calcul de Fibonacci ;
 - [`docs/semantics.md`](docs/semantics.md), les décisions sémantiques du moteur
   de référence ;
+- [`docs/arithmetic_actions.md`](docs/arithmetic_actions.md), la syntaxe et la
+  sémantique des liaisons arithmétiques séquentielles `LET` ;
 - [`docs/optimization_plan.md`](docs/optimization_plan.md), le plan mesurable
   pour faire évoluer le moteur naïf vers des stratégies indexées, semi-naïves
   et centrées sur les contraintes ;
 - [`src/snarky`](src/snarky), le package Python et son API publique.
+
+Le DSL prend notamment en charge les actions arithmétiques séquentielles
+`LET`, par exemple `LET $somme := $gauche + $droite`. Elles calculent une
+liaison locale utilisable par les actions `LET` et `ADD` suivantes, sans
+recourir à `eval` ni créer un fait intermédiaire.
 
 ## Démarrage rapide
 
@@ -110,7 +117,7 @@ result = ForwardEngine(
 ).run(facts)
 ```
 
-Le benchmark Fibonacci explicite mesure un passage de 8,800 s à 0,267 s pour
+Le benchmark Fibonacci explicite mesure un passage de 7,243 s à 0,245 s pour
 `F(10)` sur la machine de développement. La commande reproductible et les
 compteurs sont décrits dans [`benchmarks/README.md`](benchmarks/README.md).
 

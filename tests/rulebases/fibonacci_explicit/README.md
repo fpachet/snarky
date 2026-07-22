@@ -13,13 +13,17 @@ des endroits différents de l'arbre sont donc deux nœuds différents. Pour
 `F(8)`, la base construit 41 nœuds de calcul : 20 nœuds internes et 21
 feuilles.
 
-Le petit DSL Snarky ne possède pas encore d'expressions arithmétiques. Les
-relations `predecesseur` et `plus` sont donc des faits initiaux. Le statut du
-fait `(a plus b)` porte la somme numérique :
+Les rangs et les sommes sont calculés par des actions arithmétiques `LET` dans
+la conclusion des règles :
 
 ```text
-(1 plus 1) ' 2
+LET $n_moins_1 := $n - 1
+LET $n_moins_2 := $n - 2
+LET $somme := $gauche + $droite
 ```
+
+Les actions sont séquentielles : chaque liaison est disponible pour les `LET`
+et `ADD` qui la suivent. Aucun fait `predecesseur` ou `plus` n'est nécessaire.
 
 La graine du calcul est :
 
@@ -33,17 +37,23 @@ Au point fixe, on obtient notamment :
 (racine resultat 21)
 ```
 
-Pour tester un autre rang, modifier la graine et compléter au besoin les faits
-`predecesseur` et `plus`. Le nombre de nœuds construits satisfait
+Pour tester un autre rang, il suffit de modifier la graine. Le nombre de nœuds
+construits satisfait
 `T(1) = T(2) = 1` et `T(n) = 1 + T(n - 1) + T(n - 2)`.
 
-## Test de charge `F(10)`
+## Tests de charge
 
 Le programme [`benchmarks/fibonacci_explicit.py`](../../../benchmarks/fibonacci_explicit.py)
-génère automatiquement les faits arithmétiques nécessaires pour un rang
-quelconque. Pour `F(10)`, il construit 109 nœuds et atteint 343 faits.
+ne fournit au moteur que la graine `(racine fibonacci n)`. Son calcul Python de
+Fibonacci sert uniquement à vérifier le résultat final. Pour `F(10)`, Snarky
+construit 109 nœuds et atteint 326 faits.
 
-Sur la machine de développement, trois exécutions donnent en moyenne 8,800 s
-avec la stratégie naïve et 0,267 s avec la stratégie indexée, soit un gain de
-×32,9. Voir la [documentation des benchmarks](../../../benchmarks/README.md)
+Sur la machine de développement, trois exécutions donnent en moyenne 7,243 s
+avec la stratégie naïve et 0,245 s avec la stratégie indexée, soit un gain de
+×29,6. Voir la [documentation des benchmarks](../../../benchmarks/README.md)
 pour la commande exacte et les compteurs algorithmiques.
+
+La baseline indexée a également été mesurée jusqu'à `F(17) = 1597`. Les temps
+observés vont de 0,245 s pour `F(10)` à 27,914 s pour `F(17)`, avec 9 578 faits
+au dernier point fixe. Dans l'état actuel, `F(15)` est la limite confortable
+sous 10 secondes et `F(17)` la limite raisonnable sous 30 secondes.

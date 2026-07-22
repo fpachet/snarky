@@ -48,3 +48,7 @@ def test_parser_rejects_malformed_or_unsupported_input() -> None:
         parse_term("(only two)")
     with pytest.raises(ParseError):
         parse_rules("RULE broken\nWHEN\n(x r y)\nTHEN\nREMOVE (x r y)\nEND")
+    with pytest.raises(ParseError):
+        parse_rules("RULE broken\nWHEN\n(x r y)\nTHEN\nLET $z = 1 + 2\nEND")
+    with pytest.raises(ParseError):
+        parse_rules("RULE broken\nWHEN\n(x r y)\nTHEN\nLET $z := 1 +\nEND")

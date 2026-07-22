@@ -29,6 +29,10 @@ Les optimisations doivent préserver les propriétés suivantes :
 | 3 — Semi-naïf | Prochaine priorité | Ne recalculer que les jointures contenant au moins un fait nouveau |
 | 4 à 9 | À faire | À engager après mesure des phases 2 persistante et 3 |
 
+L'extension fonctionnelle `LET` est terminée : Fibonacci utilise désormais
+l'arithmétique native du moteur et ne dépend plus de tables de sommes et de
+prédécesseurs.
+
 La stratégie indexée est volontairement optionnelle : le moteur naïf reste le
 comportement par défaut et l'oracle de correction. Les tests différentiels
 vérifient l'égalité des faits, des dérivations, des cycles et des activations.
@@ -67,9 +71,15 @@ encore aux grandes bases récursives.
 
 Le benchmark reproductible `benchmarks/fibonacci_explicit.py` couvre désormais
 le scénario Fibonacci explicite. Pour `F(10)`, trois passages sur la machine de
-développement donnent 8,800 s avec la stratégie naïve contre 0,267 s avec la
-première stratégie indexée. Les deux produisent les mêmes 343 faits et les
-mêmes dérivations. Les tentatives de matching passent de 1 154 022 à 11 718.
+développement donnent 7,243 s avec la stratégie naïve contre 0,245 s avec la
+première stratégie indexée. Les deux produisent les mêmes 326 faits et les
+mêmes dérivations. Les tentatives de matching passent de 557 302 à 8 963.
+
+La baseline indexée couvre maintenant les rangs 10 à 17. Le temps croît de
+0,245 s à 27,914 s, le point fixe de 326 à 9 578 faits et les activations
+produites de 1 782 à 95 013. `F(15)` reste sous 10 secondes et `F(17)` sous 30
+secondes. Le tableau complet et sa version CSV se trouvent dans
+`benchmarks/README.md` et `benchmarks/results/`.
 
 ## Principe d’architecture
 
@@ -114,6 +124,11 @@ de temps, cycles, faits, activations et tentatives de matching sont disponibles
 pour Fibonacci explicite. Restent notamment le pic mémoire, le détail du temps
 de parsing et les autres formes de jointure.
 
+Pour mesurer les progrès, chaque phase devra rejouer la plage `F(10)` à
+`F(17)`, rapporter les ratios par rapport au CSV de référence et indiquer les
+plus grands rangs passant sous 10 et 30 secondes. L'égalité différentielle
+avec l'oracle naïf reste obligatoire sur les rangs où son coût est acceptable.
+
 Avant de modifier les algorithmes :
 
 1. créer un répertoire `benchmarks/` ;
@@ -133,7 +148,7 @@ Premiers scénarios :
 - règle d’ordre 2 avec relation variable ;
 - propositions profondément imbriquées ;
 - Fibonacci explicite, désormais couvert par une création structurelle des
-  sous-problèmes et des faits arithmétiques générés ;
+  sous-problèmes et les actions arithmétiques natives `LET` ;
 - sélections adaptées des corpus externes.
 
 ## Phase 1 — Activations paresseuses
@@ -187,8 +202,8 @@ ne seront ajoutés qu’après mesure de leur utilité.
 Critère de validation : le nombre de faits proposés au matcher doit diminuer
 sans modifier les activations produites.
 
-Ce critère est satisfait sur Fibonacci `F(10)` : 11 718 faits candidats contre
-1 154 022 pour l'oracle naïf, avec les mêmes 1 782 activations produites et les
+Ce critère est satisfait sur Fibonacci `F(10)` : 8 963 faits candidats contre
+557 302 pour l'oracle naïf, avec les mêmes 1 782 activations produites et les
 mêmes 163 activations effectivement déclenchées. Les 51 reconstructions
 d'index observées constituent la prochaine limite propre à cette phase.
 
@@ -376,7 +391,10 @@ facile à comprendre et à vérifier.
    fait nouveau peut satisfaire plusieurs prémisses ;
 4. étendre les tests différentiels aux règles mutuellement récursives ;
 5. rejouer le benchmark Fibonacci et consigner temps, candidats, activations
-   produites et mémoire maximale.
+   produites et mémoire maximale dans une nouvelle série comparable au CSV de
+   référence ;
+6. comparer explicitement les seuils de 10 et 30 secondes avec `F(15)` et
+   `F(17)`, limites observées de la première stratégie indexée.
 
 Le critère de sortie est l'identité complète avec le moteur naïf, accompagnée
 d'une baisse mesurée des 51 constructions d'index et des 1 782 activations

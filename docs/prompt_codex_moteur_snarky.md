@@ -279,6 +279,7 @@ Ne pas confondre ces trois notions.
 Supporter :
 
 - ajout d’un fait ;
+- liaison arithmétique locale et déterministe pour les actions suivantes ;
 - mise à jour d’un statut ;
 - suppression contrôlée d’un fait ;
 - création d’un symbole frais ;
@@ -290,6 +291,7 @@ Exemple :
 
 ```python
 AddFact(...)
+Let(Variable("somme"), expression)
 SetStatus(...)
 RemoveFact(...)
 CreateFresh("z")
@@ -912,7 +914,8 @@ Ne pas annoncer que le moteur bat RETE sans benchmark sérieux.
 Prévoir des interfaces, sans les implémenter initialement, pour :
 
 - solveur CSP externe ;
-- contraintes arithmétiques ;
+- contraintes arithmétiques générales au-delà de l’évaluation déterministe
+  des actions `LET` ;
 - propagation d’intervalles ;
 - règles probabilistes ;
 - truth-maintenance system ;

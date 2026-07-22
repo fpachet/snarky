@@ -5,7 +5,14 @@ from __future__ import annotations
 import re
 from dataclasses import dataclass
 
-from .actions import AddFact
+from .actions import Action, AddFact, Let
+from .expressions import (
+    BinaryArithmeticExpression,
+    BinaryArithmeticOperator,
+    NumericExpression,
+    UnaryArithmeticExpression,
+    UnaryArithmeticOperator,
+)
 from .premises import ComparisonOperator, ComparisonPremise, FactPremise, Premise
 from .rules import Rule
 from .terms import Atom, Number, Status, Term, Triple, Variable
@@ -32,6 +39,16 @@ _TOKEN_RE = re.compile(
 )
 _COMPARISONS = {operator.value: operator for operator in ComparisonOperator}
 _STATUSES = {status.value: status for status in Status}
+_LET_RE = re.compile(
+    r"LET\s+(?P<variable>\$[^\s()'<>!=:+*/-]+)\s*:=\s*(?P<expression>.+)\Z"
+)
+_ARITH_TOKEN_RE = re.compile(
+    r"\s*(?:"
+    r"(?P<LPAREN>\()|(?P<RPAREN>\))|(?P<OP>[+*/-])|"
+    r"(?P<VARIABLE>\$[^\s()+*/-]+)|"
+    r"(?P<NUMBER>(?:\d+(?:\.\d*)?|\.\d+))"
+    r")"
+)
 
 
 def parse_term(text: str) -> Term:
@@ -72,7 +89,7 @@ def parse_rules(text: str) -> tuple[Rule, ...]:
             raise ParseError(f"rule {name!r} is missing THEN")
         position += 1
 
-        actions: list[AddFact] = []
+        actions: list[Action] = []
         while position < len(lines) and lines[position] != "END":
             actions.append(_parse_action(lines[position]))
             position += 1
@@ -98,7 +115,24 @@ def _parse_premise(text: str) -> Premise:
     return ComparisonPremise(left, _COMPARISONS[operator], right)
 
 
-def _parse_action(text: str) -> AddFact:
+def parse_arithmetic_expression(text: str) -> NumericExpression:
+    """Parse one safe arithmetic expression with standard precedence."""
+
+    tokens = _tokenize_arithmetic(text)
+    expression, position = _parse_arithmetic_sum(tokens, 0)
+    if position != len(tokens):
+        raise ParseError(f"unexpected token {tokens[position].value!r}")
+    return expression
+
+
+def _parse_action(text: str) -> Action:
+    if text.startswith("LET"):
+        match = _LET_RE.fullmatch(text)
+        if match is None:
+            raise ParseError(f"malformed LET action {text!r}")
+        variable = Variable(match.group("variable")[1:])
+        expression = parse_arithmetic_expression(match.group("expression"))
+        return Let(variable, expression)
     keyword, separator, body = text.partition(" ")
     if keyword != "ADD" or not separator or not body.strip():
         raise ParseError(f"unsupported action {text!r}")
@@ -110,6 +144,80 @@ def _parse_action(text: str) -> AddFact:
     if operator != "'":
         raise ParseError("ADD only accepts an optional status after apostrophe")
     return AddFact(_parse_all(tokens[:index]), _parse_all(tokens[index + 1 :]))
+
+
+def _tokenize_arithmetic(text: str) -> tuple[_Token, ...]:
+    tokens: list[_Token] = []
+    position = 0
+    while position < len(text):
+        if not text[position:].strip():
+            break
+        match = _ARITH_TOKEN_RE.match(text, position)
+        if match is None:
+            raise ParseError(f"invalid arithmetic token near {text[position:]!r}")
+        kind = match.lastgroup
+        if kind is None:
+            raise ParseError(f"invalid arithmetic token near {text[position:]!r}")
+        tokens.append(_Token(kind, match.group(kind)))
+        position = match.end()
+    if not tokens:
+        raise ParseError("expected an arithmetic expression")
+    return tuple(tokens)
+
+
+def _parse_arithmetic_sum(
+    tokens: tuple[_Token, ...],
+    position: int,
+) -> tuple[NumericExpression, int]:
+    left, position = _parse_arithmetic_product(tokens, position)
+    while position < len(tokens) and tokens[position].value in {"+", "-"}:
+        operator = BinaryArithmeticOperator(tokens[position].value)
+        right, position = _parse_arithmetic_product(tokens, position + 1)
+        left = BinaryArithmeticExpression(left, operator, right)
+    return left, position
+
+
+def _parse_arithmetic_product(
+    tokens: tuple[_Token, ...],
+    position: int,
+) -> tuple[NumericExpression, int]:
+    left, position = _parse_arithmetic_unary(tokens, position)
+    while position < len(tokens) and tokens[position].value in {"*", "/"}:
+        operator = BinaryArithmeticOperator(tokens[position].value)
+        right, position = _parse_arithmetic_unary(tokens, position + 1)
+        left = BinaryArithmeticExpression(left, operator, right)
+    return left, position
+
+
+def _parse_arithmetic_unary(
+    tokens: tuple[_Token, ...],
+    position: int,
+) -> tuple[NumericExpression, int]:
+    if position < len(tokens) and tokens[position].value in {"+", "-"}:
+        operator = UnaryArithmeticOperator(tokens[position].value)
+        operand, position = _parse_arithmetic_unary(tokens, position + 1)
+        return UnaryArithmeticExpression(operator, operand), position
+    return _parse_arithmetic_primary(tokens, position)
+
+
+def _parse_arithmetic_primary(
+    tokens: tuple[_Token, ...],
+    position: int,
+) -> tuple[NumericExpression, int]:
+    if position >= len(tokens):
+        raise ParseError("expected an arithmetic operand")
+    token = tokens[position]
+    if token.kind == "NUMBER":
+        value = float(token.value) if "." in token.value else int(token.value)
+        return Number(value), position + 1
+    if token.kind == "VARIABLE":
+        return Variable(token.value[1:]), position + 1
+    if token.kind == "LPAREN":
+        expression, position = _parse_arithmetic_sum(tokens, position + 1)
+        if position >= len(tokens) or tokens[position].kind != "RPAREN":
+            raise ParseError("unclosed arithmetic parenthesis")
+        return expression, position + 1
+    raise ParseError(f"expected an arithmetic operand, got {token.value!r}")
 
 
 def _tokenize(text: str) -> tuple[_Token, ...]:

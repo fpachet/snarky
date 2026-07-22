@@ -52,7 +52,7 @@ def main() -> None:
         else (arguments.strategy,)
     )
     results = [
-        measure(name, rules, initial_facts, arguments.repeat)
+        measure(name, rules, initial_facts, arguments.repeat, fibonacci(arguments.n))
         for name in strategy_names
     ]
     payload = {
@@ -72,6 +72,7 @@ def measure(
     rules: tuple[Rule, ...],
     initial_facts: tuple[Fact, ...],
     repeat: int,
+    expected_result: int,
 ) -> dict[str, Any]:
     runs: list[dict[str, int | float]] = []
     for _ in range(repeat):
@@ -79,6 +80,9 @@ def measure(
         start = perf_counter()
         result = ForwardEngine(rules, strategy=strategy).run(initial_facts)
         elapsed = perf_counter() - start
+        expected_fact = Fact(parse_term(f"(racine resultat {expected_result})"))
+        if expected_fact not in result.facts:
+            raise RuntimeError(f"missing expected fact: {expected_fact!r}")
         runs.append(
             {
                 "seconds": elapsed,
@@ -114,20 +118,7 @@ def make_strategy(name: str) -> InstantiationStrategy:
 def fibonacci_facts(n: int) -> tuple[Fact, ...]:
     if n < 1:
         raise ValueError("n must be positive")
-    values = {rank: fibonacci(rank) for rank in range(1, n + 1)}
-    facts = [Fact(parse_term(f"(racine fibonacci {n})"))]
-    facts.extend(
-        Fact(parse_term(f"({rank} predecesseur {rank - 1})"))
-        for rank in range(2, n + 1)
-    )
-    facts.extend(
-        Fact(
-            parse_term(f"({values[rank - 1]} plus {values[rank - 2]})"),
-            parse_term(str(values[rank])),
-        )
-        for rank in range(3, n + 1)
-    )
-    return tuple(facts)
+    return (Fact(parse_term(f"(racine fibonacci {n})")),)
 
 
 def fibonacci(n: int) -> int:

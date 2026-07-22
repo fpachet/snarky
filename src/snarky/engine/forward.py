@@ -4,6 +4,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 
+from ..actions import AddFact, Let
 from ..facts import Fact
 from ..instantiation import InstantiationStrategy, NaiveInstantiationStrategy
 from ..rules import Rule
@@ -71,12 +72,18 @@ class ForwardEngine:
                     if key in fired:
                         continue
                     fired.add(key)
+                    action_substitution = activation.substitution
                     for action in rule.actions:
-                        fact = action.instantiate(activation.substitution)
+                        if isinstance(action, Let):
+                            action_substitution = action.apply(action_substitution)
+                            continue
+                        if not isinstance(action, AddFact):
+                            raise TypeError(f"unsupported action: {action!r}")
+                        fact = action.instantiate(action_substitution)
                         derivation = provenance.record(
                             fact,
                             rule.name,
-                            activation.substitution,
+                            action_substitution,
                             activation.premise_facts,
                             cycle,
                         )
