@@ -19,7 +19,7 @@ règle qui contient déjà sa conclusion. Pour tester `E3Pxx`, le manifeste :
 4. demande au moteur de dériver des faits représentant l'énoncé ;
 5. conserve la chaîne minimale des règles effectivement employées.
 
-## Fragments exécutables : E3P01–E3P08
+## Fragments exécutables : E3P01–E3P11
 
 Le fragment initial formalise :
 
@@ -52,6 +52,17 @@ Les étapes propres à une démonstration se trouvent séparément dans
 fichier de preuve courant et, si nécessaire, des fichiers `validated/E3Pyy`
 avec `yy < xx` ; il ne voit donc aucune démonstration future.
 
+E3P09–E3P11 prolongent ce socle avec la conscience du conatus, la volonté,
+l'appétit et le désir, puis avec les quatre variations qualitatives de
+puissance. Les scolies sont exécutables : le modèle distingue joie, tristesse,
+chatouillement, gaieté, douleur et mélancolie, et marque positivement désir,
+joie et tristesse comme affects primitifs.
+
+Le sens causal du scolie de E3P09 est protégé par un contre-cas : le fait de
+juger un objet bon ne suffit jamais à dériver que l'homme s'efforce vers lui,
+le veut, l'appète ou le désire. De même, `persevere_en_tant_qu_elle_a` conserve
+l'idée adéquate ou inadéquate comme argument au lieu d'effacer ce contexte.
+
 E1P36 affirme l'existence d'un effet sans le nommer. Comme Snarky ne possède
 pas encore de création existentielle, chaque cas fournit un témoin `effet0` et
 la règle externe dérive explicitement qu'il suit nécessairement de l'idée.
@@ -70,3 +81,8 @@ hypothèse est un terme du modèle, et sa réfutation exige un fait `FAUX`
 explicite. Il ne s'agit pas encore d'un mécanisme général de raisonnement par
 contradiction. L'identité de E3P07 est également ontologique
 (`est_identique_ontologiquement_a`) et non une fusion syntaxique des termes.
+
+Les variations de puissance de E3P11 sont encore qualitatives. Le modèle ne
+compare pas leur intensité et n'interprète pas l'absence d'un quatrième affect
+primitif comme sa fausseté ; ces deux propriétés demanderont respectivement
+une extension quantitative et une fermeture déclarée du domaine.

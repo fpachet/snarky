@@ -1,0 +1,97 @@
+# E3P09D : les idées adéquates comme inadéquates constituent l'essence de
+# l'âme ; le conatus de l'âme vaut donc sous chacune de ces déterminations.
+RULE E3P09D_conatus_sous_idee_constituante
+WHEN
+    ($idee constitue_essence_de $ame)
+    ($ame s_efforce_de_perseverer_dans son_etre)
+THEN
+    ADD ($ame persevere_en_tant_qu_elle_a $idee)
+END
+
+# La conscience de soi fournie par E2P23 devient conscience de l'effort parce
+# que E3P07 identifie cet effort à l'essence actuelle de l'âme.
+RULE E3P09D_conscience_de_soi_est_conscience_effort
+WHEN
+    ($ame a_conscience_de $ame)
+    ($effort est_effort_de $ame)
+    ($effort est_identique_ontologiquement_a $essence)
+    ($essence est_essence_actuelle_de $ame)
+THEN
+    ADD ($ame a_conscience_de $effort)
+END
+
+# E3P09S : noms du conatus selon son domaine.
+RULE E3P09S_effort_ame_seule_volonte
+WHEN
+    ($effort se_rapporte_a ame_seule)
+THEN
+    ADD ($effort est_appele volonte)
+END
+
+RULE E3P09S_effort_ame_corps_appetit
+WHEN
+    ($effort se_rapporte_a ame_et_corps)
+THEN
+    ADD ($effort est_appele appetit)
+END
+
+RULE E3P09S_appetit_essence_homme
+WHEN
+    ($effort est_appele appetit)
+    ($effort est_identique_ontologiquement_a $essence)
+    ($essence est_essence_actuelle_de $homme)
+THEN
+    ADD ($effort n_est_rien_hors_de $essence)
+END
+
+RULE E3P09S_nature_determine_conservation
+WHEN
+    ($action suit_necessairement_de $essence)
+    ($action sert_conservation_de $homme)
+    ($essence est_essence_actuelle_de $homme)
+THEN
+    ADD ($homme est_determine_a $action)
+END
+
+RULE E3P09S_appetit_conscient_desir
+WHEN
+    ($effort est_appele appetit)
+    ($homme a_conscience_de $effort)
+THEN
+    ADD ($effort est_appele desir)
+    ADD ($effort desir_est_appetit_avec_conscience VRAI)
+END
+
+# Le jugement de bonté suit les orientations conatives ; les règles ne
+# permettent jamais l'inférence inverse.
+RULE E3P09S_bien_suit_effort
+WHEN
+    ($homme s_efforce_vers $objet)
+THEN
+    ADD ($homme juge_bon $objet)
+    ADD (($homme juge_bon $objet) est_fonde_sur effort)
+END
+
+RULE E3P09S_bien_suit_volonte
+WHEN
+    ($homme veut $objet)
+THEN
+    ADD ($homme juge_bon $objet)
+    ADD (($homme juge_bon $objet) est_fonde_sur volonte)
+END
+
+RULE E3P09S_bien_suit_appetit
+WHEN
+    ($homme appete $objet)
+THEN
+    ADD ($homme juge_bon $objet)
+    ADD (($homme juge_bon $objet) est_fonde_sur appetit)
+END
+
+RULE E3P09S_bien_suit_desir
+WHEN
+    ($homme desire $objet)
+THEN
+    ADD ($homme juge_bon $objet)
+    ADD (($homme juge_bon $objet) est_fonde_sur desir)
+END

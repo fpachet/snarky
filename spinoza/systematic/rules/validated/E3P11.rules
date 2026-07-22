@@ -1,0 +1,52 @@
+# Les quatre branches de E3P11, disponibles pour E3P12 et la suite.
+RULE E3P11_augmentation_corps_augmentation_ame
+WHEN
+    ($chose augmente_puissance_agir_de $corps)
+    ($idee est_idee_de $chose)
+    ($ame est_idee_de $corps)
+THEN
+    ADD ($idee augmente_puissance_agir_de $ame)
+END
+
+RULE E3P11_diminution_corps_diminution_ame
+WHEN
+    ($chose diminue_puissance_agir_de $corps)
+    ($idee est_idee_de $chose)
+    ($ame est_idee_de $corps)
+THEN
+    ADD ($idee diminue_puissance_agir_de $ame)
+END
+
+RULE E3P11_soutien_corps_soutien_ame
+WHEN
+    ($chose seconde_puissance_agir_de $corps)
+    ($idee est_idee_de $chose)
+    ($ame est_idee_de $corps)
+THEN
+    ADD ($idee seconde_puissance_agir_de $ame)
+END
+
+RULE E3P11_reduction_corps_reduction_ame
+WHEN
+    ($chose reduit_puissance_agir_de $corps)
+    ($idee est_idee_de $chose)
+    ($ame est_idee_de $corps)
+THEN
+    ADD ($idee reduit_puissance_agir_de $ame)
+END
+
+RULE E3P11S_joie_par_perfection_plus_grande
+WHEN
+    ($affect est_passion_de $ame)
+    ($affect fait_passer_ame_vers perfection_plus_grande)
+THEN
+    ADD ($affect est_joie_de $ame)
+END
+
+RULE E3P11S_tristesse_par_perfection_moindre
+WHEN
+    ($affect est_passion_de $ame)
+    ($affect fait_passer_ame_vers perfection_moindre)
+THEN
+    ADD ($affect est_tristesse_de $ame)
+END

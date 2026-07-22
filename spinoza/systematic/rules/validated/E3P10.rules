@@ -1,0 +1,10 @@
+# Résumé réutilisable de E3P10. L'affirmation corporelle de l'âme reste une
+# prémisse explicite afin de conserver la structure de contrariété.
+RULE E3P10_idee_excluant_corps_absente_et_contraire
+WHEN
+    ($idee exclut_existence_de $corps)
+    ($ame affirme_existence_de $corps)
+THEN
+    ADD ($idee est_donnee_dans $ame) ' FAUX
+    ADD ($idee est_contraire_a $ame)
+END

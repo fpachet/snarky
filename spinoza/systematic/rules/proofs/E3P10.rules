@@ -1,0 +1,20 @@
+# E3P10D : E3P07 fait de l'effort l'essence actuelle de l'âme ; puisque cette
+# âme est l'idée du corps, cet effort affirme l'existence de ce corps.
+RULE E3P10D_effort_ame_affirme_existence_corps
+WHEN
+    ($ame est_idee_de $corps)
+    ($effort vise_perseverance_de $ame)
+    ($effort est_identique_ontologiquement_a $essence)
+    ($essence est_essence_actuelle_de $ame)
+THEN
+    ADD ($ame affirme_existence_de $corps)
+END
+
+RULE E3P10D_idee_excluant_corps_contraire_ame
+WHEN
+    ($idee exclut_existence_de $corps)
+    ($ame affirme_existence_de $corps)
+THEN
+    ADD ($idee est_contraire_a $ame)
+    ADD ($ame est_contraire_a $idee)
+END

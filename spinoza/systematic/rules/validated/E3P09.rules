@@ -1,0 +1,35 @@
+# Proposition et scolie E3P09 publiés pour les propositions suivantes.
+RULE E3P09_ame_conatus_conscient_indefini
+WHEN
+    ($ame est_chose_singuliere VRAI)
+    ($effort est_effort_de $ame)
+    ($affection affecte $corps)
+    ($idee_affection est_idee_de $affection)
+    ($ame est_idee_de $corps)
+THEN
+    ADD ($ame s_efforce_de_perseverer_dans son_etre)
+    ADD ($effort enveloppe temps_indefini)
+    ADD ($ame a_conscience_de $effort)
+END
+
+RULE E3P09S_effort_appele_volonte
+WHEN
+    ($effort se_rapporte_a ame_seule)
+THEN
+    ADD ($effort est_appele volonte)
+END
+
+RULE E3P09S_effort_appele_appetit
+WHEN
+    ($effort se_rapporte_a ame_et_corps)
+THEN
+    ADD ($effort est_appele appetit)
+END
+
+RULE E3P09S_appetit_conscient_appele_desir
+WHEN
+    ($effort est_appele appetit)
+    ($homme a_conscience_de $effort)
+THEN
+    ADD ($effort est_appele desir)
+END

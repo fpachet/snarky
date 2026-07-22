@@ -1,0 +1,112 @@
+schema_version: 1
+id: E3P09
+model: ethics_iii_systematic_v1
+source_unit: E3P09
+source_text: >-
+  L'Âme, en tant qu'elle a des idées claires et distinctes, et aussi en tant
+  qu'elle a des idées confuses, s'efforce de persévérer dans son être pour une
+  durée indéfinie et a conscience de son effort.
+fact_files:
+  - facts/postulates.yaml
+rule_files:
+  - rules/external.rules
+  - rules/validated/E3P03.rules
+  - rules/validated/E3P06.rules
+  - rules/validated/E3P07.rules
+  - rules/validated/E3P08.rules
+  - rules/proofs/E3P09.rules
+rule_catalog: rules/catalog.yaml
+forbidden_rules:
+  - E3P09_ame_conatus_conscient_indefini
+  - E3P09S_effort_appele_volonte
+  - E3P09S_effort_appele_appetit
+  - E3P09S_appetit_conscient_appele_desir
+allowed_rule_origins:
+  - textual
+  - textual_theorem
+  - external_textual
+cases:
+  - id: idees_adequates_et_inadequates
+    initial_facts:
+      - "(ame0 est_chose_singuliere VRAI)"
+      - "(effort0 est_effort_de ame0)"
+      - "(essence0 est_essence_actuelle_de ame0)"
+      - "(idee_adequate0 est_adequate_dans ame0)"
+      - "(idee_inadequate0 est_inadequate_dans ame0)"
+      - "(affection0 affecte corps0)"
+      - "(idee_affection0 est_idee_de affection0)"
+      - "(ame0 est_idee_de corps0)"
+    goals:
+      - "(ame0 persevere_en_tant_qu_elle_a idee_adequate0)"
+      - "(ame0 persevere_en_tant_qu_elle_a idee_inadequate0)"
+      - "(effort0 enveloppe temps_indefini)"
+      - "(ame0 a_conscience_de effort0)"
+    expected:
+      status: proved
+      proof_depths: [2, 2, 2, 3]
+  - id: sans_idee_affection
+    initial_facts:
+      - "(ame0 est_chose_singuliere VRAI)"
+      - "(effort0 est_effort_de ame0)"
+      - "(essence0 est_essence_actuelle_de ame0)"
+      - "(idee_adequate0 est_adequate_dans ame0)"
+      - "(affection0 affecte corps0)"
+      - "(ame0 est_idee_de corps0)"
+    goals: []
+    must_not_derive:
+      - "(ame0 a_conscience_de effort0)"
+    expected:
+      status: proved
+  - id: scolie_volonte_appetit_desir
+    initial_facts:
+      - "(effort0 se_rapporte_a ame_seule)"
+      - "(effort0 se_rapporte_a ame_et_corps)"
+      - "(effort0 est_identique_ontologiquement_a essence_homme0)"
+      - "(essence_homme0 est_essence_actuelle_de homme0)"
+      - "(essence_homme0 est_donnee VRAI)"
+      - "(action_conservation0 est_temoignage_effet_de essence_homme0)"
+      - "(action_conservation0 sert_conservation_de homme0)"
+      - "(homme0 a_conscience_de effort0)"
+    goals:
+      - "(effort0 est_appele volonte)"
+      - "(effort0 est_appele appetit)"
+      - "(effort0 n_est_rien_hors_de essence_homme0)"
+      - "(homme0 est_determine_a action_conservation0)"
+      - "(effort0 est_appele desir)"
+      - "(effort0 desir_est_appetit_avec_conscience VRAI)"
+    expected:
+      status: proved
+      proof_depths: [1, 1, 2, 2, 2, 2]
+  - id: scolie_bien_suit_orientation
+    initial_facts:
+      - "(homme0 s_efforce_vers objet0)"
+      - "(homme0 veut objet0)"
+      - "(homme0 appete objet0)"
+      - "(homme0 desire objet0)"
+    goals:
+      - "((homme0 juge_bon objet0) est_fonde_sur effort)"
+      - "((homme0 juge_bon objet0) est_fonde_sur volonte)"
+      - "((homme0 juge_bon objet0) est_fonde_sur appetit)"
+      - "((homme0 juge_bon objet0) est_fonde_sur desir)"
+    expected:
+      status: proved
+      proof_depths: [1, 1, 1, 1]
+  - id: scolie_jugement_bon_sans_orientation
+    initial_facts:
+      - "(homme0 juge_bon objet0)"
+    goals: []
+    must_not_derive:
+      - "(homme0 s_efforce_vers objet0)"
+      - "(homme0 veut objet0)"
+      - "(homme0 appete objet0)"
+      - "(homme0 desire objet0)"
+    expected:
+      status: proved
+formalization_status: proved_with_scholium
+result: proved
+limitations:
+  - >-
+    Les expressions « en tant que » sont conservées comme relations
+    contextuelles et ne sont pas aplaties en simples propriétés de l'âme.
+  - >-
+    La conscience dépend d'un témoin explicite d'idée d'affection corporelle.

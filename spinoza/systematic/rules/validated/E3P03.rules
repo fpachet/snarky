@@ -1,0 +1,15 @@
+# Fragment de la démonstration de E3P03 utilisé explicitement par E3P09 : les
+# deux qualités d'idées constituent l'essence de l'âme.
+RULE E3P03_idee_adequate_constitue_essence_ame
+WHEN
+    ($idee est_adequate_dans $ame)
+THEN
+    ADD ($idee constitue_essence_de $ame)
+END
+
+RULE E3P03_idee_inadequate_constitue_essence_ame
+WHEN
+    ($idee est_inadequate_dans $ame)
+THEN
+    ADD ($idee constitue_essence_de $ame)
+END

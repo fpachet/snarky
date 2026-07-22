@@ -71,3 +71,76 @@ WHEN
 THEN
     ADD ($effet est_dans_limites_nature_de $chose)
 END
+
+# E2P23 : l'âme ne se connaît elle-même qu'en tant qu'elle perçoit les idées
+# des affections du corps.
+RULE E2P23_idee_affection_conscience_de_soi
+WHEN
+    ($affection affecte $corps)
+    ($idee_affection est_idee_de $affection)
+    ($ame est_idee_de $corps)
+THEN
+    ADD ($ame a_conscience_de $ame)
+END
+
+# E2P9C : si une chose destructrice ne peut être donnée dans le corps, son idée
+# ne peut être donnée en Dieu en tant qu'il a l'idée de ce corps.
+RULE E2P09C_exclusion_objet_transmise_a_son_idee
+WHEN
+    ($objet peut_etre_donne_dans $corps) ' FAUX
+    ($idee est_idee_de $objet)
+    (dieu a_idee_de $corps)
+THEN
+    ADD ($idee est_donnee_en_dieu_en_tant_qu_idee_de $corps) ' FAUX
+END
+
+# E2P11/E2P13 : l'âme est l'idée du corps ; l'exclusion précédente se transmet
+# donc au domaine des idées données dans cette âme.
+RULE E2P11_E2P13_idee_de_corps_dans_ame
+WHEN
+    ($ame est_idee_de $corps)
+    ($idee est_donnee_en_dieu_en_tant_qu_idee_de $corps) ' FAUX
+THEN
+    ADD ($idee est_donnee_dans $ame) ' FAUX
+END
+
+# E2P7/E2P14 : l'ordre des modifications corporelles et celui de leurs idées
+# est le même. Les quatre verbes de E3P11 restent distingués.
+RULE E2P07_augmentation_corps_augmentation_ame
+WHEN
+    ($chose augmente_puissance_agir_de $corps)
+    ($idee est_idee_de $chose)
+    ($ame est_idee_de $corps)
+THEN
+    ADD ($idee augmente_puissance_agir_de $ame)
+END
+
+
+RULE E2P07_diminution_corps_diminution_ame
+WHEN
+    ($chose diminue_puissance_agir_de $corps)
+    ($idee est_idee_de $chose)
+    ($ame est_idee_de $corps)
+THEN
+    ADD ($idee diminue_puissance_agir_de $ame)
+END
+
+
+RULE E2P07_soutien_corps_soutien_ame
+WHEN
+    ($chose seconde_puissance_agir_de $corps)
+    ($idee est_idee_de $chose)
+    ($ame est_idee_de $corps)
+THEN
+    ADD ($idee seconde_puissance_agir_de $ame)
+END
+
+
+RULE E2P07_reduction_corps_reduction_ame
+WHEN
+    ($chose reduit_puissance_agir_de $corps)
+    ($idee est_idee_de $chose)
+    ($ame est_idee_de $corps)
+THEN
+    ADD ($idee reduit_puissance_agir_de $ame)
+END

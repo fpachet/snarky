@@ -123,7 +123,7 @@ une preuve par contradiction non bornée.
 
 ## Tranche 3 — E3P09–E3P11 : désir, joie et tristesse
 
-Priorité immédiate.
+Statut : fragment exécutable achevé, scolies principales incluses.
 
 Concepts à introduire :
 
@@ -148,7 +148,16 @@ Question moteur principale : choisir une représentation qualitative des
 variations de puissance qui pourra ultérieurement recevoir une intensité
 numérique ou symbolique.
 
+Résultat : les quatre variations de E3P11 restent des relations qualitatives
+distinctes. Les passages vers une perfection plus grande ou moindre fondent
+respectivement joie et tristesse ; leur distribution corporelle distingue
+chatouillement, gaieté, douleur et mélancolie. E3P09 conserve les contextes
+« en tant que » et formalise le sens causal du scolie : le jugement de bonté
+suit l'effort, la volonté, l'appétit ou le désir, sans règle converse.
+
 ## Tranche 4 — E3P12–E3P18 : imagination et association
+
+Priorité immédiate.
 
 Concepts à introduire :
 

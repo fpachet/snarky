@@ -242,8 +242,83 @@ def test_e3p08_uses_explicit_reductio_to_derive_indefinite_duration() -> None:
     assert powerless.proved
 
 
-def test_each_conatus_manifest_has_a_passing_counter_case() -> None:
-    for proposition in range(4, 9):
+def test_e3p09_preserves_idea_context_and_models_its_scholium() -> None:
+    proposition = run_case(
+        SYSTEMATIC_ROOT,
+        "E3P09",
+        "idees_adequates_et_inadequates",
+    )
+    names = run_case(
+        SYSTEMATIC_ROOT,
+        "E3P09",
+        "scolie_volonte_appetit_desir",
+    )
+    direction = run_case(
+        SYSTEMATIC_ROOT,
+        "E3P09",
+        "scolie_bien_suit_orientation",
+    )
+    no_converse = run_case(
+        SYSTEMATIC_ROOT,
+        "E3P09",
+        "scolie_jugement_bon_sans_orientation",
+    )
+
+    assert proposition.proved
+    assert proposition.proof_depths == (2, 2, 2, 3)
+    assert "E3P03_idee_adequate_constitue_essence_ame" in proposition.rule_names
+    assert "E3P03_idee_inadequate_constitue_essence_ame" in proposition.rule_names
+    assert "E2P23_idee_affection_conscience_de_soi" in proposition.rule_names
+    assert names.proved
+    assert names.proof_depths == (1, 1, 2, 2, 2, 2)
+    assert direction.proved
+    assert direction.proof_depths == (1, 1, 1, 1)
+    assert no_converse.proved
+
+
+def test_e3p10_derives_both_exclusion_and_contrariety() -> None:
+    exclusion = run_case(SYSTEMATIC_ROOT, "E3P10", "idee_excluant_corps")
+    neutral = run_case(SYSTEMATIC_ROOT, "E3P10", "idee_non_excluante")
+
+    assert exclusion.proved
+    assert exclusion.proof_depths == (3, 4)
+    assert exclusion.goals[0].status is Status.FAUX
+    assert exclusion.rule_names == (
+        "E3P05_destruction_implique_contrariete",
+        "E2P09C_exclusion_objet_transmise_a_son_idee",
+        "E2P11_E2P13_idee_de_corps_dans_ame",
+        "E3P06_chose_singuliere_conatus",
+        "E3P07_conatus_est_essence_actuelle",
+        "E3P10D_effort_ame_affirme_existence_corps",
+        "E3P10D_idee_excluant_corps_contraire_ame",
+    )
+    assert neutral.proved
+
+
+def test_e3p11_covers_four_variations_and_joy_sadness_scholium() -> None:
+    variations = run_case(
+        SYSTEMATIC_ROOT,
+        "E3P11",
+        "quatre_variations_de_puissance",
+    )
+    affects = run_case(SYSTEMATIC_ROOT, "E3P11", "scolie_joie_tristesse")
+    neutral = run_case(SYSTEMATIC_ROOT, "E3P11", "scolie_passage_neutre")
+
+    assert variations.proved
+    assert variations.proof_depths == (1, 1, 1, 1)
+    assert variations.rule_names == (
+        "E2P07_augmentation_corps_augmentation_ame",
+        "E2P07_diminution_corps_diminution_ame",
+        "E2P07_soutien_corps_soutien_ame",
+        "E2P07_reduction_corps_reduction_ame",
+    )
+    assert affects.proved
+    assert affects.proof_depths == (1, 2, 1, 2, 1, 2, 1, 2, 2, 2, 3)
+    assert neutral.proved
+
+
+def test_each_systematic_manifest_since_e3p04_has_passing_counter_cases() -> None:
+    for proposition in range(4, 12):
         theorem_id = f"E3P{proposition:02d}"
         manifest = yaml.safe_load(
             (SYSTEMATIC_ROOT / "theorems" / f"{theorem_id}.yaml").read_text(
@@ -254,11 +329,22 @@ def test_each_conatus_manifest_has_a_passing_counter_case() -> None:
             case for case in manifest["cases"] if case.get("must_not_derive")
         ]
 
-        assert len(counter_cases) == 1
-        result = run_case(SYSTEMATIC_ROOT, theorem_id, counter_cases[0]["id"])
-        assert result.proved
-        assert result.forbidden_facts
-        assert result.forbidden_violations == ()
+        assert counter_cases
+        for counter_case in counter_cases:
+            result = run_case(SYSTEMATIC_ROOT, theorem_id, counter_case["id"])
+            assert result.proved
+            assert result.forbidden_facts
+            assert result.forbidden_violations == ()
+
+
+def test_manifest_expected_depths_match_executable_provenance() -> None:
+    for theorem_path in sorted((SYSTEMATIC_ROOT / "theorems").glob("E3P*.yaml")):
+        manifest = yaml.safe_load(theorem_path.read_text(encoding="utf-8"))
+        for case in manifest["cases"]:
+            result = run_case(SYSTEMATIC_ROOT, theorem_path.stem, case["id"])
+            assert result.proved
+            if "proof_depths" in case["expected"]:
+                assert result.proof_depths == tuple(case["expected"]["proof_depths"])
 
 
 def test_systematic_manifests_do_not_load_the_historical_model() -> None:
@@ -281,8 +367,8 @@ def test_systematic_manifests_do_not_load_the_historical_model() -> None:
         )
 
 
-def test_conatus_manifests_load_only_current_proof_and_prior_theorems() -> None:
-    for proposition in range(4, 9):
+def test_systematic_manifests_load_only_current_proof_and_prior_theorems() -> None:
+    for proposition in range(4, 12):
         theorem_id = f"E3P{proposition:02d}"
         manifest = yaml.safe_load(
             (SYSTEMATIC_ROOT / "theorems" / f"{theorem_id}.yaml").read_text(

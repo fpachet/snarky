@@ -1,0 +1,112 @@
+schema_version: 1
+id: E3P11
+model: ethics_iii_systematic_v1
+source_unit: E3P11
+source_text: >-
+  Si quelque chose augmente ou diminue, seconde ou réduit la puissance d'agir
+  de notre Corps, l'idée de cette chose augmente ou diminue, seconde ou réduit
+  la puissance de notre Âme.
+fact_files:
+  - facts/postulates.yaml
+rule_files:
+  - rules/external.rules
+  - rules/validated/E3P09.rules
+  - rules/proofs/E3P11.rules
+rule_catalog: rules/catalog.yaml
+forbidden_rules:
+  - E3P11_augmentation_corps_augmentation_ame
+  - E3P11_diminution_corps_diminution_ame
+  - E3P11_soutien_corps_soutien_ame
+  - E3P11_reduction_corps_reduction_ame
+  - E3P11S_joie_par_perfection_plus_grande
+  - E3P11S_tristesse_par_perfection_moindre
+allowed_rule_origins:
+  - textual
+  - textual_theorem
+  - external_textual
+cases:
+  - id: quatre_variations_de_puissance
+    initial_facts:
+      - "(cause_augmentation0 augmente_puissance_agir_de corps0)"
+      - "(idee_augmentation0 est_idee_de cause_augmentation0)"
+      - "(cause_diminution0 diminue_puissance_agir_de corps0)"
+      - "(idee_diminution0 est_idee_de cause_diminution0)"
+      - "(cause_soutien0 seconde_puissance_agir_de corps0)"
+      - "(idee_soutien0 est_idee_de cause_soutien0)"
+      - "(cause_reduction0 reduit_puissance_agir_de corps0)"
+      - "(idee_reduction0 est_idee_de cause_reduction0)"
+      - "(ame0 est_idee_de corps0)"
+    goals:
+      - "(idee_augmentation0 augmente_puissance_agir_de ame0)"
+      - "(idee_diminution0 diminue_puissance_agir_de ame0)"
+      - "(idee_soutien0 seconde_puissance_agir_de ame0)"
+      - "(idee_reduction0 reduit_puissance_agir_de ame0)"
+    expected:
+      status: proved
+      proof_depths: [1, 1, 1, 1]
+  - id: variations_sans_idees_correspondantes
+    initial_facts:
+      - "(cause_augmentation0 augmente_puissance_agir_de corps0)"
+      - "(cause_diminution0 diminue_puissance_agir_de corps0)"
+      - "(ame0 est_idee_de corps0)"
+    goals: []
+    must_not_derive:
+      - "(idee_augmentation0 augmente_puissance_agir_de ame0)"
+      - "(idee_diminution0 diminue_puissance_agir_de ame0)"
+    expected:
+      status: proved
+  - id: scolie_joie_tristesse
+    initial_facts:
+      - "(joie_locale0 est_passion_de ame0)"
+      - "(joie_locale0 fait_passer_ame_vers perfection_plus_grande)"
+      - "(joie_locale0 se_rapporte_a ame_et_corps)"
+      - "(joie_locale0 affecte_partie_plus_que_les_autres homme0)"
+      - "(joie_globale0 est_passion_de ame0)"
+      - "(joie_globale0 fait_passer_ame_vers perfection_plus_grande)"
+      - "(joie_globale0 se_rapporte_a ame_et_corps)"
+      - "(joie_globale0 affecte_toutes_parties_egalement_de homme0)"
+      - "(tristesse_locale0 est_passion_de ame0)"
+      - "(tristesse_locale0 fait_passer_ame_vers perfection_moindre)"
+      - "(tristesse_locale0 se_rapporte_a ame_et_corps)"
+      - "(tristesse_locale0 affecte_partie_plus_que_les_autres homme0)"
+      - "(tristesse_globale0 est_passion_de ame0)"
+      - "(tristesse_globale0 fait_passer_ame_vers perfection_moindre)"
+      - "(tristesse_globale0 se_rapporte_a ame_et_corps)"
+      - "(tristesse_globale0 affecte_toutes_parties_egalement_de homme0)"
+      - "(effort0 se_rapporte_a ame_et_corps)"
+      - "(homme0 a_conscience_de effort0)"
+    goals:
+      - "(joie_locale0 est_joie_de ame0)"
+      - "(joie_locale0 est_chatouillement_de homme0)"
+      - "(joie_globale0 est_joie_de ame0)"
+      - "(joie_globale0 est_gaiete_de homme0)"
+      - "(tristesse_locale0 est_tristesse_de ame0)"
+      - "(tristesse_locale0 est_douleur_de homme0)"
+      - "(tristesse_globale0 est_tristesse_de ame0)"
+      - "(tristesse_globale0 est_melancolie_de homme0)"
+      - "(joie est_affect_primitif VRAI)"
+      - "(tristesse est_affect_primitif VRAI)"
+      - "(desir est_affect_primitif VRAI)"
+    expected:
+      status: proved
+      proof_depths: [1, 2, 1, 2, 1, 2, 1, 2, 2, 2, 3]
+  - id: scolie_passage_neutre
+    initial_facts:
+      - "(affect_neutre0 est_passion_de ame0)"
+      - "(affect_neutre0 fait_passer_ame_vers perfection_inchangee)"
+      - "(affect_neutre0 se_rapporte_a ame_et_corps)"
+    goals: []
+    must_not_derive:
+      - "(affect_neutre0 est_joie_de ame0)"
+      - "(affect_neutre0 est_tristesse_de ame0)"
+    expected:
+      status: proved
+formalization_status: proved_with_scholium
+result: proved
+limitations:
+  - >-
+    Les variations restent qualitatives ; aucune intensité numérique n'est
+    encore attachée aux augmentations et diminutions de puissance.
+  - >-
+    Les trois affects primitifs sont affirmés positivement. L'exclusion de tout
+    quatrième affect primitif demanderait une fermeture explicite du domaine.

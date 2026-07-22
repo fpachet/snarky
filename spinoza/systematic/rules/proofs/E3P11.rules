@@ -1,0 +1,75 @@
+# E3P11S : la joie et la tristesse sont des passions définies par la direction
+# du passage de perfection.
+RULE E3P11S_joie_passage_perfection_plus_grande
+WHEN
+    ($affect est_passion_de $ame)
+    ($affect fait_passer_ame_vers perfection_plus_grande)
+THEN
+    ADD ($affect est_joie_de $ame)
+END
+
+RULE E3P11S_tristesse_passage_perfection_moindre
+WHEN
+    ($affect est_passion_de $ame)
+    ($affect fait_passer_ame_vers perfection_moindre)
+THEN
+    ADD ($affect est_tristesse_de $ame)
+END
+
+# Noms corporels selon la distribution locale ou globale de l'affection.
+RULE E3P11S_joie_locale_chatouillement
+WHEN
+    ($affect est_joie_de $ame)
+    ($affect se_rapporte_a ame_et_corps)
+    ($affect affecte_partie_plus_que_les_autres $homme)
+THEN
+    ADD ($affect est_chatouillement_de $homme)
+END
+
+RULE E3P11S_joie_globale_gaiete
+WHEN
+    ($affect est_joie_de $ame)
+    ($affect se_rapporte_a ame_et_corps)
+    ($affect affecte_toutes_parties_egalement_de $homme)
+THEN
+    ADD ($affect est_gaiete_de $homme)
+END
+
+RULE E3P11S_tristesse_locale_douleur
+WHEN
+    ($affect est_tristesse_de $ame)
+    ($affect se_rapporte_a ame_et_corps)
+    ($affect affecte_partie_plus_que_les_autres $homme)
+THEN
+    ADD ($affect est_douleur_de $homme)
+END
+
+RULE E3P11S_tristesse_globale_melancolie
+WHEN
+    ($affect est_tristesse_de $ame)
+    ($affect se_rapporte_a ame_et_corps)
+    ($affect affecte_toutes_parties_egalement_de $homme)
+THEN
+    ADD ($affect est_melancolie_de $homme)
+END
+
+RULE E3P11S_joie_affect_primitif
+WHEN
+    ($affect est_joie_de $ame)
+THEN
+    ADD (joie est_affect_primitif VRAI)
+END
+
+RULE E3P11S_tristesse_affect_primitif
+WHEN
+    ($affect est_tristesse_de $ame)
+THEN
+    ADD (tristesse est_affect_primitif VRAI)
+END
+
+RULE E3P11S_desir_affect_primitif
+WHEN
+    ($effort est_appele desir)
+THEN
+    ADD (desir est_affect_primitif VRAI)
+END
