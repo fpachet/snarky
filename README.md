@@ -35,11 +35,19 @@ BOOJUM. Chaque fonctionnalité devra être qualifiée comme `HISTORICAL`,
 
 ## État actuel
 
-Le dépôt contient désormais un premier moteur Python naïf servant de référence
-sémantique. Il prend en charge les termes et triplets récursifs immuables, les
-variables dans toutes les positions, le matching orienté, l’unification
-bidirectionnelle séparée, les statuts explicites, le chaînage avant jusqu’au
-point fixe, la réfraction et la provenance avec profondeur de preuve.
+Le dépôt contient un moteur Python naïf servant de référence sémantique et une
+première stratégie d’instanciation indexée optionnelle. Le cœur prend en charge
+les termes et triplets récursifs immuables, les variables dans toutes les
+positions, le matching orienté, l’unification bidirectionnelle séparée, les
+statuts explicites, le chaînage avant jusqu’au point fixe, la réfraction et la
+provenance avec profondeur de preuve.
+
+Le DSL sait également exécuter des actions arithmétiques séquentielles `LET`
+dans la conclusion des règles. Cette fonctionnalité est une
+`MODERN_EXTENSION` : elle évalue de manière sûre des expressions numériques
+avec `+`, `-`, `*`, `/`, précédence et parenthèses, puis transmet la liaison
+calculée aux actions suivantes. Il ne s’agit pas encore d’un solveur de
+contraintes arithmétiques.
 
 Le contenu actuel comprend :
 
@@ -63,12 +71,17 @@ Le contenu actuel comprend :
 - [`docs/optimization_plan.md`](docs/optimization_plan.md), le plan mesurable
   pour faire évoluer le moteur naïf vers des stratégies indexées, semi-naïves
   et centrées sur les contraintes ;
+- [`benchmarks`](benchmarks/README.md), les scénarios reproductibles, leurs
+  compteurs algorithmiques et les baselines de performance ;
 - [`src/snarky`](src/snarky), le package Python et son API publique.
 
-Le DSL prend notamment en charge les actions arithmétiques séquentielles
-`LET`, par exemple `LET $somme := $gauche + $droite`. Elles calculent une
-liaison locale utilisable par les actions `LET` et `ADD` suivantes, sans
-recourir à `eval` ni créer un fait intermédiaire.
+La base Fibonacci explicite utilise `LET $somme := $gauche + $droite` et ne
+reçoit qu’un fait racine : les sommes et les rangs des fils ne sont plus
+préchargés sous forme de tables.
+
+Les mises à jour et suppressions de faits, la création de symboles frais,
+l’évaluation semi-naïve et le raisonnement par contraintes restent à
+implémenter.
 
 ## Démarrage rapide
 
@@ -170,19 +183,29 @@ répertoire existant.
 2. ~~Définir la sémantique opérationnelle minimale.~~
 3. ~~Implémenter les termes immuables, substitutions et matching récursif.~~
 4. ~~Faire passer la base `mini_snarky` avec un moteur naïf de référence.~~
-5. Ajouter provenance, indexation et stratégies d’instanciation optimisées.
-6. Reproduire les démonstrations Spinoza P19, P21, P22 et P33.
-7. Ajouter une couche optionnelle de raisonnement par contraintes pour
+5. ~~Ajouter la réfraction et la provenance avec profondeur de preuve.~~
+6. ~~Introduire l’action arithmétique séquentielle `LET`, documenter sa
+   sémantique et reformuler Fibonacci sans tables de prédécesseurs ni de
+   sommes.~~
+7. ~~Ajouter une première stratégie d’instanciation indexée, des compteurs et
+   une baseline Fibonacci reproductible jusqu’à `F(17)`.~~
+8. Poursuivre les optimisations mesurées : vue de faits indexée persistante,
+   activations paresseuses, évaluation semi-naïve, puis planification des
+   jointures. Chaque étape devra préserver exactement les faits, dérivations
+   et profondeurs de preuve du moteur naïf.
+9. Reproduire les démonstrations Spinoza P19, P21, P22 et P33.
+10. Ajouter une couche optionnelle de raisonnement par contraintes pour
    exprimer et résoudre des problèmes de satisfaction (CSP, SAT et variantes),
    notamment au moyen d’un adaptateur vers OR-Tools. Le moteur d’inférence
    devra pouvoir produire des contraintes, appeler le solveur, puis réinjecter
    les solutions et contradictions obtenues comme faits assortis de leur
    provenance.
-8. Exécuter les benchmarks externes adaptés, puis ajouter des cas de test
-   dédiés au couplage entre règles et contraintes.
+11. Exécuter les benchmarks externes adaptés, puis ajouter des cas de test
+    dédiés au couplage entre règles et contraintes.
 
-La cible prévue est Python 3.12 ou ultérieur, avec `pytest`, `ruff`, un
-vérificateur de types et des tests différentiels fondés sur Hypothesis.
+La cible est Python 3.12 ou ultérieur, avec `pytest`, `ruff`, `mypy` et des
+tests différentiels. L’ajout de tests génératifs fondés sur Hypothesis reste
+prévu.
 Les solveurs externes, dont OR-Tools, resteront des dépendances optionnelles
 derrière une interface générique afin de préserver un cœur symbolique léger et
 de permettre l’utilisation future d’autres backends.
