@@ -62,9 +62,10 @@ Le contenu actuel comprend :
   le rapport complet de Fabrice Cavarretta sur SpinoLog ; ses apports possibles
   au projet sont analysés dans
   [`spinoza/reports/spinolog_1988_enrichment.md`](spinoza/reports/spinolog_1988_enrichment.md) ;
-- [`spinoza`](spinoza/README.md), la base historique exécutable, les quatre
-  preuves reproduites et le corpus structuré des 59 propositions de
-  l’Éthique III ;
+- [`spinoza`](spinoza/README.md), le cas d'étude complet de l'*Éthique III* :
+  corpus structuré des 59 propositions, reproduction historique des quatre
+  preuves de Gondran et reconstruction systématique exécutable de E3P01 à
+  E3P32, avec faits, règles, provenance et contre-cas explicites ;
 - [`third_party/test_rulebases`](third_party/test_rulebases/README.md), une
   sélection de corpus de règles externes ;
 - [`tests/rulebases/debug`](tests/rulebases/debug/README.md), une petite base
