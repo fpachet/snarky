@@ -1,0 +1,49 @@
+# L'idée de l'individu est explicitement considérée sous le nom général de sa
+# classe. La même joie ou tristesse reçoit alors l'idée générale comme cause.
+RULE E3P46D_idee_individu_joyeuse_sous_nom_general
+WHEN
+    ($individu appartient_a $classe)
+    ($idee_individu est_idee_de $individu)
+    ($idee_individu est_idee_de ($individu sous_nom_general $classe))
+    ($idee_individu accompagne $joie)
+    ($joie est_joie_de $ame)
+    ($idee_classe est_idee_de $classe)
+THEN
+    ADD ($idee_classe accompagne $joie)
+    ADD ($joie est_affect_cause_sous_nom_general_de $classe)
+END
+
+RULE E3P46D_idee_individu_triste_sous_nom_general
+WHEN
+    ($individu appartient_a $classe)
+    ($idee_individu est_idee_de $individu)
+    ($idee_individu est_idee_de ($individu sous_nom_general $classe))
+    ($idee_individu accompagne $tristesse)
+    ($tristesse est_tristesse_de $ame)
+    ($idee_classe est_idee_de $classe)
+THEN
+    ADD ($idee_classe accompagne $tristesse)
+    ADD ($tristesse est_affect_cause_sous_nom_general_de $classe)
+END
+
+# La Proposition 16 transfère ensuite l'affect à tout membre portant ce même
+# nom général. L'appartenance de l'individu cible doit être positive.
+RULE E3P46D_amour_nom_general_transfere_aux_membres
+WHEN
+    ($ame aime $classe)
+    ($affect est_joie_de $ame)
+    ($affect est_affect_cause_sous_nom_general_de $classe)
+    ($membre appartient_a $classe)
+THEN
+    ADD ($ame aime $membre)
+END
+
+RULE E3P46D_haine_nom_general_transfere_aux_membres
+WHEN
+    ($ame hait $classe)
+    ($affect est_tristesse_de $ame)
+    ($affect est_affect_cause_sous_nom_general_de $classe)
+    ($membre appartient_a $classe)
+THEN
+    ADD ($ame hait $membre)
+END

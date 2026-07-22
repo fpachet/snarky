@@ -1,0 +1,104 @@
+schema_version: 1
+id: E3P48
+model: ethics_iii_systematic_v1
+source_unit: E3P48
+source_text: >-
+  L'Amour et la Haine sont détruits si la Tristesse qu'enveloppe la seconde et
+  la Joie qu'enveloppe le premier sont jointes à l'idée d'une autre cause ; et
+  ils sont diminués dans la mesure où l'objet initial n'est pas imaginé comme
+  la cause à lui seul.
+fact_files: [facts/postulates.yaml]
+rule_files:
+  - rules/proofs/E3P48.rules
+rule_catalog: rules/catalog.yaml
+forbidden_rules:
+  - E3P48_autre_cause_totale_detruit_amour
+  - E3P48_autre_cause_totale_detruit_haine
+  - E3P48_cause_partagee_diminue_amour
+  - E3P48_cause_partagee_diminue_haine
+allowed_rule_origins: [textual]
+cases:
+  - id: reattribution_totale_amour_et_haine
+    initial_facts:
+      - "(amour0 est_amour_de (ame0 envers pierre0))"
+      - "(amour0 enveloppe joie0)"
+      - "(idee_pierre_joie0 est_idee_de pierre0)"
+      - "(idee_pierre_joie0 accompagne joie0)"
+      - "(joie0 est_jointe_a_idee_de autre_cause0)"
+      - "(autre_cause0 est_autre_que pierre0)"
+      - "(pierre0 est_retire_comme_cause_de joie0)"
+      - "(haine0 est_haine_de (ame0 envers pierre0))"
+      - "(haine0 enveloppe tristesse0)"
+      - "(idee_pierre_tristesse0 est_idee_de pierre0)"
+      - "(idee_pierre_tristesse0 accompagne tristesse0)"
+      - "(tristesse0 est_jointe_a_idee_de autre_cause0)"
+      - "(pierre0 est_retire_comme_cause_de tristesse0)"
+    goals:
+      - "(amour0 est_detruit_envers pierre0)"
+      - "(amour0 est_entierement_detruit VRAI)"
+      - "(haine0 est_detruite_envers pierre0)"
+      - "(haine0 est_entierement_detruite VRAI)"
+    must_not_derive:
+      - "(ame0 doute (ame0 aime pierre0))"
+      - entity: "(ame0 aime pierre0)"
+        status: FAUX
+      - entity: "(ame0 hait pierre0)"
+        status: FAUX
+    expected:
+      status: proved
+      proof_depths: [1, 1, 1, 1]
+  - id: causes_partagees_diminuent
+    initial_facts:
+      - "(amour0 est_amour_de (ame0 envers pierre0))"
+      - "(amour0 enveloppe joie0)"
+      - "(joie0 est_jointe_a_idee_de autre_cause0)"
+      - "(autre_cause0 est_autre_que pierre0)"
+      - "(pierre0 n_est_pas_cause_unique_de joie0)"
+      - "(pierre0 demeure_cause_partielle_de joie0)"
+      - "(haine0 est_haine_de (ame0 envers pierre0))"
+      - "(haine0 enveloppe tristesse0)"
+      - "(tristesse0 est_jointe_a_idee_de autre_cause0)"
+      - "(pierre0 n_est_pas_cause_unique_de tristesse0)"
+      - "(pierre0 demeure_cause_partielle_de tristesse0)"
+    goals:
+      - "(amour0 est_diminue_envers pierre0)"
+      - "(amour0 varie_selon_part_causale_de pierre0)"
+      - "(haine0 est_diminuee_envers pierre0)"
+      - "(haine0 varie_selon_part_causale_de pierre0)"
+    must_not_derive:
+      - "(amour0 est_entierement_detruit VRAI)"
+      - "(haine0 est_entierement_detruite VRAI)"
+      - "(ame0 doute (ame0 aime pierre0))"
+    expected:
+      status: proved
+      proof_depths: [1, 1, 1, 1]
+  - id: ordre_des_parts_causales
+    initial_facts:
+      - "(ame0 imagine (part_forte0 est_plus_intense_que part_faible0))"
+      - "(affect_fort0 correspond_a_part_causale part_forte0)"
+      - "(affect_faible0 correspond_a_part_causale part_faible0)"
+    goals:
+      - "(affect_fort0 est_plus_intense_que affect_faible0)"
+    expected:
+      status: proved
+      proof_depths: [1]
+  - id: autre_cause_sans_retrait_ni_partage
+    initial_facts:
+      - "(amour0 est_amour_de (ame0 envers pierre0))"
+      - "(amour0 enveloppe joie0)"
+      - "(joie0 est_jointe_a_idee_de autre_cause0)"
+      - "(autre_cause0 est_autre_que pierre0)"
+    goals: []
+    must_not_derive:
+      - "(amour0 est_entierement_detruit VRAI)"
+      - "(amour0 est_diminue_envers pierre0)"
+      - "(ame0 doute (ame0 aime pierre0))"
+    expected: {status: proved}
+formalization_status: proved_with_explicit_causal_reattribution
+result: proved
+limitations:
+  - >-
+    La destruction et la diminution sont des états de l'affection réifiée ;
+    elles ne deviennent ni négation absolue ni doute épistémique.
+  - >-
+    La variation avec la part causale reste un ordre qualitatif sans mesure.

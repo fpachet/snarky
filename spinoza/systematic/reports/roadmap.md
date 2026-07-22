@@ -278,11 +278,19 @@ l'auto-dommage par un statut `FAUX` explicite. L'audit est publié dans
 
 ## Tranche 7 — E3P45–E3P59 : généralisation et affects actifs
 
-Statut : E3P45 prioritaire.
+Statut : E3P45–E3P48 achevées ; E3P49 prioritaire.
 
 Concepts principaux : transfert des affects aux classes d'individus,
 association des causes, étonnement, considération, considération de soi,
 orgueil, abjection, diversité individuelle et affects actifs.
+
+Résultat E3P45–E3P48 : le transfert triangulaire reste sous imagination ; la
+généralisation sociale exige un nom général et des appartenances explicites.
+E3P47 isole comme interprétative l'extension de l'imitation malgré une haine
+préalable, puis représente le souvenir qui réduit sans supprimer une
+détermination triste. E3P48 distingue retrait causal total, causalité partagée
+et doute épistémique. L'audit est publié dans
+[`tranche_e3p45_e3p48.md`](tranche_e3p45_e3p48.md).
 
 E3P58–E3P59 doivent réutiliser explicitement les résultats de E3P01–E3P03,
 fermant ainsi la boucle architecturale de la partie III.

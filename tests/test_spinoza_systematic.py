@@ -818,8 +818,97 @@ def test_e3p44_models_transition_without_erasing_affective_history() -> None:
     assert self_harm.forbidden_violations == ()
 
 
+def test_e3p45_preserves_the_triangle_inside_imagination() -> None:
+    triangle = run_case(SYSTEMATIC_ROOT, "E3P45", "triangle_de_haine")
+    no_similarity = run_case(SYSTEMATIC_ROOT, "E3P45", "tiers_sans_similitude")
+
+    assert triangle.proved
+    assert triangle.proof_depths == (1, 2, 3, 4, 5)
+    assert triangle.rule_origins[0] == "compilation"
+    assert triangle.forbidden_violations == ()
+    assert no_similarity.proved
+    assert no_similarity.forbidden_violations == ()
+
+
+def test_e3p46_generalizes_only_under_an_explicit_general_name() -> None:
+    social_love = run_case(SYSTEMATIC_ROOT, "E3P46", "joie_sous_nom_de_classe")
+    social_hate = run_case(
+        SYSTEMATIC_ROOT,
+        "E3P46",
+        "tristesse_sous_nom_de_nation",
+    )
+    no_general_name = run_case(
+        SYSTEMATIC_ROOT,
+        "E3P46",
+        "affect_sans_nom_general",
+    )
+
+    assert social_love.proved
+    assert social_love.proof_depths == (1, 1, 2, 3)
+    assert social_love.forbidden_violations == ()
+    assert social_hate.proved
+    assert social_hate.proof_depths == (1, 1, 2, 3)
+    assert social_hate.forbidden_violations == ()
+    assert no_general_name.proved
+    assert no_general_name.forbidden_violations == ()
+
+
+def test_e3p47_makes_the_extension_of_e3p27_explicit() -> None:
+    mixed_affect = run_case(
+        SYSTEMATIC_ROOT,
+        "E3P47",
+        "destruction_chose_haie_similaire",
+    )
+    no_similarity = run_case(
+        SYSTEMATIC_ROOT,
+        "E3P47",
+        "destruction_chose_non_similaire",
+    )
+    memory = run_case(
+        SYSTEMATIC_ROOT,
+        "E3P47",
+        "scolie_souvenir_du_mal_passe",
+    )
+
+    assert mixed_affect.proved
+    assert mixed_affect.proof_depths == (1, 1, 2, 2, 3, 3)
+    assert "interpretative" in mixed_affect.rule_origins
+    assert mixed_affect.forbidden_violations == ()
+    assert no_similarity.proved
+    assert no_similarity.forbidden_violations == ()
+    assert memory.proved
+    assert memory.proof_depths == (1, 1, 2, 2, 2)
+
+
+def test_e3p48_separates_reattribution_diminution_and_doubt() -> None:
+    destroyed = run_case(
+        SYSTEMATIC_ROOT,
+        "E3P48",
+        "reattribution_totale_amour_et_haine",
+    )
+    diminished = run_case(
+        SYSTEMATIC_ROOT,
+        "E3P48",
+        "causes_partagees_diminuent",
+    )
+    insufficient = run_case(
+        SYSTEMATIC_ROOT,
+        "E3P48",
+        "autre_cause_sans_retrait_ni_partage",
+    )
+
+    assert destroyed.proved
+    assert destroyed.proof_depths == (1, 1, 1, 1)
+    assert destroyed.forbidden_violations == ()
+    assert diminished.proved
+    assert diminished.proof_depths == (1, 1, 1, 1)
+    assert diminished.forbidden_violations == ()
+    assert insufficient.proved
+    assert insufficient.forbidden_violations == ()
+
+
 def test_each_systematic_manifest_since_e3p04_has_passing_counter_cases() -> None:
-    for proposition in range(4, 45):
+    for proposition in range(4, 49):
         theorem_id = f"E3P{proposition:02d}"
         manifest = yaml.safe_load(
             (SYSTEMATIC_ROOT / "theorems" / f"{theorem_id}.yaml").read_text(
@@ -869,7 +958,7 @@ def test_systematic_manifests_do_not_load_the_historical_model() -> None:
 
 
 def test_systematic_manifests_load_only_current_proof_and_prior_theorems() -> None:
-    for proposition in range(4, 45):
+    for proposition in range(4, 49):
         theorem_id = f"E3P{proposition:02d}"
         manifest = yaml.safe_load(
             (SYSTEMATIC_ROOT / "theorems" / f"{theorem_id}.yaml").read_text(

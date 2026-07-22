@@ -1,0 +1,116 @@
+schema_version: 1
+id: E3P47
+model: ethics_iii_systematic_v1
+source_unit: E3P47
+source_text: >-
+  La Joie naissant de ce que nous imaginons qu'une chose que nous haïssons est
+  détruite, ou affectée d'un autre mal, ne naît pas sans quelque Tristesse de
+  l'Âme.
+fact_files: [facts/postulates.yaml]
+rule_files:
+  - rules/validated/E3P20.rules
+  - rules/validated/E3P23.rules
+  - rules/proofs/E3P47.rules
+rule_catalog: rules/catalog.yaml
+forbidden_rules:
+  - E3P47_destruction_chose_haie_joie_avec_tristesse
+  - E3P47_mal_chose_haie_joie_avec_tristesse
+  - E3P47S_souvenir_excluant_renouvelle_joie
+allowed_rule_origins: [textual, textual_theorem, interpretative]
+cases:
+  - id: destruction_chose_haie_similaire
+    initial_facts:
+      - "(ame0 hait objet0)"
+      - "(objet0 est_semblable_affectivement_pour ame0)"
+      - "(ame0 imagine (objet0 est_detruit VRAI))"
+      - "(source0 est_temoignage_tristesse_de (objet0 est_detruit VRAI))"
+      - "(source0 est_tristesse_imaginee_de objet0)"
+      - "(image0 est_image_de (source0 est_tristesse_de objet0))"
+      - "(tristesse0 accompagne image0)"
+      - "(tristesse0 est_passion_de ame0)"
+      - "(joie0 est_temoignage_joie_de_destruction_de objet0)"
+    goals:
+      - "(joie0 est_joie_de ame0)"
+      - "(ame0 imagine (source0 est_tristesse_de objet0))"
+      - "(tristesse0 est_tristesse_de ame0)"
+      - "(joie0 nait_du_mal_imagine_de objet0)"
+      - "(joie0 ne_nait_pas_sans tristesse0)"
+      - "(ame0 est_affecte_a_la_fois_par (joie0 et tristesse0))"
+    must_not_derive:
+      - "(objet0 est_detruit VRAI)"
+      - "(ame0 est_en fluctuation_de_l_ame)"
+      - "(ame0 est_honteux VRAI)"
+    expected:
+      status: proved
+      proof_depths: [1, 1, 2, 2, 3, 3]
+  - id: mal_autre_que_destruction
+    initial_facts:
+      - "(ame0 hait objet0)"
+      - "(objet0 est_semblable_affectivement_pour ame0)"
+      - "(ame0 imagine (objet0 est_affecte_par mal0))"
+      - "(mal0 est_mal_pour objet0)"
+      - "(source0 est_temoignage_tristesse_de (objet0 est_affecte_par mal0))"
+      - "(source0 est_tristesse_imaginee_de objet0)"
+      - "(image0 est_image_de (source0 est_tristesse_de objet0))"
+      - "(joie0 accompagne image0)"
+      - "(joie0 est_passion_de ame0)"
+      - "(joie0 est_temoignage_joie_du_mal_de objet0)"
+      - "(tristesse0 accompagne image0)"
+      - "(tristesse0 est_passion_de ame0)"
+    goals:
+      - "(ame0 imagine (source0 est_tristesse_de objet0))"
+      - "(joie0 est_joie_de ame0)"
+      - "(tristesse0 est_tristesse_de ame0)"
+      - "(joie0 ne_nait_pas_sans tristesse0)"
+    must_not_derive:
+      - "(objet0 est_affecte_par mal0)"
+    expected:
+      status: proved
+      proof_depths: [1, 2, 2, 4]
+  - id: destruction_chose_non_similaire
+    initial_facts:
+      - "(ame0 hait objet0)"
+      - "(ame0 imagine (objet0 est_detruit VRAI))"
+      - "(source0 est_temoignage_tristesse_de (objet0 est_detruit VRAI))"
+      - "(source0 est_tristesse_imaginee_de objet0)"
+      - "(image0 est_image_de (source0 est_tristesse_de objet0))"
+      - "(tristesse0 accompagne image0)"
+      - "(tristesse0 est_passion_de ame0)"
+      - "(joie0 est_temoignage_joie_de_destruction_de objet0)"
+    goals:
+      - "(joie0 est_joie_de ame0)"
+      - "(ame0 imagine (source0 est_tristesse_de objet0))"
+    must_not_derive:
+      - "(tristesse0 est_tristesse_de ame0)"
+      - "(joie0 ne_nait_pas_sans tristesse0)"
+    expected:
+      status: proved
+      proof_depths: [1, 1]
+  - id: scolie_souvenir_du_mal_passe
+    initial_facts:
+      - "(ame0 se_souvient_de objet0)"
+      - "(souvenir0 est_souvenir_vivace_de objet0)"
+      - "(ame0 avait_coutume_de_considerer_avec_tristesse objet0)"
+      - "(determination0 est_determination_triste_envers objet0)"
+      - "(tristesse0 est_temoignage_tristesse_de souvenir0)"
+      - "(souvenir_excluant0 est_joint_a souvenir0)"
+      - "(souvenir_excluant0 exclut_existence_de objet0)"
+      - "(joie0 est_temoignage_joie_de_reduction_de determination0)"
+    goals:
+      - "(ame0 considere_comme_present objet0)"
+      - "(tristesse0 est_tristesse_de ame0)"
+      - "(souvenir_excluant0 reduit determination0)"
+      - "(determination0 est_non_otee VRAI)"
+      - "(joie0 est_joie_renouvelee_du_mal_passe_de objet0)"
+    expected:
+      status: proved
+      proof_depths: [1, 1, 2, 2, 2]
+formalization_status: proved_with_interpretative_extension_of_e3p27
+result: proved
+limitations:
+  - >-
+    La transmission de tristesse malgré une haine préalable est marquée
+    interpretative : elle étend explicitement la portée littérale de E3P27.
+  - >-
+    Le scolie représente réduction et non-suppression de la détermination sans
+    calcul quantitatif de leur intensité.

@@ -65,7 +65,7 @@ Le contenu actuel comprend :
 - [`spinoza`](spinoza/README.md), le cas d'étude complet de l'*Éthique III* :
   corpus structuré des 59 propositions, reproduction historique des quatre
   preuves de Gondran et reconstruction systématique exécutable de E3P01 à
-  E3P44, avec faits, règles, provenance et contre-cas explicites ;
+  E3P48, avec faits, règles, provenance et contre-cas explicites ;
 - [`third_party/test_rulebases`](third_party/test_rulebases/README.md), une
   sélection de corpus de règles externes ;
 - [`tests/rulebases/debug`](tests/rulebases/debug/README.md), une petite base

@@ -1,0 +1,66 @@
+# L'attribution totale de la joie à une autre cause retire entièrement la
+# raison pour laquelle l'affection était appelée amour envers l'objet initial.
+RULE E3P48D_autre_cause_detruit_amour_initial
+WHEN
+    ($amour est_amour_de ($ame envers $objet_initial))
+    ($amour enveloppe $joie)
+    ($idee_initiale est_idee_de $objet_initial)
+    ($idee_initiale accompagne $joie)
+    ($joie est_jointe_a_idee_de $autre_cause)
+    ($autre_cause est_autre_que $objet_initial)
+    ($objet_initial est_retire_comme_cause_de $joie)
+THEN
+    ADD ($amour est_detruit_envers $objet_initial)
+    ADD ($amour est_entierement_detruit VRAI)
+END
+
+RULE E3P48D_autre_cause_detruit_haine_initiale
+WHEN
+    ($haine est_haine_de ($ame envers $objet_initial))
+    ($haine enveloppe $tristesse)
+    ($idee_initiale est_idee_de $objet_initial)
+    ($idee_initiale accompagne $tristesse)
+    ($tristesse est_jointe_a_idee_de $autre_cause)
+    ($autre_cause est_autre_que $objet_initial)
+    ($objet_initial est_retire_comme_cause_de $tristesse)
+THEN
+    ADD ($haine est_detruite_envers $objet_initial)
+    ADD ($haine est_entierement_detruite VRAI)
+END
+
+# Si l'objet initial demeure cause partielle, l'affection est seulement
+# diminuée. L'absence de cause unique est un fait positif.
+RULE E3P48D_cause_partagee_diminue_amour
+WHEN
+    ($amour est_amour_de ($ame envers $objet_initial))
+    ($amour enveloppe $joie)
+    ($joie est_jointe_a_idee_de $autre_cause)
+    ($autre_cause est_autre_que $objet_initial)
+    ($objet_initial n_est_pas_cause_unique_de $joie)
+    ($objet_initial demeure_cause_partielle_de $joie)
+THEN
+    ADD ($amour est_diminue_envers $objet_initial)
+    ADD ($amour varie_selon_part_causale_de $objet_initial)
+END
+
+RULE E3P48D_cause_partagee_diminue_haine
+WHEN
+    ($haine est_haine_de ($ame envers $objet_initial))
+    ($haine enveloppe $tristesse)
+    ($tristesse est_jointe_a_idee_de $autre_cause)
+    ($autre_cause est_autre_que $objet_initial)
+    ($objet_initial n_est_pas_cause_unique_de $tristesse)
+    ($objet_initial demeure_cause_partielle_de $tristesse)
+THEN
+    ADD ($haine est_diminuee_envers $objet_initial)
+    ADD ($haine varie_selon_part_causale_de $objet_initial)
+END
+
+RULE E3P48D_ordre_part_causale_transmis_affection
+WHEN
+    ($ame imagine ($part_forte est_plus_intense_que $part_faible))
+    ($affect_fort correspond_a_part_causale $part_forte)
+    ($affect_faible correspond_a_part_causale $part_faible)
+THEN
+    ADD ($affect_fort est_plus_intense_que $affect_faible)
+END

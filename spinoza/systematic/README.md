@@ -23,7 +23,7 @@ règle qui contient déjà sa conclusion. Pour tester `E3Pxx`, le manifeste :
 4. demande au moteur de dériver des faits représentant l'énoncé ;
 5. conserve la chaîne minimale des règles effectivement employées.
 
-## Fragments exécutables : E3P01–E3P44
+## Fragments exécutables : E3P01–E3P48
 
 Le fragment initial formalise :
 
@@ -127,6 +127,14 @@ explicite entre deux efforts et devient une transition affective qui conserve
 l'histoire de la haine. L'audit est publié dans
 [`reports/tranche_e3p41_e3p44.md`](reports/tranche_e3p41_e3p44.md).
 
+E3P45–E3P48 ouvrent la généralisation sociale. E3P45 conserve le triangle
+amant–chose aimée–tiers sous imagination ; E3P46 exige un nom général et des
+appartenances positives avant d'étendre amour ou haine. E3P47 rend explicite
+une extension interprétative de E3P27 pour produire la tristesse mêlée à la
+joie, et E3P48 distingue réattribution totale, causalité partagée et doute.
+L'audit avec SpinoLog est publié dans
+[`reports/tranche_e3p45_e3p48.md`](reports/tranche_e3p45_e3p48.md).
+
 Le lanceur expose pour chaque cas le nombre de faits initiaux et dérivés, le
 nombre de dérivations et toutes les règles activées. Ces données permettent un
 audit en lecture seule de la clôture sans modifier le moteur d'inférence.
@@ -182,3 +190,9 @@ mais sa règle publiée conserve les seules conditions de l'énoncé. E3P42 réi
 l'attente de réciprocité ; E3P43–E3P44 comparent des efforts et affects sans
 addition numérique. L'extirpation n'efface jamais rétroactivement la haine et
 le refus de l'auto-dommage dans le scolie de E3P44 reste une réfutation bornée.
+
+E3P45 applique E3P40 sous `imagine` au moyen d'une compilation contextuelle.
+E3P46 ne ferme pas extensionnellement les classes. E3P47 marque
+`interpretative` la transmission de tristesse malgré une haine préalable,
+car E3P27 exige littéralement une absence d'affect. E3P48 réifie destruction
+et diminution de l'affection sans les convertir en statut `FAUX` ni en doute.

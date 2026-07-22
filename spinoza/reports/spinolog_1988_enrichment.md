@@ -203,8 +203,10 @@ formalisation systématique des propositions concernées.
    de E3P40. La clôture de la tranche est publiée dans
    [`../systematic/reports/tranche_e3p41_e3p44.md`](../systematic/reports/tranche_e3p41_e3p44.md) :
    elle garde distincts affect initial, affect réciproque et transition.
-4. Avant E3P45–E3P48, rendre visibles les conclusions annexes, contradictions
-   et niveaux épistémiques.
+4. L'audit E3P45–E3P48 est réalisé dans
+   [`../systematic/reports/tranche_e3p45_e3p48.md`](../systematic/reports/tranche_e3p45_e3p48.md) :
+   les conclusions annexes de E3P45 sont interdites, l'écart textuel de E3P47
+   est marqué interprétatif, et E3P48 sépare réattribution, négation et doute.
 5. Après E3P59, évaluer séparément méta-ontologie, témoins frais et génération
    d'hypothèses.
 

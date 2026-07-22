@@ -1,0 +1,23 @@
+RULE E3P46_joie_sous_nom_general_etend_amour
+WHEN
+    ($individu appartient_a $classe)
+    ($membre appartient_a $classe)
+    ($idee_individu est_idee_de ($individu sous_nom_general $classe))
+    ($idee_individu accompagne $joie)
+    ($joie est_joie_de $ame)
+THEN
+    ADD ($ame aime $individu)
+    ADD ($ame aime $membre)
+END
+
+RULE E3P46_tristesse_sous_nom_general_etend_haine
+WHEN
+    ($individu appartient_a $classe)
+    ($membre appartient_a $classe)
+    ($idee_individu est_idee_de ($individu sous_nom_general $classe))
+    ($idee_individu accompagne $tristesse)
+    ($tristesse est_tristesse_de $ame)
+THEN
+    ADD ($ame hait $individu)
+    ADD ($ame hait $membre)
+END

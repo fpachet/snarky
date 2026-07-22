@@ -1,0 +1,35 @@
+RULE E3P47_destruction_chose_haie_joie_avec_tristesse
+WHEN
+    ($ame hait $objet)
+    ($objet est_semblable_affectivement_pour $ame)
+    ($ame imagine ($objet est_detruit VRAI))
+    ($joie est_temoignage_joie_de_destruction_de $objet)
+    ($tristesse est_temoignage_tristesse_imitee_de $objet)
+THEN
+    ADD ($joie est_joie_de $ame)
+    ADD ($tristesse est_tristesse_de $ame)
+END
+
+RULE E3P47_mal_chose_haie_joie_avec_tristesse
+WHEN
+    ($ame hait $objet)
+    ($objet est_semblable_affectivement_pour $ame)
+    ($ame imagine ($objet est_affecte_par $mal))
+    ($mal est_mal_pour $objet)
+    ($joie est_temoignage_joie_du_mal_de $objet)
+    ($tristesse est_temoignage_tristesse_imitee_de $objet)
+THEN
+    ADD ($joie est_joie_de $ame)
+    ADD ($tristesse est_tristesse_de $ame)
+END
+
+RULE E3P47S_souvenir_excluant_renouvelle_joie
+WHEN
+    ($ame se_souvient_de $objet)
+    ($souvenir est_souvenir_vivace_de $objet)
+    ($souvenir_excluant est_joint_a $souvenir)
+    ($souvenir_excluant exclut_existence_de $objet)
+    ($joie est_temoignage_joie_de_reduction_de $determination)
+THEN
+    ADD ($joie est_joie_renouvelee_du_mal_passe_de $objet)
+END

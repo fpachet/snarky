@@ -1,0 +1,70 @@
+schema_version: 1
+id: E3P45
+model: ethics_iii_systematic_v1
+source_unit: E3P45
+source_text: >-
+  Si quelqu'un qui aime une chose semblable à lui imagine qu'un autre
+  semblable à lui est affecté de Haine envers cette chose, il aura cet autre
+  en haine.
+fact_files: [facts/postulates.yaml]
+rule_files:
+  - rules/validated/E3P13.rules
+  - rules/validated/E3P21.rules
+  - rules/validated/E3P40.rules
+  - rules/proofs/E3P45.rules
+rule_catalog: rules/catalog.yaml
+forbidden_rules:
+  - E3P45_haine_envers_chose_aimee_produit_haine_du_tiers
+allowed_rule_origins: [textual, textual_theorem, compilation]
+cases:
+  - id: triangle_de_haine
+    initial_facts:
+      - "(amant0 aime aimee0)"
+      - "(aimee0 est_semblable_affectivement_a amant0)"
+      - "(tiers0 est_semblable_affectivement_a amant0)"
+      - "(amant0 imagine (tiers0 hait aimee0))"
+      - "(source_haine0 est_temoignage_tristesse_de (aimee0 hait tiers0))"
+      - "(image_tristesse0 est_image_de (source_haine0 est_tristesse_de aimee0))"
+      - "(tristesse_amant0 accompagne image_tristesse0)"
+      - "(tristesse_amant0 est_passion_de amant0)"
+      - "(idee_tiers0 est_idee_de tiers0)"
+    goals:
+      - "(amant0 imagine (aimee0 hait tiers0))"
+      - "(amant0 imagine (source_haine0 est_tristesse_de aimee0))"
+      - "(tristesse_amant0 est_tristesse_de amant0)"
+      - "(idee_tiers0 accompagne tristesse_amant0)"
+      - "(amant0 hait tiers0)"
+    must_not_derive:
+      - "(tiers0 hait aimee0)"
+      - "(aimee0 hait tiers0)"
+      - "(amant0 est_en fluctuation_de_l_ame)"
+      - "(amant0 est stable)"
+      - "(amant0 jalousie aimee0)"
+      - "(amant0 derision tiers0)"
+    expected:
+      status: proved
+      proof_depths: [1, 2, 3, 4, 5]
+  - id: tiers_sans_similitude
+    initial_facts:
+      - "(amant0 aime aimee0)"
+      - "(aimee0 est_semblable_affectivement_a amant0)"
+      - "(amant0 imagine (tiers0 hait aimee0))"
+      - "(source_haine0 est_temoignage_tristesse_de (aimee0 hait tiers0))"
+      - "(image_tristesse0 est_image_de (source_haine0 est_tristesse_de aimee0))"
+      - "(tristesse_amant0 accompagne image_tristesse0)"
+      - "(tristesse_amant0 est_passion_de amant0)"
+      - "(idee_tiers0 est_idee_de tiers0)"
+    goals: []
+    must_not_derive:
+      - "(amant0 imagine (aimee0 hait tiers0))"
+      - "(amant0 hait tiers0)"
+    expected: {status: proved}
+formalization_status: proved_with_contextual_compilation
+result: proved
+limitations:
+  - >-
+    L'application de E3P40 sous imagine est une compilation contextuelle. Elle
+    ne permet jamais de conclure que la chose aimée hait réellement le tiers.
+  - >-
+    Les conclusions annexes fluctuation, stabilité, jalousie et dérision de
+    SpinoLog sont conservées comme faits interdits.

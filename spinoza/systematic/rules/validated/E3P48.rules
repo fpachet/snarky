@@ -1,0 +1,41 @@
+RULE E3P48_autre_cause_totale_detruit_amour
+WHEN
+    ($amour est_amour_de ($ame envers $objet_initial))
+    ($amour enveloppe $joie)
+    ($joie est_jointe_a_idee_de $autre_cause)
+    ($autre_cause est_autre_que $objet_initial)
+    ($objet_initial est_retire_comme_cause_de $joie)
+THEN
+    ADD ($amour est_entierement_detruit VRAI)
+END
+
+RULE E3P48_autre_cause_totale_detruit_haine
+WHEN
+    ($haine est_haine_de ($ame envers $objet_initial))
+    ($haine enveloppe $tristesse)
+    ($tristesse est_jointe_a_idee_de $autre_cause)
+    ($autre_cause est_autre_que $objet_initial)
+    ($objet_initial est_retire_comme_cause_de $tristesse)
+THEN
+    ADD ($haine est_entierement_detruite VRAI)
+END
+
+RULE E3P48_cause_partagee_diminue_amour
+WHEN
+    ($amour est_amour_de ($ame envers $objet_initial))
+    ($amour enveloppe $joie)
+    ($objet_initial n_est_pas_cause_unique_de $joie)
+    ($objet_initial demeure_cause_partielle_de $joie)
+THEN
+    ADD ($amour est_diminue_envers $objet_initial)
+END
+
+RULE E3P48_cause_partagee_diminue_haine
+WHEN
+    ($haine est_haine_de ($ame envers $objet_initial))
+    ($haine enveloppe $tristesse)
+    ($objet_initial n_est_pas_cause_unique_de $tristesse)
+    ($objet_initial demeure_cause_partielle_de $tristesse)
+THEN
+    ADD ($haine est_diminuee_envers $objet_initial)
+END

@@ -1,0 +1,92 @@
+# La destruction et tout autre mal imaginés sont exposés comme tristesse de la
+# chose haïe, sans rendre la destruction ou le mal réels.
+RULE E3P47D_destruction_imaginee_expose_tristesse_objet
+WHEN
+    ($ame imagine ($objet est_detruit VRAI))
+    ($source est_temoignage_tristesse_de ($objet est_detruit VRAI))
+THEN
+    ADD ($ame imagine ($source est_tristesse_de $objet))
+END
+
+RULE E3P47D_mal_imagine_expose_tristesse_objet
+WHEN
+    ($ame imagine ($objet est_affecte_par $mal))
+    ($mal est_mal_pour $objet)
+    ($source est_temoignage_tristesse_de ($objet est_affecte_par $mal))
+THEN
+    ADD ($ame imagine ($source est_tristesse_de $objet))
+END
+
+# E3P47 cite E3P27 alors que l'objet est déjà haï. Cette règle interprétative
+# rend visible l'extension de l'imitation au lieu de feindre l'absence d'affect
+# préalable requise par E3P27.
+RULE INT_E3P47_similitude_transmet_tristesse_malgre_haine
+WHEN
+    ($ame hait $objet)
+    ($objet est_semblable_affectivement_pour $ame)
+    ($ame imagine ($source est_tristesse_de $objet))
+    ($image est_image_de ($source est_tristesse_de $objet))
+    ($tristesse accompagne $image)
+    ($tristesse est_passion_de $ame)
+THEN
+    ADD ($tristesse est_tristesse_de $ame)
+    ADD ($tristesse est_imitation_partielle_de $source)
+END
+
+RULE E3P47D_joie_destruction_nait_du_mal_imagine
+WHEN
+    ($joie est_joie_de $ame)
+    ($joie est_temoignage_joie_de_destruction_de $objet)
+THEN
+    ADD ($joie nait_du_mal_imagine_de $objet)
+END
+
+RULE E3P47D_joie_autre_mal_nait_du_mal_imagine
+WHEN
+    ($joie est_joie_de $ame)
+    ($joie est_temoignage_joie_du_mal_de $objet)
+THEN
+    ADD ($joie nait_du_mal_imagine_de $objet)
+END
+
+RULE E3P47D_joie_et_tristesse_coexistent
+WHEN
+    ($joie est_joie_de $ame)
+    ($tristesse est_tristesse_de $ame)
+    ($joie nait_du_mal_imagine_de $objet)
+    ($tristesse est_imitation_partielle_de $source)
+    ($source est_tristesse_imaginee_de $objet)
+THEN
+    ADD ($joie ne_nait_pas_sans $tristesse)
+    ADD ($ame est_affecte_a_la_fois_par ($joie et $tristesse))
+END
+
+# Scolie : le souvenir vivace rend la chose présente dans l'imagination et
+# réactive la détermination triste habituelle.
+RULE E3P47S_souvenir_vivace_reactive_tristesse
+WHEN
+    ($ame se_souvient_de $objet)
+    ($souvenir est_souvenir_vivace_de $objet)
+    ($ame avait_coutume_de_considerer_avec_tristesse $objet)
+    ($determination est_determination_triste_envers $objet)
+    ($tristesse est_temoignage_tristesse_de $souvenir)
+THEN
+    ADD ($ame considere_comme_present $objet)
+    ADD ($determination est_reactivee_par $souvenir)
+    ADD ($tristesse est_tristesse_de $ame)
+END
+
+RULE E3P47S_exclusion_reduit_sans_oter_determination
+WHEN
+    ($souvenir est_souvenir_vivace_de $objet)
+    ($souvenir_excluant est_joint_a $souvenir)
+    ($souvenir_excluant exclut_existence_de $objet)
+    ($determination est_reactivee_par $souvenir)
+    ($tristesse est_tristesse_de $ame)
+    ($joie est_temoignage_joie_de_reduction_de $determination)
+THEN
+    ADD ($souvenir_excluant reduit $determination)
+    ADD ($determination est_non_otee VRAI)
+    ADD ($joie est_joie_de $ame)
+    ADD ($joie est_joie_renouvelee_du_mal_passe_de $objet)
+END

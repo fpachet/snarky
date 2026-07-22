@@ -1,0 +1,83 @@
+schema_version: 1
+id: E3P46
+model: ethics_iii_systematic_v1
+source_unit: E3P46
+source_text: >-
+  Si quelqu'un a été affecté par un autre, appartenant à une classe ou à une
+  nation différente, d'une Joie ou d'une Tristesse qu'accompagne comme cause
+  l'idée de cet autre sous le nom général de la classe ou de la nation, non
+  seulement il aimera cet autre ou l'aura en haine, mais aussi tous ceux de la
+  même classe ou de la même nation.
+fact_files: [facts/postulates.yaml]
+rule_files:
+  - rules/validated/E3P13.rules
+  - rules/proofs/E3P46.rules
+rule_catalog: rules/catalog.yaml
+forbidden_rules:
+  - E3P46_joie_sous_nom_general_etend_amour
+  - E3P46_tristesse_sous_nom_general_etend_haine
+allowed_rule_origins: [textual, textual_theorem]
+cases:
+  - id: joie_sous_nom_de_classe
+    initial_facts:
+      - "(individu0 appartient_a classe0)"
+      - "(membre0 appartient_a classe0)"
+      - "(etranger0 appartient_a autre_classe0)"
+      - "(idee_individu0 est_idee_de individu0)"
+      - "(idee_individu0 est_idee_de (individu0 sous_nom_general classe0))"
+      - "(idee_individu0 accompagne joie0)"
+      - "(joie0 est_joie_de ame0)"
+      - "(idee_classe0 est_idee_de classe0)"
+    goals:
+      - "(ame0 aime individu0)"
+      - "(idee_classe0 accompagne joie0)"
+      - "(ame0 aime classe0)"
+      - "(ame0 aime membre0)"
+    must_not_derive:
+      - "(ame0 aime etranger0)"
+    expected:
+      status: proved
+      proof_depths: [1, 1, 2, 3]
+  - id: tristesse_sous_nom_de_nation
+    initial_facts:
+      - "(individu0 appartient_a nation0)"
+      - "(membre0 appartient_a nation0)"
+      - "(etranger0 appartient_a autre_nation0)"
+      - "(idee_individu0 est_idee_de individu0)"
+      - "(idee_individu0 est_idee_de (individu0 sous_nom_general nation0))"
+      - "(idee_individu0 accompagne tristesse0)"
+      - "(tristesse0 est_tristesse_de ame0)"
+      - "(idee_nation0 est_idee_de nation0)"
+    goals:
+      - "(ame0 hait individu0)"
+      - "(idee_nation0 accompagne tristesse0)"
+      - "(ame0 hait nation0)"
+      - "(ame0 hait membre0)"
+    must_not_derive:
+      - "(ame0 hait etranger0)"
+    expected:
+      status: proved
+      proof_depths: [1, 1, 2, 3]
+  - id: affect_sans_nom_general
+    initial_facts:
+      - "(individu0 appartient_a classe0)"
+      - "(membre0 appartient_a classe0)"
+      - "(idee_individu0 est_idee_de individu0)"
+      - "(idee_individu0 accompagne joie0)"
+      - "(joie0 est_joie_de ame0)"
+      - "(idee_classe0 est_idee_de classe0)"
+    goals:
+      - "(ame0 aime individu0)"
+    must_not_derive:
+      - "(idee_classe0 accompagne joie0)"
+      - "(ame0 aime classe0)"
+      - "(ame0 aime membre0)"
+    expected:
+      status: proved
+      proof_depths: [1]
+formalization_status: proved_with_explicit_general_name
+result: proved
+limitations:
+  - >-
+    L'appartenance et la présentation sous un nom général sont deux faits
+    distincts. Aucune fermeture du domaine des membres n'est supposée.

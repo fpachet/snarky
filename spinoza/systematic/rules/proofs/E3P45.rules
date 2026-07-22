@@ -1,0 +1,45 @@
+# E3P40 est appliquée dans le contenu imaginé par l'amant. La haine de la
+# chose aimée envers le tiers ne devient jamais un fait brut.
+RULE COMP_E3P45_haine_reciproque_dans_imagination
+WHEN
+    ($amant aime $aimee)
+    ($aimee est_semblable_affectivement_a $amant)
+    ($tiers est_semblable_affectivement_a $amant)
+    ($amant imagine ($tiers hait $aimee))
+THEN
+    ADD ($amant imagine ($aimee hait $tiers))
+END
+
+RULE E3P45D_haine_imaginee_expose_tristesse_aimee
+WHEN
+    ($amant imagine ($aimee hait $tiers))
+    ($source est_temoignage_tristesse_de ($aimee hait $tiers))
+THEN
+    ADD ($amant imagine ($source est_tristesse_de $aimee))
+    ADD ($source a_pour_cause_imaginee $tiers)
+END
+
+# E3P21 transmet à l'amant la tristesse imaginée de la chose aimée.
+RULE E3P45D_tristesse_aimee_attriste_amant
+WHEN
+    ($amant aime $aimee)
+    ($amant imagine ($source est_tristesse_de $aimee))
+    ($image est_image_de ($source est_tristesse_de $aimee))
+    ($tristesse accompagne $image)
+    ($tristesse est_passion_de $amant)
+THEN
+    ADD ($tristesse est_tristesse_de $amant)
+    ADD ($tristesse correspond_a_affect_imagine $source)
+END
+
+# L'idée du tiers, cause de la tristesse de la chose aimée, accompagne alors
+# la tristesse de l'amant. E3P13S conclut à la haine du tiers.
+RULE E3P45D_idee_tiers_accompagne_tristesse_amant
+WHEN
+    ($tristesse est_tristesse_de $amant)
+    ($tristesse correspond_a_affect_imagine $source)
+    ($source a_pour_cause_imaginee $tiers)
+    ($idee_tiers est_idee_de $tiers)
+THEN
+    ADD ($idee_tiers accompagne $tristesse)
+END

@@ -1,0 +1,9 @@
+RULE E3P45_haine_envers_chose_aimee_produit_haine_du_tiers
+WHEN
+    ($amant aime $aimee)
+    ($aimee est_semblable_affectivement_a $amant)
+    ($tiers est_semblable_affectivement_a $amant)
+    ($amant imagine ($tiers hait $aimee))
+THEN
+    ADD ($amant hait $tiers)
+END

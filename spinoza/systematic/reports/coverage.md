@@ -46,8 +46,12 @@
 | E3P42 | 3 | deux motifs du bienfait, attente réifiée et ingratitude | E3P11, E3P33–E3P34 |
 | E3P43 | 3 | haine ajoutée et compétition qualitative des efforts | E3P26, E3P29–E3P30, E3P37, E3P39–E3P41 |
 | E3P44 | 4 | transition haine-amour, joie supplémentaire et scolie | E3P06, E3P13, E3P37–E3P38, E3P43 |
+| E3P45 | 2 | triangle amant–aimée–tiers et contexte imaginé | E3P13, E3P21, E3P40 |
+| E3P46 | 3 | nom général, classe ou nation et transfert aux membres | E3P13, E3P16 |
+| E3P47 | 4 | joie mêlée de tristesse et souvenir du mal passé | E2P17, E3P20, E3P23, E3P27 |
+| E3P48 | 4 | réattribution totale, cause partagée et ordre causal | E3P13 |
 
-Couverture actuelle : 44 propositions sur 59. Toutes les propositions depuis
+Couverture actuelle : 48 propositions sur 59. Toutes les propositions depuis
 E3P04 possèdent au moins un contre-cas de non-dérivation. E3P09 et E3P11
 exécutent aussi les principaux fragments ontologiques de leurs scolies :
 volonté, appétit, désir, jugement de bonté, joie, tristesse et leurs variantes
@@ -63,7 +67,9 @@ pour une possession exclusive. E3P33–E3P36 ajoutent réciprocité, gloire
 ordonnée, jalousie triangulaire et configuration mémorielle. E3P37–E3P40
 ajoutent désir ordonné, haine accrue, action inhibée et réciprocité de la
 haine. E3P41–E3P44 ajoutent gratitude, cruauté, ingratitude et transformation
-de la haine en amour. La prochaine frontière est E3P45.
+de la haine en amour. E3P45–E3P48 ajoutent transfert triangulaire,
+généralisation sociale, affect mixte et réattribution causale. La prochaine
+frontière est E3P49.
 
 L'ordre des tranches, leurs concepts et leurs critères de sortie sont décrits
 dans [`roadmap.md`](roadmap.md).
@@ -137,3 +143,12 @@ explicite des efforts. E3P44 conserve cette haine comme histoire affective :
 la victoire est une transition, non une négation rétroactive. Son scolie
 réfute explicitement le désir d'auto-dommage. L'audit est publié dans
 [`tranche_e3p41_e3p44.md`](tranche_e3p41_e3p44.md).
+
+E3P45 garde la haine réciproque de la chose aimée dans le contenu imaginé et
+interdit les conclusions annexes de SpinoLog. E3P46 ne généralise qu'à des
+membres positivement rattachés au nom collectif sous lequel l'affect a été
+causé. E3P47 marque l'extension de E3P27 comme interprétative et exige la
+similitude ; son scolie distingue réduction et suppression. E3P48 ne confond
+ni diminution et destruction, ni retrait causal et négation, ni révision
+affective et doute. L'audit est publié dans
+[`tranche_e3p45_e3p48.md`](tranche_e3p45_e3p48.md).
