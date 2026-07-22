@@ -1,0 +1,124 @@
+# La haine produit d'abord un projet nuisible. L'effort final dépend ensuite
+# d'une absence positive de crainte ou d'un effort contraire plus fort.
+RULE E3P39D_haine_projet_nuisible
+WHEN
+    ($ame hait $autrui)
+    ($haine est_temoignage_haine_de ($ame hait $autrui))
+    ($action est_action_nuisible_envers $autrui)
+    ($desir est_temoignage_desir_nuire_par $haine)
+THEN
+    ADD ($ame medite_de_faire $action)
+    ADD ($desir est_desir_de $ame)
+    ADD ($desir nait_de $haine)
+    ADD ($desir vise_a_nuire $autrui)
+END
+
+RULE E3P39D_absence_crainte_libere_effort_nuisible
+WHEN
+    ($ame medite_de_faire $action)
+    ($action est_action_nuisible_envers $autrui)
+    ($ame est_sans_crainte_de_retorsion_pour $action)
+THEN
+    ADD ($ame s_efforce_de_faire $action)
+    ADD ($ame s_efforce_de_faire_du_mal_a $autrui)
+END
+
+RULE E3P39D_amour_effort_bien
+WHEN
+    ($ame aime $autrui)
+    ($amour est_temoignage_amour_de ($ame aime $autrui))
+    ($action est_action_bienfaisante_envers $autrui)
+    ($desir est_temoignage_desir_bienfaisant_par $amour)
+THEN
+    ADD ($desir est_desir_de $ame)
+    ADD ($desir nait_de $amour)
+    ADD ($desir vise_a_favoriser $autrui)
+    ADD ($ame s_efforce_de_faire_du_bien_a $autrui)
+END
+
+RULE E3P39D_crainte_produit_desir_abstention
+WHEN
+    ($ame craint $consequence)
+    ($consequence est_mal_plus_grand_que $mal_inflige)
+    ($ame croit_eviter $consequence)
+    (($ame s_abstient_de $action) est_moyen_d_eviter $consequence)
+    ($desir est_temoignage_desir_abstention_ne_de $crainte)
+    ($crainte est_crainte_de $ame)
+THEN
+    ADD ($desir est_desir_de $ame)
+    ADD ($desir nait_de $crainte)
+    ADD ($desir vise_a_s_abstenir_de $action)
+END
+
+RULE E3P39D_effort_abstention_plus_fort_prevaut
+WHEN
+    ($ame medite_de_faire $action)
+    ($desir_nuire vise_a_nuire $autrui)
+    ($desir_abstention vise_a_s_abstenir_de $action)
+    ($desir_abstention est_plus_intense_que $desir_nuire)
+THEN
+    ADD ($ame s_abstient_de_faire_du_mal_a $autrui)
+    ADD ($desir_nuire est_inhibe_par $desir_abstention)
+END
+
+# Scolie : bien et mal restent relatifs à l'affect de l'agent.
+RULE E3P39S_joie_est_bien
+WHEN
+    ($affect est_joie_de $ame)
+THEN
+    ADD ($affect est_bien_pour $ame)
+END
+
+RULE E3P39S_voie_vers_joie_est_bien
+WHEN
+    ($evenement mene_a $joie)
+    ($joie est_joie_de $ame)
+THEN
+    ADD ($evenement est_bien_pour $ame)
+END
+
+RULE E3P39S_tristesse_est_mal
+WHEN
+    ($affect est_tristesse_de $ame)
+THEN
+    ADD ($affect est_mal_pour $ame)
+END
+
+RULE E3P39S_frustration_est_mal
+WHEN
+    ($evenement frustre_attente_de $ame)
+THEN
+    ADD ($evenement est_mal_pour $ame)
+END
+
+# Peur, pudeur et consternation exigent leurs conditions positives propres.
+RULE E3P39S_crainte_evite_mal_par_mal_moindre_est_peur
+WHEN
+    ($crainte est_crainte_de $ame)
+    ($mal_moindre est_mal_moindre_que $mal_grand)
+    ($ame choisit_mal_moindre_pour_eviter $mal_grand)
+    ($crainte dispose_a ($ame evite $mal_grand))
+THEN
+    ADD ($crainte est_peur_de $ame)
+END
+
+RULE E3P39S_peur_honte_est_pudeur
+WHEN
+    ($peur est_peur_de $ame)
+    ($mal est_honte_pour $ame)
+    ($peur porte_sur $mal)
+THEN
+    ADD ($peur est_pudeur_de $ame)
+END
+
+RULE E3P39S_deux_peurs_reduisent_desir_consternation
+WHEN
+    ($crainte_un est_crainte_de $ame)
+    ($crainte_deux est_crainte_de $ame)
+    ($desir est_desir_d_eviter $mal_un)
+    ($crainte_deux reduit $desir)
+    ($ame ne_sait_plus_ce_qu_elle_veut VRAI)
+    ($consternation est_temoignage_consternation_de ($mal_un oppose_a $mal_deux))
+THEN
+    ADD ($consternation est_consternation_de $ame)
+END

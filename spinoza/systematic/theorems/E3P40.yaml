@@ -1,0 +1,136 @@
+schema_version: 1
+id: E3P40
+model: ethics_iii_systematic_v1
+source_unit: E3P40
+source_text: >-
+  Qui imagine qu'un autre l'a en haine et croit ne lui avoir donné aucune
+  cause de haine aura à son tour cet autre en haine.
+fact_files: [facts/postulates.yaml]
+rule_files:
+  - rules/validated/E3P13.rules
+  - rules/validated/E3P27.rules
+  - rules/validated/E3P30.rules
+  - rules/validated/E3P39.rules
+  - rules/proofs/E3P40.rules
+rule_catalog: rules/catalog.yaml
+forbidden_rules:
+  - E3P40_haine_imaginee_sans_cause_devient_reciproque
+  - E3P40S_cause_juste_produit_honte
+  - E3P40C1_amour_haine_fluctuation
+  - E3P40C2_mal_subi_effort_rendre
+allowed_rule_origins: [textual, textual_theorem]
+cases:
+  - id: reciprocite_sans_cause
+    initial_facts:
+      - "(autrui0 a_corps corps_autrui0)"
+      - "(ame0 est_idee_de corps_ame0)"
+      - "(corps_autrui0 a_nature_corporelle_similaire_a corps_ame0)"
+      - "(ame0 imagine autrui0)"
+      - "(ame0 est_sans_affect_prealable_envers autrui0)"
+      - "(ame0 imagine (autrui0 hait ame0))"
+      - "(source_haine0 est_temoignage_tristesse_de (autrui0 hait ame0))"
+      - "(image_haine0 est_image_de (source_haine0 est_tristesse_de autrui0))"
+      - "(tristesse_imitee0 accompagne image_haine0)"
+      - "(tristesse_imitee0 est_temoignage_affectif_d_imitation_de source_haine0)"
+      - "(idee_autrui0 est_idee_de autrui0)"
+      - "(ame0 croit_n_avoir_donne_aucune_cause_de_haine_a autrui0)"
+    goals:
+      - "(autrui0 est_semblable_affectivement_pour ame0)"
+      - "(ame0 imagine (source_haine0 est_tristesse_de autrui0))"
+      - "(tristesse_imitee0 est_tristesse_de ame0)"
+      - "(idee_autrui0 accompagne tristesse_imitee0)"
+      - "(ame0 hait autrui0)"
+    must_not_derive:
+      - "(autrui0 hait ame0)"
+    expected:
+      status: proved
+      proof_depths: [1, 1, 2, 3, 4]
+  - id: cause_juste_produit_honte
+    initial_facts:
+      - "(ame0 imagine (autrui0 hait ame0))"
+      - "(ame0 croit_avoir_donne_juste_cause_de_haine_a autrui0)"
+      - "(honte0 est_temoignage_honte_de (ame0 envers autrui0))"
+    goals:
+      - "(honte0 est_tristesse_de ame0)"
+      - "(honte0 est_honte_de ame0)"
+    must_not_derive:
+      - "(ame0 hait autrui0)"
+    expected:
+      status: proved
+      proof_depths: [1, 2]
+  - id: corollaire_amour_et_haine
+    initial_facts:
+      - "(autrui0 est_semblable_affectivement_pour ame0)"
+      - "(ame0 est_sans_affect_prealable_envers autrui0)"
+      - "(ame0 imagine (autrui0 hait ame0))"
+      - "(source_haine0 est_temoignage_tristesse_de (autrui0 hait ame0))"
+      - "(image_haine0 est_image_de (source_haine0 est_tristesse_de autrui0))"
+      - "(tristesse_imitee0 accompagne image_haine0)"
+      - "(tristesse_imitee0 est_temoignage_affectif_d_imitation_de source_haine0)"
+      - "(idee_autrui0 est_idee_de autrui0)"
+      - "(ame0 croit_n_avoir_donne_aucune_cause_de_haine_a autrui0)"
+      - "(ame0 aime autrui0)"
+    goals:
+      - "(ame0 hait autrui0)"
+      - "(ame0 aime_et_hait_en_meme_temps autrui0)"
+      - "(ame0 est_en fluctuation_de_l_ame)"
+    expected:
+      status: proved
+      proof_depths: [4, 5, 5]
+  - id: corollaire_vengeance
+    initial_facts:
+      - "(autrui0 est_semblable_affectivement_pour ame0)"
+      - "(ame0 est_sans_affect_prealable_envers autrui0)"
+      - "(ame0 imagine (autrui0 hait ame0))"
+      - "(source_haine0 est_temoignage_tristesse_de (autrui0 hait ame0))"
+      - "(image_haine0 est_image_de (source_haine0 est_tristesse_de autrui0))"
+      - "(tristesse_imitee0 accompagne image_haine0)"
+      - "(tristesse_imitee0 est_temoignage_affectif_d_imitation_de source_haine0)"
+      - "(idee_autrui0 est_idee_de autrui0)"
+      - "(ame0 croit_n_avoir_donne_aucune_cause_de_haine_a autrui0)"
+      - "(ame0 imagine (autrui0 a_fait_par_haine mal_subi0))"
+      - "(mal_subi0 est_mal_subi_par ame0)"
+      - "(action_retour0 reproduit mal_subi0)"
+      - "(action_retour0 est_action_nuisible_envers autrui0)"
+      - "(ame0 est_sans_crainte_de_retorsion_pour action_retour0)"
+      - "(colere0 est_temoignage_colere_de (ame0 envers autrui0))"
+      - "(vengeance0 est_temoignage_vengeance_de (ame0 rend mal_subi0))"
+    goals:
+      - "(ame0 hait autrui0)"
+      - "(ame0 s_efforce_de_faire_du_mal_a autrui0)"
+      - "(ame0 s_efforce_de_rendre mal_subi0)"
+      - "(colere0 est_colere_de ame0)"
+      - "(vengeance0 est_vengeance_de ame0)"
+    must_not_derive:
+      - "(ame0 a_fait action_retour0)"
+    expected:
+      status: proved
+      proof_depths: [4, 5, 6, 6, 7]
+  - id: chose_non_semblable
+    initial_facts:
+      - "(ame0 est_sans_affect_prealable_envers autrui0)"
+      - "(ame0 imagine (autrui0 hait ame0))"
+      - "(source_haine0 est_temoignage_tristesse_de (autrui0 hait ame0))"
+      - "(image_haine0 est_image_de (source_haine0 est_tristesse_de autrui0))"
+      - "(tristesse_imitee0 accompagne image_haine0)"
+      - "(tristesse_imitee0 est_temoignage_affectif_d_imitation_de source_haine0)"
+      - "(idee_autrui0 est_idee_de autrui0)"
+      - "(ame0 croit_n_avoir_donne_aucune_cause_de_haine_a autrui0)"
+    goals:
+      - "(ame0 imagine (source_haine0 est_tristesse_de autrui0))"
+    must_not_derive:
+      - "(tristesse_imitee0 est_tristesse_de ame0)"
+      - "(ame0 hait autrui0)"
+    expected:
+      status: proved
+      proof_depths: [1]
+formalization_status: proved_with_scholium_and_corollaries
+result: proved
+limitations:
+  - >-
+    La preuve systématique exige la similitude et l'absence préalable d'affect
+    requises par E3P27. Le fait de croire n'avoir donné aucune cause de haine
+    reste une condition distincte.
+  - >-
+    L'effort de vengeance ne signifie jamais que le mal a effectivement été
+    rendu.

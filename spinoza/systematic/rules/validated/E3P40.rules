@@ -1,0 +1,36 @@
+RULE E3P40_haine_imaginee_sans_cause_devient_reciproque
+WHEN
+    ($autrui est_semblable_affectivement_pour $ame)
+    ($ame est_sans_affect_prealable_envers $autrui)
+    ($ame imagine ($autrui hait $ame))
+    ($ame croit_n_avoir_donne_aucune_cause_de_haine_a $autrui)
+THEN
+    ADD ($ame hait $autrui)
+END
+
+RULE E3P40S_cause_juste_produit_honte
+WHEN
+    ($ame imagine ($autrui hait $ame))
+    ($ame croit_avoir_donne_juste_cause_de_haine_a $autrui)
+    ($honte est_temoignage_honte_de ($ame envers $autrui))
+THEN
+    ADD ($honte est_honte_de $ame)
+END
+
+RULE E3P40C1_amour_haine_fluctuation
+WHEN
+    ($ame aime $autrui)
+    ($ame hait $autrui)
+THEN
+    ADD ($ame aime_et_hait_en_meme_temps $autrui)
+    ADD ($ame est_en fluctuation_de_l_ame)
+END
+
+RULE E3P40C2_mal_subi_effort_rendre
+WHEN
+    ($ame est_sans_affect_prealable_envers $autrui)
+    ($ame imagine ($autrui a_fait_par_haine $mal))
+    ($ame hait $autrui)
+THEN
+    ADD ($ame s_efforce_de_rendre $mal)
+END

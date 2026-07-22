@@ -1,0 +1,18 @@
+RULE E3P37_affect_fait_varier_desir
+WHEN
+    ($desir est_desir_de $ame)
+    ($desir nait_de $affect)
+THEN
+    ADD ($desir varie_selon_degre_de $affect)
+END
+
+RULE E3P37_ordre_affect_transmis_desir
+WHEN
+    ($ame imagine ($affect_fort est_plus_intense_que $affect_faible))
+    ($desir_fort nait_de $affect_fort)
+    ($desir_fort est_desir_de $ame)
+    ($desir_faible nait_de $affect_faible)
+    ($desir_faible est_desir_de $ame)
+THEN
+    ADD ($desir_fort est_plus_intense_que $desir_faible)
+END

@@ -1,0 +1,60 @@
+# Chaque désir est un témoin explicite né d'un affect. Les quatre branches
+# conservent leur orientation propre : écarter, conserver, nuire ou favoriser.
+RULE E3P37D_tristesse_desir_ecarter
+WHEN
+    ($tristesse est_tristesse_de $ame)
+    ($desir est_temoignage_desir_ne_de $tristesse)
+THEN
+    ADD ($desir est_desir_de $ame)
+    ADD ($desir nait_de $tristesse)
+    ADD ($desir vise_a_ecarter $tristesse)
+    ADD ($desir varie_selon_degre_de $tristesse)
+END
+
+RULE E3P37D_joie_desir_conserver
+WHEN
+    ($joie est_joie_de $ame)
+    ($desir est_temoignage_desir_ne_de $joie)
+THEN
+    ADD ($desir est_desir_de $ame)
+    ADD ($desir nait_de $joie)
+    ADD ($desir vise_a_conserver $joie)
+    ADD ($desir varie_selon_degre_de $joie)
+END
+
+RULE E3P37D_haine_desir_ecarter_objet
+WHEN
+    ($ame hait $objet)
+    ($haine est_temoignage_haine_de ($ame hait $objet))
+    ($desir est_temoignage_desir_ne_de $haine)
+THEN
+    ADD ($desir est_desir_de $ame)
+    ADD ($desir nait_de $haine)
+    ADD ($desir vise_a_ecarter $objet)
+    ADD ($desir varie_selon_degre_de $haine)
+END
+
+RULE E3P37D_amour_desir_conserver_objet
+WHEN
+    ($ame aime $objet)
+    ($amour est_temoignage_amour_de ($ame aime $objet))
+    ($desir est_temoignage_desir_ne_de $amour)
+THEN
+    ADD ($desir est_desir_de $ame)
+    ADD ($desir nait_de $amour)
+    ADD ($desir vise_a_conserver $objet)
+    ADD ($desir varie_selon_degre_de $amour)
+END
+
+# L'ordre qualitatif de deux affects de même famille est transmis aux désirs
+# qui en naissent. Aucun coefficient numérique n'est requis.
+RULE E3P37D_ordre_affect_transmis_desir
+WHEN
+    ($ame imagine ($affect_fort est_plus_intense_que $affect_faible))
+    ($desir_fort nait_de $affect_fort)
+    ($desir_fort est_desir_de $ame)
+    ($desir_faible nait_de $affect_faible)
+    ($desir_faible est_desir_de $ame)
+THEN
+    ADD ($desir_fort est_plus_intense_que $desir_faible)
+END

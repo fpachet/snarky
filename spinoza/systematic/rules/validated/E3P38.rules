@@ -1,0 +1,21 @@
+RULE E3P38_amour_aboli_accroit_haine
+WHEN
+    ($amour est_amour_passe_de ($ame envers $objet))
+    ($amour est_entierement_aboli VRAI)
+    ($ame hait $objet)
+    ($haine_apres est_temoignage_haine_apres_amour_de ($ame envers $objet))
+    ($haine_sans est_temoignage_haine_sans_amour_de ($ame envers $objet))
+THEN
+    ADD ($haine_apres est_plus_intense_que $haine_sans)
+    ADD ($haine_apres est_haine_apres_amour_de $amour)
+    ADD ($haine_apres varie_selon_degre_de $amour)
+END
+
+RULE E3P38_ordre_amour_passe_transmis_haine
+WHEN
+    ($ame imagine ($amour_fort est_plus_intense_que $amour_faible))
+    ($haine_forte est_haine_apres_amour_de $amour_fort)
+    ($haine_faible est_haine_apres_amour_de $amour_faible)
+THEN
+    ADD ($haine_forte est_plus_intense_que $haine_faible)
+END

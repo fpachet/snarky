@@ -1,0 +1,64 @@
+# L'amour passé laisse plusieurs efforts nommés. Ils ne sont pas des efforts
+# actuels : leur réification permet d'établir ce que la haine nouvelle réduit.
+RULE E3P38D_amour_passe_engage_efforts
+WHEN
+    ($ame aimait_auparavant $objet)
+    ($amour est_amour_passe_de ($ame envers $objet))
+    ($effort_conservation est_temoignage_effort_passe_de_conserver $objet)
+    ($effort_reciprocite est_temoignage_effort_passe_de_reciprocite $objet)
+THEN
+    ADD ($effort_conservation est_effort_passe_de $ame)
+    ADD ($effort_reciprocite est_effort_passe_de $ame)
+    ADD ($effort_conservation nait_de $amour)
+    ADD ($effort_reciprocite nait_de $amour)
+END
+
+# L'abolition entière est un fait positif. Elle ne suit jamais de l'absence
+# silencieuse d'un amour actuel.
+RULE E3P38D_haine_reduit_efforts_de_l_amour_aboli
+WHEN
+    ($ame hait $objet)
+    ($amour est_amour_passe_de ($ame envers $objet))
+    ($amour est_entierement_aboli VRAI)
+    ($effort_conservation nait_de $amour)
+    ($effort_reciprocite nait_de $amour)
+    ($image_haine est_image_de ($ame hait $objet))
+    ($tristesse accompagne $image_haine)
+    ($tristesse est_passion_de $ame)
+THEN
+    ADD ($image_haine reduit $effort_conservation)
+    ADD ($image_haine reduit $effort_reciprocite)
+    ADD ($tristesse fait_passer_ame_vers perfection_moindre)
+    ADD ($tristesse est_tristesse_supplementaire_due_a $amour)
+END
+
+RULE E3P38D_idee_objet_accompagne_tristesse_supplementaire
+WHEN
+    ($tristesse est_tristesse_de $ame)
+    ($tristesse est_tristesse_supplementaire_due_a $amour)
+    ($amour est_amour_passe_de ($ame envers $objet))
+    ($idee_objet est_idee_de $objet)
+THEN
+    ADD ($idee_objet accompagne $tristesse)
+END
+
+RULE E3P38D_tristesse_supplementaire_accroit_haine
+WHEN
+    ($tristesse est_tristesse_de $ame)
+    ($tristesse est_tristesse_supplementaire_due_a $amour)
+    ($haine_apres est_temoignage_haine_apres_amour_de ($ame envers $objet))
+    ($haine_sans est_temoignage_haine_sans_amour_de ($ame envers $objet))
+THEN
+    ADD ($haine_apres est_plus_intense_que $haine_sans)
+    ADD ($haine_apres est_haine_apres_amour_de $amour)
+    ADD ($haine_apres varie_selon_degre_de $amour)
+END
+
+RULE E3P38D_ordre_amour_passe_transmis_haine
+WHEN
+    ($ame imagine ($amour_fort est_plus_intense_que $amour_faible))
+    ($haine_forte est_haine_apres_amour_de $amour_fort)
+    ($haine_faible est_haine_apres_amour_de $amour_faible)
+THEN
+    ADD ($haine_forte est_plus_intense_que $haine_faible)
+END

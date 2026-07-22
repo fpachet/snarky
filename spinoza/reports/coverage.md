@@ -12,7 +12,7 @@
 | Définition générale des affects | 1 / 1 | texte importé |
 | Manifestes de théorèmes | 59 / 59 | créés |
 | Preuves historiques exécutables | 4 / 4 | reproduites |
-| Propositions prouvées symboliquement | 36 / 59 | en cours |
+| Propositions prouvées symboliquement | 40 / 59 | en cours |
 
 `source_imported` signifie que l'unité textuelle, ses sous-sections et ses
 références numériques candidates sont disponibles. Cela ne signifie pas que sa
@@ -25,8 +25,8 @@ d'affects.
 
 ## Ordre de poursuite
 
-1. E3P01–E3P36 : formalisation systématique exécutable achevée.
-2. E3P37–E3P44 : désir, haine et transformation de la haine en amour.
+1. E3P01–E3P40 : formalisation systématique exécutable achevée.
+2. E3P41–E3P44 : gratitude et transformation de la haine en amour.
 3. E3P45–E3P52 : transfert social, association et étonnement.
 4. E3P53–E3P59 : considération de soi, envie, diversité et affects actifs.
 

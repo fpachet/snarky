@@ -631,8 +631,88 @@ def test_e3p36_desires_only_the_remembered_configuration() -> None:
     assert other_circumstances.forbidden_violations == ()
 
 
+def test_e3p37_and_e3p38_transmit_qualitative_intensity() -> None:
+    desire_order = run_case(
+        SYSTEMATIC_ROOT,
+        "E3P37",
+        "ordre_deux_tristesses",
+    )
+    hate_after_love = run_case(
+        SYSTEMATIC_ROOT,
+        "E3P38",
+        "haine_apres_amour_aboli",
+    )
+    love_not_abolished = run_case(
+        SYSTEMATIC_ROOT,
+        "E3P38",
+        "amour_non_entierement_aboli",
+    )
+
+    assert desire_order.proved
+    assert desire_order.proof_depths == (1, 1, 2)
+    assert hate_after_love.proved
+    assert hate_after_love.proof_depths == (1, 1, 2, 3, 4, 4, 4)
+    assert love_not_abolished.proved
+    assert love_not_abolished.forbidden_violations == ()
+
+
+def test_e3p39_models_the_greater_evil_exception_explicitly() -> None:
+    ordinary_conduct = run_case(
+        SYSTEMATIC_ROOT,
+        "E3P39",
+        "haine_sans_peur_et_amour",
+    )
+    fear = run_case(
+        SYSTEMATIC_ROOT,
+        "E3P39",
+        "peur_d_un_mal_plus_grand",
+    )
+
+    assert ordinary_conduct.proved
+    assert ordinary_conduct.proof_depths == (1, 1, 2, 1, 1)
+    assert ordinary_conduct.forbidden_violations == ()
+    assert fear.proved
+    assert fear.proof_depths == (1, 1, 1, 2, 3, 3)
+    assert fear.forbidden_violations == ()
+
+
+def test_e3p40_separates_reciprocal_hate_shame_and_revenge() -> None:
+    reciprocal_hate = run_case(
+        SYSTEMATIC_ROOT,
+        "E3P40",
+        "reciprocite_sans_cause",
+    )
+    shame = run_case(
+        SYSTEMATIC_ROOT,
+        "E3P40",
+        "cause_juste_produit_honte",
+    )
+    revenge = run_case(
+        SYSTEMATIC_ROOT,
+        "E3P40",
+        "corollaire_vengeance",
+    )
+    no_similarity = run_case(
+        SYSTEMATIC_ROOT,
+        "E3P40",
+        "chose_non_semblable",
+    )
+
+    assert reciprocal_hate.proved
+    assert reciprocal_hate.proof_depths == (1, 1, 2, 3, 4)
+    assert reciprocal_hate.forbidden_violations == ()
+    assert shame.proved
+    assert shame.proof_depths == (1, 2)
+    assert shame.forbidden_violations == ()
+    assert revenge.proved
+    assert revenge.proof_depths == (4, 5, 6, 6, 7)
+    assert revenge.forbidden_violations == ()
+    assert no_similarity.proved
+    assert no_similarity.forbidden_violations == ()
+
+
 def test_each_systematic_manifest_since_e3p04_has_passing_counter_cases() -> None:
-    for proposition in range(4, 37):
+    for proposition in range(4, 41):
         theorem_id = f"E3P{proposition:02d}"
         manifest = yaml.safe_load(
             (SYSTEMATIC_ROOT / "theorems" / f"{theorem_id}.yaml").read_text(
@@ -682,7 +762,7 @@ def test_systematic_manifests_do_not_load_the_historical_model() -> None:
 
 
 def test_systematic_manifests_load_only_current_proof_and_prior_theorems() -> None:
-    for proposition in range(4, 37):
+    for proposition in range(4, 41):
         theorem_id = f"E3P{proposition:02d}"
         manifest = yaml.safe_load(
             (SYSTEMATIC_ROOT / "theorems" / f"{theorem_id}.yaml").read_text(

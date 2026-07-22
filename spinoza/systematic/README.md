@@ -23,7 +23,7 @@ règle qui contient déjà sa conclusion. Pour tester `E3Pxx`, le manifeste :
 4. demande au moteur de dériver des faits représentant l'énoncé ;
 5. conserve la chaîne minimale des règles effectivement employées.
 
-## Fragments exécutables : E3P01–E3P36
+## Fragments exécutables : E3P01–E3P40
 
 Le fragment initial formalise :
 
@@ -114,6 +114,12 @@ jouissance passée. La comparaison directe avec Gondran et SpinoLog est publiée
 dans
 [`reports/tranche_e3p33_e3p36.md`](reports/tranche_e3p33_e3p36.md).
 
+E3P37–E3P40 transmettent des ordres qualitatifs des affects aux désirs et de
+l'amour passé à la haine, puis distinguent projet nuisible, effort, inhibition
+et action accomplie. La peur d'un mal plus grand, la honte, la colère et la
+vengeance deviennent exécutables. L'audit comparatif est publié dans
+[`reports/tranche_e3p37_e3p40.md`](reports/tranche_e3p37_e3p40.md).
+
 Le lanceur expose pour chaque cas le nombre de faits initiaux et dérivés, le
 nombre de dérivations et toutes les règles activées. Ces données permettent un
 audit en lecture seule de la clôture sans modifier le moteur d'inférence.
@@ -159,3 +165,7 @@ E3P33 utilise une compilation locale pour appliquer la définition de l'amour
 conservent des ordres qualitatifs et non des intensités numériques. E3P36
 réifie les circonstances comme une configuration finie explicitement fournie
 par le manifeste.
+
+E3P37–E3P38 restent qualitatifs. E3P39 exige un fait positif d'absence de
+crainte avant de libérer l'effort nuisible ; E3P40 exige séparément similitude,
+absence préalable d'affect et croyance de n'avoir donné aucune cause de haine.

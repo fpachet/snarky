@@ -1,0 +1,106 @@
+schema_version: 1
+id: E3P39
+model: ethics_iii_systematic_v1
+source_unit: E3P39
+source_text: >-
+  Qui a quelqu'un en haine s'efforcera de lui faire du mal, à moins qu'il ne
+  craigne qu'un mal plus grand n'en naisse pour lui ; qui aime quelqu'un
+  s'efforcera de lui faire du bien.
+fact_files: [facts/postulates.yaml]
+rule_files:
+  - rules/validated/E3P37.rules
+  - rules/proofs/E3P39.rules
+rule_catalog: rules/catalog.yaml
+forbidden_rules:
+  - E3P39_haine_sans_peur_effort_nuire
+  - E3P39_amour_effort_bien
+  - E3P39_peur_plus_forte_effort_abstention
+  - E3P39S_effort_nuire_est_colere
+allowed_rule_origins: [textual, textual_theorem]
+cases:
+  - id: haine_sans_peur_et_amour
+    initial_facts:
+      - "(ame0 hait ennemi0)"
+      - "(haine0 est_temoignage_haine_de (ame0 hait ennemi0))"
+      - "(action_nuisible0 est_action_nuisible_envers ennemi0)"
+      - "(desir_nuire0 est_temoignage_desir_nuire_par haine0)"
+      - "(ame0 est_sans_crainte_de_retorsion_pour action_nuisible0)"
+      - "(ame0 aime ami0)"
+      - "(amour0 est_temoignage_amour_de (ame0 aime ami0))"
+      - "(action_bienfaisante0 est_action_bienfaisante_envers ami0)"
+      - "(desir_bien0 est_temoignage_desir_bienfaisant_par amour0)"
+    goals:
+      - "(ame0 medite_de_faire action_nuisible0)"
+      - "(desir_nuire0 nait_de haine0)"
+      - "(ame0 s_efforce_de_faire_du_mal_a ennemi0)"
+      - "(desir_bien0 nait_de amour0)"
+      - "(ame0 s_efforce_de_faire_du_bien_a ami0)"
+    must_not_derive:
+      - "(ame0 a_fait action_nuisible0)"
+      - "(ame0 a_fait action_bienfaisante0)"
+    expected:
+      status: proved
+      proof_depths: [1, 1, 2, 1, 1]
+  - id: peur_d_un_mal_plus_grand
+    initial_facts:
+      - "(ame0 hait ennemi0)"
+      - "(haine0 est_temoignage_haine_de (ame0 hait ennemi0))"
+      - "(action_nuisible0 est_action_nuisible_envers ennemi0)"
+      - "(desir_nuire0 est_temoignage_desir_nuire_par haine0)"
+      - "(ame0 craint retorsion0)"
+      - "(retorsion0 est_mal_plus_grand_que mal_inflige0)"
+      - "(ame0 croit_eviter retorsion0)"
+      - "((ame0 s_abstient_de action_nuisible0) est_moyen_d_eviter retorsion0)"
+      - "(crainte0 est_crainte_de ame0)"
+      - "(desir_abstention0 est_temoignage_desir_abstention_ne_de crainte0)"
+      - "(ame0 imagine (crainte0 est_plus_intense_que haine0))"
+    goals:
+      - "(ame0 medite_de_faire action_nuisible0)"
+      - "(desir_nuire0 nait_de haine0)"
+      - "(desir_abstention0 nait_de crainte0)"
+      - "(desir_abstention0 est_plus_intense_que desir_nuire0)"
+      - "(ame0 s_abstient_de_faire_du_mal_a ennemi0)"
+      - "(desir_nuire0 est_inhibe_par desir_abstention0)"
+    must_not_derive:
+      - "(ame0 s_efforce_de_faire_du_mal_a ennemi0)"
+      - "(ame0 a_fait action_nuisible0)"
+    expected:
+      status: proved
+      proof_depths: [1, 1, 1, 2, 3, 3]
+  - id: scolie_bien_mal_peur_pudeur_consternation
+    initial_facts:
+      - "(joie0 est_joie_de ame0)"
+      - "(evenement_joyeux0 mene_a joie0)"
+      - "(tristesse0 est_tristesse_de ame0)"
+      - "(evenement_frustrant0 frustre_attente_de ame0)"
+      - "(crainte0 est_crainte_de ame0)"
+      - "(mal_moindre0 est_mal_moindre_que mal_honteux0)"
+      - "(ame0 choisit_mal_moindre_pour_eviter mal_honteux0)"
+      - "(crainte0 dispose_a (ame0 evite mal_honteux0))"
+      - "(mal_honteux0 est_honte_pour ame0)"
+      - "(crainte0 porte_sur mal_honteux0)"
+      - "(crainte_deux0 est_crainte_de ame0)"
+      - "(desir_eviter0 est_desir_d_eviter mal_un0)"
+      - "(crainte_deux0 reduit desir_eviter0)"
+      - "(ame0 ne_sait_plus_ce_qu_elle_veut VRAI)"
+      - "(consternation0 est_temoignage_consternation_de (mal_un0 oppose_a mal_deux0))"
+    goals:
+      - "(joie0 est_bien_pour ame0)"
+      - "(evenement_joyeux0 est_bien_pour ame0)"
+      - "(tristesse0 est_mal_pour ame0)"
+      - "(evenement_frustrant0 est_mal_pour ame0)"
+      - "(crainte0 est_peur_de ame0)"
+      - "(crainte0 est_pudeur_de ame0)"
+      - "(consternation0 est_consternation_de ame0)"
+    expected:
+      status: proved
+      proof_depths: [1, 1, 1, 1, 1, 2, 1]
+formalization_status: proved_with_exception_and_scholium
+result: proved
+limitations:
+  - >-
+    L'absence de peur est un fait positif. Si une crainte plus forte est
+    déclarée, le modèle dérive l'abstention et non l'effort nuisible final.
+  - >-
+    Méditer une action ou s'efforcer de l'accomplir ne signifie jamais que
+    l'action a effectivement eu lieu.

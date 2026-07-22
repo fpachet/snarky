@@ -1,0 +1,70 @@
+schema_version: 1
+id: E3P37
+model: ethics_iii_systematic_v1
+source_unit: E3P37
+source_text: >-
+  Le désir qui prend naissance à cause d'une tristesse ou d'une joie, d'une
+  haine ou d'un amour, est d'autant plus grand que l'affection est plus grande.
+fact_files: [facts/postulates.yaml]
+rule_files:
+  - rules/proofs/E3P37.rules
+rule_catalog: rules/catalog.yaml
+forbidden_rules:
+  - E3P37_affect_fait_varier_desir
+  - E3P37_ordre_affect_transmis_desir
+allowed_rule_origins: [textual]
+cases:
+  - id: quatre_origines_du_desir
+    initial_facts:
+      - "(tristesse0 est_tristesse_de ame0)"
+      - "(desir_tristesse0 est_temoignage_desir_ne_de tristesse0)"
+      - "(joie0 est_joie_de ame0)"
+      - "(desir_joie0 est_temoignage_desir_ne_de joie0)"
+      - "(ame0 hait objet_hai0)"
+      - "(haine0 est_temoignage_haine_de (ame0 hait objet_hai0))"
+      - "(desir_haine0 est_temoignage_desir_ne_de haine0)"
+      - "(ame0 aime objet_aime0)"
+      - "(amour0 est_temoignage_amour_de (ame0 aime objet_aime0))"
+      - "(desir_amour0 est_temoignage_desir_ne_de amour0)"
+    goals:
+      - "(desir_tristesse0 est_desir_de ame0)"
+      - "(desir_tristesse0 vise_a_ecarter tristesse0)"
+      - "(desir_joie0 vise_a_conserver joie0)"
+      - "(desir_haine0 vise_a_ecarter objet_hai0)"
+      - "(desir_amour0 vise_a_conserver objet_aime0)"
+      - "(desir_tristesse0 varie_selon_degre_de tristesse0)"
+      - "(desir_joie0 varie_selon_degre_de joie0)"
+      - "(desir_haine0 varie_selon_degre_de haine0)"
+      - "(desir_amour0 varie_selon_degre_de amour0)"
+    expected:
+      status: proved
+      proof_depths: [1, 1, 1, 1, 1, 1, 1, 1, 1]
+  - id: ordre_deux_tristesses
+    initial_facts:
+      - "(tristesse_forte0 est_tristesse_de ame0)"
+      - "(tristesse_faible0 est_tristesse_de ame0)"
+      - "(desir_fort0 est_temoignage_desir_ne_de tristesse_forte0)"
+      - "(desir_faible0 est_temoignage_desir_ne_de tristesse_faible0)"
+      - "(ame0 imagine (tristesse_forte0 est_plus_intense_que tristesse_faible0))"
+    goals:
+      - "(desir_fort0 nait_de tristesse_forte0)"
+      - "(desir_faible0 nait_de tristesse_faible0)"
+      - "(desir_fort0 est_plus_intense_que desir_faible0)"
+    expected:
+      status: proved
+      proof_depths: [1, 1, 2]
+  - id: desir_non_lie_a_affect
+    initial_facts:
+      - "(tristesse0 est_tristesse_de ame0)"
+      - "(desir0 est_desir_de ame0)"
+    goals: []
+    must_not_derive:
+      - "(desir0 nait_de tristesse0)"
+      - "(desir0 varie_selon_degre_de tristesse0)"
+    expected: {status: proved}
+formalization_status: proved_with_qualitative_intensity
+result: proved
+limitations:
+  - >-
+    La grandeur est un ordre qualitatif entre deux affects et deux désirs ; le
+    fragment ne calcule aucune intensité numérique.

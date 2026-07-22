@@ -1,0 +1,33 @@
+RULE E3P39_haine_sans_peur_effort_nuire
+WHEN
+    ($ame hait $autrui)
+    ($ame est_sans_crainte_de_retorsion_pour $action)
+    ($action est_action_nuisible_envers $autrui)
+THEN
+    ADD ($ame s_efforce_de_faire_du_mal_a $autrui)
+END
+
+RULE E3P39_amour_effort_bien
+WHEN
+    ($ame aime $autrui)
+THEN
+    ADD ($ame s_efforce_de_faire_du_bien_a $autrui)
+END
+
+RULE E3P39_peur_plus_forte_effort_abstention
+WHEN
+    ($ame hait $autrui)
+    ($desir_nuire vise_a_nuire $autrui)
+    ($desir_abstention vise_a_s_abstenir_de $action)
+    ($desir_abstention est_plus_intense_que $desir_nuire)
+THEN
+    ADD ($ame s_abstient_de_faire_du_mal_a $autrui)
+END
+
+RULE E3P39S_effort_nuire_est_colere
+WHEN
+    ($ame s_efforce_de_faire_du_mal_a $autrui)
+    ($colere est_temoignage_colere_de ($ame envers $autrui))
+THEN
+    ADD ($colere est_colere_de $ame)
+END

@@ -197,6 +197,10 @@ formalisation systématique des propositions concernées.
    [`../systematic/reports/tranche_e3p33_e3p36.md`](../systematic/reports/tranche_e3p33_e3p36.md) :
    la similitude est rétablie dans la preuve, les propositions 33bis et 34bis
    restent hors texte, et les haines manquantes de E3P35 sont exigées.
+   La poursuite E3P37–E3P40 est auditée dans
+   [`../systematic/reports/tranche_e3p37_e3p40.md`](../systematic/reports/tranche_e3p37_e3p40.md),
+   notamment pour l'exception absente de E3P39 et la condition de similitude
+   de E3P40.
 4. Avant E3P45–E3P48, rendre visibles les conclusions annexes, contradictions
    et niveaux épistémiques.
 5. Après E3P59, évaluer séparément méta-ontologie, témoins frais et génération

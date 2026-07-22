@@ -1,0 +1,82 @@
+schema_version: 1
+id: E3P38
+model: ethics_iii_systematic_v1
+source_unit: E3P38
+source_text: >-
+  Si quelqu'un commence d'avoir en haine une chose aimée, de façon que l'amour
+  soit entièrement aboli, il aura pour elle plus de haine que s'il ne l'avait
+  jamais aimée, et d'autant plus que son amour était auparavant plus grand.
+fact_files: [facts/postulates.yaml]
+rule_files:
+  - rules/validated/E3P11.rules
+  - rules/validated/E3P13.rules
+  - rules/proofs/E3P38.rules
+rule_catalog: rules/catalog.yaml
+forbidden_rules:
+  - E3P38_amour_aboli_accroit_haine
+  - E3P38_ordre_amour_passe_transmis_haine
+allowed_rule_origins: [textual, textual_theorem]
+cases:
+  - id: haine_apres_amour_aboli
+    initial_facts:
+      - "(ame0 aimait_auparavant objet0)"
+      - "(amour_ancien0 est_amour_passe_de (ame0 envers objet0))"
+      - "(amour_ancien0 est_entierement_aboli VRAI)"
+      - entity: "(ame0 aime objet0)"
+        status: FAUX
+      - "(ame0 hait objet0)"
+      - "(effort_conservation0 est_temoignage_effort_passe_de_conserver objet0)"
+      - "(effort_reciprocite0 est_temoignage_effort_passe_de_reciprocite objet0)"
+      - "(image_haine0 est_image_de (ame0 hait objet0))"
+      - "(tristesse_supplementaire0 accompagne image_haine0)"
+      - "(tristesse_supplementaire0 est_passion_de ame0)"
+      - "(idee_objet0 est_idee_de objet0)"
+      - "(haine_apres0 est_temoignage_haine_apres_amour_de (ame0 envers objet0))"
+      - "(haine_sans0 est_temoignage_haine_sans_amour_de (ame0 envers objet0))"
+    goals:
+      - "(effort_conservation0 nait_de amour_ancien0)"
+      - "(effort_reciprocite0 nait_de amour_ancien0)"
+      - "(image_haine0 reduit effort_conservation0)"
+      - "(tristesse_supplementaire0 est_tristesse_de ame0)"
+      - "(idee_objet0 accompagne tristesse_supplementaire0)"
+      - "(haine_apres0 est_plus_intense_que haine_sans0)"
+      - "(haine_apres0 varie_selon_degre_de amour_ancien0)"
+    expected:
+      status: proved
+      proof_depths: [1, 1, 2, 3, 4, 4, 4]
+  - id: amour_non_entierement_aboli
+    initial_facts:
+      - "(ame0 aimait_auparavant objet0)"
+      - "(amour_ancien0 est_amour_passe_de (ame0 envers objet0))"
+      - "(ame0 hait objet0)"
+      - "(effort_conservation0 est_temoignage_effort_passe_de_conserver objet0)"
+      - "(effort_reciprocite0 est_temoignage_effort_passe_de_reciprocite objet0)"
+      - "(haine_apres0 est_temoignage_haine_apres_amour_de (ame0 envers objet0))"
+      - "(haine_sans0 est_temoignage_haine_sans_amour_de (ame0 envers objet0))"
+    goals:
+      - "(effort_conservation0 nait_de amour_ancien0)"
+    must_not_derive:
+      - "(haine_apres0 est_plus_intense_que haine_sans0)"
+      - "(haine_apres0 varie_selon_degre_de amour_ancien0)"
+    expected:
+      status: proved
+      proof_depths: [1]
+  - id: ordre_deux_amours_passes
+    initial_facts:
+      - "(haine_forte0 est_haine_apres_amour_de amour_fort0)"
+      - "(haine_faible0 est_haine_apres_amour_de amour_faible0)"
+      - "(ame0 imagine (amour_fort0 est_plus_intense_que amour_faible0))"
+    goals:
+      - "(haine_forte0 est_plus_intense_que haine_faible0)"
+    expected:
+      status: proved
+      proof_depths: [1]
+formalization_status: proved_with_qualitative_intensity
+result: proved
+limitations:
+  - >-
+    L'abolition entière de l'amour est un fait positif. Elle n'est jamais
+    déduite de l'absence d'un fait d'amour actuel.
+  - >-
+    L'amour passé et les efforts qu'il avait produits sont réifiés ; ils ne
+    redeviennent pas des affects ou efforts actuels.
