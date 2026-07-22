@@ -528,7 +528,9 @@ jusqu'à E3P59. La couche séparée des définitions finales est maintenant elle
 aussi exécutable : E3DA01–E3DA48 et E3DA-GENERAL possèdent 49 manifestes, 101
 cas et une carte de dépendances vers les propositions. Le rapport
 `tranche_e3da01_e3da48.md` distingue cette couverture des 27 explications
-annexes, suivies comme enrichissement plus fin.
+annexes. Celles-ci sont maintenant exécutables dans 27 manifestes séparés,
+avec 44 règles textuelles et 54 cas ; leur audit est publié dans
+`tranche_e3da_explanations.md`.
 
 ---
 

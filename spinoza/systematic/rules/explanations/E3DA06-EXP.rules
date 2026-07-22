@@ -1,0 +1,10 @@
+RULE E3DA06_EXP_union_est_propriete_et_volonte_contentement
+WHEN
+    ($amour est_joie_accompagnee_cause_exterieure ($amant envers $aime))
+    ($aime est_imagine_present_par $amant)
+THEN
+    ADD (volonte_union est_propriete_non_essence_de $amour)
+    ADD (volonte_union est_contentement_presence_de ($amant envers $aime))
+    ADD (volonte_union est_distincte_de_libre_decret VRAI)
+    ADD (volonte_union est_distincte_du_desir_absence VRAI)
+END

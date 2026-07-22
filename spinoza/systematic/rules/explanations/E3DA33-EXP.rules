@@ -1,0 +1,16 @@
+RULE E3DA33_EXP_emulation_est_imitation_valorisee
+WHEN
+    ($homme imite_affection_de $autrui)
+    ($objet est_juge_honnete_utile_ou_agreable_par $homme)
+THEN
+    ADD ($homme eprouve_emulation_envers $autrui)
+    ADD (emulation et_imitation_ont_meme_cause VRAI)
+END
+
+RULE E3DA33_EXP_envie_accompagne_souvent_emulation
+WHEN
+    ($homme eprouve_emulation_envers $autrui)
+    ($homme compare_son_bien_a_celui_de $autrui)
+THEN
+    ADD ($homme peut_eprouver_envie_envers $autrui)
+END

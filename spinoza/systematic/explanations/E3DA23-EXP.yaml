@@ -1,0 +1,22 @@
+schema_version: 1
+id: E3DA23-EXP
+model: ethics_iii_affect_explanations_v1
+source_unit: E3DA23
+source_section: Explication
+rule_files: [rules/explanations/E3DA23-EXP.rules]
+rule_catalog: rules/catalog.yaml
+allowed_rule_origins: [textual_explanation]
+cases:
+  - id: opposition_envie_misericorde
+    initial_facts:
+      - "(misericorde0 est_joie_du_bien_d_autrui_pour homme0)"
+      - "(envie0 est_tristesse_du_bien_d_autrui_pour homme0)"
+    goals: ["(misericorde0 est_opposee_a envie0)"]
+    expected: {status: proved, proof_depths: [1]}
+  - id: misericorde_sans_envie
+    initial_facts: ["(misericorde0 est_joie_du_bien_d_autrui_pour homme0)"]
+    goals: []
+    must_not_derive: ["(misericorde0 est_opposee_a envie0)"]
+    expected: {status: proved}
+formalization_status: proved_explanation
+result: proved

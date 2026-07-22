@@ -30,6 +30,7 @@ d'affects.
 1. E3P01–E3P59 : formalisation systématique exécutable achevée.
 2. E3DA01–E3DA48 : formalisation des 48 énoncés définitionnels achevée.
 3. E3DA-GENERAL : définition générale exécutable achevée.
+4. E3DA*-EXP : les 27 explications annexes sont atomisées et exécutables.
 
 Chaque proposition possède maintenant un manifeste systématique `proved` ou
 `proved_with_interpretative_rules`. La règle réutilisable correspondant à une
@@ -38,5 +39,6 @@ de cette même proposition.
 
 Chaque définition finale suit le même principe de séparation : sa règle
 textuelle est testée localement, tandis que sa règle validée reste interdite
-dans son propre manifeste. Les 27 sections annexes « Explication » du corpus
-sont suivies comme une couche d'enrichissement distincte de la métrique 48/48.
+dans son propre manifeste. Les 27 sections annexes « Explication » forment une
+couche distincte : 27 manifestes, 44 règles et 54 cas en assurent maintenant
+la couverture exécutable sans modifier la métrique canonique 48/48.

@@ -1,0 +1,8 @@
+RULE E3DA41_EXP_pusillanimite_crainte_inhabituelle_opposee_audace
+WHEN
+    ($homme craint $mal)
+    ($mal n_est_pas_craint_par_la_plupart VRAI)
+THEN
+    ADD (pusillanimite est_crainte_inhabituelle_de ($homme envers $mal))
+    ADD (pusillanimite est_opposee_a_audace_eu_egard_au_desir VRAI)
+END

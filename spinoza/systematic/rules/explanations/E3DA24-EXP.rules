@@ -1,0 +1,8 @@
+RULE E3DA24_EXP_clot_cause_exterieure_et_ouvre_cause_interieure
+WHEN
+    ($affect est_joie_ou_tristesse_de $homme)
+    ($affect accompagne_idee_cause_exterieure $cause)
+THEN
+    ADD ($affect appartient_classe_affects_cause_exterieure VRAI)
+    ADD (sequence_suivante examine_affects_cause_interieure VRAI)
+END

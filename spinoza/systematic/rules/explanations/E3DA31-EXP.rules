@@ -1,0 +1,17 @@
+RULE E3DA31_EXP_honte_suit_acte
+WHEN
+    ($homme a_fait $acte)
+    ($homme rougit_de $acte)
+THEN
+    ADD (honte est_tristesse_posterieure_a ($acte pour $homme))
+END
+
+RULE E3DA31_EXP_pudeur_empeche_acte
+WHEN
+    ($homme craint_honte_de $acte)
+    ($acte est_juge_vilain_par $homme)
+THEN
+    ADD (pudeur est_peur_anterieure_a ($acte pour $homme))
+    ADD (pudeur empeche_faire ($homme vers $acte))
+    ADD (impudence est_exclue_des_affects VRAI)
+END

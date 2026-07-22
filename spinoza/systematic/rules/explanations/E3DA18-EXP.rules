@@ -1,0 +1,8 @@
+RULE E3DA18_EXP_commiseration_singuliere_misericorde_habituelle
+WHEN
+    ($commiseration porte_sur_affection_singuliere $affection)
+    ($misericorde est_disposition_habituelle_a_eprouver $commiseration)
+THEN
+    ADD ($commiseration se_distingue_de_misericorde_par singularite)
+    ADD ($misericorde se_distingue_de_commiseration_par habitude)
+END

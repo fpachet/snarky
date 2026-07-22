@@ -1,0 +1,32 @@
+schema_version: 1
+id: E3DA48-EXP
+model: ethics_iii_affect_explanations_v1
+source_unit: E3DA48
+source_section: Explication
+rule_files: [rules/explanations/E3DA48-EXP.rules]
+rule_catalog: rules/catalog.yaml
+allowed_rule_origins: [textual_explanation]
+cases:
+  - id: synthese_des_derniers_affects
+    initial_facts:
+      - "(desir0 est_desir_du_coit_de homme0)"
+      - "(desir0 a_degre_de_moderation modere)"
+      - "(vertu0 est_temperance_sobriete_ou_chastete VRAI)"
+      - "(vertu0 modere_affect_de homme0)"
+      - "(affect0 est_gourmandise_ivrognerie_avarice_ou_lubricite VRAI)"
+      - "(affect0 porte_sur_acte acte0)"
+      - "(affect0 est_affect_defini VRAI)"
+      - "(affect0 derive_de_desir_joie_ou_tristesse VRAI)"
+    goals:
+      - "(desir0 est_appele_lubricite_independamment_de modere)"
+      - "(vertu0 est_puissance_de_ame_de homme0)"
+      - "(affect0 concerne_desir_et_amour_de acte0)"
+      - "(desir_joie_tristesse suffisent_comme_affects_primitifs VRAI)"
+    expected: {status: proved, proof_depths: [1, 1, 1, 1]}
+  - id: acte_sans_desir_affectif
+    initial_facts: ["(affect0 porte_sur_acte acte0)"]
+    goals: []
+    must_not_derive: ["(affect0 concerne_desir_et_amour_de acte0)"]
+    expected: {status: proved}
+formalization_status: proved_explanation_four_branches
+result: proved

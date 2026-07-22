@@ -130,11 +130,13 @@ def run_case(
     *,
     rules: tuple[Rule, ...] | None = None,
 ) -> CaseResult:
-    manifest_directories = (
-        ("definitions", "theorems")
-        if theorem_id.startswith("E3DA")
-        else ("theorems", "definitions")
-    )
+    manifest_directories: tuple[str, ...]
+    if theorem_id.endswith("-EXP"):
+        manifest_directories = ("explanations", "definitions", "theorems")
+    elif theorem_id.startswith("E3DA"):
+        manifest_directories = ("definitions", "theorems")
+    else:
+        manifest_directories = ("theorems", "definitions")
     theorem_path = next(
         (
             candidate

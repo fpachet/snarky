@@ -1,0 +1,11 @@
+RULE E3DA03_EXP_joie_tristesse_sont_passages
+WHEN
+    ($joie est_passage_a_perfection_plus_grande_de $homme)
+    ($tristesse est_passage_a_perfection_moindre_de $homme)
+THEN
+    ADD ($joie est_distincte_de_perfection_statique VRAI)
+    ADD ($tristesse est_distincte_de_perfection_moindre_statique VRAI)
+    ADD ($tristesse diminue_puissance_agir_de $homme)
+    ADD (gaiete_chatouillement sont_especes_de $joie)
+    ADD (melancolie_douleur sont_especes_de $tristesse)
+END

@@ -1,0 +1,9 @@
+RULE E3DA29_EXP_humilite_apparente_peut_masquer_ambition_envie
+WHEN
+    ($homme manifeste_humilite_apparente VRAI)
+    ($nature_humaine resiste_a_mesestime_de_soi_de $homme)
+THEN
+    ADD ($homme peut_etre_plein_d ambition)
+    ADD ($homme peut_etre_plein_d envie)
+    ADD (humilite_et_mesestime_de_soi sont_rares VRAI)
+END

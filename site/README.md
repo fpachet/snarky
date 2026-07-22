@@ -5,8 +5,9 @@ d'aucun serveur d'application : `index.html`, `styles.css`, `app.js` et
 `data/model.json` suffisent.
 
 Le fichier `data/model.json` est généré depuis le corpus, les manifestes et les
-preuves exécutées. Il contient aussi le catalogue complet des 608 règles, leur
-code Snark, leur provenance et leurs activations dans les cas de preuve :
+preuves exécutées. Il contient aussi les 27 explications atomisées, le catalogue
+complet des 652 règles, leur code Snark, leur provenance, leurs activations et
+le graphe producteur–consommateur de 745 prédicats :
 
 ```sh
 .venv/bin/python scripts/build_spinoza_site.py

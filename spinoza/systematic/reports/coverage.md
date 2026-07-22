@@ -84,8 +84,10 @@ ajoutent liberté et nécessité imaginées, présages, variabilité affective e
 attention singulière. E3P53–E3P56 ajoutent connaissance de soi, exclusivité
 des contenus de puissance, comparaison sociale et espèces affectives. La
 séquence E3P57–E3P59 ajoute individualisation des affects, activité issue des
-idées adéquates et clôture sur joie ou désir. La couche propositionnelle est
-achevée ; la prochaine frontière distincte est E3DA01–E3DA48.
+idées adéquates et clôture sur joie ou désir. Les 48 définitions, la définition
+générale et les 27 explications annexes sont également exécutables. La
+couverture textuelle systématique de l'Éthique III est donc achevée pour ces
+trois couches.
 
 L'ordre des tranches, leurs concepts et leurs critères de sortie sont décrits
 dans [`roadmap.md`](roadmap.md).
@@ -198,3 +200,8 @@ branches actives et réfute explicitement la tristesse active. Son scolie garde
 distinctes fermeté, générosité, saturation alimentaire et manifestations
 corporelles. L'audit final est publié dans
 [`tranche_e3p57_e3p59.md`](tranche_e3p57_e3p59.md).
+
+Les définitions E3DA01–E3DA48 et E3DA-GENERAL totalisent 101 cas. Les 27
+explications ajoutent 44 règles et 54 cas sans modifier la métrique canonique
+48/48. Leur audit est publié dans
+[`tranche_e3da_explanations.md`](tranche_e3da_explanations.md).

@@ -1,0 +1,34 @@
+RULE E3DA48_EXP_lubricite_independante_moderation
+WHEN
+    ($desir est_desir_du_coit_de $homme)
+    ($desir a_degre_de_moderation $degre)
+THEN
+    ADD ($desir est_appele_lubricite_independamment_de $degre)
+END
+
+RULE E3DA48_EXP_temperances_sont_puissances_non_passions
+WHEN
+    ($vertu est_temperance_sobriete_ou_chastete VRAI)
+    ($vertu modere_affect_de $homme)
+THEN
+    ADD ($vertu est_puissance_de_ame_de $homme)
+    ADD ($vertu est_exclue_des_passions VRAI)
+END
+
+RULE E3DA48_EXP_affects_portent_sur_desir_non_acte
+WHEN
+    ($affect est_gourmandise_ivrognerie_avarice_ou_lubricite VRAI)
+    ($affect porte_sur_acte $acte)
+THEN
+    ADD ($affect concerne_desir_et_amour_de $acte)
+    ADD ($affect est_distinct_de_acte_lui_meme VRAI)
+END
+
+RULE E3DA48_EXP_tous_affects_derivent_trois_primitifs
+WHEN
+    ($affect est_affect_defini VRAI)
+    ($affect derive_de_desir_joie_ou_tristesse VRAI)
+THEN
+    ADD ($affect recoit_nom_selon_relation_et_denomination VRAI)
+    ADD (desir_joie_tristesse suffisent_comme_affects_primitifs VRAI)
+END

@@ -1,0 +1,37 @@
+RULE E3DA_GENERAL_EXP_passion_est_idee_confuse_par_inadequation
+WHEN
+    ($ame a_idee_inadequate_ou_confuse $idee)
+    ($idee constitue_forme_de $affect)
+THEN
+    ADD ($affect est_passion_de $ame)
+    ADD ($affect est_idee_confuse_dans $ame)
+END
+
+RULE E3DA_GENERAL_EXP_idee_affect_indique_etat_actuel_corps
+WHEN
+    ($idee est_idee_de_corps_dans $ame)
+    ($ame a_corps $corps)
+    ($idee constitue_forme_de $affect)
+THEN
+    ADD ($idee indique_etat_actuel_du $corps)
+    ADD ($idee ne_decrit_pas_prioritairement_corps_exterieur VRAI)
+END
+
+RULE E3DA_GENERAL_EXP_plus_moins_realite_sans_comparaison_mentale
+WHEN
+    ($idee affirme_plus_ou_moins_realite_du $corps)
+    ($ame a_corps $corps)
+    ($idee constitue_forme_de $affect)
+THEN
+    ADD ($ame passe_a_perfection_plus_ou_moins_grande VRAI)
+    ADD ($ame n_effectue_pas_comparaison_mentale_avec_passe VRAI)
+END
+
+RULE E3DA_GENERAL_EXP_valeur_idee_suit_valeur_objet
+WHEN
+    ($idee a_objet $objet)
+    ($objet a_degre_de_realite $degre)
+THEN
+    ADD ($idee a_degre_de_valeur $degre)
+    ADD (puissance_actuelle_penser suit_valeur_objet_de $idee)
+END

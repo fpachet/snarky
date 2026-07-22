@@ -1,0 +1,15 @@
+RULE E3DA22_EXP_surestime_est_propriete_amour
+WHEN
+    ($homme aime $objet)
+    ($homme fait_plus_de_cas_que_juste_de $objet)
+THEN
+    ADD (surestime est_propriete_de_amour_de ($homme envers $objet))
+END
+
+RULE E3DA22_EXP_mesestime_est_propriete_haine
+WHEN
+    ($homme hait $objet)
+    ($homme fait_moins_de_cas_que_juste_de $objet)
+THEN
+    ADD (mesestime est_propriete_de_haine_de ($homme envers $objet))
+END

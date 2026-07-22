@@ -1,0 +1,31 @@
+schema_version: 1
+id: E3DA01-EXP
+model: ethics_iii_affect_explanations_v1
+source_unit: E3DA01
+source_section: Explication
+rule_files: [rules/explanations/E3DA01-EXP.rules]
+rule_catalog: rules/catalog.yaml
+allowed_rule_origins: [textual_explanation]
+cases:
+  - id: desir_appetit_efforts_dispositions
+    initial_facts:
+      - "(appetit0 est_appetit_de homme0)"
+      - "(desir0 est_temoignage_desir_de homme0)"
+      - "(affection0 est_disposition_de_essence homme0)"
+      - "(effort0 est_effort_nature_humaine_de homme0)"
+    goals:
+      - "(appetit0 demeure_identique_avec_ou_sans_conscience VRAI)"
+      - "(desir0 couvre_appetit_volonte_impulsion_de homme0)"
+      - "(effort0 est_compris_dans_desir_de homme0)"
+      - "(affection0 peut_etre_innee_ou_acquise VRAI)"
+    expected: {status: proved, proof_depths: [1, 1, 1, 1]}
+  - id: effort_sans_disposition
+    initial_facts:
+      - "(appetit0 est_appetit_de homme0)"
+      - "(desir0 est_temoignage_desir_de homme0)"
+      - "(effort0 est_effort_nature_humaine_de homme0)"
+    goals: []
+    must_not_derive: ["(desir0 couvre_appetit_volonte_impulsion_de homme0)"]
+    expected: {status: proved}
+formalization_status: proved_explanation
+result: proved

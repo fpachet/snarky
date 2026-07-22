@@ -37,7 +37,10 @@ def test_static_site_entrypoint_has_resolvable_relative_assets() -> None:
     assert all((SITE_ROOT / reference).is_file() for reference in parser.references)
     assert (SITE_ROOT / ".nojekyll").is_file()
     assert 'data-view="rules"' in html
+    assert 'data-view="explanations"' in html
+    assert 'data-view="graph"' in html
     assert 'href="#rules"' in html
+    assert 'href="#graph"' in html
     versions = {
         reference.split("?v=", 1)[1]
         for reference in parser.raw_references
@@ -61,8 +64,11 @@ def test_static_model_contains_the_complete_executable_ethics_iii() -> None:
         "general_definitions": 1,
         "proposition_cases": 199,
         "definition_cases": 101,
-        "definition_explanations": 27,
-        "catalogued_rules": 608,
+        "explanations": 27,
+        "explanation_cases": 54,
+        "catalogued_rules": 652,
+        "predicates": 745,
+        "rule_dependencies": 13107,
     }
     assert [item["id"] for item in payload["propositions"]] == [
         f"E3P{index:02d}" for index in range(1, 60)
@@ -71,8 +77,10 @@ def test_static_model_contains_the_complete_executable_ethics_iii() -> None:
         f"E3DA{index:02d}" for index in range(1, 49)
     ]
     assert payload["general_definition"]["id"] == "E3DA-GENERAL"
-    assert len(payload["rules"]) == 608
-    assert len({rule["id"] for rule in payload["rules"]}) == 608
+    assert len(payload["explanations"]) == 27
+    assert all(item["result"] == "proved" for item in payload["explanations"])
+    assert len(payload["rules"]) == 652
+    assert len({rule["id"] for rule in payload["rules"]}) == 652
     assert all(
         rule["body"].startswith(f"RULE {rule['id']}\n") for rule in payload["rules"]
     )
@@ -84,8 +92,39 @@ def test_static_model_contains_the_complete_executable_ethics_iii() -> None:
             *payload["propositions"],
             *payload["definitions"],
             payload["general_definition"],
+            *payload["explanations"],
         ]
     )
+
+
+def test_rule_graph_predicate_index_matches_rule_inputs_and_outputs() -> None:
+    payload = json.loads(
+        (SITE_ROOT / "data" / "model.json").read_text(encoding="utf-8")
+    )
+    rules = {rule["id"]: rule for rule in payload["rules"]}
+    predicates = {
+        predicate["id"]: predicate for predicate in payload["rule_graph"]["predicates"]
+    }
+
+    for predicate_id, uses in predicates.items():
+        assert all(
+            predicate_id in rules[producer]["output_predicates"]
+            for producer in uses["producers"]
+        )
+        assert all(
+            predicate_id in rules[consumer]["input_predicates"]
+            for consumer in uses["consumers"]
+        )
+
+    edges = {
+        (producer, consumer)
+        for uses in predicates.values()
+        for producer in uses["producers"]
+        for consumer in uses["consumers"]
+        if producer != consumer
+    }
+    assert len(edges) == payload["rule_graph"]["producer_consumer_edge_count"]
+    assert len(edges) == payload["meta"]["counts"]["rule_dependencies"]
 
 
 def test_pages_workflow_builds_and_deploys_the_site_directory() -> None:

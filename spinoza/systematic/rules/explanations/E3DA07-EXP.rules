@@ -1,0 +1,8 @@
+RULE E3DA07_EXP_haine_inverse_structure_amour
+WHEN
+    ($haine est_tristesse_accompagnee_cause_exterieure ($homme envers $objet))
+    ($objet est_imagine_comme_cause_de $tristesse)
+THEN
+    ADD (volonte_separation est_propriete_non_essence_de $haine)
+    ADD ($haine suit_structure_inverse_de amour)
+END

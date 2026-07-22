@@ -1,0 +1,15 @@
+RULE E3DA13_EXP_espoir_enveloppe_crainte
+WHEN
+    ($homme espere_evenement_incertain $evenement)
+    ($homme imagine_exclusion_possible_de $evenement)
+THEN
+    ADD ($homme craint_non_realisation_de $evenement)
+END
+
+RULE E3DA13_EXP_crainte_enveloppe_espoir
+WHEN
+    ($homme craint_evenement_incertain $evenement)
+    ($homme imagine_exclusion_possible_de $evenement)
+THEN
+    ADD ($homme espere_non_realisation_de $evenement)
+END

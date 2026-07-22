@@ -1,0 +1,7 @@
+RULE E3DA23_EXP_misericorde_s_oppose_envie
+WHEN
+    ($misericorde est_joie_du_bien_d_autrui_pour $homme)
+    ($envie est_tristesse_du_bien_d_autrui_pour $homme)
+THEN
+    ADD ($misericorde est_opposee_a $envie)
+END

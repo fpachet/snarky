@@ -1,0 +1,28 @@
+schema_version: 1
+id: E3DA42-EXP
+model: ethics_iii_affect_explanations_v1
+source_unit: E3DA42
+source_section: Explication
+rule_files: [rules/explanations/E3DA42-EXP.rules]
+rule_catalog: rules/catalog.yaml
+allowed_rule_origins: [textual_explanation]
+cases:
+  - id: double_peur_et_desir_reduit
+    initial_facts:
+      - "(homme0 craint mal0)"
+      - "(homme0 craint mal1)"
+      - "(mal0 est_distinct_de mal1)"
+      - "(desir0 est_desir_d_ecarter_mal_de homme0)"
+      - "(desir0 est_reduit_par_etonnement_ou_autre_peur VRAI)"
+    goals:
+      - "(consternation est_peur_double_de homme0)"
+      - "(homme0 ne_sait_lequel_des_deux_maux_detourner VRAI)"
+      - "(homme0 est_frappe_de_stupeur_ou_flottant VRAI)"
+    expected: {status: proved, proof_depths: [1, 1, 1]}
+  - id: peur_unique
+    initial_facts: ["(homme0 craint mal0)"]
+    goals: []
+    must_not_derive: ["(consternation est_peur_double_de homme0)"]
+    expected: {status: proved}
+formalization_status: proved_explanation_two_branches
+result: proved

@@ -1,0 +1,9 @@
+RULE E3DA11_EXP_derision_produit_joie_instable
+WHEN
+    ($homme hait $objet)
+    ($homme meprise $objet)
+THEN
+    ADD ($homme nie_existence_de $objet)
+    ADD ($homme eprouve_joie_de_negation_de $objet)
+    ADD (joie_de_derision_de est_non_solide_pour ($homme envers $objet))
+END

@@ -1,0 +1,16 @@
+RULE E3DA27_EXP_education_associe_actes_et_affects
+WHEN
+    ($education reprouve_frequemment $acte_mauvais)
+    ($education loue_frequemment $acte_droit)
+THEN
+    ADD ($acte_mauvais est_associe_a tristesse)
+    ADD ($acte_droit est_associe_a joie)
+END
+
+RULE E3DA27_EXP_coutume_module_repentir_et_gloire
+WHEN
+    ($homme est_eleve_selon $coutume)
+    ($coutume qualifie_acte_comme ($acte selon $valeur))
+THEN
+    ADD ($homme module_repentir_ou_gloire_selon ($acte selon $valeur))
+END

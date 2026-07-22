@@ -1,0 +1,12 @@
+RULE E3DA01_EXP_desir_couvre_efforts_et_dispositions
+WHEN
+    ($appetit est_appetit_de $homme)
+    ($desir est_temoignage_desir_de $homme)
+    ($affection est_disposition_de_essence $homme)
+    ($effort est_effort_nature_humaine_de $homme)
+THEN
+    ADD ($appetit demeure_identique_avec_ou_sans_conscience VRAI)
+    ADD ($desir couvre_appetit_volonte_impulsion_de $homme)
+    ADD ($effort est_compris_dans_desir_de $homme)
+    ADD ($affection peut_etre_innee_ou_acquise VRAI)
+END

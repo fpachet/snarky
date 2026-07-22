@@ -1,0 +1,9 @@
+RULE E3DA04_EXP_nouveaute_retient_sans_affect_primitif
+WHEN
+    ($image est_image_nouvelle_pour $ame)
+    ($image a_absence_explicitement_d_association_sortante VRAI)
+THEN
+    ADD ($ame est_retenue_dans_consideration_de $image)
+    ADD (etonnement est_exclu_des_affects_primitifs VRAI)
+    ADD (desir_joie_tristesse sont_trois_affects_primitifs VRAI)
+END

@@ -190,6 +190,26 @@ Le lanceur expose pour chaque cas le nombre de faits initiaux et dérivés, le
 nombre de dérivations et toutes les règles activées. Ces données permettent un
 audit en lecture seule de la clôture sans modifier le moteur d'inférence.
 
+## Explications annexes exécutables
+
+Les 27 sections intitulées « Explication » possèdent maintenant un identifiant
+stable `E3DA*-EXP`, un manifeste dans `explanations/` et leurs règles propres
+dans `rules/explanations/`. Cette couche ajoute 44 règles d'origine
+`textual_explanation` et 54 cas : une reconnaissance positive et au moins une
+frontière négative par explication.
+
+Les explications restent distinctes des 48 définitions canoniques. Elles
+explicitent notamment les passages de perfection, les distinctions entre
+essence et propriété, les couples espoir–crainte, les effets de l'éducation,
+les puissances modératrices de l'âme et les quatre composantes de l'explication
+générale. Le rapport d'audit est
+[`reports/tranche_e3da_explanations.md`](reports/tranche_e3da_explanations.md).
+
+L'atlas publie aussi un graphe calculé sur les relations de premier niveau des
+faits Snark. Une arête `R1 → R2` signifie qu'au moins un prédicat ajouté par
+`R1` apparaît comme prémisse factuelle de `R2`. Les règles partageant seulement
+un prédicat restent des voisines non dirigées dans la vue locale.
+
 E1P36 affirme l'existence d'un effet sans le nommer. Comme Snarky ne possède
 pas encore de création existentielle, chaque cas fournit un témoin `effet0` et
 la règle externe dérive explicitement qu'il suit nécessairement de l'idée.

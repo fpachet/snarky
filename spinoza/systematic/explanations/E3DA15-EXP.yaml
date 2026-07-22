@@ -1,0 +1,27 @@
+schema_version: 1
+id: E3DA15-EXP
+model: ethics_iii_affect_explanations_v1
+source_unit: E3DA15
+source_section: Explication
+rule_files: [rules/explanations/E3DA15-EXP.rules]
+rule_catalog: rules/catalog.yaml
+allowed_rule_origins: [textual_explanation]
+cases:
+  - id: disparition_doute
+    initial_facts:
+      - "(homme0 eprouve_espoir_pour evenement0)"
+      - "(homme0 eprouve_crainte_pour evenement1)"
+      - "(homme0 n_a_plus_cause_de_doute_pour evenement0)"
+      - "(homme0 n_a_plus_cause_de_doute_pour evenement1)"
+    goals:
+      - "(homme0 eprouve_securite_pour evenement0)"
+      - "(homme0 eprouve_desespoir_pour evenement1)"
+      - "(absence_de_doute est_distincte_de_certitude VRAI)"
+    expected: {status: proved, proof_depths: [1, 1, 1]}
+  - id: doute_persistant
+    initial_facts: ["(homme0 eprouve_espoir_pour evenement0)"]
+    goals: []
+    must_not_derive: ["(homme0 eprouve_securite_pour evenement0)"]
+    expected: {status: proved}
+formalization_status: proved_explanation_two_branches
+result: proved

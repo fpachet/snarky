@@ -1,0 +1,16 @@
+RULE E3DA15_EXP_espoir_sans_doute_devient_securite
+WHEN
+    ($homme eprouve_espoir_pour $evenement)
+    ($homme n_a_plus_cause_de_doute_pour $evenement)
+THEN
+    ADD ($homme eprouve_securite_pour $evenement)
+    ADD (absence_de_doute est_distincte_de_certitude VRAI)
+END
+
+RULE E3DA15_EXP_crainte_sans_doute_devient_desespoir
+WHEN
+    ($homme eprouve_crainte_pour $evenement)
+    ($homme n_a_plus_cause_de_doute_pour $evenement)
+THEN
+    ADD ($homme eprouve_desespoir_pour $evenement)
+END

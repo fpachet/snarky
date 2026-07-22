@@ -131,6 +131,8 @@ a {
 .main-nav {
   display: flex;
   align-items: center;
+  justify-content: flex-end;
+  flex-wrap: wrap;
   gap: clamp(1rem, 2.6vw, 2.5rem);
   font-size: 0.82rem;
   font-weight: 650;
@@ -671,6 +673,10 @@ kbd {
   font-size: 1.05rem;
 }
 
+.rule-actions {
+  margin: 1.4rem 0 0;
+}
+
 .source-quote {
   position: relative;
   margin: 2rem 0 0;
@@ -937,6 +943,196 @@ details.text-section p {
   padding: clamp(1.5rem, 4vw, 3.8rem);
 }
 
+.rule-graph-view {
+  padding: clamp(1.5rem, 4vw, 3.8rem);
+}
+
+.graph-heading {
+  display: grid;
+  margin-bottom: 1.5rem;
+  align-items: end;
+  grid-template-columns: minmax(0, 1.2fr) minmax(260px, 0.8fr);
+  gap: 2rem;
+}
+
+.graph-heading h3 {
+  margin: 0;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: clamp(1.45rem, 3vw, 2.8rem);
+  font-weight: 500;
+  overflow-wrap: anywhere;
+}
+
+.graph-heading > p {
+  margin: 0;
+  color: var(--ink-soft);
+  font-family: var(--serif);
+}
+
+.graph-search-results,
+.graph-metrics {
+  display: flex;
+  margin-bottom: 1rem;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.55rem;
+}
+
+.graph-search-results span,
+.graph-search-results a,
+.graph-metrics span {
+  padding: 0.45rem 0.65rem;
+  border: 1px solid var(--line);
+  background: rgba(255, 255, 255, 0.45);
+  font-size: 0.68rem;
+  text-decoration: none;
+}
+
+.graph-search-results a {
+  color: var(--red);
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+}
+
+.graph-metrics strong {
+  color: var(--green);
+  font-family: var(--serif);
+  font-size: 1rem;
+}
+
+.graph-canvas {
+  max-width: 100%;
+  overflow-x: auto;
+  border-top: 1px solid var(--line);
+  border-bottom: 1px solid var(--line);
+  background:
+    linear-gradient(rgba(21, 56, 47, 0.025) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(21, 56, 47, 0.025) 1px, transparent 1px),
+    rgba(251, 248, 240, 0.58);
+  background-size: 36px 36px;
+}
+
+.graph-canvas svg {
+  display: block;
+  width: 100%;
+  min-width: 880px;
+  height: auto;
+}
+
+.graph-edge path {
+  fill: none;
+  stroke: rgba(140, 53, 43, 0.55);
+  stroke-width: 1.5;
+}
+
+.graph-edge.outgoing path {
+  stroke: rgba(181, 138, 60, 0.8);
+}
+
+.graph-edge.shared path {
+  stroke: rgba(82, 97, 90, 0.55);
+  stroke-dasharray: 6 6;
+}
+
+.graph-edge text {
+  fill: var(--ink-soft);
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: 9px;
+  text-anchor: middle;
+}
+
+.graph-canvas marker path {
+  fill: var(--red);
+}
+
+.graph-node {
+  cursor: pointer;
+}
+
+.graph-node rect {
+  fill: var(--paper-light);
+  stroke: rgba(23, 37, 31, 0.24);
+  stroke-width: 1;
+  transition: 140ms ease;
+}
+
+.graph-node.producteur rect {
+  fill: #e3ede2;
+}
+
+.graph-node.consommateur rect {
+  fill: #f2e6c9;
+}
+
+.graph-node.prédicat.commun rect {
+  fill: var(--paper-deep);
+}
+
+.graph-node.sélection rect {
+  fill: var(--green);
+  stroke: var(--green);
+}
+
+.graph-node:hover rect,
+.graph-node:focus rect {
+  stroke: var(--red);
+  stroke-width: 3;
+}
+
+.graph-node text {
+  fill: var(--ink);
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: 10px;
+}
+
+.graph-node .graph-node-role {
+  fill: var(--ink-soft);
+  font-family: var(--sans);
+  font-size: 8px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.graph-node.sélection text {
+  fill: white;
+}
+
+.graph-node.sélection .graph-node-role {
+  fill: #cbd5cc;
+}
+
+.graph-predicate-columns {
+  display: grid;
+  padding: 2rem 0;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 2rem;
+}
+
+.graph-predicate-columns h4 {
+  margin: 0 0 0.8rem;
+  font-family: var(--serif);
+  font-size: 1.3rem;
+}
+
+.predicate-cloud {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.45rem;
+}
+
+.predicate-cloud .rule-chip {
+  cursor: pointer;
+}
+
+.graph-footnote {
+  margin: 0;
+  padding-top: 1rem;
+  color: var(--ink-soft);
+  border-top: 1px solid var(--line);
+  font-family: var(--serif);
+  font-size: 0.88rem;
+}
+
 .architecture-intro {
   display: grid;
   margin-bottom: 3rem;
@@ -1155,6 +1351,7 @@ footer p {
 
   .workspace-heading,
   .architecture-intro,
+  .graph-heading,
   .method {
     grid-template-columns: 1fr;
   }
@@ -1249,6 +1446,7 @@ footer p {
   .case-metrics,
   .flow-map,
   .family-grid,
+  .graph-predicate-columns,
   .method-grid {
     grid-template-columns: 1fr;
   }

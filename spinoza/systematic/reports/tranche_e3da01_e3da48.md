@@ -81,8 +81,7 @@ règles ordinaires ; aucune primitive de disjonction n'a été nécessaire.
 
 La métrique 48/48 porte sur les énoncés définitionnels eux-mêmes, et 1/1 sur
 la définition générale. Le corpus contient en outre 27 sections intitulées
-« Explication ». Plusieurs de leurs conséquences sont déjà présentes dans les
-règles des propositions, mais elles ne sont pas comptées artificiellement
-comme 27 explications intégralement atomisées. Leur audit proposition par
-proposition constitue un enrichissement distinct, mesurable, sans remettre en
-cause l'exécutabilité des 49 définitions.
+« Explication ». Leur atomisation est comptée séparément afin de ne pas
+modifier artificiellement la métrique canonique 48/48 ; elle est
+maintenant documentée dans
+[`tranche_e3da_explanations.md`](tranche_e3da_explanations.md).

@@ -1,0 +1,26 @@
+schema_version: 1
+id: E3DA13-EXP
+model: ethics_iii_affect_explanations_v1
+source_unit: E3DA13
+source_section: Explication
+rule_files: [rules/explanations/E3DA13-EXP.rules]
+rule_catalog: rules/catalog.yaml
+allowed_rule_origins: [textual_explanation]
+cases:
+  - id: reciprocite_espoir_crainte
+    initial_facts:
+      - "(homme0 espere_evenement_incertain evenement0)"
+      - "(homme0 craint_evenement_incertain evenement1)"
+      - "(homme0 imagine_exclusion_possible_de evenement0)"
+      - "(homme0 imagine_exclusion_possible_de evenement1)"
+    goals:
+      - "(homme0 craint_non_realisation_de evenement0)"
+      - "(homme0 espere_non_realisation_de evenement1)"
+    expected: {status: proved, proof_depths: [1, 1]}
+  - id: espoir_sans_image_exclusion
+    initial_facts: ["(homme0 espere_evenement_incertain evenement0)"]
+    goals: []
+    must_not_derive: ["(homme0 craint_non_realisation_de evenement0)"]
+    expected: {status: proved}
+formalization_status: proved_explanation_two_branches
+result: proved

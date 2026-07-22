@@ -338,9 +338,10 @@ orientation de la pensée. Le rapport de tranche est
 [`tranche_e3da01_e3da48.md`](tranche_e3da01_e3da48.md).
 
 Les 27 sections annexes intitulées « Explication » restent une métrique
-d'enrichissement distincte : certaines de leurs conséquences sont déjà
-couvertes dans E3P01–E3P59, mais elles ne sont pas assimilées artificiellement
-aux 48 énoncés définitionnels.
+d'enrichissement distincte des 48 énoncés définitionnels. Elles sont désormais
+atomisées dans 27 manifestes `E3DA*-EXP`, 44 règles textuelles et 54 cas
+positifs ou négatifs. Certaines conséquences recoupent E3P01–E3P59, mais leur
+provenance demeure celle de l'explication correspondante.
 
 ## Ordre des extensions du moteur
 
@@ -389,6 +390,7 @@ Le travail systématique sera considéré comme complet lorsque :
 - les modifications de l'ontologie ou des règles recalculeront automatiquement
   les preuves et la couverture.
 
-Ces critères sont désormais atteints pour les énoncés propositionnels et
-définitionnels. L'atomisation exhaustive des explications annexes reste un
-enrichissement éditorial et logique, explicitement séparé de cet achèvement.
+Ces critères sont désormais atteints pour les énoncés propositionnels,
+définitionnels et pour les 27 explications annexes. Le graphe calculé des
+prédicats rend en outre auditables les dépendances entre sorties et entrées de
+règles sans introduire de nouvelle sémantique dans le moteur.

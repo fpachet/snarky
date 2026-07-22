@@ -120,6 +120,70 @@ def _rule_definitions(root: Path) -> dict[str, dict[str, str]]:
     return definitions
 
 
+def _predicate_graph(
+    rule_payloads: list[dict[str, Any]],
+    parse_rules: Any,
+    fact_premise_type: type[Any],
+    add_fact_type: type[Any],
+    atom_type: type[Any],
+    triple_type: type[Any],
+) -> dict[str, Any]:
+    predicate_index: dict[str, dict[str, set[str]]] = {}
+
+    def predicate_name(term: Any) -> str | None:
+        if isinstance(term, triple_type) and isinstance(term.relation, atom_type):
+            return str(term.relation.name)
+        return None
+
+    for payload in rule_payloads:
+        parsed = parse_rules(payload["body"])[0]
+        inputs = sorted(
+            {
+                predicate
+                for premise in parsed.premises
+                if isinstance(premise, fact_premise_type)
+                if (predicate := predicate_name(premise.entity)) is not None
+            }
+        )
+        outputs = sorted(
+            {
+                predicate
+                for action in parsed.actions
+                if isinstance(action, add_fact_type)
+                if (predicate := predicate_name(action.entity)) is not None
+            }
+        )
+        payload["input_predicates"] = inputs
+        payload["output_predicates"] = outputs
+        for predicate in inputs:
+            predicate_index.setdefault(
+                predicate, {"producers": set(), "consumers": set()}
+            )["consumers"].add(payload["id"])
+        for predicate in outputs:
+            predicate_index.setdefault(
+                predicate, {"producers": set(), "consumers": set()}
+            )["producers"].add(payload["id"])
+
+    edges: dict[tuple[str, str], set[str]] = {}
+    for predicate, uses in predicate_index.items():
+        for producer in uses["producers"]:
+            for consumer in uses["consumers"]:
+                if producer != consumer:
+                    edges.setdefault((producer, consumer), set()).add(predicate)
+
+    return {
+        "predicates": [
+            {
+                "id": predicate,
+                "producers": sorted(uses["producers"]),
+                "consumers": sorted(uses["consumers"]),
+            }
+            for predicate, uses in sorted(predicate_index.items())
+        ],
+        "producer_consumer_edge_count": len(edges),
+    }
+
+
 def _case_payload(
     unit_id: str,
     case: dict[str, Any],
@@ -165,7 +229,11 @@ def build_payload(project_root: Path = PROJECT_ROOT) -> dict[str, Any]:
     systematic_root = project_root / "spinoza" / "systematic"
     source_root = project_root / "spinoza" / "sources"
     sys.path.insert(0, str(project_root / "src"))
+    from snarky.actions import AddFact
+    from snarky.parser import parse_rules
+    from snarky.premises import FactPremise
     from snarky.spinoza import run_case
+    from snarky.terms import Atom, Triple
 
     corpus = json.loads((source_root / "passages.json").read_text(encoding="utf-8"))
     source_units = {unit["id"]: unit for unit in corpus["units"]}
@@ -288,14 +356,57 @@ def build_payload(project_root: Path = PROJECT_ROOT) -> dict[str, Any]:
         "limitations": general_manifest.get("limitations", []),
     }
 
+    explanation_sources = {
+        unit["id"]: next(
+            section
+            for section in unit.get("sections", [])
+            if "explication"
+            in (section.get("label") or section.get("type") or "").lower()
+        )
+        for unit in corpus["units"]
+        if any(
+            "explication" in (section.get("label") or section.get("type") or "").lower()
+            for section in unit.get("sections", [])
+        )
+    }
+    definition_titles = {
+        item["id"]: item["title"] for item in [*definitions, general_definition]
+    }
+    explanations: list[dict[str, Any]] = []
+    for source_id, source in explanation_sources.items():
+        explanation_id = f"{source_id}-EXP"
+        manifest = _load_yaml(
+            systematic_root / "explanations" / f"{explanation_id}.yaml"
+        )
+        rule_names = _rule_names(systematic_root, manifest["rule_files"])
+        explanations.append(
+            {
+                "id": explanation_id,
+                "parent_id": source_id,
+                "title": f"Explication — {definition_titles[source_id]}",
+                "kind": "explanation",
+                "source_text": source["text"],
+                "status": manifest.get("formalization_status", manifest.get("result")),
+                "result": manifest.get("result"),
+                "current_rules": rule_names,
+                "support_rules": [],
+                "rule_metadata": {
+                    name: catalog_by_rule.get(name, {}) for name in rule_names
+                },
+                "cases": [
+                    _case_payload(explanation_id, case, run_case)
+                    for case in manifest["cases"]
+                ],
+                "limitations": manifest.get("limitations", []),
+            }
+        )
+
     definition_cases = sum(len(item["cases"]) for item in definitions) + len(
         general_definition["cases"]
     )
     proposition_cases = sum(len(item["cases"]) for item in propositions)
-    explanation_count = sum(
-        len(item["sections"]) for item in [*definitions, general_definition]
-    )
-    all_units = [*propositions, *definitions, general_definition]
+    explanation_cases = sum(len(item["cases"]) for item in explanations)
+    all_units = [*propositions, *definitions, general_definition, *explanations]
     rules = []
     for rule_id, metadata in catalog_by_rule.items():
         declared_by = [
@@ -324,6 +435,14 @@ def build_payload(project_root: Path = PROJECT_ROOT) -> dict[str, Any]:
                 "case_uses": case_uses,
             }
         )
+    rule_graph = _predicate_graph(
+        rules,
+        parse_rules,
+        FactPremise,
+        AddFact,
+        Atom,
+        Triple,
+    )
 
     return {
         "meta": {
@@ -336,14 +455,19 @@ def build_payload(project_root: Path = PROJECT_ROOT) -> dict[str, Any]:
                 "general_definitions": 1,
                 "proposition_cases": proposition_cases,
                 "definition_cases": definition_cases,
-                "definition_explanations": explanation_count,
+                "explanations": len(explanations),
+                "explanation_cases": explanation_cases,
                 "catalogued_rules": len(catalog_by_rule),
+                "predicates": len(rule_graph["predicates"]),
+                "rule_dependencies": rule_graph["producer_consumer_edge_count"],
             },
         },
         "propositions": propositions,
         "definitions": definitions,
         "general_definition": general_definition,
+        "explanations": explanations,
         "rules": rules,
+        "rule_graph": rule_graph,
         "families": [
             {"start": start, "end": end, "label": label}
             for start, end, label in AFFECT_FAMILIES

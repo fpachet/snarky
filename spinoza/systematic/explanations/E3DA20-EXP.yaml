@@ -1,0 +1,24 @@
+schema_version: 1
+id: E3DA20-EXP
+model: ethics_iii_affect_explanations_v1
+source_unit: E3DA20
+source_section: Explication
+rule_files: [rules/explanations/E3DA20-EXP.rules]
+rule_catalog: rules/catalog.yaml
+allowed_rule_origins: [textual_explanation]
+cases:
+  - id: nature_et_usage
+    initial_facts:
+      - "(definition0 explique_nature_de affect0)"
+      - "(vocable0 a_sens_usuel_different_de definition0)"
+    goals:
+      - "(definition0 prime_sur_sens_usuel_du vocable0)"
+      - "(vocable0 conserve_ecart_semantique_explicite VRAI)"
+    expected: {status: proved, proof_depths: [1, 1]}
+  - id: nature_sans_ecart_usage
+    initial_facts: ["(definition0 explique_nature_de affect0)"]
+    goals: []
+    must_not_derive: ["(definition0 prime_sur_sens_usuel_du vocable0)"]
+    expected: {status: proved}
+formalization_status: proved_editorial_explanation
+result: proved

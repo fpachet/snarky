@@ -7,6 +7,7 @@ const assetVersion = moduleUrl.searchParams.get("v") ?? "dev";
 const modelUrl = new URL("./data/model.json", moduleUrl);
 modelUrl.searchParams.set("v", assetVersion);
 app.dataset.loadState = "loading";
+const GRAPH_DEFAULT_RULE = "E3DA28_EXP_mesestime_de_soi_nait_humilite";
 
 let model;
 let state = {
@@ -53,7 +54,7 @@ function renderHeroStats() {
   const stats = [
     [counts.propositions, "propositions"],
     [counts.definitions, "affects définis"],
-    [counts.proposition_cases + counts.definition_cases, "cas exécutés"],
+    [counts.explanations, "explications atomisées"],
     [counts.catalogued_rules, "règles cataloguées"],
   ];
   heroStats.innerHTML = stats
@@ -72,6 +73,7 @@ function unitsForView() {
   if (state.view === "affects") {
     return [...model.definitions, model.general_definition];
   }
+  if (state.view === "explanations") return model.explanations;
   if (state.view === "rules") return model.rules;
   return [];
 }
@@ -84,6 +86,7 @@ function filteredUnits() {
       unit.id,
       unit.title,
       unit.family,
+      unit.parent_id,
       unit.source_text,
       unit.origin,
       unit.status,
@@ -118,7 +121,21 @@ function routeFromHash() {
   const route = window.location.hash.slice(1);
   if (!route || route === "accueil") return;
   const [view, selectedId] = route.split("/");
-  if (!["propositions", "affects", "rules", "architecture"].includes(view)) return;
+  if (
+    ![
+      "propositions",
+      "affects",
+      "explanations",
+      "rules",
+      "graph",
+      "architecture",
+    ].includes(view)
+  )
+    return;
+  if (state.view !== view) {
+    state.query = "";
+    searchInput.value = "";
+  }
   state.view = view;
   if (selectedId) state.selectedId = selectedId;
   if (model) render();
@@ -162,6 +179,7 @@ function unitListItem(unit) {
 }
 
 function unitHref(unitId) {
+  if (unitId.endsWith("-EXP")) return `#explanations/${unitId}`;
   if (unitId.startsWith("E3DA")) return `#affects/${unitId}`;
   if (/^E3P\d{2}$/.test(unitId)) return `#propositions/${unitId}`;
   return null;
@@ -169,8 +187,10 @@ function unitHref(unitId) {
 
 function referenceItem(reference) {
   const propositionMatch = reference.match(/^E3P\d{2}/);
+  const explanationMatch = reference.match(/^E3DA(?:-GENERAL|\d{2})-EXP/);
   const affectMatch = reference.match(/^E3DA(?:-GENERAL|\d{2})/);
-  const canonicalId = propositionMatch?.[0] ?? affectMatch?.[0] ?? reference;
+  const canonicalId =
+    propositionMatch?.[0] ?? explanationMatch?.[0] ?? affectMatch?.[0] ?? reference;
   const href = unitHref(canonicalId);
   return href
     ? `<li><a href="${href}">${escapeHtml(reference)}</a></li>`
@@ -331,6 +351,7 @@ function renderRuleDetail(rule) {
             ? `<p class="rule-note">${escapeHtml(rule.note)}</p>`
             : ""
         }
+        <p class="rule-actions"><a class="button secondary" href="#graph/${escapeHtml(rule.id)}">Voir dans le graphe</a></p>
       </header>
       <section class="detail-section">
         <div class="section-title-row">
@@ -371,6 +392,8 @@ function renderDetail(unit) {
   const kind =
     unit.kind === "proposition"
       ? "Proposition"
+      : unit.kind === "explanation"
+        ? "Explication"
       : unit.kind === "general_definition"
         ? "Synthèse"
         : unit.family;
@@ -385,6 +408,7 @@ function renderDetail(unit) {
         <h3 id="detail-title">${escapeHtml(unit.title)}</h3>
         <blockquote class="source-quote">${escapeHtml(unit.source_text)}</blockquote>
       </header>
+      ${unit.parent_id ? linkedReferences("Définition expliquée", [unit.parent_id]) : ""}
       ${dependenciesSection(unit)}
       ${sourceSections(unit)}
       ${rulesSection(unit)}
@@ -403,6 +427,8 @@ function renderBrowser() {
   const listLabel =
     state.view === "propositions"
       ? "propositions"
+      : state.view === "explanations"
+        ? "explications"
       : state.view === "rules"
         ? "règles Snark"
         : "définitions";
@@ -443,7 +469,7 @@ function renderArchitecture() {
         <article class="flow-step"><span>01 · SOURCE</span><h4>Texte</h4><p>Énoncés, démonstrations, scolies et explications de la traduction Appuhn.</p></article>
         <article class="flow-step"><span>02 · MONDE</span><h4>Faits</h4><p>Une instanciation finie rend explicites sujets, objets, causes et contextes.</p></article>
         <article class="flow-step"><span>03 · INFÉRENCE</span><h4>Règles</h4><p>${counts.catalogued_rules} règles portent une origine textuelle, externe ou interprétative.</p></article>
-        <article class="flow-step"><span>04 · AUDIT</span><h4>Preuve</h4><p>${counts.proposition_cases + counts.definition_cases} cas conservent profondeur et provenance.</p></article>
+        <article class="flow-step"><span>04 · AUDIT</span><h4>Preuve</h4><p>${counts.proposition_cases + counts.definition_cases + counts.explanation_cases} cas conservent profondeur et provenance.</p></article>
       </div>
       <section class="family-map">
         <h4>Les sept familles des affects</h4>
@@ -468,9 +494,245 @@ function renderArchitecture() {
     </div>`;
 }
 
+function graphPredicates(rule) {
+  return new Set([
+    ...(rule.input_predicates ?? []),
+    ...(rule.output_predicates ?? []),
+  ]);
+}
+
+function graphRuleMatches(query) {
+  const normalizedQuery = normalize(query.trim());
+  if (!normalizedQuery) return model.rules;
+  return model.rules.filter((rule) =>
+    normalize(
+      [
+        rule.id,
+        rule.origin,
+        rule.status,
+        ...(rule.input_predicates ?? []),
+        ...(rule.output_predicates ?? []),
+      ].join(" "),
+    ).includes(normalizedQuery),
+  );
+}
+
+function graphNode(ruleId, x, y, role) {
+  const label = ruleId.length > 38 ? `${ruleId.slice(0, 36)}…` : ruleId;
+  return `
+    <a href="#graph/${escapeHtml(ruleId)}" aria-label="Sélectionner ${escapeHtml(ruleId)}">
+      <g class="graph-node ${role}" transform="translate(${x - 135} ${y - 28})">
+        <rect width="270" height="56" rx="3"></rect>
+        <text x="14" y="23">${escapeHtml(label)}</text>
+        <text class="graph-node-role" x="14" y="42">${escapeHtml(role)}</text>
+      </g>
+    </a>`;
+}
+
+function graphEdge(sourceX, sourceY, targetX, targetY, predicate, role) {
+  const label = predicate.length > 29 ? `${predicate.slice(0, 27)}…` : predicate;
+  const middleX = (sourceX + targetX) / 2;
+  const middleY = (sourceY + targetY) / 2 - 6;
+  return `
+    <g class="graph-edge ${role}">
+      <path d="M ${sourceX} ${sourceY} L ${targetX} ${targetY}" ${role === "shared" ? "" : 'marker-end="url(#graph-arrow)"'}></path>
+      <text x="${middleX}" y="${middleY}">${escapeHtml(label)}</text>
+    </g>`;
+}
+
+function renderRuleGraph() {
+  const matches = graphRuleMatches(state.query);
+  let selected = model.rules.find((rule) => rule.id === state.selectedId);
+  if (state.query && matches.length && !matches.some((rule) => rule.id === selected?.id)) {
+    selected = matches[0];
+    state.selectedId = selected.id;
+  }
+  if (!selected) {
+    selected =
+      model.rules.find((rule) => rule.id === GRAPH_DEFAULT_RULE) ?? model.rules[0];
+    state.selectedId = selected.id;
+  }
+
+  const predicateIndex = new Map(
+    model.rule_graph.predicates.map((predicate) => [predicate.id, predicate]),
+  );
+  const incomingByRule = new Map();
+  for (const predicate of selected.input_predicates ?? []) {
+    for (const producer of predicateIndex.get(predicate)?.producers ?? []) {
+      if (producer === selected.id) continue;
+      if (!incomingByRule.has(producer)) incomingByRule.set(producer, []);
+      incomingByRule.get(producer).push(predicate);
+    }
+  }
+  const outgoingByRule = new Map();
+  for (const predicate of selected.output_predicates ?? []) {
+    for (const consumer of predicateIndex.get(predicate)?.consumers ?? []) {
+      if (consumer === selected.id) continue;
+      if (!outgoingByRule.has(consumer)) outgoingByRule.set(consumer, []);
+      outgoingByRule.get(consumer).push(predicate);
+    }
+  }
+  const allIncoming = [...incomingByRule.entries()].map(
+    ([source, predicates]) => ({ source, target: selected.id, predicates }),
+  );
+  const allOutgoing = [...outgoingByRule.entries()].map(
+    ([target, predicates]) => ({ source: selected.id, target, predicates }),
+  );
+  const incoming = allIncoming.slice(0, 8);
+  const outgoing = allOutgoing.slice(0, 8);
+  const directedNeighbors = new Set([
+    ...allIncoming.map((edge) => edge.source),
+    ...allOutgoing.map((edge) => edge.target),
+  ]);
+  const selectedPredicates = graphPredicates(selected);
+  const peers = model.rules
+    .filter(
+      (rule) => rule.id !== selected.id && !directedNeighbors.has(rule.id),
+    )
+    .map((rule) => ({
+      id: rule.id,
+      shared: [...graphPredicates(rule)].filter((predicate) =>
+        selectedPredicates.has(predicate),
+      ),
+    }))
+    .filter((peer) => peer.shared.length)
+    .sort((left, right) => right.shared.length - left.shared.length)
+    .slice(0, 5);
+
+  const verticalPosition = (index, count) =>
+    count === 1 ? 320 : 80 + (index * 470) / (count - 1);
+  const incomingPositions = incoming.map((_, index) =>
+    verticalPosition(index, incoming.length),
+  );
+  const outgoingPositions = outgoing.map((_, index) =>
+    verticalPosition(index, outgoing.length),
+  );
+  const peerPositions = peers.map((_, index) =>
+    peers.length === 1 ? 600 : 250 + (index * 700) / (peers.length - 1),
+  );
+  const svgEdges = [
+    ...incoming.map((edge, index) =>
+      graphEdge(
+        305,
+        incomingPositions[index],
+        455,
+        320,
+        edge.predicates.join(", "),
+        "incoming",
+      ),
+    ),
+    ...outgoing.map((edge, index) =>
+      graphEdge(
+        745,
+        320,
+        895,
+        outgoingPositions[index],
+        edge.predicates.join(", "),
+        "outgoing",
+      ),
+    ),
+    ...peers.map((peer, index) =>
+      graphEdge(
+        600,
+        348,
+        peerPositions[index],
+        612,
+        peer.shared.join(", "),
+        "shared",
+      ),
+    ),
+  ].join("");
+  const svgNodes = [
+    ...incoming.map((edge, index) =>
+      graphNode(edge.source, 170, incomingPositions[index], "producteur"),
+    ),
+    graphNode(selected.id, 600, 320, "sélection"),
+    ...outgoing.map((edge, index) =>
+      graphNode(edge.target, 1030, outgoingPositions[index], "consommateur"),
+    ),
+    ...peers.map((peer, index) =>
+      graphNode(peer.id, peerPositions[index], 650, "prédicat commun"),
+    ),
+  ].join("");
+  const suggestions = state.query
+    ? `<div class="graph-search-results">
+        <span>${matches.length} règle${matches.length > 1 ? "s" : ""} correspondante${matches.length > 1 ? "s" : ""}</span>
+        ${matches
+          .slice(0, 8)
+          .map(
+            (rule) =>
+              `<a href="#graph/${escapeHtml(rule.id)}">${escapeHtml(rule.id)}</a>`,
+          )
+          .join("")}
+      </div>`
+    : "";
+
+  app.innerHTML = `
+    <div class="rule-graph-view">
+      <header class="graph-heading">
+        <div>
+          <p class="eyebrow">Réseau producteur–consommateur</p>
+          <h3>${escapeHtml(selected.id)}</h3>
+        </div>
+        <p>
+          Une flèche relie une sortie de règle à une entrée d’une autre règle.
+          Les liens fins signalent un prédicat commun sans dépendance dirigée.
+        </p>
+      </header>
+      ${suggestions}
+      <div class="graph-metrics">
+        <span><strong>${allIncoming.length}</strong> producteurs</span>
+        <span><strong>${allOutgoing.length}</strong> consommateurs</span>
+        <span><strong>${peers.length}</strong> voisins communs affichés</span>
+        <span><strong>${model.meta.counts.predicates}</strong> prédicats dans le modèle</span>
+      </div>
+      <div class="graph-canvas">
+        <svg viewBox="0 0 1200 700" role="img" aria-labelledby="graph-title graph-description">
+          <title id="graph-title">Voisinage de la règle ${escapeHtml(selected.id)}</title>
+          <desc id="graph-description">Producteurs à gauche, règle sélectionnée au centre, consommateurs à droite et règles partageant des prédicats en bas.</desc>
+          <defs>
+            <marker id="graph-arrow" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto">
+              <path d="M 0 0 L 8 4 L 0 8 z"></path>
+            </marker>
+          </defs>
+          ${svgEdges}
+          ${svgNodes}
+        </svg>
+      </div>
+      <div class="graph-predicate-columns">
+        <section>
+          <h4>Prédicats d’entrée</h4>
+          <div class="predicate-cloud">
+            ${(selected.input_predicates ?? [])
+              .map(
+                (predicate) =>
+                  `<button type="button" class="rule-chip" data-graph-predicate="${escapeHtml(predicate)}">${escapeHtml(predicate)}</button>`,
+              )
+              .join("") || "<span>Aucun prédicat factuel</span>"}
+          </div>
+        </section>
+        <section>
+          <h4>Prédicats de sortie</h4>
+          <div class="predicate-cloud">
+            ${(selected.output_predicates ?? [])
+              .map(
+                (predicate) =>
+                  `<button type="button" class="rule-chip" data-graph-predicate="${escapeHtml(predicate)}">${escapeHtml(predicate)}</button>`,
+              )
+              .join("") || "<span>Aucun prédicat ajouté</span>"}
+          </div>
+        </section>
+      </div>
+      <p class="graph-footnote">
+        Le graphe complet contient ${model.meta.counts.rule_dependencies} dépendances dirigées entre ${model.meta.counts.catalogued_rules} règles. Le voisinage est limité visuellement ; les compteurs conservent les totaux complets.
+      </p>
+    </div>`;
+}
+
 function render() {
   setActiveViewButton();
   if (state.view === "architecture") renderArchitecture();
+  else if (state.view === "graph") renderRuleGraph();
   else renderBrowser();
 }
 
@@ -482,10 +744,17 @@ viewButtons.forEach((button) => {
     state.selectedId =
       state.view === "propositions"
         ? "E3P01"
+        : state.view === "explanations"
+          ? model.explanations[0].id
         : state.view === "rules"
           ? model.rules[0].id
-          : "E3DA01";
-    updateHash(state.view, state.view === "architecture" ? "" : state.selectedId);
+          : state.view === "graph"
+            ? GRAPH_DEFAULT_RULE
+            : "E3DA01";
+    updateHash(
+      state.view,
+      state.view === "architecture" ? "" : state.selectedId,
+    );
     render();
   });
 });
@@ -510,6 +779,17 @@ document.addEventListener("keydown", (event) => {
 });
 
 app.addEventListener("click", (event) => {
+  const predicateButton = event.target.closest("[data-graph-predicate]");
+  if (predicateButton) {
+    const predicate = predicateButton.dataset.graphPredicate;
+    state.query = predicate;
+    searchInput.value = predicate;
+    const match = graphRuleMatches(predicate)[0];
+    if (match) state.selectedId = match.id;
+    updateHash("graph", state.selectedId);
+    render();
+    return;
+  }
   const button = event.target.closest("[data-select-unit]");
   if (!button) return;
   state.selectedId = button.dataset.selectUnit;

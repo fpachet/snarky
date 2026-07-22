@@ -1,0 +1,24 @@
+schema_version: 1
+id: E3DA10-EXP
+model: ethics_iii_affect_explanations_v1
+source_unit: E3DA10
+source_section: Explication
+rule_files: [rules/explanations/E3DA10-EXP.rules]
+rule_catalog: rules/catalog.yaml
+allowed_rule_origins: [textual_explanation]
+cases:
+  - id: repetition_et_degenerescence
+    initial_facts:
+      - "(homme0 imagine_souvent objet0)"
+      - "(objet0 avait_provoque_etonnement_de homme0)"
+    goals:
+      - "(objet0 cesse_de_provoquer_etonnement_de homme0)"
+      - "(ferveur_envers_objet degenere_en_amour_simple_de (homme0 envers objet0))"
+    expected: {status: proved, proof_depths: [1, 1]}
+  - id: objet_rarement_imagine
+    initial_facts: ["(objet0 avait_provoque_etonnement_de homme0)"]
+    goals: []
+    must_not_derive: ["(objet0 cesse_de_provoquer_etonnement_de homme0)"]
+    expected: {status: proved}
+formalization_status: proved_explanation
+result: proved

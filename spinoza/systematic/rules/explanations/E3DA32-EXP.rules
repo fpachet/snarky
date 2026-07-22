@@ -1,0 +1,9 @@
+RULE E3DA32_EXP_souhait_frustre_est_tristesse_du_desir_inhibe
+WHEN
+    ($homme se_souvient_avec_joie_de $chose_absente)
+    ($souvenir_des_exclusions inhibe_consideration_presente_de $chose_absente)
+THEN
+    ADD (souhait_frustre est_tristesse_de $homme)
+    ADD (souhait_frustre s_oppose_joie_absence_chose_haie VRAI)
+    ADD (souhait_frustre appartient_aux_affects_de desir)
+END

@@ -1,0 +1,25 @@
+schema_version: 1
+id: E3DA32-EXP
+model: ethics_iii_affect_explanations_v1
+source_unit: E3DA32
+source_section: Explication
+rule_files: [rules/explanations/E3DA32-EXP.rules]
+rule_catalog: rules/catalog.yaml
+allowed_rule_origins: [textual_explanation]
+cases:
+  - id: souvenir_joyeux_inhibe
+    initial_facts:
+      - "(homme0 se_souvient_avec_joie_de chose0)"
+      - "(souvenir_exclusions0 inhibe_consideration_presente_de chose0)"
+    goals:
+      - "(souhait_frustre est_tristesse_de homme0)"
+      - "(souhait_frustre s_oppose_joie_absence_chose_haie VRAI)"
+      - "(souhait_frustre appartient_aux_affects_de desir)"
+    expected: {status: proved, proof_depths: [1, 1, 1]}
+  - id: souvenir_non_inhibe
+    initial_facts: ["(homme0 se_souvient_avec_joie_de chose0)"]
+    goals: []
+    must_not_derive: ["(souhait_frustre est_tristesse_de homme0)"]
+    expected: {status: proved}
+formalization_status: proved_explanation
+result: proved

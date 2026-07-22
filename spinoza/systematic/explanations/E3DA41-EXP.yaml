@@ -1,0 +1,24 @@
+schema_version: 1
+id: E3DA41-EXP
+model: ethics_iii_affect_explanations_v1
+source_unit: E3DA41
+source_section: Explication
+rule_files: [rules/explanations/E3DA41-EXP.rules]
+rule_catalog: rules/catalog.yaml
+allowed_rule_origins: [textual_explanation]
+cases:
+  - id: mal_inhabituellement_craint
+    initial_facts:
+      - "(homme0 craint mal0)"
+      - "(mal0 n_est_pas_craint_par_la_plupart VRAI)"
+    goals:
+      - "(pusillanimite est_crainte_inhabituelle_de (homme0 envers mal0))"
+      - "(pusillanimite est_opposee_a_audace_eu_egard_au_desir VRAI)"
+    expected: {status: proved, proof_depths: [1, 1]}
+  - id: mal_communement_craint
+    initial_facts: ["(homme0 craint mal0)"]
+    goals: []
+    must_not_derive: ["(pusillanimite est_crainte_inhabituelle_de (homme0 envers mal0))"]
+    expected: {status: proved}
+formalization_status: proved_explanation
+result: proved

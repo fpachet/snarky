@@ -1,0 +1,16 @@
+RULE E3DA44_EXP_ambition_alimente_tous_affects
+WHEN
+    ($ambition est_ambition_de $homme)
+    ($affect est_affect_de $homme)
+THEN
+    ADD ($ambition alimente_et_fortifie $affect)
+    ADD ($ambition est_difficile_a_vaincre VRAI)
+END
+
+RULE E3DA44_EXP_desir_coexiste_ambition
+WHEN
+    ($homme est_possede_par $desir)
+    ($desir est_desir_de $homme)
+THEN
+    ADD ($homme est_simultanement_possede_par ambition)
+END

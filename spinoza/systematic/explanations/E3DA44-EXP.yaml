@@ -1,0 +1,27 @@
+schema_version: 1
+id: E3DA44-EXP
+model: ethics_iii_affect_explanations_v1
+source_unit: E3DA44
+source_section: Explication
+rule_files: [rules/explanations/E3DA44-EXP.rules]
+rule_catalog: rules/catalog.yaml
+allowed_rule_origins: [textual_explanation]
+cases:
+  - id: ambition_alimente_affect_et_accompagne_desir
+    initial_facts:
+      - "(ambition0 est_ambition_de homme0)"
+      - "(affect0 est_affect_de homme0)"
+      - "(homme0 est_possede_par desir0)"
+      - "(desir0 est_desir_de homme0)"
+    goals:
+      - "(ambition0 alimente_et_fortifie affect0)"
+      - "(ambition0 est_difficile_a_vaincre VRAI)"
+      - "(homme0 est_simultanement_possede_par ambition)"
+    expected: {status: proved, proof_depths: [1, 1, 1]}
+  - id: ambition_sans_affect_cible
+    initial_facts: ["(ambition0 est_ambition_de homme0)"]
+    goals: []
+    must_not_derive: ["(ambition0 alimente_et_fortifie affect0)"]
+    expected: {status: proved}
+formalization_status: proved_explanation
+result: proved

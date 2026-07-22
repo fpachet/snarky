@@ -1,0 +1,26 @@
+schema_version: 1
+id: E3DA22-EXP
+model: ethics_iii_affect_explanations_v1
+source_unit: E3DA22
+source_section: Explication
+rule_files: [rules/explanations/E3DA22-EXP.rules]
+rule_catalog: rules/catalog.yaml
+allowed_rule_origins: [textual_explanation]
+cases:
+  - id: proprietes_amour_haine
+    initial_facts:
+      - "(homme0 aime objet0)"
+      - "(homme0 fait_plus_de_cas_que_juste_de objet0)"
+      - "(homme0 hait objet1)"
+      - "(homme0 fait_moins_de_cas_que_juste_de objet1)"
+    goals:
+      - "(surestime est_propriete_de_amour_de (homme0 envers objet0))"
+      - "(mesestime est_propriete_de_haine_de (homme0 envers objet1))"
+    expected: {status: proved, proof_depths: [1, 1]}
+  - id: amour_sans_surevaluation
+    initial_facts: ["(homme0 aime objet0)"]
+    goals: []
+    must_not_derive: ["(surestime est_propriete_de_amour_de (homme0 envers objet0))"]
+    expected: {status: proved}
+formalization_status: proved_explanation_two_branches
+result: proved

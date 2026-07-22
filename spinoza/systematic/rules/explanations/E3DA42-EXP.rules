@@ -1,0 +1,18 @@
+RULE E3DA42_EXP_consternation_nait_double_peur
+WHEN
+    ($homme craint $mal_un)
+    ($homme craint $mal_deux)
+    ($mal_un est_distinct_de $mal_deux)
+THEN
+    ADD (consternation est_espece_de_pusillanimite_de $homme)
+    ADD (consternation est_peur_double_de $homme)
+    ADD ($homme ne_sait_lequel_des_deux_maux_detourner VRAI)
+END
+
+RULE E3DA42_EXP_stupeur_ou_flottement_reduit_desir
+WHEN
+    ($desir est_desir_d_ecarter_mal_de $homme)
+    ($desir est_reduit_par_etonnement_ou_autre_peur VRAI)
+THEN
+    ADD ($homme est_frappe_de_stupeur_ou_flottant VRAI)
+END

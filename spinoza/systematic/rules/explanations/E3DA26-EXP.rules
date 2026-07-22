@@ -1,0 +1,15 @@
+RULE E3DA26_EXP_contentement_s_oppose_humilite_par_puissance
+WHEN
+    ($contentement est_joie_consideration_puissance_de $homme)
+    ($humilite est_tristesse_consideration_impuissance_de $homme)
+THEN
+    ADD ($contentement est_oppose_a $humilite)
+END
+
+RULE E3DA26_EXP_contentement_s_oppose_repentir_par_acte
+WHEN
+    ($contentement est_joie_acte_cru_libre_de $homme)
+    ($repentir est_tristesse_acte_cru_libre_de $homme)
+THEN
+    ADD ($contentement est_oppose_a $repentir)
+END

@@ -1,0 +1,29 @@
+schema_version: 1
+id: E3DA28-EXP
+model: ethics_iii_affect_explanations_v1
+source_unit: E3DA28
+source_section: Explication
+rule_files: [rules/explanations/E3DA28-EXP.rules]
+rule_catalog: rules/catalog.yaml
+allowed_rule_origins: [textual_explanation]
+cases:
+  - id: soi_objet_exterieur_et_humilite
+    initial_facts:
+      - "(homme0 fait_plus_de_cas_que_juste_de homme0)"
+      - "(homme0 eprouve_amour_propre VRAI)"
+      - "(homme0 fait_plus_de_cas_que_juste_de objet0)"
+      - "(objet0 est_exterieur_a homme0)"
+      - "(humilite0 est_humilite_de homme0)"
+      - "(homme0 fait_moins_de_cas_que_juste_de homme0)"
+    goals:
+      - "(orgueil se_rapporte_a_soi_de homme0)"
+      - "(surestime se_rapporte_objet_exterieur_de (homme0 envers objet0))"
+      - "(mesestime_de_soi nait_de humilite0)"
+    expected: {status: proved, proof_depths: [1, 1, 1]}
+  - id: surevaluation_sans_amour_propre
+    initial_facts: ["(homme0 fait_plus_de_cas_que_juste_de homme0)"]
+    goals: []
+    must_not_derive: ["(orgueil se_rapporte_a_soi_de homme0)"]
+    expected: {status: proved}
+formalization_status: proved_explanation_three_branches
+result: proved

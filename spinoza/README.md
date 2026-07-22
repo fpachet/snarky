@@ -165,9 +165,10 @@ et Cavarretta :
 - [`systematic/reports/tranche_e3p53_e3p56.md`](systematic/reports/tranche_e3p53_e3p56.md) ;
 - [`systematic/reports/tranche_e3p57_e3p59.md`](systematic/reports/tranche_e3p57_e3p59.md) ;
 - [`systematic/reports/tranche_e3da01_e3da48.md`](systematic/reports/tranche_e3da01_e3da48.md).
+- [`systematic/reports/tranche_e3da_explanations.md`](systematic/reports/tranche_e3da_explanations.md).
 
 Les 59 propositions, les 48 définitions finales et la définition générale sont
-toutes exécutables. Le
-[`plan de modélisation`](systematic/reports/roadmap.md) décrit le travail
-achevé et distingue les 27 explications annexes, qui restent une couche
-d'enrichissement plus fine.
+toutes exécutables. Les 27 explications annexes disposent à leur tour de 27
+manifestes, 44 règles textuelles et 54 cas. Le
+[`plan de modélisation`](systematic/reports/roadmap.md) décrit cette couche
+d'enrichissement désormais exécutable.

@@ -1,0 +1,8 @@
+RULE E3DA10_EXP_repetition_fait_cesser_etonnement
+WHEN
+    ($homme imagine_souvent $objet)
+    ($objet avait_provoque_etonnement_de $homme)
+THEN
+    ADD ($objet cesse_de_provoquer_etonnement_de $homme)
+    ADD (ferveur_envers_objet degenere_en_amour_simple_de ($homme envers $objet))
+END

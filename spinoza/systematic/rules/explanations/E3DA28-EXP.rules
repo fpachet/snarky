@@ -1,0 +1,24 @@
+RULE E3DA28_EXP_orgueil_se_rapporte_a_soi
+WHEN
+    ($homme fait_plus_de_cas_que_juste_de $homme)
+    ($homme eprouve_amour_propre VRAI)
+THEN
+    ADD (orgueil se_rapporte_a_soi_de $homme)
+    ADD (orgueil decoule_amour_propre_de $homme)
+END
+
+RULE E3DA28_EXP_surestime_se_rapporte_objet_exterieur
+WHEN
+    ($homme fait_plus_de_cas_que_juste_de $objet)
+    ($objet est_exterieur_a $homme)
+THEN
+    ADD (surestime se_rapporte_objet_exterieur_de ($homme envers $objet))
+END
+
+RULE E3DA28_EXP_mesestime_de_soi_nait_humilite
+WHEN
+    ($humilite est_humilite_de $homme)
+    ($homme fait_moins_de_cas_que_juste_de $homme)
+THEN
+    ADD (mesestime_de_soi nait_de $humilite)
+END

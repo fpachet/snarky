@@ -1,0 +1,26 @@
+schema_version: 1
+id: E3DA33-EXP
+model: ethics_iii_affect_explanations_v1
+source_unit: E3DA33
+source_section: Explication
+rule_files: [rules/explanations/E3DA33-EXP.rules]
+rule_catalog: rules/catalog.yaml
+allowed_rule_origins: [textual_explanation]
+cases:
+  - id: imitation_valorisee_et_envie
+    initial_facts:
+      - "(homme0 imite_affection_de autre0)"
+      - "(objet0 est_juge_honnete_utile_ou_agreable_par homme0)"
+      - "(homme0 compare_son_bien_a_celui_de autre0)"
+    goals:
+      - "(homme0 eprouve_emulation_envers autre0)"
+      - "(emulation et_imitation_ont_meme_cause VRAI)"
+      - "(homme0 peut_eprouver_envie_envers autre0)"
+    expected: {status: proved, proof_depths: [1, 1, 2]}
+  - id: imitation_non_valorisee
+    initial_facts: ["(homme0 imite_affection_de autre0)"]
+    goals: []
+    must_not_derive: ["(homme0 eprouve_emulation_envers autre0)"]
+    expected: {status: proved}
+formalization_status: proved_explanation_with_two_step_chain
+result: proved

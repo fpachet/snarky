@@ -1,0 +1,8 @@
+RULE E3DA20_EXP_nature_prime_sur_usage_des_mots
+WHEN
+    ($definition explique_nature_de $affect)
+    ($vocable a_sens_usuel_different_de $definition)
+THEN
+    ADD ($definition prime_sur_sens_usuel_du $vocable)
+    ADD ($vocable conserve_ecart_semantique_explicite VRAI)
+END

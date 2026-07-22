@@ -53,8 +53,9 @@ contraintes arithmétiques.
 Le contenu actuel comprend :
 
 - [l’atlas web de l’Éthique III](https://fpachet.github.io/snarky/), une
-  exploration statique des textes, affects, règles et chaînes de preuve,
-  publiée automatiquement par GitHub Pages ;
+  exploration statique des textes, affects, 27 explications, règles, chaînes
+  de preuve et dépendances producteur–consommateur entre règles, publiée
+  automatiquement par GitHub Pages ;
 
 - [`docs/prompt_codex_moteur_snarky.md`](docs/prompt_codex_moteur_snarky.md),
   la spécification détaillée du moteur ;

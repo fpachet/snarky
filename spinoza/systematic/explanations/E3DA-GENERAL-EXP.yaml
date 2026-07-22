@@ -1,0 +1,34 @@
+schema_version: 1
+id: E3DA-GENERAL-EXP
+model: ethics_iii_affect_explanations_v1
+source_unit: E3DA-GENERAL
+source_section: Explication
+rule_files: [rules/explanations/E3DA-GENERAL-EXP.rules]
+rule_catalog: rules/catalog.yaml
+allowed_rule_origins: [textual_explanation]
+cases:
+  - id: idee_corps_realite_et_valeur
+    initial_facts:
+      - "(ame0 a_idee_inadequate_ou_confuse idee0)"
+      - "(idee0 constitue_forme_de affect0)"
+      - "(idee0 est_idee_de_corps_dans ame0)"
+      - "(ame0 a_corps corps0)"
+      - "(idee0 affirme_plus_ou_moins_realite_du corps0)"
+      - "(idee0 a_objet objet0)"
+      - "(objet0 a_degre_de_realite degre0)"
+    goals:
+      - "(affect0 est_passion_de ame0)"
+      - "(idee0 indique_etat_actuel_du corps0)"
+      - "(ame0 n_effectue_pas_comparaison_mentale_avec_passe VRAI)"
+      - "(idee0 a_degre_de_valeur degre0)"
+    expected: {status: proved, proof_depths: [1, 1, 1, 1]}
+  - id: idee_adequate_sans_confusion
+    initial_facts:
+      - "(idee0 constitue_forme_de affect0)"
+      - "(idee0 est_idee_de_corps_dans ame0)"
+      - "(ame0 a_corps corps0)"
+    goals: []
+    must_not_derive: ["(affect0 est_passion_de ame0)"]
+    expected: {status: proved}
+formalization_status: proved_explanation_four_components
+result: proved

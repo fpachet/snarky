@@ -1,0 +1,25 @@
+schema_version: 1
+id: E3DA29-EXP
+model: ethics_iii_affect_explanations_v1
+source_unit: E3DA29
+source_section: Explication
+rule_files: [rules/explanations/E3DA29-EXP.rules]
+rule_catalog: rules/catalog.yaml
+allowed_rule_origins: [textual_explanation]
+cases:
+  - id: humilite_apparente
+    initial_facts:
+      - "(homme0 manifeste_humilite_apparente VRAI)"
+      - "(nature_humaine resiste_a_mesestime_de_soi_de homme0)"
+    goals:
+      - "(homme0 peut_etre_plein_d ambition)"
+      - "(homme0 peut_etre_plein_d envie)"
+      - "(humilite_et_mesestime_de_soi sont_rares VRAI)"
+    expected: {status: proved, proof_depths: [1, 1, 1]}
+  - id: apparence_sans_resistance
+    initial_facts: ["(homme0 manifeste_humilite_apparente VRAI)"]
+    goals: []
+    must_not_derive: ["(homme0 peut_etre_plein_d ambition)"]
+    expected: {status: proved}
+formalization_status: proved_explanation_interpretative
+result: proved
