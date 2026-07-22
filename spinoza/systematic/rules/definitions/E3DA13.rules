@@ -1,0 +1,12 @@
+RULE E3DA13_crainte_tristesse_inconstante_issue_douteuse
+WHEN
+    ($tristesse est_tristesse_de $ame)
+    ($tristesse est_inconstante VRAI)
+    ($idee est_idee_de $chose)
+    ($idee accompagne $tristesse)
+    ($chose a_temporalite $temps)
+    ($temps est_passe_ou_futur VRAI)
+    ($ame doute_de_issue_de $chose)
+THEN
+    ADD ($tristesse est_crainte_de ($ame envers $chose))
+END

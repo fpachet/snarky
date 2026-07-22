@@ -1,0 +1,8 @@
+RULE E3DA36_colere_desir_nuire_par_haine
+WHEN
+    ($desir est_desir_de ($homme envers ($homme fait_du_mal_a $autre)))
+    ($haine est_haine_de ($homme envers $autre))
+    ($desir nait_de $haine)
+THEN
+    ADD ($desir est_colere_de ($homme envers $autre))
+END

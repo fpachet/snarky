@@ -1,0 +1,8 @@
+RULE E3DA09_definition_aversion
+WHEN
+    ($tristesse est_tristesse_de $ame)
+    ($chose est_cause_accidentelle_de $tristesse)
+    ($idee_chose accompagne $tristesse)
+THEN
+    ADD ($tristesse est_aversion_de ($ame envers $chose))
+END

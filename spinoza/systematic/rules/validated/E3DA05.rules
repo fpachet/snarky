@@ -1,0 +1,11 @@
+RULE E3DA05_definition_mepris
+WHEN
+    ($ame imagine $objet)
+    ($objet est_present_a $ame)
+    ($ame est_peu_touchee_par $objet)
+    ($presence est_presence_de $objet)
+    ($presence determine_a_imaginer_absence_dans ($ame envers $objet))
+    ($mepris est_temoignage_mepris_de ($ame envers $objet))
+THEN
+    ADD ($mepris est_mepris_de $ame)
+END

@@ -1,0 +1,31 @@
+schema_version: 1
+id: E3DA02
+model: ethics_iii_affect_definitions_v1
+source_unit: E3DA02
+source_text: La Joie est le passage de l'homme d'une moindre à une plus grande perfection.
+fact_files: [facts/postulates.yaml]
+rule_files: [rules/definitions/E3DA02.rules]
+rule_catalog: rules/catalog.yaml
+forbidden_rules: [E3DA02_definition_joie]
+allowed_rule_origins: [textual_definition]
+cases:
+  - id: passage_perfection_plus_grande
+    initial_facts:
+      - "(affect0 est_passage_de_perfection_de homme0)"
+      - "(affect0 a_perfection_initiale perfection_moindre0)"
+      - "(affect0 a_perfection_finale perfection_plus_grande0)"
+      - "(perfection_plus_grande0 est_plus_grande_que perfection_moindre0)"
+    goals:
+      - "(affect0 est_joie_de homme0)"
+      - "(affect0 augmente_puissance_agir_de homme0)"
+    expected: {status: proved, proof_depths: [1, 1]}
+  - id: perfection_sans_passage
+    initial_facts:
+      - "(homme0 possede_perfection perfection_plus_grande0)"
+      - "(perfection_plus_grande0 est_plus_grande_que perfection_moindre0)"
+    goals: []
+    must_not_derive:
+      - "(affect0 est_joie_de homme0)"
+    expected: {status: proved}
+formalization_status: proved_definition
+result: proved

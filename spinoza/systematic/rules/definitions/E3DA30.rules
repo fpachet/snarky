@@ -1,0 +1,10 @@
+RULE E3DA30_gloire_joie_action_louee
+WHEN
+    ($joie est_joie_de $homme)
+    ($idee_action est_idee_de $action)
+    ($idee_action accompagne $joie)
+    ($action est_action_de $homme)
+    ($homme imagine ($autres louent $action))
+THEN
+    ADD ($joie est_gloire_de ($homme envers $action))
+END

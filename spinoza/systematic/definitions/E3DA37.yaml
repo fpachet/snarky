@@ -1,0 +1,29 @@
+schema_version: 1
+id: E3DA37
+model: ethics_iii_affect_definitions_v1
+source_unit: E3DA37
+source_text: La Vengeance est un Désir de nuire par Haine réciproque à qui nous a porté dommage.
+fact_files: [facts/postulates.yaml]
+rule_files: [rules/definitions/E3DA37.rules]
+rule_catalog: rules/catalog.yaml
+forbidden_rules: [E3DA37_definition_vengeance]
+allowed_rule_origins: [textual_definition]
+cases:
+  - id: dommage_et_haine_reciproque
+    initial_facts:
+      - "(desir0 est_desir_de (homme0 envers (homme0 fait_du_mal_a agresseur0)))"
+      - "(agresseur0 a_porte_dommage_a homme0)"
+      - "(haine_homme0 est_haine_de (homme0 envers agresseur0))"
+      - "(haine_agresseur0 est_haine_de (agresseur0 envers homme0))"
+    goals: ["(desir0 est_vengeance_de (homme0 envers agresseur0))"]
+    expected: {status: proved, proof_depths: [1]}
+  - id: dommage_sans_haine_reciproque
+    initial_facts:
+      - "(desir0 est_desir_de (homme0 envers (homme0 fait_du_mal_a agresseur0)))"
+      - "(agresseur0 a_porte_dommage_a homme0)"
+      - "(haine_homme0 est_haine_de (homme0 envers agresseur0))"
+    goals: []
+    must_not_derive: ["(desir0 est_vengeance_de (homme0 envers agresseur0))"]
+    expected: {status: proved}
+formalization_status: proved_definition_with_reciprocal_hate
+result: proved

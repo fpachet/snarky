@@ -1,0 +1,7 @@
+RULE E3DA19_definition_faveur
+WHEN
+    ($amour est_amour_de ($ame envers $bienfaiteur))
+    ($bienfaiteur fait_du_bien_a $autre)
+THEN
+    ADD ($amour est_faveur_de ($ame envers $bienfaiteur))
+END

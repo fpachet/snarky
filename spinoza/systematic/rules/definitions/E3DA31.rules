@@ -1,0 +1,10 @@
+RULE E3DA31_honte_tristesse_action_blamee
+WHEN
+    ($tristesse est_tristesse_de $homme)
+    ($idee_action est_idee_de $action)
+    ($idee_action accompagne $tristesse)
+    ($action est_action_de $homme)
+    ($homme imagine ($autres blament $action))
+THEN
+    ADD ($tristesse est_honte_de ($homme envers $action))
+END

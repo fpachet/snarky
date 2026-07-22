@@ -1,0 +1,9 @@
+RULE E3DA37_vengeance_desir_nuire_haine_reciproque
+WHEN
+    ($desir est_desir_de ($homme envers ($homme fait_du_mal_a $agresseur)))
+    ($agresseur a_porte_dommage_a $homme)
+    ($haine_homme est_haine_de ($homme envers $agresseur))
+    ($haine_agresseur est_haine_de ($agresseur envers $homme))
+THEN
+    ADD ($desir est_vengeance_de ($homme envers $agresseur))
+END

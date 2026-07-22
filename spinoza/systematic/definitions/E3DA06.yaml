@@ -1,0 +1,32 @@
+schema_version: 1
+id: E3DA06
+model: ethics_iii_affect_definitions_v1
+source_unit: E3DA06
+source_text: L'Amour est une Joie qu'accompagne l'idée d'une cause extérieure.
+fact_files: [facts/postulates.yaml]
+rule_files: [rules/definitions/E3DA06.rules]
+rule_catalog: rules/catalog.yaml
+forbidden_rules: [E3DA06_definition_amour]
+allowed_rule_origins: [textual_definition]
+cases:
+  - id: joie_cause_exterieure
+    initial_facts:
+      - "(joie0 est_joie_de ame0)"
+      - "(idee_cause0 est_idee_de cause_exterieure0)"
+      - "(idee_cause0 accompagne joie0)"
+      - "(cause_exterieure0 est_exterieure_a ame0)"
+    goals:
+      - "(joie0 est_amour_de (ame0 envers cause_exterieure0))"
+    expected: {status: proved, proof_depths: [1]}
+  - id: joie_cause_interieure
+    initial_facts:
+      - "(joie0 est_joie_de ame0)"
+      - "(idee_soi0 est_idee_de ame0)"
+      - "(idee_soi0 accompagne joie0)"
+      - "(joie0 a_pour_cause_interieure ame0)"
+    goals: []
+    must_not_derive:
+      - "(joie0 est_amour_de (ame0 envers ame0))"
+    expected: {status: proved}
+formalization_status: proved_definition
+result: proved

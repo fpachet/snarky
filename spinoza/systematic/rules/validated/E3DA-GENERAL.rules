@@ -1,0 +1,12 @@
+RULE E3DA_GENERAL_definition_affection_passion_de_ame
+WHEN
+    ($affect est_idee_confuse_dans $ame)
+    ($ame a_corps $corps)
+    ($sujet_corporel est_corps_ou_partie_de $corps)
+    ($affect affirme_force_exister_de $sujet_corporel)
+    ($force est_force_affirmee_par $affect)
+    ($force est_plus_grande_ou_moindre_qu_avant VRAI)
+    ($affect determine_a_penser_plutot ($ame vers $chose))
+THEN
+    ADD ($affect est_passion_de $ame)
+END

@@ -1,0 +1,16 @@
+RULE E3DA_GENERAL_affection_passion_idee_confuse_variation_force
+WHEN
+    ($affect est_idee_confuse_dans $ame)
+    ($ame a_corps $corps)
+    ($sujet_corporel est_corps_ou_partie_de $corps)
+    ($affect affirme_force_exister_de $sujet_corporel)
+    ($force est_force_affirmee_par $affect)
+    ($force est_plus_grande_ou_moindre_qu_avant VRAI)
+    ($affect est_presente_a $ame)
+    ($affect determine_a_penser_plutot ($ame vers $chose))
+    ($affect detourne_de_penser ($ame vers $autre_chose))
+THEN
+    ADD ($affect est_affect_de_ame $ame)
+    ADD ($affect est_passion_de $ame)
+    ADD ($affect oriente_pensee_de ($ame vers $chose))
+END

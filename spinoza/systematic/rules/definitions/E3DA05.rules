@@ -1,0 +1,13 @@
+RULE E3DA05_mepris_imagine_absence_plutot_que_presence
+WHEN
+    ($ame imagine $objet)
+    ($objet est_present_a $ame)
+    ($ame est_peu_touchee_par $objet)
+    ($presence est_presence_de $objet)
+    ($presence determine_a_imaginer_absence_dans ($ame envers $objet))
+    ($mepris est_temoignage_mepris_de ($ame envers $objet))
+THEN
+    ADD ($mepris est_mepris_de $ame)
+    ADD ($mepris a_pour_objet $objet)
+    ADD ($ame pense_surtout_a_ce_qui_n_est_pas_dans $objet)
+END

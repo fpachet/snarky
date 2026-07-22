@@ -1,0 +1,31 @@
+schema_version: 1
+id: E3DA27
+model: ethics_iii_affect_definitions_v1
+source_unit: E3DA27
+source_text: Le Repentir est une Tristesse accompagnée de l'idée d'une action crue faite par libre décret de l'Âme.
+fact_files: [facts/postulates.yaml]
+rule_files: [rules/definitions/E3DA27.rules]
+rule_catalog: rules/catalog.yaml
+forbidden_rules: [E3DA27_definition_repentir]
+allowed_rule_origins: [textual_definition]
+cases:
+  - id: tristesse_action_crue_libre
+    initial_facts:
+      - "(tristesse0 est_tristesse_de ame0)"
+      - "(idee0 est_idee_de action0)"
+      - "(idee0 accompagne tristesse0)"
+      - "(action0 est_action_de ame0)"
+      - "(ame0 croit_avoir_fait_par_libre_decret action0)"
+    goals: ["(tristesse0 est_repentir_de (ame0 envers action0))"]
+    expected: {status: proved, proof_depths: [1]}
+  - id: tristesse_action_sans_croyance_au_libre_decret
+    initial_facts:
+      - "(tristesse0 est_tristesse_de ame0)"
+      - "(idee0 est_idee_de action0)"
+      - "(idee0 accompagne tristesse0)"
+      - "(action0 est_action_de ame0)"
+    goals: []
+    must_not_derive: ["(tristesse0 est_repentir_de (ame0 envers action0))"]
+    expected: {status: proved}
+formalization_status: proved_definition_with_intentional_free_decree
+result: proved

@@ -1,0 +1,7 @@
+RULE E3DA20_indignation_haine_malfaisant_autrui
+WHEN
+    ($haine est_haine_de ($ame envers $malfaisant))
+    ($malfaisant fait_du_mal_a $autre)
+THEN
+    ADD ($haine est_indignation_de ($ame envers $malfaisant))
+END

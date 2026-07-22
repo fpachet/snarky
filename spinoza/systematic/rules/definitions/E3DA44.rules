@@ -1,0 +1,8 @@
+RULE E3DA44_ambition_desir_immodere_de_gloire
+WHEN
+    ($desir est_desir_de ($homme envers $gloire))
+    ($gloire est_gloire_de ($homme envers $action))
+    ($desir est_immodere VRAI)
+THEN
+    ADD ($desir est_ambition_de $homme)
+END

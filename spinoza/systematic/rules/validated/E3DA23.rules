@@ -1,0 +1,8 @@
+RULE E3DA23_definition_envie
+WHEN
+    ($haine est_haine_de ($homme envers $autre))
+    ($homme est_contriste_par ($felicite est_felicite_de $autre))
+    ($homme s_epanouit_du_mal_de $autre)
+THEN
+    ADD ($haine est_envie_de ($homme envers $autre))
+END

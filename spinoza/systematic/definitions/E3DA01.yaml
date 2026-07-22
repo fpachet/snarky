@@ -1,0 +1,34 @@
+schema_version: 1
+id: E3DA01
+model: ethics_iii_affect_definitions_v1
+source_unit: E3DA01
+source_text: >-
+  Le Désir est l'essence même de l'homme en tant qu'elle est conçue comme
+  déterminée à faire quelque chose par une affection quelconque donnée en elle.
+fact_files: [facts/postulates.yaml]
+rule_files: [rules/definitions/E3DA01.rules]
+rule_catalog: rules/catalog.yaml
+forbidden_rules: [E3DA01_definition_desir]
+allowed_rule_origins: [textual_definition]
+cases:
+  - id: essence_determinee_a_action
+    initial_facts:
+      - "(essence0 est_essence_actuelle_de homme0)"
+      - "(affection0 determine_essence_a_action (essence0 vers action0))"
+      - "(desir0 est_temoignage_desir_de (homme0 envers action0))"
+    goals:
+      - "(desir0 est_desir_de homme0)"
+      - "(desir0 exprime_essence_de homme0)"
+      - "(desir0 est_determine_a action0)"
+      - "(desir0 nait_de affection0)"
+    expected: {status: proved, proof_depths: [1, 1, 1, 1]}
+  - id: essence_sans_affection_determinante
+    initial_facts:
+      - "(essence0 est_essence_actuelle_de homme0)"
+      - "(desir0 est_temoignage_desir_de (homme0 envers action0))"
+    goals: []
+    must_not_derive:
+      - "(desir0 est_desir_de homme0)"
+    expected: {status: proved}
+formalization_status: proved_definition
+result: proved

@@ -1,0 +1,25 @@
+schema_version: 1
+id: E3DA26
+model: ethics_iii_affect_definitions_v1
+source_unit: E3DA26
+source_text: L'Humilité est une Tristesse née de la considération de son impuissance ou de sa faiblesse.
+fact_files: [facts/postulates.yaml]
+rule_files: [rules/definitions/E3DA26.rules]
+rule_catalog: rules/catalog.yaml
+forbidden_rules: [E3DA26_definition_humilite]
+allowed_rule_origins: [textual_definition]
+cases:
+  - id: tristesse_consideration_impuissance
+    initial_facts:
+      - "(tristesse0 est_tristesse_de homme0)"
+      - "(homme0 considere_impuissance_ou_faiblesse_de homme0)"
+      - "(tristesse0 nait_de (homme0 considere_impuissance_ou_faiblesse_de homme0))"
+    goals: ["(tristesse0 est_humilite_de homme0)"]
+    expected: {status: proved, proof_depths: [1]}
+  - id: tristesse_sans_consideration_impuissance
+    initial_facts: ["(tristesse0 est_tristesse_de homme0)"]
+    goals: []
+    must_not_derive: ["(tristesse0 est_humilite_de homme0)"]
+    expected: {status: proved}
+formalization_status: proved_definition
+result: proved

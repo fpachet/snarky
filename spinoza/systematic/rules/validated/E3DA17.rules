@@ -1,0 +1,8 @@
+RULE E3DA17_definition_resserrement_de_conscience
+WHEN
+    ($tristesse est_tristesse_de $ame)
+    ($chose est_passee VRAI)
+    ($chose est_arrivee_inesperement_pour $ame)
+THEN
+    ADD ($tristesse est_resserrement_de_conscience_de ($ame envers $chose))
+END

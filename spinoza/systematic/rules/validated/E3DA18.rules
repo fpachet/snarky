@@ -1,0 +1,8 @@
+RULE E3DA18_definition_commiseration
+WHEN
+    ($tristesse est_tristesse_de $ame)
+    ($mal est_mal_arrive_a $autre)
+    ($ame imagine_semblable_a_soi $autre)
+THEN
+    ADD ($tristesse est_commiseration_de ($ame envers $autre))
+END

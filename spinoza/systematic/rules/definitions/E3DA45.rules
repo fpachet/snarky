@@ -1,0 +1,16 @@
+RULE E3DA45_gourmandise_desir_immodere_de_chere
+WHEN
+    ($affect est_desir_de ($homme envers $chere))
+    ($chere est_nourriture VRAI)
+    ($affect est_immodere VRAI)
+THEN
+    ADD ($affect est_gourmandise_de $homme)
+END
+
+RULE E3DA45_gourmandise_amour_de_chere
+WHEN
+    ($affect est_amour_de ($homme envers $chere))
+    ($chere est_nourriture VRAI)
+THEN
+    ADD ($affect est_gourmandise_de $homme)
+END

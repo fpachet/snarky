@@ -1,0 +1,15 @@
+RULE E3DA38_cruaute_envers_personne_aimee
+WHEN
+    ($desir est_desir_de ($homme envers ($homme fait_du_mal_a $victime)))
+    ($amour est_amour_de ($homme envers $victime))
+THEN
+    ADD ($desir est_cruaute_ou_ferocite_de ($homme envers $victime))
+END
+
+RULE E3DA38_cruaute_envers_objet_commiseration
+WHEN
+    ($desir est_desir_de ($homme envers ($homme fait_du_mal_a $victime)))
+    ($commiseration est_commiseration_de ($homme envers $victime))
+THEN
+    ADD ($desir est_cruaute_ou_ferocite_de ($homme envers $victime))
+END

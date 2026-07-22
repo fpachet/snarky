@@ -1,0 +1,30 @@
+schema_version: 1
+id: E3DA16
+model: ethics_iii_affect_definitions_v1
+source_unit: E3DA16
+source_text: L'Épanouissement est une Joie accompagnée de l'idée d'une chose passée arrivée inespérément.
+fact_files: [facts/postulates.yaml]
+rule_files: [rules/definitions/E3DA16.rules]
+rule_catalog: rules/catalog.yaml
+forbidden_rules: [E3DA16_definition_epanouissement]
+allowed_rule_origins: [textual_definition]
+cases:
+  - id: joie_passee_inesperee
+    initial_facts:
+      - "(joie0 est_joie_de ame0)"
+      - "(idee0 est_idee_de chose0)"
+      - "(idee0 accompagne joie0)"
+      - "(chose0 est_passee VRAI)"
+      - "(chose0 est_arrivee_inesperement_pour ame0)"
+    goals: ["(joie0 est_epanouissement_de (ame0 envers chose0))"]
+    expected: {status: proved, proof_depths: [1]}
+  - id: joie_passee_attendue
+    initial_facts:
+      - "(joie0 est_joie_de ame0)"
+      - "(chose0 est_passee VRAI)"
+      - "(chose0 est_arrivee_comme_attendu_pour ame0)"
+    goals: []
+    must_not_derive: ["(joie0 est_epanouissement_de (ame0 envers chose0))"]
+    expected: {status: proved}
+formalization_status: proved_definition
+result: proved

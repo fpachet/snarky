@@ -160,6 +160,32 @@ et exclut la tristesse active, puis rend exécutables fermeté, générosité,
 dégoût, lassitude et manifestations corporelles. Le rapport final est
 [`reports/tranche_e3p57_e3p59.md`](reports/tranche_e3p57_e3p59.md).
 
+## Définitions finales exécutables : E3DA01–E3DA48
+
+Les 48 définitions finales des affects et la définition générale disposent
+maintenant de manifestes séparés dans `definitions/`. Chaque manifeste charge
+sa règle textuelle depuis `rules/definitions/`, interdit sa propre règle
+résumée de `rules/validated/`, et vérifie au moins une frontière négative.
+
+La tranche représente notamment :
+
+- les affects primitifs comme essence déterminée ou passage de perfection ;
+- les causes extérieures et accidentelles de joie ou de tristesse ;
+- le doute, sa disparition et les modalités temporelles ;
+- les affects sociaux, la considération de soi et les contextes imaginés ;
+- les désirs issus de la mémoire, de l'imitation, de la réciprocité ou du
+  danger ;
+- les désirs spécifiés par la gloire, la chère, la boisson, les richesses et
+  l'union des corps ;
+- l'affect-passion général comme idée confuse, variation de force corporelle
+  et détermination préférentielle de la pensée.
+
+La carte `definitions/dependencies.yaml` relie les 49 unités aux propositions
+qui les fondent. L'audit complet, les choix de modélisation et la distinction
+entre les 48 énoncés couverts et leurs 27 explications annexes sont consignés
+dans
+[`reports/tranche_e3da01_e3da48.md`](reports/tranche_e3da01_e3da48.md).
+
 Le lanceur expose pour chaque cas le nombre de faits initiaux et dérivés, le
 nombre de dérivations et toutes les règles activées. Ces données permettent un
 audit en lecture seule de la clôture sans modifier le moteur d'inférence.

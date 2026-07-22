@@ -1,0 +1,11 @@
+RULE E3DA32_souhait_frustre_desir_memoire_et_exclusion
+WHEN
+    ($desir est_desir_ou_appetit_de_posseder ($homme envers $chose))
+    ($souvenir_chose est_souvenir_de $chose)
+    ($souvenir_chose alimente $desir)
+    ($souvenir_obstacle est_souvenir_de $autre_chose)
+    ($souvenir_obstacle exclut_existence_de $chose)
+    ($souvenir_obstacle reduit $desir)
+THEN
+    ADD ($desir est_souhait_frustre_de ($homme envers $chose))
+END

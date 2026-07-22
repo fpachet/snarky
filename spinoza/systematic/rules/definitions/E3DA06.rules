@@ -1,0 +1,9 @@
+RULE E3DA06_amour_joie_cause_exterieure
+WHEN
+    ($joie est_joie_de $ame)
+    ($idee_cause est_idee_de $cause_exterieure)
+    ($idee_cause accompagne $joie)
+    ($cause_exterieure est_exterieure_a $ame)
+THEN
+    ADD ($joie est_amour_de ($ame envers $cause_exterieure))
+END

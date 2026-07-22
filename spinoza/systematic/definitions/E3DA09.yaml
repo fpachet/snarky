@@ -1,0 +1,30 @@
+schema_version: 1
+id: E3DA09
+model: ethics_iii_affect_definitions_v1
+source_unit: E3DA09
+source_text: L'Aversion est une Tristesse accompagnée de l'idée d'une cause accidentelle de Tristesse.
+fact_files: [facts/postulates.yaml]
+rule_files: [rules/definitions/E3DA09.rules]
+rule_catalog: rules/catalog.yaml
+forbidden_rules: [E3DA09_definition_aversion]
+allowed_rule_origins: [textual_definition]
+cases:
+  - id: tristesse_cause_accidentelle
+    initial_facts:
+      - "(tristesse0 est_tristesse_de ame0)"
+      - "(chose0 est_cause_accidentelle_de tristesse0)"
+      - "(idee0 est_idee_de chose0)"
+      - "(idee0 accompagne tristesse0)"
+    goals: ["(tristesse0 est_aversion_de (ame0 envers chose0))"]
+    expected: {status: proved, proof_depths: [1]}
+  - id: cause_non_accidentelle
+    initial_facts:
+      - "(tristesse0 est_tristesse_de ame0)"
+      - "(chose0 est_cause_efficiente_de tristesse0)"
+      - "(idee0 est_idee_de chose0)"
+      - "(idee0 accompagne tristesse0)"
+    goals: []
+    must_not_derive: ["(tristesse0 est_aversion_de (ame0 envers chose0))"]
+    expected: {status: proved}
+formalization_status: proved_definition
+result: proved

@@ -1,0 +1,9 @@
+RULE E3DA02_definition_joie
+WHEN
+    ($affect est_passage_de_perfection_de $homme)
+    ($affect a_perfection_initiale $perfection_moindre)
+    ($affect a_perfection_finale $perfection_plus_grande)
+    ($perfection_plus_grande est_plus_grande_que $perfection_moindre)
+THEN
+    ADD ($affect est_joie_de $homme)
+END

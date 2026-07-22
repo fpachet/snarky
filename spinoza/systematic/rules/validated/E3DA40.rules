@@ -1,0 +1,9 @@
+RULE E3DA40_definition_audace
+WHEN
+    ($desir est_desir_de ($homme envers $action))
+    ($action comporte_danger $danger)
+    ($pair est_pair_de $homme)
+    ($pair craint_d_affronter $danger)
+THEN
+    ADD ($desir est_audace_de ($homme envers $action))
+END

@@ -1,0 +1,27 @@
+schema_version: 1
+id: E3DA48
+model: ethics_iii_affect_definitions_v1
+source_unit: E3DA48
+source_text: La Lubricité est un Désir et un Amour de l'union des corps.
+fact_files: [facts/postulates.yaml]
+rule_files: [rules/definitions/E3DA48.rules]
+rule_catalog: rules/catalog.yaml
+forbidden_rules: [E3DA48_definition_lubricite]
+allowed_rule_origins: [textual_definition]
+cases:
+  - id: desir_et_amour_union_corps
+    initial_facts:
+      - "(affect0 est_desir_de (homme0 envers union0))"
+      - "(affect0 est_amour_de (homme0 envers union0))"
+      - "(union0 est_union_des_corps VRAI)"
+    goals: ["(affect0 est_lubricite_de homme0)"]
+    expected: {status: proved, proof_depths: [1]}
+  - id: desir_sans_amour
+    initial_facts:
+      - "(affect0 est_desir_de (homme0 envers union0))"
+      - "(union0 est_union_des_corps VRAI)"
+    goals: []
+    must_not_derive: ["(affect0 est_lubricite_de homme0)"]
+    expected: {status: proved}
+formalization_status: proved_definition_with_conjunction
+result: proved

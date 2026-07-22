@@ -1,0 +1,31 @@
+schema_version: 1
+id: E3DA23
+model: ethics_iii_affect_definitions_v1
+source_unit: E3DA23
+source_text: L'Envie est la Haine qui nous contriste de la félicité d'autrui et nous réjouit de son mal.
+fact_files: [facts/postulates.yaml]
+rule_files: [rules/definitions/E3DA23.rules]
+rule_catalog: rules/catalog.yaml
+forbidden_rules: [E3DA23_definition_envie]
+allowed_rule_origins: [textual_definition]
+cases:
+  - id: haine_felicite_et_mal_autrui
+    initial_facts:
+      - "(haine0 est_haine_de (homme0 envers autre0))"
+      - "(haine0 affecte homme0)"
+      - "(felicite0 est_felicite_de autre0)"
+      - "(homme0 est_contriste_par felicite0)"
+      - "(homme0 s_epanouit_du_mal_de autre0)"
+    goals: ["(haine0 est_envie_de (homme0 envers autre0))"]
+    expected: {status: proved, proof_depths: [1]}
+  - id: haine_sans_joie_du_mal
+    initial_facts:
+      - "(haine0 est_haine_de (homme0 envers autre0))"
+      - "(haine0 affecte homme0)"
+      - "(felicite0 est_felicite_de autre0)"
+      - "(homme0 est_contriste_par felicite0)"
+    goals: []
+    must_not_derive: ["(haine0 est_envie_de (homme0 envers autre0))"]
+    expected: {status: proved}
+formalization_status: proved_definition
+result: proved

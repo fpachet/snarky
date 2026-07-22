@@ -1,0 +1,9 @@
+RULE E3DA39_definition_peur
+WHEN
+    ($desir est_desir_de ($homme envers ($homme evite $mal_plus_grand)))
+    ($homme craint $mal_plus_grand)
+    ($mal_plus_grand est_plus_grand_que $mal_moindre)
+    ($homme recourt_a $mal_moindre)
+THEN
+    ADD ($desir est_peur_de ($homme envers $mal_plus_grand))
+END

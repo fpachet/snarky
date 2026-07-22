@@ -1,0 +1,9 @@
+RULE E3DA46_definition_ivrognerie
+WHEN
+    ($affect est_desir_de ($homme envers $boisson))
+    ($affect est_amour_de ($homme envers $boisson))
+    ($boisson est_boisson VRAI)
+    ($affect est_immodere VRAI)
+THEN
+    ADD ($affect est_ivrognerie_de $homme)
+END

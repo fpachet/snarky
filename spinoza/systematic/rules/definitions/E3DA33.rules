@@ -1,0 +1,8 @@
+RULE E3DA33_emulation_desir_imite
+WHEN
+    ($desir est_desir_de ($homme envers $chose))
+    ($homme imagine ($autres desirent $chose))
+    ($desir est_engendre_par ($homme imagine ($autres desirent $chose)))
+THEN
+    ADD ($desir est_emulation_de ($homme envers $chose))
+END

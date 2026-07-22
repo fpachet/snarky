@@ -1,0 +1,10 @@
+RULE E3DA17_resserrement_tristesse_passee_inesperee
+WHEN
+    ($tristesse est_tristesse_de $ame)
+    ($idee est_idee_de $chose)
+    ($idee accompagne $tristesse)
+    ($chose est_passee VRAI)
+    ($chose est_arrivee_inesperement_pour $ame)
+THEN
+    ADD ($tristesse est_resserrement_de_conscience_de ($ame envers $chose))
+END

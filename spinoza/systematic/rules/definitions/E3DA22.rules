@@ -1,0 +1,7 @@
+RULE E3DA22_mesestime_evaluation_insuffisante_par_haine
+WHEN
+    ($haine est_haine_de ($ame envers $personne))
+    ($ame fait_moins_de_cas_que_juste_de $personne)
+THEN
+    ADD ($haine est_mesestime_de ($ame envers $personne))
+END

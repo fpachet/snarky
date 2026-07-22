@@ -1,0 +1,10 @@
+RULE E3DA18_commiseration_tristesse_mal_autrui_semblable
+WHEN
+    ($tristesse est_tristesse_de $ame)
+    ($mal est_mal_arrive_a $autre)
+    ($idee est_idee_de ($mal est_mal_arrive_a $autre))
+    ($idee accompagne $tristesse)
+    ($ame imagine_semblable_a_soi $autre)
+THEN
+    ADD ($tristesse est_commiseration_de ($ame envers $autre))
+END

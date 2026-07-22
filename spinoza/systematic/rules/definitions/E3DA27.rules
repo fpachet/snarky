@@ -1,0 +1,10 @@
+RULE E3DA27_repentir_tristesse_action_crue_libre
+WHEN
+    ($tristesse est_tristesse_de $ame)
+    ($idee_action est_idee_de $action)
+    ($idee_action accompagne $tristesse)
+    ($action est_action_de $ame)
+    ($ame croit_avoir_fait_par_libre_decret $action)
+THEN
+    ADD ($tristesse est_repentir_de ($ame envers $action))
+END

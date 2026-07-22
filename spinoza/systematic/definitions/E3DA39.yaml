@@ -1,0 +1,28 @@
+schema_version: 1
+id: E3DA39
+model: ethics_iii_affect_definitions_v1
+source_unit: E3DA39
+source_text: La Peur est un Désir d'éviter un mal plus grand que nous craignons par un moindre.
+fact_files: [facts/postulates.yaml]
+rule_files: [rules/definitions/E3DA39.rules]
+rule_catalog: rules/catalog.yaml
+forbidden_rules: [E3DA39_definition_peur]
+allowed_rule_origins: [textual_definition]
+cases:
+  - id: eviter_mal_plus_grand_par_moindre
+    initial_facts:
+      - "(desir0 est_desir_de (homme0 envers (homme0 evite mal_grand0)))"
+      - "(homme0 craint mal_grand0)"
+      - "(mal_grand0 est_plus_grand_que mal_moindre0)"
+      - "(homme0 recourt_a mal_moindre0)"
+    goals: ["(desir0 est_peur_de (homme0 envers mal_grand0))"]
+    expected: {status: proved, proof_depths: [1]}
+  - id: eviter_sans_mal_moindre
+    initial_facts:
+      - "(desir0 est_desir_de (homme0 envers (homme0 evite mal_grand0)))"
+      - "(homme0 craint mal_grand0)"
+    goals: []
+    must_not_derive: ["(desir0 est_peur_de (homme0 envers mal_grand0))"]
+    expected: {status: proved}
+formalization_status: proved_definition
+result: proved

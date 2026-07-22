@@ -1,0 +1,9 @@
+RULE E3DA07_definition_haine
+WHEN
+    ($tristesse est_tristesse_de $ame)
+    ($idee_cause est_idee_de $cause_exterieure)
+    ($idee_cause accompagne $tristesse)
+    ($cause_exterieure est_exterieure_a $ame)
+THEN
+    ADD ($tristesse est_haine_de ($ame envers $cause_exterieure))
+END

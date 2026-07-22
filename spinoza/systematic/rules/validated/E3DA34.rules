@@ -1,0 +1,9 @@
+RULE E3DA34_definition_reconnaissance_ou_gratitude
+WHEN
+    ($desir est_empressement_d_amour_de ($homme envers $bienfaiteur))
+    ($homme s_efforce_de_faire_du_bien_a $bienfaiteur)
+    ($bienfaiteur a_fait_du_bien_a $homme)
+    ($bienfaiteur aime $homme)
+THEN
+    ADD ($desir est_reconnaissance_ou_gratitude_de ($homme envers $bienfaiteur))
+END

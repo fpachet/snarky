@@ -1,0 +1,9 @@
+RULE E3DA24_misericorde_amour_bien_et_mal_autrui
+WHEN
+    ($amour est_amour_de ($homme envers $autre))
+    ($amour affecte $homme)
+    ($homme s_epanouit_du_bien_de $autre)
+    ($homme est_contriste_par_mal_de $autre)
+THEN
+    ADD ($amour est_misericorde_de ($homme envers $autre))
+END

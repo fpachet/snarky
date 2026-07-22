@@ -524,8 +524,11 @@ Comparer :
 - la preuve générée.
 
 Les rapports de `spinoza/systematic/reports/` consignent cette comparaison
-jusqu'à E3P59. La formalisation des définitions finales E3DA01–E3DA48 reste un
-chantier séparé.
+jusqu'à E3P59. La couche séparée des définitions finales est maintenant elle
+aussi exécutable : E3DA01–E3DA48 et E3DA-GENERAL possèdent 49 manifestes, 101
+cas et une carte de dépendances vers les propositions. Le rapport
+`tranche_e3da01_e3da48.md` distingue cette couverture des 27 explications
+annexes, suivies comme enrichissement plus fin.
 
 ---
 

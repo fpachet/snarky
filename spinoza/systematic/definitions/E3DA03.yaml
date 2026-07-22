@@ -1,0 +1,34 @@
+schema_version: 1
+id: E3DA03
+model: ethics_iii_affect_definitions_v1
+source_unit: E3DA03
+source_text: La Tristesse est le passage de l'homme d'une plus grande à une moindre perfection.
+fact_files: [facts/postulates.yaml]
+rule_files: [rules/definitions/E3DA03.rules]
+rule_catalog: rules/catalog.yaml
+forbidden_rules: [E3DA03_definition_tristesse]
+allowed_rule_origins: [textual_definition]
+cases:
+  - id: passage_perfection_moindre
+    initial_facts:
+      - "(affect0 est_passage_de_perfection_de homme0)"
+      - "(affect0 a_perfection_initiale perfection_plus_grande0)"
+      - "(affect0 a_perfection_finale perfection_moindre0)"
+      - "(perfection_plus_grande0 est_plus_grande_que perfection_moindre0)"
+    goals:
+      - "(affect0 est_tristesse_de homme0)"
+      - "(affect0 diminue_puissance_agir_de homme0)"
+    expected: {status: proved, proof_depths: [1, 1]}
+  - id: simple_privation_sans_passage
+    initial_facts:
+      - "(affect0 est_seulement_privation_de perfection0)"
+      - "(affect0 est_sans_passage_de_perfection VRAI)"
+      - "(affect0 est_affect_de homme0)"
+    goals:
+      - entity: "(affect0 est_tristesse_de homme0)"
+        status: FAUX
+    must_not_derive:
+      - "(affect0 est_tristesse_de homme0)"
+    expected: {status: proved, proof_depths: [1]}
+formalization_status: proved_definition_with_explicit_non_privative_boundary
+result: proved

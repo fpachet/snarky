@@ -130,7 +130,19 @@ def run_case(
     *,
     rules: tuple[Rule, ...] | None = None,
 ) -> CaseResult:
-    theorem_path = root / "theorems" / f"{theorem_id}.yaml"
+    manifest_directories = (
+        ("definitions", "theorems")
+        if theorem_id.startswith("E3DA")
+        else ("theorems", "definitions")
+    )
+    theorem_path = next(
+        (
+            candidate
+            for directory in manifest_directories
+            if (candidate := root / directory / f"{theorem_id}.yaml").is_file()
+        ),
+        root / manifest_directories[0] / f"{theorem_id}.yaml",
+    )
     loaded: Any = yaml.safe_load(theorem_path.read_text(encoding="utf-8"))
     if not isinstance(loaded, dict):
         raise ValueError(f"{theorem_path}: expected a theorem mapping")

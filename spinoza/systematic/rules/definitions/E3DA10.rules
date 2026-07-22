@@ -1,0 +1,7 @@
+RULE E3DA10_ferveur_amour_envers_celui_qui_etonne
+WHEN
+    ($amour est_amour_de ($ame envers $personne))
+    ($personne etonne $ame)
+THEN
+    ADD ($amour est_ferveur_de ($ame envers $personne))
+END

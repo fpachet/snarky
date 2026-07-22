@@ -1,0 +1,32 @@
+schema_version: 1
+id: E3DA38
+model: ethics_iii_affect_definitions_v1
+source_unit: E3DA38
+source_text: La Cruauté ou Férocité est un Désir de nuire à celui que nous aimons ou qui nous inspire commisération.
+fact_files: [facts/postulates.yaml]
+rule_files: [rules/definitions/E3DA38.rules]
+rule_catalog: rules/catalog.yaml
+forbidden_rules:
+  - E3DA38_definition_cruaute_par_amour
+  - E3DA38_definition_cruaute_par_commiseration
+allowed_rule_origins: [textual_definition]
+cases:
+  - id: desir_nuire_a_personne_aimee
+    initial_facts:
+      - "(desir0 est_desir_de (homme0 envers (homme0 fait_du_mal_a victime0)))"
+      - "(amour0 est_amour_de (homme0 envers victime0))"
+    goals: ["(desir0 est_cruaute_ou_ferocite_de (homme0 envers victime0))"]
+    expected: {status: proved, proof_depths: [1]}
+  - id: desir_nuire_a_objet_commiseration
+    initial_facts:
+      - "(desir0 est_desir_de (homme0 envers (homme0 fait_du_mal_a victime0)))"
+      - "(commiseration0 est_commiseration_de (homme0 envers victime0))"
+    goals: ["(desir0 est_cruaute_ou_ferocite_de (homme0 envers victime0))"]
+    expected: {status: proved, proof_depths: [1]}
+  - id: desir_nuire_sans_amour_ni_commiseration
+    initial_facts: ["(desir0 est_desir_de (homme0 envers (homme0 fait_du_mal_a victime0)))"]
+    goals: []
+    must_not_derive: ["(desir0 est_cruaute_ou_ferocite_de (homme0 envers victime0))"]
+    expected: {status: proved}
+formalization_status: proved_definition_with_two_alternatives
+result: proved

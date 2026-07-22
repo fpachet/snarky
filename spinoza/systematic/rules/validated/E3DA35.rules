@@ -1,0 +1,7 @@
+RULE E3DA35_definition_bienveillance
+WHEN
+    ($desir est_desir_de ($homme envers ($homme fait_du_bien_a $autre)))
+    ($commiseration est_commiseration_de ($homme envers $autre))
+THEN
+    ADD ($desir est_bienveillance_de ($homme envers $autre))
+END

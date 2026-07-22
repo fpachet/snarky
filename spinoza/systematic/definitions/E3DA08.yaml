@@ -1,0 +1,34 @@
+schema_version: 1
+id: E3DA08
+model: ethics_iii_affect_definitions_v1
+source_unit: E3DA08
+source_text: >-
+  L'Inclination est une Joie qu'accompagne l'idée d'une chose qui est cause de
+  Joie par accident.
+fact_files: [facts/postulates.yaml]
+rule_files: [rules/definitions/E3DA08.rules]
+rule_catalog: rules/catalog.yaml
+forbidden_rules: [E3DA08_definition_inclination]
+allowed_rule_origins: [textual_definition]
+cases:
+  - id: joie_cause_accidentelle
+    initial_facts:
+      - "(joie0 est_joie_de ame0)"
+      - "(chose0 est_cause_accidentelle_de joie0)"
+      - "(idee_chose0 est_idee_de chose0)"
+      - "(idee_chose0 accompagne joie0)"
+    goals:
+      - "(joie0 est_inclination_de (ame0 envers chose0))"
+    expected: {status: proved, proof_depths: [1]}
+  - id: joie_cause_efficiente_seulement
+    initial_facts:
+      - "(joie0 est_joie_de ame0)"
+      - "(chose0 est_cause_efficiente_de joie0)"
+      - "(idee_chose0 est_idee_de chose0)"
+      - "(idee_chose0 accompagne joie0)"
+    goals: []
+    must_not_derive:
+      - "(joie0 est_inclination_de (ame0 envers chose0))"
+    expected: {status: proved}
+formalization_status: proved_definition
+result: proved

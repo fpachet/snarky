@@ -1,0 +1,8 @@
+RULE E3DA31_definition_honte
+WHEN
+    ($tristesse est_tristesse_de $homme)
+    ($action est_action_de $homme)
+    ($homme imagine ($autres blament $action))
+THEN
+    ADD ($tristesse est_honte_de ($homme envers $action))
+END

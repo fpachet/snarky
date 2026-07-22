@@ -1,0 +1,62 @@
+schema_version: 1
+id: E3DA-GENERAL
+model: ethics_iii_affect_definitions_v1
+source_unit: E3DA-GENERAL
+source_text: >-
+  Une Affection, dite Passion de l'Âme, est une idée confuse par laquelle l'Âme
+  affirme une force d'exister de son Corps, ou d'une partie de celui-ci, plus
+  grande ou moindre qu'auparavant, et dont la présence détermine l'Âme à penser
+  à une chose plutôt qu'à une autre.
+fact_files: [facts/postulates.yaml]
+rule_files: [rules/definitions/E3DA-GENERAL.rules]
+rule_catalog: rules/catalog.yaml
+forbidden_rules: [E3DA_GENERAL_definition_affection_passion_de_ame]
+allowed_rule_origins: [textual_definition]
+cases:
+  - id: idee_confuse_variation_force_orientation_pensee
+    initial_facts:
+      - "(affect0 est_idee_confuse_dans ame0)"
+      - "(ame0 a_corps corps0)"
+      - "(corps0 est_corps_ou_partie_de corps0)"
+      - "(affect0 affirme_force_exister_de corps0)"
+      - "(force0 est_force_affirmee_par affect0)"
+      - "(force0 est_plus_grande_ou_moindre_qu_avant VRAI)"
+      - "(affect0 est_presente_a ame0)"
+      - "(affect0 determine_a_penser_plutot (ame0 vers chose0))"
+      - "(affect0 detourne_de_penser (ame0 vers autre_chose0))"
+    goals:
+      - "(affect0 est_affect_de_ame ame0)"
+      - "(affect0 est_passion_de ame0)"
+      - "(affect0 oriente_pensee_de (ame0 vers chose0))"
+    expected: {status: proved, proof_depths: [1, 1, 1]}
+  - id: idee_adequate_non_confuse
+    initial_facts:
+      - "(affect0 est_idee_adequate_dans ame0)"
+      - "(ame0 a_corps corps0)"
+      - "(corps0 est_corps_ou_partie_de corps0)"
+      - "(affect0 affirme_force_exister_de corps0)"
+      - "(force0 est_force_affirmee_par affect0)"
+      - "(force0 est_plus_grande_ou_moindre_qu_avant VRAI)"
+      - "(affect0 est_presente_a ame0)"
+      - "(affect0 determine_a_penser_plutot (ame0 vers chose0))"
+      - "(affect0 detourne_de_penser (ame0 vers autre_chose0))"
+    goals: []
+    must_not_derive:
+      - "(affect0 est_passion_de ame0)"
+    expected: {status: proved}
+  - id: force_sans_variation_comparee
+    initial_facts:
+      - "(affect0 est_idee_confuse_dans ame0)"
+      - "(ame0 a_corps corps0)"
+      - "(corps0 est_corps_ou_partie_de corps0)"
+      - "(affect0 affirme_force_exister_de corps0)"
+      - "(force0 est_force_affirmee_par affect0)"
+      - "(affect0 est_presente_a ame0)"
+      - "(affect0 determine_a_penser_plutot (ame0 vers chose0))"
+      - "(affect0 detourne_de_penser (ame0 vers autre_chose0))"
+    goals: []
+    must_not_derive:
+      - "(affect0 est_passion_de ame0)"
+    expected: {status: proved}
+formalization_status: proved_general_definition_with_three_explicit_components
+result: proved

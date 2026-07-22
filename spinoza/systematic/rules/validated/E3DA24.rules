@@ -1,0 +1,8 @@
+RULE E3DA24_definition_misericorde
+WHEN
+    ($amour est_amour_de ($homme envers $autre))
+    ($homme s_epanouit_du_bien_de $autre)
+    ($homme est_contriste_par_mal_de $autre)
+THEN
+    ADD ($amour est_misericorde_de ($homme envers $autre))
+END

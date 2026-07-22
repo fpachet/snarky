@@ -1,0 +1,19 @@
+RULE E3DA03_tristesse_passage_perfection_moindre
+WHEN
+    ($affect est_passage_de_perfection_de $homme)
+    ($affect a_perfection_initiale $perfection_plus_grande)
+    ($affect a_perfection_finale $perfection_moindre)
+    ($perfection_plus_grande est_plus_grande_que $perfection_moindre)
+THEN
+    ADD ($affect est_tristesse_de $homme)
+    ADD ($affect diminue_puissance_agir_de $homme)
+END
+
+RULE E3DA03_exclut_simple_privation
+WHEN
+    ($affect est_seulement_privation_de $perfection)
+    ($affect est_sans_passage_de_perfection VRAI)
+    ($affect est_affect_de $homme)
+THEN
+    ADD ($affect est_tristesse_de $homme) ' FAUX
+END

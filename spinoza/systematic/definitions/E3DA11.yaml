@@ -1,0 +1,31 @@
+schema_version: 1
+id: E3DA11
+model: ethics_iii_affect_definitions_v1
+source_unit: E3DA11
+source_text: La Dérision est une Joie née d'un élément méprisable imaginé dans une chose haïe.
+fact_files: [facts/postulates.yaml]
+rule_files: [rules/definitions/E3DA11.rules]
+rule_catalog: rules/catalog.yaml
+forbidden_rules: [E3DA11_definition_derision]
+allowed_rule_origins: [textual_definition]
+cases:
+  - id: joie_du_mepris_dans_chose_haie
+    initial_facts:
+      - "(joie0 est_joie_de ame0)"
+      - "(ame0 hait objet0)"
+      - "(ame0 imagine (objet0 contient trait0))"
+      - "(trait0 est_meprisable_pour ame0)"
+      - "(joie0 nait_de (ame0 imagine (objet0 contient trait0)))"
+    goals: ["(joie0 est_derision_de (ame0 envers objet0))"]
+    expected: {status: proved, proof_depths: [1]}
+  - id: joie_envers_chose_non_haie
+    initial_facts:
+      - "(joie0 est_joie_de ame0)"
+      - "(ame0 imagine (objet0 contient trait0))"
+      - "(trait0 est_meprisable_pour ame0)"
+      - "(joie0 nait_de (ame0 imagine (objet0 contient trait0)))"
+    goals: []
+    must_not_derive: ["(joie0 est_derision_de (ame0 envers objet0))"]
+    expected: {status: proved}
+formalization_status: proved_definition
+result: proved

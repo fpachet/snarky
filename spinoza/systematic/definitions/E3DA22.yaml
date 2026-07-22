@@ -1,0 +1,24 @@
+schema_version: 1
+id: E3DA22
+model: ethics_iii_affect_definitions_v1
+source_unit: E3DA22
+source_text: La Mésestime consiste à faire de quelqu'un par Haine moins de cas qu'il n'est juste.
+fact_files: [facts/postulates.yaml]
+rule_files: [rules/definitions/E3DA22.rules]
+rule_catalog: rules/catalog.yaml
+forbidden_rules: [E3DA22_definition_mesestime]
+allowed_rule_origins: [textual_definition]
+cases:
+  - id: evaluation_insuffisante_par_haine
+    initial_facts:
+      - "(haine0 est_haine_de (ame0 envers personne0))"
+      - "(ame0 fait_moins_de_cas_que_juste_de personne0)"
+    goals: ["(haine0 est_mesestime_de (ame0 envers personne0))"]
+    expected: {status: proved, proof_depths: [1]}
+  - id: evaluation_insuffisante_sans_haine
+    initial_facts: ["(ame0 fait_moins_de_cas_que_juste_de personne0)"]
+    goals: []
+    must_not_derive: ["(haine0 est_mesestime_de (ame0 envers personne0))"]
+    expected: {status: proved}
+formalization_status: proved_definition
+result: proved

@@ -1,0 +1,31 @@
+schema_version: 1
+id: E3DA34
+model: ethics_iii_affect_definitions_v1
+source_unit: E3DA34
+source_text: La Reconnaissance ou Gratitude est l'empressement d'Amour à faire du bien à un bienfaiteur qui nous aime pareillement.
+fact_files: [facts/postulates.yaml]
+rule_files: [rules/definitions/E3DA34.rules]
+rule_catalog: rules/catalog.yaml
+forbidden_rules: [E3DA34_definition_reconnaissance_ou_gratitude]
+allowed_rule_origins: [textual_definition]
+cases:
+  - id: bienfait_et_amour_reciproque
+    initial_facts:
+      - "(desir0 est_desir_de (homme0 envers (homme0 fait_du_bien_a bienfaiteur0)))"
+      - "(desir0 est_empressement_d_amour_de (homme0 envers bienfaiteur0))"
+      - "(homme0 s_efforce_de_faire_du_bien_a bienfaiteur0)"
+      - "(bienfaiteur0 a_fait_du_bien_a homme0)"
+      - "(bienfaiteur0 aime homme0)"
+    goals: ["(desir0 est_reconnaissance_ou_gratitude_de (homme0 envers bienfaiteur0))"]
+    expected: {status: proved, proof_depths: [1]}
+  - id: bienfait_sans_amour_reciproque
+    initial_facts:
+      - "(desir0 est_desir_de (homme0 envers (homme0 fait_du_bien_a bienfaiteur0)))"
+      - "(desir0 est_empressement_d_amour_de (homme0 envers bienfaiteur0))"
+      - "(homme0 s_efforce_de_faire_du_bien_a bienfaiteur0)"
+      - "(bienfaiteur0 a_fait_du_bien_a homme0)"
+    goals: []
+    must_not_derive: ["(desir0 est_reconnaissance_ou_gratitude_de (homme0 envers bienfaiteur0))"]
+    expected: {status: proved}
+formalization_status: proved_definition_with_reciprocity
+result: proved

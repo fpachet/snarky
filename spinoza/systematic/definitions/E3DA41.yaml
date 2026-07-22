@@ -1,0 +1,31 @@
+schema_version: 1
+id: E3DA41
+model: ethics_iii_affect_definitions_v1
+source_unit: E3DA41
+source_text: La Pusillanimité est un Désir réduit par la peur d'un danger que nos pareils osent affronter.
+fact_files: [facts/postulates.yaml]
+rule_files: [rules/definitions/E3DA41.rules]
+rule_catalog: rules/catalog.yaml
+forbidden_rules: [E3DA41_definition_pusillanimite]
+allowed_rule_origins: [textual_definition]
+cases:
+  - id: desir_reduit_par_peur_danger
+    initial_facts:
+      - "(desir0 est_desir_de (homme0 envers action0))"
+      - "(peur0 est_peur_de (homme0 envers danger0))"
+      - "(peur0 reduit desir0)"
+      - "(pair0 est_pair_de homme0)"
+      - "(pair0 ose_affronter danger0)"
+    goals: ["(desir0 est_pusillanimite_de (homme0 envers danger0))"]
+    expected: {status: proved, proof_depths: [1]}
+  - id: desir_non_reduit
+    initial_facts:
+      - "(desir0 est_desir_de (homme0 envers action0))"
+      - "(peur0 est_peur_de (homme0 envers danger0))"
+      - "(pair0 est_pair_de homme0)"
+      - "(pair0 ose_affronter danger0)"
+    goals: []
+    must_not_derive: ["(desir0 est_pusillanimite_de (homme0 envers danger0))"]
+    expected: {status: proved}
+formalization_status: proved_definition_with_peer_comparison
+result: proved

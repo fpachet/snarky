@@ -1,0 +1,35 @@
+schema_version: 1
+id: E3DA45
+model: ethics_iii_affect_definitions_v1
+source_unit: E3DA45
+source_text: La Gourmandise est un Désir immodéré, ou même un Amour, de la chère.
+fact_files: [facts/postulates.yaml]
+rule_files: [rules/definitions/E3DA45.rules]
+rule_catalog: rules/catalog.yaml
+forbidden_rules:
+  - E3DA45_definition_gourmandise_par_desir
+  - E3DA45_definition_gourmandise_par_amour
+allowed_rule_origins: [textual_definition]
+cases:
+  - id: desir_immodere_de_chere
+    initial_facts:
+      - "(affect0 est_desir_de (homme0 envers chere0))"
+      - "(chere0 est_nourriture VRAI)"
+      - "(affect0 est_immodere VRAI)"
+    goals: ["(affect0 est_gourmandise_de homme0)"]
+    expected: {status: proved, proof_depths: [1]}
+  - id: amour_de_chere
+    initial_facts:
+      - "(affect0 est_amour_de (homme0 envers chere0))"
+      - "(chere0 est_nourriture VRAI)"
+    goals: ["(affect0 est_gourmandise_de homme0)"]
+    expected: {status: proved, proof_depths: [1]}
+  - id: desir_modere_sans_amour
+    initial_facts:
+      - "(affect0 est_desir_de (homme0 envers chere0))"
+      - "(chere0 est_nourriture VRAI)"
+    goals: []
+    must_not_derive: ["(affect0 est_gourmandise_de homme0)"]
+    expected: {status: proved}
+formalization_status: proved_definition_with_two_alternatives
+result: proved

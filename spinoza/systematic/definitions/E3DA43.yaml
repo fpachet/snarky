@@ -1,0 +1,31 @@
+schema_version: 1
+id: E3DA43
+model: ethics_iii_affect_definitions_v1
+source_unit: E3DA43
+source_text: L'Humanité ou Modestie est un Désir de faire ce qui plaît aux hommes et de ne pas faire ce qui leur déplaît.
+fact_files: [facts/postulates.yaml]
+rule_files: [rules/definitions/E3DA43.rules]
+rule_catalog: rules/catalog.yaml
+forbidden_rules: [E3DA43_definition_humanite_ou_modestie]
+allowed_rule_origins: [textual_definition]
+cases:
+  - id: plaire_et_ne_pas_deplaire
+    initial_facts:
+      - "(desir0 est_desir_de homme0)"
+      - "(desir0 vise_a_faire_ce_qui_plait_aux autres0)"
+      - "(desir0 vise_a_ne_pas_faire_ce_qui_deplait_aux autres0)"
+    goals:
+      - "(desir0 est_humanite_de homme0)"
+      - "(desir0 est_modestie_de homme0)"
+    expected: {status: proved, proof_depths: [1, 1]}
+  - id: plaire_sans_eviter_de_deplaire
+    initial_facts:
+      - "(desir0 est_desir_de homme0)"
+      - "(desir0 vise_a_faire_ce_qui_plait_aux autres0)"
+    goals: []
+    must_not_derive:
+      - "(desir0 est_humanite_de homme0)"
+      - "(desir0 est_modestie_de homme0)"
+    expected: {status: proved}
+formalization_status: proved_definition_with_synonymous_labels
+result: proved

@@ -1,0 +1,24 @@
+schema_version: 1
+id: E3DA20
+model: ethics_iii_affect_definitions_v1
+source_unit: E3DA20
+source_text: L'Indignation est une Haine envers quelqu'un qui fait du mal à un autre.
+fact_files: [facts/postulates.yaml]
+rule_files: [rules/definitions/E3DA20.rules]
+rule_catalog: rules/catalog.yaml
+forbidden_rules: [E3DA20_definition_indignation]
+allowed_rule_origins: [textual_definition]
+cases:
+  - id: haine_du_malfaisant
+    initial_facts:
+      - "(haine0 est_haine_de (ame0 envers malfaisant0))"
+      - "(malfaisant0 fait_du_mal_a autre0)"
+    goals: ["(haine0 est_indignation_de (ame0 envers malfaisant0))"]
+    expected: {status: proved, proof_depths: [1]}
+  - id: haine_sans_mal_fait_a_autrui
+    initial_facts: ["(haine0 est_haine_de (ame0 envers personne0))"]
+    goals: []
+    must_not_derive: ["(haine0 est_indignation_de (ame0 envers personne0))"]
+    expected: {status: proved}
+formalization_status: proved_definition
+result: proved

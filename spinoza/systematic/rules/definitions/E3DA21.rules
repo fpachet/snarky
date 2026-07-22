@@ -1,0 +1,7 @@
+RULE E3DA21_surestime_evaluation_excessive_par_amour
+WHEN
+    ($amour est_amour_de ($ame envers $personne))
+    ($ame fait_plus_de_cas_que_juste_de $personne)
+THEN
+    ADD ($amour est_surestime_de ($ame envers $personne))
+END

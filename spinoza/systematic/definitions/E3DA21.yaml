@@ -1,0 +1,24 @@
+schema_version: 1
+id: E3DA21
+model: ethics_iii_affect_definitions_v1
+source_unit: E3DA21
+source_text: La Surestime consiste à faire de quelqu'un par Amour plus de cas qu'il n'est juste.
+fact_files: [facts/postulates.yaml]
+rule_files: [rules/definitions/E3DA21.rules]
+rule_catalog: rules/catalog.yaml
+forbidden_rules: [E3DA21_definition_surestime]
+allowed_rule_origins: [textual_definition]
+cases:
+  - id: evaluation_excessive_par_amour
+    initial_facts:
+      - "(amour0 est_amour_de (ame0 envers personne0))"
+      - "(ame0 fait_plus_de_cas_que_juste_de personne0)"
+    goals: ["(amour0 est_surestime_de (ame0 envers personne0))"]
+    expected: {status: proved, proof_depths: [1]}
+  - id: evaluation_excessive_sans_amour
+    initial_facts: ["(ame0 fait_plus_de_cas_que_juste_de personne0)"]
+    goals: []
+    must_not_derive: ["(amour0 est_surestime_de (ame0 envers personne0))"]
+    expected: {status: proved}
+formalization_status: proved_definition
+result: proved

@@ -52,6 +52,10 @@ contraintes arithmétiques.
 
 Le contenu actuel comprend :
 
+- [l’atlas web de l’Éthique III](https://fpachet.github.io/snarky/), une
+  exploration statique des textes, affects, règles et chaînes de preuve,
+  publiée automatiquement par GitHub Pages ;
+
 - [`docs/prompt_codex_moteur_snarky.md`](docs/prompt_codex_moteur_snarky.md),
   la spécification détaillée du moteur ;
 - [`docs/prompt_codex_spinoza_ethique_III.md`](docs/prompt_codex_spinoza_ethique_III.md),
@@ -65,7 +69,8 @@ Le contenu actuel comprend :
 - [`spinoza`](spinoza/README.md), le cas d'étude complet de l'*Éthique III* :
   corpus structuré des 59 propositions, reproduction historique des quatre
   preuves de Gondran et reconstruction systématique exécutable de E3P01 à
-  E3P59, avec faits, règles, provenance et contre-cas explicites ;
+  E3P59 ainsi que des 48 définitions finales et de la définition générale des
+  affects, avec faits, règles, provenance et contre-cas explicites ;
 - [`third_party/test_rulebases`](third_party/test_rulebases/README.md), une
   sélection de corpus de règles externes ;
 - [`tests/rulebases/debug`](tests/rulebases/debug/README.md), une petite base
@@ -214,7 +219,8 @@ répertoire existant.
    optimisation des substitutions guidée par profilage.
 10. ~~Reproduire les démonstrations Spinoza P19, P21, P22 et P33, importer la
     structure textuelle complète de l'Éthique III, puis rendre exécutables les
-    59 propositions dans le modèle systématique.~~
+    59 propositions, les 48 définitions finales et la définition générale dans
+    le modèle systématique.~~
 11. Ajouter une couche optionnelle de raisonnement par contraintes pour
    exprimer et résoudre des problèmes de satisfaction (CSP, SAT et variantes),
    notamment au moyen d’un adaptateur vers OR-Tools. Le moteur d’inférence

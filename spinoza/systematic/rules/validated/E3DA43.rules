@@ -1,0 +1,9 @@
+RULE E3DA43_definition_humanite_ou_modestie
+WHEN
+    ($desir est_desir_de $homme)
+    ($desir vise_a_faire_ce_qui_plait_aux $autres)
+    ($desir vise_a_ne_pas_faire_ce_qui_deplait_aux $autres)
+THEN
+    ADD ($desir est_humanite_de $homme)
+    ADD ($desir est_modestie_de $homme)
+END

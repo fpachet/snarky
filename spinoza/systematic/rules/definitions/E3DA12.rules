@@ -1,0 +1,12 @@
+RULE E3DA12_espoir_joie_inconstante_issue_douteuse
+WHEN
+    ($joie est_joie_de $ame)
+    ($joie est_inconstante VRAI)
+    ($idee est_idee_de $chose)
+    ($idee accompagne $joie)
+    ($chose a_temporalite $temps)
+    ($temps est_passe_ou_futur VRAI)
+    ($ame doute_de_issue_de $chose)
+THEN
+    ADD ($joie est_espoir_de ($ame envers $chose))
+END

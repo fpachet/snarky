@@ -1,0 +1,8 @@
+RULE E3DA30_definition_gloire
+WHEN
+    ($joie est_joie_de $homme)
+    ($action est_action_de $homme)
+    ($homme imagine ($autres louent $action))
+THEN
+    ADD ($joie est_gloire_de ($homme envers $action))
+END

@@ -1,0 +1,37 @@
+schema_version: 1
+id: E3DA04
+model: ethics_iii_affect_definitions_v1
+source_unit: E3DA04
+source_text: >-
+  Il y a Étonnement quand à l'imagination d'une chose l'Âme demeure attachée,
+  parce que cette imagination singulière n'a aucune connexion avec les autres.
+fact_files: [facts/postulates.yaml]
+rule_files: [rules/definitions/E3DA04.rules]
+rule_catalog: rules/catalog.yaml
+forbidden_rules: [E3DA04_definition_etonnement]
+allowed_rule_origins: [textual_definition]
+cases:
+  - id: imagination_sans_connexion
+    initial_facts:
+      - "(ame0 imagine objet0)"
+      - "(image0 est_image_de objet0)"
+      - "(image0 est_sans_connexion_avec_autres_images_pour ame0)"
+      - "(ame0 demeure_attachee_a image0)"
+      - "(etonnement0 est_temoignage_etonnement_de (ame0 envers objet0))"
+    goals:
+      - "(etonnement0 est_etonnement_de ame0)"
+      - "(etonnement0 a_pour_objet objet0)"
+    expected: {status: proved, proof_depths: [1, 1]}
+  - id: imagination_connectee
+    initial_facts:
+      - "(ame0 imagine objet0)"
+      - "(image0 est_image_de objet0)"
+      - "(image0 est_connectee_a_autres_images_pour ame0)"
+      - "(ame0 demeure_attachee_a image0)"
+      - "(etonnement0 est_temoignage_etonnement_de (ame0 envers objet0))"
+    goals: []
+    must_not_derive:
+      - "(etonnement0 est_etonnement_de ame0)"
+    expected: {status: proved}
+formalization_status: proved_definition_with_positive_absence
+result: proved

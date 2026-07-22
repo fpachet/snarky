@@ -1,0 +1,9 @@
+RULE E3DA01_definition_desir
+WHEN
+    ($essence est_essence_actuelle_de $homme)
+    ($affection determine_essence_a_action ($essence vers $action))
+    ($desir est_temoignage_desir_de ($homme envers $action))
+THEN
+    ADD ($desir est_desir_de $homme)
+    ADD ($desir exprime_essence_de $homme)
+END

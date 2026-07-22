@@ -1,0 +1,31 @@
+schema_version: 1
+id: E3DA18
+model: ethics_iii_affect_definitions_v1
+source_unit: E3DA18
+source_text: La Commisération est une Tristesse accompagnée de l'idée d'un mal arrivé à un autre imaginé semblable à nous.
+fact_files: [facts/postulates.yaml]
+rule_files: [rules/definitions/E3DA18.rules]
+rule_catalog: rules/catalog.yaml
+forbidden_rules: [E3DA18_definition_commiseration]
+allowed_rule_origins: [textual_definition]
+cases:
+  - id: tristesse_du_mal_d_un_semblable
+    initial_facts:
+      - "(tristesse0 est_tristesse_de ame0)"
+      - "(mal0 est_mal_arrive_a autre0)"
+      - "(idee0 est_idee_de (mal0 est_mal_arrive_a autre0))"
+      - "(idee0 accompagne tristesse0)"
+      - "(ame0 imagine_semblable_a_soi autre0)"
+    goals: ["(tristesse0 est_commiseration_de (ame0 envers autre0))"]
+    expected: {status: proved, proof_depths: [1]}
+  - id: autre_non_imagine_semblable
+    initial_facts:
+      - "(tristesse0 est_tristesse_de ame0)"
+      - "(mal0 est_mal_arrive_a autre0)"
+      - "(idee0 est_idee_de (mal0 est_mal_arrive_a autre0))"
+      - "(idee0 accompagne tristesse0)"
+    goals: []
+    must_not_derive: ["(tristesse0 est_commiseration_de (ame0 envers autre0))"]
+    expected: {status: proved}
+formalization_status: proved_definition
+result: proved

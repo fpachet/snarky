@@ -1,0 +1,8 @@
+RULE E3DA26_humilite_tristesse_consideration_impuissance
+WHEN
+    ($tristesse est_tristesse_de $homme)
+    ($homme considere_impuissance_ou_faiblesse_de $homme)
+    ($tristesse nait_de ($homme considere_impuissance_ou_faiblesse_de $homme))
+THEN
+    ADD ($tristesse est_humilite_de $homme)
+END

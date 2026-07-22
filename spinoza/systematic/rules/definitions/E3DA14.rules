@@ -1,0 +1,11 @@
+RULE E3DA14_securite_joie_sans_cause_de_doute
+WHEN
+    ($joie est_joie_de $ame)
+    ($idee est_idee_de $chose)
+    ($idee accompagne $joie)
+    ($chose a_temporalite $temps)
+    ($temps est_passe_ou_futur VRAI)
+    ($ame n_a_plus_cause_de_doute_sur $chose)
+THEN
+    ADD ($joie est_securite_de ($ame envers $chose))
+END

@@ -1,0 +1,10 @@
+RULE E3DA12_definition_espoir
+WHEN
+    ($joie est_joie_de $ame)
+    ($joie est_inconstante VRAI)
+    ($chose a_temporalite $temps)
+    ($temps est_passe_ou_futur VRAI)
+    ($ame doute_de_issue_de $chose)
+THEN
+    ADD ($joie est_espoir_de ($ame envers $chose))
+END

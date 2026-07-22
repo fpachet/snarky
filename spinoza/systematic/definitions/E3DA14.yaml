@@ -1,0 +1,32 @@
+schema_version: 1
+id: E3DA14
+model: ethics_iii_affect_definitions_v1
+source_unit: E3DA14
+source_text: La Sécurité est une Joie relative à une chose future ou passée dont toute cause de doute a disparu.
+fact_files: [facts/postulates.yaml]
+rule_files: [rules/definitions/E3DA14.rules]
+rule_catalog: rules/catalog.yaml
+forbidden_rules: [E3DA14_definition_securite]
+allowed_rule_origins: [textual_definition]
+cases:
+  - id: joie_issue_non_douteuse
+    initial_facts:
+      - "(joie0 est_joie_de ame0)"
+      - "(idee0 est_idee_de chose0)"
+      - "(idee0 accompagne joie0)"
+      - "(chose0 a_temporalite futur0)"
+      - "(futur0 est_passe_ou_futur VRAI)"
+      - "(ame0 n_a_plus_cause_de_doute_sur chose0)"
+    goals: ["(joie0 est_securite_de (ame0 envers chose0))"]
+    expected: {status: proved, proof_depths: [1]}
+  - id: doute_demeure
+    initial_facts:
+      - "(joie0 est_joie_de ame0)"
+      - "(chose0 a_temporalite futur0)"
+      - "(futur0 est_passe_ou_futur VRAI)"
+      - "(ame0 doute_de_issue_de chose0)"
+    goals: []
+    must_not_derive: ["(joie0 est_securite_de (ame0 envers chose0))"]
+    expected: {status: proved}
+formalization_status: proved_definition
+result: proved

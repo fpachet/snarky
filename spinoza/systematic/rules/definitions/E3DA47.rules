@@ -1,0 +1,9 @@
+RULE E3DA47_avarice_desir_immodere_et_amour_richesses
+WHEN
+    ($affect est_desir_de ($homme envers $richesses))
+    ($affect est_amour_de ($homme envers $richesses))
+    ($richesses sont_richesses VRAI)
+    ($affect est_immodere VRAI)
+THEN
+    ADD ($affect est_avarice_de $homme)
+END

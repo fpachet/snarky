@@ -1,0 +1,11 @@
+RULE E3DA15_desespoir_tristesse_sans_cause_de_doute
+WHEN
+    ($tristesse est_tristesse_de $ame)
+    ($idee est_idee_de $chose)
+    ($idee accompagne $tristesse)
+    ($chose a_temporalite $temps)
+    ($temps est_passe_ou_futur VRAI)
+    ($ame n_a_plus_cause_de_doute_sur $chose)
+THEN
+    ADD ($tristesse est_desespoir_de ($ame envers $chose))
+END

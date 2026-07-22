@@ -1,0 +1,8 @@
+RULE E3DA27_definition_repentir
+WHEN
+    ($tristesse est_tristesse_de $ame)
+    ($action est_action_de $ame)
+    ($ame croit_avoir_fait_par_libre_decret $action)
+THEN
+    ADD ($tristesse est_repentir_de ($ame envers $action))
+END

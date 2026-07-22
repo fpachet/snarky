@@ -1,0 +1,9 @@
+RULE E3DA42_definition_consternation
+WHEN
+    ($desir est_desir_de ($homme envers ($homme evite $mal)))
+    ($homme craint $mal)
+    ($etonnement est_etonnement_de ($homme envers $mal))
+    ($etonnement reduit $desir)
+THEN
+    ADD ($desir est_consternation_de ($homme envers $mal))
+END

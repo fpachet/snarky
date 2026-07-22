@@ -1,0 +1,9 @@
+RULE E3DA15_definition_desespoir
+WHEN
+    ($tristesse est_tristesse_de $ame)
+    ($chose a_temporalite $temps)
+    ($temps est_passe_ou_futur VRAI)
+    ($ame n_a_plus_cause_de_doute_sur $chose)
+THEN
+    ADD ($tristesse est_desespoir_de ($ame envers $chose))
+END

@@ -1,0 +1,149 @@
+<!doctype html>
+<html lang="fr">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta
+      name="description"
+      content="Explorez les 59 propositions et les 48 définitions des affects de l’Éthique III dans leur modèle symbolique exécutable."
+    />
+    <meta name="theme-color" content="#15382f" />
+    <title>L’Éthique III — atlas exécutable</title>
+    <link rel="stylesheet" href="./styles.css" />
+    <script type="module" src="./app.js"></script>
+  </head>
+  <body>
+    <a class="skip-link" href="#contenu">Aller au contenu</a>
+
+    <header class="site-header">
+      <a class="brand" href="#accueil" aria-label="Retour à l’accueil">
+        <span class="brand-mark">III</span>
+        <span>
+          <strong>L’Éthique</strong>
+          <small>atlas exécutable</small>
+        </span>
+      </a>
+      <nav class="main-nav" aria-label="Navigation principale">
+        <a href="#propositions">Propositions</a>
+        <a href="#affects">Affects</a>
+        <a href="#architecture">Architecture</a>
+        <a
+          class="github-link"
+          href="https://github.com/fpachet/snarky"
+          target="_blank"
+          rel="noreferrer"
+        >Code source ↗</a>
+      </nav>
+    </header>
+
+    <main id="contenu">
+      <section class="hero" id="accueil" aria-labelledby="hero-title">
+        <div class="hero-copy">
+          <p class="eyebrow">Spinoza · Partie III · De l’origine et de la nature des affects</p>
+          <h1 id="hero-title">Lire un texte philosophique comme un <em>monde de conséquences</em>.</h1>
+          <p class="hero-intro">
+            Cet atlas relie le texte de l’<cite>Éthique III</cite> à sa
+            formalisation en faits et en règles. Chaque proposition et chaque
+            affect peut être lu, recherché et suivi jusque dans sa preuve.
+          </p>
+          <div class="hero-actions">
+            <a class="button primary" href="#affects">Explorer les affects</a>
+            <a class="button secondary" href="#propositions/E3P19">Voir une preuve historique</a>
+          </div>
+        </div>
+        <aside class="hero-card" aria-label="Couverture du modèle">
+          <p class="folio">Modèle systématique</p>
+          <div class="hero-stat-grid" id="hero-stats" aria-live="polite">
+            <span class="loading-line">Chargement du corpus…</span>
+          </div>
+          <p class="hero-note">
+            Traduction française de Charles Appuhn (1913). Formalisation
+            symbolique vérifiée par contre-cas et provenance.
+          </p>
+        </aside>
+      </section>
+
+      <section class="thesis-strip" aria-label="Principes du projet">
+        <p><span>01</span> Le texte demeure la source.</p>
+        <p><span>02</span> Les règles rendent l’inférence visible.</p>
+        <p><span>03</span> Les contre-cas dessinent les limites.</p>
+      </section>
+
+      <section class="workspace" id="explorer" aria-labelledby="workspace-title">
+        <div class="workspace-heading">
+          <div>
+            <p class="eyebrow">Corpus interactif</p>
+            <h2 id="workspace-title">Explorer l’Éthique III</h2>
+          </div>
+          <p id="workspace-description">
+            Parcourez les propositions ou les définitions, puis ouvrez une
+            unité pour confronter le texte, les règles et les cas de preuve.
+          </p>
+        </div>
+
+        <div class="toolbar" role="search">
+          <label class="search-field" for="search-input">
+            <span>Rechercher</span>
+            <input
+              id="search-input"
+              type="search"
+              placeholder="amour, puissance, E3P19…"
+              autocomplete="off"
+            />
+            <kbd>/</kbd>
+          </label>
+          <div class="view-switcher" aria-label="Type de contenu">
+            <button type="button" data-view="propositions">59 propositions</button>
+            <button type="button" data-view="affects">48 affects</button>
+            <button type="button" data-view="architecture">Architecture</button>
+          </div>
+        </div>
+
+        <div id="app" class="app-shell" aria-live="polite">
+          <div class="loading-panel">
+            <span class="spinner" aria-hidden="true"></span>
+            <p>Préparation du modèle symbolique…</p>
+          </div>
+        </div>
+      </section>
+
+      <section class="method" aria-labelledby="method-title">
+        <div>
+          <p class="eyebrow">Une philosophie calculable, pas réduite</p>
+          <h2 id="method-title">Ce que signifie « exécutable »</h2>
+        </div>
+        <div class="method-grid">
+          <article>
+            <span class="method-number">A</span>
+            <h3>Instancier</h3>
+            <p>Les hypothèses ontologiques deviennent des faits explicites et finis.</p>
+          </article>
+          <article>
+            <span class="method-number">B</span>
+            <h3>Dériver</h3>
+            <p>Le moteur applique uniquement les règles dont la provenance est déclarée.</p>
+          </article>
+          <article>
+            <span class="method-number">C</span>
+            <h3>Contredire</h3>
+            <p>Chaque frontière vérifie qu’une prémisse manquante ne produit pas la conclusion.</p>
+          </article>
+          <article>
+            <span class="method-number">D</span>
+            <h3>Auditer</h3>
+            <p>La profondeur, les règles activées et les choix interprétatifs restent visibles.</p>
+          </article>
+        </div>
+      </section>
+    </main>
+
+    <footer>
+      <p><strong>Snarky × Spinoza</strong> — une édition expérimentale, ouverte et reproductible.</p>
+      <p>Le texte et le modèle restent deux couches distinctes.</p>
+    </footer>
+
+    <noscript>
+      <p class="noscript">Ce site nécessite JavaScript pour explorer le corpus.</p>
+    </noscript>
+  </body>
+</html>

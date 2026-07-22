@@ -1,0 +1,10 @@
+RULE E3DA41_definition_pusillanimite
+WHEN
+    ($desir est_desir_de ($homme envers $action))
+    ($peur est_peur_de ($homme envers $danger))
+    ($peur reduit $desir)
+    ($pair est_pair_de $homme)
+    ($pair ose_affronter $danger)
+THEN
+    ADD ($desir est_pusillanimite_de ($homme envers $danger))
+END

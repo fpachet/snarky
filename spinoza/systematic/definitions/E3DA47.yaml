@@ -1,0 +1,28 @@
+schema_version: 1
+id: E3DA47
+model: ethics_iii_affect_definitions_v1
+source_unit: E3DA47
+source_text: L'Avarice est un Désir immodéré et un Amour des richesses.
+fact_files: [facts/postulates.yaml]
+rule_files: [rules/definitions/E3DA47.rules]
+rule_catalog: rules/catalog.yaml
+forbidden_rules: [E3DA47_definition_avarice]
+allowed_rule_origins: [textual_definition]
+cases:
+  - id: desir_immodere_et_amour_richesses
+    initial_facts:
+      - "(affect0 est_desir_de (homme0 envers richesses0))"
+      - "(affect0 est_amour_de (homme0 envers richesses0))"
+      - "(richesses0 sont_richesses VRAI)"
+      - "(affect0 est_immodere VRAI)"
+    goals: ["(affect0 est_avarice_de homme0)"]
+    expected: {status: proved, proof_depths: [1]}
+  - id: amour_sans_desir_immodere
+    initial_facts:
+      - "(affect0 est_amour_de (homme0 envers richesses0))"
+      - "(richesses0 sont_richesses VRAI)"
+    goals: []
+    must_not_derive: ["(affect0 est_avarice_de homme0)"]
+    expected: {status: proved}
+formalization_status: proved_definition_with_conjunction
+result: proved

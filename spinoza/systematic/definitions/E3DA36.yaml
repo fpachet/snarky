@@ -1,0 +1,25 @@
+schema_version: 1
+id: E3DA36
+model: ethics_iii_affect_definitions_v1
+source_unit: E3DA36
+source_text: La Colère est un Désir de faire du mal par Haine à celui que nous haïssons.
+fact_files: [facts/postulates.yaml]
+rule_files: [rules/definitions/E3DA36.rules]
+rule_catalog: rules/catalog.yaml
+forbidden_rules: [E3DA36_definition_colere]
+allowed_rule_origins: [textual_definition]
+cases:
+  - id: desir_nuire_par_haine
+    initial_facts:
+      - "(desir0 est_desir_de (homme0 envers (homme0 fait_du_mal_a autre0)))"
+      - "(haine0 est_haine_de (homme0 envers autre0))"
+      - "(desir0 nait_de haine0)"
+    goals: ["(desir0 est_colere_de (homme0 envers autre0))"]
+    expected: {status: proved, proof_depths: [1]}
+  - id: desir_nuire_sans_haine
+    initial_facts: ["(desir0 est_desir_de (homme0 envers (homme0 fait_du_mal_a autre0)))"]
+    goals: []
+    must_not_derive: ["(desir0 est_colere_de (homme0 envers autre0))"]
+    expected: {status: proved}
+formalization_status: proved_definition
+result: proved

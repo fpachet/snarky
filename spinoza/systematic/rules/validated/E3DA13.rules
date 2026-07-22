@@ -1,0 +1,10 @@
+RULE E3DA13_definition_crainte
+WHEN
+    ($tristesse est_tristesse_de $ame)
+    ($tristesse est_inconstante VRAI)
+    ($chose a_temporalite $temps)
+    ($temps est_passe_ou_futur VRAI)
+    ($ame doute_de_issue_de $chose)
+THEN
+    ADD ($tristesse est_crainte_de ($ame envers $chose))
+END

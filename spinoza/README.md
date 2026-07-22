@@ -31,6 +31,11 @@ séparée, les audits de clôture et les extensions qu'il suggère sont document
 dans
 [`reports/spinolog_1988_enrichment.md`](reports/spinolog_1988_enrichment.md).
 
+Une lecture interactive de cette couche est proposée dans
+[l'atlas statique de l'Éthique III](https://fpachet.github.io/snarky/). Le site
+permet de confronter chaque texte aux règles, dépendances, cas positifs et
+frontières négatives du modèle.
+
 ## Palier B — toute la partie III
 
 Le fichier [`sources/ethique_III_appuhn_1913.txt`](sources/ethique_III_appuhn_1913.txt)
@@ -139,7 +144,14 @@ individualisent les affects, les idées adéquates produisent joie et désir
 actifs, et la tristesse active est explicitement exclue. Le dernier scolie
 formalise fermeté, générosité, dégoût, lassitude et troubles corporels.
 
-Dix rapports décrivent les derniers jalons et leur comparaison avec Gondran
+E3DA01–E3DA48 et E3DA-GENERAL achèvent la couche définitionnelle. Les 49
+manifestes reconnaissent les affects depuis leurs constituants explicites,
+conservent temporalité et contextes intentionnels, et testent 50 frontières
+négatives. La carte
+[`systematic/definitions/dependencies.yaml`](systematic/definitions/dependencies.yaml)
+relie chaque définition aux propositions qui la fondent.
+
+Onze rapports décrivent les derniers jalons et leur comparaison avec Gondran
 et Cavarretta :
 
 - [`systematic/reports/milestone_e3p19_e3p22.md`](systematic/reports/milestone_e3p19_e3p22.md) ;
@@ -151,10 +163,11 @@ et Cavarretta :
 - [`systematic/reports/tranche_e3p45_e3p48.md`](systematic/reports/tranche_e3p45_e3p48.md) ;
 - [`systematic/reports/tranche_e3p49_e3p52.md`](systematic/reports/tranche_e3p49_e3p52.md) ;
 - [`systematic/reports/tranche_e3p53_e3p56.md`](systematic/reports/tranche_e3p53_e3p56.md) ;
-- [`systematic/reports/tranche_e3p57_e3p59.md`](systematic/reports/tranche_e3p57_e3p59.md).
+- [`systematic/reports/tranche_e3p57_e3p59.md`](systematic/reports/tranche_e3p57_e3p59.md) ;
+- [`systematic/reports/tranche_e3da01_e3da48.md`](systematic/reports/tranche_e3da01_e3da48.md).
 
-La suite de tests comprend actuellement 89 tests réussis. Les 59 propositions
-sont toutes exécutables. Le prochain chantier distinct est l'intégration
-systématique des 48 définitions finales des affects. Le
-[`plan de modélisation`](systematic/reports/roadmap.md) décrit l'ordre complet
-jusqu'à E3P59 et aux définitions finales des affects.
+Les 59 propositions, les 48 définitions finales et la définition générale sont
+toutes exécutables. Le
+[`plan de modélisation`](systematic/reports/roadmap.md) décrit le travail
+achevé et distingue les 27 explications annexes, qui restent une couche
+d'enrichissement plus fine.

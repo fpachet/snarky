@@ -1,0 +1,10 @@
+RULE E3DA40_audace_action_dangereuse_crainte_par_pairs
+WHEN
+    ($desir est_desir_de ($homme envers $action))
+    ($desir excite_a $action)
+    ($action comporte_danger $danger)
+    ($pair est_pair_de $homme)
+    ($pair craint_d_affronter $danger)
+THEN
+    ADD ($desir est_audace_de ($homme envers $action))
+END

@@ -1,0 +1,9 @@
+RULE E3DA03_definition_tristesse
+WHEN
+    ($affect est_passage_de_perfection_de $homme)
+    ($affect a_perfection_initiale $perfection_plus_grande)
+    ($affect a_perfection_finale $perfection_moindre)
+    ($perfection_plus_grande est_plus_grande_que $perfection_moindre)
+THEN
+    ADD ($affect est_tristesse_de $homme)
+END

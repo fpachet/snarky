@@ -1,0 +1,10 @@
+RULE E3DA16_epanouissement_joie_passee_inesperee
+WHEN
+    ($joie est_joie_de $ame)
+    ($idee est_idee_de $chose)
+    ($idee accompagne $joie)
+    ($chose est_passee VRAI)
+    ($chose est_arrivee_inesperement_pour $ame)
+THEN
+    ADD ($joie est_epanouissement_de ($ame envers $chose))
+END

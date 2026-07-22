@@ -1,0 +1,27 @@
+schema_version: 1
+id: E3DA44
+model: ethics_iii_affect_definitions_v1
+source_unit: E3DA44
+source_text: L'Ambition est un Désir immodéré de gloire.
+fact_files: [facts/postulates.yaml]
+rule_files: [rules/definitions/E3DA44.rules]
+rule_catalog: rules/catalog.yaml
+forbidden_rules: [E3DA44_definition_ambition]
+allowed_rule_origins: [textual_definition]
+cases:
+  - id: desir_immodere_de_gloire
+    initial_facts:
+      - "(desir0 est_desir_de (homme0 envers gloire0))"
+      - "(gloire0 est_gloire_de (homme0 envers action0))"
+      - "(desir0 est_immodere VRAI)"
+    goals: ["(desir0 est_ambition_de homme0)"]
+    expected: {status: proved, proof_depths: [1]}
+  - id: desir_modere_de_gloire
+    initial_facts:
+      - "(desir0 est_desir_de (homme0 envers gloire0))"
+      - "(gloire0 est_gloire_de (homme0 envers action0))"
+    goals: []
+    must_not_derive: ["(desir0 est_ambition_de homme0)"]
+    expected: {status: proved}
+formalization_status: proved_definition
+result: proved

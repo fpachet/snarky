@@ -316,6 +316,8 @@ ainsi la boucle architecturale de la partie III.
 
 ## Tranche 8 — définitions finales des affects
 
+Statut : achevée pour les 48 énoncés définitionnels et la définition générale.
+
 Les 48 définitions finales ne doivent pas devenir un simple glossaire. Pour
 chacune :
 
@@ -327,6 +329,18 @@ chacune :
 
 La définition générale des affects servira de test de cohérence global entre
 corps, idée, puissance et détermination de la pensée.
+
+Résultat : 49 manifestes et 101 cas sont exécutables. Chaque définition
+possède une règle textuelle locale, une règle validée interdite pendant son
+propre test, une dépendance canonique déclarée et au moins un contre-cas. La
+définition générale sépare idée confuse, variation de force corporelle et
+orientation de la pensée. Le rapport de tranche est
+[`tranche_e3da01_e3da48.md`](tranche_e3da01_e3da48.md).
+
+Les 27 sections annexes intitulées « Explication » restent une métrique
+d'enrichissement distincte : certaines de leurs conséquences sont déjà
+couvertes dans E3P01–E3P59, mais elles ne sont pas assimilées artificiellement
+aux 48 énoncés définitionnels.
 
 ## Ordre des extensions du moteur
 
@@ -359,9 +373,9 @@ Une tranche est terminée lorsque le dépôt contient :
 
 ## Définition d'achèvement de l’Éthique III
 
-État courant : la couche des 59 propositions est achevée et reproductible.
-L'achèvement global défini ci-dessous reste ouvert tant que les 48 définitions
-finales des affects ne sont pas reliées systématiquement aux propositions.
+État courant : la couche des 59 propositions, les 48 définitions finales et la
+définition générale sont achevées et reproductibles. Les définitions sont
+reliées aux propositions par `definitions/dependencies.yaml`.
 
 Le travail systématique sera considéré comme complet lorsque :
 
@@ -374,3 +388,7 @@ Le travail systématique sera considéré comme complet lorsque :
 - les preuves historiques auront été comparées aux preuves systématiques ;
 - les modifications de l'ontologie ou des règles recalculeront automatiquement
   les preuves et la couverture.
+
+Ces critères sont désormais atteints pour les énoncés propositionnels et
+définitionnels. L'atomisation exhaustive des explications annexes reste un
+enrichissement éditorial et logique, explicitement séparé de cet achèvement.

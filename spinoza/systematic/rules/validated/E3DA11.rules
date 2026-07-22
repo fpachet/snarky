@@ -1,0 +1,9 @@
+RULE E3DA11_definition_derision
+WHEN
+    ($joie est_joie_de $ame)
+    ($ame hait $objet)
+    ($ame imagine ($objet contient $trait))
+    ($trait est_meprisable_pour $ame)
+THEN
+    ADD ($joie est_derision_de ($ame envers $objet))
+END

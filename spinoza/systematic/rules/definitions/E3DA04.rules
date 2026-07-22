@@ -1,0 +1,11 @@
+RULE E3DA04_etonnement_imagination_sans_connexion
+WHEN
+    ($ame imagine $objet)
+    ($image est_image_de $objet)
+    ($image est_sans_connexion_avec_autres_images_pour $ame)
+    ($ame demeure_attachee_a $image)
+    ($etonnement est_temoignage_etonnement_de ($ame envers $objet))
+THEN
+    ADD ($etonnement est_etonnement_de $ame)
+    ADD ($etonnement a_pour_objet $objet)
+END

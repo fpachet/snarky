@@ -1,0 +1,10 @@
+RULE E3DA23_envie_haine_felicite_et_mal_autrui
+WHEN
+    ($haine est_haine_de ($homme envers $autre))
+    ($haine affecte $homme)
+    ($felicite est_felicite_de $autre)
+    ($homme est_contriste_par $felicite)
+    ($homme s_epanouit_du_mal_de $autre)
+THEN
+    ADD ($haine est_envie_de ($homme envers $autre))
+END

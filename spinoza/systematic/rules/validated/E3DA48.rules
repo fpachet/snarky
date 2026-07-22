@@ -1,0 +1,8 @@
+RULE E3DA48_definition_lubricite
+WHEN
+    ($affect est_desir_de ($homme envers $union))
+    ($affect est_amour_de ($homme envers $union))
+    ($union est_union_des_corps VRAI)
+THEN
+    ADD ($affect est_lubricite_de $homme)
+END

@@ -1,0 +1,29 @@
+schema_version: 1
+id: E3DA30
+model: ethics_iii_affect_definitions_v1
+source_unit: E3DA30
+source_text: La Gloire est une Joie accompagnée de l'idée d'une action nôtre imaginée louée par d'autres.
+fact_files: [facts/postulates.yaml]
+rule_files: [rules/definitions/E3DA30.rules]
+rule_catalog: rules/catalog.yaml
+forbidden_rules: [E3DA30_definition_gloire]
+allowed_rule_origins: [textual_definition]
+cases:
+  - id: joie_action_propre_louee
+    initial_facts:
+      - "(joie0 est_joie_de homme0)"
+      - "(idee0 est_idee_de action0)"
+      - "(idee0 accompagne joie0)"
+      - "(action0 est_action_de homme0)"
+      - "(homme0 imagine (autres0 louent action0))"
+    goals: ["(joie0 est_gloire_de (homme0 envers action0))"]
+    expected: {status: proved, proof_depths: [1]}
+  - id: joie_action_non_louee
+    initial_facts:
+      - "(joie0 est_joie_de homme0)"
+      - "(action0 est_action_de homme0)"
+    goals: []
+    must_not_derive: ["(joie0 est_gloire_de (homme0 envers action0))"]
+    expected: {status: proved}
+formalization_status: proved_definition_with_intentional_praise
+result: proved
