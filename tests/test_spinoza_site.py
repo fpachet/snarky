@@ -1,4 +1,5 @@
 import json
+import re
 from html.parser import HTMLParser
 from pathlib import Path
 
@@ -12,6 +13,7 @@ class _AssetParser(HTMLParser):
     def __init__(self) -> None:
         super().__init__()
         self.references: list[str] = []
+        self.raw_references: list[str] = []
 
     def handle_starttag(
         self,
@@ -22,7 +24,8 @@ class _AssetParser(HTMLParser):
         for name in ("href", "src"):
             value = attributes.get(name)
             if value and value.startswith("./"):
-                self.references.append(value.removeprefix("./"))
+                self.raw_references.append(value)
+                self.references.append(value.removeprefix("./").split("?", 1)[0])
 
 
 def test_static_site_entrypoint_has_resolvable_relative_assets() -> None:
@@ -35,6 +38,16 @@ def test_static_site_entrypoint_has_resolvable_relative_assets() -> None:
     assert (SITE_ROOT / ".nojekyll").is_file()
     assert 'data-view="rules"' in html
     assert 'href="#rules"' in html
+    versions = {
+        reference.split("?v=", 1)[1]
+        for reference in parser.raw_references
+        if "?v=" in reference
+    }
+    assert len(versions) == 1
+    assert re.fullmatch(r"[0-9a-f]{12}", versions.pop())
+    app = (SITE_ROOT / "app.js").read_text(encoding="utf-8")
+    assert 'cache: "no-store"' in app
+    assert "modelRequest.abort()" in app
 
 
 def test_static_model_contains_the_complete_executable_ethics_iii() -> None:

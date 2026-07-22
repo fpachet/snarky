@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import argparse
+import hashlib
 import json
 import re
 import sys
@@ -19,6 +20,7 @@ RULE_BLOCK_PATTERN = re.compile(
     r"^RULE\s+(?P<name>\S+)\s*\n.*?^END\s*$",
     re.MULTILINE | re.DOTALL,
 )
+ASSET_VERSION_PATTERN = re.compile(r'(?P<prefix>\./(?:styles\.css|app\.js)\?v=)[^"\']+')
 
 AFFECT_NAMES = (
     "Désir",
@@ -137,6 +139,26 @@ def _case_payload(
         "derived_fact_count": result.derived_fact_count,
         "derivation_count": result.derivation_count,
     }
+
+
+def _stamp_site_assets(project_root: Path, model_path: Path) -> str:
+    site_root = project_root / "site"
+    digest = hashlib.sha256()
+    for path in (site_root / "app.js", site_root / "styles.css", model_path):
+        digest.update(path.read_bytes())
+    version = digest.hexdigest()[:12]
+
+    index_path = site_root / "index.html"
+    index = index_path.read_text(encoding="utf-8")
+    stamped, replacements = ASSET_VERSION_PATTERN.subn(
+        lambda match: f"{match.group('prefix')}{version}",
+        index,
+    )
+    if replacements != 2:
+        raise ValueError("site asset version markers are missing from index.html")
+    if stamped != index:
+        index_path.write_text(stamped, encoding="utf-8")
+    return version
 
 
 def build_payload(project_root: Path = PROJECT_ROOT) -> dict[str, Any]:
@@ -344,10 +366,12 @@ def main() -> None:
         json.dumps(payload, ensure_ascii=False, indent=2) + "\n",
         encoding="utf-8",
     )
+    asset_version = _stamp_site_assets(PROJECT_ROOT, args.output)
     print(
         f"Built {args.output}: "
         f"{len(payload['propositions'])} propositions, "
-        f"{len(payload['definitions'])} affect definitions"
+        f"{len(payload['definitions'])} affect definitions, "
+        f"assets {asset_version}"
     )
 
 

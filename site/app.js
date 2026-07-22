@@ -2,6 +2,11 @@ const app = document.querySelector("#app");
 const searchInput = document.querySelector("#search-input");
 const viewButtons = [...document.querySelectorAll("[data-view]")];
 const heroStats = document.querySelector("#hero-stats");
+const moduleUrl = new URL(import.meta.url);
+const assetVersion = moduleUrl.searchParams.get("v") ?? "dev";
+const modelUrl = new URL("./data/model.json", moduleUrl);
+modelUrl.searchParams.set("v", assetVersion);
+app.dataset.loadState = "loading";
 
 let model;
 let state = {
@@ -34,6 +39,14 @@ const factLabel = (fact) =>
   typeof fact === "string"
     ? fact
     : `${fact.entity ?? ""}${fact.status ? ` [${fact.status}]` : ""}`;
+
+function cacheBypassUrl() {
+  const requestedHash = window.location.hash || "#rules";
+  const safeHash = /^#[a-zA-Z0-9_\-/]+$/.test(requestedHash)
+    ? requestedHash
+    : "#rules";
+  return `${window.location.pathname}?refresh=${Date.now()}${safeHash}`;
+}
 
 function renderHeroStats() {
   const counts = model.meta.counts;
@@ -506,21 +519,32 @@ app.addEventListener("click", (event) => {
 
 window.addEventListener("hashchange", routeFromHash);
 
-fetch("./data/model.json")
+const modelRequest = new AbortController();
+const modelTimeout = window.setTimeout(() => modelRequest.abort(), 15000);
+
+fetch(modelUrl, { cache: "no-store", signal: modelRequest.signal })
   .then((response) => {
     if (!response.ok) throw new Error(`HTTP ${response.status}`);
     return response.json();
   })
   .then((payload) => {
     model = payload;
+    app.dataset.loadState = "ready";
     renderHeroStats();
     routeFromHash();
     if (!window.location.hash || window.location.hash === "#accueil") render();
   })
   .catch((error) => {
+    app.dataset.loadState = "error";
+    const message =
+      error.name === "AbortError"
+        ? "Le chargement a dépassé quinze secondes."
+        : error.message;
     app.innerHTML = `
-      <div class="loading-panel">
+      <div class="loading-panel loading-help">
         <p>Le corpus n’a pas pu être chargé.</p>
-        <small>${escapeHtml(error.message)}</small>
+        <small>${escapeHtml(message)}</small>
+        <a class="button primary" href="${escapeHtml(cacheBypassUrl())}">Recharger la dernière version</a>
       </div>`;
-  });
+  })
+  .finally(() => window.clearTimeout(modelTimeout));

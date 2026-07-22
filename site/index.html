@@ -9,8 +9,8 @@
     />
     <meta name="theme-color" content="#15382f" />
     <title>L’Éthique III — atlas exécutable</title>
-    <link rel="stylesheet" href="./styles.css" />
-    <script type="module" src="./app.js"></script>
+    <link rel="stylesheet" href="./styles.css?v=44a31762d71f" />
+    <script type="module" src="./app.js?v=44a31762d71f"></script>
   </head>
   <body>
     <a class="skip-link" href="#contenu">Aller au contenu</a>
@@ -147,5 +147,21 @@
     <noscript>
       <p class="noscript">Ce site nécessite JavaScript pour explorer le corpus.</p>
     </noscript>
+    <script>
+      window.setTimeout(() => {
+        const explorer = document.querySelector("#app");
+        if (!explorer || ["ready", "error"].includes(explorer.dataset.loadState)) return;
+        const requestedHash = window.location.hash || "#rules";
+        const safeHash = /^#[a-zA-Z0-9_\-/]+$/.test(requestedHash) ? requestedHash : "#rules";
+        const refreshUrl = `${window.location.pathname}?refresh=${Date.now()}${safeHash}`;
+        explorer.dataset.loadState = "stalled";
+        explorer.innerHTML = `
+          <div class="loading-panel loading-help">
+            <p>Le modèle tarde à se charger.</p>
+            <small>Une ancienne version de la page est peut-être restée en cache.</small>
+            <a class="button primary" href="${refreshUrl}">Recharger la dernière version</a>
+          </div>`;
+      }, 15000);
+    </script>
   </body>
 </html>
