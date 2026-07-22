@@ -45,7 +45,6 @@ jobs:
         uses: actions/upload-pages-artifact@v4
         with:
           path: site
-          include-hidden-files: true
 
   deploy:
     needs: build
@@ -60,4 +59,3 @@ jobs:
       - name: Deploy GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v4
-
