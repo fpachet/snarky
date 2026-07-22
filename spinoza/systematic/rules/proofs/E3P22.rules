@@ -1,0 +1,55 @@
+# Un témoin affectif explicite matérialise la joie ou la tristesse que l'action
+# imaginée d'une cause extérieure produit dans la chose aimée.
+RULE E3P22D_action_joyeuse_affecte_chose_aimee
+WHEN
+    ($ame imagine ($cause affecte_de_joie $objet))
+    ($affect_source est_temoignage_affectif_de ($cause affecte_de_joie $objet))
+THEN
+    ADD ($ame imagine ($affect_source est_joie_de $objet))
+    ADD ($ame imagine ($affect_source a_pour_cause_exterieure $cause))
+END
+
+RULE E3P22D_action_triste_affecte_chose_aimee
+WHEN
+    ($ame imagine ($cause affecte_de_tristesse $objet))
+    ($affect_source est_temoignage_affectif_de ($cause affecte_de_tristesse $objet))
+THEN
+    ADD ($ame imagine ($affect_source est_tristesse_de $objet))
+    ADD ($ame imagine ($affect_source a_pour_cause_exterieure $cause))
+END
+
+# E3P21 transmet l'affect à l'amant. L'idée de la cause imaginée accompagne
+# alors cet affect, ce qui permet à E3P13S de conclure amour ou haine.
+RULE E3P22D_cause_exterieure_accompagne_affect_transmis
+WHEN
+    ($ame imagine ($affect_source a_pour_cause_exterieure $cause))
+    ($affect_amant correspond_a_affect_imagine $affect_source)
+    ($idee_cause est_idee_de $cause)
+THEN
+    ADD ($idee_cause accompagne $affect_amant)
+END
+
+# Scolie : définitions de la commisération, de la faveur et de l'indignation.
+RULE E3P22S_dommage_autrui_commiseration
+WHEN
+    ($affect est_tristesse_de $ame)
+    ($affect nait_du_dommage_de $autrui)
+THEN
+    ADD ($affect est_commiseration_de $ame)
+END
+
+RULE E3P22S_bien_autrui_faveur
+WHEN
+    ($ame aime $agent)
+    ($agent a_fait_du_bien_a $autrui)
+THEN
+    ADD ($ame eprouve_faveur_pour $agent)
+END
+
+RULE E3P22S_mal_autrui_indignation
+WHEN
+    ($ame hait $agent)
+    ($agent a_fait_du_mal_a $autrui)
+THEN
+    ADD ($ame eprouve_indignation_envers $agent)
+END

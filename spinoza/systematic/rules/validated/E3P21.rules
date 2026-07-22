@@ -1,0 +1,61 @@
+RULE E3P21_joie_imaginee_pose_existence
+WHEN
+    ($ame imagine ($affect_source est_joie_de $objet))
+THEN
+    ADD (($affect_source est_joie_de $objet) pose_existence_de $objet)
+END
+
+RULE E3P21_tristesse_imaginee_exclut_existence
+WHEN
+    ($ame imagine ($affect_source est_tristesse_de $objet))
+THEN
+    ADD (($affect_source est_tristesse_de $objet) exclut_existence_de $objet)
+END
+
+RULE E3P21_correspondance_joie_amant
+WHEN
+    ($ame imagine ($affect_source est_joie_de $objet))
+    ($image est_image_de ($affect_source est_joie_de $objet))
+    ($affect_amant accompagne $image)
+    ($affect_amant est_joie_de $ame)
+THEN
+    ADD ($affect_amant correspond_a_affect_imagine $affect_source)
+    ADD ($affect_amant varie_selon_degre_de $affect_source)
+END
+
+RULE E3P21_correspondance_tristesse_amant
+WHEN
+    ($ame imagine ($affect_source est_tristesse_de $objet))
+    ($image est_image_de ($affect_source est_tristesse_de $objet))
+    ($affect_amant accompagne $image)
+    ($affect_amant est_tristesse_de $ame)
+THEN
+    ADD ($affect_amant correspond_a_affect_imagine $affect_source)
+    ADD ($affect_amant varie_selon_degre_de $affect_source)
+END
+
+RULE E3P21_ordre_intensite_joie_transmis
+WHEN
+    ($ame imagine ($source_forte est_plus_intense_que $source_faible))
+    ($source_forte est_joie_imaginee_de $objet)
+    ($source_faible est_joie_imaginee_de $objet)
+    ($joie_forte correspond_a_affect_imagine $source_forte)
+    ($joie_faible correspond_a_affect_imagine $source_faible)
+    ($joie_forte est_joie_de $ame)
+    ($joie_faible est_joie_de $ame)
+THEN
+    ADD ($joie_forte est_plus_intense_que $joie_faible)
+END
+
+RULE E3P21_ordre_intensite_tristesse_transmis
+WHEN
+    ($ame imagine ($source_forte est_plus_intense_que $source_faible))
+    ($source_forte est_tristesse_imaginee_de $objet)
+    ($source_faible est_tristesse_imaginee_de $objet)
+    ($tristesse_forte correspond_a_affect_imagine $source_forte)
+    ($tristesse_faible correspond_a_affect_imagine $source_faible)
+    ($tristesse_forte est_tristesse_de $ame)
+    ($tristesse_faible est_tristesse_de $ame)
+THEN
+    ADD ($tristesse_forte est_plus_intense_que $tristesse_faible)
+END

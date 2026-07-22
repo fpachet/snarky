@@ -185,7 +185,10 @@ formalisation systématique des propositions concernées.
 ## Ordre d'intégration
 
 1. Au jalon E3P19–E3P22, ajouter les cas SpinoLog du rapport et l'audit de
-   clôture en lecture seule.
+   clôture en lecture seule. Ce jalon est réalisé dans
+   [`../systematic/reports/milestone_e3p19_e3p22.md`](../systematic/reports/milestone_e3p19_e3p22.md) :
+   les conclusions annexes servent de contre-tests, sans transcription de la
+   base SpinoLog complète.
 2. Avant E3P27, formaliser la typologie de la similitude et ses conditions
    d'application.
 3. Avant E3P33, comparer texte, rapport 1988, présentation 2006 et modèle

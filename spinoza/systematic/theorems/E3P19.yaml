@@ -1,0 +1,73 @@
+schema_version: 1
+id: E3P19
+model: ethics_iii_systematic_v1
+source_unit: E3P19
+source_text: >-
+  Qui imagine que ce qu'il aime est détruit, sera contristé ; et joyeux, s'il
+  l'imagine conservé.
+fact_files: [facts/postulates.yaml]
+rule_files:
+  - rules/validated/E3P11.rules
+  - rules/validated/E3P13.rules
+  - rules/proofs/E3P19.rules
+rule_catalog: rules/catalog.yaml
+forbidden_rules:
+  - E3P19_conservation_imaginee_pose_existence
+  - E3P19_destruction_imaginee_exclut_existence
+  - E3P19_image_existence_seconde_effort_amour
+  - E3P19_image_exclusion_reduit_effort_amour
+allowed_rule_origins: [textual, textual_theorem]
+cases:
+  - id: conservation_de_la_chose_aimee
+    initial_facts:
+      - "(ame0 aime objet_aime0)"
+      - "(ame0 imagine (objet_aime0 est_conserve VRAI))"
+      - "(image_conservation0 est_image_de (objet_aime0 est_conserve VRAI))"
+      - "(joie0 accompagne image_conservation0)"
+      - "(joie0 est_passion_de ame0)"
+    goals:
+      - "((objet_aime0 est_conserve VRAI) pose_existence_de objet_aime0)"
+      - "(ame0 s_efforce_de_conserver objet_aime0)"
+      - "(image_conservation0 seconde_effort_d_imaginer_de ame0)"
+      - "(joie0 est_joie_de ame0)"
+    must_not_derive:
+      - "(objet_aime0 existe VRAI)"
+      - "(objet_aime0 est_conserve VRAI)"
+    expected:
+      status: proved
+      proof_depths: [1, 1, 2, 3]
+  - id: destruction_de_la_chose_aimee
+    initial_facts:
+      - "(ame0 aime objet_aime0)"
+      - "(ame0 imagine (objet_aime0 est_detruit VRAI))"
+      - "(image_destruction0 est_image_de (objet_aime0 est_detruit VRAI))"
+      - "(tristesse0 accompagne image_destruction0)"
+      - "(tristesse0 est_passion_de ame0)"
+    goals:
+      - "((objet_aime0 est_detruit VRAI) exclut_existence_de objet_aime0)"
+      - "(ame0 s_efforce_de_conserver objet_aime0)"
+      - "(image_destruction0 reduit_effort_d_imaginer_de ame0)"
+      - "(tristesse0 est_tristesse_de ame0)"
+    must_not_derive:
+      - "(objet_aime0 existe VRAI)"
+      - "(objet_aime0 est_detruit VRAI)"
+    expected:
+      status: proved
+      proof_depths: [1, 1, 2, 3]
+  - id: destruction_imaginee_sans_amour
+    initial_facts:
+      - "(ame0 imagine (objet0 est_detruit VRAI))"
+      - "(image_destruction0 est_image_de (objet0 est_detruit VRAI))"
+      - "(tristesse0 accompagne image_destruction0)"
+      - "(tristesse0 est_passion_de ame0)"
+    goals: []
+    must_not_derive:
+      - "(tristesse0 est_tristesse_de ame0)"
+      - "(objet0 est_detruit VRAI)"
+    expected: {status: proved}
+formalization_status: proved_with_contextual_existence
+result: proved
+limitations:
+  - >-
+    Les affects sont fournis comme témoins explicites ; le moteur ne crée pas
+    encore l'affect existentiel introduit par le passage de perfection.

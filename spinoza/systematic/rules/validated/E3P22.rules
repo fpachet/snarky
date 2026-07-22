@@ -1,0 +1,39 @@
+RULE E3P22_cause_joyeuse_devient_objet_amour
+WHEN
+    ($ame aime $objet)
+    ($ame imagine ($cause affecte_de_joie $objet))
+THEN
+    ADD ($ame aime $cause)
+END
+
+RULE E3P22_cause_triste_devient_objet_haine
+WHEN
+    ($ame aime $objet)
+    ($ame imagine ($cause affecte_de_tristesse $objet))
+THEN
+    ADD ($ame hait $cause)
+END
+
+RULE E3P22S_commiseration_par_dommage_autrui
+WHEN
+    ($affect est_tristesse_de $ame)
+    ($affect nait_du_dommage_de $autrui)
+THEN
+    ADD ($affect est_commiseration_de $ame)
+END
+
+RULE E3P22S_faveur_envers_bienfaiteur_autrui
+WHEN
+    ($ame aime $agent)
+    ($agent a_fait_du_bien_a $autrui)
+THEN
+    ADD ($ame eprouve_faveur_pour $agent)
+END
+
+RULE E3P22S_indignation_envers_auteur_mal_autrui
+WHEN
+    ($ame hait $agent)
+    ($agent a_fait_du_mal_a $autrui)
+THEN
+    ADD ($ame eprouve_indignation_envers $agent)
+END

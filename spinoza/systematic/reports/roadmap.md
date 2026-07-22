@@ -188,7 +188,7 @@ passé, présent et futur et formalise espoir, crainte, sécurité, désespoir,
 
 ## Jalon A — E3P19–E3P22
 
-Priorité immédiate.
+Statut : achevé.
 
 Reconstruire systématiquement E3P19, E3P20, E3P21 et E3P22 depuis les tranches
 précédentes, puis comparer :
@@ -206,7 +206,16 @@ intermédiaires et conclusions annexes produits par SpinoLog. Le protocole
 d'intégration et d'audit est détaillé dans
 [`../../reports/spinolog_1988_enrichment.md`](../../reports/spinolog_1988_enrichment.md).
 
+Résultat : les quatre propositions sont exécutables sans charger la couche
+historique. E3P21 transmet un ordre qualitatif d'intensité ; E3P22 explicite la
+cause extérieure et son scolie. Les conclusions annexes de SpinoLog et sa
+proposition 20bis sont maintenues hors du modèle par des contre-tests. La
+comparaison des chaînes et des clôtures est publiée dans
+[`milestone_e3p19_e3p22.md`](milestone_e3p19_e3p22.md).
+
 ## Tranche 5 — E3P23–E3P32 : affects sociaux et imitation
+
+Priorité immédiate.
 
 Concepts principaux : joie ou tristesse de la chose haïe, commisération,
 faveur, indignation, envie, imitation des affects, similitude, ambition et

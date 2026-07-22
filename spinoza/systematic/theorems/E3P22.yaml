@@ -1,0 +1,101 @@
+schema_version: 1
+id: E3P22
+model: ethics_iii_systematic_v1
+source_unit: E3P22
+source_text: >-
+  Si nous imaginons que quelqu'un affecte de Joie la chose que nous aimons,
+  nous serons affectés d'Amour à son égard ; s'il l'affecte de Tristesse, nous
+  serons affectés de Haine contre lui.
+fact_files: [facts/postulates.yaml]
+rule_files:
+  - rules/validated/E3P11.rules
+  - rules/validated/E3P13.rules
+  - rules/validated/E3P19.rules
+  - rules/validated/E3P21.rules
+  - rules/proofs/E3P22.rules
+rule_catalog: rules/catalog.yaml
+forbidden_rules:
+  - E3P22_cause_joyeuse_devient_objet_amour
+  - E3P22_cause_triste_devient_objet_haine
+  - E3P22S_commiseration_par_dommage_autrui
+  - E3P22S_faveur_envers_bienfaiteur_autrui
+  - E3P22S_indignation_envers_auteur_mal_autrui
+allowed_rule_origins: [textual, textual_theorem]
+cases:
+  - id: amour_envers_cause_de_joie
+    initial_facts:
+      - "(ame0 aime objet_aime0)"
+      - "(ame0 imagine (bienfaiteur0 affecte_de_joie objet_aime0))"
+      - "(joie_source0 est_temoignage_affectif_de (bienfaiteur0 affecte_de_joie objet_aime0))"
+      - "(image_joie_source0 est_image_de (joie_source0 est_joie_de objet_aime0))"
+      - "(joie_amant0 accompagne image_joie_source0)"
+      - "(joie_amant0 est_passion_de ame0)"
+      - "(idee_bienfaiteur0 est_idee_de bienfaiteur0)"
+    goals:
+      - "(ame0 imagine (joie_source0 est_joie_de objet_aime0))"
+      - "(joie_amant0 est_joie_de ame0)"
+      - "(joie_amant0 correspond_a_affect_imagine joie_source0)"
+      - "(idee_bienfaiteur0 accompagne joie_amant0)"
+      - "(ame0 aime bienfaiteur0)"
+    must_not_derive:
+      - "(bienfaiteur0 affecte_de_joie objet_aime0)"
+    expected:
+      status: proved
+      proof_depths: [1, 4, 5, 6, 7]
+  - id: haine_envers_cause_de_tristesse
+    initial_facts:
+      - "(ame0 aime objet_aime0)"
+      - "(ame0 imagine (malfaiteur0 affecte_de_tristesse objet_aime0))"
+      - "(tristesse_source0 est_temoignage_affectif_de (malfaiteur0 affecte_de_tristesse objet_aime0))"
+      - "(image_tristesse_source0 est_image_de (tristesse_source0 est_tristesse_de objet_aime0))"
+      - "(tristesse_amant0 accompagne image_tristesse_source0)"
+      - "(tristesse_amant0 est_passion_de ame0)"
+      - "(idee_malfaiteur0 est_idee_de malfaiteur0)"
+    goals:
+      - "(ame0 imagine (tristesse_source0 est_tristesse_de objet_aime0))"
+      - "(tristesse_amant0 est_tristesse_de ame0)"
+      - "(tristesse_amant0 correspond_a_affect_imagine tristesse_source0)"
+      - "(idee_malfaiteur0 accompagne tristesse_amant0)"
+      - "(ame0 hait malfaiteur0)"
+    must_not_derive:
+      - "(malfaiteur0 affecte_de_tristesse objet_aime0)"
+    expected:
+      status: proved
+      proof_depths: [1, 4, 5, 6, 7]
+  - id: scolie_affects_sociaux
+    initial_facts:
+      - "(commiseration0 est_tristesse_de ame0)"
+      - "(commiseration0 nait_du_dommage_de victime0)"
+      - "(ame0 aime bienfaiteur0)"
+      - "(bienfaiteur0 a_fait_du_bien_a victime0)"
+      - "(ame0 hait malfaiteur0)"
+      - "(malfaiteur0 a_fait_du_mal_a victime0)"
+    goals:
+      - "(commiseration0 est_commiseration_de ame0)"
+      - "(ame0 eprouve_faveur_pour bienfaiteur0)"
+      - "(ame0 eprouve_indignation_envers malfaiteur0)"
+    expected:
+      status: proved
+      proof_depths: [1, 1, 1]
+  - id: cause_sans_amour_pour_objet
+    initial_facts:
+      - "(ame0 imagine (agent0 affecte_de_joie objet0))"
+      - "(joie_source0 est_temoignage_affectif_de (agent0 affecte_de_joie objet0))"
+      - "(image_joie_source0 est_image_de (joie_source0 est_joie_de objet0))"
+      - "(joie_amant0 accompagne image_joie_source0)"
+      - "(joie_amant0 est_passion_de ame0)"
+      - "(idee_agent0 est_idee_de agent0)"
+    goals: []
+    must_not_derive:
+      - "(joie_amant0 est_joie_de ame0)"
+      - "(ame0 aime agent0)"
+    expected: {status: proved}
+formalization_status: proved_with_scholium
+result: proved
+limitations:
+  - >-
+    Le témoin de l'affect causé dans la chose aimée est déclaré dans le
+    manifeste plutôt que créé par une règle existentielle.
+  - >-
+    La commisération envers une chose seulement semblable est réservée à
+    E3P27, comme l'annonce le scolie.

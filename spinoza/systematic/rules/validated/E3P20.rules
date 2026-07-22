@@ -1,0 +1,8 @@
+RULE E3P20_destruction_chose_haie_joie
+WHEN
+    ($ame hait $objet)
+    ($ame imagine ($objet est_detruit VRAI))
+    ($affect est_temoignage_joie_de_destruction_de $objet)
+THEN
+    ADD ($affect est_joie_de $ame)
+END

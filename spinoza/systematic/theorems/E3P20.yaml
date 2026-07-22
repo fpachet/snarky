@@ -1,0 +1,52 @@
+schema_version: 1
+id: E3P20
+model: ethics_iii_systematic_v1
+source_unit: E3P20
+source_text: >-
+  Qui imagine que ce qu'il a en haine est détruit, sera joyeux.
+fact_files: [facts/postulates.yaml]
+rule_files:
+  - rules/validated/E3P11.rules
+  - rules/validated/E3P13.rules
+  - rules/validated/E3P19.rules
+  - rules/proofs/E3P20.rules
+rule_catalog: rules/catalog.yaml
+forbidden_rules: [E3P20_destruction_chose_haie_joie]
+allowed_rule_origins: [textual, textual_theorem]
+cases:
+  - id: destruction_de_la_chose_haie
+    initial_facts:
+      - "(ame0 hait objet_hai0)"
+      - "(ame0 imagine (objet_hai0 est_detruit VRAI))"
+      - "(image_destruction0 est_image_de (objet_hai0 est_detruit VRAI))"
+      - "(joie0 accompagne image_destruction0)"
+      - "(joie0 est_passion_de ame0)"
+    goals:
+      - "(ame0 s_efforce_d_ecarter objet_hai0)"
+      - "((objet_hai0 est_detruit VRAI) exclut_existence_de objet_hai0)"
+      - "(image_destruction0 seconde_effort_d_ecarter_de ame0)"
+      - "(joie0 est_joie_de ame0)"
+    must_not_derive:
+      - "(objet_hai0 est_detruit VRAI)"
+    expected:
+      status: proved
+      proof_depths: [1, 1, 2, 3]
+  - id: spinolog_20bis_non_importee
+    initial_facts:
+      - "(ame0 hait objet_hai0)"
+      - "(ame0 imagine (objet_hai0 est_conserve VRAI))"
+      - "(image_conservation0 est_image_de (objet_hai0 est_conserve VRAI))"
+      - "(tristesse0 accompagne image_conservation0)"
+      - "(tristesse0 est_passion_de ame0)"
+    goals: []
+    must_not_derive:
+      - "(tristesse0 est_tristesse_de ame0)"
+      - "(joie0 est_joie_de ame0)"
+    expected: {status: proved}
+formalization_status: proved_with_spinolog_boundary
+result: proved
+limitations:
+  - >-
+    La proposition 20bis générée par SpinoLog n'est pas importée : la seule
+    conservation imaginée d'une chose haïe ne suffit pas ici à produire une
+    tristesse.

@@ -20,15 +20,20 @@
 | E3P16 | 2 | ressemblance imaginée sans propriété réelle dérivée | E3P14, E3P15 |
 | E3P17 | 3 | amour/haine simultanés et fluctuation | E3P13, E3P16 |
 | E3P18 | 4 | passé/futur et deux scolies exécutables | E2P16C2, E2P17, E2P44S |
+| E3P19 | 3 | conservation/destruction imaginées, joie et tristesse | E3P11, E3P13 |
+| E3P20 | 2 | destruction de la chose haïe et frontière SpinoLog 20bis | E3P11, E3P13, E3P19 |
+| E3P21 | 3 | affects partagés et ordre qualitatif d’intensité | E3P11, E3P13, E3P19 |
+| E3P22 | 4 | causes extérieures, amour/haine et affects sociaux | E3P11, E3P13, E3P19, E3P21 |
 
-Couverture actuelle : 18 propositions sur 59. Toutes les propositions depuis
+Couverture actuelle : 22 propositions sur 59. Toutes les propositions depuis
 E3P04 possèdent au moins un contre-cas de non-dérivation. E3P09 et E3P11
 exécutent aussi les principaux fragments ontologiques de leurs scolies :
 volonté, appétit, désir, jugement de bonté, joie, tristesse et leurs variantes
 corporelles. E3P12–E3P18 ajoutent imagination, aversion, association,
-ressemblance, fluctuation et affects temporels. Le prochain jalon reconstruit
-E3P19–E3P22 et compare les preuves systématiques aux chaînes historiques de
-Gondran.
+ressemblance, fluctuation et affects temporels. E3P19–E3P22 ajoutent les
+affects portant sur la chose aimée, une intensité ordinale, les causes
+extérieures et commisération, faveur et indignation. Le prochain jalon couvre
+E3P23–E3P32, avec E3P27 comme test central de la similitude.
 
 L'ordre des tranches, leurs concepts et leurs critères de sortie sont décrits
 dans [`roadmap.md`](roadmap.md).
@@ -57,3 +62,10 @@ intentionnelle : imaginer un objet présent, imaginer qu'il possède un trait ou
 affirmer son existence dans l'imagination ne produit respectivement ni
 présence, ni trait, ni existence comme fait brut. E3P18 conserve la qualité de
 l'affect à travers le temps, mais pas encore son intensité numérique.
+
+E3P19–E3P22 conservent la même frontière : ni destruction, ni conservation,
+ni action extérieure imaginée ne devient un fait brut. E3P21 transmet un ordre
+qualitatif entre affects sources et affects de l'amant. Ses contre-tests
+interdisent les conclusions annexes `QQCHOSE`, gloire et jalousie de SpinoLog ;
+E3P20 n'importe pas sa proposition 20bis. Le rapport détaillé est
+[`milestone_e3p19_e3p22.md`](milestone_e3p19_e3p22.md).

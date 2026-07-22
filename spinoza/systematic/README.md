@@ -23,7 +23,7 @@ règle qui contient déjà sa conclusion. Pour tester `E3Pxx`, le manifeste :
 4. demande au moteur de dériver des faits représentant l'énoncé ;
 5. conserve la chaîne minimale des règles effectivement employées.
 
-## Fragments exécutables : E3P01–E3P18
+## Fragments exécutables : E3P01–E3P22
 
 Le fragment initial formalise :
 
@@ -82,6 +82,19 @@ Cette tranche rend également exécutables les causes accidentelles, sympathie
 et antipathie, la coexistence d'amour et de haine, la fluctuation de l'âme et
 les six affects temporels définis dans le scolie de E3P18.
 
+E3P19–E3P22 forment le premier jalon comparatif avec Gondran et Cavarretta. Le
+modèle distingue la conservation ou la destruction imaginée des faits réels,
+reconstruit la joie et la tristesse partagées, transmet un ordre qualitatif
+d'intensité dans E3P21 et rattache explicitement l'affect de E3P22 à l'idée de
+sa cause extérieure. Le scolie de E3P22 ajoute commisération, faveur et
+indignation. Les chaînes, clôtures et divergences avec SpinoLog sont détaillées
+dans
+[`reports/milestone_e3p19_e3p22.md`](reports/milestone_e3p19_e3p22.md).
+
+Le lanceur expose pour chaque cas le nombre de faits initiaux et dérivés, le
+nombre de dérivations et toutes les règles activées. Ces données permettent un
+audit en lecture seule de la clôture sans modifier le moteur d'inférence.
+
 E1P36 affirme l'existence d'un effet sans le nommer. Comme Snarky ne possède
 pas encore de création existentielle, chaque cas fournit un témoin `effet0` et
 la règle externe dérive explicitement qu'il suit nécessairement de l'idée.
@@ -101,10 +114,12 @@ explicite. Il ne s'agit pas encore d'un mécanisme général de raisonnement par
 contradiction. L'identité de E3P07 est également ontologique
 (`est_identique_ontologiquement_a`) et non une fusion syntaxique des termes.
 
-Les variations de puissance de E3P11 sont encore qualitatives. Le modèle ne
-compare pas leur intensité et n'interprète pas l'absence d'un quatrième affect
-primitif comme sa fausseté ; ces deux propriétés demanderont respectivement
-une extension quantitative et une fermeture déclarée du domaine.
+Les variations de puissance de E3P11 restent qualitatives et l'absence d'un
+quatrième affect primitif n'est pas interprétée comme sa fausseté. E3P21
+compare désormais l'ordre de deux intensités affectives, sans coefficient ni
+calcul numérique. Une métrique quantitative demanderait encore une extension
+distincte ; la fermeture du domaine des affects primitifs reste également à
+formaliser.
 
 E3P18 établit l'identité qualitative de l'affect à travers les images passée,
 présente et future. Il ne prouve pas encore une égalité numérique d'intensité,

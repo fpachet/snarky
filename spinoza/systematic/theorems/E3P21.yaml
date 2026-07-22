@@ -1,0 +1,103 @@
+schema_version: 1
+id: E3P21
+model: ethics_iii_systematic_v1
+source_unit: E3P21
+source_text: >-
+  Qui imagine ce qu'il aime affecté de Joie ou de Tristesse, sera également
+  affecté de Joie ou de Tristesse ; et ces affections varieront dans l'amant
+  selon qu'elles seront plus grandes ou moindres dans la chose aimée.
+fact_files: [facts/postulates.yaml]
+rule_files:
+  - rules/validated/E3P11.rules
+  - rules/validated/E3P13.rules
+  - rules/validated/E3P19.rules
+  - rules/proofs/E3P21.rules
+rule_catalog: rules/catalog.yaml
+forbidden_rules:
+  - E3P21_joie_imaginee_pose_existence
+  - E3P21_tristesse_imaginee_exclut_existence
+  - E3P21_correspondance_joie_amant
+  - E3P21_correspondance_tristesse_amant
+  - E3P21_ordre_intensite_joie_transmis
+  - E3P21_ordre_intensite_tristesse_transmis
+allowed_rule_origins: [textual, textual_theorem]
+cases:
+  - id: joies_partagees_et_intensite
+    initial_facts:
+      - "(ame0 aime objet_aime0)"
+      - "(ame0 imagine (joie_source_forte0 est_joie_de objet_aime0))"
+      - "(ame0 imagine (joie_source_faible0 est_joie_de objet_aime0))"
+      - "(ame0 imagine (joie_source_forte0 est_plus_intense_que joie_source_faible0))"
+      - "(joie_source_forte0 est_joie_imaginee_de objet_aime0)"
+      - "(joie_source_faible0 est_joie_imaginee_de objet_aime0)"
+      - "(image_joie_forte0 est_image_de (joie_source_forte0 est_joie_de objet_aime0))"
+      - "(image_joie_faible0 est_image_de (joie_source_faible0 est_joie_de objet_aime0))"
+      - "(joie_amant_forte0 accompagne image_joie_forte0)"
+      - "(joie_amant_faible0 accompagne image_joie_faible0)"
+      - "(joie_amant_forte0 est_passion_de ame0)"
+      - "(joie_amant_faible0 est_passion_de ame0)"
+    goals:
+      - "((joie_source_forte0 est_joie_de objet_aime0) pose_existence_de objet_aime0)"
+      - "((joie_source_faible0 est_joie_de objet_aime0) pose_existence_de objet_aime0)"
+      - "(joie_amant_forte0 est_joie_de ame0)"
+      - "(joie_amant_faible0 est_joie_de ame0)"
+      - "(joie_amant_forte0 correspond_a_affect_imagine joie_source_forte0)"
+      - "(joie_amant_faible0 correspond_a_affect_imagine joie_source_faible0)"
+      - "(joie_amant_forte0 varie_selon_degre_de joie_source_forte0)"
+      - "(joie_amant_faible0 varie_selon_degre_de joie_source_faible0)"
+      - "(joie_amant_forte0 est_plus_intense_que joie_amant_faible0)"
+    must_not_derive:
+      - "(ame0 imagine (qqchose0 affecte_de_joie objet_aime0))"
+      - "(ame0 aime qqchose0)"
+      - "(ame0 est_glorieux VRAI)"
+      - "(ame0 est_jaloux_de qqchose0)"
+    expected:
+      status: proved
+      proof_depths: [1, 1, 3, 3, 4, 4, 4, 4, 5]
+  - id: tristesses_partagees_et_intensite
+    initial_facts:
+      - "(ame0 aime objet_aime0)"
+      - "(ame0 imagine (tristesse_source_forte0 est_tristesse_de objet_aime0))"
+      - "(ame0 imagine (tristesse_source_faible0 est_tristesse_de objet_aime0))"
+      - "(ame0 imagine (tristesse_source_forte0 est_plus_intense_que tristesse_source_faible0))"
+      - "(tristesse_source_forte0 est_tristesse_imaginee_de objet_aime0)"
+      - "(tristesse_source_faible0 est_tristesse_imaginee_de objet_aime0)"
+      - "(image_tristesse_forte0 est_image_de (tristesse_source_forte0 est_tristesse_de objet_aime0))"
+      - "(image_tristesse_faible0 est_image_de (tristesse_source_faible0 est_tristesse_de objet_aime0))"
+      - "(tristesse_amant_forte0 accompagne image_tristesse_forte0)"
+      - "(tristesse_amant_faible0 accompagne image_tristesse_faible0)"
+      - "(tristesse_amant_forte0 est_passion_de ame0)"
+      - "(tristesse_amant_faible0 est_passion_de ame0)"
+    goals:
+      - "((tristesse_source_forte0 est_tristesse_de objet_aime0) exclut_existence_de objet_aime0)"
+      - "((tristesse_source_faible0 est_tristesse_de objet_aime0) exclut_existence_de objet_aime0)"
+      - "(tristesse_amant_forte0 est_tristesse_de ame0)"
+      - "(tristesse_amant_faible0 est_tristesse_de ame0)"
+      - "(tristesse_amant_forte0 correspond_a_affect_imagine tristesse_source_forte0)"
+      - "(tristesse_amant_faible0 correspond_a_affect_imagine tristesse_source_faible0)"
+      - "(tristesse_amant_forte0 varie_selon_degre_de tristesse_source_forte0)"
+      - "(tristesse_amant_faible0 varie_selon_degre_de tristesse_source_faible0)"
+      - "(tristesse_amant_forte0 est_plus_intense_que tristesse_amant_faible0)"
+    expected:
+      status: proved
+      proof_depths: [1, 1, 3, 3, 4, 4, 4, 4, 5]
+  - id: affect_autrui_sans_amour
+    initial_facts:
+      - "(ame0 imagine (joie_source0 est_joie_de objet0))"
+      - "(image_joie0 est_image_de (joie_source0 est_joie_de objet0))"
+      - "(joie_amant0 accompagne image_joie0)"
+      - "(joie_amant0 est_passion_de ame0)"
+    goals: []
+    must_not_derive:
+      - "(joie_amant0 est_joie_de ame0)"
+      - "(joie_amant0 correspond_a_affect_imagine joie_source0)"
+    expected: {status: proved}
+formalization_status: proved_with_qualitative_intensity
+result: proved
+limitations:
+  - >-
+    La variation d'intensité préserve un ordre qualitatif entre deux affects ;
+    elle n'attribue aucun coefficient numérique.
+  - >-
+    Les conclusions annexes QQCHOSE, amour, jalousie et gloire publiées par
+    SpinoLog sont volontairement absentes de cette couche systématique.

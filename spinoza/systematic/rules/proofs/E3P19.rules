@@ -1,0 +1,48 @@
+# La conservation et la destruction restent des propositions imaginées. Les
+# deux premières règles qualifient leur rapport à l'existence de la chose sans
+# affirmer ni sa conservation ni sa destruction dans le monde réel.
+RULE E3P19D_conservation_imaginee_pose_existence
+WHEN
+    ($ame imagine ($objet est_conserve VRAI))
+THEN
+    ADD (($objet est_conserve VRAI) pose_existence_de $objet)
+END
+
+RULE E3P19D_destruction_imaginee_exclut_existence
+WHEN
+    ($ame imagine ($objet est_detruit VRAI))
+THEN
+    ADD (($objet est_detruit VRAI) exclut_existence_de $objet)
+END
+
+# L'image qui pose l'existence seconde l'effort de conserver la chose aimée ;
+# l'affect témoin est alors un passage vers une perfection plus grande.
+RULE E3P19D_image_conservation_seconde_effort
+WHEN
+    ($ame aime $objet)
+    ($ame s_efforce_de_conserver $objet)
+    ($ame imagine $proposition)
+    ($proposition pose_existence_de $objet)
+    ($image est_image_de $proposition)
+    ($affect accompagne $image)
+    ($affect est_passion_de $ame)
+THEN
+    ADD ($image seconde_effort_d_imaginer_de $ame)
+    ADD ($affect fait_passer_ame_vers perfection_plus_grande)
+END
+
+# L'image qui exclut l'existence réduit le même effort et produit le passage
+# contraire. La tristesse est ensuite nommée par le scolie de E3P11.
+RULE E3P19D_image_destruction_reduit_effort
+WHEN
+    ($ame aime $objet)
+    ($ame s_efforce_de_conserver $objet)
+    ($ame imagine $proposition)
+    ($proposition exclut_existence_de $objet)
+    ($image est_image_de $proposition)
+    ($affect accompagne $image)
+    ($affect est_passion_de $ame)
+THEN
+    ADD ($image reduit_effort_d_imaginer_de $ame)
+    ADD ($affect fait_passer_ame_vers perfection_moindre)
+END

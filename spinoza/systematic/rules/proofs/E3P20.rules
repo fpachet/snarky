@@ -1,0 +1,15 @@
+# La destruction de la chose haïe exclut son existence et seconde l'effort par
+# lequel l'âme cherche à l'écarter. E3P11 nomme ensuite la joie résultante.
+RULE E3P20D_destruction_haine_seconde_effort
+WHEN
+    ($ame hait $objet)
+    ($ame s_efforce_d_ecarter $objet)
+    ($ame imagine $proposition)
+    ($proposition exclut_existence_de $objet)
+    ($image est_image_de $proposition)
+    ($affect accompagne $image)
+    ($affect est_passion_de $ame)
+THEN
+    ADD ($image seconde_effort_d_ecarter_de $ame)
+    ADD ($affect fait_passer_ame_vers perfection_plus_grande)
+END

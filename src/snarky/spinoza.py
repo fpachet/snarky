@@ -27,6 +27,11 @@ class CaseResult:
     rule_origins: tuple[str, ...]
     forbidden_facts: tuple[Fact, ...]
     forbidden_violations: tuple[Fact, ...]
+    initial_fact_count: int
+    derived_fact_count: int
+    total_fact_count: int
+    derivation_count: int
+    activated_rule_names: tuple[str, ...]
 
 
 def load_historical_rules(root: Path) -> tuple[Rule, ...]:
@@ -189,4 +194,11 @@ def run_case(
         ),
         forbidden_facts=forbidden_facts,
         forbidden_violations=forbidden_violations,
+        initial_fact_count=len(frozenset(initial_facts)),
+        derived_fact_count=len(result.derived_facts),
+        total_fact_count=len(result.facts),
+        derivation_count=len(result.derivations),
+        activated_rule_names=tuple(
+            dict.fromkeys(derivation.rule_name for derivation in result.derivations)
+        ),
     )

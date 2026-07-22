@@ -1,0 +1,41 @@
+RULE E3P19_conservation_imaginee_pose_existence
+WHEN
+    ($ame imagine ($objet est_conserve VRAI))
+THEN
+    ADD (($objet est_conserve VRAI) pose_existence_de $objet)
+END
+
+RULE E3P19_destruction_imaginee_exclut_existence
+WHEN
+    ($ame imagine ($objet est_detruit VRAI))
+THEN
+    ADD (($objet est_detruit VRAI) exclut_existence_de $objet)
+END
+
+RULE E3P19_image_existence_seconde_effort_amour
+WHEN
+    ($ame aime $objet)
+    ($ame s_efforce_de_conserver $objet)
+    ($ame imagine $proposition)
+    ($proposition pose_existence_de $objet)
+    ($image est_image_de $proposition)
+    ($affect accompagne $image)
+    ($affect est_passion_de $ame)
+THEN
+    ADD ($image seconde_effort_d_imaginer_de $ame)
+    ADD ($affect fait_passer_ame_vers perfection_plus_grande)
+END
+
+RULE E3P19_image_exclusion_reduit_effort_amour
+WHEN
+    ($ame aime $objet)
+    ($ame s_efforce_de_conserver $objet)
+    ($ame imagine $proposition)
+    ($proposition exclut_existence_de $objet)
+    ($image est_image_de $proposition)
+    ($affect accompagne $image)
+    ($affect est_passion_de $ame)
+THEN
+    ADD ($image reduit_effort_d_imaginer_de $ame)
+    ADD ($affect fait_passer_ame_vers perfection_moindre)
+END

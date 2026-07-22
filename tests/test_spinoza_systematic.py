@@ -361,8 +361,70 @@ def test_e3p15_and_e3p17_keep_accident_and_conflict_explicit() -> None:
     assert fluctuation.proof_depths == (1, 1, 2, 2)
 
 
+def test_e3p19_to_e3p22_reconstruct_affective_transmission() -> None:
+    destruction = run_case(
+        SYSTEMATIC_ROOT,
+        "E3P19",
+        "destruction_de_la_chose_aimee",
+    )
+    hated = run_case(
+        SYSTEMATIC_ROOT,
+        "E3P20",
+        "destruction_de_la_chose_haie",
+    )
+    intensity = run_case(
+        SYSTEMATIC_ROOT,
+        "E3P21",
+        "joies_partagees_et_intensite",
+    )
+    external_cause = run_case(
+        SYSTEMATIC_ROOT,
+        "E3P22",
+        "amour_envers_cause_de_joie",
+    )
+
+    assert destruction.proved
+    assert destruction.proof_depths == (1, 1, 2, 3)
+    assert destruction.forbidden_violations == ()
+    assert hated.proved
+    assert hated.proof_depths == (1, 1, 2, 3)
+    assert intensity.proved
+    assert intensity.proof_depths == (1, 1, 3, 3, 4, 4, 4, 4, 5)
+    assert intensity.forbidden_violations == ()
+    assert external_cause.proved
+    assert external_cause.proof_depths == (1, 4, 5, 6, 7)
+    assert external_cause.forbidden_violations == ()
+
+
+def test_spinolog_extensions_remain_outside_systematic_layer() -> None:
+    proposition_20_bis = run_case(
+        SYSTEMATIC_ROOT,
+        "E3P20",
+        "spinolog_20bis_non_importee",
+    )
+    proposition_21 = run_case(
+        SYSTEMATIC_ROOT,
+        "E3P21",
+        "joies_partagees_et_intensite",
+    )
+
+    assert proposition_20_bis.proved
+    assert proposition_20_bis.forbidden_violations == ()
+    assert proposition_21.proved
+    assert proposition_21.forbidden_violations == ()
+    assert proposition_21.initial_fact_count == 17
+    assert proposition_21.derived_fact_count > len(proposition_21.goals)
+    assert proposition_21.total_fact_count == (
+        proposition_21.initial_fact_count + proposition_21.derived_fact_count
+    )
+    assert proposition_21.derivation_count >= proposition_21.derived_fact_count
+    assert "E3P21D_ordre_intensite_joie_transmis" in (
+        proposition_21.activated_rule_names
+    )
+
+
 def test_each_systematic_manifest_since_e3p04_has_passing_counter_cases() -> None:
-    for proposition in range(4, 19):
+    for proposition in range(4, 23):
         theorem_id = f"E3P{proposition:02d}"
         manifest = yaml.safe_load(
             (SYSTEMATIC_ROOT / "theorems" / f"{theorem_id}.yaml").read_text(
@@ -412,7 +474,7 @@ def test_systematic_manifests_do_not_load_the_historical_model() -> None:
 
 
 def test_systematic_manifests_load_only_current_proof_and_prior_theorems() -> None:
-    for proposition in range(4, 19):
+    for proposition in range(4, 23):
         theorem_id = f"E3P{proposition:02d}"
         manifest = yaml.safe_load(
             (SYSTEMATIC_ROOT / "theorems" / f"{theorem_id}.yaml").read_text(
