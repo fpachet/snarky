@@ -35,8 +35,9 @@ BOOJUM. Chaque fonctionnalité devra être qualifiée comme `HISTORICAL`,
 
 ## État actuel
 
-Le dépôt contient un moteur Python naïf servant de référence sémantique et une
-première stratégie d’instanciation indexée optionnelle. Le cœur prend en charge
+Le dépôt contient un moteur Python naïf servant de référence sémantique, une
+stratégie indexée exhaustive et une stratégie semi-naïve optionnelles. Le cœur
+prend en charge
 les termes et triplets récursifs immuables, les variables dans toutes les
 positions, le matching orienté, l’unification bidirectionnelle séparée, les
 statuts explicites, le chaînage avant jusqu’au point fixe, la réfraction et la
@@ -57,6 +58,9 @@ Le contenu actuel comprend :
   la spécification du cas d’étude Spinoza ;
 - [`docs/Gondran.ppt`](docs/Gondran.ppt), la présentation historique de Michel
   Gondran sur la modélisation de l’*Éthique* en SNARK/BOOJUM ;
+- [`spinoza`](spinoza/README.md), la base historique exécutable, les quatre
+  preuves reproduites et le corpus structuré des 59 propositions de
+  l’Éthique III ;
 - [`third_party/test_rulebases`](third_party/test_rulebases/README.md), une
   sélection de corpus de règles externes ;
 - [`tests/rulebases/debug`](tests/rulebases/debug/README.md), une petite base
@@ -118,20 +122,25 @@ result = ForwardEngine((rule,)).run(facts)
 ```
 
 Le moteur naïf reste le comportement par défaut et sert d'oracle sémantique.
-Pour les bases plus importantes, la stratégie indexée réduit les candidats
-avant le matching sans modifier l'ordre des activations :
+Pour les bases récursives plus importantes, la stratégie semi-naïve maintient
+des index persistants et ne recalcule que les jointures contenant un fait
+nouveau, sans modifier l'ordre observable des activations :
 
 ```python
-from snarky import IndexedInstantiationStrategy
+from snarky import SemiNaiveInstantiationStrategy
 
 result = ForwardEngine(
     (rule,),
-    strategy=IndexedInstantiationStrategy(),
+    strategy=SemiNaiveInstantiationStrategy(),
 ).run(facts)
 ```
 
-Le benchmark Fibonacci explicite mesure un passage de 7,243 s à 0,245 s pour
-`F(10)` sur la machine de développement. La commande reproductible et les
+`IndexedInstantiationStrategy` reste disponible pour mesurer séparément le
+bénéfice de l'indexation exhaustive.
+
+Le benchmark Fibonacci explicite mesure un passage de 7,142 s à 0,053 s pour
+`F(10)` et de 27,914 s à 3,338 s pour `F(17)` sur la machine de développement.
+La commande reproductible et les
 compteurs sont décrits dans [`benchmarks/README.md`](benchmarks/README.md).
 
 ## Base de debug initiale
@@ -189,18 +198,21 @@ répertoire existant.
    sommes.~~
 7. ~~Ajouter une première stratégie d’instanciation indexée, des compteurs et
    une baseline Fibonacci reproductible jusqu’à `F(17)`.~~
-8. Poursuivre les optimisations mesurées : vue de faits indexée persistante,
-   activations paresseuses, évaluation semi-naïve, puis planification des
-   jointures. Chaque étape devra préserver exactement les faits, dérivations
-   et profondeurs de preuve du moteur naïf.
-9. Reproduire les démonstrations Spinoza P19, P21, P22 et P33.
-10. Ajouter une couche optionnelle de raisonnement par contraintes pour
+8. ~~Ajouter des index persistants par règle et une évaluation semi-naïve
+   pilotée par les faits nouveaux, avec ordre et provenance identiques au
+   moteur naïf.~~
+9. Poursuivre les optimisations mesurées : activations paresseuses,
+   planification générale des jointures, sélection des règles candidates et
+   optimisation des substitutions guidée par profilage.
+10. ~~Reproduire les démonstrations Spinoza P19, P21, P22 et P33, puis importer
+    la structure textuelle complète de l'Éthique III.~~
+11. Ajouter une couche optionnelle de raisonnement par contraintes pour
    exprimer et résoudre des problèmes de satisfaction (CSP, SAT et variantes),
    notamment au moyen d’un adaptateur vers OR-Tools. Le moteur d’inférence
    devra pouvoir produire des contraintes, appeler le solveur, puis réinjecter
    les solutions et contradictions obtenues comme faits assortis de leur
    provenance.
-11. Exécuter les benchmarks externes adaptés, puis ajouter des cas de test
+12. Exécuter les benchmarks externes adaptés, puis ajouter des cas de test
     dédiés au couplage entre règles et contraintes.
 
 La cible est Python 3.12 ou ultérieur, avec `pytest`, `ruff`, `mypy` et des

@@ -62,12 +62,24 @@ class ForwardEngine:
         initial_set = frozenset(store.facts)
         fired: set[ActivationKey] = set()
         derivations: list[Derivation] = []
+        previous_fact_counts: list[int | None] = [None] * len(self.rules)
 
         for cycle in range(1, self.limits.max_cycles + 1):
             added_this_cycle = 0
-            for rule in self.rules:
+            for rule_index, rule in enumerate(self.rules):
                 facts_snapshot = store.facts
-                for activation in self.strategy.instantiate(rule, facts_snapshot):
+                previous_count = previous_fact_counts[rule_index]
+                delta = (
+                    None
+                    if previous_count is None
+                    else facts_snapshot[previous_count:]
+                )
+                previous_fact_counts[rule_index] = len(facts_snapshot)
+                for activation in self.strategy.instantiate(
+                    rule,
+                    facts_snapshot,
+                    delta,
+                ):
                     key = ActivationKey(rule.name, activation.substitution.key)
                     if key in fired:
                         continue

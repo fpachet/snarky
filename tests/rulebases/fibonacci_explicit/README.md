@@ -53,7 +53,7 @@ avec la stratégie naïve et 0,245 s avec la stratégie indexée, soit un gain d
 ×29,6. Voir la [documentation des benchmarks](../../../benchmarks/README.md)
 pour la commande exacte et les compteurs algorithmiques.
 
-La baseline indexée a également été mesurée jusqu'à `F(17) = 1597`. Les temps
-observés vont de 0,245 s pour `F(10)` à 27,914 s pour `F(17)`, avec 9 578 faits
-au dernier point fixe. Dans l'état actuel, `F(15)` est la limite confortable
-sous 10 secondes et `F(17)` la limite raisonnable sous 30 secondes.
+La stratégie semi-naïve ramène `F(10)` à 0,053 s et `F(17)` à 3,338 s. Elle a
+été mesurée jusqu'à `F(21) = 10946`, en 32,042 s avec 65 672 faits. Dans l'état
+actuel, `F(18)` est le dernier rang sous 10 secondes et `F(20)` le dernier sous
+30 secondes.

@@ -17,6 +17,7 @@ from snarky import (
     InstantiationStrategy,
     NaiveInstantiationStrategy,
     Rule,
+    SemiNaiveInstantiationStrategy,
     parse_rules,
     parse_term,
 )
@@ -37,8 +38,8 @@ def main() -> None:
     parser.add_argument("--repeat", type=int, default=3)
     parser.add_argument(
         "--strategy",
-        choices=("naive", "indexed", "both"),
-        default="both",
+        choices=("naive", "indexed", "semi-naive", "both", "all"),
+        default="all",
     )
     arguments = parser.parse_args()
     if arguments.n < 1 or arguments.repeat < 1:
@@ -46,11 +47,13 @@ def main() -> None:
 
     rules = parse_rules(RULES_PATH.read_text(encoding="utf-8"))
     initial_facts = fibonacci_facts(arguments.n)
-    strategy_names = (
-        ("naive", "indexed")
-        if arguments.strategy == "both"
-        else (arguments.strategy,)
-    )
+    strategy_names: tuple[str, ...]
+    if arguments.strategy == "both":
+        strategy_names = ("naive", "indexed")
+    elif arguments.strategy == "all":
+        strategy_names = ("naive", "indexed", "semi-naive")
+    else:
+        strategy_names = (arguments.strategy,)
     results = [
         measure(name, rules, initial_facts, arguments.repeat, fibonacci(arguments.n))
         for name in strategy_names
@@ -112,6 +115,8 @@ def make_strategy(name: str) -> InstantiationStrategy:
         return NaiveInstantiationStrategy()
     if name == "indexed":
         return IndexedInstantiationStrategy()
+    if name == "semi-naive":
+        return SemiNaiveInstantiationStrategy()
     raise ValueError(f"unknown strategy: {name}")
 
 

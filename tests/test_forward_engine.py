@@ -6,6 +6,7 @@ from snarky import (
     Fact,
     ForwardEngine,
     IndexedInstantiationStrategy,
+    SemiNaiveInstantiationStrategy,
     Status,
     parse_rules,
     parse_term,
@@ -97,3 +98,10 @@ def test_indexed_strategy_preserves_relation_variables_and_statuses() -> None:
 
     assert indexed.facts == naive.facts
     assert indexed.derivations == naive.derivations
+
+    semi_naive = ForwardEngine(
+        rules,
+        strategy=SemiNaiveInstantiationStrategy(),
+    ).run(initial_facts)
+    assert semi_naive.facts == naive.facts
+    assert semi_naive.derivations == naive.derivations

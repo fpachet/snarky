@@ -47,4 +47,5 @@ class InstantiationStrategy(Protocol):
         self,
         rule: Rule,
         facts: tuple[Fact, ...],
+        delta: tuple[Fact, ...] | None = None,
     ) -> tuple[Activation, ...]: ...

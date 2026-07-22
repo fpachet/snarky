@@ -1,0 +1,110 @@
+from snarky import (
+    Fact,
+    ForwardEngine,
+    IndexedInstantiationStrategy,
+    SemiNaiveInstantiationStrategy,
+    parse_rules,
+    parse_term,
+)
+
+
+def test_delta_variants_are_unique_and_restore_naive_order() -> None:
+    rule = parse_rules(
+        """
+        RULE combine
+        WHEN
+            ($x left $a)
+            ($x right $b)
+        THEN
+            ADD ($a paired_with $b)
+        END
+        """
+    )[0]
+    old = (
+        Fact(parse_term("(node left a1)")),
+        Fact(parse_term("(node right b1)")),
+    )
+    delta = (
+        Fact(parse_term("(node left a2)")),
+        Fact(parse_term("(node right b2)")),
+    )
+    all_facts = (*old, *delta)
+    indexed = IndexedInstantiationStrategy()
+    semi_naive = SemiNaiveInstantiationStrategy()
+
+    indexed.instantiate(rule, old, None)
+    semi_naive.instantiate(rule, old, None)
+    exhaustive = indexed.instantiate(rule, all_facts, delta)
+    incremental = semi_naive.instantiate(rule, all_facts, delta)
+
+    expected = tuple(
+        activation
+        for activation in exhaustive
+        if any(fact in delta for fact in activation.premise_facts)
+    )
+    assert incremental == expected
+    assert len(incremental) == 3
+
+
+def test_semi_naive_handles_mutually_recursive_rules() -> None:
+    rules = parse_rules(
+        """
+        RULE p_to_q
+        WHEN
+            ($x p $y)
+        THEN
+            ADD ($x q $y)
+        END
+
+        RULE q_to_r
+        WHEN
+            ($x q $y)
+        THEN
+            ADD ($x r $y)
+        END
+
+        RULE r_to_p
+        WHEN
+            ($x r $y)
+        THEN
+            ADD ($x p $y)
+        END
+        """
+    )
+    initial = (Fact(parse_term("(a p b)")),)
+
+    naive = ForwardEngine(rules).run(initial)
+    semi_naive = ForwardEngine(
+        rules,
+        strategy=SemiNaiveInstantiationStrategy(),
+    ).run(initial)
+
+    assert semi_naive.facts == naive.facts
+    assert semi_naive.derivations == naive.derivations
+    assert semi_naive.cycles == naive.cycles
+
+
+def test_semi_naive_preserves_textual_comparison_barriers() -> None:
+    rule = parse_rules(
+        """
+        RULE comparison_before_binding
+        WHEN
+            ($x value $value)
+            $later == 1
+            ($x later $later)
+        THEN
+            ADD ($x result $value)
+        END
+        """
+    )[0]
+    initial = (Fact(parse_term("(item value 5)")),)
+    delta = (Fact(parse_term("(item later 1)")),)
+    all_facts = (*initial, *delta)
+    exhaustive = IndexedInstantiationStrategy()
+    semi_naive = SemiNaiveInstantiationStrategy()
+
+    exhaustive.instantiate(rule, initial, None)
+    semi_naive.instantiate(rule, initial, None)
+
+    assert exhaustive.instantiate(rule, all_facts, delta) == ()
+    assert semi_naive.instantiate(rule, all_facts, delta) == ()

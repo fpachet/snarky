@@ -64,6 +64,20 @@ La stratégie naïve examine les prémisses dans leur ordre et joint les faits p
 backtracking. Une instanciation complète contient la substitution obtenue et
 les faits ayant satisfait les prémisses.
 
+La stratégie indexée maintient un index exact persistant pour chaque règle et
+l'étend uniquement avec les faits ajoutés depuis son évaluation précédente.
+La stratégie semi-naïve ajoute un delta propre à chaque règle : après sa
+première évaluation exhaustive, elle ne produit que les jointures contenant au
+moins un fait de ce delta. Si plusieurs prémisses peuvent recevoir un fait
+nouveau, les variantes sont partitionnées puis dédupliquées.
+
+Pour réduire les jointures intermédiaires, une variante semi-naïve commence par
+sa prémisse delta et choisit ensuite la prémisse factuelle ayant le moins de
+candidats. Les comparaisons forment des barrières textuelles qui ne sont jamais
+franchies par cette réorganisation. Les faits prémisses sont finalement remis
+dans leur ordre textuel et les activations dans l'ordre d'insertion naïf. Cette
+discipline préserve les faits, les dérivations, les cycles et la provenance.
+
 Une activation est identifiée par `(règle, substitution des prémisses)`. Les
 liaisons locales calculées par `LET` sont déterministes et ne changent pas son
 identité. La réfraction

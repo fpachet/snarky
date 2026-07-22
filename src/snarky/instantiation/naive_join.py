@@ -21,7 +21,9 @@ class NaiveInstantiationStrategy:
         self,
         rule: Rule,
         facts: tuple[Fact, ...],
+        delta: tuple[Fact, ...] | None = None,
     ) -> tuple[Activation, ...]:
+        del delta
         activations: list[Activation] = []
         self._extend(
             rule,

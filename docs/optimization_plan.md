@@ -25,9 +25,10 @@ Les optimisations doivent préserver les propriétés suivantes :
 |---|---|---|
 | 0 — Mesures | Partielle | Benchmark Fibonacci reproductible et compteurs d'instanciation disponibles ; autres scénarios et mémoire à ajouter |
 | 1 — Activations paresseuses | À faire | Les stratégies matérialisent encore leurs activations dans un tuple |
-| 2 — Indexation | Première tranche terminée | Index exacts par snapshot disponibles ; stockage indexé persistant à construire |
-| 3 — Semi-naïf | Prochaine priorité | Ne recalculer que les jointures contenant au moins un fait nouveau |
-| 4 à 9 | À faire | À engager après mesure des phases 2 persistante et 3 |
+| 2 — Indexation | Terminée | Index exacts persistants par règle, étendus uniquement avec le delta |
+| 3 — Semi-naïf | Terminée | Une activation n'est produite que si sa jointure contient un fait nouveau |
+| 4 — Planification | Première tranche terminée | Choix MRV dans les variantes delta, sans franchir les comparaisons |
+| 5 à 9 | À faire | À prioriser par profilage sur la nouvelle baseline jusqu'à `F(21)` |
 
 L'extension fonctionnelle `LET` est terminée : Fibonacci utilise désormais
 l'arithmétique native du moteur et ne dépend plus de tables de sommes et de
@@ -36,6 +37,11 @@ prédécesseurs.
 La stratégie indexée est volontairement optionnelle : le moteur naïf reste le
 comportement par défaut et l'oracle de correction. Les tests différentiels
 vérifient l'égalité des faits, des dérivations, des cycles et des activations.
+
+La stratégie `SemiNaiveInstantiationStrategy` combine les index persistants,
+un delta propre à chaque règle et une planification locale des jointures. Sur
+`F(17)`, elle abaisse le temps de 27,914 s à 3,338 s et ne produit que les 4 789
+activations effectivement déclenchées, au lieu de 95 013.
 
 ## Situation initiale
 
@@ -75,11 +81,17 @@ développement donnent 7,243 s avec la stratégie naïve contre 0,245 s avec la
 première stratégie indexée. Les deux produisent les mêmes 326 faits et les
 mêmes dérivations. Les tentatives de matching passent de 557 302 à 8 963.
 
-La baseline indexée couvre maintenant les rangs 10 à 17. Le temps croît de
+La baseline indexée initiale couvre les rangs 10 à 17. Le temps croît de
 0,245 s à 27,914 s, le point fixe de 326 à 9 578 faits et les activations
 produites de 1 782 à 95 013. `F(15)` reste sous 10 secondes et `F(17)` sous 30
 secondes. Le tableau complet et sa version CSV se trouvent dans
 `benchmarks/README.md` et `benchmarks/results/`.
+
+La baseline semi-naïve couvre les rangs 10 à 21. `F(18)` reste sous 10 secondes
+et `F(20)` sous 30 secondes ; `F(21)` prend 32,042 s. Sur `F(17)`, les tentatives
+de matching passent de 479 862 à 41 789 et les constructions d'index de 93 à
+3. Le gain temporel mesuré est ×8,4 par rapport à la première stratégie
+indexée.
 
 ## Principe d’architecture
 
@@ -93,6 +105,7 @@ class InstantiationStrategy(Protocol):
         self,
         rule: Rule,
         facts: tuple[Fact, ...],
+        delta: tuple[Fact, ...] | None = None,
     ) -> tuple[Activation, ...]: ...
 ```
 
@@ -172,7 +185,7 @@ l’effet du streaming.
 
 ## Phase 2 — Stockage indexé
 
-**État : première tranche terminée.**
+**État : terminée pour les index top-level prévus.**
 
 Implémenter `IndexedFactStore` en conservant le stockage naïf pour référence.
 
@@ -189,12 +202,12 @@ Le compilateur de règles produira une `PatternSignature` pour chaque prémisse.
 Le stockage retournera le plus petit ensemble candidat connu, puis le matcher
 structurel vérifiera les candidats.
 
-Une première tranche est implémentée par `IndexedInstantiationStrategy`. Elle
-construit, pour chaque vue stable des faits, des index exacts sur l’entité, le
-statut, le sujet, la relation et l’objet, puis sélectionne le plus petit bucket
-compatible avec la substitution courante. L’ordre textuel des prémisses et
-l’ordre d’insertion des candidats sont préservés. Un futur `IndexedFactStore`
-persistant évitera la reconstruction de ces index à chaque règle et cycle.
+`IndexedInstantiationStrategy` maintient désormais un index persistant par
+règle sur l’entité, le statut, le sujet, la relation et l’objet. À chaque
+évaluation, seul le suffixe de faits nouveau pour cette règle étend l'index. Le
+plus petit bucket compatible avec la substitution courante est proposé au
+matcher. L’ordre textuel des prémisses et l’ordre d’insertion des candidats
+sont préservés.
 
 Les index plus profonds, portant sur des chemins dans les triplets imbriqués,
 ne seront ajoutés qu’après mesure de leur utilité.
@@ -202,17 +215,15 @@ ne seront ajoutés qu’après mesure de leur utilité.
 Critère de validation : le nombre de faits proposés au matcher doit diminuer
 sans modifier les activations produites.
 
-Ce critère est satisfait sur Fibonacci `F(10)` : 8 963 faits candidats contre
-557 302 pour l'oracle naïf, avec les mêmes 1 782 activations produites et les
-mêmes 163 activations effectivement déclenchées. Les 51 reconstructions
-d'index observées constituent la prochaine limite propre à cette phase.
+Ce critère est satisfait sur Fibonacci `F(10)` : l'index exhaustif persistant
+conserve 8 963 candidats, mais les constructions d'index passent de 51 à 3 et
+le temps de 0,245 s à 0,167 s.
 
 ## Phase 3 — Évaluation semi-naïve
 
-**État : prochaine priorité.** Le benchmark `F(10)` produit encore 1 782
-activations au fil des cycles avant que la réfraction ne les ramène à 163
-déclenchements uniques. Cette différence fournit le compteur principal pour
-évaluer cette phase.
+**État : terminée pour les règles positives actuelles.** Le benchmark `F(10)`
+produit maintenant exactement 163 activations pour 163 déclenchements, contre
+1 782 activations avant cette phase.
 
 Le point fixe doit distinguer :
 
@@ -235,7 +246,16 @@ Points à tester particulièrement :
 - plusieurs règles récursives mutuellement dépendantes ;
 - profondeur et provenance identiques au moteur naïf.
 
+Ces cas sont couverts par les tests différentiels, y compris les deltas pouvant
+satisfaire plusieurs prémisses, la récursivité mutuelle et les comparaisons
+utilisées comme barrières textuelles.
+
 ## Phase 4 — Planification des jointures
+
+**État : première tranche terminée dans la stratégie semi-naïve.** Chaque
+variante commence par sa prémisse delta, puis choisit dans le bloc courant la
+prémisse ayant le moins de candidats. Une comparaison ferme le bloc et empêche
+tout réordonnancement qui modifierait la sémantique textuelle.
 
 Ne plus imposer systématiquement l’ordre textuel des prémisses.
 
@@ -384,19 +404,18 @@ facile à comprendre et à vérifier.
 
 ## Prochaine tranche concrète
 
-1. introduire une vue de faits indexée persistante, mise à jour à chaque ajout,
-   afin de supprimer les 51 reconstructions observées sur `F(10)` ;
-2. exposer le delta de chaque cycle à la stratégie d'instanciation ;
-3. ajouter les variantes semi-naïves sans dupliquer les activations lorsqu'un
-   fait nouveau peut satisfaire plusieurs prémisses ;
-4. étendre les tests différentiels aux règles mutuellement récursives ;
-5. rejouer le benchmark Fibonacci et consigner temps, candidats, activations
-   produites et mémoire maximale dans une nouvelle série comparable au CSV de
-   référence ;
-6. comparer explicitement les seuils de 10 et 30 secondes avec `F(15)` et
-   `F(17)`, limites observées de la première stratégie indexée.
+1. profiler `F(18)` à `F(21)` pour séparer le coût du matching, des
+   substitutions, du tri des activations et de la provenance ;
+2. produire les activations paresseusement lorsque leur tri global n'est pas
+   requis, ou borner explicitement leur matérialisation ;
+3. partager éventuellement un index global entre les règles si le profilage
+   montre que les trois index persistants restent significatifs ;
+4. compiler des plans de jointure réutilisables au lieu de recalculer toutes
+   les estimations MRV pendant le backtracking ;
+5. ajouter une sélection des règles candidates réveillées par chaque delta ;
+6. étendre les benchmarks aux fermetures transitives et jointures en étoile.
 
-Le critère de sortie est l'identité complète avec le moteur naïf, accompagnée
-d'une baisse mesurée des 51 constructions d'index et des 1 782 activations
-produites, sans imposer à l'avance un objectif temporel dépendant de la
-machine.
+Le critère de sortie sera un nouveau gain mesuré sur la baseline semi-naïve,
+avec identité complète des faits, dérivations, cycles et profondeurs. Les
+seuils actuels à dépasser sont `F(18)` sous 10 secondes et `F(20)` sous 30
+secondes.

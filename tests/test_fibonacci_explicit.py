@@ -8,6 +8,7 @@ from snarky import (
     Let,
     NaiveInstantiationStrategy,
     Number,
+    SemiNaiveInstantiationStrategy,
     Triple,
     Variable,
     parse_rules,
@@ -67,6 +68,23 @@ def test_indexed_fibonacci_is_identical_and_examines_fewer_facts() -> None:
     assert indexed_result.cycles == naive_result.cycles
     assert indexed_result.fired_activation_count == naive_result.fired_activation_count
     assert indexed.metrics.match_attempts * 10 < naive.metrics.match_attempts
+
+
+def test_semi_naive_fibonacci_preserves_full_derivations() -> None:
+    rules = parse_rules((FIXTURE_ROOT / "fibonacci_explicit.rules").read_text())
+    initial_facts = load_facts(FIXTURE_ROOT / "initial_facts.yaml")
+    naive_result = ForwardEngine(rules).run(initial_facts)
+    strategy = SemiNaiveInstantiationStrategy()
+
+    semi_naive = ForwardEngine(rules, strategy=strategy).run(initial_facts)
+
+    assert semi_naive.facts == naive_result.facts
+    assert semi_naive.derived_facts == naive_result.derived_facts
+    assert semi_naive.derivations == naive_result.derivations
+    assert semi_naive.cycles == naive_result.cycles
+    assert semi_naive.fired_activation_count == naive_result.fired_activation_count
+    assert strategy.metrics.activations_produced == semi_naive.fired_activation_count
+    assert strategy.metrics.index_builds == len(rules)
 
 
 def _has_relation(fact: Fact, relation: str) -> bool:

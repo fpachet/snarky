@@ -17,6 +17,7 @@ from .instantiation import (
     InstantiationMetrics,
     InstantiationStrategy,
     NaiveInstantiationStrategy,
+    SemiNaiveInstantiationStrategy,
 )
 from .matching import PatternMatcher
 from .parser import ParseError, parse_arithmetic_expression, parse_rules, parse_term
@@ -64,6 +65,7 @@ __all__ = [
     "Proposition",
     "Rule",
     "RunResult",
+    "SemiNaiveInstantiationStrategy",
     "Status",
     "Substitution",
     "Term",

@@ -6,12 +6,12 @@ versions du moteur.
 
 ## Fibonacci explicite
 
-La commande suivante calcule trois fois `F(10)` avec l'oracle naïf, puis avec
-la stratégie indexée :
+La commande suivante calcule trois fois `F(10)` avec l'oracle naïf, la stratégie
+indexée exhaustive, puis la stratégie semi-naïve :
 
 ```sh
 uv run python benchmarks/fibonacci_explicit.py \
-    --n 10 --repeat 3 --strategy both
+    --n 10 --repeat 3 --strategy all
 ```
 
 Le scénario construit l'arbre récursif complet, sans mémoïsation. Pour
@@ -26,12 +26,13 @@ Mesure du 22 juillet 2026 sur macOS ARM64, avec Python 3.13.11 :
 
 | Stratégie | Temps moyen | Tentatives de matching | Gain temporel |
 |---|---:|---:|---:|
-| Naïve | 7,243 s | 557 302 | référence |
-| Indexée | 0,245 s | 8 963 | ×29,6 |
+| Naïve | 7,142 s | 557 302 | référence |
+| Indexée persistante | 0,167 s | 8 963 | ×42,7 |
+| Semi-naïve | 0,053 s | 1 369 | ×136,0 |
 
-L'indexation divise donc le nombre de faits présentés au matcher par environ
-62,2. Les temps dépendent de la machine ; les compteurs algorithmiques sont
-les mesures les plus stables.
+La stratégie semi-naïve produit exactement les 163 activations qui seront
+déclenchées, contre 1 782 auparavant. Les temps dépendent de la machine ; les
+compteurs algorithmiques sont les mesures les plus stables.
 
 Pour ne mesurer que la stratégie indexée :
 
@@ -67,9 +68,40 @@ la base construit l'arbre complet sans mémoïsation, le nombre de nœuds vaut
 Les données complètes sont conservées dans
 [`results/fibonacci_explicit_native_arithmetic_baseline_2026-07-22.csv`](results/fibonacci_explicit_native_arithmetic_baseline_2026-07-22.csv).
 
+## Index persistant et évaluation semi-naïve
+
+La deuxième série mesure `SemiNaiveInstantiationStrategy`. Chaque règle
+conserve son index entre les cycles et ne joint que les combinaisons contenant
+au moins un fait nouveau depuis sa propre évaluation précédente. Les variantes
+delta sont dédupliquées et triées dans l'ordre observable du moteur naïf.
+
+| Rang | Résultat | Temps | Faits | Activations produites | Matchings tentés |
+|---:|---:|---:|---:|---:|---:|
+| 10 | 55 | 0,053 s | 326 | 163 | 1 369 |
+| 11 | 89 | 0,097 s | 530 | 265 | 2 248 |
+| 12 | 144 | 0,181 s | 860 | 430 | 3 683 |
+| 13 | 233 | 0,318 s | 1 394 | 697 | 5 999 |
+| 14 | 377 | 0,576 s | 2 258 | 1 129 | 9 782 |
+| 15 | 610 | 1,053 s | 3 656 | 1 828 | 15 867 |
+| 16 | 987 | 1,884 s | 5 918 | 2 959 | 25 815 |
+| 17 | 1 597 | 3,338 s | 9 578 | 4 789 | 41 789 |
+| 18 | 2 584 | 5,770 s | 15 500 | 7 750 | 67 900 |
+| 19 | 4 181 | 10,871 s | 25 082 | 12 541 | 109 820 |
+| 20 | 6 765 | 19,905 s | 40 586 | 20 293 | 178 274 |
+| 21 | 10 946 | 32,042 s | 65 672 | 32 836 | 288 252 |
+
+Sur `F(17)`, le temps passe de 27,914 s à 3,338 s, soit un gain ×8,4 par
+rapport à la première baseline indexée. Les activations produites passent de
+95 013 à 4 789 et les tentatives de matching de 479 862 à 41 789. Le seuil de
+10 secondes avance de `F(15)` à `F(18)` et celui de 30 secondes de `F(17)` à
+`F(20)`.
+
+Les mesures complètes sont conservées dans
+[`results/fibonacci_explicit_semi_naive_2026-07-22.csv`](results/fibonacci_explicit_semi_naive_2026-07-22.csv).
+
 ## Protocole de comparaison des optimisations
 
-Après chaque phase, rejouer au minimum les rangs 10 à 17 avec la même version
+Après chaque phase, rejouer au minimum les rangs 10 à 20 avec la même version
 de Python et consigner :
 
 1. le temps d'exécution et le nombre de faits au point fixe ;
