@@ -1,0 +1,38 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "snarky-boojum"
+version = "0.1.0"
+description = "A recursive symbolic inference engine inspired by BOOJUM and SNARK"
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = ["PyYAML>=6.0"]
+
+[project.optional-dependencies]
+dev = [
+    "mypy>=1.14",
+    "pytest>=8.0",
+    "ruff>=0.8",
+    "types-PyYAML>=6.0",
+]
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/boojum"]
+
+[tool.pytest.ini_options]
+addopts = "-q"
+pythonpath = ["src"]
+testpaths = ["tests"]
+
+[tool.ruff]
+line-length = 88
+target-version = "py312"
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP", "B", "SIM"]
+
+[tool.mypy]
+python_version = "3.12"
+strict = true

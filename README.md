@@ -22,8 +22,11 @@ BOOJUM. Chaque fonctionnalité devra être qualifiée comme `HISTORICAL`,
 
 ## État actuel
 
-Le dépôt est dans sa phase initiale de reconstruction et de préparation des
-tests. Le moteur Python n’est pas encore implémenté.
+Le dépôt contient désormais un premier moteur Python naïf servant de référence
+sémantique. Il prend en charge les termes et triplets récursifs immuables, les
+variables dans toutes les positions, le matching orienté, l’unification
+bidirectionnelle séparée, les statuts explicites, le chaînage avant jusqu’au
+point fixe, la réfraction et la provenance avec profondeur de preuve.
 
 Le contenu actuel comprend :
 
@@ -36,11 +39,48 @@ Le contenu actuel comprend :
 - [`third_party/test_rulebases`](third_party/test_rulebases/README.md), une
   sélection de corpus de règles externes ;
 - [`tests/rulebases/debug`](tests/rulebases/debug/README.md), une petite base
-  native destinée au debug du futur moteur.
+  native destinée au debug du moteur ;
+- [`docs/semantics.md`](docs/semantics.md), les décisions sémantiques du moteur
+  de référence ;
+- [`src/boojum`](src/boojum), le package Python et son API publique.
+
+## Démarrage rapide
+
+Le projet cible Python 3.12 ou ultérieur. Depuis la racine du dépôt :
+
+```sh
+python -m pip install -e '.[dev]'
+pytest
+```
+
+Exemple minimal avec l’API Python :
+
+```python
+from boojum import Atom, Fact, ForwardEngine, Rule, Triple, Variable, add, when
+
+x = Variable("x")
+y = Variable("y")
+z = Variable("z")
+
+rule = Rule(
+    name="grand_parent",
+    premises=(
+        when(Triple(x, Atom("parent_de"), y)),
+        when(Triple(y, Atom("parent_de"), z)),
+    ),
+    actions=(add(Triple(x, Atom("grand_parent_de"), z)),),
+)
+
+facts = (
+    Fact(Triple(Atom("alice"), Atom("parent_de"), Atom("bob"))),
+    Fact(Triple(Atom("bob"), Atom("parent_de"), Atom("clara"))),
+)
+result = ForwardEngine((rule,)).run(facts)
+```
 
 ## Base de debug initiale
 
-La base `mini_boojum` constitue le premier objectif d’intégration. Elle tient
+La base `mini_boojum` constitue le premier test d’intégration. Elle tient
 en quatre règles et neuf faits initiaux, tout en testant :
 
 1. une jointure sur deux prémisses ;
@@ -50,8 +90,8 @@ en quatre règles et neuf faits initiaux, tout en testant :
 5. une variable représentant une proposition complète ;
 6. un statut explicite `FAUX`.
 
-Le point fixe attendu contient six faits dérivés, dont un à profondeur de
-preuve deux. Voir :
+Le moteur naïf reproduit son point fixe attendu : six faits dérivés, dont un à
+profondeur de preuve deux. Voir :
 
 - [`mini_boojum.rules`](tests/rulebases/debug/mini_boojum.rules) ;
 - [`initial_facts.yaml`](tests/rulebases/debug/initial_facts.yaml) ;
@@ -84,12 +124,22 @@ répertoire existant.
 
 1. Produire la reconstruction historique et documenter les questions
    ouvertes.
-2. Définir la sémantique opérationnelle minimale.
-3. Implémenter les termes immuables, substitutions et matching récursif.
-4. Faire passer la base `mini_boojum` avec un moteur naïf de référence.
+2. ~~Définir la sémantique opérationnelle minimale.~~
+3. ~~Implémenter les termes immuables, substitutions et matching récursif.~~
+4. ~~Faire passer la base `mini_boojum` avec un moteur naïf de référence.~~
 5. Ajouter provenance, indexation et stratégies d’instanciation optimisées.
 6. Reproduire les démonstrations Spinoza P19, P21, P22 et P33.
-7. Exécuter les benchmarks externes adaptés.
+7. Ajouter une couche optionnelle de raisonnement par contraintes pour
+   exprimer et résoudre des problèmes de satisfaction (CSP, SAT et variantes),
+   notamment au moyen d’un adaptateur vers OR-Tools. Le moteur d’inférence
+   devra pouvoir produire des contraintes, appeler le solveur, puis réinjecter
+   les solutions et contradictions obtenues comme faits assortis de leur
+   provenance.
+8. Exécuter les benchmarks externes adaptés, puis ajouter des cas de test
+   dédiés au couplage entre règles et contraintes.
 
 La cible prévue est Python 3.12 ou ultérieur, avec `pytest`, `ruff`, un
 vérificateur de types et des tests différentiels fondés sur Hypothesis.
+Les solveurs externes, dont OR-Tools, resteront des dépendances optionnelles
+derrière une interface générique afin de préserver un cœur symbolique léger et
+de permettre l’utilisation future d’autres backends.
