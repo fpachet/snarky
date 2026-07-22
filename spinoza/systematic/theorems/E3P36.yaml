@@ -1,0 +1,103 @@
+schema_version: 1
+id: E3P36
+model: ethics_iii_systematic_v1
+source_unit: E3P36
+source_text: >-
+  Qui se rappelle une chose où il a pris plaisir une fois désire la posséder
+  avec les mêmes circonstances que la première fois qu'il y a pris plaisir.
+fact_files: [facts/postulates.yaml]
+rule_files:
+  - rules/validated/E3P09.rules
+  - rules/validated/E3P11.rules
+  - rules/validated/E3P13.rules
+  - rules/validated/E3P14.rules
+  - rules/validated/E3P19.rules
+  - rules/validated/E3P28.rules
+  - rules/proofs/E3P36.rules
+rule_catalog: rules/catalog.yaml
+forbidden_rules:
+  - E3P36_souvenir_joie_desir_meme_configuration
+  - E3P36C_manque_configuration_souhait_frustre
+allowed_rule_origins: [textual, textual_theorem]
+cases:
+  - id: souvenir_avec_memes_circonstances
+    initial_facts:
+      - "(episode0 associe objet0)"
+      - "(episode0 associe circonstances0)"
+      - "(episode0 a_affecte_simultanement corps0)"
+      - "(ame0 est_idee_de corps0)"
+      - "(ame0 imagine objet0)"
+      - "(configuration0 assemble objet0)"
+      - "(configuration0 assemble circonstances0)"
+      - "(joie_passee0 est_joie_eprouvee_dans episode0)"
+      - "(joie_passee0 est_joie_de ame0)"
+      - "(idee_configuration0 est_idee_de configuration0)"
+      - "(idee_configuration0 accompagne joie_passee0)"
+      - "(effort_possession0 est_temoignage_appetit_de (ame0 possede configuration0))"
+      - "(ame0 a_conscience_de effort_possession0)"
+      - "(ame0 imagine (circonstance_manquante0 manque_a configuration0))"
+      - "(image_manque0 est_image_de (circonstance_manquante0 manque_a configuration0))"
+      - "(souhait_frustre0 accompagne image_manque0)"
+      - "(souhait_frustre0 est_passion_de ame0)"
+      - "(souhait_frustre0 nait_du_manque_de circonstance_manquante0)"
+    goals:
+      - "(circonstances0 est_associe_par_memoire_a objet0)"
+      - "(ame0 imagine configuration0)"
+      - "(ame0 appete configuration0)"
+      - "(effort_possession0 est_appele appetit)"
+      - "(effort_possession0 est_appele desir)"
+      - "(ame0 desire_posseder configuration0)"
+      - "(ame0 aime configuration0)"
+      - "((circonstance_manquante0 manque_a configuration0) exclut_existence_de configuration0)"
+      - "(souhait_frustre0 est_tristesse_de ame0)"
+      - "(souhait_frustre0 est_souhait_frustre_de ame0)"
+    must_not_derive:
+      - "(circonstance_manquante0 est_absente_de configuration0)"
+      - "(configuration0 existe VRAI)"
+    expected:
+      status: proved
+      proof_depths: [1, 2, 3, 5, 6, 7, 1, 1, 4, 8]
+  - id: circonstances_non_associees
+    initial_facts:
+      - "(episode0 associe objet0)"
+      - "(episode0 associe circonstances_initiales0)"
+      - "(episode0 a_affecte_simultanement corps0)"
+      - "(ame0 est_idee_de corps0)"
+      - "(ame0 imagine objet0)"
+      - "(configuration_autre0 assemble objet0)"
+      - "(configuration_autre0 assemble circonstances_autres0)"
+      - "(joie_passee0 est_joie_eprouvee_dans episode0)"
+      - "(effort0 est_temoignage_appetit_de (ame0 possede configuration_autre0))"
+      - "(ame0 a_conscience_de effort0)"
+    goals:
+      - "(circonstances_initiales0 est_associe_par_memoire_a objet0)"
+    must_not_derive:
+      - "(ame0 appete configuration_autre0)"
+      - "(ame0 desire_posseder configuration_autre0)"
+    expected:
+      status: proved
+      proof_depths: [1]
+  - id: souvenir_sans_episode_simultane
+    initial_facts:
+      - "(episode0 associe objet0)"
+      - "(episode0 associe circonstances0)"
+      - "(ame0 est_idee_de corps0)"
+      - "(ame0 imagine objet0)"
+      - "(configuration0 assemble objet0)"
+      - "(configuration0 assemble circonstances0)"
+      - "(joie_passee0 est_joie_eprouvee_dans episode0)"
+    goals: []
+    must_not_derive:
+      - "(circonstances0 est_associe_par_memoire_a objet0)"
+      - "(ame0 desire_posseder configuration0)"
+    expected: {status: proved}
+formalization_status: proved_with_corollary_and_scholium
+result: proved
+limitations:
+  - >-
+    La configuration réifie l'objet avec l'ensemble de circonstances de
+    l'épisode. Le moteur ne construit pas automatiquement une liste ouverte de
+    circonstances.
+  - >-
+    Le manque est une proposition imaginée ; il n'est jamais aplati en absence
+    réelle ni traité par négation par défaut.

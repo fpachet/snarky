@@ -1,0 +1,23 @@
+RULE E3P34_affection_reciproque_produit_gloire
+WHEN
+    ($objet est_semblable_affectivement_pour $ame)
+    ($ame aime $objet)
+    ($ame imagine ($objet aime $ame))
+    ($affection est_affection_imaginee_de ($objet aime $ame))
+    ($gloire est_temoignage_gloire_de $affection)
+THEN
+    ADD ($gloire est_gloire_de $ame)
+    ADD ($gloire correspond_a_affection_reciproque $affection)
+    ADD ($gloire varie_selon_degre_de $affection)
+END
+
+RULE E3P34_ordre_affection_transmis_gloire
+WHEN
+    ($ame imagine ($affection_forte est_plus_intense_que $affection_faible))
+    ($gloire_forte est_gloire_de $ame)
+    ($gloire_forte correspond_a_affection_reciproque $affection_forte)
+    ($gloire_faible est_gloire_de $ame)
+    ($gloire_faible correspond_a_affection_reciproque $affection_faible)
+THEN
+    ADD ($gloire_forte est_plus_intense_que $gloire_faible)
+END

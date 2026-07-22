@@ -1,0 +1,24 @@
+RULE E3P35_lien_rival_produit_haines_et_envie
+WHEN
+    ($ame aime $aimee)
+    ($aimee est_semblable_affectivement_pour $ame)
+    ($tiers est_semblable_affectivement_pour $ame)
+    ($ame imagine (($aimee amour_envers $tiers) est_au_moins_aussi_etroit_que ($aimee amour_envers $ame)))
+THEN
+    ADD ($ame hait $aimee)
+    ADD ($ame hait $tiers)
+    ADD ($ame eprouve_envie_envers $tiers)
+END
+
+RULE E3P35S_triangle_affectif_est_jalousie
+WHEN
+    ($ame aime $aimee)
+    ($ame hait $aimee)
+    ($ame eprouve_envie_envers $tiers)
+    ($jalousie est_temoignage_jalousie_de ($ame envers $tiers))
+THEN
+    ADD ($jalousie est_jalousie_de $ame)
+    ADD ($jalousie a_pour_chose_aimee $aimee)
+    ADD ($jalousie a_pour_rival $tiers)
+    ADD ($ame est_en fluctuation_de_l_ame)
+END

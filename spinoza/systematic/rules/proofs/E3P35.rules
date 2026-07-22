@@ -1,0 +1,89 @@
+# Le lien d'amitié exclusif désiré par l'agent devient aussi l'objet du désir
+# imaginé du rival. E3P31 peut alors rendre ce désir plus constant.
+RULE E3P35D_attachement_rival_revele_desir_concurrent
+WHEN
+    ($ame imagine (($aimee amour_envers $tiers) est_au_moins_aussi_etroit_que ($aimee amour_envers $ame)))
+    ($lien est_lien_d_amitie_exclusif_avec $aimee)
+THEN
+    ADD ($ame imagine ($tiers desire $lien))
+END
+
+# L'image du lien concurrent réduit à la fois l'effort de réciprocité et le
+# désir renforcé. La tristesse est ensuite nommée par E3P11S.
+RULE E3P35D_lien_rival_reduit_effort_et_appetit
+WHEN
+    ($aimee est_semblable_affectivement_pour $ame)
+    ($tiers est_semblable_affectivement_pour $ame)
+    ($ame s_efforce_que ($aimee aime $ame))
+    ($gloire est_gloire_de $ame)
+    ($ame desire_plus_constamment $lien)
+    ($ame imagine $comparaison)
+    ($comparaison est_comparaison_de_liens_entre $aimee)
+    ($image est_image_de $comparaison)
+    ($tristesse accompagne $image)
+    ($tristesse est_passion_de $ame)
+THEN
+    ADD ($image reduit_effort_reciproque_de $ame)
+    ADD ($image reduit_appetit_exclusif_de $ame)
+    ADD ($tristesse fait_passer_ame_vers perfection_moindre)
+END
+
+# La tristesse a deux causes imaginées : la chose aimée et le rival. E3P13S
+# dérive donc séparément la haine envers chacun.
+RULE E3P35D_idees_aimee_et_rival_accompagnent_tristesse
+WHEN
+    ($image reduit_effort_reciproque_de $ame)
+    ($tristesse accompagne $image)
+    ($tristesse est_tristesse_de $ame)
+    ($image est_image_de $comparaison)
+    ($comparaison est_comparaison_de_liens_entre $aimee)
+    ($comparaison implique_rival $tiers)
+    ($idee_aimee est_idee_de $aimee)
+    ($idee_tiers est_idee_de $tiers)
+THEN
+    ADD ($idee_aimee accompagne $tristesse)
+    ADD ($idee_tiers accompagne $tristesse)
+END
+
+# La joie attribuée au rival est insupportable à l'agent qui vient de le haïr.
+# Les deux dispositions explicites permettent à E3P24S de nommer l'envie.
+RULE E3P35D_haine_rival_dispose_envie
+WHEN
+    ($ame hait $tiers)
+    ($ame imagine (($aimee amour_envers $tiers) est_au_moins_aussi_etroit_que ($aimee amour_envers $ame)))
+    ($tristesse est_tristesse_de $ame)
+    ($tristesse nait_du_lien_rival_avec $aimee)
+THEN
+    ADD ($ame est_disposee_a_joie_du_mal_de $tiers)
+    ADD ($ame est_disposee_a_tristesse_du_bien_de $tiers)
+END
+
+# Scolie : amour et haine envers la chose aimée, joints à l'envie du rival,
+# constituent la jalousie et une fluctuation de l'âme.
+RULE E3P35S_amour_haine_envie_constituent_jalousie
+WHEN
+    ($ame aime $aimee)
+    ($ame hait $aimee)
+    ($ame eprouve_envie_envers $tiers)
+    ($jalousie est_temoignage_jalousie_de ($ame envers $tiers))
+THEN
+    ADD ($jalousie est_jalousie_de $ame)
+    ADD ($jalousie a_pour_chose_aimee $aimee)
+    ADD ($jalousie a_pour_rival $tiers)
+    ADD ($ame aime_et_hait_en_meme_temps $aimee)
+    ADD ($ame est_en fluctuation_de_l_ame)
+END
+
+# Le scolie conserve les deux covariations annoncées, sans calcul numérique.
+RULE E3P35S_haine_jalouse_varie_selon_joie_et_sentiment
+WHEN
+    ($jalousie est_jalousie_de $ame)
+    ($jalousie a_pour_chose_aimee $aimee)
+    ($jalousie a_pour_rival $tiers)
+    ($haine est_temoignage_haine_de ($ame hait $aimee))
+    ($joie est_joie_habituelle_tiree_de_amour_de $aimee)
+    ($sentiment est_sentiment_prealable_de ($ame envers $tiers))
+THEN
+    ADD ($haine varie_selon_degre_de $joie)
+    ADD ($haine varie_selon_degre_de $sentiment)
+END

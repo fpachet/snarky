@@ -1,0 +1,87 @@
+schema_version: 1
+id: E3P34
+model: ethics_iii_systematic_v1
+source_unit: E3P34
+source_text: >-
+  Plus grande est l'affection que nous imaginons que la chose aimée éprouve à
+  notre égard, plus nous nous glorifierons.
+fact_files: [facts/postulates.yaml]
+rule_files:
+  - rules/validated/E3P11.rules
+  - rules/validated/E3P27.rules
+  - rules/validated/E3P33.rules
+  - rules/proofs/E3P34.rules
+rule_catalog: rules/catalog.yaml
+forbidden_rules:
+  - E3P34_affection_reciproque_produit_gloire
+  - E3P34_ordre_affection_transmis_gloire
+allowed_rule_origins: [textual, textual_theorem]
+cases:
+  - id: deux_degres_d_affection_reciproque
+    initial_facts:
+      - "(objet0 a_corps corps_objet0)"
+      - "(ame0 est_idee_de corps_ame0)"
+      - "(corps_objet0 a_nature_corporelle_similaire_a corps_ame0)"
+      - "(ame0 imagine objet0)"
+      - "(ame0 aime objet0)"
+      - "(ame0 imagine (objet0 aime ame0))"
+      - "(affection_faible0 est_affection_imaginee_de (objet0 aime ame0))"
+      - "(image_faible0 est_image_de (objet0 aime ame0))"
+      - "(image_faible0 represente_degre affection_faible0)"
+      - "(gloire_faible0 est_temoignage_joie_de_effort_seconde_de image_faible0)"
+      - "(affection_forte0 est_affection_imaginee_de (objet0 aime ame0))"
+      - "(image_forte0 est_image_de (objet0 aime ame0))"
+      - "(image_forte0 represente_degre affection_forte0)"
+      - "(gloire_forte0 est_temoignage_joie_de_effort_seconde_de image_forte0)"
+      - "(idee_ame0 est_idee_de ame0)"
+      - "(ame0 imagine (affection_forte0 est_plus_intense_que affection_faible0))"
+    goals:
+      - "(objet0 est_semblable_affectivement_pour ame0)"
+      - "(ame0 s_efforce_que (objet0 aime ame0))"
+      - "(image_faible0 seconde_effort_reciproque_de ame0)"
+      - "(gloire_faible0 est_joie_de ame0)"
+      - "(gloire_faible0 est_gloire_de ame0)"
+      - "(gloire_forte0 est_gloire_de ame0)"
+      - "(gloire_forte0 est_plus_intense_que gloire_faible0)"
+    must_not_derive:
+      - "(objet0 aime ame0)"
+    expected:
+      status: proved
+      proof_depths: [1, 2, 3, 5, 7, 7, 8]
+  - id: affection_sans_similitude
+    initial_facts:
+      - "(ame0 aime objet0)"
+      - "(ame0 imagine (objet0 aime ame0))"
+      - "(affection0 est_affection_imaginee_de (objet0 aime ame0))"
+      - "(image0 est_image_de (objet0 aime ame0))"
+      - "(image0 represente_degre affection0)"
+      - "(gloire0 est_temoignage_joie_de_effort_seconde_de image0)"
+      - "(idee_ame0 est_idee_de ame0)"
+    goals: []
+    must_not_derive:
+      - "(ame0 s_efforce_que (objet0 aime ame0))"
+      - "(gloire0 est_gloire_de ame0)"
+    expected: {status: proved}
+  - id: spinolog_34bis_non_importee
+    initial_facts:
+      - "(objet0 est_semblable_affectivement_pour ame0)"
+      - "(ame0 aime objet0)"
+      - "(ame0 imagine (objet0 hait ame0))"
+      - "(honte0 est_tristesse_de ame0)"
+      - "(honte0 a_pour_cause_interieure ame0)"
+    goals:
+      - "(ame0 s_efforce_que (objet0 aime ame0))"
+    must_not_derive:
+      - "(honte0 est_honte_de ame0)"
+    expected:
+      status: proved
+      proof_depths: [1]
+formalization_status: proved_with_qualitative_intensity
+result: proved
+limitations:
+  - >-
+    L'intensité est un ordre qualitatif transmis de l'affection imaginée à la
+    gloire ; aucun coefficient numérique n'est introduit.
+  - >-
+    La proposition 34bis de SpinoLog n'est pas importée. Une haine imaginée ne
+    suffit pas à produire la honte dans ce manifeste.

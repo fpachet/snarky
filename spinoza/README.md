@@ -102,7 +102,7 @@ script générateur.
 Le dossier [`systematic`](systematic/README.md) reprend la formalisation à
 partir des définitions, postulats et dépendances explicites. Il ne charge pas
 les règles historiques. Les fragments exécutables couvrent désormais
-E3P01–E3P32 et rendent visibles les ponts importés des parties I et II.
+E3P01–E3P36 et rendent visibles les ponts importés des parties I et II.
 
 Cette couverture comprend notamment le conatus, les affects primitifs,
 l'imagination et la mémoire, les affects temporels, l'amour et la haine, leur
@@ -110,18 +110,20 @@ transmission qualitative, l'envie, l'orgueil, la surestime et la mésestime. Les
 efforts d'affirmer et de nier conservent explicitement leur contenu et leur
 cible au lieu d'être réduits à `EXISTANT` ou `INEXISTANT`. E3P27–E3P32
 ajoutent l'imitation affective, l'approbation sociale, la considération de soi,
-l'accord affectif et la rivalité pour une possession exclusive.
+l'accord affectif et la rivalité pour une possession exclusive. E3P33–E3P36
+ajoutent la réciprocité amoureuse, l'intensité qualitative de la gloire, le
+triangle de jalousie et le désir des circonstances d'une jouissance passée.
 
-Trois rapports décrivent les derniers jalons et leur comparaison avec Gondran
+Quatre rapports décrivent les derniers jalons et leur comparaison avec Gondran
 et Cavarretta :
 
 - [`systematic/reports/milestone_e3p19_e3p22.md`](systematic/reports/milestone_e3p19_e3p22.md) ;
 - [`systematic/reports/tranche_e3p23_e3p26.md`](systematic/reports/tranche_e3p23_e3p26.md) ;
-- [`systematic/reports/tranche_e3p27_e3p32.md`](systematic/reports/tranche_e3p27_e3p32.md).
+- [`systematic/reports/tranche_e3p27_e3p32.md`](systematic/reports/tranche_e3p27_e3p32.md) ;
+- [`systematic/reports/tranche_e3p33_e3p36.md`](systematic/reports/tranche_e3p33_e3p36.md).
 
-La suite de tests comprend actuellement 64 tests réussis. La prochaine
-frontière est E3P33 : elle doit construire l'effort pour être
-aimé en réutilisant la similitude, l'imitation et les orientations déjà
-validées. Le
+La suite de tests comprend actuellement 67 tests réussis. La prochaine
+frontière est E3P37 : elle doit transmettre l'intensité d'une
+joie, tristesse, haine ou amour au désir qui en naît. Le
 [`plan de modélisation`](systematic/reports/roadmap.md) décrit l'ordre complet
 jusqu'à E3P59 et aux définitions finales des affects.

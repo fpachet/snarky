@@ -1,0 +1,60 @@
+# L'affection réciproque imaginée seconde l'effort établi par E3P33. L'image
+# porte un degré affectif explicite afin de conserver le « plus... plus... ».
+RULE E3P34D_affection_reciproque_seconde_effort
+WHEN
+    ($objet est_semblable_affectivement_pour $ame)
+    ($ame s_efforce_que ($objet aime $ame))
+    ($ame imagine ($objet aime $ame))
+    ($affection est_affection_imaginee_de ($objet aime $ame))
+    ($image est_image_de ($objet aime $ame))
+    ($image represente_degre $affection)
+THEN
+    ADD ($image seconde_effort_reciproque_de $ame)
+END
+
+RULE E3P34D_effort_seconde_produit_joie
+WHEN
+    ($image seconde_effort_reciproque_de $ame)
+    ($image represente_degre $affection)
+    ($joie est_temoignage_joie_de_effort_seconde_de $image)
+THEN
+    ADD ($joie est_passion_de $ame)
+    ADD ($joie fait_passer_ame_vers perfection_plus_grande)
+    ADD ($joie correspond_a_affection_reciproque $affection)
+END
+
+# E3P30 est spécialisé ici : la réussite imaginée de l'effort dont l'agent est
+# cause devient une considération joyeuse de soi.
+RULE E3P34D_joie_reciproque_consideration_de_soi
+WHEN
+    ($joie est_joie_de $ame)
+    ($joie correspond_a_affection_reciproque $affection)
+    ($idee_ame est_idee_de $ame)
+THEN
+    ADD ($idee_ame accompagne $joie)
+    ADD ($joie a_pour_cause_interieure $ame)
+    ADD ($joie est_joie_de_soi_par_affection_reciproque $affection)
+    ADD ($ame se_considere_avec_joie VRAI)
+END
+
+# Dans la démonstration de E3P34, cette joie de soi est précisément appelée
+# gloire. La condition réciproque empêche de généraliser toute joie intérieure.
+RULE E3P34D_joie_reciproque_est_gloire
+WHEN
+    ($joie est_joie_de_soi_par_affection_reciproque $affection)
+    ($joie est_joie_de $ame)
+THEN
+    ADD ($joie est_gloire_de $ame)
+    ADD ($joie varie_selon_degre_de $affection)
+END
+
+RULE E3P34D_ordre_affection_transmis_gloire
+WHEN
+    ($ame imagine ($affection_forte est_plus_intense_que $affection_faible))
+    ($gloire_forte est_gloire_de $ame)
+    ($gloire_forte correspond_a_affection_reciproque $affection_forte)
+    ($gloire_faible est_gloire_de $ame)
+    ($gloire_faible correspond_a_affection_reciproque $affection_faible)
+THEN
+    ADD ($gloire_forte est_plus_intense_que $gloire_faible)
+END

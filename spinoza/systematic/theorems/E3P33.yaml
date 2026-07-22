@@ -1,0 +1,74 @@
+schema_version: 1
+id: E3P33
+model: ethics_iii_systematic_v1
+source_unit: E3P33
+source_text: >-
+  Quand nous aimons une chose semblable à nous, nous nous efforçons autant que
+  nous pouvons de faire qu'elle nous aime à son tour.
+fact_files: [facts/postulates.yaml]
+rule_files:
+  - rules/validated/E3P13.rules
+  - rules/validated/E3P27.rules
+  - rules/proofs/E3P33.rules
+rule_catalog: rules/catalog.yaml
+forbidden_rules:
+  - E3P33_amour_similaire_effort_reciprocite
+allowed_rule_origins: [textual, textual_theorem, compilation]
+cases:
+  - id: reciprocite_par_similitude
+    initial_facts:
+      - "(objet0 a_corps corps_objet0)"
+      - "(ame0 est_idee_de corps_ame0)"
+      - "(corps_objet0 a_nature_corporelle_similaire_a corps_ame0)"
+      - "(ame0 imagine objet0)"
+      - "(ame0 aime objet0)"
+      - "(idee_ame0 est_idee_de ame0)"
+      - "(joie_reciproque0 est_temoignage_joie_reciproque_de (objet0 aime ame0))"
+    goals:
+      - "(objet0 est_semblable_affectivement_pour ame0)"
+      - "(ame0 s_efforce_de_garder_present objet0)"
+      - "(ame0 s_efforce_d_affecter_de_joie objet0)"
+      - "(ame0 s_efforce_que (objet0 aime ame0))"
+    must_not_derive:
+      - "(objet0 aime ame0)"
+      - "(ame0 s_efforce_que (objet0 est joyeux))"
+    expected:
+      status: proved
+      proof_depths: [1, 1, 2, 3]
+  - id: amour_sans_similitude
+    initial_facts:
+      - "(ame0 aime objet0)"
+      - "(idee_ame0 est_idee_de ame0)"
+      - "(joie_reciproque0 est_temoignage_joie_reciproque_de (objet0 aime ame0))"
+    goals:
+      - "(ame0 s_efforce_de_garder_present objet0)"
+    must_not_derive:
+      - "(ame0 s_efforce_d_affecter_de_joie objet0)"
+      - "(ame0 s_efforce_que (objet0 aime ame0))"
+    expected:
+      status: proved
+      proof_depths: [1]
+  - id: spinolog_33bis_non_importee
+    initial_facts:
+      - "(objet0 a_corps corps_objet0)"
+      - "(ame0 est_idee_de corps_ame0)"
+      - "(corps_objet0 a_nature_corporelle_similaire_a corps_ame0)"
+      - "(ame0 imagine objet0)"
+      - "(ame0 hait objet0)"
+    goals:
+      - "(objet0 est_semblable_affectivement_pour ame0)"
+    must_not_derive:
+      - "(ame0 s_efforce_que (objet0 hait ame0))"
+    expected:
+      status: proved
+      proof_depths: [1]
+formalization_status: proved_with_contextual_compilation
+result: proved
+limitations:
+  - >-
+    La joie réciproque est un témoin explicite. La règle de compilation ne
+    conclut jamais que l'objet aime effectivement l'agent hors du contexte
+    s_efforce_que.
+  - >-
+    La proposition 33bis de SpinoLog, qui dualise la haine, n'est pas un énoncé
+    de l'Éthique et reste un contre-cas.

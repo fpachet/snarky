@@ -23,7 +23,7 @@ règle qui contient déjà sa conclusion. Pour tester `E3Pxx`, le manifeste :
 4. demande au moteur de dériver des faits représentant l'énoncé ;
 5. conserve la chaîne minimale des règles effectivement employées.
 
-## Fragments exécutables : E3P01–E3P32
+## Fragments exécutables : E3P01–E3P36
 
 Le fragment initial formalise :
 
@@ -107,6 +107,13 @@ l'exclusivité d'un objet sont toujours des faits positifs. Les choix de
 formalisation et la comparaison avec SpinoLog sont consignés dans
 [`reports/tranche_e3p27_e3p32.md`](reports/tranche_e3p27_e3p32.md).
 
+E3P33–E3P36 rendent exécutables la réciprocité amoureuse, la covariance entre
+affection réciproque et gloire, les deux haines et l'envie constitutives de la
+jalousie, puis le désir de retrouver un objet avec les circonstances de sa
+jouissance passée. La comparaison directe avec Gondran et SpinoLog est publiée
+dans
+[`reports/tranche_e3p33_e3p36.md`](reports/tranche_e3p33_e3p36.md).
+
 Le lanceur expose pour chaque cas le nombre de faits initiaux et dérivés, le
 nombre de dérivations et toutes les règles activées. Ces données permettent un
 audit en lecture seule de la clôture sans modifier le moteur d'inférence.
@@ -146,3 +153,9 @@ encore définir une métrique générale de similitude. Dans E3P31, amour, dési
 haine restent des relations distinctes. Dans E3P32, l'absence du fait positif
 `ne_peut_etre_possede_que_par_un` ne permet pas de conclure que l'objet est
 partageable.
+
+E3P33 utilise une compilation locale pour appliquer la définition de l'amour
+à l'intérieur de `s_efforce_que`, sans conclure à un amour réel. E3P34–E3P35
+conservent des ordres qualitatifs et non des intensités numériques. E3P36
+réifie les circonstances comme une configuration finie explicitement fournie
+par le manifeste.

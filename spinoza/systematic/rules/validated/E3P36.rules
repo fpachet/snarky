@@ -1,0 +1,22 @@
+RULE E3P36_souvenir_joie_desir_meme_configuration
+WHEN
+    ($episode associe $objet)
+    ($episode associe $circonstances)
+    ($episode a_affecte_simultanement $corps)
+    ($ame est_idee_de $corps)
+    ($ame imagine $objet)
+    ($configuration assemble $objet)
+    ($configuration assemble $circonstances)
+THEN
+    ADD ($ame desire_posseder $configuration)
+END
+
+RULE E3P36C_manque_configuration_souhait_frustre
+WHEN
+    ($ame desire_posseder $configuration)
+    ($ame imagine ($circonstance manque_a $configuration))
+    ($souhait est_temoignage_souhait_frustre_de ($circonstance manque_a $configuration))
+THEN
+    ADD ($souhait est_tristesse_de $ame)
+    ADD ($souhait est_souhait_frustre_de $ame)
+END

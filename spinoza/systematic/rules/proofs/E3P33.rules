@@ -1,0 +1,28 @@
+# E3P13 conserve la chose aimée dans l'imagination. Si elle est semblable à
+# l'agent, cet effort s'oriente vers une joie dont l'idée de l'agent serait la
+# cause. La joie réciproque est un témoin nommé, jamais créé par le moteur.
+RULE E3P33D_amour_similaire_oriente_joie_reciproque
+WHEN
+    ($ame aime $objet)
+    ($objet est_semblable_affectivement_pour $ame)
+    ($ame s_efforce_de_garder_present $objet)
+    ($joie est_temoignage_joie_reciproque_de ($objet aime $ame))
+    ($idee_ame est_idee_de $ame)
+THEN
+    ADD ($ame s_efforce_d_affecter_de_joie $objet)
+    ADD ($ame s_efforce_que ($joie est_joie_de $objet))
+    ADD ($ame s_efforce_que ($idee_ame accompagne $joie))
+END
+
+# E3P13S est appliquée à l'intérieur du contexte d'effort sans l'aplatir. Cette
+# compilation locale remplace l'interprétation historique qui changeait
+# silencieusement « imagine » en « s_efforce_que ».
+RULE COMP_E3P33_amour_reciproque_dans_effort
+WHEN
+    ($ame s_efforce_d_affecter_de_joie $objet)
+    ($ame s_efforce_que ($joie est_joie_de $objet))
+    ($ame s_efforce_que ($idee_ame accompagne $joie))
+    ($idee_ame est_idee_de $ame)
+THEN
+    ADD ($ame s_efforce_que ($objet aime $ame))
+END

@@ -544,8 +544,95 @@ def test_e3p31_and_e3p32_preserve_similarity_and_exclusive_possession() -> None:
     assert shareable.forbidden_violations == ()
 
 
+def test_e3p33_requires_similarity_and_preserves_reciprocity_context() -> None:
+    reciprocity = run_case(
+        SYSTEMATIC_ROOT,
+        "E3P33",
+        "reciprocite_par_similitude",
+    )
+    no_similarity = run_case(
+        SYSTEMATIC_ROOT,
+        "E3P33",
+        "amour_sans_similitude",
+    )
+    spinolog_dual = run_case(
+        SYSTEMATIC_ROOT,
+        "E3P33",
+        "spinolog_33bis_non_importee",
+    )
+
+    assert reciprocity.proved
+    assert reciprocity.proof_depths == (1, 1, 2, 3)
+    assert reciprocity.forbidden_violations == ()
+    assert no_similarity.proved
+    assert no_similarity.forbidden_violations == ()
+    assert spinolog_dual.proved
+    assert spinolog_dual.forbidden_violations == ()
+
+
+def test_e3p34_and_e3p35_preserve_intensity_and_jealousy_triangle() -> None:
+    glory = run_case(
+        SYSTEMATIC_ROOT,
+        "E3P34",
+        "deux_degres_d_affection_reciproque",
+    )
+    jealousy = run_case(
+        SYSTEMATIC_ROOT,
+        "E3P35",
+        "triangle_de_jalousie",
+    )
+    weaker_link = run_case(
+        SYSTEMATIC_ROOT,
+        "E3P35",
+        "lien_rival_moins_etroit",
+    )
+
+    assert glory.proved
+    assert glory.proof_depths == (1, 2, 3, 5, 7, 7, 8)
+    assert glory.forbidden_violations == ()
+    assert jealousy.proved
+    assert jealousy.proof_depths == (
+        1,
+        1,
+        2,
+        2,
+        2,
+        3,
+        4,
+        6,
+        6,
+        8,
+        9,
+        9,
+        10,
+        10,
+    )
+    assert jealousy.forbidden_violations == ()
+    assert weaker_link.proved
+    assert weaker_link.forbidden_violations == ()
+
+
+def test_e3p36_desires_only_the_remembered_configuration() -> None:
+    remembered = run_case(
+        SYSTEMATIC_ROOT,
+        "E3P36",
+        "souvenir_avec_memes_circonstances",
+    )
+    other_circumstances = run_case(
+        SYSTEMATIC_ROOT,
+        "E3P36",
+        "circonstances_non_associees",
+    )
+
+    assert remembered.proved
+    assert remembered.proof_depths == (1, 2, 3, 5, 6, 7, 1, 1, 4, 8)
+    assert remembered.forbidden_violations == ()
+    assert other_circumstances.proved
+    assert other_circumstances.forbidden_violations == ()
+
+
 def test_each_systematic_manifest_since_e3p04_has_passing_counter_cases() -> None:
-    for proposition in range(4, 33):
+    for proposition in range(4, 37):
         theorem_id = f"E3P{proposition:02d}"
         manifest = yaml.safe_load(
             (SYSTEMATIC_ROOT / "theorems" / f"{theorem_id}.yaml").read_text(
@@ -595,7 +682,7 @@ def test_systematic_manifests_do_not_load_the_historical_model() -> None:
 
 
 def test_systematic_manifests_load_only_current_proof_and_prior_theorems() -> None:
-    for proposition in range(4, 33):
+    for proposition in range(4, 37):
         theorem_id = f"E3P{proposition:02d}"
         manifest = yaml.safe_load(
             (SYSTEMATIC_ROOT / "theorems" / f"{theorem_id}.yaml").read_text(

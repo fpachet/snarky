@@ -1,0 +1,110 @@
+schema_version: 1
+id: E3P35
+model: ethics_iii_systematic_v1
+source_unit: E3P35
+source_text: >-
+  Si quelqu'un imagine qu'un autre s'attache la chose aimée par le même lien
+  d'amitié, ou un plus étroit, il sera affecté de haine envers la chose aimée
+  et sera envieux de l'autre.
+fact_files: [facts/postulates.yaml]
+rule_files:
+  - rules/validated/E3P11.rules
+  - rules/validated/E3P13.rules
+  - rules/validated/E3P24.rules
+  - rules/validated/E3P27.rules
+  - rules/validated/E3P31.rules
+  - rules/validated/E3P33.rules
+  - rules/validated/E3P34.rules
+  - rules/proofs/E3P35.rules
+rule_catalog: rules/catalog.yaml
+forbidden_rules:
+  - E3P35_lien_rival_produit_haines_et_envie
+  - E3P35S_triangle_affectif_est_jalousie
+allowed_rule_origins: [textual, textual_theorem]
+cases:
+  - id: triangle_de_jalousie
+    initial_facts:
+      - "(aimee0 a_corps corps_aimee0)"
+      - "(tiers0 a_corps corps_tiers0)"
+      - "(ame0 est_idee_de corps_ame0)"
+      - "(corps_aimee0 a_nature_corporelle_similaire_a corps_ame0)"
+      - "(corps_tiers0 a_nature_corporelle_similaire_a corps_ame0)"
+      - "(ame0 imagine aimee0)"
+      - "(ame0 imagine tiers0)"
+      - "(ame0 aime aimee0)"
+      - "(ame0 imagine (aimee0 aime ame0))"
+      - "(affection_reciproque0 est_affection_imaginee_de (aimee0 aime ame0))"
+      - "(gloire0 est_temoignage_gloire_de affection_reciproque0)"
+      - "(lien_exclusif0 est_lien_d_amitie_exclusif_avec aimee0)"
+      - "(ame0 desire lien_exclusif0)"
+      - "(comparaison0 est_comparaison_de_liens_entre aimee0)"
+      - "(comparaison0 implique_rival tiers0)"
+      - "(ame0 imagine comparaison0)"
+      - "(ame0 imagine ((aimee0 amour_envers tiers0) est_au_moins_aussi_etroit_que (aimee0 amour_envers ame0)))"
+      - "(image_triangle0 est_image_de comparaison0)"
+      - "(tristesse_jalouse0 accompagne image_triangle0)"
+      - "(tristesse_jalouse0 est_passion_de ame0)"
+      - "(tristesse_jalouse0 nait_du_lien_rival_avec aimee0)"
+      - "(idee_aimee0 est_idee_de aimee0)"
+      - "(idee_tiers0 est_idee_de tiers0)"
+      - "(jalousie0 est_temoignage_jalousie_de (ame0 envers tiers0))"
+      - "(haine_aimee0 est_temoignage_haine_de (ame0 hait aimee0))"
+      - "(joie_habituelle0 est_joie_habituelle_tiree_de_amour_de aimee0)"
+      - "(sentiment_tiers0 est_sentiment_prealable_de (ame0 envers tiers0))"
+    goals:
+      - "(aimee0 est_semblable_affectivement_pour ame0)"
+      - "(tiers0 est_semblable_affectivement_pour ame0)"
+      - "(ame0 s_efforce_que (aimee0 aime ame0))"
+      - "(gloire0 est_gloire_de ame0)"
+      - "(ame0 desire_plus_constamment lien_exclusif0)"
+      - "(image_triangle0 reduit_effort_reciproque_de ame0)"
+      - "(tristesse_jalouse0 est_tristesse_de ame0)"
+      - "(ame0 hait aimee0)"
+      - "(ame0 hait tiers0)"
+      - "(ame0 eprouve_envie_envers tiers0)"
+      - "(jalousie0 est_jalousie_de ame0)"
+      - "(ame0 est_en fluctuation_de_l_ame)"
+      - "(haine_aimee0 varie_selon_degre_de joie_habituelle0)"
+      - "(haine_aimee0 varie_selon_degre_de sentiment_tiers0)"
+    must_not_derive:
+      - "(aimee0 aime tiers0)"
+    expected:
+      status: proved
+      proof_depths: [1, 1, 2, 2, 2, 3, 4, 6, 6, 8, 9, 9, 10, 10]
+  - id: lien_rival_moins_etroit
+    initial_facts:
+      - "(aimee0 est_semblable_affectivement_pour ame0)"
+      - "(tiers0 est_semblable_affectivement_pour ame0)"
+      - "(ame0 aime aimee0)"
+      - "(ame0 imagine ((aimee0 amour_envers tiers0) est_moins_etroit_que (aimee0 amour_envers ame0)))"
+    goals:
+      - "(ame0 s_efforce_que (aimee0 aime ame0))"
+    must_not_derive:
+      - "(ame0 hait aimee0)"
+      - "(ame0 hait tiers0)"
+      - "(ame0 eprouve_envie_envers tiers0)"
+    expected:
+      status: proved
+      proof_depths: [1]
+  - id: rival_non_semblable
+    initial_facts:
+      - "(aimee0 est_semblable_affectivement_pour ame0)"
+      - "(ame0 aime aimee0)"
+      - "(ame0 imagine ((aimee0 amour_envers tiers0) est_au_moins_aussi_etroit_que (aimee0 amour_envers ame0)))"
+    goals:
+      - "(ame0 s_efforce_que (aimee0 aime ame0))"
+    must_not_derive:
+      - "(ame0 hait aimee0)"
+      - "(ame0 eprouve_envie_envers tiers0)"
+    expected:
+      status: proved
+      proof_depths: [1]
+formalization_status: proved_with_scholium
+result: proved
+limitations:
+  - >-
+    Les deux personnes du triangle doivent être explicitement semblables à
+    l'agent. L'imagination du lien concurrent ne rend jamais ce lien réel.
+  - >-
+    Les variations de haine du scolie sont qualitatives : elles indiquent les
+    deux degrés dont la haine dépend, sans métrique numérique.

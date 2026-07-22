@@ -1,0 +1,55 @@
+# E3P14 réactive les circonstances associées à l'objet. La configuration
+# « objet avec circonstances » demeure un terme composite explicite.
+RULE E3P36D_association_reactive_configuration_joyeuse
+WHEN
+    ($circonstances est_associe_par_memoire_a $objet)
+    ($circonstances affecte $ame)
+    ($configuration assemble $objet)
+    ($configuration assemble $circonstances)
+    ($joie est_joie_eprouvee_dans $episode)
+    ($episode associe $objet)
+    ($episode associe $circonstances)
+THEN
+    ADD ($ame imagine $configuration)
+    ADD ($ame imagine ($configuration mene_a $joie))
+    ADD ($joie est_affect_attendu_de $configuration)
+END
+
+# L'appétit produit par E3P28 est réifié afin que le scolie de E3P09 puisse le
+# nommer désir à partir d'une conscience explicite.
+RULE E3P36D_appetit_configuration_devient_effort
+WHEN
+    ($ame appete $configuration)
+    ($effort est_temoignage_appetit_de ($ame possede $configuration))
+THEN
+    ADD ($effort se_rapporte_a ame_et_corps)
+    ADD ($effort porte_sur ($ame possede $configuration))
+END
+
+RULE E3P36D_desir_reifie_porte_sur_configuration
+WHEN
+    ($effort est_appele desir)
+    ($effort porte_sur ($ame possede $configuration))
+THEN
+    ADD ($ame desire_posseder $configuration)
+END
+
+# Corollaire : le manque reste imaginé et qualifie la proposition comme
+# excluant l'existence de la configuration, sans rendre l'absence réelle.
+RULE E3P36C_circonstance_manquante_exclut_configuration
+WHEN
+    ($ame imagine ($circonstance manque_a $configuration))
+THEN
+    ADD (($circonstance manque_a $configuration) exclut_existence_de $configuration)
+END
+
+RULE E3P36S_absence_aimee_est_souhait_frustre
+WHEN
+    ($ame desire_posseder $configuration)
+    ($ame imagine ($circonstance manque_a $configuration))
+    ($tristesse est_tristesse_de $ame)
+    ($tristesse nait_du_manque_de $circonstance)
+THEN
+    ADD ($tristesse est_souhait_frustre_de $ame)
+    ADD ($tristesse a_pour_objet_absent $circonstance)
+END

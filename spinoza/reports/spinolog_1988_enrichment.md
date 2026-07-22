@@ -193,8 +193,10 @@ formalisation systématique des propositions concernées.
    [`../systematic/reports/tranche_e3p27_e3p32.md`](../systematic/reports/tranche_e3p27_e3p32.md) :
    similitude corporelle pertinente, simple ressemblance de trait et absence
    préalable d'affect restent distinctes.
-3. Avant E3P33, comparer texte, rapport 1988, présentation 2006 et modèle
-   systématique.
+3. La comparaison requise avant E3P33 est réalisée dans
+   [`../systematic/reports/tranche_e3p33_e3p36.md`](../systematic/reports/tranche_e3p33_e3p36.md) :
+   la similitude est rétablie dans la preuve, les propositions 33bis et 34bis
+   restent hors texte, et les haines manquantes de E3P35 sont exigées.
 4. Avant E3P45–E3P48, rendre visibles les conclusions annexes, contradictions
    et niveaux épistémiques.
 5. Après E3P59, évaluer séparément méta-ontologie, témoins frais et génération

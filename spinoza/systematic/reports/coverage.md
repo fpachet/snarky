@@ -34,8 +34,12 @@
 | E3P30 | 3 | considération de soi, gloire, honte, contentement et repentir | E3P27 |
 | E3P31 | 4 | accord affectif, constance, fluctuation et ambition | E3P27 |
 | E3P32 | 3 | possession exclusive, obstacle, envie et imitation enfantine | E3P27 |
+| E3P33 | 3 | réciprocité amoureuse avec contexte d'effort conservé | E3P13, E3P27 |
+| E3P34 | 3 | gloire et ordre qualitatif de l'affection réciproque | E3P11, E3P27, E3P30, E3P33 |
+| E3P35 | 3 | deux haines, envie, jalousie et covariations | E3P11, E3P13, E3P24, E3P27, E3P31, E3P33–E3P34 |
+| E3P36 | 3 | configuration mémorielle, désir et souhait frustré | E3P09, E3P11, E3P13–E3P14, E3P19, E3P28 |
 
-Couverture actuelle : 32 propositions sur 59. Toutes les propositions depuis
+Couverture actuelle : 36 propositions sur 59. Toutes les propositions depuis
 E3P04 possèdent au moins un contre-cas de non-dérivation. E3P09 et E3P11
 exécutent aussi les principaux fragments ontologiques de leurs scolies :
 volonté, appétit, désir, jugement de bonté, joie, tristesse et leurs variantes
@@ -47,7 +51,9 @@ l'inversion affective envers la chose haïe, l'envie, les efforts contextualisé
 d'affirmer ou de nier, l'orgueil, la surestime et la mésestime. E3P27–E3P32
 ajoutent la similitude corporelle pertinente, l'imitation des affects, les
 conduites sociales, la considération de soi, l'accord affectif et la rivalité
-pour une possession exclusive. La prochaine frontière est E3P33.
+pour une possession exclusive. E3P33–E3P36 ajoutent réciprocité, gloire
+ordonnée, jalousie triangulaire et configuration mémorielle. La prochaine
+frontière est E3P37.
 
 L'ordre des tranches, leurs concepts et leurs critères de sortie sont décrits
 dans [`roadmap.md`](roadmap.md).
@@ -96,3 +102,11 @@ explicites pour conclure à la gloire ou à la honte ; E3P31 ne confond pas dés
 et amour ; E3P32 exige l'exclusivité positive de la possession avant de
 conclure à l'obstacle et à l'envie. L'audit est publié dans
 [`tranche_e3p27_e3p32.md`](tranche_e3p27_e3p32.md).
+
+E3P33 exige réellement la similitude et conserve la réciprocité sous
+`s_efforce_que`; les propositions 33bis et 34bis de SpinoLog restent des
+contre-cas. E3P34 transmet un ordre qualitatif à la gloire. E3P35 dérive les
+deux haines absentes de la clôture SpinoLog avant de nommer la jalousie. E3P36
+ne désire que la configuration associée au souvenir et n'aplatit pas un manque
+imaginé en absence réelle. L'audit est publié dans
+[`tranche_e3p33_e3p36.md`](tranche_e3p33_e3p36.md).

@@ -1,0 +1,7 @@
+RULE E3P33_amour_similaire_effort_reciprocite
+WHEN
+    ($ame aime $objet)
+    ($objet est_semblable_affectivement_pour $ame)
+THEN
+    ADD ($ame s_efforce_que ($objet aime $ame))
+END
