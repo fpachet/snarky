@@ -1,0 +1,22 @@
+Error: Infinite descent in the definition of type U1 in file recursive_unions.dl at line 12
+.type U1 = U2 | U3
+^------------------
+Error: Infinite descent in the definition of type U2 in file recursive_unions.dl at line 13
+.type U2 = U1 | U3
+^------------------
+Error: Infinite descent in the definition of type V1 in file recursive_unions.dl at line 16
+.type V1 = V1 | symbol
+^----------------------
+Error: Infinite descent in the definition of type R in file recursive_unions.dl at line 19
+.type R = R
+^-----------
+Error: Infinite descent in the definition of type B in file recursive_unions.dl at line 25
+.type B = C | a
+^---------------
+Error: Infinite descent in the definition of type a in file recursive_unions.dl at line 26
+.type a = D
+^-----------
+Error: Infinite descent in the definition of type D in file recursive_unions.dl at line 27
+.type D = B | C
+^---------------
+7 errors generated, evaluation aborted

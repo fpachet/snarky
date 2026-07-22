@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<PositiveEntailmentTest id="Equality_in_conclusion_3"
+    src="http://www.w3.org/2005/rules/test/repository/tc/Equality_in_conclusion_3" xmlns="http://www.w3.org/2009/10/rif-test#">
+    <status>Approved</status>
+    <dialect>BLD</dialect>
+    <purpose>Test substitutivity in the context of equality.</purpose>
+    <description>This test case verifies that the substitutivity axiom for equality is implemented. In particular, it checks that substitutivity applies to terms nested deeply inside other terms. In this test case, g(c) must be substituted by f(b) at nesting levels 1 and 2 in order for the test to check out. Substitutivity is hard to implement properly and efficiently.</description>
+    <PremiseDocument>
+        <Normative syntax="RIF/XML">
+            <name>Equality_in_conclusion_3-premise.rif</name>
+            <remote>http://www.w3.org/2005/rules/test/repository/tc/Equality_in_conclusion_3/Equality_in_conclusion_3-premise.rif</remote>
+        </Normative>
+        <Presentation syntax="RIFBLD-PS"><![CDATA[
+Document(
+ Prefix(ex   <http://example.org/example#>)
+
+ Group  (
+   Forall ?x ?y  ?z  ( ex:f(?y)=ex:g(?z) :-  And ( ex:p(?x ?y)  ex:p(?x ?z) ) )
+
+   ex:p(ex:a ex:b)
+   ex:p(ex:a ex:c)
+
+   ex:q(ex:h(ex:g(ex:c)))
+ )
+)
+]]></Presentation>
+    </PremiseDocument>
+    <ConclusionDocument>
+        <Normative syntax="RIF/XML">
+            <name>Equality_in_conclusion_3-conclusion.rif</name>
+            <remote>http://www.w3.org/2005/rules/test/repository/tc/Equality_in_conclusion_3/Equality_in_conclusion_3-conclusion.rif</remote>
+        </Normative>
+        <Presentation syntax="RIFBLD-PS"><![CDATA[
+And (
+  ex:f(ex:b) = ex:g(ex:c)
+  ex:q(ex:h(ex:f(ex:b)))
+  ex:s(ex:s(ex:f(ex:b))) = ex:s(ex:s(ex:g(ex:c)))
+)
+]]></Presentation>
+    </ConclusionDocument>
+</PositiveEntailmentTest>

@@ -1,0 +1,9 @@
+Document(
+  Prefix(ex <http://example.org/example#>)
+  
+  Group  (
+     Forall ?x ( ex:workZIPCode(?x) = ex:homeZIPCode(?x) :- ex:homeWorker(?x) ) 
+
+     ex:homeWorker(ex:a)
+  ) 
+)

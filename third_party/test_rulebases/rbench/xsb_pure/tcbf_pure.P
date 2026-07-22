@@ -1,0 +1,51 @@
+/*=============================================================================
+ * Tansitive closure program. Query all results (both arguments free).
+ *
+ * This version tables the predicate tc to ensure termination for cyclic data.
+ * It uses load_dyn to load the data.
+ *
+ * The main program is in 'bench_lib.P'.
+ * This file is a modified version of a file distributed with OpenRuleBench.
+ *=============================================================================
+ */
+
+/*-----------------------------------------------------------------------------
+ * ID of this Benchmark:
+ *-----------------------------------------------------------------------------
+ */
+
+
+/*-----------------------------------------------------------------------------
+ * Options:
+ *-----------------------------------------------------------------------------
+ */
+
+/* Data load method: */
+load_data(Filename) :- load_dync(Filename).
+
+/* Index for the given database relation (edges of the graph): */
+:- index(par/2, trie).
+
+/* Tabling method: */
+:- use_subsumptive_tabling tc/2.
+
+
+/*-----------------------------------------------------------------------------
+ * Benchmark Program:
+ *-----------------------------------------------------------------------------
+ */
+
+tc(X,Y) :- par(X,Y).
+tc(X,Y) :- par(X,Z), tc(Z,Y).
+
+/*-----------------------------------------------------------------------------
+ * Benchmark Query:
+ *-----------------------------------------------------------------------------
+ */
+
+bench :- tc(1,_), fail.
+bench.
+
+test(FileName) :-
+load_data(FileName),
+bench.

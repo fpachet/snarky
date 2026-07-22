@@ -1,0 +1,89 @@
+// Souffle - A Datalog Compiler
+// Copyright (c) 2021, The Souffle Developers. All rights reserved
+// Licensed under the Universal Permissive License v 1.0 as shown at:
+// - https://opensource.org/licenses/UPL
+// - <souffle root>/licenses/SOUFFLE-UPL.txt
+
+// Tests parameter instantiations of components
+// for user-defined types.
+
+//////////
+// Test 1
+//////////
+
+.comp B<P> {
+  .type T = branch {x:P}
+  .decl R(x:T)
+}
+.init myB = B<number>
+myB.R($myB.branch(1)).
+.printsize myB.R
+
+//////////
+// Test 2
+//////////
+
+.comp C<P> {
+  .type P <: number
+  .decl R(x:P)
+}
+.init myC = C<myType>
+myC.R(1).
+.printsize myC.R
+
+//////////
+// Test 3
+//////////
+
+.comp D<P> {
+  .type X <: P
+  .decl R(x:X)
+}
+.init myD = D<number>
+myD.R(1).
+.printsize myD.R
+
+//////////
+// Test 4
+//////////
+
+.type myT2 <: number
+.comp E<P> {
+  .type myT <: number
+  .type X = P | myT
+  .decl R(x:X)
+}
+.init myE = E<myT2>
+myE.R(1).
+.printsize myE.R
+
+//////////
+// Test 5
+//////////
+
+.comp A {
+  .type T = b {a:number}
+  .decl R(x:T)
+}
+.init myA1 = A
+.init myA2 = A
+myA1.R($myA1.b(1)).
+myA2.R($myA2.b(1)).
+.printsize myA1.R
+.printsize myA2.R
+
+/////////////
+// Test 6
+/////////////
+
+.comp F {
+   .type T = b {x:number}
+   .decl R(x:T)
+   .output R
+   R($b(1)).
+   .printsize R
+}
+
+.init myF1 = F
+.init myF2 = F
+

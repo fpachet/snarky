@@ -1,0 +1,22 @@
+.decl d1 (n:number, m:number)
+.decl d2 (n:number, m:number)
+.decl c2 (n:number, m:number)
+.decl c3 (n:number, m:number)
+.decl c4 (n:number, m:number)
+.input d1(IO=file, filename="INSTANCE_d1.tsv")
+.input d2(IO=file, filename="INSTANCE_d2.tsv")
+.input c2(IO=file, filename="INSTANCE_c2.tsv")
+.input c3(IO=file, filename="INSTANCE_c3.tsv")
+.input c4(IO=file, filename="INSTANCE_c4.tsv")
+
+
+.decl a (n:number, m:number)
+.decl b1 (n:number, m:number)
+.decl b2 (n:number, m:number)
+.decl c1 (n:number, m:number)
+.printsize a
+
+a(X, Y)  :- b1(X, Z), b2(Z, Y).
+b1(X, Y) :- c1(X, Z), c2(Z, Y).
+b2(X, Y) :- c3(X, Z), c4(Z, Y).
+c1(X, Y) :- d1(X, Z), d2(Z, Y).

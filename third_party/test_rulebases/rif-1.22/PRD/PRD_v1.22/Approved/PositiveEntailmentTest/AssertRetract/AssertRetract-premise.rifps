@@ -1,0 +1,24 @@
+Document(
+ Prefix(ex <http://example.org/example#>)
+ Prefix(xs <http://www.w3.org/2001/XMLSchema#>) 
+
+ Group ( 
+  Forall ?X (
+   If 
+      ?X[ex:status -> "normal" ex:discount -> "10"] 
+   Then Do ( 
+      Retract (?X)
+      Assert  (?X[ex:discount -> "0"])
+   )
+  )
+
+  If 
+      Not( ex:john[ex:status -> "normal"] )
+  Then Do ( 
+      Assert  (ex:john[ex:status -> "unkown"])
+  )
+
+  ex:john[ex:status -> "normal" ex:discount -> "10"]
+
+ )
+)

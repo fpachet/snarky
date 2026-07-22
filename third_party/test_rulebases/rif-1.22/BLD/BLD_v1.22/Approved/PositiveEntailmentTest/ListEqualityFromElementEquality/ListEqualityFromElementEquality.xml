@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<PositiveEntailmentTest id="ListEqualityFromElementEquality"
+    src="http://www.w3.org/2005/rules/test/repository/tc/ListEqualityFromElementEquality" xmlns="http://www.w3.org/2009/10/rif-test#">
+    <status>Approved</status>
+    <dialect>BLD</dialect>
+    <purpose>Test equality between lists</purpose>
+    <description>Equality of lists is derived from equality of elements.</description>
+    <PremiseDocument>
+        <Normative syntax="RIF/XML">
+            <name>ListEqualityFromElementEquality-premise.rif</name>
+            <remote>http://www.w3.org/2005/rules/test/repository/tc/ListEqualityFromElementEquality/ListEqualityFromElementEquality-premise.rif</remote>
+        </Normative>
+        <Presentation syntax="RIFBLD-PS"><![CDATA[
+Document(
+  Prefix(ex  <http://example.org/example#>)
+  Group(
+   ex:a=ex:b
+  )
+ )
+]]></Presentation>
+    </PremiseDocument>
+    <ConclusionDocument>
+        <Normative syntax="RIF/XML">
+            <name>ListEqualityFromElementEquality-conclusion.rif</name>
+            <remote>http://www.w3.org/2005/rules/test/repository/tc/ListEqualityFromElementEquality/ListEqualityFromElementEquality-conclusion.rif</remote>
+        </Normative>
+        <Presentation syntax="RIFBLD-PS"><![CDATA[
+List(ex:a) = List(ex:b)
+]]></Presentation>
+    </ConclusionDocument>
+</PositiveEntailmentTest>

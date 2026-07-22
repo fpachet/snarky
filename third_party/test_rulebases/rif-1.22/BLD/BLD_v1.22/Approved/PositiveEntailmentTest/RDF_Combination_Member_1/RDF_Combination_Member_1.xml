@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<PositiveEntailmentTest id="RDF_Combination_Member_1"
+    src="http://www.w3.org/2005/rules/test/repository/tc/RDF_Combination_Member_1" xmlns="http://www.w3.org/2009/10/rif-test#">
+    <status>Approved</status>
+    <dialect>BLD</dialect>
+    <Combinations>
+        <profile>http://www.w3.org/ns/entailment/Simple</profile>
+    </Combinations>
+    <purpose>test relationships between #/## and rdf:type/rdfs:subClassOf</purpose>
+    <description>Declaring i to be rdf:type A leads to i#A since rdf:type and # are equivalent. Conversely declaring k#A leads to the frame corresponding to the triple: k rdf:type A. Declaring A##B leads to A rdfs:subClassOf B since rdfs:subClassOf is a super-property of ##, and so to i rdf:type B.</description>
+    <ImportedDocument>
+        <Normative syntax="RDF/XML">
+            <name>RDF_Combination_Member_1-import001.rdf</name>
+            <remote>http://www.w3.org/2005/rules/test/repository/tc/RDF_Combination_Member_1/RDF_Combination_Member_1-import001</remote>
+        </Normative>
+        <Presentation syntax="Turtle"><![CDATA[
+<http://example.org/example#i> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type>  <http://example.org/example#A>.
+]]></Presentation>
+    </ImportedDocument>
+    <PremiseDocument>
+        <Normative syntax="RIF/XML">
+            <name>RDF_Combination_Member_1-premise.rif</name>
+            <remote>http://www.w3.org/2005/rules/test/repository/tc/RDF_Combination_Member_1/RDF_Combination_Member_1-premise.rif</remote>
+        </Normative>
+        <Presentation syntax="RIFBLD-PS"><![CDATA[
+Document(
+
+     Prefix(ex  <http://example.org/example#>)
+     Import(<http://example.org/mygraph> <http://www.w3.org/ns/entailment/Simple>)
+
+     Group
+     (
+        ex:A ## ex:B
+        ex:k # ex:A
+     )
+  )
+]]></Presentation>
+    </PremiseDocument>
+    <ConclusionDocument>
+        <Normative syntax="RIF/XML">
+            <name>RDF_Combination_Member_1-conclusion.rif</name>
+            <remote>http://www.w3.org/2005/rules/test/repository/tc/RDF_Combination_Member_1/RDF_Combination_Member_1-conclusion.rif</remote>
+        </Normative>
+        <Presentation syntax="RIFBLD-PS"><![CDATA[
+And (
+     ex:i # ex:A
+     ex:k[rdf:type->ex:A]
+     ex:A[rdfs:subClassOf->ex:B]
+     ex:i # ex:B
+     ex:i[rdf:type->ex:B]
+   )
+]]></Presentation>
+    </ConclusionDocument>
+</PositiveEntailmentTest>

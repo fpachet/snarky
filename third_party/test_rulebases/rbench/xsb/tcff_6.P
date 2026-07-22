@@ -1,0 +1,72 @@
+/*=============================================================================
+ * Tansitive closure program. Query all results (both arguments free).
+ *
+ * This version tables the predicate tc to ensure termination for cyclic data.
+ * It uses load_dync to load the data.
+ *
+ * The main program is in 'bench_lib.P'.
+ * This file is a modified version of a file distributed with OpenRuleBench.
+ *
+ * Last Change: April 28, 2019 (Stefan Brass).
+ *=============================================================================
+ */
+
+/*-----------------------------------------------------------------------------
+ * ID of this Benchmark:
+ *-----------------------------------------------------------------------------
+ */
+
+bench_id('tcff_6').
+
+/*-----------------------------------------------------------------------------
+ * Implementation Variant (Option Settings):
+ *-----------------------------------------------------------------------------
+ */
+
+/* Data load method: */
+:- import load_dync/2 from consult.
+load_data(Filename) :- load_dync(Filename,a).
+
+/* Index for the given database relation (edges of the graph): */
+:- index(par/2, [1,2]).
+
+/* Tabling method: */
+:- table tc/2 as variant.
+
+/*-----------------------------------------------------------------------------
+ * Benchmark Program:
+ *-----------------------------------------------------------------------------
+ */
+
+tc(X,Y) :- par(X,Y).
+tc(X,Y) :- par(X,Z), tc(Z,Y).
+
+/*-----------------------------------------------------------------------------
+ * Benchmark Query:
+ *-----------------------------------------------------------------------------
+ */
+
+bench :- tc(_,_), fail.
+bench.
+
+/*-----------------------------------------------------------------------------
+ * Benchmark Query with Writing of Result:
+ *-----------------------------------------------------------------------------
+ */
+
+bench_write(Stream) :-
+	tc(X,Y),
+	write(Stream, X),
+	write(Stream, '\t'),
+	write(Stream, Y),
+	write(Stream, '\n'),
+	fail.
+bench_write(_).
+
+/*-----------------------------------------------------------------------------
+ * The rest is the same for all XSB benchmarks:
+ *-----------------------------------------------------------------------------
+ */
+
+:- consult('bench_lib.P').
+

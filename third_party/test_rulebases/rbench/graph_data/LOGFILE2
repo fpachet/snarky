@@ -1,0 +1,3514 @@
+
+=======================================================================
+Input File:  'tc_s1_n2k_1' (with extension .tsv)
+=======================================================================
+
+-----------------------------------------------------------------------
+Drop old version of views and tables:
+-----------------------------------------------------------------------
+
+Note: It is ok if the tables or views do not exist in the first run
+
+DROP VIEW
+DROP VIEW
+DROP VIEW
+DROP VIEW
+DROP VIEW
+DROP VIEW
+DROP VIEW
+DROP VIEW
+DROP VIEW
+DROP VIEW
+DROP VIEW
+DROP VIEW
+DROP VIEW
+DROP VIEW
+DROP VIEW
+DROP TABLE
+DROP TABLE
+DROP TABLE
+DROP TABLE
+DROP TABLE
+DROP TABLE
+DROP TABLE
+DROP TABLE
+DROP TABLE
+
+-----------------------------------------------------------------------
+Create tables:
+-----------------------------------------------------------------------
+
+CREATE TABLE
+CREATE TABLE
+CREATE TABLE
+CREATE TABLE
+CREATE TABLE
+CREATE INDEX
+CREATE TABLE
+CREATE TABLE
+CREATE TABLE
+CREATE TABLE
+
+-----------------------------------------------------------------------
+Load the data:
+-----------------------------------------------------------------------
+
+Write command to load the data to load_cmd.sql:
+Showing only tuples.
+Tuples only is off.
+LOAD DATA
+Timing is on.
+Time: 7.194 ms
+CREATE INDEX
+Time: 8.668 ms
+ANALYZE
+Time: 4.930 ms
+Timing is off.
+
+-----------------------------------------------------------------------
+Create views to analyze the graph:
+-----------------------------------------------------------------------
+
+CREATE VIEW
+CREATE VIEW
+CREATE VIEW
+CREATE VIEW
+CREATE VIEW
+CREATE VIEW
+CREATE VIEW
+CREATE VIEW
+CREATE VIEW
+CREATE VIEW
+CREATE VIEW
+CREATE VIEW
+
+-----------------------------------------------------------------------
+GRAPH STATISTICS:
+-----------------------------------------------------------------------
+
+Timing is on.
+ num_nodes | num_edges | duplicate_edges | num_loops 
+-----------+-----------+-----------------+-----------
+      2000 |      4000 |               0 |         0
+(1 row)
+
+Time: 38.780 ms
+ min_in_degree | max_in_degree | min_out_degree | max_out_degree 
+---------------+---------------+----------------+----------------
+             2 |             2 |              2 |              2
+(1 row)
+
+Time: 33.088 ms
+Timing is off.
+
+-----------------------------------------------------------------------
+Transitive Closure:
+-----------------------------------------------------------------------
+
+CREATE VIEW
+Compute Transitive Closure (this may take a while ...):
+Timing is on.
+INSERT 0 4000000
+Time: 9560.015 ms
+ANALYZE
+Time: 241.826 ms
+
+Size of transitive closure:
+
+INSERT 0 1
+Time: 226.724 ms
+ tc_size 
+---------
+ 4000000
+(1 row)
+
+Time: 0.123 ms
+Compute Cost Measure:
+CREATE VIEW
+Time: 2.169 ms
+
+Cost measure for transitive closure computation:
+
+ rule_1 | rule_2  | total_cost 
+--------+---------+------------
+   4000 | 8000000 |    8004000
+(1 row)
+
+Time: 1293.178 ms
+INSERT 0 1
+Time: 1285.989 ms
+Compute Nodes that participate in cycles:
+CREATE VIEW
+Time: 1.323 ms
+
+The graph contains cycles if the following query returns a value > 0:
+
+INSERT 0 1
+Time: 283.694 ms
+ nodes_in_cycles 
+-----------------
+            2000
+(1 row)
+
+Time: 0.134 ms
+Timing is off.
+
+-----------------------------------------------------------------------
+Compute Transitive Closure with levels (max. 10 iterations):
+-----------------------------------------------------------------------
+
+Timing is on.
+This will take a long time ...
+INSERT 0 42000
+Time: 290.952 ms
+
+tc tuples computed in each iteration (<= 10 ):
+
+INSERT 0 10
+Time: 27.645 ms
+ iter | num_tuples 
+------+------------
+    1 |       4000
+    2 |       6000
+    3 |       4000
+    4 |       4000
+    5 |       4000
+    6 |       4000
+    7 |       4000
+    8 |       4000
+    9 |       4000
+   10 |       4000
+(10 rows)
+
+Time: 0.234 ms
+
+Number of iterations (limited to 10 iterations):
+
+INSERT 0 1
+Time: 1.174 ms
+ max_iter_below_limit 
+----------------------
+                   10
+(1 row)
+
+Time: 0.143 ms
+
+tc tuples not computed in 10 iterations:
+
+INSERT 0 1
+Time: 4222.441 ms
+ tc_tuples_with_more_iterations 
+--------------------------------
+                        3958000
+(1 row)
+
+Time: 0.208 ms
+Timing is off.
+
+-----------------------------------------------------------------------
+Write result in LaTeX format to tc_stat_output.tex:
+-----------------------------------------------------------------------
+
+Showing only tuples.
+Tuples only is off.
+
+-----------------------------------------------------------------------
+Write result as SQL INSERT statements:
+-----------------------------------------------------------------------
+
+"First graph_data_part.sql:"
+Showing only tuples.
+"Now graph_indeg_part.sql:"
+"Now graph_outdeg_part.sql:"
+"Finally graph_iter_part.sql:"
+Tuples only is off.
+
+=======================================================================
+Input File:  'tc_s2_n2k_2' (with extension .tsv)
+=======================================================================
+
+-----------------------------------------------------------------------
+Drop old version of views and tables:
+-----------------------------------------------------------------------
+
+Note: It is ok if the tables or views do not exist in the first run
+
+DROP VIEW
+DROP VIEW
+DROP VIEW
+DROP VIEW
+DROP VIEW
+DROP VIEW
+DROP VIEW
+DROP VIEW
+DROP VIEW
+DROP VIEW
+DROP VIEW
+DROP VIEW
+DROP VIEW
+DROP VIEW
+DROP VIEW
+DROP TABLE
+DROP TABLE
+DROP TABLE
+DROP TABLE
+DROP TABLE
+DROP TABLE
+DROP TABLE
+DROP TABLE
+DROP TABLE
+
+-----------------------------------------------------------------------
+Create tables:
+-----------------------------------------------------------------------
+
+CREATE TABLE
+CREATE TABLE
+CREATE TABLE
+CREATE TABLE
+CREATE TABLE
+CREATE INDEX
+CREATE TABLE
+CREATE TABLE
+CREATE TABLE
+CREATE TABLE
+
+-----------------------------------------------------------------------
+Load the data:
+-----------------------------------------------------------------------
+
+Write command to load the data to load_cmd.sql:
+Showing only tuples.
+Tuples only is off.
+LOAD DATA
+Timing is on.
+Time: 9.035 ms
+CREATE INDEX
+Time: 11.301 ms
+ANALYZE
+Time: 6.884 ms
+Timing is off.
+
+-----------------------------------------------------------------------
+Create views to analyze the graph:
+-----------------------------------------------------------------------
+
+CREATE VIEW
+CREATE VIEW
+CREATE VIEW
+CREATE VIEW
+CREATE VIEW
+CREATE VIEW
+CREATE VIEW
+CREATE VIEW
+CREATE VIEW
+CREATE VIEW
+CREATE VIEW
+CREATE VIEW
+
+-----------------------------------------------------------------------
+GRAPH STATISTICS:
+-----------------------------------------------------------------------
+
+Timing is on.
+ num_nodes | num_edges | duplicate_edges | num_loops 
+-----------+-----------+-----------------+-----------
+      2000 |      6000 |               0 |         0
+(1 row)
+
+Time: 38.594 ms
+ min_in_degree | max_in_degree | min_out_degree | max_out_degree 
+---------------+---------------+----------------+----------------
+             3 |             3 |              3 |              3
+(1 row)
+
+Time: 17.991 ms
+Timing is off.
+
+-----------------------------------------------------------------------
+Transitive Closure:
+-----------------------------------------------------------------------
+
+CREATE VIEW
+Compute Transitive Closure (this may take a while ...):
+Timing is on.
+INSERT 0 4000000
+Time: 11276.515 ms
+ANALYZE
+Time: 285.428 ms
+
+Size of transitive closure:
+
+INSERT 0 1
+Time: 221.196 ms
+ tc_size 
+---------
+ 4000000
+(1 row)
+
+Time: 0.107 ms
+Compute Cost Measure:
+CREATE VIEW
+Time: 5.158 ms
+
+Cost measure for transitive closure computation:
+
+ rule_1 |  rule_2  | total_cost 
+--------+----------+------------
+   6000 | 12000000 |   12006000
+(1 row)
+
+Time: 1812.818 ms
+INSERT 0 1
+Time: 1801.424 ms
+Compute Nodes that participate in cycles:
+CREATE VIEW
+Time: 1.139 ms
+
+The graph contains cycles if the following query returns a value > 0:
+
+INSERT 0 1
+Time: 291.013 ms
+ nodes_in_cycles 
+-----------------
+            2000
+(1 row)
+
+Time: 0.147 ms
+Timing is off.
+
+-----------------------------------------------------------------------
+Compute Transitive Closure with levels (max. 10 iterations):
+-----------------------------------------------------------------------
+
+Timing is on.
+This will take a long time ...
+INSERT 0 130000
+Time: 1580.879 ms
+
+tc tuples computed in each iteration (<= 10 ):
+
+INSERT 0 10
+Time: 24.095 ms
+ iter | num_tuples 
+------+------------
+    1 |       6000
+    2 |      10000
+    3 |      14000
+    4 |      16000
+    5 |      14000
+    6 |      14000
+    7 |      14000
+    8 |      14000
+    9 |      14000
+   10 |      14000
+(10 rows)
+
+Time: 0.134 ms
+
+Number of iterations (limited to 10 iterations):
+
+INSERT 0 1
+Time: 0.890 ms
+ max_iter_below_limit 
+----------------------
+                   10
+(1 row)
+
+Time: 0.053 ms
+
+tc tuples not computed in 10 iterations:
+
+INSERT 0 1
+Time: 4450.786 ms
+ tc_tuples_with_more_iterations 
+--------------------------------
+                        3870000
+(1 row)
+
+Time: 0.126 ms
+Timing is off.
+
+-----------------------------------------------------------------------
+Write result in LaTeX format to tc_stat_output.tex:
+-----------------------------------------------------------------------
+
+Showing only tuples.
+Tuples only is off.
+
+-----------------------------------------------------------------------
+Write result as SQL INSERT statements:
+-----------------------------------------------------------------------
+
+"First graph_data_part.sql:"
+Showing only tuples.
+"Now graph_indeg_part.sql:"
+"Now graph_outdeg_part.sql:"
+"Finally graph_iter_part.sql:"
+Tuples only is off.
+
+=======================================================================
+Input File:  'tc_s3_n2k_3' (with extension .tsv)
+=======================================================================
+
+-----------------------------------------------------------------------
+Drop old version of views and tables:
+-----------------------------------------------------------------------
+
+Note: It is ok if the tables or views do not exist in the first run
+
+DROP VIEW
+DROP VIEW
+DROP VIEW
+DROP VIEW
+DROP VIEW
+DROP VIEW
+DROP VIEW
+DROP VIEW
+DROP VIEW
+DROP VIEW
+DROP VIEW
+DROP VIEW
+DROP VIEW
+DROP VIEW
+DROP VIEW
+DROP TABLE
+DROP TABLE
+DROP TABLE
+DROP TABLE
+DROP TABLE
+DROP TABLE
+DROP TABLE
+DROP TABLE
+DROP TABLE
+
+-----------------------------------------------------------------------
+Create tables:
+-----------------------------------------------------------------------
+
+CREATE TABLE
+CREATE TABLE
+CREATE TABLE
+CREATE TABLE
+CREATE TABLE
+CREATE INDEX
+CREATE TABLE
+CREATE TABLE
+CREATE TABLE
+CREATE TABLE
+
+-----------------------------------------------------------------------
+Load the data:
+-----------------------------------------------------------------------
+
+Write command to load the data to load_cmd.sql:
+Showing only tuples.
+Tuples only is off.
+LOAD DATA
+Timing is on.
+Time: 10.803 ms
+CREATE INDEX
+Time: 12.215 ms
+ANALYZE
+Time: 7.140 ms
+Timing is off.
+
+-----------------------------------------------------------------------
+Create views to analyze the graph:
+-----------------------------------------------------------------------
+
+CREATE VIEW
+CREATE VIEW
+CREATE VIEW
+CREATE VIEW
+CREATE VIEW
+CREATE VIEW
+CREATE VIEW
+CREATE VIEW
+CREATE VIEW
+CREATE VIEW
+CREATE VIEW
+CREATE VIEW
+
+-----------------------------------------------------------------------
+GRAPH STATISTICS:
+-----------------------------------------------------------------------
+
+Timing is on.
+ num_nodes | num_edges | duplicate_edges | num_loops 
+-----------+-----------+-----------------+-----------
+      2000 |      8000 |               0 |         0
+(1 row)
+
+Time: 22.835 ms
+ min_in_degree | max_in_degree | min_out_degree | max_out_degree 
+---------------+---------------+----------------+----------------
+             4 |             4 |              4 |              4
+(1 row)
+
+Time: 20.939 ms
+Timing is off.
+
+-----------------------------------------------------------------------
+Transitive Closure:
+-----------------------------------------------------------------------
+
+CREATE VIEW
+Compute Transitive Closure (this may take a while ...):
+Timing is on.
+INSERT 0 4000000
+Time: 11520.671 ms
+ANALYZE
+Time: 264.134 ms
+
+Size of transitive closure:
+
+INSERT 0 1
+Time: 221.059 ms
+ tc_size 
+---------
+ 4000000
+(1 row)
+
+Time: 0.108 ms
+Compute Cost Measure:
+CREATE VIEW
+Time: 2.464 ms
+
+Cost measure for transitive closure computation:
+
+ rule_1 |  rule_2  | total_cost 
+--------+----------+------------
+   8000 | 16000000 |   16008000
+(1 row)
+
+Time: 2406.504 ms
+INSERT 0 1
+Time: 2358.731 ms
+Compute Nodes that participate in cycles:
+CREATE VIEW
+Time: 1.266 ms
+
+The graph contains cycles if the following query returns a value > 0:
+
+INSERT 0 1
+Time: 282.927 ms
+ nodes_in_cycles 
+-----------------
+            2000
+(1 row)
+
+Time: 0.107 ms
+Timing is off.
+
+-----------------------------------------------------------------------
+Compute Transitive Closure with levels (max. 10 iterations):
+-----------------------------------------------------------------------
+
+Timing is on.
+This will take a long time ...
+INSERT 0 82000
+Time: 1243.437 ms
+
+tc tuples computed in each iteration (<= 10 ):
+
+INSERT 0 10
+Time: 14.699 ms
+ iter | num_tuples 
+------+------------
+    1 |       8000
+    2 |      10000
+    3 |       8000
+    4 |       8000
+    5 |       8000
+    6 |       8000
+    7 |       8000
+    8 |       8000
+    9 |       8000
+   10 |       8000
+(10 rows)
+
+Time: 0.138 ms
+
+Number of iterations (limited to 10 iterations):
+
+INSERT 0 1
+Time: 0.873 ms
+ max_iter_below_limit 
+----------------------
+                   10
+(1 row)
+
+Time: 0.066 ms
+
+tc tuples not computed in 10 iterations:
+
+INSERT 0 1
+Time: 4459.213 ms
+ tc_tuples_with_more_iterations 
+--------------------------------
+                        3918000
+(1 row)
+
+Time: 0.188 ms
+Timing is off.
+
+-----------------------------------------------------------------------
+Write result in LaTeX format to tc_stat_output.tex:
+-----------------------------------------------------------------------
+
+Showing only tuples.
+Tuples only is off.
+
+-----------------------------------------------------------------------
+Write result as SQL INSERT statements:
+-----------------------------------------------------------------------
+
+"First graph_data_part.sql:"
+Showing only tuples.
+"Now graph_indeg_part.sql:"
+"Now graph_outdeg_part.sql:"
+"Finally graph_iter_part.sql:"
+Tuples only is off.
+
+=======================================================================
+Input File:  'tc_s4_n2k_4' (with extension .tsv)
+=======================================================================
+
+-----------------------------------------------------------------------
+Drop old version of views and tables:
+-----------------------------------------------------------------------
+
+Note: It is ok if the tables or views do not exist in the first run
+
+DROP VIEW
+DROP VIEW
+DROP VIEW
+DROP VIEW
+DROP VIEW
+DROP VIEW
+DROP VIEW
+DROP VIEW
+DROP VIEW
+DROP VIEW
+DROP VIEW
+DROP VIEW
+DROP VIEW
+DROP VIEW
+DROP VIEW
+DROP TABLE
+DROP TABLE
+DROP TABLE
+DROP TABLE
+DROP TABLE
+DROP TABLE
+DROP TABLE
+DROP TABLE
+DROP TABLE
+
+-----------------------------------------------------------------------
+Create tables:
+-----------------------------------------------------------------------
+
+CREATE TABLE
+CREATE TABLE
+CREATE TABLE
+CREATE TABLE
+CREATE TABLE
+CREATE INDEX
+CREATE TABLE
+CREATE TABLE
+CREATE TABLE
+CREATE TABLE
+
+-----------------------------------------------------------------------
+Load the data:
+-----------------------------------------------------------------------
+
+Write command to load the data to load_cmd.sql:
+Showing only tuples.
+Tuples only is off.
+LOAD DATA
+Timing is on.
+Time: 13.645 ms
+CREATE INDEX
+Time: 17.035 ms
+ANALYZE
+Time: 12.959 ms
+Timing is off.
+
+-----------------------------------------------------------------------
+Create views to analyze the graph:
+-----------------------------------------------------------------------
+
+CREATE VIEW
+CREATE VIEW
+CREATE VIEW
+CREATE VIEW
+CREATE VIEW
+CREATE VIEW
+CREATE VIEW
+CREATE VIEW
+CREATE VIEW
+CREATE VIEW
+CREATE VIEW
+CREATE VIEW
+
+-----------------------------------------------------------------------
+GRAPH STATISTICS:
+-----------------------------------------------------------------------
+
+Timing is on.
+ num_nodes | num_edges | duplicate_edges | num_loops 
+-----------+-----------+-----------------+-----------
+      2000 |     10000 |               0 |         0
+(1 row)
+
+Time: 56.936 ms
+ min_in_degree | max_in_degree | min_out_degree | max_out_degree 
+---------------+---------------+----------------+----------------
+             5 |             5 |              5 |              5
+(1 row)
+
+Time: 26.882 ms
+Timing is off.
+
+-----------------------------------------------------------------------
+Transitive Closure:
+-----------------------------------------------------------------------
+
+CREATE VIEW
+Compute Transitive Closure (this may take a while ...):
+Timing is on.
+INSERT 0 4000000
+Time: 13317.280 ms
+ANALYZE
+Time: 249.993 ms
+
+Size of transitive closure:
+
+INSERT 0 1
+Time: 221.554 ms
+ tc_size 
+---------
+ 4000000
+(1 row)
+
+Time: 0.109 ms
+Compute Cost Measure:
+CREATE VIEW
+Time: 2.333 ms
+
+Cost measure for transitive closure computation:
+
+ rule_1 |  rule_2  | total_cost 
+--------+----------+------------
+  10000 | 20000000 |   20010000
+(1 row)
+
+Time: 2905.204 ms
+INSERT 0 1
+Time: 2927.429 ms
+Compute Nodes that participate in cycles:
+CREATE VIEW
+Time: 1.269 ms
+
+The graph contains cycles if the following query returns a value > 0:
+
+INSERT 0 1
+Time: 294.338 ms
+ nodes_in_cycles 
+-----------------
+            2000
+(1 row)
+
+Time: 0.111 ms
+Timing is off.
+
+-----------------------------------------------------------------------
+Compute Transitive Closure with levels (max. 10 iterations):
+-----------------------------------------------------------------------
+
+Timing is on.
+This will take a long time ...
+INSERT 0 102000
+Time: 1736.491 ms
+
+tc tuples computed in each iteration (<= 10 ):
+
+INSERT 0 10
+Time: 51.646 ms
+ iter | num_tuples 
+------+------------
+    1 |      10000
+    2 |      12000
+    3 |      10000
+    4 |      10000
+    5 |      10000
+    6 |      10000
+    7 |      10000
+    8 |      10000
+    9 |      10000
+   10 |      10000
+(10 rows)
+
+Time: 0.235 ms
+
+Number of iterations (limited to 10 iterations):
+
+INSERT 0 1
+Time: 1.202 ms
+ max_iter_below_limit 
+----------------------
+                   10
+(1 row)
+
+Time: 0.139 ms
+
+tc tuples not computed in 10 iterations:
+
+INSERT 0 1
+Time: 4303.747 ms
+ tc_tuples_with_more_iterations 
+--------------------------------
+                        3898000
+(1 row)
+
+Time: 0.124 ms
+Timing is off.
+
+-----------------------------------------------------------------------
+Write result in LaTeX format to tc_stat_output.tex:
+-----------------------------------------------------------------------
+
+Showing only tuples.
+Tuples only is off.
+
+-----------------------------------------------------------------------
+Write result as SQL INSERT statements:
+-----------------------------------------------------------------------
+
+"First graph_data_part.sql:"
+Showing only tuples.
+"Now graph_indeg_part.sql:"
+"Now graph_outdeg_part.sql:"
+"Finally graph_iter_part.sql:"
+Tuples only is off.
+
+=======================================================================
+Input File:  'tc_uc1_n1k_e50k' (with extension .tsv)
+=======================================================================
+
+-----------------------------------------------------------------------
+Drop old version of views and tables:
+-----------------------------------------------------------------------
+
+Note: It is ok if the tables or views do not exist in the first run
+
+DROP VIEW
+DROP VIEW
+DROP VIEW
+DROP VIEW
+DROP VIEW
+DROP VIEW
+DROP VIEW
+DROP VIEW
+DROP VIEW
+DROP VIEW
+DROP VIEW
+DROP VIEW
+DROP VIEW
+DROP VIEW
+DROP VIEW
+DROP TABLE
+DROP TABLE
+DROP TABLE
+DROP TABLE
+DROP TABLE
+DROP TABLE
+DROP TABLE
+DROP TABLE
+DROP TABLE
+
+-----------------------------------------------------------------------
+Create tables:
+-----------------------------------------------------------------------
+
+CREATE TABLE
+CREATE TABLE
+CREATE TABLE
+CREATE TABLE
+CREATE TABLE
+CREATE INDEX
+CREATE TABLE
+CREATE TABLE
+CREATE TABLE
+CREATE TABLE
+
+-----------------------------------------------------------------------
+Load the data:
+-----------------------------------------------------------------------
+
+Write command to load the data to load_cmd.sql:
+Showing only tuples.
+Tuples only is off.
+LOAD DATA
+Timing is on.
+Time: 22.409 ms
+CREATE INDEX
+Time: 33.075 ms
+ANALYZE
+Time: 21.140 ms
+Timing is off.
+
+-----------------------------------------------------------------------
+Create views to analyze the graph:
+-----------------------------------------------------------------------
+
+CREATE VIEW
+CREATE VIEW
+CREATE VIEW
+CREATE VIEW
+CREATE VIEW
+CREATE VIEW
+CREATE VIEW
+CREATE VIEW
+CREATE VIEW
+CREATE VIEW
+CREATE VIEW
+CREATE VIEW
+
+-----------------------------------------------------------------------
+GRAPH STATISTICS:
+-----------------------------------------------------------------------
+
+Timing is on.
+ num_nodes | num_edges | duplicate_edges | num_loops 
+-----------+-----------+-----------------+-----------
+      1000 |     50000 |               0 |         0
+(1 row)
+
+Time: 219.889 ms
+ min_in_degree | max_in_degree | min_out_degree | max_out_degree 
+---------------+---------------+----------------+----------------
+            47 |            51 |             46 |             51
+(1 row)
+
+Time: 216.339 ms
+Timing is off.
+
+-----------------------------------------------------------------------
+Transitive Closure:
+-----------------------------------------------------------------------
+
+CREATE VIEW
+Compute Transitive Closure (this may take a while ...):
+Timing is on.
+INSERT 0 1000000
+Time: 18378.822 ms
+ANALYZE
+Time: 115.241 ms
+
+Size of transitive closure:
+
+INSERT 0 1
+Time: 54.852 ms
+ tc_size 
+---------
+ 1000000
+(1 row)
+
+Time: 0.184 ms
+Compute Cost Measure:
+CREATE VIEW
+Time: 2.573 ms
+
+Cost measure for transitive closure computation:
+
+ rule_1 |  rule_2  | total_cost 
+--------+----------+------------
+  50000 | 50000000 |   50050000
+(1 row)
+
+Time: 5058.760 ms
+INSERT 0 1
+Time: 5000.153 ms
+Compute Nodes that participate in cycles:
+CREATE VIEW
+Time: 1.560 ms
+
+The graph contains cycles if the following query returns a value > 0:
+
+INSERT 0 1
+Time: 133.507 ms
+ nodes_in_cycles 
+-----------------
+            1000
+(1 row)
+
+Time: 0.118 ms
+Timing is off.
+
+-----------------------------------------------------------------------
+Compute Transitive Closure with levels (max. 10 iterations):
+-----------------------------------------------------------------------
+
+Timing is on.
+This will take a long time ...
+INSERT 0 1000000
+Time: 138696.801 ms
+
+tc tuples computed in each iteration (<= 10 ):
+
+INSERT 0 3
+Time: 255.221 ms
+ iter | num_tuples 
+------+------------
+    1 |      50000
+    2 |     878753
+    3 |      71247
+(3 rows)
+
+Time: 0.170 ms
+
+Number of iterations (limited to 10 iterations):
+
+INSERT 0 1
+Time: 0.988 ms
+ max_iter_below_limit 
+----------------------
+                    3
+(1 row)
+
+Time: 0.075 ms
+
+tc tuples not computed in 10 iterations:
+
+INSERT 0 1
+Time: 4542.599 ms
+ tc_tuples_with_more_iterations 
+--------------------------------
+                              0
+(1 row)
+
+Time: 0.231 ms
+Timing is off.
+
+-----------------------------------------------------------------------
+Write result in LaTeX format to tc_stat_output.tex:
+-----------------------------------------------------------------------
+
+Showing only tuples.
+Tuples only is off.
+
+-----------------------------------------------------------------------
+Write result as SQL INSERT statements:
+-----------------------------------------------------------------------
+
+"First graph_data_part.sql:"
+Showing only tuples.
+"Now graph_indeg_part.sql:"
+"Now graph_outdeg_part.sql:"
+"Finally graph_iter_part.sql:"
+Tuples only is off.
+
+=======================================================================
+Input File:  'tc_uc2_n1k_e125k' (with extension .tsv)
+=======================================================================
+
+-----------------------------------------------------------------------
+Drop old version of views and tables:
+-----------------------------------------------------------------------
+
+Note: It is ok if the tables or views do not exist in the first run
+
+DROP VIEW
+DROP VIEW
+DROP VIEW
+DROP VIEW
+DROP VIEW
+DROP VIEW
+DROP VIEW
+DROP VIEW
+DROP VIEW
+DROP VIEW
+DROP VIEW
+DROP VIEW
+DROP VIEW
+DROP VIEW
+DROP VIEW
+DROP TABLE
+DROP TABLE
+DROP TABLE
+DROP TABLE
+DROP TABLE
+DROP TABLE
+DROP TABLE
+DROP TABLE
+DROP TABLE
+
+-----------------------------------------------------------------------
+Create tables:
+-----------------------------------------------------------------------
+
+CREATE TABLE
+CREATE TABLE
+CREATE TABLE
+CREATE TABLE
+CREATE TABLE
+CREATE INDEX
+CREATE TABLE
+CREATE TABLE
+CREATE TABLE
+CREATE TABLE
+
+-----------------------------------------------------------------------
+Load the data:
+-----------------------------------------------------------------------
+
+Write command to load the data to load_cmd.sql:
+Showing only tuples.
+Tuples only is off.
+LOAD DATA
+Timing is on.
+Time: 134.720 ms
+CREATE INDEX
+Time: 150.515 ms
+ANALYZE
+Time: 27.818 ms
+Timing is off.
+
+-----------------------------------------------------------------------
+Create views to analyze the graph:
+-----------------------------------------------------------------------
+
+CREATE VIEW
+CREATE VIEW
+CREATE VIEW
+CREATE VIEW
+CREATE VIEW
+CREATE VIEW
+CREATE VIEW
+CREATE VIEW
+CREATE VIEW
+CREATE VIEW
+CREATE VIEW
+CREATE VIEW
+
+-----------------------------------------------------------------------
+GRAPH STATISTICS:
+-----------------------------------------------------------------------
+
+Timing is on.
+ num_nodes | num_edges | duplicate_edges | num_loops 
+-----------+-----------+-----------------+-----------
+      1000 |    125000 |               0 |         0
+(1 row)
+
+Time: 780.520 ms
+ min_in_degree | max_in_degree | min_out_degree | max_out_degree 
+---------------+---------------+----------------+----------------
+           122 |           127 |            122 |            127
+(1 row)
+
+Time: 670.059 ms
+Timing is off.
+
+-----------------------------------------------------------------------
+Transitive Closure:
+-----------------------------------------------------------------------
+
+CREATE VIEW
+Compute Transitive Closure (this may take a while ...):
+Timing is on.
+INSERT 0 1000000
+Time: 38426.700 ms
+ANALYZE
+Time: 133.378 ms
+
+Size of transitive closure:
+
+INSERT 0 1
+Time: 59.182 ms
+ tc_size 
+---------
+ 1000000
+(1 row)
+
+Time: 0.114 ms
+Compute Cost Measure:
+CREATE VIEW
+Time: 5.611 ms
+
+Cost measure for transitive closure computation:
+
+ rule_1 |  rule_2   | total_cost 
+--------+-----------+------------
+ 125000 | 125000000 |  125125000
+(1 row)
+
+Time: 11214.081 ms
+INSERT 0 1
+Time: 11177.858 ms
+Compute Nodes that participate in cycles:
+CREATE VIEW
+Time: 1.836 ms
+
+The graph contains cycles if the following query returns a value > 0:
+
+INSERT 0 1
+Time: 138.131 ms
+ nodes_in_cycles 
+-----------------
+            1000
+(1 row)
+
+Time: 0.098 ms
+Timing is off.
+
+-----------------------------------------------------------------------
+Compute Transitive Closure with levels (max. 10 iterations):
+-----------------------------------------------------------------------
+
+Timing is on.
+This will take a long time ...
+INSERT 0 1000000
+Time: 316952.756 ms
+
+tc tuples computed in each iteration (<= 10 ):
+
+INSERT 0 2
+Time: 272.526 ms
+ iter | num_tuples 
+------+------------
+    1 |     125000
+    2 |     875000
+(2 rows)
+
+Time: 0.140 ms
+
+Number of iterations (limited to 10 iterations):
+
+INSERT 0 1
+Time: 1.023 ms
+ max_iter_below_limit 
+----------------------
+                    2
+(1 row)
+
+Time: 0.074 ms
+
+tc tuples not computed in 10 iterations:
+
+INSERT 0 1
+Time: 4355.210 ms
+ tc_tuples_with_more_iterations 
+--------------------------------
+                              0
+(1 row)
+
+Time: 0.180 ms
+Timing is off.
+
+-----------------------------------------------------------------------
+Write result in LaTeX format to tc_stat_output.tex:
+-----------------------------------------------------------------------
+
+Showing only tuples.
+Tuples only is off.
+
+-----------------------------------------------------------------------
+Write result as SQL INSERT statements:
+-----------------------------------------------------------------------
+
+"First graph_data_part.sql:"
+Showing only tuples.
+"Now graph_indeg_part.sql:"
+"Now graph_outdeg_part.sql:"
+"Finally graph_iter_part.sql:"
+Tuples only is off.
+
+=======================================================================
+Input File:  'tc_uc3_n1k_e250k' (with extension .tsv)
+=======================================================================
+
+-----------------------------------------------------------------------
+Drop old version of views and tables:
+-----------------------------------------------------------------------
+
+Note: It is ok if the tables or views do not exist in the first run
+
+DROP VIEW
+DROP VIEW
+DROP VIEW
+DROP VIEW
+DROP VIEW
+DROP VIEW
+DROP VIEW
+DROP VIEW
+DROP VIEW
+DROP VIEW
+DROP VIEW
+DROP VIEW
+DROP VIEW
+DROP VIEW
+DROP VIEW
+DROP TABLE
+DROP TABLE
+DROP TABLE
+DROP TABLE
+DROP TABLE
+DROP TABLE
+DROP TABLE
+DROP TABLE
+DROP TABLE
+
+-----------------------------------------------------------------------
+Create tables:
+-----------------------------------------------------------------------
+
+CREATE TABLE
+CREATE TABLE
+CREATE TABLE
+CREATE TABLE
+CREATE TABLE
+CREATE INDEX
+CREATE TABLE
+CREATE TABLE
+CREATE TABLE
+CREATE TABLE
+
+-----------------------------------------------------------------------
+Load the data:
+-----------------------------------------------------------------------
+
+Write command to load the data to load_cmd.sql:
+Showing only tuples.
+Tuples only is off.
+LOAD DATA
+Timing is on.
+Time: 217.051 ms
+CREATE INDEX
+Time: 186.443 ms
+ANALYZE
+Time: 26.757 ms
+Timing is off.
+
+-----------------------------------------------------------------------
+Create views to analyze the graph:
+-----------------------------------------------------------------------
+
+CREATE VIEW
+CREATE VIEW
+CREATE VIEW
+CREATE VIEW
+CREATE VIEW
+CREATE VIEW
+CREATE VIEW
+CREATE VIEW
+CREATE VIEW
+CREATE VIEW
+CREATE VIEW
+CREATE VIEW
+
+-----------------------------------------------------------------------
+GRAPH STATISTICS:
+-----------------------------------------------------------------------
+
+Timing is on.
+ num_nodes | num_edges | duplicate_edges | num_loops 
+-----------+-----------+-----------------+-----------
+      1000 |    250000 |               0 |         0
+(1 row)
+
+Time: 1571.673 ms
+ min_in_degree | max_in_degree | min_out_degree | max_out_degree 
+---------------+---------------+----------------+----------------
+           248 |           251 |            248 |            251
+(1 row)
+
+Time: 1472.199 ms
+Timing is off.
+
+-----------------------------------------------------------------------
+Transitive Closure:
+-----------------------------------------------------------------------
+
+CREATE VIEW
+Compute Transitive Closure (this may take a while ...):
+Timing is on.
+INSERT 0 1000000
+Time: 75088.568 ms
+ANALYZE
+Time: 136.017 ms
+
+Size of transitive closure:
+
+INSERT 0 1
+Time: 57.099 ms
+ tc_size 
+---------
+ 1000000
+(1 row)
+
+Time: 0.200 ms
+Compute Cost Measure:
+CREATE VIEW
+Time: 4.097 ms
+
+Cost measure for transitive closure computation:
+
+ rule_1 |  rule_2   | total_cost 
+--------+-----------+------------
+ 250000 | 250000000 |  250250000
+(1 row)
+
+Time: 25227.153 ms
+INSERT 0 1
+Time: 26670.120 ms
+Compute Nodes that participate in cycles:
+CREATE VIEW
+Time: 1.660 ms
+
+The graph contains cycles if the following query returns a value > 0:
+
+INSERT 0 1
+Time: 159.992 ms
+ nodes_in_cycles 
+-----------------
+            1000
+(1 row)
+
+Time: 0.128 ms
+Timing is off.
+
+-----------------------------------------------------------------------
+Compute Transitive Closure with levels (max. 10 iterations):
+-----------------------------------------------------------------------
+
+Timing is on.
+This will take a long time ...
+INSERT 0 1000000
+Time: 621906.901 ms
+
+tc tuples computed in each iteration (<= 10 ):
+
+INSERT 0 2
+Time: 282.411 ms
+ iter | num_tuples 
+------+------------
+    1 |     250000
+    2 |     750000
+(2 rows)
+
+Time: 0.145 ms
+
+Number of iterations (limited to 10 iterations):
+
+INSERT 0 1
+Time: 0.953 ms
+ max_iter_below_limit 
+----------------------
+                    2
+(1 row)
+
+Time: 0.066 ms
+
+tc tuples not computed in 10 iterations:
+
+INSERT 0 1
+Time: 4277.166 ms
+ tc_tuples_with_more_iterations 
+--------------------------------
+                              0
+(1 row)
+
+Time: 0.130 ms
+Timing is off.
+
+-----------------------------------------------------------------------
+Write result in LaTeX format to tc_stat_output.tex:
+-----------------------------------------------------------------------
+
+Showing only tuples.
+Tuples only is off.
+
+-----------------------------------------------------------------------
+Write result as SQL INSERT statements:
+-----------------------------------------------------------------------
+
+"First graph_data_part.sql:"
+Showing only tuples.
+"Now graph_indeg_part.sql:"
+"Now graph_outdeg_part.sql:"
+"Finally graph_iter_part.sql:"
+Tuples only is off.
+
+=======================================================================
+Input File:  'tc_uc4_n2k_e200k' (with extension .tsv)
+=======================================================================
+
+-----------------------------------------------------------------------
+Drop old version of views and tables:
+-----------------------------------------------------------------------
+
+Note: It is ok if the tables or views do not exist in the first run
+
+DROP VIEW
+DROP VIEW
+DROP VIEW
+DROP VIEW
+DROP VIEW
+DROP VIEW
+DROP VIEW
+DROP VIEW
+DROP VIEW
+DROP VIEW
+DROP VIEW
+DROP VIEW
+DROP VIEW
+DROP VIEW
+DROP VIEW
+DROP TABLE
+DROP TABLE
+DROP TABLE
+DROP TABLE
+DROP TABLE
+DROP TABLE
+DROP TABLE
+DROP TABLE
+DROP TABLE
+
+-----------------------------------------------------------------------
+Create tables:
+-----------------------------------------------------------------------
+
+CREATE TABLE
+CREATE TABLE
+CREATE TABLE
+CREATE TABLE
+CREATE TABLE
+CREATE INDEX
+CREATE TABLE
+CREATE TABLE
+CREATE TABLE
+CREATE TABLE
+
+-----------------------------------------------------------------------
+Load the data:
+-----------------------------------------------------------------------
+
+Write command to load the data to load_cmd.sql:
+Showing only tuples.
+Tuples only is off.
+LOAD DATA
+Timing is on.
+Time: 205.292 ms
+CREATE INDEX
+Time: 144.701 ms
+ANALYZE
+Time: 26.830 ms
+Timing is off.
+
+-----------------------------------------------------------------------
+Create views to analyze the graph:
+-----------------------------------------------------------------------
+
+CREATE VIEW
+CREATE VIEW
+CREATE VIEW
+CREATE VIEW
+CREATE VIEW
+CREATE VIEW
+CREATE VIEW
+CREATE VIEW
+CREATE VIEW
+CREATE VIEW
+CREATE VIEW
+CREATE VIEW
+
+-----------------------------------------------------------------------
+GRAPH STATISTICS:
+-----------------------------------------------------------------------
+
+Timing is on.
+ num_nodes | num_edges | duplicate_edges | num_loops 
+-----------+-----------+-----------------+-----------
+      2000 |    200000 |               0 |         0
+(1 row)
+
+Time: 1253.015 ms
+ min_in_degree | max_in_degree | min_out_degree | max_out_degree 
+---------------+---------------+----------------+----------------
+            98 |           101 |             98 |            101
+(1 row)
+
+Time: 1164.749 ms
+Timing is off.
+
+-----------------------------------------------------------------------
+Transitive Closure:
+-----------------------------------------------------------------------
+
+CREATE VIEW
+Compute Transitive Closure (this may take a while ...):
+Timing is on.
+INSERT 0 4000000
+Time: 151827.208 ms
+ANALYZE
+Time: 281.484 ms
+
+Size of transitive closure:
+
+INSERT 0 1
+Time: 223.091 ms
+ tc_size 
+---------
+ 4000000
+(1 row)
+
+Time: 0.180 ms
+Compute Cost Measure:
+CREATE VIEW
+Time: 2.372 ms
+
+Cost measure for transitive closure computation:
+
+ rule_1 |  rule_2   | total_cost 
+--------+-----------+------------
+ 200000 | 400000000 |  400200000
+(1 row)
+
+Time: 36328.887 ms
+INSERT 0 1
+Time: 36285.428 ms
+Compute Nodes that participate in cycles:
+CREATE VIEW
+Time: 1.894 ms
+
+The graph contains cycles if the following query returns a value > 0:
+
+INSERT 0 1
+Time: 368.070 ms
+ nodes_in_cycles 
+-----------------
+            2000
+(1 row)
+
+Time: 0.157 ms
+Timing is off.
+
+-----------------------------------------------------------------------
+Compute Transitive Closure with levels (max. 10 iterations):
+-----------------------------------------------------------------------
+
+Timing is on.
+This will take a long time ...
+INSERT 0 4000000
+Time: 1171845.498 ms
+
+tc tuples computed in each iteration (<= 10 ):
+
+INSERT 0 3
+Time: 808.590 ms
+ iter | num_tuples 
+------+------------
+    1 |     200000
+    2 |    3787895
+    3 |      12105
+(3 rows)
+
+Time: 0.129 ms
+
+Number of iterations (limited to 10 iterations):
+
+INSERT 0 1
+Time: 0.958 ms
+ max_iter_below_limit 
+----------------------
+                    3
+(1 row)
+
+Time: 0.071 ms
+
+tc tuples not computed in 10 iterations:
+
+INSERT 0 1
+Time: 7012.961 ms
+ tc_tuples_with_more_iterations 
+--------------------------------
+                              0
+(1 row)
+
+Time: 0.122 ms
+Timing is off.
+
+-----------------------------------------------------------------------
+Write result in LaTeX format to tc_stat_output.tex:
+-----------------------------------------------------------------------
+
+Showing only tuples.
+Tuples only is off.
+
+-----------------------------------------------------------------------
+Write result as SQL INSERT statements:
+-----------------------------------------------------------------------
+
+"First graph_data_part.sql:"
+Showing only tuples.
+"Now graph_indeg_part.sql:"
+"Now graph_outdeg_part.sql:"
+"Finally graph_iter_part.sql:"
+Tuples only is off.
+
+=======================================================================
+Input File:  'tc_uc5_n2k_e500k' (with extension .tsv)
+=======================================================================
+
+-----------------------------------------------------------------------
+Drop old version of views and tables:
+-----------------------------------------------------------------------
+
+Note: It is ok if the tables or views do not exist in the first run
+
+DROP VIEW
+DROP VIEW
+DROP VIEW
+DROP VIEW
+DROP VIEW
+DROP VIEW
+DROP VIEW
+DROP VIEW
+DROP VIEW
+DROP VIEW
+DROP VIEW
+DROP VIEW
+DROP VIEW
+DROP VIEW
+DROP VIEW
+DROP TABLE
+DROP TABLE
+DROP TABLE
+DROP TABLE
+DROP TABLE
+DROP TABLE
+DROP TABLE
+DROP TABLE
+DROP TABLE
+
+-----------------------------------------------------------------------
+Create tables:
+-----------------------------------------------------------------------
+
+CREATE TABLE
+CREATE TABLE
+CREATE TABLE
+CREATE TABLE
+CREATE TABLE
+CREATE INDEX
+CREATE TABLE
+CREATE TABLE
+CREATE TABLE
+CREATE TABLE
+
+-----------------------------------------------------------------------
+Load the data:
+-----------------------------------------------------------------------
+
+Write command to load the data to load_cmd.sql:
+Showing only tuples.
+Tuples only is off.
+LOAD DATA
+Timing is on.
+Time: 234.781 ms
+CREATE INDEX
+Time: 536.247 ms
+ANALYZE
+Time: 31.218 ms
+Timing is off.
+
+-----------------------------------------------------------------------
+Create views to analyze the graph:
+-----------------------------------------------------------------------
+
+CREATE VIEW
+CREATE VIEW
+CREATE VIEW
+CREATE VIEW
+CREATE VIEW
+CREATE VIEW
+CREATE VIEW
+CREATE VIEW
+CREATE VIEW
+CREATE VIEW
+CREATE VIEW
+CREATE VIEW
+
+-----------------------------------------------------------------------
+GRAPH STATISTICS:
+-----------------------------------------------------------------------
+
+Timing is on.
+ num_nodes | num_edges | duplicate_edges | num_loops 
+-----------+-----------+-----------------+-----------
+      2000 |    500000 |               0 |         0
+(1 row)
+
+Time: 3245.471 ms
+ min_in_degree | max_in_degree | min_out_degree | max_out_degree 
+---------------+---------------+----------------+----------------
+           248 |           251 |            248 |            251
+(1 row)
+
+Time: 3148.949 ms
+Timing is off.
+
+-----------------------------------------------------------------------
+Transitive Closure:
+-----------------------------------------------------------------------
+
+CREATE VIEW
+Compute Transitive Closure (this may take a while ...):
+Timing is on.
+INSERT 0 4000000
+Time: 347805.444 ms
+ANALYZE
+Time: 278.640 ms
+
+Size of transitive closure:
+
+INSERT 0 1
+Time: 223.356 ms
+ tc_size 
+---------
+ 4000000
+(1 row)
+
+Time: 0.111 ms
+Compute Cost Measure:
+CREATE VIEW
+Time: 2.446 ms
+
+Cost measure for transitive closure computation:
+
+ rule_1 |   rule_2   | total_cost 
+--------+------------+------------
+ 500000 | 1000000000 | 1000500000
+(1 row)
+
+Time: 82736.398 ms
+INSERT 0 1
+Time: 83300.792 ms
+Compute Nodes that participate in cycles:
+CREATE VIEW
+Time: 1.388 ms
+
+The graph contains cycles if the following query returns a value > 0:
+
+INSERT 0 1
+Time: 282.169 ms
+ nodes_in_cycles 
+-----------------
+            2000
+(1 row)
+
+Time: 0.130 ms
+Timing is off.
+
+-----------------------------------------------------------------------
+Compute Transitive Closure with levels (max. 10 iterations):
+-----------------------------------------------------------------------
+
+Timing is on.
+This will take a long time ...
+INSERT 0 4000000
+Time: 2815992.214 ms
+
+tc tuples computed in each iteration (<= 10 ):
+
+INSERT 0 2
+Time: 821.627 ms
+ iter | num_tuples 
+------+------------
+    1 |     500000
+    2 |    3500000
+(2 rows)
+
+Time: 0.135 ms
+
+Number of iterations (limited to 10 iterations):
+
+INSERT 0 1
+Time: 1.086 ms
+ max_iter_below_limit 
+----------------------
+                    2
+(1 row)
+
+Time: 0.063 ms
+
+tc tuples not computed in 10 iterations:
+
+INSERT 0 1
+Time: 7168.305 ms
+ tc_tuples_with_more_iterations 
+--------------------------------
+                              0
+(1 row)
+
+Time: 0.123 ms
+Timing is off.
+
+-----------------------------------------------------------------------
+Write result in LaTeX format to tc_stat_output.tex:
+-----------------------------------------------------------------------
+
+Showing only tuples.
+Tuples only is off.
+
+-----------------------------------------------------------------------
+Write result as SQL INSERT statements:
+-----------------------------------------------------------------------
+
+"First graph_data_part.sql:"
+Showing only tuples.
+"Now graph_indeg_part.sql:"
+"Now graph_outdeg_part.sql:"
+"Finally graph_iter_part.sql:"
+Tuples only is off.
+
+=======================================================================
+Input File:  'tc_uc6_n2k_e1000k' (with extension .tsv)
+=======================================================================
+
+-----------------------------------------------------------------------
+Drop old version of views and tables:
+-----------------------------------------------------------------------
+
+Note: It is ok if the tables or views do not exist in the first run
+
+DROP VIEW
+DROP VIEW
+DROP VIEW
+DROP VIEW
+DROP VIEW
+DROP VIEW
+DROP VIEW
+DROP VIEW
+DROP VIEW
+DROP VIEW
+DROP VIEW
+DROP VIEW
+DROP VIEW
+DROP VIEW
+DROP VIEW
+DROP TABLE
+DROP TABLE
+DROP TABLE
+DROP TABLE
+DROP TABLE
+DROP TABLE
+DROP TABLE
+DROP TABLE
+DROP TABLE
+
+-----------------------------------------------------------------------
+Create tables:
+-----------------------------------------------------------------------
+
+CREATE TABLE
+CREATE TABLE
+CREATE TABLE
+CREATE TABLE
+CREATE TABLE
+CREATE INDEX
+CREATE TABLE
+CREATE TABLE
+CREATE TABLE
+CREATE TABLE
+
+-----------------------------------------------------------------------
+Load the data:
+-----------------------------------------------------------------------
+
+Write command to load the data to load_cmd.sql:
+Showing only tuples.
+Tuples only is off.
+LOAD DATA
+Timing is on.
+Time: 473.818 ms
+CREATE INDEX
+Time: 1190.711 ms
+ANALYZE
+Time: 91.856 ms
+Timing is off.
+
+-----------------------------------------------------------------------
+Create views to analyze the graph:
+-----------------------------------------------------------------------
+
+CREATE VIEW
+CREATE VIEW
+CREATE VIEW
+CREATE VIEW
+CREATE VIEW
+CREATE VIEW
+CREATE VIEW
+CREATE VIEW
+CREATE VIEW
+CREATE VIEW
+CREATE VIEW
+CREATE VIEW
+
+-----------------------------------------------------------------------
+GRAPH STATISTICS:
+-----------------------------------------------------------------------
+
+Timing is on.
+ num_nodes | num_edges | duplicate_edges | num_loops 
+-----------+-----------+-----------------+-----------
+      2000 |   1000000 |               0 |         0
+(1 row)
+
+Time: 7307.156 ms
+ min_in_degree | max_in_degree | min_out_degree | max_out_degree 
+---------------+---------------+----------------+----------------
+           499 |           502 |            499 |            502
+(1 row)
+
+Time: 7064.152 ms
+Timing is off.
+
+-----------------------------------------------------------------------
+Transitive Closure:
+-----------------------------------------------------------------------
+
+CREATE VIEW
+Compute Transitive Closure (this may take a while ...):
+Timing is on.
+INSERT 0 4000000
+Time: 703741.528 ms
+ANALYZE
+Time: 194.191 ms
+
+Size of transitive closure:
+
+INSERT 0 1
+Time: 224.857 ms
+ tc_size 
+---------
+ 4000000
+(1 row)
+
+Time: 0.131 ms
+Compute Cost Measure:
+CREATE VIEW
+Time: 2.432 ms
+
+Cost measure for transitive closure computation:
+
+ rule_1  |   rule_2   | total_cost 
+---------+------------+------------
+ 1000000 | 2000000000 | 2001000000
+(1 row)
+
+Time: 174941.288 ms
+INSERT 0 1
+Time: 177170.974 ms
+Compute Nodes that participate in cycles:
+CREATE VIEW
+Time: 2.480 ms
+
+The graph contains cycles if the following query returns a value > 0:
+
+INSERT 0 1
+Time: 284.898 ms
+ nodes_in_cycles 
+-----------------
+            2000
+(1 row)
+
+Time: 0.109 ms
+Timing is off.
+
+-----------------------------------------------------------------------
+Compute Transitive Closure with levels (max. 10 iterations):
+-----------------------------------------------------------------------
+
+Timing is on.
+This will take a long time ...
+INSERT 0 4000000
+Time: 5729092.283 ms
+
+tc tuples computed in each iteration (<= 10 ):
+
+INSERT 0 2
+Time: 864.043 ms
+ iter | num_tuples 
+------+------------
+    1 |    1000000
+    2 |    3000000
+(2 rows)
+
+Time: 0.165 ms
+
+Number of iterations (limited to 10 iterations):
+
+INSERT 0 1
+Time: 1.851 ms
+ max_iter_below_limit 
+----------------------
+                    2
+(1 row)
+
+Time: 0.158 ms
+
+tc tuples not computed in 10 iterations:
+
+INSERT 0 1
+Time: 7106.996 ms
+ tc_tuples_with_more_iterations 
+--------------------------------
+                              0
+(1 row)
+
+Time: 0.198 ms
+Timing is off.
+
+-----------------------------------------------------------------------
+Write result in LaTeX format to tc_stat_output.tex:
+-----------------------------------------------------------------------
+
+Showing only tuples.
+Tuples only is off.
+
+-----------------------------------------------------------------------
+Write result as SQL INSERT statements:
+-----------------------------------------------------------------------
+
+"First graph_data_part.sql:"
+Showing only tuples.
+"Now graph_indeg_part.sql:"
+"Now graph_outdeg_part.sql:"
+"Finally graph_iter_part.sql:"
+Tuples only is off.
+
+=======================================================================
+Input File:  'tc_un1_n1k_e50k' (with extension .tsv)
+=======================================================================
+
+-----------------------------------------------------------------------
+Drop old version of views and tables:
+-----------------------------------------------------------------------
+
+Note: It is ok if the tables or views do not exist in the first run
+
+DROP VIEW
+DROP VIEW
+DROP VIEW
+DROP VIEW
+DROP VIEW
+DROP VIEW
+DROP VIEW
+DROP VIEW
+DROP VIEW
+DROP VIEW
+DROP VIEW
+DROP VIEW
+DROP VIEW
+DROP VIEW
+DROP VIEW
+DROP TABLE
+DROP TABLE
+DROP TABLE
+DROP TABLE
+DROP TABLE
+DROP TABLE
+DROP TABLE
+DROP TABLE
+DROP TABLE
+
+-----------------------------------------------------------------------
+Create tables:
+-----------------------------------------------------------------------
+
+CREATE TABLE
+CREATE TABLE
+CREATE TABLE
+CREATE TABLE
+CREATE TABLE
+CREATE INDEX
+CREATE TABLE
+CREATE TABLE
+CREATE TABLE
+CREATE TABLE
+
+-----------------------------------------------------------------------
+Load the data:
+-----------------------------------------------------------------------
+
+Write command to load the data to load_cmd.sql:
+Showing only tuples.
+Tuples only is off.
+LOAD DATA
+Timing is on.
+Time: 46.809 ms
+CREATE INDEX
+Time: 39.771 ms
+ANALYZE
+Time: 18.825 ms
+Timing is off.
+
+-----------------------------------------------------------------------
+Create views to analyze the graph:
+-----------------------------------------------------------------------
+
+CREATE VIEW
+CREATE VIEW
+CREATE VIEW
+CREATE VIEW
+CREATE VIEW
+CREATE VIEW
+CREATE VIEW
+CREATE VIEW
+CREATE VIEW
+CREATE VIEW
+CREATE VIEW
+CREATE VIEW
+
+-----------------------------------------------------------------------
+GRAPH STATISTICS:
+-----------------------------------------------------------------------
+
+Timing is on.
+ num_nodes | num_edges | duplicate_edges | num_loops 
+-----------+-----------+-----------------+-----------
+      1000 |     50000 |               0 |         0
+(1 row)
+
+Time: 228.626 ms
+ min_in_degree | max_in_degree | min_out_degree | max_out_degree 
+---------------+---------------+----------------+----------------
+             0 |           101 |              0 |            101
+(1 row)
+
+Time: 221.202 ms
+Timing is off.
+
+-----------------------------------------------------------------------
+Transitive Closure:
+-----------------------------------------------------------------------
+
+CREATE VIEW
+Compute Transitive Closure (this may take a while ...):
+Timing is on.
+INSERT 0 472863
+Time: 5360.426 ms
+ANALYZE
+Time: 34.471 ms
+
+Size of transitive closure:
+
+INSERT 0 1
+Time: 24.845 ms
+ tc_size 
+---------
+  472863
+(1 row)
+
+Time: 0.183 ms
+Compute Cost Measure:
+CREATE VIEW
+Time: 2.213 ms
+
+Cost measure for transitive closure computation:
+
+ rule_1 |  rule_2  | total_cost 
+--------+----------+------------
+  50000 | 15371338 |   15421338
+(1 row)
+
+Time: 1469.501 ms
+INSERT 0 1
+Time: 1491.470 ms
+Compute Nodes that participate in cycles:
+CREATE VIEW
+Time: 1.305 ms
+
+The graph contains cycles if the following query returns a value > 0:
+
+INSERT 0 1
+Time: 33.345 ms
+ nodes_in_cycles 
+-----------------
+               0
+(1 row)
+
+Time: 0.107 ms
+Timing is off.
+
+-----------------------------------------------------------------------
+Compute Transitive Closure with levels (max. 10 iterations):
+-----------------------------------------------------------------------
+
+Timing is on.
+This will take a long time ...
+INSERT 0 472863
+Time: 44867.982 ms
+
+tc tuples computed in each iteration (<= 10 ):
+
+INSERT 0 8
+Time: 78.674 ms
+ iter | num_tuples 
+------+------------
+    1 |      50000
+    2 |     366471
+    3 |      50802
+    4 |       4757
+    5 |        718
+    6 |         96
+    7 |         17
+    8 |          2
+(8 rows)
+
+Time: 0.134 ms
+
+Number of iterations (limited to 10 iterations):
+
+INSERT 0 1
+Time: 0.931 ms
+ max_iter_below_limit 
+----------------------
+                    8
+(1 row)
+
+Time: 0.070 ms
+
+tc tuples not computed in 10 iterations:
+
+INSERT 0 1
+Time: 791.328 ms
+ tc_tuples_with_more_iterations 
+--------------------------------
+                              0
+(1 row)
+
+Time: 0.112 ms
+Timing is off.
+
+-----------------------------------------------------------------------
+Write result in LaTeX format to tc_stat_output.tex:
+-----------------------------------------------------------------------
+
+Showing only tuples.
+Tuples only is off.
+
+-----------------------------------------------------------------------
+Write result as SQL INSERT statements:
+-----------------------------------------------------------------------
+
+"First graph_data_part.sql:"
+Showing only tuples.
+"Now graph_indeg_part.sql:"
+"Now graph_outdeg_part.sql:"
+"Finally graph_iter_part.sql:"
+Tuples only is off.
+
+=======================================================================
+Input File:  'tc_un2_n1k_e125k' (with extension .tsv)
+=======================================================================
+
+-----------------------------------------------------------------------
+Drop old version of views and tables:
+-----------------------------------------------------------------------
+
+Note: It is ok if the tables or views do not exist in the first run
+
+DROP VIEW
+DROP VIEW
+DROP VIEW
+DROP VIEW
+DROP VIEW
+DROP VIEW
+DROP VIEW
+DROP VIEW
+DROP VIEW
+DROP VIEW
+DROP VIEW
+DROP VIEW
+DROP VIEW
+DROP VIEW
+DROP VIEW
+DROP TABLE
+DROP TABLE
+DROP TABLE
+DROP TABLE
+DROP TABLE
+DROP TABLE
+DROP TABLE
+DROP TABLE
+DROP TABLE
+
+-----------------------------------------------------------------------
+Create tables:
+-----------------------------------------------------------------------
+
+CREATE TABLE
+CREATE TABLE
+CREATE TABLE
+CREATE TABLE
+CREATE TABLE
+CREATE INDEX
+CREATE TABLE
+CREATE TABLE
+CREATE TABLE
+CREATE TABLE
+
+-----------------------------------------------------------------------
+Load the data:
+-----------------------------------------------------------------------
+
+Write command to load the data to load_cmd.sql:
+Showing only tuples.
+Tuples only is off.
+LOAD DATA
+Timing is on.
+Time: 55.408 ms
+CREATE INDEX
+Time: 86.259 ms
+ANALYZE
+Time: 21.568 ms
+Timing is off.
+
+-----------------------------------------------------------------------
+Create views to analyze the graph:
+-----------------------------------------------------------------------
+
+CREATE VIEW
+CREATE VIEW
+CREATE VIEW
+CREATE VIEW
+CREATE VIEW
+CREATE VIEW
+CREATE VIEW
+CREATE VIEW
+CREATE VIEW
+CREATE VIEW
+CREATE VIEW
+CREATE VIEW
+
+-----------------------------------------------------------------------
+GRAPH STATISTICS:
+-----------------------------------------------------------------------
+
+Timing is on.
+ num_nodes | num_edges | duplicate_edges | num_loops 
+-----------+-----------+-----------------+-----------
+      1000 |    125000 |               0 |         0
+(1 row)
+
+Time: 618.644 ms
+ min_in_degree | max_in_degree | min_out_degree | max_out_degree 
+---------------+---------------+----------------+----------------
+             0 |           251 |              0 |            251
+(1 row)
+
+Time: 726.863 ms
+Timing is off.
+
+-----------------------------------------------------------------------
+Transitive Closure:
+-----------------------------------------------------------------------
+
+CREATE VIEW
+Compute Transitive Closure (this may take a while ...):
+Timing is on.
+INSERT 0 492170
+Time: 12949.572 ms
+ANALYZE
+Time: 94.468 ms
+
+Size of transitive closure:
+
+INSERT 0 1
+Time: 31.104 ms
+ tc_size 
+---------
+  492170
+(1 row)
+
+Time: 0.108 ms
+Compute Cost Measure:
+CREATE VIEW
+Time: 2.180 ms
+
+Cost measure for transitive closure computation:
+
+ rule_1 |  rule_2  | total_cost 
+--------+----------+------------
+ 125000 | 40580777 |   40705777
+(1 row)
+
+Time: 3704.750 ms
+INSERT 0 1
+Time: 3637.651 ms
+Compute Nodes that participate in cycles:
+CREATE VIEW
+Time: 1.812 ms
+
+The graph contains cycles if the following query returns a value > 0:
+
+INSERT 0 1
+Time: 102.273 ms
+ nodes_in_cycles 
+-----------------
+               0
+(1 row)
+
+Time: 0.220 ms
+Timing is off.
+
+-----------------------------------------------------------------------
+Compute Transitive Closure with levels (max. 10 iterations):
+-----------------------------------------------------------------------
+
+Timing is on.
+This will take a long time ...
+INSERT 0 492170
+Time: 117707.257 ms
+
+tc tuples computed in each iteration (<= 10 ):
+
+INSERT 0 5
+Time: 169.227 ms
+ iter | num_tuples 
+------+------------
+    1 |     125000
+    2 |     361770
+    3 |       5086
+    4 |        304
+    5 |         10
+(5 rows)
+
+Time: 0.135 ms
+
+Number of iterations (limited to 10 iterations):
+
+INSERT 0 1
+Time: 1.081 ms
+ max_iter_below_limit 
+----------------------
+                    5
+(1 row)
+
+Time: 0.142 ms
+
+tc tuples not computed in 10 iterations:
+
+INSERT 0 1
+Time: 851.243 ms
+ tc_tuples_with_more_iterations 
+--------------------------------
+                              0
+(1 row)
+
+Time: 0.189 ms
+Timing is off.
+
+-----------------------------------------------------------------------
+Write result in LaTeX format to tc_stat_output.tex:
+-----------------------------------------------------------------------
+
+Showing only tuples.
+Tuples only is off.
+
+-----------------------------------------------------------------------
+Write result as SQL INSERT statements:
+-----------------------------------------------------------------------
+
+"First graph_data_part.sql:"
+Showing only tuples.
+"Now graph_indeg_part.sql:"
+"Now graph_outdeg_part.sql:"
+"Finally graph_iter_part.sql:"
+Tuples only is off.
+
+=======================================================================
+Input File:  'tc_un3_n1k_e250k' (with extension .tsv)
+=======================================================================
+
+-----------------------------------------------------------------------
+Drop old version of views and tables:
+-----------------------------------------------------------------------
+
+Note: It is ok if the tables or views do not exist in the first run
+
+DROP VIEW
+DROP VIEW
+DROP VIEW
+DROP VIEW
+DROP VIEW
+DROP VIEW
+DROP VIEW
+DROP VIEW
+DROP VIEW
+DROP VIEW
+DROP VIEW
+DROP VIEW
+DROP VIEW
+DROP VIEW
+DROP VIEW
+DROP TABLE
+DROP TABLE
+DROP TABLE
+DROP TABLE
+DROP TABLE
+DROP TABLE
+DROP TABLE
+DROP TABLE
+DROP TABLE
+
+-----------------------------------------------------------------------
+Create tables:
+-----------------------------------------------------------------------
+
+CREATE TABLE
+CREATE TABLE
+CREATE TABLE
+CREATE TABLE
+CREATE TABLE
+CREATE INDEX
+CREATE TABLE
+CREATE TABLE
+CREATE TABLE
+CREATE TABLE
+
+-----------------------------------------------------------------------
+Load the data:
+-----------------------------------------------------------------------
+
+Write command to load the data to load_cmd.sql:
+Showing only tuples.
+Tuples only is off.
+LOAD DATA
+Timing is on.
+Time: 112.277 ms
+CREATE INDEX
+Time: 175.466 ms
+ANALYZE
+Time: 68.586 ms
+Timing is off.
+
+-----------------------------------------------------------------------
+Create views to analyze the graph:
+-----------------------------------------------------------------------
+
+CREATE VIEW
+CREATE VIEW
+CREATE VIEW
+CREATE VIEW
+CREATE VIEW
+CREATE VIEW
+CREATE VIEW
+CREATE VIEW
+CREATE VIEW
+CREATE VIEW
+CREATE VIEW
+CREATE VIEW
+
+-----------------------------------------------------------------------
+GRAPH STATISTICS:
+-----------------------------------------------------------------------
+
+Timing is on.
+ num_nodes | num_edges | duplicate_edges | num_loops 
+-----------+-----------+-----------------+-----------
+      1000 |    250000 |               0 |         0
+(1 row)
+
+Time: 1611.335 ms
+ min_in_degree | max_in_degree | min_out_degree | max_out_degree 
+---------------+---------------+----------------+----------------
+             0 |           500 |              0 |            501
+(1 row)
+
+Time: 1478.511 ms
+Timing is off.
+
+-----------------------------------------------------------------------
+Transitive Closure:
+-----------------------------------------------------------------------
+
+CREATE VIEW
+Compute Transitive Closure (this may take a while ...):
+Timing is on.
+INSERT 0 497810
+Time: 28116.485 ms
+ANALYZE
+Time: 89.033 ms
+
+Size of transitive closure:
+
+INSERT 0 1
+Time: 28.030 ms
+ tc_size 
+---------
+  497810
+(1 row)
+
+Time: 0.220 ms
+Compute Cost Measure:
+CREATE VIEW
+Time: 1.337 ms
+
+Cost measure for transitive closure computation:
+
+ rule_1 |  rule_2  | total_cost 
+--------+----------+------------
+ 250000 | 82823458 |   83073458
+(1 row)
+
+Time: 7382.078 ms
+INSERT 0 1
+Time: 7302.209 ms
+Compute Nodes that participate in cycles:
+CREATE VIEW
+Time: 1.238 ms
+
+The graph contains cycles if the following query returns a value > 0:
+
+INSERT 0 1
+Time: 102.164 ms
+ nodes_in_cycles 
+-----------------
+               0
+(1 row)
+
+Time: 0.202 ms
+Timing is off.
+
+-----------------------------------------------------------------------
+Compute Transitive Closure with levels (max. 10 iterations):
+-----------------------------------------------------------------------
+
+Timing is on.
+This will take a long time ...
+INSERT 0 497810
+Time: 241191.089 ms
+
+tc tuples computed in each iteration (<= 10 ):
+
+INSERT 0 5
+Time: 81.256 ms
+ iter | num_tuples 
+------+------------
+    1 |     250000
+    2 |     247514
+    3 |        271
+    4 |         19
+    5 |          6
+(5 rows)
+
+Time: 0.125 ms
+
+Number of iterations (limited to 10 iterations):
+
+INSERT 0 1
+Time: 0.920 ms
+ max_iter_below_limit 
+----------------------
+                    5
+(1 row)
+
+Time: 0.146 ms
+
+tc tuples not computed in 10 iterations:
+
+INSERT 0 1
+Time: 846.785 ms
+ tc_tuples_with_more_iterations 
+--------------------------------
+                              0
+(1 row)
+
+Time: 0.102 ms
+Timing is off.
+
+-----------------------------------------------------------------------
+Write result in LaTeX format to tc_stat_output.tex:
+-----------------------------------------------------------------------
+
+Showing only tuples.
+Tuples only is off.
+
+-----------------------------------------------------------------------
+Write result as SQL INSERT statements:
+-----------------------------------------------------------------------
+
+"First graph_data_part.sql:"
+Showing only tuples.
+"Now graph_indeg_part.sql:"
+"Now graph_outdeg_part.sql:"
+"Finally graph_iter_part.sql:"
+Tuples only is off.
+
+=======================================================================
+Input File:  'tc_un4_n2k_e200k' (with extension .tsv)
+=======================================================================
+
+-----------------------------------------------------------------------
+Drop old version of views and tables:
+-----------------------------------------------------------------------
+
+Note: It is ok if the tables or views do not exist in the first run
+
+DROP VIEW
+DROP VIEW
+DROP VIEW
+DROP VIEW
+DROP VIEW
+DROP VIEW
+DROP VIEW
+DROP VIEW
+DROP VIEW
+DROP VIEW
+DROP VIEW
+DROP VIEW
+DROP VIEW
+DROP VIEW
+DROP VIEW
+DROP TABLE
+DROP TABLE
+DROP TABLE
+DROP TABLE
+DROP TABLE
+DROP TABLE
+DROP TABLE
+DROP TABLE
+DROP TABLE
+
+-----------------------------------------------------------------------
+Create tables:
+-----------------------------------------------------------------------
+
+CREATE TABLE
+CREATE TABLE
+CREATE TABLE
+CREATE TABLE
+CREATE TABLE
+CREATE INDEX
+CREATE TABLE
+CREATE TABLE
+CREATE TABLE
+CREATE TABLE
+
+-----------------------------------------------------------------------
+Load the data:
+-----------------------------------------------------------------------
+
+Write command to load the data to load_cmd.sql:
+Showing only tuples.
+Tuples only is off.
+LOAD DATA
+Timing is on.
+Time: 186.987 ms
+CREATE INDEX
+Time: 154.680 ms
+ANALYZE
+Time: 25.032 ms
+Timing is off.
+
+-----------------------------------------------------------------------
+Create views to analyze the graph:
+-----------------------------------------------------------------------
+
+CREATE VIEW
+CREATE VIEW
+CREATE VIEW
+CREATE VIEW
+CREATE VIEW
+CREATE VIEW
+CREATE VIEW
+CREATE VIEW
+CREATE VIEW
+CREATE VIEW
+CREATE VIEW
+CREATE VIEW
+
+-----------------------------------------------------------------------
+GRAPH STATISTICS:
+-----------------------------------------------------------------------
+
+Timing is on.
+ num_nodes | num_edges | duplicate_edges | num_loops 
+-----------+-----------+-----------------+-----------
+      2000 |    200000 |               0 |         0
+(1 row)
+
+Time: 1224.866 ms
+ min_in_degree | max_in_degree | min_out_degree | max_out_degree 
+---------------+---------------+----------------+----------------
+             0 |           201 |              0 |            201
+(1 row)
+
+Time: 1150.330 ms
+Timing is off.
+
+-----------------------------------------------------------------------
+Transitive Closure:
+-----------------------------------------------------------------------
+
+CREATE VIEW
+Compute Transitive Closure (this may take a while ...):
+Timing is on.
+INSERT 0 1946015
+Time: 48862.661 ms
+ANALYZE
+Time: 179.917 ms
+
+Size of transitive closure:
+
+INSERT 0 1
+Time: 113.049 ms
+ tc_size 
+---------
+ 1946015
+(1 row)
+
+Time: 0.115 ms
+Compute Cost Measure:
+CREATE VIEW
+Time: 2.300 ms
+
+Cost measure for transitive closure computation:
+
+ rule_1 |  rule_2   | total_cost 
+--------+-----------+------------
+ 200000 | 127881155 |  128081155
+(1 row)
+
+Time: 11903.741 ms
+INSERT 0 1
+Time: 11767.667 ms
+Compute Nodes that participate in cycles:
+CREATE VIEW
+Time: 2.050 ms
+
+The graph contains cycles if the following query returns a value > 0:
+
+INSERT 0 1
+Time: 217.807 ms
+ nodes_in_cycles 
+-----------------
+               0
+(1 row)
+
+Time: 0.130 ms
+Timing is off.
+
+-----------------------------------------------------------------------
+Compute Transitive Closure with levels (max. 10 iterations):
+-----------------------------------------------------------------------
+
+Timing is on.
+This will take a long time ...
+INSERT 0 1946015
+Time: 437169.884 ms
+
+tc tuples computed in each iteration (<= 10 ):
+
+INSERT 0 8
+Time: 411.555 ms
+ iter | num_tuples 
+------+------------
+    1 |     200000
+    2 |    1630254
+    3 |     103005
+    4 |      10483
+    5 |       1934
+    6 |        304
+    7 |         31
+    8 |          4
+(8 rows)
+
+Time: 0.146 ms
+
+Number of iterations (limited to 10 iterations):
+
+INSERT 0 1
+Time: 1.044 ms
+ max_iter_below_limit 
+----------------------
+                    8
+(1 row)
+
+Time: 0.126 ms
+
+tc tuples not computed in 10 iterations:
+
+INSERT 0 1
+Time: 3223.189 ms
+ tc_tuples_with_more_iterations 
+--------------------------------
+                              0
+(1 row)
+
+Time: 0.120 ms
+Timing is off.
+
+-----------------------------------------------------------------------
+Write result in LaTeX format to tc_stat_output.tex:
+-----------------------------------------------------------------------
+
+Showing only tuples.
+Tuples only is off.
+
+-----------------------------------------------------------------------
+Write result as SQL INSERT statements:
+-----------------------------------------------------------------------
+
+"First graph_data_part.sql:"
+Showing only tuples.
+"Now graph_indeg_part.sql:"
+"Now graph_outdeg_part.sql:"
+"Finally graph_iter_part.sql:"
+Tuples only is off.
+
+=======================================================================
+Input File:  'tc_un5_n2k_e500k' (with extension .tsv)
+=======================================================================
+
+-----------------------------------------------------------------------
+Drop old version of views and tables:
+-----------------------------------------------------------------------
+
+Note: It is ok if the tables or views do not exist in the first run
+
+DROP VIEW
+DROP VIEW
+DROP VIEW
+DROP VIEW
+DROP VIEW
+DROP VIEW
+DROP VIEW
+DROP VIEW
+DROP VIEW
+DROP VIEW
+DROP VIEW
+DROP VIEW
+DROP VIEW
+DROP VIEW
+DROP VIEW
+DROP TABLE
+DROP TABLE
+DROP TABLE
+DROP TABLE
+DROP TABLE
+DROP TABLE
+DROP TABLE
+DROP TABLE
+DROP TABLE
+
+-----------------------------------------------------------------------
+Create tables:
+-----------------------------------------------------------------------
+
+CREATE TABLE
+CREATE TABLE
+CREATE TABLE
+CREATE TABLE
+CREATE TABLE
+CREATE INDEX
+CREATE TABLE
+CREATE TABLE
+CREATE TABLE
+CREATE TABLE
+
+-----------------------------------------------------------------------
+Load the data:
+-----------------------------------------------------------------------
+
+Write command to load the data to load_cmd.sql:
+Showing only tuples.
+Tuples only is off.
+LOAD DATA
+Timing is on.
+Time: 276.499 ms
+CREATE INDEX
+Time: 571.640 ms
+ANALYZE
+Time: 31.097 ms
+Timing is off.
+
+-----------------------------------------------------------------------
+Create views to analyze the graph:
+-----------------------------------------------------------------------
+
+CREATE VIEW
+CREATE VIEW
+CREATE VIEW
+CREATE VIEW
+CREATE VIEW
+CREATE VIEW
+CREATE VIEW
+CREATE VIEW
+CREATE VIEW
+CREATE VIEW
+CREATE VIEW
+CREATE VIEW
+
+-----------------------------------------------------------------------
+GRAPH STATISTICS:
+-----------------------------------------------------------------------
+
+Timing is on.
+ num_nodes | num_edges | duplicate_edges | num_loops 
+-----------+-----------+-----------------+-----------
+      2000 |    500000 |               0 |         0
+(1 row)
+
+Time: 3228.646 ms
+ min_in_degree | max_in_degree | min_out_degree | max_out_degree 
+---------------+---------------+----------------+----------------
+             0 |           500 |              0 |            500
+(1 row)
+
+Time: 3130.562 ms
+Timing is off.
+
+-----------------------------------------------------------------------
+Transitive Closure:
+-----------------------------------------------------------------------
+
+CREATE VIEW
+Compute Transitive Closure (this may take a while ...):
+Timing is on.
+INSERT 0 1985377
+Time: 122343.676 ms
+ANALYZE
+Time: 190.937 ms
+
+Size of transitive closure:
+
+INSERT 0 1
+Time: 115.065 ms
+ tc_size 
+---------
+ 1985377
+(1 row)
+
+Time: 0.117 ms
+Compute Cost Measure:
+CREATE VIEW
+Time: 2.562 ms
+
+Cost measure for transitive closure computation:
+
+ rule_1 |  rule_2   | total_cost 
+--------+-----------+------------
+ 500000 | 329879789 |  330379789
+(1 row)
+
+Time: 29307.142 ms
+INSERT 0 1
+Time: 28836.770 ms
+Compute Nodes that participate in cycles:
+CREATE VIEW
+Time: 2.015 ms
+
+The graph contains cycles if the following query returns a value > 0:
+
+INSERT 0 1
+Time: 225.881 ms
+ nodes_in_cycles 
+-----------------
+               0
+(1 row)
+
+Time: 0.122 ms
+Timing is off.
+
+-----------------------------------------------------------------------
+Compute Transitive Closure with levels (max. 10 iterations):
+-----------------------------------------------------------------------
+
+Timing is on.
+This will take a long time ...
+INSERT 0 1985377
+Time: 1135556.082 ms
+
+tc tuples computed in each iteration (<= 10 ):
+
+INSERT 0 6
+Time: 469.273 ms
+ iter | num_tuples 
+------+------------
+    1 |     500000
+    2 |    1475870
+    3 |       8785
+    4 |        663
+    5 |         58
+    6 |          1
+(6 rows)
+
+Time: 0.142 ms
+
+Number of iterations (limited to 10 iterations):
+
+INSERT 0 1
+Time: 0.995 ms
+ max_iter_below_limit 
+----------------------
+                    6
+(1 row)
+
+Time: 0.064 ms
+
+tc tuples not computed in 10 iterations:
+
+INSERT 0 1
+Time: 3307.970 ms
+ tc_tuples_with_more_iterations 
+--------------------------------
+                              0
+(1 row)
+
+Time: 0.116 ms
+Timing is off.
+
+-----------------------------------------------------------------------
+Write result in LaTeX format to tc_stat_output.tex:
+-----------------------------------------------------------------------
+
+Showing only tuples.
+Tuples only is off.
+
+-----------------------------------------------------------------------
+Write result as SQL INSERT statements:
+-----------------------------------------------------------------------
+
+"First graph_data_part.sql:"
+Showing only tuples.
+"Now graph_indeg_part.sql:"
+"Now graph_outdeg_part.sql:"
+"Finally graph_iter_part.sql:"
+Tuples only is off.
+
+=======================================================================
+Input File:  'tc_un6_n2k_e1000k' (with extension .tsv)
+=======================================================================
+
+-----------------------------------------------------------------------
+Drop old version of views and tables:
+-----------------------------------------------------------------------
+
+Note: It is ok if the tables or views do not exist in the first run
+
+DROP VIEW
+DROP VIEW
+DROP VIEW
+DROP VIEW
+DROP VIEW
+DROP VIEW
+DROP VIEW
+DROP VIEW
+DROP VIEW
+DROP VIEW
+DROP VIEW
+DROP VIEW
+DROP VIEW
+DROP VIEW
+DROP VIEW
+DROP TABLE
+DROP TABLE
+DROP TABLE
+DROP TABLE
+DROP TABLE
+DROP TABLE
+DROP TABLE
+DROP TABLE
+DROP TABLE
+
+-----------------------------------------------------------------------
+Create tables:
+-----------------------------------------------------------------------
+
+CREATE TABLE
+CREATE TABLE
+CREATE TABLE
+CREATE TABLE
+CREATE TABLE
+CREATE INDEX
+CREATE TABLE
+CREATE TABLE
+CREATE TABLE
+CREATE TABLE
+
+-----------------------------------------------------------------------
+Load the data:
+-----------------------------------------------------------------------
+
+Write command to load the data to load_cmd.sql:
+Showing only tuples.
+Tuples only is off.
+LOAD DATA
+Timing is on.
+Time: 496.997 ms
+CREATE INDEX
+Time: 1179.938 ms
+ANALYZE
+Time: 42.777 ms
+Timing is off.
+
+-----------------------------------------------------------------------
+Create views to analyze the graph:
+-----------------------------------------------------------------------
+
+CREATE VIEW
+CREATE VIEW
+CREATE VIEW
+CREATE VIEW
+CREATE VIEW
+CREATE VIEW
+CREATE VIEW
+CREATE VIEW
+CREATE VIEW
+CREATE VIEW
+CREATE VIEW
+CREATE VIEW
+
+-----------------------------------------------------------------------
+GRAPH STATISTICS:
+-----------------------------------------------------------------------
+
+Timing is on.
+ num_nodes | num_edges | duplicate_edges | num_loops 
+-----------+-----------+-----------------+-----------
+      2000 |   1000000 |               0 |         0
+(1 row)
+
+Time: 6926.857 ms
+ min_in_degree | max_in_degree | min_out_degree | max_out_degree 
+---------------+---------------+----------------+----------------
+             0 |          1000 |              0 |           1001
+(1 row)
+
+Time: 6792.749 ms
+Timing is off.
+
+-----------------------------------------------------------------------
+Transitive Closure:
+-----------------------------------------------------------------------
+
+CREATE VIEW
+Compute Transitive Closure (this may take a while ...):
+Timing is on.
+INSERT 0 1995412
+Time: 268244.441 ms
+ANALYZE
+Time: 182.463 ms
+
+Size of transitive closure:
+
+INSERT 0 1
+Time: 119.464 ms
+ tc_size 
+---------
+ 1995412
+(1 row)
+
+Time: 0.122 ms
+Compute Cost Measure:
+CREATE VIEW
+Time: 2.696 ms
+
+Cost measure for transitive closure computation:
+
+ rule_1  |  rule_2   | total_cost 
+---------+-----------+------------
+ 1000000 | 664127921 |  665127921
+(1 row)
+
+Time: 59177.834 ms
+INSERT 0 1
+Time: 59916.142 ms
+Compute Nodes that participate in cycles:
+CREATE VIEW
+Time: 3.112 ms
+
+The graph contains cycles if the following query returns a value > 0:
+
+INSERT 0 1
+Time: 215.962 ms
+ nodes_in_cycles 
+-----------------
+               0
+(1 row)
+
+Time: 0.119 ms
+Timing is off.
+
+-----------------------------------------------------------------------
+Compute Transitive Closure with levels (max. 10 iterations):
+-----------------------------------------------------------------------
+
+Timing is on.
+This will take a long time ...
+INSERT 0 1995412
+Time: 2249399.950 ms
+
+tc tuples computed in each iteration (<= 10 ):
+
+INSERT 0 4
+Time: 439.604 ms
+ iter | num_tuples 
+------+------------
+    1 |    1000000
+    2 |     994776
+    3 |        622
+    4 |         14
+(4 rows)
+
+Time: 0.160 ms
+
+Number of iterations (limited to 10 iterations):
+
+INSERT 0 1
+Time: 1.083 ms
+ max_iter_below_limit 
+----------------------
+                    4
+(1 row)
+
+Time: 0.069 ms
+
+tc tuples not computed in 10 iterations:
+
+INSERT 0 1
+Time: 3321.173 ms
+ tc_tuples_with_more_iterations 
+--------------------------------
+                              0
+(1 row)
+
+Time: 0.118 ms
+Timing is off.
+
+-----------------------------------------------------------------------
+Write result in LaTeX format to tc_stat_output.tex:
+-----------------------------------------------------------------------
+
+Showing only tuples.
+Tuples only is off.
+
+-----------------------------------------------------------------------
+Write result as SQL INSERT statements:
+-----------------------------------------------------------------------
+
+"First graph_data_part.sql:"
+Showing only tuples.
+"Now graph_indeg_part.sql:"
+"Now graph_outdeg_part.sql:"
+"Finally graph_iter_part.sql:"
+Tuples only is off.

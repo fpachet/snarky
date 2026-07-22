@@ -1,0 +1,31 @@
+// Souffle - A Datalog Compiler
+// Copyright (c) 2020, The Souffle Developers. All rights reserved
+// Licensed under the Universal Permissive License v 1.0 as shown at:
+// - https://opensource.org/licenses/UPL
+// - <souffle root>/licenses/SOUFFLE-UPL.txt
+
+//
+// Type System Sum Types 1
+//
+// Check if incorrectly defined sum types fail.
+//
+
+
+// Repeated branches
+.type A1
+  = X { x: number }
+  | Y { x: float }
+  | X { x: symbol }
+  | Y { x: float }
+  | Z { x: symbol }
+
+
+// Non Existing type.
+.type B1 = X { x: definitlyNotAType }
+
+
+
+// The same branch used twice (currently disallowed)
+.type C1 = G { x: number }
+.type D1 = G { x: number }
+

@@ -1,0 +1,23 @@
+// Souffle - A Datalog Compiler
+// Copyright (c) 2017, The Souffle Developers. All rights reserved
+// Licensed under the Universal Permissive License v 1.0 as shown at:
+// - https://opensource.org/licenses/UPL
+// - <souffle root>/licenses/SOUFFLE-UPL.txt
+
+.decl num(x: number)
+num(0).
+num(x + 1) :- num(x), x < 20.
+
+.decl mod4(x: number, y: number)
+mod4(x, y) :- num(x), y = x % 4.
+
+.decl equiv_mod_4(x: number, y: number) eqrel
+.output equiv_mod_4()
+
+// This rule doesn't automatically produce symmetry nor transitivity, but the
+// eqrel should.
+equiv_mod_4(x, y) :-
+  mod4(x, z),
+  mod4(y, z),
+  x < y,
+  y - x < 5.

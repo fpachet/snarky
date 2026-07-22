@@ -1,0 +1,7 @@
+// prevent recusive inclusion
+.once
+// self-inclusion
+.include "include_directive3.dl"
+.decl ok()
+.output ok
+ok().

@@ -1,0 +1,17 @@
+Document(
+ Prefix(ex <http://example.org/example#>)
+ Prefix(xs <http://www.w3.org/2001/XMLSchema#>) 
+
+ Group ( 
+  Forall ?X (
+   If 
+      ?X[ex:status -> "gold"] 
+   Then Do ( 
+      Assert (?X[ex:discount -> "10"])
+   )
+  )
+
+  ex:john[ex:status -> "gold"]
+
+ )
+)

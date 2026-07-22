@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<PositiveEntailmentTest id="ListLiteralEquality"
+    src="http://www.w3.org/2005/rules/test/repository/tc/ListLiteralEquality" xmlns="http://www.w3.org/2009/10/rif-test#">
+    <status>Approved</status>
+    <dialect>BLD</dialect>
+    <purpose>Test equality between lists and constants representing data values</purpose>
+    <description>Lists are mapped to elements in the domain that are not data values, and so assertion of equality between a data value and a list is inconsistent, and entails falsehood (written as Or() in RIF).</description>
+    <PremiseDocument>
+        <Normative syntax="RIF/XML">
+            <name>ListLiteralEquality-premise.rif</name>
+            <remote>http://www.w3.org/2005/rules/test/repository/tc/ListLiteralEquality/ListLiteralEquality-premise.rif</remote>
+        </Normative>
+        <Presentation syntax="RIFBLD-PS"><![CDATA[
+Document(
+  Prefix(ex  <http://example.org/example#>)
+  Group(
+   "a"=List(ex:b)
+  )
+ )
+]]></Presentation>
+    </PremiseDocument>
+    <ConclusionDocument>
+        <Normative syntax="RIF/XML">
+            <name>ListLiteralEquality-conclusion.rif</name>
+            <remote>http://www.w3.org/2005/rules/test/repository/tc/ListLiteralEquality/ListLiteralEquality-conclusion.rif</remote>
+        </Normative>
+        <Presentation syntax="RIFBLD-PS"><![CDATA[
+Or()
+]]></Presentation>
+    </ConclusionDocument>
+</PositiveEntailmentTest>

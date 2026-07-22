@@ -1,0 +1,37 @@
+# Join over two ordinary triples.
+RULE grand_parent
+WHEN
+    ($x parent_de $y)
+    ($y parent_de $z)
+THEN
+    ADD ($x grand_parent_de $z)
+END
+
+# The relation variable $r makes this an order-2 Boojum test.
+# Newly derived edges may activate the same rule again.
+RULE transitive_relation
+WHEN
+    ($r est_transitive VRAI)
+    ($x $r $y)
+    ($y $r $z)
+    $x != $z
+THEN
+    ADD ($x $r $z)
+END
+
+# $a and $b denote complete propositions, represented here by triples.
+RULE knows_modus_ponens
+WHEN
+    ($person sait ($a implique $b))
+    ($person sait $a)
+THEN
+    ADD ($person sait $b)
+END
+
+# This must match the explicit FAUX status, not absence from the store.
+RULE expose_alarm_status
+WHEN
+    alarme ' $status
+THEN
+    ADD (alarme possede_statut $status)
+END

@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<NegativeEntailmentTest id="OpenLists"
+    src="http://www.w3.org/2005/rules/test/repository/tc/OpenLists" xmlns="http://www.w3.org/2009/10/rif-test#">
+    <status>Approved</status>
+    <dialect>BLD</dialect>
+    <purpose>Show that general open lists are valid structures (although some might call them malformed, they are not forbidden).</purpose>
+    <description>"General Open Lists" (where the tail is not a list, that is, like LISP dotted pairs) are technically lists in BLD, although they don't necessarily behave like normal lists.   They are not a syntax error, and are not a logic error.</description>
+    <PremiseDocument>
+        <Normative syntax="RIF/XML">
+            <name>OpenLists-premise.rif</name>
+            <remote>http://www.w3.org/2005/rules/test/repository/tc/OpenLists/OpenLists-premise.rif</remote>
+        </Normative>
+        <Presentation syntax="RIFBLD-PS"><![CDATA[
+Document(
+  Prefix(ex  <http://example.org/example#>)
+  Group(
+   ex:p(List(ex:a | "b"))
+  )
+ )
+]]></Presentation>
+    </PremiseDocument>
+    <NonConclusionDocument>
+        <Normative syntax="RIF/XML">
+            <name>OpenLists-nonconclusion.rif</name>
+            <remote>http://www.w3.org/2005/rules/test/repository/tc/OpenLists/OpenLists-nonconclusion.rif</remote>
+        </Normative>
+        <Presentation syntax="RIFBLD-PS"><![CDATA[
+ex:p(List(ex:a "b"))
+]]></Presentation>
+    </NonConclusionDocument>
+</NegativeEntailmentTest>

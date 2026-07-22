@@ -1,0 +1,14 @@
+// Souffle - A Datalog Compiler
+// Copyright (c) 2017, The Souffle Developers. All rights reserved
+// Licensed under the Universal Permissive License v 1.0 as shown at:
+// - https://opensource.org/licenses/UPL
+// - <souffle root>/licenses/SOUFFLE-UPL.txt
+
+// Check semantics of a recursive eqrel
+
+.decl e(x: number, y: number) eqrel
+e(0, 0).
+e(x, x + 1) :-
+  x < 100,
+  e(x, x).
+.printsize e

@@ -1,0 +1,16 @@
+<rdf:RDF
+    xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+    xmlns:xs="http://www.w3.org/2001/XMLSchema#"
+    xmlns:ex="http://example.org/example#" > 
+  <rdf:Description rdf:about="http://example.org/example#JohnDoe">
+    <ex:age rdf:datatype="http://www.w3.org/2001/XMLSchema#integer">34</ex:age>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://example.org/example#JoanDoe">
+    <ex:age rdf:datatype="http://www.w3.org/2001/XMLSchema#string">29</ex:age>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://example.org/example#littleJoeDoe">
+    <ex:age rdf:datatype="http://www.w3.org/2001/XMLSchema#integer">10</ex:age>
+    <ex:parent rdf:resource="http://example.org/example#JohnDoe"/>
+    <ex:parent rdf:resource="http://example.org/example#JoanDoe"/>
+  </rdf:Description>
+</rdf:RDF>

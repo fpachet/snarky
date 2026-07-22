@@ -1,0 +1,75 @@
+/*=============================================================================
+ * Same Generation Program. Query all results (both arguments free).
+ * ID: sgff_3
+ *
+ * This is version 3 of the option settings.
+ * It uses standard tabling (variant tabling) for sg.
+ * It uses load_dyn to load the data.
+ * It uses an index on argument [2] of the par relation.
+ *
+ * The main program is in 'bench_lib.P'.
+ * This file is a modified version of a file distributed with OpenRuleBench.
+ *
+ * Last Change: February 6, 2019 (Stefan Brass).
+ *=============================================================================
+ */
+
+/*-----------------------------------------------------------------------------
+ * ID of this Benchmark:
+ *-----------------------------------------------------------------------------
+ */
+
+bench_id('sgff_3').
+
+
+/*-----------------------------------------------------------------------------
+ * Options:
+ *-----------------------------------------------------------------------------
+ */
+
+/* Data load method: */
+load_data(Filename) :- load_dyn(Filename).
+
+/* Index for the given database relation (edges of the graph): */
+:- index(par/2, [2]).
+
+/* Tabling method: */
+:- table sg/2 as variant.
+
+/*-----------------------------------------------------------------------------
+ * Benchmark Program:
+ *-----------------------------------------------------------------------------
+ */
+
+sg(X,X) :- par(_,X).
+sg(X,Y) :- par(X,A), sg(A,B), par(Y,B).
+
+/*-----------------------------------------------------------------------------
+ * Benchmark Query:
+ *-----------------------------------------------------------------------------
+ */
+
+bench :- sg(_,_), fail.
+bench.
+
+/*-----------------------------------------------------------------------------
+ * Benchmark Query with Writing of Result:
+ *-----------------------------------------------------------------------------
+ */
+
+bench_write(Stream) :-
+	sg(X,Y),
+	write(Stream, X),
+	write(Stream, '\t'),
+	write(Stream, Y),
+	write(Stream, '\n'),
+	fail.
+bench_write(_).
+
+/*-----------------------------------------------------------------------------
+ * The rest is the same for all XSB benchmarks:
+ *-----------------------------------------------------------------------------
+ */
+
+:- consult('bench_lib.P').
+

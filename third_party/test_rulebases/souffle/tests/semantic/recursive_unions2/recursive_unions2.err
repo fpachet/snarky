@@ -1,0 +1,25 @@
+Error: Infinite descent in the definition of type A in file recursive_unions2.dl at line 14
+.type A = A
+^-----------
+Error: Infinite descent in the definition of type U in file recursive_unions2.dl at line 16
+.type U = symbol | U
+^--------------------
+Error: Infinite descent in the definition of type C in file recursive_unions2.dl at line 18
+.type C = symbol | D
+^--------------------
+Error: Infinite descent in the definition of type D in file recursive_unions2.dl at line 19
+.type D = symbol | C
+^--------------------
+Error: Undefined alias type F in definition of type E in file recursive_unions2.dl at line 22
+.type E = F
+^-----------
+Error: Infinite descent in the definition of type F in file recursive_unions2.dl at line 23
+.type F = G
+^-----------
+Error: Infinite descent in the definition of type G in file recursive_unions2.dl at line 24
+.type G = H
+^-----------
+Error: Infinite descent in the definition of type H in file recursive_unions2.dl at line 25
+.type H = F
+^-----------
+8 errors generated, evaluation aborted

@@ -1,0 +1,32 @@
+// Souffle - A Datalog Compiler
+// Copyright (c) 2020, The Souffle Developers. All rights reserved
+// Licensed under the Universal Permissive License v 1.0 as shown at:
+// - https://opensource.org/licenses/UPL
+// - <souffle root>/licenses/SOUFFLE-UPL.txt
+
+//
+// ADT enumeration
+// Test whether enumerations (adts were all constructors take no argumens)
+// are evaluated correctly - enumerations have special encoding.
+//
+
+
+.type Day
+      = Mon {}
+      | Tue {}
+      | Wed {}
+      | Thu {}
+      | Fri {}
+      | Sat {}
+      | San {}
+
+
+.decl DayBeforeInTheWeek(x: Day, y: Day)
+.input DayBeforeInTheWeek
+
+
+
+.decl BeforeInTheWeek(x: Day, y: Day)
+BeforeInTheWeek(x, y) :- DayBeforeInTheWeek(x, y).
+BeforeInTheWeek(x, z) :- DayBeforeInTheWeek(x, y), BeforeInTheWeek(y, z).
+.output BeforeInTheWeek

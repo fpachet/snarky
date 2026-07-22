@@ -1,0 +1,394 @@
+#!/bin/bash
+#==============================================================================
+# Project:	ddbench - Deductive System and Database Benchmarks
+# Filename:	xsb/run_bench
+# Purpose:	Execute a benchmark for XSB, measure time and memory
+# Last Change:	06.02.2019
+# Language:	Shellscript (bash)
+# Author:	Stefan Brass
+# EMail:	brass@informatik.uni-halle.de
+# WWW:		http://www.informatik.uni-halle.de/~brass/
+# Address:	Feldschloesschen 15, D-06120 Halle (Saale), GERMANY
+# Note:		There is no warranty at all - this code may contain bugs.
+# Copyright:	The benchmarks are from the OpenRuleBench. Ask the authors.
+#		The shellscripts and the result database are from me.
+#		You can use them as you wish, but don't make me responsible!
+#		I would be interested to hear about improved versions.
+#==============================================================================
+
+
+# This script executes a benchmark (version for XSB).
+# It must be called with three or four command line arguments:
+# 1. The output file, to which the result line will be appended
+# 2. a test ID of the form <Benchmark>_<Implementation Variant>
+# 3. an input file ID
+# 4. optionally a number of iterations (without writing a query result)
+# 5. optionally a number of iterations (with writing of the query result)
+
+# Check number of arguments:
+if [ "$#" -ne 3 ] && [ "$#" -ne 4 ] && [ "$#" -ne 5 ]
+then
+	echo "Usage: $0 OutputFile TestID InputID [Iterations] [ResultIter]" \
+		>&2
+	exit 1
+fi
+
+
+# If both iteration numbers are given and 0, the benchmark is not executed:
+if [ "$#" -eq 5 ] && [ "$4" -eq 0 ] && [ "$5" -eq 0 ]
+then
+	exit 0
+fi
+
+
+# Check Test ID and Determine Program:
+case "$2" in
+	dblp_dyn)     BTYPE=dblp; PROG=dblp_dyn ;;
+	dblp_dync)    BTYPE=dblp; PROG=dblp_dync ;;
+	dblp_dyntr)   BTYPE=dblp; PROG=dblp_dyn_trie ;;
+	dblp_dynctr)  BTYPE=dblp; PROG=dblp_dync_trie ;;
+	dblp_dynin)   BTYPE=dblp; PROG=dblp_dyn_ind ;;
+	dblp_dyncin)  BTYPE=dblp; PROG=dblp_dync_ind ;;
+	j1axyd_none)  BTYPE=j1;   PROG=j1axy_none ;;
+	j1axy_a)      BTYPE=j1;   PROG=j1axy_a ;;
+	j1axy_all)    BTYPE=j1;   PROG=j1axy_all ;;
+	j1axy_allv)   BTYPE=j1;   PROG=j1axy_all_var ;;
+	j1axy_alli)   BTYPE=j1;   PROG=j1axy_all_idx ;;
+	j1axy_allt)   BTYPE=j1;   PROG=j1axy_all_trie ;;
+	tcff_1)       BTYPE=tc;   PROG=tcff_1 ;;
+	tcff_2)       BTYPE=tc;   PROG=tcff_2 ;;
+	tcff_3)       BTYPE=tc;   PROG=tcff_3 ;;
+	tcff_4)       BTYPE=tc;   PROG=tcff_4 ;;
+	tcff_5)       BTYPE=tc;   PROG=tcff_5 ;;
+	tcff_6)       BTYPE=tc;   PROG=tcff_6 ;;
+	tcff_7)       BTYPE=tc;   PROG=tcff_7 ;;
+	tcbf_dyn)     BTYPE=tc;   PROG=tcbf_dyn ;;
+	tcbf_dync)    BTYPE=tc;   PROG=tcbf_dync ;;
+	tcbfs_slddc)  BTYPE=tc;   PROG=tcbf_sldm_dync ;;
+	sgff_1)       BTYPE=tc;   PROG=sgff_1 ;;
+	sgff_2)       BTYPE=tc;   PROG=sgff_2 ;;
+	sgff_3)       BTYPE=tc;   PROG=sgff_3 ;;
+	sgff_4)       BTYPE=tc;   PROG=sgff_4 ;;
+	sgff_5)       BTYPE=tc;   PROG=sgff_5 ;;
+	sgff_6)       BTYPE=tc;   PROG=sgff_6 ;;
+	sgff_7)       BTYPE=tc;   PROG=sgff_7 ;;
+	sgff_8)       BTYPE=tc;   PROG=sgff_8 ;;
+	sgff_9)       BTYPE=tc;   PROG=sgff_9 ;;
+	sgff_A)       BTYPE=tc;   PROG=sgff_A ;;
+	win_1)        BTYPE=tc;   PROG=win_1 ;;
+	wine_is)      BTYPE=wine; PROG=wine_idx_sub ;;
+	*) echo "UNKNOWN TEST ID:" $2 >&2; exit 2 ;;
+esac
+
+# Check Input File ID and Determine File Name:
+case "$3" in
+    # The following list can be generated from the database
+    # with the BENCH_FILE_LIST view (column DATA_P).
+
+    # Input Files for the TC Benchmarks (Directed Graphs):
+    k50)        FTYPE=tc;        FILE=../data_p/k50.P ;;
+    k100)       FTYPE=tc;        FILE=../data_p/k100.P ;;
+    k465)       FTYPE=tc;        FILE=../data_p/tc_complete_465.P ;;
+    k500)       FTYPE=tc;        FILE=../data_p/tc_complete_500.P ;;
+    k585)       FTYPE=tc;        FILE=../data_p/tc_complete_585.P ;;
+    k670)       FTYPE=tc;        FILE=../data_p/tc_complete_670.P ;;
+    k735)       FTYPE=tc;        FILE=../data_p/tc_complete_735.P ;;
+    k795)       FTYPE=tc;        FILE=../data_p/tc_complete_795.P ;;
+    k845)       FTYPE=tc;        FILE=../data_p/tc_complete_845.P ;;
+    k890)       FTYPE=tc;        FILE=../data_p/tc_complete_890.P ;;
+    k930)       FTYPE=tc;        FILE=../data_p/tc_complete_930.P ;;
+    k965)       FTYPE=tc;        FILE=../data_p/tc_complete_965.P ;;
+    k1k)        FTYPE=tc;        FILE=../data_p/tc_complete_1000.P ;;
+    k2k)        FTYPE=tc;        FILE=../data_p/tc_complete_2000.P ;;
+    t50)        FTYPE=tc;        FILE=../data_p/t50.P ;;
+    t100)       FTYPE=tc;        FILE=../data_p/t100.P ;;
+    t500)       FTYPE=tc;        FILE=../data_p/tc_total_500.P ;;
+    t585)       FTYPE=tc;        FILE=../data_p/tc_total_585.P ;;
+    t735)       FTYPE=tc;        FILE=../data_p/tc_total_735.P ;;
+    t845)       FTYPE=tc;        FILE=../data_p/tc_total_845.P ;;
+    t930)       FTYPE=tc;        FILE=../data_p/tc_total_930.P ;;
+    t1k)        FTYPE=tc;        FILE=../data_p/tc_total_1000.P ;;
+    t1065)      FTYPE=tc;        FILE=../data_p/tc_total_1065.P ;;
+    t1120)      FTYPE=tc;        FILE=../data_p/tc_total_1120.P ;;
+    t1170)      FTYPE=tc;        FILE=../data_p/tc_total_1170.P ;;
+    t1215)      FTYPE=tc;        FILE=../data_p/tc_total_1215.P ;;
+    t1260)      FTYPE=tc;        FILE=../data_p/tc_total_1260.P ;;
+    t2k)        FTYPE=tc;        FILE=../data_p/tc_total_2000.P ;;
+    c1k)        FTYPE=tc;        FILE=../data_p/tc_cycle_1000.P ;;
+    c2k)        FTYPE=tc;        FILE=../data_p/tc_cycle_2000.P ;;
+    c3k)        FTYPE=tc;        FILE=../data_p/tc_cycle_3000.P ;;
+    c4k)        FTYPE=tc;        FILE=../data_p/tc_cycle_4000.P ;;
+    c10k)       FTYPE=tc;        FILE=../data_p/tc_cycle_10000.P ;;
+    c14k1)      FTYPE=tc;        FILE=../data_p/tc_cycle_14100.P ;;
+    c17k3)      FTYPE=tc;        FILE=../data_p/tc_cycle_17300.P ;;
+    c20k)       FTYPE=tc;        FILE=../data_p/tc_cycle_20000.P ;;
+    c22k4)      FTYPE=tc;        FILE=../data_p/tc_cycle_22400.P ;;
+    c24k5)      FTYPE=tc;        FILE=../data_p/tc_cycle_24500.P ;;
+    c26k5)      FTYPE=tc;        FILE=../data_p/tc_cycle_26500.P ;;
+    c28k3)      FTYPE=tc;        FILE=../data_p/tc_cycle_28300.P ;;
+    c30k)       FTYPE=tc;        FILE=../data_p/tc_cycle_30000.P ;;
+    c31k6)      FTYPE=tc;        FILE=../data_p/tc_cycle_31600.P ;;
+    s1k_1)      FTYPE=tc;        FILE=../data_p/tc_shorted_cycle_1000_1.P ;;
+    s1k_2)      FTYPE=tc;        FILE=../data_p/tc_shorted_cycle_1000_2.P ;;
+    s1k_3)      FTYPE=tc;        FILE=../data_p/tc_shorted_cycle_1000_3.P ;;
+    s1k_4)      FTYPE=tc;        FILE=../data_p/tc_shorted_cycle_1000_4.P ;;
+    s1k_5)      FTYPE=tc;        FILE=../data_p/tc_shorted_cycle_1000_5.P ;;
+    s1k2_1)     FTYPE=tc;        FILE=../data_p/tc_shorted_cycle_1200_1.P ;;
+    s1k2_2)     FTYPE=tc;        FILE=../data_p/tc_shorted_cycle_1200_2.P ;;
+    s1k2_4)     FTYPE=tc;        FILE=../data_p/tc_shorted_cycle_1200_4.P ;;
+    s1k2_5)     FTYPE=tc;        FILE=../data_p/tc_shorted_cycle_1200_5.P ;;
+    s2k_1)      FTYPE=tc;        FILE=../data_p/tc_shorted_cycle_2000_1.P ;;
+    s2k_2)      FTYPE=tc;        FILE=../data_p/tc_shorted_cycle_2000_2.P ;;
+    s2k_3)      FTYPE=tc;        FILE=../data_p/tc_shorted_cycle_2000_3.P ;;
+    s2k_4)      FTYPE=tc;        FILE=../data_p/tc_shorted_cycle_2000_4.P ;;
+    s2k_5)      FTYPE=tc;        FILE=../data_p/tc_shorted_cycle_2000_5.P ;;
+    s2k4_1)     FTYPE=tc;        FILE=../data_p/tc_shorted_cycle_2400_1.P ;;
+    s2k4_2)     FTYPE=tc;        FILE=../data_p/tc_shorted_cycle_2400_2.P ;;
+    s2k4_4)     FTYPE=tc;        FILE=../data_p/tc_shorted_cycle_2400_4.P ;;
+    s2k4_5)     FTYPE=tc;        FILE=../data_p/tc_shorted_cycle_2400_5.P ;;
+    s4k8_1)     FTYPE=tc;        FILE=../data_p/tc_shorted_cycle_4800_1.P ;;
+    s4k8_2)     FTYPE=tc;        FILE=../data_p/tc_shorted_cycle_4800_2.P ;;
+    s4k8_4)     FTYPE=tc;        FILE=../data_p/tc_shorted_cycle_4800_4.P ;;
+    s4k8_5)     FTYPE=tc;        FILE=../data_p/tc_shorted_cycle_4800_5.P ;;
+    s6k3_1)     FTYPE=tc;        FILE=../data_p/tc_shorted_cycle_6300_1.P ;;
+    s6k3_2)     FTYPE=tc;        FILE=../data_p/tc_shorted_cycle_6300_2.P ;;
+    s6k3_4)     FTYPE=tc;        FILE=../data_p/tc_shorted_cycle_6300_4.P ;;
+    s6k3_5)     FTYPE=tc;        FILE=../data_p/tc_shorted_cycle_6300_5.P ;;
+    s7k2_1)     FTYPE=tc;        FILE=../data_p/tc_shorted_cycle_7200_1.P ;;
+    s7k2_2)     FTYPE=tc;        FILE=../data_p/tc_shorted_cycle_7200_2.P ;;
+    s7k2_4)     FTYPE=tc;        FILE=../data_p/tc_shorted_cycle_7200_4.P ;;
+    s7k2_5)     FTYPE=tc;        FILE=../data_p/tc_shorted_cycle_7200_5.P ;;
+    s9k_1)      FTYPE=tc;        FILE=../data_p/tc_shorted_cycle_9000_1.P ;;
+    s9k_2)      FTYPE=tc;        FILE=../data_p/tc_shorted_cycle_9000_2.P ;;
+    s9k_4)      FTYPE=tc;        FILE=../data_p/tc_shorted_cycle_9000_4.P ;;
+    s9k_5)      FTYPE=tc;        FILE=../data_p/tc_shorted_cycle_9000_5.P ;;
+    s12k_1)     FTYPE=tc;        FILE=../data_p/tc_shorted_cycle_12000_1.P ;;
+    s12k_2)     FTYPE=tc;        FILE=../data_p/tc_shorted_cycle_12000_2.P ;;
+    s12k_4)     FTYPE=tc;        FILE=../data_p/tc_shorted_cycle_12000_4.P ;;
+    s12k_5)     FTYPE=tc;        FILE=../data_p/tc_shorted_cycle_12000_5.P ;;
+    s13k5_1)    FTYPE=tc;        FILE=../data_p/tc_shorted_cycle_13500_1.P ;;
+    s13k5_2)    FTYPE=tc;        FILE=../data_p/tc_shorted_cycle_13500_2.P ;;
+    s13k5_4)    FTYPE=tc;        FILE=../data_p/tc_shorted_cycle_13500_4.P ;;
+    s13k5_5)    FTYPE=tc;        FILE=../data_p/tc_shorted_cycle_13500_5.P ;;
+    s15k9_1)    FTYPE=tc;        FILE=../data_p/tc_shorted_cycle_15900_1.P ;;
+    s15k9_2)    FTYPE=tc;        FILE=../data_p/tc_shorted_cycle_15900_2.P ;;
+    s15k9_4)    FTYPE=tc;        FILE=../data_p/tc_shorted_cycle_15900_4.P ;;
+    s15k9_5)    FTYPE=tc;        FILE=../data_p/tc_shorted_cycle_15900_5.P ;;
+    s18k6_1)    FTYPE=tc;        FILE=../data_p/tc_shorted_cycle_18600_1.P ;;
+    s18k6_2)    FTYPE=tc;        FILE=../data_p/tc_shorted_cycle_18600_2.P ;;
+    s18k6_4)    FTYPE=tc;        FILE=../data_p/tc_shorted_cycle_18600_4.P ;;
+    s18k6_5)    FTYPE=tc;        FILE=../data_p/tc_shorted_cycle_18600_5.P ;;
+    p1k)        FTYPE=tc;        FILE=../data_p/tc_path_1000.P ;;
+    p2k)        FTYPE=tc;        FILE=../data_p/tc_path_2000.P ;;
+    p3k)        FTYPE=tc;        FILE=../data_p/tc_path_3000.P ;;
+    p4k)        FTYPE=tc;        FILE=../data_p/tc_path_4000.P ;;
+    p14k1)      FTYPE=tc;        FILE=../data_p/tc_path_14100.P ;;
+    p20k)       FTYPE=tc;        FILE=../data_p/tc_path_20000.P ;;
+    p24k5)      FTYPE=tc;        FILE=../data_p/tc_path_24500.P ;;
+    p28k3)      FTYPE=tc;        FILE=../data_p/tc_path_28300.P ;;
+    p31k6)      FTYPE=tc;        FILE=../data_p/tc_path_31600.P ;;
+    p34k6)      FTYPE=tc;        FILE=../data_p/tc_path_34600.P ;;
+    p37k4)      FTYPE=tc;        FILE=../data_p/tc_path_37400.P ;;
+    p40k)       FTYPE=tc;        FILE=../data_p/tc_path_40000.P ;;
+    p42k4)      FTYPE=tc;        FILE=../data_p/tc_path_42400.P ;;
+    p44k7)      FTYPE=tc;        FILE=../data_p/tc_path_44700.P ;;
+    m4_2ki)     FTYPE=tc;        FILE=../data_p/tc_multipath_4_2048.P ;;
+    m16_512)    FTYPE=tc;        FILE=../data_p/tc_multipath_16_512.P ;;
+    m64_128)    FTYPE=tc;        FILE=../data_p/tc_multipath_64_128.P ;;
+    m256_32)    FTYPE=tc;        FILE=../data_p/tc_multipath_256_32.P ;;
+    m1ki_8)     FTYPE=tc;        FILE=../data_p/tc_multipath_1024_8.P ;;
+    m4ki_2)     FTYPE=tc;        FILE=../data_p/tc_multipath_4096_2.P ;;
+    b17)        FTYPE=tc;        FILE=../data_p/tc_bintree_17.P ;;
+    b18)        FTYPE=tc;        FILE=../data_p/tc_bintree_18.P ;;
+    b19)        FTYPE=tc;        FILE=../data_p/tc_bintree_19.P ;;
+    b20)        FTYPE=tc;        FILE=../data_p/tc_bintree_20.P ;;
+    b21)        FTYPE=tc;        FILE=../data_p/tc_bintree_21.P ;;
+    b22)        FTYPE=tc;        FILE=../data_p/tc_bintree_22.P ;;
+    b23)        FTYPE=tc;        FILE=../data_p/tc_bintree_23.P ;;
+    b24)        FTYPE=tc;        FILE=../data_p/tc_bintree_24.P ;;
+    b25)        FTYPE=tc;        FILE=../data_p/tc_bintree_25.P ;;
+    b26)        FTYPE=tc;        FILE=../data_p/tc_bintree_26.P ;;
+    v10)        FTYPE=tc;        FILE=../data_p/v10.P ;;
+    v11)        FTYPE=tc;        FILE=../data_p/v11.P ;;
+    v12)        FTYPE=tc;        FILE=../data_p/v12.P ;;
+    v17)        FTYPE=tc;        FILE=../data_p/v17.P ;;
+    v18)        FTYPE=tc;        FILE=../data_p/v18.P ;;
+    v19)        FTYPE=tc;        FILE=../data_p/v19.P ;;
+    y500_4k)    FTYPE=tc;        FILE=../data_p/tc_y_500_4000.P ;;
+    y500_8k)    FTYPE=tc;        FILE=../data_p/tc_y_500_8000.P ;;
+    y1k_4k)     FTYPE=tc;        FILE=../data_p/tc_y_1000_4000.P ;;
+    y1k_8k)     FTYPE=tc;        FILE=../data_p/tc_y_1000_8000.P ;;
+    y1k_15k)    FTYPE=tc;        FILE=../data_p/tc_y_1000_15000.P ;;
+    y1k_25k)    FTYPE=tc;        FILE=../data_p/tc_y_1000_25000.P ;;
+    y1k_35k)    FTYPE=tc;        FILE=../data_p/tc_y_1000_35000.P ;;
+    y5k_15k)    FTYPE=tc;        FILE=../data_p/tc_y_5000_15000.P ;;
+    y5k_25k)    FTYPE=tc;        FILE=../data_p/tc_y_5000_25000.P ;;
+    y5k_35k)    FTYPE=tc;        FILE=../data_p/tc_y_5000_35000.P ;;
+    y10k_15k)   FTYPE=tc;        FILE=../data_p/tc_y_10000_15000.P ;;
+    y10k_25k)   FTYPE=tc;        FILE=../data_p/tc_y_10000_25000.P ;;
+    y10k_35k)   FTYPE=tc;        FILE=../data_p/tc_y_10000_35000.P ;;
+    u1k_50k)    FTYPE=tc;        FILE=../data_p/tc_uniform_1000_50000.P ;;
+    u1k_125k)   FTYPE=tc;        FILE=../data_p/tc_uniform_1000_125000.P ;;
+    u1k_250k)   FTYPE=tc;        FILE=../data_p/tc_uniform_1000_250000.P ;;
+    u2k_200k)   FTYPE=tc;        FILE=../data_p/tc_uniform_2000_200000.P ;;
+    u2k_250k)   FTYPE=tc;        FILE=../data_p/tc_uniform_2000_250000.P ;;
+    u2k_500k)   FTYPE=tc;        FILE=../data_p/tc_uniform_2000_500000.P ;;
+    u2k_1m)     FTYPE=tc;        FILE=../data_p/tc_uniform_2000_1000000.P ;;
+    a1k_50k)    FTYPE=tc;        FILE=../data_p/tc_acyc_1000_50000.P ;;
+    a1k_125k)   FTYPE=tc;        FILE=../data_p/tc_acyc_1000_125000.P ;;
+    a1k_250k)   FTYPE=tc;        FILE=../data_p/tc_acyc_1000_250000.P ;;
+    a2k_200k)   FTYPE=tc;        FILE=../data_p/tc_acyc_2000_200000.P ;;
+    a2k_500k)   FTYPE=tc;        FILE=../data_p/tc_acyc_2000_500000.P ;;
+    a2k_1m)     FTYPE=tc;        FILE=../data_p/tc_acyc_2000_1000000.P ;;
+    w1k_1k)     FTYPE=tc;        FILE=../data_p/w1k_1k.P ;;
+    x1k_998)    FTYPE=tc;        FILE=../data_p/x1k_998.P ;;
+    x10k)       FTYPE=tc;        FILE=../data_p/x10k.P ;;
+    f1)         FTYPE=tc;        FILE=../data_p/tc_d1000_parsize50000_xsb_nocyc.P ;;
+    f2)         FTYPE=tc;        FILE=../data_p/tc_d1000_parsize50000_xsb_cyc.P ;;
+    f3)         FTYPE=tc;        FILE=../data_p/tc_d1000_parsize250000_xsb_nocyc.P ;;
+    f4)         FTYPE=tc;        FILE=../data_p/tc_d1000_parsize250000_xsb_cyc.P ;;
+    f5)         FTYPE=tc;        FILE=../data_p/tc_d1000_parsize500000_xsb_nocyc.P ;;
+    f6)         FTYPE=tc;        FILE=../data_p/tc_d1000_parsize500000_xsb_cyc.P ;;
+    f7)         FTYPE=tc;        FILE=../data_p/tc_d2000_parsize500000_xsb_nocyc.P ;;
+    f8)         FTYPE=tc;        FILE=../data_p/tc_d2000_parsize500000_xsb_cyc.P ;;
+    f9)         FTYPE=tc;        FILE=../data_p/tc_d2000_parsize1000000_xsb_nocyc.P ;;
+    f10)        FTYPE=tc;        FILE=../data_p/tc_d2000_parsize1000000_xsb_cyc.P ;;
+    wintest)    FTYPE=tc;        FILE=../data_p/win_test.P ;;
+
+    # Input Files for Join 1 Benchmark:
+    10k)        FTYPE=j1;        FILE=../data_p/d1000_relsize10000_xsb_cyc.P ;;
+    50k)        FTYPE=j1;        FILE=../data_p/d1000_relsize50000_xsb_cyc.P ;;
+    250k)       FTYPE=j1;        FILE=../data_p/d1000_relsize250000_xsb_cyc.P ;;
+
+    # Input Files for DBLP Benchmark:
+    std)        FTYPE=dblp;      FILE=../data_p/dblp.P ;;
+    big)        FTYPE=dblp;      FILE=../data_p/dblp_big.P ;;
+
+    # Input File for Wine Ontology Benchmark:
+    wdat)       FTYPE=wine;      FILE=../data_p/wine_data.P ;;
+
+	# Unknown file ID:
+	*) echo "UNKNOWN FILE ID:" $3 >&2; exit 3 ;;
+esac
+
+# Check whether benchmark type and file type match:
+if [ $BTYPE != $FTYPE ]; then
+	echo "Benchmark type" $BTYPE "and file type" $FTYPE "don't match!" >&2
+	exit 4
+fi
+
+# Check number of standard benchmark iterations.
+# If none specified, the number is 1:
+DIGITS="[0-9]+"
+if [ "$#" -gt 3 ]
+then
+	case "$4" in
+		*[^0-9]*)
+			echo "Fourth argument (iterations) must be numeric:" \
+				$4 >&2
+			exit 5 ;;
+		*)
+			ITER="$4" ;;
+	esac
+else
+	ITER=1
+fi
+
+# Check number of iterations with writing of query result.
+# If none specified, the number is 0:
+if [ "$#" -eq 5 ]
+then
+	case "$5" in
+		*[^0-9]*)
+			echo "Fifth argument" \
+				"(iterations with writing query result)" \
+				"must be numeric:" $5 >&2
+			exit 6 ;;
+		*)
+			QRESULT_ITER="$5" ;;
+	esac
+else
+	QRESULT_ITER=0
+fi
+
+# Ensure that we can stop the script with Control-C:
+# (The problem is that the shell does not exit on Ctrl-C (SIGINT),
+# but first waits to see what the child process does.
+# E.g. it could be an editor that handles Ctrl-C in some other way.
+# If the child process does not tell the shell that it ended because of SIGINT,
+# the shell does not exit.
+# So we need to specify an explicit handler for SIGINT:
+trap '
+  trap - INT # restore default INT handler to avoid an endless loop
+  kill -s INT "$$" # Could call exit, but parent shell should know why we died
+' INT
+
+# Print empty line to separate benchmarks:
+echo
+
+# Loop for number of iterations:
+for i in `seq 1 $ITER`
+do
+	echo
+	echo -n ----------------------------------------
+	echo    ---------------------------------------
+	echo -n "$2:$3 - Iteration $i/$ITER, Start: "
+	date
+	echo -n ----------------------------------------
+	echo    ---------------------------------------
+	echo
+
+# We run xsb by loading PROG.P, and then call the test predicate.
+# This writes the file RUN_BENCH__RESULT.
+# In addition we call /usr/bin/time and let it write to RUN_BENCH__TIME:
+	if /usr/bin/time -f "%U\t%S\t%E\t%M" -o RUN_BENCH__TIME \
+		xsb -e "[$PROG], test('$3', '$FILE'), halt."
+	then
+		echo "OK" >/dev/null;
+	else
+		echo "*** SOMETHING WENT WRONG WITH THE BENCHMARK! ***"
+		exit 5
+	fi
+
+	# Finally, the two result files are combined to one line
+	# in the output file (First Parameter):
+	cat RUN_BENCH__RESULT RUN_BENCH__TIME >>$1
+
+# End of loop:
+done
+
+# If $QRESULT_ITER is > 0, we must execute the benchmark with query result:
+for i in `seq 1 $QRESULT_ITER`
+do
+	echo
+	echo -n ----------------------------------------
+	echo    ---------------------------------------
+	echo -n "$2@$3 [With Result] - $i/$QRESULT_ITER, Start: "
+	date
+	echo -n ----------------------------------------
+	echo    ---------------------------------------
+	echo
+
+# As above, we now only call the predicate test_write instead of test:
+	if /usr/bin/time -f "%U\t%S\t%E\t%M" -o RUN_BENCH__TIME \
+		xsb -e "[$PROG], test_write('$3', '$FILE'), halt."
+	then
+		echo "OK" >/dev/null;
+	else
+		echo "*** SOMETHING WENT WRONG WITH THE BENCHMARK! ***"
+		exit 7
+	fi
+
+	# Finally, the two result files are combined to one line
+	# in the output file (First Parameter):
+	cat RUN_BENCH__RESULT RUN_BENCH__TIME >>$1
+
+# End of loop:
+done
+
+# Remove compiled program:
+if [ -e $PROG.xwam ]; then
+	rm $PROG.xwam
+fi
+
+

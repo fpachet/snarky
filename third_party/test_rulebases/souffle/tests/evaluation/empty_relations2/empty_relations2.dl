@@ -1,0 +1,21 @@
+// Souffle - A Datalog Compiler
+// Copyright (c) 2020, The Souffle Developers. All rights reserved
+// Licensed under the Universal Permissive License v 1.0 as shown at:
+// - https://opensource.org/licenses/UPL
+// - <souffle root>/licenses/SOUFFLE-UPL.txt
+
+// Tests redundant relation removal when two clauses end up being internally identical.
+// See issue #1745.
+
+.decl a(x:number)
+a(1).
+a(2).
+
+.decl empty(x:number)
+
+.decl useless(A:number)
+useless(W) :- a(W).
+
+.decl out(A:number)
+.output out
+out(K) :- a(K), empty(K).

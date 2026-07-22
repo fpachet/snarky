@@ -1,0 +1,26 @@
+Warning: No rules/facts defined for relation D in file union_types.dl at line 18
+.decl D (i:three)
+------^-----------
+Error: Atom's argument type is not a subtype of its declared type in file union_types.dl at line 33
+G(X) :- E(X). // error
+--^--------------------
+The argument's declared type is one in file union_types.dl at line 20
+.decl G (i:one)
+-----------^----
+Error: Unable to deduce type for variable X in file union_types.dl at line 36
+E(X) :- F(X), A(X), B(X). // error
+--^--------------------------------
+Following constraints are incompatible:
+   Type of variable 'X' should be a subtype of 'one' in file union_types.dl at line 36
+E(X) :- F(X), A(X), B(X). // error
+--------------^--------------------
+   Type of variable 'X' should be a subtype of 'two' in file union_types.dl at line 36
+E(X) :- F(X), A(X), B(X). // error
+--------------------^--------------
+Error: Unable to deduce type for variable X in file union_types.dl at line 38
+C(X) :- D(X), !A(X). // error
+--^---------------------------
+Following constraints are incompatible:
+   Type of variable 'X' should be a subtype of 'number'
+   Type of variable 'X' should be a subtype of 'symbol'
+3 errors generated, evaluation aborted

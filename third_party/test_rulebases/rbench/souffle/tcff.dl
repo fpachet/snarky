@@ -1,0 +1,21 @@
+
+//
+// par - "parent"/"edge" relation of which we compute the transitive closure
+//
+.decl par (n:number, m:number)
+.input par(IO=file, filename="INSTANCE")
+// par(1,2).
+// par(2,3).
+
+//
+// tc - "ancestor"/"reachable" predicate (transitive closure of par)
+//
+
+//.decl tc (n:number, m:number) output
+.decl tc (n:number, m:number)
+//.output tc(IO=stdout)
+.printsize tc
+
+tc(X, Y)  :- par(X, Y).
+tc(X, Y)  :- par(X, Z), tc(Z, Y).
+

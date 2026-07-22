@@ -1,0 +1,23 @@
+// Bad parameter type
+.functor bad_param(i: int): symbol
+
+// Bad return type
+.functor bad_return(i: number): double
+
+.functor good_functor(symbol): number
+
+.decl A(a: symbol)
+.decl B(b: number)
+.decl C(c: number)
+.input A, B
+
+// Invalid call arity
+C(c) :- A(a), c = @good_functor(a, a).
+// Invalid type
+C(c) :- B(b), c = @good_functor(b).
+// Invalid type and arity
+C(c) :- B(b), c = @good_functor(b, b).
+
+// Non-statefull functors aren't allowed to accept UDTs
+.type List = [h: symbol, t: List]
+.functor bad_not_stateful(List): List

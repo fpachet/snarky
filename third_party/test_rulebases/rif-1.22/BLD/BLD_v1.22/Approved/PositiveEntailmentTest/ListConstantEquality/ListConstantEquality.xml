@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<PositiveEntailmentTest id="ListConstantEquality"
+    src="http://www.w3.org/2005/rules/test/repository/tc/ListConstantEquality" xmlns="http://www.w3.org/2009/10/rif-test#">
+    <status>Approved</status>
+    <dialect>BLD</dialect>
+    <purpose>Test equality between lists and constants</purpose>
+    <description>IRIs may be mapped to arbitrary elements in the domain, and so also to elements representing lists.</description>
+    <PremiseDocument>
+        <Normative syntax="RIF/XML">
+            <name>ListConstantEquality-premise.rif</name>
+            <remote>http://www.w3.org/2005/rules/test/repository/tc/ListConstantEquality/ListConstantEquality-premise.rif</remote>
+        </Normative>
+        <Presentation syntax="RIFBLD-PS"><![CDATA[
+Document(
+  Prefix(ex  <http://example.org/example#>)
+  Group(
+   ex:a=List(ex:b ex:c)
+   ex:p(ex:a)
+  )
+ )
+]]></Presentation>
+    </PremiseDocument>
+    <ConclusionDocument>
+        <Normative syntax="RIF/XML">
+            <name>ListConstantEquality-conclusion.rif</name>
+            <remote>http://www.w3.org/2005/rules/test/repository/tc/ListConstantEquality/ListConstantEquality-conclusion.rif</remote>
+        </Normative>
+        <Presentation syntax="RIFBLD-PS"><![CDATA[
+ex:p(List(ex:b ex:c))
+]]></Presentation>
+    </ConclusionDocument>
+</PositiveEntailmentTest>

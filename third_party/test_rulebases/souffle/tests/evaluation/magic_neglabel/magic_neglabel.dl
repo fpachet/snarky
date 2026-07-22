@@ -1,0 +1,40 @@
+// Souffle - A Datalog Compiler
+// Copyright (c) 2020, The Souffle Developers. All rights reserved
+// Licensed under the Universal Permissive License v 1.0 as shown at:
+// - https://opensource.org/licenses/UPL
+// - <souffle root>/licenses/SOUFFLE-UPL.txt
+
+// Tests magic-set in a situation where neglabelling is necessary to
+// preserve stratification, but poslabelling is not.
+
+// Reasoning:
+// Suppose we don't neglabel, and perform MST directly. Then:
+//  * magic[A](X) will depend on C(X) due to the query
+//  * C(X) will negatively-depend on B(X) due to its sole rule
+//  * B(X) will depend on A(X) from its sole rule
+//  * A(X) will depend on magic[A](X) by definition
+// We therefore have a negative cycle:
+//      magic[A] -> C -> B -> A -> magic[A]
+// Negative labelling separates out the negated level to prevent this
+
+.pragma "magic-transform" "*"
+
+// Stratum 0 - Base Input
+.decl Base(X:number)
+.input Base()
+
+// Stratum 1
+.decl A(X:number)
+.decl B(X:number)
+A(X) :- Base(X).
+A(X) :- B(X), Base(X).
+B(X) :- A(X), X != 0.
+
+// Stratum 2
+.decl C(X:number)
+C(X) :- Base(X), !B(X).
+
+// Stratum 3 - Query
+.decl Query(X:number)
+.output Query()
+Query(X) :- C(X), A(X).

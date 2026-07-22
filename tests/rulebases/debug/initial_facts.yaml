@@ -1,0 +1,23 @@
+schema_version: 1
+facts:
+  - entity: "(alice parent_de bob)"
+    status: VRAI
+  - entity: "(bob parent_de clara)"
+    status: VRAI
+
+  - entity: "(alice ancetre_de bob)"
+    status: VRAI
+  - entity: "(bob ancetre_de clara)"
+    status: VRAI
+  - entity: "(clara ancetre_de david)"
+    status: VRAI
+  - entity: "(ancetre_de est_transitive VRAI)"
+    status: VRAI
+
+  - entity: "(alice sait ((bob humain VRAI) implique (bob mortel VRAI)))"
+    status: VRAI
+  - entity: "(alice sait (bob humain VRAI))"
+    status: VRAI
+
+  - entity: alarme
+    status: FAUX

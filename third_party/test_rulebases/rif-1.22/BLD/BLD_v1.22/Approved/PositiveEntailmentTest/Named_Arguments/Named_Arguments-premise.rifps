@@ -1,0 +1,18 @@
+Document(
+ Prefix(ex <http://example.org/example#>)
+ Prefix(xs <http://www.w3.org/2001/XMLSchema#>) 
+
+ Group ( 
+
+  Forall ?Customer (
+   ex:discount(value -> 10 customer -> ?Customer) :- ex:gold(customer -> ?Customer)
+  )
+
+  Forall ?Customer (
+   ex:discount(customer -> ?Customer value -> 5) :- ex:silver(customer -> ?Customer)
+  )
+
+  ex:gold(customer -> "John Doe")
+
+ )
+)

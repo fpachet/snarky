@@ -1,0 +1,5 @@
+// include_directive1
+.decl location(tag:symbol, line:number)
+.include "baz.dl"
+location("include_directive1:4",__LINE__).
+.output location

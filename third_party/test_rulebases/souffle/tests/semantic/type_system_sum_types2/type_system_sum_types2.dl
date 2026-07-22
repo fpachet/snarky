@@ -1,0 +1,19 @@
+// Souffle - A Datalog Compiler
+// Copyright (c) 2020, The Souffle Developers. All rights reserved
+// Licensed under the Universal Permissive License v 1.0 as shown at:
+// - https://opensource.org/licenses/UPL
+// - <souffle root>/licenses/SOUFFLE-UPL.txt
+
+//
+// Type System Sum Types 2
+//
+// Check if an undeclared branch is correctly reported
+//
+
+
+.type A = X {x : number}
+
+.decl R(x : A)
+R($X(5)).  // Ok
+R($Y(-1)). // Undeclared.
+.output R

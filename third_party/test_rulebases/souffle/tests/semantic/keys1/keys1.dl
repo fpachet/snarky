@@ -1,0 +1,24 @@
+// Souffle - A Datalog Compiler
+// Copyright (c) 2020, The Souffle Developers. All rights reserved
+// Licensed under the Universal Permissive License v 1.0 as shown at:
+// - https://opensource.org/licenses/UPL
+// - <souffle root>/licenses/SOUFFLE-UPL.txt
+
+// Check choice-domain are properly reduced to its simplest form.
+// Also check facts are project into relation with guraded condition.
+// This is simplified to choice-domain x
+.decl rel1(x:symbol, y:symbol) choice-domain (x, x)
+rel1("a", "b").
+rel1("a", "c").
+// This is also simplified to choice-domain x
+.decl rel2(x:symbol, y:symbol) choice-domain x, x, x
+rel2("a", "b").
+rel2("a", "c").
+// This is also simplified to choice-domain (x, y)
+.decl rel3(x:symbol, y:symbol) choice-domain (x, y), (y, x)
+rel3("a", "b").
+rel3("a", "c").
+
+.printsize rel1
+.printsize rel2
+.printsize rel3

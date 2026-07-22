@@ -1,0 +1,40 @@
+Error: Ambiguous record in file type_system_records2.dl at line 14
+A(1) :- [1,2] = [1].
+--------^------------
+Error: Ambiguous record in file type_system_records2.dl at line 14
+A(1) :- [1,2] = [1].
+----------------^----
+Error: Ambiguous record in file type_system_records2.dl at line 15
+A(2) :- [1,2] != [1].
+--------^-------------
+Error: Ambiguous record in file type_system_records2.dl at line 15
+A(2) :- [1,2] != [1].
+-----------------^----
+Error: Ambiguous record in file type_system_records2.dl at line 16
+A(3) :- [1,2] = [1, 2, "3"].
+--------^--------------------
+Error: Ambiguous record in file type_system_records2.dl at line 16
+A(3) :- [1,2] = [1, 2, "3"].
+----------------^------------
+Error: Unsigned constant (type mismatch) in file type_system_records2.dl at line 17
+A(4) :- [1u,2] != [2.0, 3].
+---------^------------------
+Error: Float constant (type mismatch) in file type_system_records2.dl at line 17
+A(4) :- [1u,2] != [2.0, 3].
+-------------------^--------
+Error: Ambiguous record in file type_system_records2.dl at line 18
+A(5) :- a = [1, 2], a = [b], b = [].
+------------^------------------------
+Error: Ambiguous record in file type_system_records2.dl at line 18
+A(5) :- a = [1, 2], a = [b], b = [].
+------------------------^------------
+Error: Ambiguous record in file type_system_records2.dl at line 18
+A(5) :- a = [1, 2], a = [b], b = [].
+---------------------------------^---
+Error: Ambiguous record in file type_system_records2.dl at line 19
+A(6) :- [1] != _.
+--------^---------
+Error: Underscore in binary relation in file type_system_records2.dl at line 19
+A(6) :- [1] != _.
+---------------^--
+13 errors generated, evaluation aborted

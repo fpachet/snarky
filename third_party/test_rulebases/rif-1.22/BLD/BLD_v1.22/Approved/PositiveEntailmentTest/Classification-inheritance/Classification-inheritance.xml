@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<PositiveEntailmentTest id="Classification-inheritance"
+    src="http://www.w3.org/2005/rules/test/repository/tc/Classification-inheritance" xmlns="http://www.w3.org/2009/10/rif-test#">
+    <status>Approved</status>
+    <dialect>BLD</dialect>
+    <purpose>Demonstrate and test behavior of frames and membership</purpose>
+    <description>The conclusion is entailed from the premises by a separate rule which makes all property values of classes inherit to their instances. Note that this overly general rule is not an example of good modeling practice.</description>
+    <PremiseDocument>
+        <Normative syntax="RIF/XML">
+            <name>Classification-inheritance-premise.rif</name>
+            <remote>http://www.w3.org/2005/rules/test/repository/tc/Classification-inheritance/Classification-inheritance-premise.rif</remote>
+        </Normative>
+        <Presentation syntax="RIFBLD-PS"><![CDATA[
+Document(
+
+  Prefix(tax <http://example.org/scientific-classification#>)
+  Prefix(ppl <http://example.org/people#>)
+  Prefix(cpt <http://example.org/concepts#>)
+
+  Group (
+    Forall ?C ?I ?P ?V ( ?I[?P -> ?V] :- And (?C[?P -> ?V] ?I#?C ) ) 
+
+    ppl:john#cpt:Person
+    cpt:Person[tax:phylum -> tax:Chordata]       
+  )
+)
+]]></Presentation>
+    </PremiseDocument>
+    <ConclusionDocument>
+        <Normative syntax="RIF/XML">
+            <name>Classification-inheritance-conclusion.rif</name>
+            <remote>http://www.w3.org/2005/rules/test/repository/tc/Classification-inheritance/Classification-inheritance-conclusion.rif</remote>
+        </Normative>
+        <Presentation syntax="RIFBLD-PS"><![CDATA[
+ppl:john[tax:phylum -> tax:Chordata]
+]]></Presentation>
+    </ConclusionDocument>
+</PositiveEntailmentTest>

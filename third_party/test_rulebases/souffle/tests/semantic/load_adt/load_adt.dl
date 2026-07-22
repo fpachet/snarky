@@ -1,0 +1,25 @@
+// Souffle - A Datalog Compiler
+// Copyright (c) 2020, The Souffle Developers. All rights reserved
+// Licensed under the Universal Permissive License v 1.0 as shown at:
+// - https://opensource.org/licenses/UPL
+// - <souffle root>/licenses/SOUFFLE-UPL.txt
+
+//
+// Load ADT
+// Test reading adt in CSV format
+//
+
+
+.type T = A { x : number }
+        | B { x : symbol }
+
+
+
+.decl R(x : T, y : T)
+.input R
+
+.decl Rout(x : T, y : T)
+Rout(x, y) :- R(x, y).
+.output Rout
+
+

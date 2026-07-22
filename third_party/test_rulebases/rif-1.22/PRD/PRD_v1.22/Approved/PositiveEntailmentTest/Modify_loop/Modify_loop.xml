@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<PositiveEntailmentTest id="Modify_loop"
+    src="http://www.w3.org/2005/rules/test/repository/tc/Modify_loop" xmlns="http://www.w3.org/2009/10/rif-test#">
+    <status>Approved</status>
+    <dialect>PRD</dialect>
+    <purpose>Modify Action of RIF PRD</purpose>
+    <description>Demonstrates the modify action in RIF PRD. The rule decrements a frame slot until it reaches 0.</description>
+    <PremiseDocument>
+        <Normative syntax="RIF/XML">
+            <name>Modify_loop-premise.rif</name>
+            <remote>http://www.w3.org/2005/rules/test/repository/tc/Modify_loop/Modify_loop-premise.rif</remote>
+        </Normative>
+        <Presentation syntax="RIFPRD-PS"><![CDATA[
+Document(
+ Prefix(ex <http://example.org/example#>)
+ Prefix(func <http://www.w3.org/2007/rif-builtin-function#>)
+ Prefix(pred <http://www.w3.org/2007/rif-builtin-predicate#>)
+
+ Group ( 
+  Forall ?X ?C (
+   If 
+      And( ?X[ex:count -> ?C] pred:numeric-greater-than(?C 0) )
+   Then Do ( 
+      Modify (?X[ex:count-> func:numeric-subtract(?C 1)])
+   )
+  )
+
+  ex:foo[ex:count -> 10]
+
+ )
+)
+]]></Presentation>
+    </PremiseDocument>
+    <ConclusionDocument>
+        <Normative syntax="RIF/XML">
+            <name>Modify_loop-conclusion.rif</name>
+            <remote>http://www.w3.org/2005/rules/test/repository/tc/Modify_loop/Modify_loop-conclusion.rif</remote>
+        </Normative>
+        <Presentation syntax="RIFPRD-PS"><![CDATA[
+ex:foo[ex:count-> 0]
+]]></Presentation>
+    </ConclusionDocument>
+</PositiveEntailmentTest>

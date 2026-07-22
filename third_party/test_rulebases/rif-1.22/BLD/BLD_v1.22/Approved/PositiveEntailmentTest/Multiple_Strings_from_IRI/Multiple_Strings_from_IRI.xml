@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<PositiveEntailmentTest id="Multiple_Strings_from_IRI"
+    src="http://www.w3.org/2005/rules/test/repository/tc/Multiple_Strings_from_IRI" xmlns="http://www.w3.org/2009/10/rif-test#">
+    <status>Approved</status>
+    <dialect>BLD</dialect>
+    <purpose>Demonstrate that a single IRI may correspond to several strings</purpose>
+    <description>The built-in predicate &lt;tt&gt;pred:iri-string&lt;/tt&gt; is satisfied whenever the second argument is a string corresponding to representing the first argument. There may be several strings corresponding to a single IRI constant. In this case, the IRI constants ex:a and ex:b are equal, and so either constant corresponds to either string representation. In particular, both &lt;tt&gt;"http://example.com/example#a"&lt;/tt&gt; and &lt;tt&gt;"http://example.com/example#b"&lt;/tt&gt; are string representations for the constant &lt;tt&gt;"http://example.com/example#a"^^rif:iri&lt;/tt&gt;.</description>
+    <PremiseDocument>
+        <Normative syntax="RIF/XML">
+            <name>Multiple_Strings_from_IRI-premise.rif</name>
+            <remote>http://www.w3.org/2005/rules/test/repository/tc/Multiple_Strings_from_IRI/Multiple_Strings_from_IRI-premise.rif</remote>
+        </Normative>
+        <Presentation syntax="RIFBLD-PS"><![CDATA[
+Document(
+  Prefix(ex  <http://example.org/example#>)
+  Prefix(pred <http://www.w3.org/2007/rif-builtin-predicate#>)
+  Group(
+   ex:a=ex:b
+  )
+ )
+]]></Presentation>
+    </PremiseDocument>
+    <ConclusionDocument>
+        <Normative syntax="RIF/XML">
+            <name>Multiple_Strings_from_IRI-conclusion.rif</name>
+            <remote>http://www.w3.org/2005/rules/test/repository/tc/Multiple_Strings_from_IRI/Multiple_Strings_from_IRI-conclusion.rif</remote>
+        </Normative>
+        <Presentation syntax="RIFBLD-PS"><![CDATA[
+And (
+    pred:iri-string("http://example.org/example#a"^^rif:iri "http://example.org/example#a")
+    pred:iri-string("http://example.org/example#a"^^rif:iri "http://example.org/example#b")
+  )
+]]></Presentation>
+    </ConclusionDocument>
+</PositiveEntailmentTest>

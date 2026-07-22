@@ -1,0 +1,12 @@
+// Souffle - A Datalog Compiler
+// Copyright (c) 2020, The Souffle Developers. All rights reserved
+// Licensed under the Universal Permissive License v 1.0 as shown at:
+// - https://opensource.org/licenses/UPL
+// - <souffle root>/licenses/SOUFFLE-UPL.txt
+
+// ok
+.decl rel1(x:symbol, y:symbol) choice-domain x, y
+// ok
+.decl rel2(x:symbol, y:symbol) btree choice-domain x, y
+// not ok
+.decl rel3(x:symbol, y:symbol) choice-domain x,y btree

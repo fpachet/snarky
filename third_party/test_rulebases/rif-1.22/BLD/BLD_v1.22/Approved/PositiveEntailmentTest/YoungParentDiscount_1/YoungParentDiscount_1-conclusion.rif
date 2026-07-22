@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE Document [
+  <!ENTITY rif  "http://www.w3.org/2007/rif#">
+  <!ENTITY xs   "http://www.w3.org/2001/XMLSchema#">
+  <!ENTITY rdf  "http://www.w3.org/1999/02/22-rdf-syntax-ns#">
+]>
+
+  <And  xmlns="&rif;">
+    <formula>
+      <Member>
+        <instance>
+          <Const type="&rif;iri">http://example.org/example#JohnDoe</Const>
+        </instance>
+        <class>
+          <Const type="&rif;iri">http://example.org/example#YoungParent</Const>
+        </class>
+      </Member>
+    </formula>
+    <formula>
+      <Member>
+        <instance>
+          <Const type="&rif;iri">http://example.org/example#JoanDoe</Const>
+        </instance>
+        <class>
+          <Const type="&rif;iri">http://example.org/example#ParentToBeChecked</Const>
+        </class>
+      </Member>
+    </formula>
+  </And>
+<!--XML document generated on Sun Nov 07 10:38:10 EST 2010-->

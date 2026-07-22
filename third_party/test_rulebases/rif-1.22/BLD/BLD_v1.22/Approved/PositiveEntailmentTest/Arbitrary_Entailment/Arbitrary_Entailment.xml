@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<PositiveEntailmentTest id="Arbitrary_Entailment"
+    src="http://www.w3.org/2005/rules/test/repository/tc/Arbitrary_Entailment" xmlns="http://www.w3.org/2009/10/rif-test#">
+    <status>Approved</status>
+    <dialect>BLD</dialect>
+    <purpose>Test for arbitrary entailment from inconsistent ruleset</purpose>
+    <description>An inconsistent RIF document entails any formula.  This particular RIF document is inconsistent (i.e., it has no model) because it asserts equality between the strings "a" and "b", which are known to be different by the [http://www.w3.org/TR/2004/REC-xmlschema-2-20041028/#string XML schema datatypes specification].</description>
+    <PremiseDocument>
+        <Normative syntax="RIF/XML">
+            <name>Arbitrary_Entailment-premise.rif</name>
+            <remote>http://www.w3.org/2005/rules/test/repository/tc/Arbitrary_Entailment/Arbitrary_Entailment-premise.rif</remote>
+        </Normative>
+        <Presentation syntax="RIFBLD-PS"><![CDATA[
+Document(
+  Group(
+   "a" = "b"
+  )
+ )
+]]></Presentation>
+    </PremiseDocument>
+    <ConclusionDocument>
+        <Normative syntax="RIF/XML">
+            <name>Arbitrary_Entailment-conclusion.rif</name>
+            <remote>http://www.w3.org/2005/rules/test/repository/tc/Arbitrary_Entailment/Arbitrary_Entailment-conclusion.rif</remote>
+        </Normative>
+        <Presentation syntax="RIFBLD-PS"><![CDATA[
+<http://example.org/#p>(<http://example.org/#e>)
+]]></Presentation>
+    </ConclusionDocument>
+</PositiveEntailmentTest>

@@ -1,0 +1,27 @@
+Warning: No rules/facts defined for relation hnwC in file rel_redundant.dl at line 39
+.decl hnwC(A:float)
+------^-------------
+Warning: No rules/facts defined for relation wvhB in file rel_redundant.dl at line 43
+.decl wvhB(A:float)
+------^-------------
+Warning: No rules/facts defined for relation aX in file rel_redundant.dl at line 51
+.decl aX(x:number)
+------^------------
+Warning: No rules/facts defined for relation bX in file rel_redundant.dl at line 52
+.decl bX(x:number, y:number)
+------^----------------------
+Warning: No rules/facts defined for relation eX in file rel_redundant.dl at line 55
+.decl eX(A:number, B:number)
+------^----------------------
+Warning: Variable y only occurs once in file rel_redundant.dl at line 59
+cX(x) :- aX(x), y=0.
+----------------^----
+Warning: Variable c only occurs once in file rel_redundant.dl at line 62
+outX(Y) :- dX(f,Y,f), fX(c), eX(a,b).
+-------------------------^------------
+Warning: Variable a only occurs once in file rel_redundant.dl at line 62
+outX(Y) :- dX(f,Y,f), fX(c), eX(a,b).
+--------------------------------^-----
+Warning: Variable b only occurs once in file rel_redundant.dl at line 62
+outX(Y) :- dX(f,Y,f), fX(c), eX(a,b).
+----------------------------------^---

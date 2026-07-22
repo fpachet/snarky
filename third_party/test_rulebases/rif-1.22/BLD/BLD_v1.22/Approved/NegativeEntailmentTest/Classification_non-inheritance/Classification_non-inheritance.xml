@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<NegativeEntailmentTest id="Classification_non-inheritance"
+    src="http://www.w3.org/2005/rules/test/repository/tc/Classification_non-inheritance" xmlns="http://www.w3.org/2009/10/rif-test#">
+    <status>Approved</status>
+    <dialect>BLD</dialect>
+    <purpose>demonstrate and test behavior of frames and membership</purpose>
+    <description>The conclusion is not entailed from the premises because RIF BLD does not postulate the inheritance of properties from classes to its members.</description>
+    <PremiseDocument>
+        <Normative syntax="RIF/XML">
+            <name>Classification_non-inheritance-premise.rif</name>
+            <remote>http://www.w3.org/2005/rules/test/repository/tc/Classification_non-inheritance/Classification_non-inheritance-premise.rif</remote>
+        </Normative>
+        <Presentation syntax="RIFBLD-PS"><![CDATA[
+Document(
+
+  Prefix(tax <http://example.org/scientific-classification#>)
+  Prefix(ppl <http://example.org/people#>)
+  Prefix(cpt <http://example.org/concepts#>)
+
+  Group (
+    ppl:john#cpt:Person
+    cpt:Person[tax:phylum -> tax:Chordata]       
+  )
+)
+]]></Presentation>
+    </PremiseDocument>
+    <NonConclusionDocument>
+        <Normative syntax="RIF/XML">
+            <name>Classification_non-inheritance-nonconclusion.rif</name>
+            <remote>http://www.w3.org/2005/rules/test/repository/tc/Classification_non-inheritance/Classification_non-inheritance-nonconclusion.rif</remote>
+        </Normative>
+        <Presentation syntax="RIFBLD-PS"><![CDATA[
+ppl:john[tax:phylum -> tax:Chordata]
+]]></Presentation>
+    </NonConclusionDocument>
+</NegativeEntailmentTest>

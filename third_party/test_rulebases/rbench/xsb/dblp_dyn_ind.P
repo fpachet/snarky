@@ -1,0 +1,82 @@
+/*=============================================================================
+ * DBLP Benchmark. Self-Join and Selection for Entity-Attribute-Value-Table.
+ *
+ * Benchmark IDs: dblp_dynin_*
+ * This version uses load_dyn
+ * and a normal index for the database relation att
+ * on a combination of the first and second argument
+ * (for all but first body literals).
+ *
+ * The main program is in 'bench_lib.P'.
+ * This file is a modified version of a file distributed with OpenRuleBench.
+ *=============================================================================
+ */
+
+/*-----------------------------------------------------------------------------
+ * ID of this Benchmark:
+ *-----------------------------------------------------------------------------
+ */
+
+bench_id('dblp_dynin').
+
+
+/*-----------------------------------------------------------------------------
+ * Options:
+ *-----------------------------------------------------------------------------
+ */
+
+/* Data load method: */
+load_data(Filename) :- load_dyn(Filename).
+
+/* Index: */
+:- index(att/3, [1+2]).
+
+/*-----------------------------------------------------------------------------
+ * Benchmark Program:
+ *-----------------------------------------------------------------------------
+ */
+
+queryrule(X,T,Y,A,M) :-
+	att(X,title,T),
+	att(X,year,Y),
+	att(X,author,A),
+	att(X,month,M).
+
+
+/*-----------------------------------------------------------------------------
+ * Benchmark Query:
+ *-----------------------------------------------------------------------------
+ */
+
+bench :- queryrule(_,_,_,_,_), fail.
+bench.
+
+
+/*-----------------------------------------------------------------------------
+ * Benchmark Query with Writing of Result:
+ *-----------------------------------------------------------------------------
+ */
+
+bench_write(Stream) :-
+	queryrule(X,T,Y,A,M),
+	write(Stream, X),
+	write(Stream, '\t'),
+	write(Stream, T),
+	write(Stream, '\t'),
+	write(Stream, Y),
+	write(Stream, '\t'),
+	write(Stream, A),
+	write(Stream, '\t'),
+	write(Stream, M),
+	write(Stream, '\n'),
+	fail.
+bench_write(_).
+
+
+/*-----------------------------------------------------------------------------
+ * The rest is the same for all XSB benchmarks:
+ *-----------------------------------------------------------------------------
+ */
+
+:- consult('bench_lib.P').
+

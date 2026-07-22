@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<Document xmlns="http://www.w3.org/2007/rif#">
+  <payload>
+    <Group>
+      <sentence>
+        <Forall>
+          <declare><Var>X</Var></declare>
+          <formula>
+            <Implies>
+              <if>
+                <Frame>
+                  <object><Var>X</Var></object>
+                  <slot ordered="yes">
+                    <Const type="http://www.w3.org/2007/rif#iri">http://example.org/example#status</Const>
+                    <Const type="http://www.w3.org/2001/XMLSchema#string">gold</Const>
+                  </slot>
+                </Frame>
+              </if>
+              <then>
+                <Do>
+                  <actions ordered="yes">
+                    <Assert>
+                      <target>
+                        <Frame>
+                          <object><Var>X</Var></object>
+                          <slot ordered="yes">
+                            <Const type="http://www.w3.org/2007/rif#iri">http://example.org/example#discount</Const>
+                            <Const type="http://www.w3.org/2001/XMLSchema#string">10</Const>
+                          </slot>
+                        </Frame>
+                      </target>
+                    </Assert>
+                  </actions>
+                </Do>
+              </then>
+            </Implies>
+          </formula>
+        </Forall>
+      </sentence>
+      <sentence>
+        <Frame>
+          <object>
+              <Const type="http://www.w3.org/2007/rif#iri">http://example.org/example#John</Const>
+          </object>    
+          <slot ordered="yes">
+            <Const type="http://www.w3.org/2007/rif#iri">http://example.org/example#status</Const>
+            <Const type="http://www.w3.org/2001/XMLSchema#string">gold</Const>
+          </slot>
+        </Frame>
+      </sentence>
+    </Group>
+  </payload>
+</Document>

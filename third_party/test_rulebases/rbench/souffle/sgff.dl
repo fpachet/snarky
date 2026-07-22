@@ -1,0 +1,20 @@
+
+//
+// par - "parent"/"edge" relation
+//
+.decl par (n:number, m:number)
+.input par(IO=file, filename="INSTANCE")
+// par(1,2).
+// par(2,3).
+
+//
+// sg - "same generation" predicate
+//
+
+//.decl sg (n:number, m:number) output
+.decl sg (n:number, m:number) eqrel
+//.output sg(IO=stdout)
+.printsize sg
+
+sg(Y, Y) :- par(_, Y).
+sg(X, Y) :- par(X, A), sg(A, B), par(Y, B).

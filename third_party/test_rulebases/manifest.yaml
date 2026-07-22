@@ -1,0 +1,114 @@
+schema_version: 1
+fetched_at: 2026-07-22
+
+corpora:
+  - id: n3-w3c
+    local_path: third_party/test_rulebases/n3-w3c
+    source: https://github.com/w3c/N3.git
+    revision: b975fc59ab5d2ad2d28e7206f1c34c716977d2ad
+    selection:
+      include:
+        - tests
+      exclude:
+        - tests/N3Tests/01etc
+    license:
+      status: bundled
+      file: tests/LICENSE.md
+      names:
+        - W3C Test Suite License
+        - W3C Software and Document License
+
+  - id: rif-1.22
+    local_path: third_party/test_rulebases/rif-1.22
+    source: https://www.w3.org/2005/rules/test/repository/zips/
+    revision: "1.22"
+    archives:
+      - name: BLD_v1.22.zip
+        sha256: d32541d91ef612e7dbf145a03bea386273d974500eef926c41f21d3062841721
+      - name: Core_v1.22.zip
+        sha256: 421e80f2e2671e4ee95bf0f9c424d0fd83955f5cecf67fb9104422eeb9f3887a
+      - name: PRD_v1.22.zip
+        sha256: 16fe5437b06ff6492c60b5c41588745a7870311347ca1f1d85f8876cb41c5e36
+    license:
+      status: upstream_terms
+      url: https://www.w3.org/copyright/software-license-2023/
+
+  - id: clips-6.4.2
+    local_path: third_party/test_rulebases/clips-6.4.2
+    source: https://sourceforge.net/projects/clipsrules/files/CLIPS/6.4.2/
+    revision: 6.4.2
+    archives:
+      - name: clips_examples_642.zip
+        sha256: 63c989b0e607604ace7c0c4a85396b8da91ade2797780bd14eeec5918479f6fc
+      - name: clips_feature_tests_642.zip
+        sha256: c43b735f5c29f42cc4ce0aa1079972efb22829bef34f6f5ba7fe96c0035748f4
+    license:
+      status: declared_by_upstream
+      name: MIT
+      url: https://sourceforge.net/projects/clipsrules/
+
+  - id: chasebench
+    local_path: third_party/test_rulebases/chasebench
+    source: https://github.com/dbunibas/chasebench.git
+    revision: 7427e1c1e3196769ee4ea04557465965ec26d02b
+    selection:
+      include:
+        - scenarios/correctness
+        - scenarios/deep
+    license:
+      status: not_found_in_snapshot
+      redistribution: review_required
+
+  - id: rbench
+    local_path: third_party/test_rulebases/rbench
+    source: https://gitlab.informatik.uni-halle.de/brass/rbench.git
+    revision: 1dda8ded0c43ecddee9bdb73430784e2f898b3c5
+    selection:
+      include:
+        - xsb
+        - xsb_pure
+        - souffle
+        - join1_data
+        - graph_data
+        - sg_size
+    license:
+      status: not_found_in_snapshot
+      redistribution: review_required
+
+  - id: souffle
+    local_path: third_party/test_rulebases/souffle
+    source: https://github.com/souffle-lang/souffle.git
+    revision: a1303be3c0166400dee3d1f36f0d96abe03e6901
+    selection:
+      include:
+        - tests/evaluation
+        - tests/semantic
+        - tests/provenance
+        - tests/scheduler
+        - tests/syntactic
+        - licenses
+    license:
+      status: bundled
+      file: LICENSE
+      name: UPL-1.0
+
+  - id: eye
+    local_path: third_party/test_rulebases/eye
+    source: https://github.com/josd/eye.git
+    revision: f14729b5bd1c6f25b54ab6490d6c17639f7353cf
+    selection:
+      include:
+        - reasoning/bnode-scope
+        - reasoning/deep-taxonomy
+        - reasoning/derived-rule
+        - reasoning/meta-interpretation
+        - reasoning/n3-star
+        - reasoning/path
+        - reasoning/reif
+        - reasoning/socrates
+        - reasoning/universal
+        - reasoning/zebra
+    license:
+      status: bundled
+      file: LICENSE
+      name: MIT

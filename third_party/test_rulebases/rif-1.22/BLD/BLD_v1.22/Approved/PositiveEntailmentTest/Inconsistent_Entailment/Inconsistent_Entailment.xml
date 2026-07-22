@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<PositiveEntailmentTest id="Inconsistent_Entailment"
+    src="http://www.w3.org/2005/rules/test/repository/tc/Inconsistent_Entailment" xmlns="http://www.w3.org/2009/10/rif-test#">
+    <status>Approved</status>
+    <dialect>BLD</dialect>
+    <purpose>Test for inconsistent entailment</purpose>
+    <description>The fact "a"="b" is inconsistent, i.e., it has no model, because the strings "a" and "b" are known to be different, by the XML schema specification.  Any formula is entailed by an inconsistent rule set, including this particular conclusion, which states that there exists an object that is both an integer and not an integer.</description>
+    <PremiseDocument>
+        <Normative syntax="RIF/XML">
+            <name>Inconsistent_Entailment-premise.rif</name>
+            <remote>http://www.w3.org/2005/rules/test/repository/tc/Inconsistent_Entailment/Inconsistent_Entailment-premise.rif</remote>
+        </Normative>
+        <Presentation syntax="RIFBLD-PS"><![CDATA[
+Document(
+  Group(
+   "a" = "b"
+  )
+ )
+]]></Presentation>
+    </PremiseDocument>
+    <ConclusionDocument>
+        <Normative syntax="RIF/XML">
+            <name>Inconsistent_Entailment-conclusion.rif</name>
+            <remote>http://www.w3.org/2005/rules/test/repository/tc/Inconsistent_Entailment/Inconsistent_Entailment-conclusion.rif</remote>
+        </Normative>
+        <Presentation syntax="RIFBLD-PS"><![CDATA[
+Exists ?x (
+  And(
+   External(<http://www.w3.org/2007/rif-builtin-predicate#is-literal-integer>(?x))
+   External(<http://www.w3.org/2007/rif-builtin-predicate#is-literal-not-integer>(?x))
+  )
+ )
+]]></Presentation>
+    </ConclusionDocument>
+</PositiveEntailmentTest>

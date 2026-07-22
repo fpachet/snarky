@@ -1,0 +1,24 @@
+// Souffle - A Datalog Compiler
+// Copyright (c) 2020, The Souffle Developers. All rights reserved
+// Licensed under the Universal Permissive License v 1.0 as shown at:
+// - https://opensource.org/licenses/UPL
+// - <souffle root>/licenses/SOUFFLE-UPL.txt
+
+//
+// type cast with "as"
+//
+// Created for #1890 where
+// variable binding constraints
+// failed.
+//
+//
+.type subsymbol <: symbol
+.decl A1(x:symbol)
+.decl A2,A3(x:subsymbol)
+A1("hello").
+A2("ello").
+A3(x) :-
+  A1(as(x,subsymbol)),
+  A2(x).
+
+.output A3

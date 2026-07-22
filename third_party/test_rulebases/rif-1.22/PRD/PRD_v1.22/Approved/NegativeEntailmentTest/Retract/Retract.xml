@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<NegativeEntailmentTest id="Retract"
+    src="http://www.w3.org/2005/rules/test/repository/tc/Retract" xmlns="http://www.w3.org/2009/10/rif-test#">
+    <status>Approved</status>
+    <dialect>PRD</dialect>
+    <purpose>Retract Action of RIF PRD</purpose>
+    <description>Demonstrates the retract action in RIF PRD. The rule retracts the existing customer object.</description>
+    <PremiseDocument>
+        <Normative syntax="RIF/XML">
+            <name>Retract-premise.rif</name>
+            <remote>http://www.w3.org/2005/rules/test/repository/tc/Retract/Retract-premise.rif</remote>
+        </Normative>
+        <Presentation syntax="RIFPRD-PS"><![CDATA[
+Document(
+ Prefix(ex <http://example.org/example#>)
+
+ Group ( 
+  Forall ?X (
+   If 
+      ?X[ex:status -> "normal"] 
+   Then Do ( 
+      Retract (?X)
+   )
+  )
+
+  ex:john[ex:status -> "normal" ex:test -> "some value"]
+
+ )
+)
+]]></Presentation>
+    </PremiseDocument>
+    <NonConclusionDocument>
+        <Normative syntax="RIF/XML">
+            <name>Retract-nonconclusion.rif</name>
+            <remote>http://www.w3.org/2005/rules/test/repository/tc/Retract/Retract-nonconclusion.rif</remote>
+        </Normative>
+        <Presentation syntax="RIFPRD-PS"><![CDATA[
+ex:john[ex:test -> "some value"]
+]]></Presentation>
+    </NonConclusionDocument>
+</NegativeEntailmentTest>

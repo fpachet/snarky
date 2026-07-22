@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<PositiveEntailmentTest id="EntailEverything"
+    src="http://www.w3.org/2005/rules/test/repository/tc/EntailEverything" xmlns="http://www.w3.org/2009/10/rif-test#">
+    <status>Approved</status>
+    <dialect>BLD</dialect>
+    <purpose>Test that arbitrary Consts are entailed</purpose>
+    <description/>
+    <PremiseDocument>
+        <Normative syntax="RIF/XML">
+            <name>EntailEverything-premise.rif</name>
+            <remote>http://www.w3.org/2005/rules/test/repository/tc/EntailEverything/EntailEverything-premise.rif</remote>
+        </Normative>
+        <Presentation syntax="RIFBLD-PS"><![CDATA[
+Document(
+  Prefix(ex   <http://example.org/example#>)
+  
+  Group  (
+    Forall ?x ( ex:A(?x) )
+  ) 
+
+)
+]]></Presentation>
+    </PremiseDocument>
+    <ConclusionDocument>
+        <Normative syntax="RIF/XML">
+            <name>EntailEverything-conclusion.rif</name>
+            <remote>http://www.w3.org/2005/rules/test/repository/tc/EntailEverything/EntailEverything-conclusion.rif</remote>
+        </Normative>
+        <Presentation syntax="RIFBLD-PS"><![CDATA[
+And (
+    ex:A(2)
+    ex:A("any string")
+    ex:A(<http://some.example.org>)
+  )
+]]></Presentation>
+    </ConclusionDocument>
+</PositiveEntailmentTest>

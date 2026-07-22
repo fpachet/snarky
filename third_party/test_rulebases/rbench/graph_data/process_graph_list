@@ -1,0 +1,64 @@
+#!/bin/bash
+#==============================================================================
+# Project:	Deductive Database
+# Filename:	graph_data/process_graph_list
+# Purpose:	Compute graph characteristics of all tc test graphs
+# Last Change:	18.06.2018
+# Language:	Shellscript (bash)
+# Author:	Stefan Brass
+# EMail:	brass@informatik.uni-halle.de
+# WWW:		http://www.informatik.uni-halle.de/~brass/
+# Address:	Feldschloesschen 15, D-06120 Halle (Saale), GERMANY
+# Note:		There is no warranty at all - this code may contain bugs.
+# Copyright:	The benchmarks are from the OpenRuleBench. Ask the authors.
+#		The shellscripts and the result database are from me.
+#		You can use them as you wish, but don't make me responsible!
+#		I would be interested to hear about improved versions.
+#==============================================================================
+
+# Remove the result files (each step adds one or more lines):
+rm -f graph_data.tex
+rm -f graph_data.sql
+rm -f graph_indeg.sql
+rm -f graph_outdeg.sql
+rm -f graph_iter.sql
+rm -f LOGFILE
+
+# Call the graph processing script for each graph file:
+
+./process_graph b1 tc_b1_n131k_ 100
+./process_graph b2 tc_b2_n262k_ 100
+./process_graph b3 tc_b3_n524k_ 100
+./process_graph c1 tc_c1_n1k_	1002
+./process_graph c2 tc_c2_n2k_	2002
+./process_graph c3 tc_c3_n4k_	4002
+./process_graph kc1 tc_kc1_n1k
+./process_graph kc2 tc_kc2_n2k
+./process_graph kn1 tc_kn1_n1k
+./process_graph kn2 tc_kn2_n2k
+./process_graph m1 tc_m1_n8k_2	4100
+./process_graph m2 tc_m2_n8k_8	1100
+./process_graph m3 tc_m3_n8k_32	400
+./process_graph m4 tc_m4_n8k_128 100
+./process_graph m5 tc_m5_n8k_512 20
+./process_graph m6 tc_m6_n8k_2048
+./process_graph p1 tc_p1_n1k_ 1002
+./process_graph p2 tc_p2_n2k_ 2002
+./process_graph p3 tc_p3_n4k_ 4002
+./process_graph s1 tc_s1_n2k_1 2002
+./process_graph s2 tc_s2_n2k_2 2002
+./process_graph s3 tc_s3_n2k_3 2002
+./process_graph s4 tc_s4_n2k_4 2002
+./process_graph uc1 tc_uc1_n1k_e50k
+./process_graph uc2 tc_uc2_n1k_e125k
+./process_graph uc3 tc_uc3_n1k_e250k
+./process_graph uc4 tc_uc4_n2k_e200k
+./process_graph uc5 tc_uc5_n2k_e500k
+./process_graph uc6 tc_uc6_n2k_e1000k
+./process_graph un1 tc_un1_n1k_e50k
+./process_graph un2 tc_un2_n1k_e125k
+./process_graph un3 tc_un3_n1k_e250k
+./process_graph un4 tc_un4_n2k_e200k
+./process_graph un5 tc_un5_n2k_e500k
+./process_graph un6 tc_un6_n2k_e1000k
+echo "Done:" `date`

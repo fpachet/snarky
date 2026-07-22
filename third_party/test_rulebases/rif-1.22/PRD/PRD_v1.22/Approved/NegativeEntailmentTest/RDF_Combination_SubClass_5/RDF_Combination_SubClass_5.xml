@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<NegativeEntailmentTest id="RDF_Combination_SubClass_5"
+    src="http://www.w3.org/2005/rules/test/repository/tc/RDF_Combination_SubClass_5" xmlns="http://www.w3.org/2009/10/rif-test#">
+    <status>Approved</status>
+    <dialect>BLD</dialect>
+    <dialect>PRD</dialect>
+    <Combinations>
+        <profile>http://www.w3.org/ns/entailment/Simple</profile>
+    </Combinations>
+    <purpose>Test interaction between rdfs:subClassOf and ## statements in RIF</purpose>
+    <description>In RIF-RDF combinations, we have that RIF ## statements imply rdfs:subClassOf statements, but not vice versa.</description>
+    <ImportedDocument>
+        <Normative syntax="RDF/XML">
+            <name>RDF_Combination_SubClass_5-import001.rdf</name>
+            <remote>http://www.w3.org/2005/rules/test/repository/tc/RDF_Combination_SubClass_5/RDF_Combination_SubClass_5-import001</remote>
+        </Normative>
+        <Presentation syntax="Turtle"><![CDATA[
+@prefix ex: <http://example.org/example#> . 
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> . 
+
+ ex:C rdfs:subClassOf ex:D .
+]]></Presentation>
+    </ImportedDocument>
+    <PremiseDocument>
+        <Normative syntax="RIF/XML">
+            <name>RDF_Combination_SubClass_5-premise.rif</name>
+            <remote>http://www.w3.org/2005/rules/test/repository/tc/RDF_Combination_SubClass_5/RDF_Combination_SubClass_5-premise.rif</remote>
+        </Normative>
+        <Presentation syntax="RIFBLD-PS"><![CDATA[
+Document(
+    Import(<http://example.org/mygraph> <http://www.w3.org/ns/entailment/Simple>)
+ )
+]]></Presentation>
+    </PremiseDocument>
+    <NonConclusionDocument>
+        <Normative syntax="RIF/XML">
+            <name>RDF_Combination_SubClass_5-nonconclusion.rif</name>
+            <remote>http://www.w3.org/2005/rules/test/repository/tc/RDF_Combination_SubClass_5/RDF_Combination_SubClass_5-nonconclusion.rif</remote>
+        </Normative>
+        <Presentation syntax="RIFBLD-PS"><![CDATA[
+ex:C ## ex:D
+]]></Presentation>
+    </NonConclusionDocument>
+</NegativeEntailmentTest>

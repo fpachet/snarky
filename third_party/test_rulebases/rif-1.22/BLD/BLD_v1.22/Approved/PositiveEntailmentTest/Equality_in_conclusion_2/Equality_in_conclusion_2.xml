@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<PositiveEntailmentTest id="Equality_in_conclusion_2"
+    src="http://www.w3.org/2005/rules/test/repository/tc/Equality_in_conclusion_2" xmlns="http://www.w3.org/2009/10/rif-test#">
+    <status>Approved</status>
+    <dialect>BLD</dialect>
+    <purpose>Test use of equality in a rule conclusion</purpose>
+    <description>This rules says that if x is a home worker, then x's home zip code is the same as x's work zip code. In general, a rule of this form can be used to express that if x is of a certain class then two different logical functions must have the same interpretation when applied to x.</description>
+    <PremiseDocument>
+        <Normative syntax="RIF/XML">
+            <name>Equality_in_conclusion_2-premise.rif</name>
+            <remote>http://www.w3.org/2005/rules/test/repository/tc/Equality_in_conclusion_2/Equality_in_conclusion_2-premise.rif</remote>
+        </Normative>
+        <Presentation syntax="RIFBLD-PS"><![CDATA[
+Document(
+  Prefix(ex <http://example.org/example#>)
+  
+  Group  (
+     Forall ?x ( ex:workZIPCode(?x) = ex:homeZIPCode(?x) :- ex:homeWorker(?x) ) 
+
+     ex:homeWorker(ex:a)
+  ) 
+)
+]]></Presentation>
+    </PremiseDocument>
+    <ConclusionDocument>
+        <Normative syntax="RIF/XML">
+            <name>Equality_in_conclusion_2-conclusion.rif</name>
+            <remote>http://www.w3.org/2005/rules/test/repository/tc/Equality_in_conclusion_2/Equality_in_conclusion_2-conclusion.rif</remote>
+        </Normative>
+        <Presentation syntax="RIFBLD-PS"><![CDATA[
+ex:workZIPCode(ex:a) = ex:homeZIPCode(ex:a)
+]]></Presentation>
+    </ConclusionDocument>
+</PositiveEntailmentTest>

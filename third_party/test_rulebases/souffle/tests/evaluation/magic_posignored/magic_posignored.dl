@@ -1,0 +1,34 @@
+// Souffle - A Datalog Compiler
+// Copyright (c) 2020, The Souffle Developers. All rights reserved
+// Licensed under the Universal Permissive License v 1.0 as shown at:
+// - https://opensource.org/licenses/UPL
+// - <souffle root>/licenses/SOUFFLE-UPL.txt
+
+// Tests magic-set where an atom that must be poslabelled cannot be
+// transformed. The atom should still be poslabelled to prevent
+// stratification issues - see issue #1679.
+
+.pragma "magic-transform" "*"
+
+.decl Pairs(A:float, B:float)
+Pairs(0,0).
+
+.decl First(A:float)
+First(x) :- Pairs(x,_).
+
+// Ignored - x < 100 is a float comparison.
+.decl DupFirst(A:float, B:float)
+DupFirst(x,x) :- First(x), x < 100.
+
+// Used negated later on, so should be neglabelled.
+// BUT: DupFirst is ignored, so it shouldn't be. Ignore this too.
+.decl FirstAgain(A:float)
+FirstAgain(x) :- DupFirst(x,_).
+
+// If stratification messes up, this will be true
+.decl Fail()
+Fail() :- FirstAgain(x), !FirstAgain(x).
+
+.decl Out(A:float)
+.output Out
+Out(x) :- Fail(), First(x).

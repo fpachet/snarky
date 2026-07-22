@@ -1,0 +1,38 @@
+// Souffle - A Datalog Compiler
+// Copyright (c) 2020, The Souffle Developers. All rights reserved
+// Licensed under the Universal Permissive License v 1.0 as shown at:
+// - https://opensource.org/licenses/UPL
+// - <souffle root>/licenses/SOUFFLE-UPL.txt
+
+//
+// Store ADT 3
+// Large reading test for ADTs.
+//
+
+
+.type Expression = Number { x : number }
+                 | Add {e_1 : Expression, e_2 :Expression}
+                 | Minus {e_1 : Expression, e_2 : Expression}
+                 | Mult {e_1 : Expression, e_2 : Expression}
+                 | Divide {e_1 : Expression, e_2 : Expression}
+
+
+.type Tree = Empty {}
+           | Node {t1: Tree, val: unsigned, t2: Tree}
+
+
+
+.decl R, RO(e : Expression)
+
+.input R
+
+RO(e) :- R(e).
+.output RO
+
+
+.decl TreeHeight, TO(t : Tree, height: unsigned)
+
+.input TreeHeight
+
+TO(t, h) :- TreeHeight(t, h).
+.output TO

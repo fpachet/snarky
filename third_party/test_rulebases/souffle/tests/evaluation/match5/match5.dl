@@ -1,0 +1,44 @@
+// Souffle - A Datalog Compiler
+// Copyright (c) 2020, The Souffle Developers. All rights reserved
+// Licensed under the Universal Permissive License v 1.0 as shown at:
+// - https://opensource.org/licenses/UPL
+// - <souffle root>/licenses/SOUFFLE-UPL.txt
+
+// Check string matching from relations with mixed valid and invalid regex
+
+.type String <: symbol
+
+
+// Split into several forced strata to keep warnings deterministic
+// Note: we add a "dummy" check to prevent optimisation
+.decl dummy(x:String)
+dummy("dummy").
+
+.decl inputDataStep1, inputDataStep2, inputDataStep3(x:String)
+inputDataStep1("a").
+inputDataStep2("aaaa").
+inputDataStep3("bdab").
+
+.decl outputDataStep1(x:String)
+outputDataStep1(x) :- inputDataStep1(x), match("a.*", x).
+outputDataStep1(x) :- inputDataStep1(x), match("b.*", x).
+outputDataStep1(x) :- inputDataStep1(x), match("b.*[", x).
+outputDataStep1(x) :- inputDataStep1(x), match("a.*[a]", x).
+
+.decl outputDataStep2(x:String)
+outputDataStep2(x) :- dummy(x), !outputDataStep1(x), x != "dummy".
+outputDataStep2(x) :- inputDataStep2(x), match("a.*", x).
+outputDataStep2(x) :- inputDataStep2(x), match("b.*", x).
+outputDataStep2(x) :- inputDataStep2(x), match("b.*[", x).
+outputDataStep2(x) :- inputDataStep2(x), match("a.*[a]", x).
+
+.decl outputDataStep3(x:String)
+outputDataStep3(x) :- dummy(x), !outputDataStep2(x), x != "dummy".
+outputDataStep3(x) :- inputDataStep3(x), match("a.*", x).
+outputDataStep3(x) :- inputDataStep3(x), match("b.*", x).
+outputDataStep3(x) :- inputDataStep3(x), match("b.*[", x).
+outputDataStep3(x) :- inputDataStep3(x), match("a.*[a]", x).
+
+.decl outputData(x:String)
+.output outputData()
+outputData(x) :- outputDataStep1(x) ; outputDataStep2(x) ; outputDataStep3(x).

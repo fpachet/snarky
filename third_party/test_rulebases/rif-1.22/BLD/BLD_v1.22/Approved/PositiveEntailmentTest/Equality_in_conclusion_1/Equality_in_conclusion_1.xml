@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<PositiveEntailmentTest id="Equality_in_conclusion_1"
+    src="http://www.w3.org/2005/rules/test/repository/tc/Equality_in_conclusion_1" xmlns="http://www.w3.org/2009/10/rif-test#">
+    <status>Approved</status>
+    <dialect>BLD</dialect>
+    <purpose>Test use of equality in a rule conclusion</purpose>
+    <description>The rule in this test case says that there is a functional relationship between the first and the second argument of the predicate p. In other words, if x is related to y by p and x is related to z by p, then y and z must be the same thing. This makes p equivalent to a functional property in OWL.</description>
+    <PremiseDocument>
+        <Normative syntax="RIF/XML">
+            <name>Equality_in_conclusion_1-premise.rif</name>
+            <remote>http://www.w3.org/2005/rules/test/repository/tc/Equality_in_conclusion_1/Equality_in_conclusion_1-premise.rif</remote>
+        </Normative>
+        <Presentation syntax="RIFBLD-PS"><![CDATA[
+Document(
+  Prefix(ex   <http://example.org/example#>)
+  
+  Group  (
+    Forall ?x ?y  ?z  ( ?y=?z   :-  And ( ex:p(?x ?y)  ex:p(?x ?z) ) )
+
+    ex:p(ex:a ex:b)
+    ex:p(ex:a ex:c)
+  ) 
+)
+]]></Presentation>
+    </PremiseDocument>
+    <ConclusionDocument>
+        <Normative syntax="RIF/XML">
+            <name>Equality_in_conclusion_1-conclusion.rif</name>
+            <remote>http://www.w3.org/2005/rules/test/repository/tc/Equality_in_conclusion_1/Equality_in_conclusion_1-conclusion.rif</remote>
+        </Normative>
+        <Presentation syntax="RIFBLD-PS"><![CDATA[
+ex:b = ex:c
+]]></Presentation>
+    </ConclusionDocument>
+</PositiveEntailmentTest>

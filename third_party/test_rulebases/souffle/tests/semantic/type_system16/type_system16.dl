@@ -1,0 +1,23 @@
+// Souffle - A Datalog Compiler
+// Copyright (c) 2020, The Souffle Developers. All rights reserved
+// Licensed under the Universal Permissive License v 1.0 as shown at:
+// - https://opensource.org/licenses/UPL
+// - <souffle root>/licenses/SOUFFLE-UPL.txt
+
+//
+// Type system 16
+// Created for #1776
+//
+
+
+
+.type Expression = Number { x : number }
+   | Add {e800: Expression, e000:Expression}
+         | Minus {e000: Expression, e000: Expression}
+                 | Mult {e000: Expression, e000: Expression}
+                 | Divide {e000: Expression, e000: Expression}
+
+.decl R(e : Expression)
+R($Number(0)).
+R($Divide($Mult($Add($Number(5), $Number(5)), $Number(2)), $Minus($Number(4), $Number / (1)))).
+.output R

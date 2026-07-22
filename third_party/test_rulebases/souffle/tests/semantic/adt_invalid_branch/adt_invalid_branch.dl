@@ -1,0 +1,28 @@
+/*
+ * Souffle - A Datalog Compiler
+ * Copyright (c) 2020 The Souffle Developers. All rights reserved
+ * Licensed under the Universal Permissive License v 1.0 as shown at:
+ * - https://opensource.org/licenses/UPL
+ * - <souffle root>/licenses/SOUFFLE-UPL.txt
+ */
+
+//
+// ADT invalid branch
+// Test if ADTs declared with invalid types fail correctly.
+//
+// Created for #1775.
+//
+
+
+// Example by langston-barrett
+.type A = Int {x: n} | Float {x: float}
+
+.decl R(x: A)
+R($Int(0)) :- $Int(1) != $Int(2).
+R($Int(1)) :- $Int(1) != $Int(1).
+R($Int(2)) :- $Int(1) = $Int(1).
+R($Int(3)) :- $Int(1) != $Float(1).
+.output R
+
+
+

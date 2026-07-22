@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<PositiveEntailmentTest id="AssertRetract2"
+    src="http://www.w3.org/2005/rules/test/repository/tc/AssertRetract2" xmlns="http://www.w3.org/2009/10/rif-test#">
+    <status>Approved</status>
+    <dialect>PRD</dialect>
+    <purpose>Retract + Assert Action of RIF PRD</purpose>
+    <description>Demonstrates the combination of the assert and retract action in RIF PRD. The rule retracts one fact about the existing customer object and asserts a new fact with a new discount value of "0". Note, the combination of retract and assert in this example does behave like a modify action.</description>
+    <PremiseDocument>
+        <Normative syntax="RIF/XML">
+            <name>AssertRetract2-premise.rif</name>
+            <remote>http://www.w3.org/2005/rules/test/repository/tc/AssertRetract2/AssertRetract2-premise.rif</remote>
+        </Normative>
+        <Presentation syntax="RIFPRD-PS"><![CDATA[
+Document(
+ Prefix(ex <http://example.org/example#>)
+ Prefix(xs <http://www.w3.org/2001/XMLSchema#>) 
+
+ Group ( 
+  Forall ?X (
+   If 
+      ?X[ex:status -> "normal" ex:discount -> "10"] 
+   Then Do ( 
+      Retract (?X[ex:discount -> "10")
+      Assert  (?X[ex:discount -> "0"])
+   )
+  )
+
+  ex:john[ex:status -> "normal" ex:discount -> "10"]
+
+ )
+)
+]]></Presentation>
+    </PremiseDocument>
+    <ConclusionDocument>
+        <Normative syntax="RIF/XML">
+            <name>AssertRetract2-conclusion.rif</name>
+            <remote>http://www.w3.org/2005/rules/test/repository/tc/AssertRetract2/AssertRetract2-conclusion.rif</remote>
+        </Normative>
+        <Presentation syntax="RIFPRD-PS"><![CDATA[
+ex:john[ex:status -> "normal" ex:discount -> "0"]
+]]></Presentation>
+    </ConclusionDocument>
+</PositiveEntailmentTest>

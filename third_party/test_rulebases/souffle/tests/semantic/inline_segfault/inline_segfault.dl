@@ -1,0 +1,17 @@
+.decl o(A: number)
+.decl i(A: number)
+
+.decl m() inline
+.decl a1() inline
+.decl a2() inline
+
+.input i
+.output o
+
+o(X) :- i(X), m().
+
+m() :- a1().
+m() :- a2().
+
+a1() :- i(_).
+a2() :- i(_).

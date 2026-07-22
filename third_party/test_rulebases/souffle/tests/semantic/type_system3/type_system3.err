@@ -1,0 +1,16 @@
+Error: Union type number_symbol is defined over {number, symbol} (multiple primitive types in union) in file type_system3.dl at line 167
+.type number_symbol = number | symbol // error
+^----------------------------------------------
+Error: Union type number_symbol_primi is defined over {number, symbol} (multiple primitive types in union) in file type_system3.dl at line 169
+.type number_symbol_primi = number_primi_1 | symbol_primi_1 // error
+^--------------------------------------------------------------------
+Error: Union type number_symbol_primi_1_2 is defined over {number, symbol} (multiple primitive types in union) in file type_system3.dl at line 170
+.type number_symbol_primi_1_2 = number_primi_1_2 | symbol_primi_1_2 // error
+^----------------------------------------------------------------------------
+Error: Union type number_symbol_union is defined over {number, symbol} (multiple primitive types in union) in file type_system3.dl at line 172
+.type number_symbol_union = number_union_1 | symbol_union_1 // error
+^--------------------------------------------------------------------
+Error: Union type number_symbol_union_1_2 is defined over {number, symbol} (multiple primitive types in union) in file type_system3.dl at line 173
+.type number_symbol_union_1_2 = number_union_1_2 | symbol_union_1_2 // error
+^----------------------------------------------------------------------------
+5 errors generated, evaluation aborted

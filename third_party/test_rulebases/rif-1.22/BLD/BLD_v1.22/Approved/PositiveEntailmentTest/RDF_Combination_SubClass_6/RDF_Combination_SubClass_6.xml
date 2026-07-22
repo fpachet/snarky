@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<PositiveEntailmentTest id="RDF_Combination_SubClass_6"
+    src="http://www.w3.org/2005/rules/test/repository/tc/RDF_Combination_SubClass_6" xmlns="http://www.w3.org/2009/10/rif-test#">
+    <status>Approved</status>
+    <dialect>BLD</dialect>
+    <Combinations>
+        <profile>http://www.w3.org/ns/entailment/Simple</profile>
+    </Combinations>
+    <purpose>Test interaction between rdfs:subClassOf and ## statements in RIF</purpose>
+    <description>In RIF-RDF combinations, we have that RIF ## statements imply rdfs:subClassOf statements.</description>
+    <ImportedDocument>
+        <Normative syntax="RDF/XML">
+            <name>RDF_Combination_SubClass_6-import001.rdf</name>
+            <remote>http://www.w3.org/2005/rules/test/repository/tc/RDF_Combination_SubClass_6/RDF_Combination_SubClass_6-import001</remote>
+        </Normative>
+        <Presentation syntax="Turtle"><![CDATA[
+
+]]></Presentation>
+    </ImportedDocument>
+    <PremiseDocument>
+        <Normative syntax="RIF/XML">
+            <name>RDF_Combination_SubClass_6-premise.rif</name>
+            <remote>http://www.w3.org/2005/rules/test/repository/tc/RDF_Combination_SubClass_6/RDF_Combination_SubClass_6-premise.rif</remote>
+        </Normative>
+        <Presentation syntax="RIFBLD-PS"><![CDATA[
+Document(
+    Prefix(ex <http://example.org/example#>) 
+    Import(<http://example.org/mygraph> <http://www.w3.org/ns/entailment/Simple>)
+  
+    Group (
+      ex:C ## ex:D
+    )
+ )
+]]></Presentation>
+    </PremiseDocument>
+    <ConclusionDocument>
+        <Normative syntax="RIF/XML">
+            <name>RDF_Combination_SubClass_6-conclusion.rif</name>
+            <remote>http://www.w3.org/2005/rules/test/repository/tc/RDF_Combination_SubClass_6/RDF_Combination_SubClass_6-conclusion.rif</remote>
+        </Normative>
+        <Presentation syntax="RIFBLD-PS"><![CDATA[
+ex:C[rdfs:subClassOf -> ex:D]
+]]></Presentation>
+    </ConclusionDocument>
+</PositiveEntailmentTest>

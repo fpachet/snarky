@@ -1,0 +1,13 @@
+Document(
+
+  Prefix(tax <http://example.org/scientific-classification#>)
+  Prefix(ppl <http://example.org/people#>)
+  Prefix(cpt <http://example.org/concepts#>)
+
+  Group (
+    Forall ?C ?I ?P ?V ( ?I[?P -> ?V] :- And (?C[?P -> ?V] ?I#?C ) ) 
+
+    ppl:john#cpt:Person
+    cpt:Person[tax:phylum -> tax:Chordata]       
+  )
+)

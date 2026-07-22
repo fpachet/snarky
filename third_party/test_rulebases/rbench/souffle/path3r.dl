@@ -1,0 +1,17 @@
+
+//
+// par - "parent"/"edge" relation
+//
+.decl par (n:number, m:number)
+.input par(IO=file, filename="INSTANCE")
+// par(1,2).
+// par(2,3).
+
+//.decl path2 (n:number, m:number) output
+.decl path2 (n:number, m:number)
+.decl path3 (n:number, m:number)
+//.output path2(IO=stdout)
+.printsize path3
+
+path2(X, Y)  :- par(X, Z), par(Z, Y).
+path3(X, Y)  :- par(X, Z), path2(Z, Y).

@@ -1,0 +1,21 @@
+// Souffle - A Datalog Compiler
+// Copyright (c) 2020, The Souffle Developers. All rights reserved
+// Licensed under the Universal Permissive License v 1.0 as shown at:
+// - https://opensource.org/licenses/UPL
+// - <souffle root>/licenses/SOUFFLE-UPL.txt
+
+//
+// ADT binary constraint
+// Test basic binary constraints on adts.
+//
+
+
+.type A = Int {x: number} | Float {x: float}
+
+
+.decl R(x: A)
+R($Int(0)) :- $Int(1) != $Int(2).   // true
+R($Int(1)) :- $Int(1) != $Int(1).   // false
+R($Int(2)) :- $Int(1) = $Int(1).    // true
+R($Int(3)) :- $Int(1) != $Float(1). // true
+.output R

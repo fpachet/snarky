@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<PositiveEntailmentTest id="Class_Membership"
+    src="http://www.w3.org/2005/rules/test/repository/tc/Class_Membership" xmlns="http://www.w3.org/2009/10/rif-test#">
+    <status>Approved</status>
+    <dialect>BLD</dialect>
+    <purpose>Test Case demonstrating class membership.</purpose>
+    <description>This test cases defines a rule that represents an "isFatherOf" relation between male family members. It uses RIF class memberships to test if a family member is of the class "Male".  Note that is not an example of Core syntax because of the membership facts.</description>
+    <PremiseDocument>
+        <Normative syntax="RIF/XML">
+            <name>Class_Membership-premise.rif</name>
+            <remote>http://www.w3.org/2005/rules/test/repository/tc/Class_Membership/Class_Membership-premise.rif</remote>
+        </Normative>
+        <Presentation syntax="RIFBLD-PS"><![CDATA[
+Document(
+ Prefix(fam <http://example.org/family#>)
+
+ Group ( 
+
+    Forall ?X ?Y ( 
+       fam:isFatherOf(?Y ?X) :- And (fam:isChildOf(?X ?Y) ?Y#fam:Male  )
+    )
+
+    fam:isChildOf(fam:Adrian fam:Uwe)
+
+    fam:Adrian#fam:Male
+    fam:Uwe#fam:Male 
+ )
+)
+]]></Presentation>
+    </PremiseDocument>
+    <ConclusionDocument>
+        <Normative syntax="RIF/XML">
+            <name>Class_Membership-conclusion.rif</name>
+            <remote>http://www.w3.org/2005/rules/test/repository/tc/Class_Membership/Class_Membership-conclusion.rif</remote>
+        </Normative>
+        <Presentation syntax="RIFBLD-PS"><![CDATA[
+fam:isFatherOf(fam:Uwe fam:Adrian)
+]]></Presentation>
+    </ConclusionDocument>
+</PositiveEntailmentTest>

@@ -1,0 +1,25 @@
+// Souffle - A Datalog Compiler
+// Copyright (c) 2020, The Souffle Developers. All rights reserved
+// Licensed under the Universal Permissive License v 1.0 as shown at:
+// - https://opensource.org/licenses/UPL
+// - <souffle root>/licenses/SOUFFLE-UPL.txt
+
+// Tests magic-set bindings in the presence of functors.
+// All argument appearances are bound, which should be propagated down.
+.pragma "magic-transform" "*"
+
+.decl BaseOne(X:number)
+.input BaseOne
+
+.decl BaseTwo(X:number)
+.input BaseTwo
+
+.decl Valid(X:number)
+Valid(X) :- BaseOne(X), X >= 0.
+
+.decl Reduced(X:number)
+Reduced(X) :- BaseTwo(X), Valid(Y), Valid(Z), Y = X+1, Z = W+2, W = X+3, X-1 = -1+X+0.
+
+.decl Query()
+.output Query
+Query() :- Reduced(0).

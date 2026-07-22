@@ -1,0 +1,42 @@
+// Souffle - A Datalog Compiler
+// Copyright (c) 2020, The Souffle Developers. All rights reserved
+// Licensed under the Universal Permissive License v 1.0 as shown at:
+// - https://opensource.org/licenses/UPL
+// - <souffle root>/licenses/SOUFFLE-UPL.txt
+
+// Tests magic-set in a situation where an invalid SIPS strategy with
+// functors in mutually-dependent relations would cause infinitely-sized
+// magic set relations.
+
+// Notes:
+// The main consideration here is the recursive `gen` rule:
+//          gen(X) :- gen(X-1), valid(X).
+// If a magic rule was generated directly using the usual left-to-right
+// SIPS adornment strategy, then the following magic rule will be produced
+// in the presence of a gen{b} adornment:
+//      magic[gen{b}](X+1) :- magic[gen{b}](X).
+// This breaks the termination semantics of the original program. The problem
+// here is that functor bindings do not restrict the domain in the usual
+// way that finite atoms do. Variables bound in the body will always restrict
+// the domain if they did so in the original program, so care has to be taken
+// with head-bound variables, which should be handled internally by the MST.
+
+.pragma "magic-transform" "*"
+
+// Upper bound seed for generation
+.decl seed(X:number)
+.input seed
+
+// List of numbers that are allowed to be generated
+.decl valid(X:number)
+.input valid
+
+// Generate all numbers from the seed down until we hit an invalid number.
+.decl gen(X:number)
+gen(X) :- seed(X).
+gen(X) :- gen(X+1), valid(X).
+
+// Check if 0 was generated.
+.decl query()
+.output query
+query() :- gen(0).

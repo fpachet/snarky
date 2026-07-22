@@ -1,0 +1,24 @@
+// Souffle - A Datalog Compiler
+// Copyright (c) 2020, The Souffle Developers. All rights reserved
+// Licensed under the Universal Permissive License v 1.0 as shown at:
+// - https://opensource.org/licenses/UPL
+// - <souffle root>/licenses/SOUFFLE-UPL.txt
+
+// This test is for indirect btree indexes. They are used for
+// relations with six or more attributes. The test ensures
+// that the right comparator is used depending on the type
+// of the attribute.
+
+.decl A(x:unsigned, y:unsigned, z:symbol, x1:symbol, y1:unsigned, z1:unsigned, x2:unsigned)
+A(1,5,"","X",0,0,0).
+A(2,5,"","Y",0,0,0).
+
+.decl B(x:unsigned,x2:unsigned)
+B(1,2).
+
+.decl C(x:unsigned,x2:unsigned)
+C(x,y):-
+    B(x,y),
+    !A(y,_,_,_,_,_,_).
+
+.output C

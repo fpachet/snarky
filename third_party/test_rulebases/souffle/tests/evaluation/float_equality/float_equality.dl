@@ -1,0 +1,15 @@
+// Souffle - A Datalog Compiler
+// Copyright (c) 2020, The Souffle Developers. All rights reserved
+// Licensed under the Universal Permissive License v 1.0 as shown at:
+// - https://opensource.org/licenses/UPL
+// - <souffle root>/licenses/SOUFFLE-UPL.txt
+// Test that equalities on floats work correctly (compared semantically)
+// Floats are stored by bitcasting to Signed Integers so we ensure that
+// Floats are compared by their value rather than their bit representation
+// We use the fact that 0.0 = -0.0 semantically but not by bit representation
+
+.decl A(x:float)
+.output A
+
+A(0.0).
+A(x+1) :- A(x), x = -0.0.

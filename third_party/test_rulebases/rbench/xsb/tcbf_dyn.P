@@ -1,0 +1,70 @@
+/*=============================================================================
+ * Tansitive closure program. Query results with given first argument (bf).
+ *
+ * This version uses subsumptive tabling for the predicate tc.
+ * It uses load_dyn to load the data.
+ * It uses a trie index on par.
+ *
+ * The main program is in 'bench_lib.P'.
+ * This file is a modified version of a file distributed with OpenRuleBench.
+ *
+ * Last Change: February 6, 2019 (Stefan Brass).
+ *=============================================================================
+ */
+
+/*-----------------------------------------------------------------------------
+ * ID of this Benchmark:
+ *-----------------------------------------------------------------------------
+ */
+
+bench_id('tcbf_dyn').
+
+/*-----------------------------------------------------------------------------
+ * Options:
+ *-----------------------------------------------------------------------------
+ */
+
+/* Data load method: */
+load_data(Filename) :- load_dyn(Filename).
+
+/* Index for the given database relation (edges of the graph): */
+:- index(par/2, trie).
+
+/* Tabling method: */
+:- table tc/2 as subsumptive.
+
+/*-----------------------------------------------------------------------------
+ * Benchmark Program:
+ *-----------------------------------------------------------------------------
+ */
+
+tc(X,Y) :- par(X,Y).
+tc(X,Y) :- par(X,Z), tc(Z,Y).
+
+/*-----------------------------------------------------------------------------
+ * Benchmark Query:
+ *-----------------------------------------------------------------------------
+ */
+
+bench :- tc(1,_), fail.
+bench.
+
+/*-----------------------------------------------------------------------------
+ * Benchmark Query with Writing of Result:
+ *-----------------------------------------------------------------------------
+ */
+
+bench_write(Stream) :-
+	tc(1,X),
+	write(Stream, X),
+	write(Stream, '\n'),
+	fail.
+bench_write(_).
+
+/*-----------------------------------------------------------------------------
+ * The rest is the same for all XSB benchmarks:
+ *-----------------------------------------------------------------------------
+ */
+
+:- consult('bench_lib.P').
+

@@ -1,0 +1,24 @@
+// Souffle - A Datalog Compiler
+// Copyright (c) 2020, The Souffle Developers. All rights reserved
+// Licensed under the Universal Permissive License v 1.0 as shown at:
+// - https://opensource.org/licenses/UPL
+// - <souffle root>/licenses/SOUFFLE-UPL.txt
+
+//
+// Type system 15
+// Check if subtyping a record type fails correctly.
+//
+
+
+// record subtypes
+.type List = [head: number, tail: List]
+.type S1List <: List
+.type S2List <: S1List
+
+.decl RecordSubtypes(a: List, b: S1List, c: S2List)
+
+RecordSubtypes([1, [1, nil]], [2, nil], [3, nil]).
+RecordSubtypes([x, z], [y, z], z) :- RecordSubtypes([x, _], [y, _], z).
+RecordSubtypes([x, y], y, z) :- RecordSubtypes([x, _], y, z).
+
+.output RecordSubtypes(IO=stdout)

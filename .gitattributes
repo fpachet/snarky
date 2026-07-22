@@ -1,0 +1,6 @@
+# External conformance fixtures may intentionally exercise line endings or
+# byte-level syntax. Never normalize their contents.
+third_party/test_rulebases/** -text
+
+# Keep the historical binary presentation unchanged.
+*.ppt binary

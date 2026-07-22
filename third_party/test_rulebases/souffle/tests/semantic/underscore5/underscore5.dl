@@ -1,0 +1,40 @@
+// Souffle - A Datalog Compiler
+// Copyright (c) 2022, The Souffle Developers. All rights reserved
+// Licensed under the Universal Permissive License v 1.0 as shown at:
+// - https://opensource.org/licenses/UPL
+// - <souffle root>/licenses/SOUFFLE-UPL.txt
+
+//
+// Underscore 5
+//
+// Allow underscore in binary constraint, if it appears in branch.
+//
+
+.type Pair =
+    P{x: number, y: number}
+  | Q{x: float,  y: float}
+  | R{x: symbol, y: symbol}
+
+
+.decl in(p: Pair)
+
+in($P(1, 2)).
+in($P(1, 3)).
+in($P(5, 1)).
+in($Q(0.0, 0.0)).
+
+
+.decl out(x: number)
+
+out(X) :- in(Z), Z = $P(X,_).
+
+.output out()
+
+
+.decl has(s: symbol)
+
+has("P") :- in(Z), Z = $P(_,_).
+has("Q") :- in(Z), Z = $Q(_,_).
+has("R") :- in(Z), Z = $R(_,_).
+
+.output has()

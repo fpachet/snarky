@@ -1,0 +1,10 @@
+Error: Attribute z not found in relation definition. in file keys.dl at line 11
+.decl rel2(x:symbol, y:symbol) choice-domain (x, z)
+---------------------------------------------^------
+Error: Attribute z not found in relation definition. in file keys.dl at line 14
+.decl rel3(x:symbol, y:symbol) choice-domain z
+---------------------------------------------^-
+Error: Attribute z not found in relation definition. in file keys.dl at line 17
+.decl rel4() choice-domain z
+---------------------------^-
+3 errors generated, evaluation aborted

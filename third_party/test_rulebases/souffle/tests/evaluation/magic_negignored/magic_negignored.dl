@@ -1,0 +1,27 @@
+// Souffle - A Datalog Compiler
+// Copyright (c) 2020, The Souffle Developers. All rights reserved
+// Licensed under the Universal Permissive License v 1.0 as shown at:
+// - https://opensource.org/licenses/UPL
+// - <souffle root>/licenses/SOUFFLE-UPL.txt
+
+// Tests magic-set where an atom must be strongly-ignored as certain
+// rules cannot be duplicated - see issue #1679.
+
+.pragma "magic-transform" "*"
+
+.decl K,R,A,B,D,Q,E,C(X:number)
+.input E,C
+B(X) :- E(X), X != 0.
+K(X) :- B(1), E(X), X != 0.
+
+// R should be strongly-ignored because it uses autoinc()
+R(autoinc()) :- K(autoinc()).
+
+// R is negated here, but cannot be neglabelled
+A(X) :- C(X), !R(X).
+
+// A depends on R, so B should not be transformed
+D(X) :- A(X), B(X).
+
+Q(X) :- D(X).
+.output Q()

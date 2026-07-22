@@ -1,0 +1,17 @@
+Document(
+ Prefix(ex <http://example.org/example#>)
+ Prefix(xs <http://www.w3.org/2001/XMLSchema#>) 
+
+ Group ( 
+  Forall ?X (
+   If 
+      ?X[ex:status -> "normal"] 
+   Then Do ( 
+      Modify (?X[ex:discount -> "0"])
+   )
+  )
+
+  ex:john[ex:status -> "normal" ex:discount -> "10"]
+
+ )
+)

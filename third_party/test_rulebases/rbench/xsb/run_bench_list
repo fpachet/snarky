@@ -1,0 +1,376 @@
+#!/bin/bash
+#==============================================================================
+# Project:	ddbench - Deductive System and Database Benchmarks
+# Filename:	xsb/run_bench_list
+# Purpose:	Execute all benchmarks for XSB
+# Last Change:	06.02.2019
+# Language:	Shellscript (bash)
+# Author:	Stefan Brass
+# EMail:	brass@informatik.uni-halle.de
+# WWW:		http://www.informatik.uni-halle.de/~brass/
+# Address:	Feldschloesschen 15, D-06120 Halle (Saale), GERMANY
+# Note:		There is no warranty at all - this code may contain bugs.
+# Copyright:	The benchmarks are from the OpenRuleBench. Ask the authors.
+#		The shellscripts and the result database are from me.
+#		You can use them as you wish, but don't make me responsible!
+#		I would be interested to hear about improved versions.
+#==============================================================================
+
+# Compose File Name for Results:
+PROG=xsb
+VER=2 # Version no 2 is XSB Version 3.8.0 (Three-Buck Chuck) of Oct 28, 2017
+OUT="$PROG"_"$VER"_`uname -n`_`date +%Y_%m_%d.tsv`
+
+# Stop on error:
+set -e
+
+# Ensure that we can stop the script with Control-C:
+# (The problem is that the shell does not exit on Ctrl-C (SIGINT),
+# but first waits to see what the child process does.
+# E.g. it could be an editor that handles Ctrl-C in some other way.
+# If the child process does not tell the shell that it ended because of SIGINT,
+# the shell does not exit.
+# So we need to specify an explicit handler for SIGINT:
+trap '
+  trap - INT # restore default INT handler to avoid an endless loop
+  kill -s INT "$$" # Could call exit, but parent shell should know why we died
+' INT
+
+# Print empty line to separate output from command line:
+echo
+
+# If the query result directory does not exist, create it:
+if [ -e result ]; then
+	echo -n "Query result directory exists already. "
+	echo "Result files will be overwritten."
+else
+	echo "Creating directory 'result' for query results."
+	mkdir result
+fi
+
+# Check whether file exists, create headline with column values:
+if [ -f $OUT ]; then
+	echo "$OUT exists already. Benchmark Results will be appended."
+else
+	echo "Output file is:       $OUT"
+	echo -n "Benchmark_ID	Load	Exec	Total	Status	" >$OUT
+	echo "User	System	Real	Mem" >>$OUT
+fi
+
+# Print Current Date and Time (for Total Runtime of All Benchmarks):
+echo -n "Benchmark started at: "
+date
+
+# -----------------------------------------------------------------------------
+# Graph Data Files (Relation par), e.g. for Transitive Closure Benchmark.
+# -----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
+# List of Benchmarks to Execute:
+# -----------------------------------------------------------------------------
+
+# This runs about XX hours on machine bach.
+
+# The following are the requested number of iterations of each test.
+# If the number is set to 0, the test is skipped.
+# The are separate numbers for running the test without output (normal case)
+# or with output (for checking that it really computes the correct result).
+
+# Transitive Closure Benchmark with both arguments free (tcff):
+TCFF_RUNS=10
+TCFF_RUNS_OUT=1
+
+# Same Generation Benchmark (sgff), best and alternative implementations:
+SGFF_BEST_RUNS=0
+SGFF_BEST_RUNS_OUT=0
+#    run all alternative implementations (takes some time):
+SGFF_ALT_RUNS=0
+SGFF_ALT_RUNS_OUT=0
+
+# Join1 Benchmark with query a(X,Y), separately for size of input files:
+J1AXY_RUNS=0
+J1AXY_RUNS_OUT=0
+#    5*50k tuples, takes quite long:
+J1AXY_RUNS_BIG=0
+J1AXY_RUNS_BIG_OUT=0
+#    5*250k tuples, takes very long:
+J1AXY_RUNS_HUGE=0
+J1AXY_RUNS_HUGE_OUT=0
+
+# Win-WFS Benchmark (win) - Example for Nonstratified Negation:
+WIN_RUNS=0
+WIN_RUNS_OUT=0
+
+#------------------------------------------------------------------------------
+# Transitive Closure Benchmark with both arguments free (tcff):
+#------------------------------------------------------------------------------
+
+# The following can be generated with the view TC_FILE_IDS (column FILE_IDS):
+TC_FILES="\
+        k500 k1k k2k \
+        t500 t1k t2k \
+        c1k c2k c3k c4k \
+        s1k_1 s1k_3 s1k_4 s2k_1 s2k_3 s2k_4 \
+        p1k p2k p3k p4k \
+	m4_2ki m16_512 m64_128 m256_32 m1ki_8 m4ki_2 \
+        b17 b18 b19 \
+        v17 v18 v19 \
+        y500_4k y500_8k y1k_4k y1k_8k \
+	w1k_1k \
+	x10k \
+        u1k_50k u1k_125k u1k_250k u2k_200k u2k_500k u2k_1m \
+        a1k_50k a1k_125k a1k_250k a2k_200k a2k_500k a2k_1m \
+        "
+
+
+if [ $TCFF_RUNS -ne 0 ] || [ $TCFF_RUNS_OUT -ne 0 ]
+then
+	# TCFF benchmark with load_dyn:
+	#for i in $TC_FILES; do
+	#./run_bench $OUT tcff_1 $i 10 1
+	#done
+
+	# TCFF benchmark with load_dync and trie index:
+	#for i in $TC_FILES; do
+	#./run_bench $OUT tcff_2 $i $TCFF_RUNS $TCFF_RUNS_OUT
+	#done
+
+	# TCFF benchmark with load_dync and standard index on [2,1]:
+	# This writes lots of messages of the form
+	# Potential performance problem in tsiOrderedInsert in tst_insert.c
+	#for i in $TC_FILES; do
+	#./run_bench $OUT tcff_3 $i $TCFF_RUNS $TCFF_RUNS_OUT
+	#done
+
+	# TCFF benchmark with load_dync, std. index on [2,1], variant tabling:
+	# This works, but is slower than tcff_2.
+	#for i in $TC_FILES; do
+	#./run_bench $OUT tcff_4 $i $TCFF_RUNS $TCFF_RUNS_OUT
+	#done
+
+	# TCFF benchmark with load_dync, std. index on [1,2], subsumptive tab.:
+	# This writes lots of messages of the form
+	# Potential performance problem in tsiOrderedInsert in tst_insert.c
+	#for i in $TC_FILES; do
+	#./run_bench $OUT tcff_5 $i $TCFF_RUNS $TCFF_RUNS_OUT
+	#done
+
+	# TCFF benchmark with load_dync, std. index on [1,2], variant tabling:
+	# Works, but seems slower than tcff_2
+	#for i in $TC_FILES; do
+	#./run_bench $OUT tcff_6 $i $TCFF_RUNS $TCFF_RUNS_OUT
+	#done
+
+	# TCFF benchmark with load_dync(a), std. index on [1], subsumptive tab.:
+	for i in $TC_FILES; do
+	./run_bench $OUT tcff_7 $i $TCFF_RUNS $TCFF_RUNS_OUT
+	done
+fi
+
+#------------------------------------------------------------------------------
+# Transitive Closure Benchmark with bound first argument (tcbf, tcbfs):
+#------------------------------------------------------------------------------
+
+# TCBF Benchmark with load_dyn:
+#for i in $TC_FILES; do
+#./run_bench $OUT tcbf_dyn $i 10 1
+#done
+
+# TCBF Benchmark with load_dync:
+#for i in $TC_FILES; do
+#./run_bench $OUT tcbf_dync $i 10 1
+#done
+
+# TCBF Benchmark after SLDMagic-Transformation, with load_dync:
+#for i in $TC_FILES; do
+#./run_bench $OUT tcbfs_slddc $i 10 1
+#done
+
+#------------------------------------------------------------------------------
+# Same Generation Benchmark (sgff):
+#------------------------------------------------------------------------------
+
+# For the Same Generation Benchmark, only a subset of graphs is possible.
+# E.g. the computation for the k2k (complete graph with 2000 nodes)
+# was not finished after 100h of CPU time on bach.
+# Killed t2k after about 40h CPU time on bach.
+# sgff_1:u2k_500k was finished, but took over 21h.
+
+#SG_FILES="\
+#        k500 \
+#        t500 \
+#        c1k c2k c3k c4k \
+#        s1k_4 \
+#        p1k p2k p3k p4k \
+#	m4_2ki \
+#        b17 b18 \
+#        y500_4k y500_8k \
+#        u1k_50k u1k_125k u1k_250k u2k_200k \
+#        a1k_50k a1k_125k a1k_250k a2k_200k \
+#        "
+
+SG_FILES="\
+        k500 \
+        t500 \
+        c1k c2k c3k c4k \
+        s1k_1 s1k_3 s1k_4 \
+        p1k p2k p3k p4k \
+	m4_2ki m16_512 m64_128 m256_32 m1ki_8 m4ki_2 \
+        b17 b18 \
+        v10 v11 v12 \
+        y500_4k y500_8k \
+        "
+
+# Run best implementation of SGFF on XSB:
+if [ $SGFF_BEST_RUNS -ne 0 ] || [ $SGFF_BEST_RUNS_OUT -ne 0 ]
+then
+
+	# Version 9 (subsumptive tabling, load_dync, index on [2,1]):
+	for i in $SG_FILES; do
+	./run_bench $OUT sgff_9 $i $SGFF_BEST_RUNS $SGFF_BEST_RUNS_OUT
+	done
+fi
+
+# Run alternative implementations of SGFF on XSB:
+if [ $SGFF_ALT_RUNS -ne 0 ] || [ $SGFF_ALT_RUNS_OUT -ne 0 ]
+then
+
+	# Version 1 (standard tabling, load_dyn, index on [1,2]):
+	for i in $SG_FILES; do
+	./run_bench $OUT sgff_1 $i $SGFF_ALT_RUNS $SGFF_ALT_RUNS_OUT
+	done
+
+	# Version 2 (standard tabling, load_dync, index on [1,2]):
+	for i in $SG_FILES; do
+	./run_bench $OUT sgff_2 $i $SGFF_ALT_RUNS $SGFF_ALT_RUNS_OUT
+	done
+
+	# Version 3 (standard tabling, load_dyn, index on [2]):
+	for i in $SG_FILES; do
+	./run_bench $OUT sgff_3 $i $SGFF_ALT_RUNS $SGFF_ALT_RUNS_OUT
+	done
+
+	# Version 4 (standard tabling, load_dync, index on [2]):
+	for i in $SG_FILES; do
+	./run_bench $OUT sgff_4 $i $SGFF_ALT_RUNS $SGFF_ALT_RUNS_OUT
+	done
+
+	# Version 5 (standard tabling, load_dyn, index on [2,1]):
+	for i in $SG_FILES; do
+	./run_bench $OUT sgff_5 $i $SGFF_ALT_RUNS $SGFF_ALT_RUNS_OUT
+	done
+
+	# Version 6 (standard tabling, load_dync, index on [2,1]):
+	for i in $SG_FILES; do
+	./run_bench $OUT sgff_6 $i $SGFF_ALT_RUNS $SGFF_ALT_RUNS_OUT
+	done
+
+	# Version 7 (standard tabling, load_dyn, trie index):
+	for i in $SG_FILES; do
+	./run_bench $OUT sgff_7 $i $SGFF_ALT_RUNS $SGFF_ALT_RUNS_OUT
+	done
+
+	# Version 8 (standard tabling, load_dync, trie):
+	for i in $SG_FILES; do
+	./run_bench $OUT sgff_8 $i $SGFF_ALT_RUNS $SGFF_ALT_RUNS_OUT
+	done
+
+	# Version 10 (subsumptive tabling, load_dync, trie):
+	for i in $SG_FILES; do
+	./run_bench $OUT sgff_A $i $SGFF_ALT_RUNS $SGFF_ALT_RUNS_OUT
+	done
+
+fi
+
+#------------------------------------------------------------------------------
+# Join1 Benchmark:
+#------------------------------------------------------------------------------
+
+# The Join 1 Benchmark without tabling:
+#./run_bench $OUT j1axyd_none 10k 10
+#./run_bench $OUT j1axyd_none 50k 1
+
+# The Join 1 Benchmark with only a tabled:
+./run_bench $OUT j1axy_a 10k $J1AXY_RUNS $J1AXY_RUNS_OUT
+./run_bench $OUT j1axy_a 50k $J1AXY_RUNS_BIG $J1AXY_RUNS_BIG_OUT
+
+# The Join 1 Benchmark with all IDB-predicates tabled (subsumptive tabling):
+./run_bench $OUT j1axy_all 10k $J1AXY_RUNS $J1AXY_RUNS_OUT
+./run_bench $OUT j1axy_all 50k $J1AXY_RUNS_BIG $J1AXY_RUNS_BIG_OUT
+./run_bench $OUT j1axy_all 250k $J1AXY_RUNS_HUGE $J1AXY_RUNS_HUGE_OUT
+
+# The Join 1 Benchmark with all IDB-predicates tabled (variant tabling):
+./run_bench $OUT j1axy_allv 10k $J1AXY_RUNS $J1AXY_RUNS_OUT 
+./run_bench $OUT j1axy_allv 50k $J1AXY_RUNS_BIG $J1AXY_RUNS_BIG_OUT 
+./run_bench $OUT j1axy_allv 250k $J1AXY_RUNS_HUGE $J1AXY_RUNS_HUGE_OUT 
+
+# The Join 1 Benchmark with all IDB-predicates tabled, trie index for EDB preds:
+./run_bench $OUT j1axy_allt 10k $J1AXY_RUNS $J1AXY_RUNS_OUT 
+./run_bench $OUT j1axy_allt 50k $J1AXY_RUNS_BIG $J1AXY_RUNS_BIG_OUT
+./run_bench $OUT j1axy_allt 250k $J1AXY_RUNS_HUGE $J1AXY_RUNS_HUGE_OUT
+
+# The Join 1 Benchmark with all IDB-predicates tabled, std. index on 1st arg:
+./run_bench $OUT j1axy_alli 10k $J1AXY_RUNS $J1AXY_RUNS_OUT 
+./run_bench $OUT j1axy_alli 50k $J1AXY_RUNS_BIG $J1AXY_RUNS_BIG_OUT
+./run_bench $OUT j1axy_alli 250k $J1AXY_RUNS_HUGE $J1AXY_RUNS_HUGE_OUT
+
+#------------------------------------------------------------------------------
+# DBLP Benchmark:
+#------------------------------------------------------------------------------
+
+# Different implementation variants of the DBLP Benchmark:
+#./run_bench $OUT dblp_dyn std 10 1
+#./run_bench $OUT dblp_dync std 10 1
+#./run_bench $OUT dblp_dyntr std 10 1
+#./run_bench $OUT dblp_dynctr std 10 1
+#./run_bench $OUT dblp_dynin std 10 1
+#./run_bench $OUT dblp_dyncin std 10 1
+
+#------------------------------------------------------------------------------
+# Win-WFS Benchmark (win) - Example for Nonstratified Negation:
+#------------------------------------------------------------------------------
+
+# The following subset is used for the win-not win benchmark:
+WIN_FILES="\
+	wintest \
+        k500 k1k k2k \
+        t1k t2k \
+        c1k c2k c3k \
+        u1k_50k u1k_125k u1k_250k u2k_200k u2k_500k u2k_1m \
+        a1k_50k a1k_125k a1k_250k a2k_200k a2k_500k a2k_1m \
+        "
+
+# For b17, p1k, m4ki_2, m256_32, m4_2ki, m16_512, m64_128
+# I got the error message:
+# ++Error[XSB]: [Runtime/C] ++Unrecoverable Error[XSB/Runtime]:
+# [Resource] Too many nested simplifications.  Please report this error.
+
+if [ $WIN_RUNS -ne 0 ] || [ $WIN_RUNS_OUT -ne 0 ]
+then
+
+	# Version 1 (subsumptive tabling, load_dync, trie index):
+	for i in $WIN_FILES; do
+	./run_bench $OUT win_1 $i $WIN_RUNS $WIN_RUNS_OUT
+	done
+
+fi
+
+#------------------------------------------------------------------------------
+# Wine Ontology Benchmark:
+#------------------------------------------------------------------------------
+
+# Wine Ontology Benchmark:
+#./run_bench $OUT wine_is wdat 10 1
+
+#------------------------------------------------------------------------------
+# Done:
+#------------------------------------------------------------------------------
+
+# Clean Temporary Files:
+rm -f RUN_BENCH__RESULT
+rm -f RUN_BENCH__TIME
+
+# Print Current Date and Time (for Total Runtime of All Benchmarks):
+echo
+echo -n "Benchmark finished at: "
+date
+

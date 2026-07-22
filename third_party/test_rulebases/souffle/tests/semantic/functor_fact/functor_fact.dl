@@ -1,0 +1,10 @@
+
+.functor f() : number stateful
+
+.decl clause_like(x:number)
+.output clause_like
+clause_like(x) :- x = @f().
+
+.decl fact_like(x:number)
+.output fact_like
+fact_like(@f()).

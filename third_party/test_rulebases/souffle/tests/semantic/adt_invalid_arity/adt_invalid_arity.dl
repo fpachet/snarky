@@ -1,0 +1,19 @@
+/*
+ * Souffle - A Datalog Compiler
+ * Copyright (c) 2020 The Souffle Developers. All rights reserved
+ * Licensed under the Universal Permissive License v 1.0 as shown at:
+ * - https://opensource.org/licenses/UPL
+ * - <souffle root>/licenses/SOUFFLE-UPL.txt
+ */
+
+//
+// ADT invalid arity
+// Test if the program with the invalid branch arity fails correctly.
+//
+
+.type Expr = Number { x : number }
+           | Symbol { x : symbol }
+           | Add {e_1 : Expr, e_2 :Expr}
+
+.decl A(e:Expr)
+A(($Symbol("a",$Symbol("x")))).

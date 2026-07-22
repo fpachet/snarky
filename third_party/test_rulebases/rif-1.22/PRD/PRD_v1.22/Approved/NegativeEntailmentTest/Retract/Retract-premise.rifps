@@ -1,0 +1,16 @@
+Document(
+ Prefix(ex <http://example.org/example#>)
+
+ Group ( 
+  Forall ?X (
+   If 
+      ?X[ex:status -> "normal"] 
+   Then Do ( 
+      Retract (?X)
+   )
+  )
+
+  ex:john[ex:status -> "normal" ex:test -> "some value"]
+
+ )
+)

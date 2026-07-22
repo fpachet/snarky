@@ -1,0 +1,45 @@
+.pragma "provenance" "explain"
+
+.type T=symbol
+
+.decl store(x0: T, x1: T)
+.input store
+.decl assgn(x0: T, x1: T)
+.input assgn
+.decl load(x0: T, x1: T)
+.input load
+.decl addr(x0: T, x1: T)
+.input addr
+.decl R0(x0: T, x1: T)
+.decl R1(x0: T, x1: T)
+.decl pt(x0: T, x1: T)
+.output pt
+.decl Rule(x: number)
+Rule(0).
+R0(x1, x0) :- R1(x0, x2), R1(x1, x2), Rule(0).
+Rule(1).
+R1(x0, x1) :- assgn(x0, x1), Rule(1).
+Rule(2).
+pt(x0, x1) :- R0(x1, x0), Rule(2).
+Rule(3).
+R1(x1, x0) :- addr(x0, x1), Rule(3).
+Rule(4).
+R1(x0, x1) :- R1(x2, x1), R1(x2, x0), Rule(4).
+Rule(5).
+R1(x0, x1) :- store(x0, x1), Rule(5).
+Rule(6).
+R0(x1, x0) :- R1(x2, x1), R0(x2, x0), Rule(6).
+Rule(7).
+R0(x0, x1) :- R0(x2, x0), R1(x1, x2), Rule(7).
+Rule(8).
+pt(x0, x1) :- R1(x1, x0), Rule(8).
+Rule(9).
+R0(x1, x0) :- R0(x2, x0), R1(x1, x2), Rule(9).
+Rule(10).
+R0(x1, x0) :- R1(x0, x2), R0(x1, x2), Rule(10).
+Rule(11).
+R0(x1, x0) :- R1(x0, x2), R1(x2, x1), Rule(11).
+Rule(12).
+pt(x0, x1) :- R0(x0, x1), Rule(12).
+Rule(13).
+R1(x0, x1) :- load(x0, x1), Rule(13).

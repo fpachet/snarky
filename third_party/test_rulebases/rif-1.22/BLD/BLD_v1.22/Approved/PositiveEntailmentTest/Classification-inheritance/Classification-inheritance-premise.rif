@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE Document [
+  <!ENTITY rif  "http://www.w3.org/2007/rif#">
+  <!ENTITY xs   "http://www.w3.org/2001/XMLSchema#">
+  <!ENTITY rdf  "http://www.w3.org/1999/02/22-rdf-syntax-ns#">
+]>
+
+<Document xmlns="&rif;">
+  <payload>
+    <Group>
+      <sentence>
+        <Forall>
+          <declare>
+            <Var>C</Var>
+          </declare>
+          <declare>
+            <Var>I</Var>
+          </declare>
+          <declare>
+            <Var>P</Var>
+          </declare>
+          <declare>
+            <Var>V</Var>
+          </declare>
+          <formula>
+            <Implies>
+              <if>
+                <And>
+                  <formula>
+                    <Frame>
+                      <object>
+                        <Var>C</Var>
+                      </object>
+                      <slot ordered="yes">
+                        <Var>P</Var>
+                        <Var>V</Var>
+                      </slot>
+                    </Frame>
+                  </formula>
+                  <formula>
+                    <Member>
+                      <instance>
+                        <Var>I</Var>
+                      </instance>
+                      <class>
+                        <Var>C</Var>
+                      </class>
+                    </Member>
+                  </formula>
+                </And>
+              </if>
+              <then>
+                <Frame>
+                  <object>
+                    <Var>I</Var>
+                  </object>
+                  <slot ordered="yes">
+                    <Var>P</Var>
+                    <Var>V</Var>
+                  </slot>
+                </Frame>
+              </then>
+            </Implies>
+          </formula>
+        </Forall>
+      </sentence>
+      <sentence>
+        <Member>
+          <instance>
+            <Const type="&rif;iri">http://example.org/people#john</Const>
+          </instance>
+          <class>
+            <Const type="&rif;iri">http://example.org/concepts#Person</Const>
+          </class>
+        </Member>
+      </sentence>
+      <sentence>
+        <Frame>
+          <object>
+            <Const type="&rif;iri">http://example.org/concepts#Person</Const>
+          </object>
+          <slot ordered="yes">
+            <Const type="&rif;iri">http://example.org/scientific-classification#phylum</Const>
+            <Const type="&rif;iri">http://example.org/scientific-classification#Chordata</Const>
+          </slot>
+        </Frame>
+      </sentence>
+    </Group>
+  </payload>
+</Document>
+<!--XML document generated on Sun Nov 07 10:38:14 EST 2010-->

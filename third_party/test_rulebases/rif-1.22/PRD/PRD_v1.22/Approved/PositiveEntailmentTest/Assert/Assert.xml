@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<PositiveEntailmentTest id="Assert"
+    src="http://www.w3.org/2005/rules/test/repository/tc/Assert" xmlns="http://www.w3.org/2009/10/rif-test#">
+    <status>Approved</status>
+    <dialect>PRD</dialect>
+    <purpose>Assert Action of RIF PRD</purpose>
+    <description>Demonstrates the assert action in RIF PRD. In this example the assert action updates the existing customer frame object with a new attribute "discount" and value "10". Note: It is not good practice (since it is translatable in Core without the assert, it should be in Core).</description>
+    <PremiseDocument>
+        <Normative syntax="RIF/XML">
+            <name>Assert-premise.rif</name>
+            <remote>http://www.w3.org/2005/rules/test/repository/tc/Assert/Assert-premise.rif</remote>
+        </Normative>
+        <Presentation syntax="RIFPRD-PS"><![CDATA[
+Document(
+ Prefix(ex <http://example.org/example#>)
+ Prefix(xs <http://www.w3.org/2001/XMLSchema#>) 
+
+ Group ( 
+  Forall ?X (
+   If 
+      ?X[ex:status -> "gold"] 
+   Then Do ( 
+      Assert (?X[ex:discount -> "10"])
+   )
+  )
+
+  ex:john[ex:status -> "gold"]
+
+ )
+)
+]]></Presentation>
+    </PremiseDocument>
+    <ConclusionDocument>
+        <Normative syntax="RIF/XML">
+            <name>Assert-conclusion.rif</name>
+            <remote>http://www.w3.org/2005/rules/test/repository/tc/Assert/Assert-conclusion.rif</remote>
+        </Normative>
+        <Presentation syntax="RIFPRD-PS"><![CDATA[
+ex:john[ex:status -> "gold" ex:discount -> "10"]
+]]></Presentation>
+    </ConclusionDocument>
+</PositiveEntailmentTest>

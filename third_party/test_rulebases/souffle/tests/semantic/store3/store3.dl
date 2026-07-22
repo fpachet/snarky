@@ -1,0 +1,34 @@
+// Souffle - A Datalog Compiler
+// Copyright (c) 2017, The Souffle Developers. All rights reserved
+// Licensed under the Universal Permissive License v 1.0 as shown at:
+// - https://opensource.org/licenses/UPL
+// - <souffle root>/licenses/SOUFFLE-UPL.txt
+
+// Test if sqlite3 IO works
+
+.decl A(x:number)
+// Read in from sqlite3 (assumes relative path to test dir is correct
+.input A(IO=sqlite,filename="A.sqlite.input")
+// Add a tuple to make sure input and output are different
+A(2).
+// Write to CSV
+.output A(IO=file,filename="AA.csv")
+// Write to sqlite3
+.output A(IO=sqlite,filename="BB.sqlite.output")
+// Write to a CSV but using a different internal relation name
+.output A(IO=file,filename="AB.csv",name="B")
+
+// Test float deserialisation
+
+.decl C(x:float)
+.input C(IO=sqlite,filename="C.sqlite.input")
+.output C(IO=file,filemname="C.csv")
+
+// URI filenames
+.decl D(x:number)
+D(2).
+// URI filenames work for input, but we don't have an easy way of passing the
+// fact dir
+// .input D(IO=sqlite,filename="file:./path/to/existing/D.sqlite.input")
+.input D(IO=sqlite,filename="A.sqlite.input", name="A")
+.output D(IO=sqlite,filename="file:./D.sqlite.output")

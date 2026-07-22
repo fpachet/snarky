@@ -1,0 +1,8 @@
+.decl A(x:symbol)
+.input A()
+
+.decl B(x:symbol)
+.output B()
+
+B(x) :- A(x),match("fo{2}b.*",x).
+B(x) :- A(x),!match("fo{x}b.*",x).

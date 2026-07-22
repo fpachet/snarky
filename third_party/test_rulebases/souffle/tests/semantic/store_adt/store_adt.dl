@@ -1,0 +1,31 @@
+// Souffle - A Datalog Compiler
+// Copyright (c) 2020, The Souffle Developers. All rights reserved
+// Licensed under the Universal Permissive License v 1.0 as shown at:
+// - https://opensource.org/licenses/UPL
+// - <souffle root>/licenses/SOUFFLE-UPL.txt
+
+//
+// Store ADT
+// Test writing adt in CSV format
+//
+
+
+.type T = A { x: number }
+        | B { x: symbol }
+
+
+
+.decl R(x : T)
+R($A(0)).
+R($A(x + 1)) :- x < 10, R($A(x)).
+.output R
+
+.decl R1(x : T)
+R1($B("Hegel")).
+.output R1
+
+.decl R2(x : T, y : T)
+R2(x, y) :- R(x), R1(y).
+R2(x, y) :- R1(x), R(y).
+.output R2
+

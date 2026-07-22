@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<NegativeEntailmentTest id="Named_Argument_Uniterms_non-polymorphic"
+    src="http://www.w3.org/2005/rules/test/repository/tc/Named_Argument_Uniterms_non-polymorphic" xmlns="http://www.w3.org/2009/10/rif-test#">
+    <status>Approved</status>
+    <dialect>BLD</dialect>
+    <purpose>Illustrate difference between frames and named-argument uniterms</purpose>
+    <description>Named argument uniterms with the same predicate symbol but different arities represent distinct predicates and so pattern p(a-&gt;?) will not match a fact p(a-&gt;foo,b-&gt;bar), whereas Frames are essentially syntactic sugar for an open set of binary predicates and so such partial patterns do match.</description>
+    <PremiseDocument>
+        <Normative syntax="RIF/XML">
+            <name>Named_Argument_Uniterms_non-polymorphic-premise.rif</name>
+            <remote>http://www.w3.org/2005/rules/test/repository/tc/Named_Argument_Uniterms_non-polymorphic/Named_Argument_Uniterms_non-polymorphic-premise.rif</remote>
+        </Normative>
+        <Presentation syntax="RIFBLD-PS"><![CDATA[
+Document(
+  Prefix(ex   <http://example.org/example#>)
+  
+  Group  (
+    ex:p(a->1 b->2)
+  ) 
+)
+]]></Presentation>
+    </PremiseDocument>
+    <NonConclusionDocument>
+        <Normative syntax="RIF/XML">
+            <name>Named_Argument_Uniterms_non-polymorphic-nonconclusion.rif</name>
+            <remote>http://www.w3.org/2005/rules/test/repository/tc/Named_Argument_Uniterms_non-polymorphic/Named_Argument_Uniterms_non-polymorphic-nonconclusion.rif</remote>
+        </Normative>
+        <Presentation syntax="RIFBLD-PS"><![CDATA[
+ex:p(a->1)
+]]></Presentation>
+    </NonConclusionDocument>
+</NegativeEntailmentTest>

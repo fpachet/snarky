@@ -1,0 +1,39 @@
+schema_version: 1
+initial_fact_count: 9
+derived_fact_count: 6
+fixed_point_fact_count: 15
+minimum_max_proof_depth: 2
+
+derived_facts:
+  - entity: "(alice grand_parent_de clara)"
+    status: VRAI
+    rule: grand_parent
+    proof_depth: 1
+
+  - entity: "(alice ancetre_de clara)"
+    status: VRAI
+    rule: transitive_relation
+    proof_depth: 1
+  - entity: "(bob ancetre_de david)"
+    status: VRAI
+    rule: transitive_relation
+    proof_depth: 1
+  - entity: "(alice ancetre_de david)"
+    status: VRAI
+    rule: transitive_relation
+    proof_depth: 2
+
+  - entity: "(alice sait (bob mortel VRAI))"
+    status: VRAI
+    rule: knows_modus_ponens
+    proof_depth: 1
+
+  - entity: "(alarme possede_statut FAUX)"
+    status: VRAI
+    rule: expose_alarm_status
+    proof_depth: 1
+
+must_not_derive:
+  - "(bob grand_parent_de david)"
+  - "(alice sait (bob immortel VRAI))"
+  - "(alarme possede_statut INEXISTANT)"

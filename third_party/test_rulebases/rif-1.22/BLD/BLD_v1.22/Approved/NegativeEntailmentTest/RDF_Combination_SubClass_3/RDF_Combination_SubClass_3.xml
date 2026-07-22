@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<NegativeEntailmentTest id="RDF_Combination_SubClass_3"
+    src="http://www.w3.org/2005/rules/test/repository/tc/RDF_Combination_SubClass_3" xmlns="http://www.w3.org/2009/10/rif-test#">
+    <status>Approved</status>
+    <dialect>BLD</dialect>
+    <Combinations>
+        <profile>http://www.w3.org/ns/entailment/Simple</profile>
+    </Combinations>
+    <purpose>Test interaction between rdfs:subClassOf and ## statements in RIF</purpose>
+    <description>In RIF-RDF combinations, we have that RIF ## statements imply rdfs:subClassOf statements. So, ex:a[rdfs:subClassOf -&gt; ex:b] follows from ex:a ## ex:b. However, ## is not reflexive, and so ex:a[rdfs:subClassOf -&gt; ex:a] is not implied. Notice that the simple profile is used.</description>
+    <ImportedDocument>
+        <Normative syntax="RDF/XML">
+            <name>RDF_Combination_SubClass_3-import001.rdf</name>
+            <remote>http://www.w3.org/2005/rules/test/repository/tc/RDF_Combination_SubClass_3/RDF_Combination_SubClass_3-import001</remote>
+        </Normative>
+        <Presentation syntax="Turtle"><![CDATA[
+
+]]></Presentation>
+    </ImportedDocument>
+    <PremiseDocument>
+        <Normative syntax="RIF/XML">
+            <name>RDF_Combination_SubClass_3-premise.rif</name>
+            <remote>http://www.w3.org/2005/rules/test/repository/tc/RDF_Combination_SubClass_3/RDF_Combination_SubClass_3-premise.rif</remote>
+        </Normative>
+        <Presentation syntax="RIFBLD-PS"><![CDATA[
+Document(
+    Prefix(ex <http://example.org/example#>) 
+    Prefix(rdfs <http://www.w3.org/2000/01/rdf-schema#>) 
+    Import(<http://example.org/mygraph> <http://www.w3.org/ns/entailment/Simple>)
+    
+    Group ( 
+      ex:a ## ex:b
+    )
+ )
+]]></Presentation>
+    </PremiseDocument>
+    <NonConclusionDocument>
+        <Normative syntax="RIF/XML">
+            <name>RDF_Combination_SubClass_3-nonconclusion.rif</name>
+            <remote>http://www.w3.org/2005/rules/test/repository/tc/RDF_Combination_SubClass_3/RDF_Combination_SubClass_3-nonconclusion.rif</remote>
+        </Normative>
+        <Presentation syntax="RIFBLD-PS"><![CDATA[
+ex:a[rdfs:subClassOf -> ex:a]
+]]></Presentation>
+    </NonConclusionDocument>
+</NegativeEntailmentTest>

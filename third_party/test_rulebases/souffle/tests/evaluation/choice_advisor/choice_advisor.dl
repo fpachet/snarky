@@ -1,0 +1,18 @@
+// Souffle - A Datalog Compiler
+// Copyright (c) 2020, The Souffle Developers. All rights reserved
+// Licensed under the Universal Permissive License v 1.0 as shown at:
+// - https://opensource.org/licenses/UPL
+// - <souffle root>/licenses/SOUFFLE-UPL.txt
+
+// Test functional dependency is observed.
+
+.decl student(s:symbol, majr:symbol, yr: number)
+.input student ()
+.decl professor(p:symbol, majr:symbol)
+.input professor ()
+.decl advisor(s:symbol, p:symbol) choice-domain s
+.decl violateFD()
+.printsize violateFD
+
+advisor(s,p) :- student(s,majr,_), professor(p,majr).
+violateFD() :- advisor(s, p), advisor(s, x), x != p.

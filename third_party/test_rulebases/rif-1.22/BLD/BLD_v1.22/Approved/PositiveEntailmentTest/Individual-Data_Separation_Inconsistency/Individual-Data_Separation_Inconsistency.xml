@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<PositiveEntailmentTest id="Individual-Data_Separation_Inconsistency"
+    src="http://www.w3.org/2005/rules/test/repository/tc/Individual-Data_Separation_Inconsistency" xmlns="http://www.w3.org/2009/10/rif-test#">
+    <status>Approved</status>
+    <dialect>BLD</dialect>
+    <Combinations>
+        <profile>http://www.w3.org/ns/entailment/OWL-Direct</profile>
+    </Combinations>
+    <purpose>Test that violation of separation of the individual and data value domains leads to inconsistency</purpose>
+    <description>The rule requires every element, including every concrete data value, to be a member of the class ex:A. However, OWL-Direct semantics requires every member of ex:A to not be a concrete data value. Therefore, the combination is inconsistent, and an inconsistent condition formula can be derived.</description>
+    <ImportedDocument>
+        <Normative syntax="RDF/XML">
+            <name>Individual-Data_Separation_Inconsistency-import001.rdf</name>
+            <remote>http://www.w3.org/2005/rules/test/repository/tc/Individual-Data_Separation_Inconsistency/Individual-Data_Separation_Inconsistency-import001</remote>
+        </Normative>
+        <Presentation syntax="Turtle"><![CDATA[
+@prefix ex: <http://example.org/example#> . 
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> . 
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> . 
+@prefix owl: <http://www.w3.org/2002/07/owl#> . 
+
+ _:o rdf:type owl:Ontology .
+ ex:A rdfs:subClassOf ex:B .
+]]></Presentation>
+    </ImportedDocument>
+    <PremiseDocument>
+        <Normative syntax="RIF/XML">
+            <name>Individual-Data_Separation_Inconsistency-premise.rif</name>
+            <remote>http://www.w3.org/2005/rules/test/repository/tc/Individual-Data_Separation_Inconsistency/Individual-Data_Separation_Inconsistency-premise.rif</remote>
+        </Normative>
+        <Presentation syntax="RIFBLD-PS"><![CDATA[
+Document(
+  Prefix(rdf <http://www.w3.org/1999/02/22-rdf-syntax-ns#>)
+  Prefix(ex <http://example.org/example#>)
+
+  Import(<http://example.org/mygraph> <http://www.w3.org/ns/entailment/OWL-Direct>)
+
+  Group (
+   Forall ?x (?x[rdf:type -> ex:A])
+  )
+ )
+]]></Presentation>
+    </PremiseDocument>
+    <ConclusionDocument>
+        <Normative syntax="RIF/XML">
+            <name>Individual-Data_Separation_Inconsistency-conclusion.rif</name>
+            <remote>http://www.w3.org/2005/rules/test/repository/tc/Individual-Data_Separation_Inconsistency/Individual-Data_Separation_Inconsistency-conclusion.rif</remote>
+        </Normative>
+        <Presentation syntax="RIFBLD-PS"><![CDATA[
+"a"="b"
+]]></Presentation>
+    </ConclusionDocument>
+</PositiveEntailmentTest>

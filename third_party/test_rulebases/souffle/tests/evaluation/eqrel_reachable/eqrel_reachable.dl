@@ -1,0 +1,22 @@
+// Souffle - A Datalog Compiler
+// Copyright (c) 2017, The Souffle Developers. All rights reserved
+// Licensed under the Universal Permissive License v 1.0 as shown at:
+// - https://opensource.org/licenses/UPL
+// - <souffle root>/licenses/SOUFFLE-UPL.txt
+
+// A recursive eqrel: Graph reachability
+
+.type Node <: symbol
+
+.decl edge(x: Node, y: Node)
+.input edge()
+edge(x, y) :- edge(y, x).  // Undirected
+
+.decl nodes(x: Node)
+nodes(x) :- edge(x, _).
+nodes(x) :- edge(_, x).
+
+.decl reachable(x: Node, y: Node) eqrel
+.output reachable()
+reachable(x, x) :- nodes(x).
+reachable(x, y) :- reachable(x, z), edge(z, y).

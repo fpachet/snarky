@@ -1,0 +1,10 @@
+Document(
+  Prefix(rdf <http://www.w3.org/1999/02/22-rdf-syntax-ns#>)
+  Prefix(ex <http://example.org/example#>)
+
+  Import(<http://www.w3.org/2005/rules/test/repository/tc/Individual-Data_Separation_Inconsistency/Individual-Data_Separation_Inconsistency-import001> <http://www.w3.org/ns/entailment/OWL-Direct>)
+
+  Group (
+   Forall ?x (?x[rdf:type -> ex:A])
+  )
+ )

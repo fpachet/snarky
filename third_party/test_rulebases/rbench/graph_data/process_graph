@@ -1,0 +1,85 @@
+#!/bin/bash
+#==============================================================================
+# Project:	Deductive Database
+# Filename:	graph_data/process_graph
+# Purpose:	Compute graph characteristics with SQL, store result
+# Last Change:	18.06.2018
+# Language:	Shellscript (bash)
+# Author:	Stefan Brass
+# EMail:	brass@informatik.uni-halle.de
+# WWW:		http://www.informatik.uni-halle.de/~brass/
+# Address:	Feldschloesschen 15, D-06120 Halle (Saale), GERMANY
+# Note:		There is no warranty at all - this code may contain bugs.
+# Copyright:	The benchmarks are from the OpenRuleBench. Ask the authors.
+#		The shellscripts and the result database are from me.
+#		You can use them as you wish, but don't make me responsible!
+#		I would be interested to hear about improved versions.
+#==============================================================================
+
+
+# This script computes the charactersitics of a single graph with SQL.
+# It must be called with two arguments:
+# - short ID of the graph
+# - file name of the graph,
+#   without the file extension (.tsv: tab-separated values),
+# - The maximal number of iterations.
+#   This does not influence the correct computation of the transitive closure,
+#   only the number of iterations shown.
+#   The SQL script contains a second computation of the transitive closure
+#   with levels, which takes a lot of time if the limit is chosen too high.
+
+# Check number of arguments:
+if [ "$#" -ne 2 ] && [ "$#" -ne 3 ]
+then
+	echo "Usage: $0 FileID FileName [MaxIter]" >&2
+	exit 1
+fi
+
+# Check maximal number of iterations. If none specified, the number is 10:
+DIGITS="[0-9]+"
+if [ "$#" -eq 3 ]
+then
+	case "$3" in
+		*[^0-9]*)
+			echo "Third argument (max iterations) must be numeric!"
+			exit 2 ;;
+		*)
+			MAX_ITER="$3" ;;
+	esac
+else
+	MAX_ITER=10
+fi
+
+# Echo file ID and date (the long output of the SQL script is written to a file)
+echo $1 `date`
+
+# Now run the graph analysis with PostgreSQL:
+if psql -f graph_analysis.sql \
+	-v file_id=$1 -v input_file=$2 -v max_iter=$MAX_ITER >>LOGFILE
+then
+	echo "ok" >/dev/null
+else
+	echo "*** SOMETHING WENT WRONG WITH THE GRAPH ANALYSIS! ***"
+	exit 3
+fi
+
+# Finally, the result files are added to the files that contain the data
+# of all graphs and the temporary files are removed:
+
+# For some reason, PostgreSQL writes an empty line at the end.
+# For LaTeX, we must remove this with the head command:
+head -n 1 graph_data_part.tex >>graph_data.tex
+rm graph_data_part.tex
+
+cat graph_data_part.sql >>graph_data.sql
+rm graph_data_part.sql
+
+cat graph_indeg_part.sql >>graph_indeg.sql
+rm graph_indeg_part.sql
+
+cat graph_outdeg_part.sql >>graph_outdeg.sql
+rm graph_outdeg_part.sql
+
+cat graph_iter_part.sql >>graph_iter.sql
+rm graph_iter_part.sql
+

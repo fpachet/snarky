@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<PositiveEntailmentTest id="Factorial_Functional"
+    src="http://www.w3.org/2005/rules/test/repository/tc/Factorial_Functional" xmlns="http://www.w3.org/2009/10/rif-test#">
+    <status>Approved</status>
+    <dialect>BLD</dialect>
+    <purpose>test ground equational call to factorial function</purpose>
+    <description>Factorial function using equality in the head to have function return value. This test case also demonstrates recursion and the use of mathematical built-in predicates and functions corresponding to &gt;, -, and *.</description>
+    <PremiseDocument>
+        <Normative syntax="RIF/XML">
+            <name>Factorial_Functional-premise.rif</name>
+            <remote>http://www.w3.org/2005/rules/test/repository/tc/Factorial_Functional/Factorial_Functional-premise.rif</remote>
+        </Normative>
+        <Presentation syntax="RIFBLD-PS"><![CDATA[
+Document(
+
+  Prefix(pred <http://www.w3.org/2007/rif-builtin-predicate#>)
+  Prefix(func <http://www.w3.org/2007/rif-builtin-function#>)
+  Prefix(ex   <http://example.org/example#>)
+
+  Group
+  (
+    ex:factorial(0) = 1
+
+    Forall ?N (
+      ex:factorial(?N) = External(func:numeric-multiply(
+             ?N
+             ex:factorial(External(func:numeric-subtract(?N 1)))))
+        :- External(pred:numeric-greater-than(?N 0))
+    )
+  )
+)
+]]></Presentation>
+    </PremiseDocument>
+    <ConclusionDocument>
+        <Normative syntax="RIF/XML">
+            <name>Factorial_Functional-conclusion.rif</name>
+            <remote>http://www.w3.org/2005/rules/test/repository/tc/Factorial_Functional/Factorial_Functional-conclusion.rif</remote>
+        </Normative>
+        <Presentation syntax="RIFBLD-PS"><![CDATA[
+720 = ex:factorial(6)
+]]></Presentation>
+    </ConclusionDocument>
+</PositiveEntailmentTest>

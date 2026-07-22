@@ -1,0 +1,17 @@
+
+.type Adt = Couple {first:symbol, second: symbol}
+
+.decl InRFC4180(v:Adt, i:unsigned)
+.input InRFC4180(rfc4180="true",delimiter=",")
+
+.decl InTab(v:Adt, i:unsigned)
+.input InTab(rfc4180="false")
+
+.decl OutRFC4180(v:Adt, i:unsigned)
+.output OutRFC4180(rfc4180="true",delimiter=",")
+OutRFC4180(v,i) :- InRFC4180(v,i); InTab(v,i).
+
+.decl OutTab(v:Adt, i:unsigned)
+.output OutTab(rfc4180="false")
+OutTab(v,i) :- InRFC4180(v,i); InTab(v,i).
+

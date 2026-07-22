@@ -1,0 +1,83 @@
+/*=============================================================================
+ * Example for Unstratified Negation: Win-WFS Benchmark.
+ * ID: win_1
+ *
+ * This is version 1 of the option settings.
+ * It uses subsumptive tabling for win.
+ * It uses load_dync to load the data.
+ * It uses a trie index on the par relation (corresponding to "move").
+ *
+ * The main program is in 'bench_lib.P'.
+ * This file is a modified version of a file distributed with OpenRuleBench.
+ *
+ * Last Change: February 6, 2019 (Stefan Brass).
+ *=============================================================================
+ */
+
+/*-----------------------------------------------------------------------------
+ * ID of this Benchmark:
+ *-----------------------------------------------------------------------------
+ */
+
+bench_id('win_1').
+
+/*-----------------------------------------------------------------------------
+ * Options:
+ *-----------------------------------------------------------------------------
+ */
+
+/* Data load method: */
+load_data(Filename) :- load_dync(Filename).
+
+/* Index for the given database relation (edges of the graph): */
+:- index(par/2, trie).
+
+/* Tabling method: */
+:- table win/1 as subsumptive.
+
+/*-----------------------------------------------------------------------------
+ * Benchmark Program:
+ *-----------------------------------------------------------------------------
+ */
+
+win(X) :- par(X,Y), tnot(win(Y)).
+
+/*-----------------------------------------------------------------------------
+ * Benchmark Query:
+ *-----------------------------------------------------------------------------
+ */
+
+bench :- win(_), fail.
+bench.
+
+/*-----------------------------------------------------------------------------
+ * Benchmark Query with Writing of Result:
+ *-----------------------------------------------------------------------------
+ */
+
+bench_write(Stream) :-
+	win(X),
+	truth_value(win(X),T),
+	write(Stream, X),
+	write(Stream, '\t'),
+	write(Stream, T),
+	write(Stream, '\n'),
+	fail.
+bench_write(_).
+
+truth_value(Fact, true) :-
+	get_residual(Fact, []),
+	!.
+truth_value(Fact, undef) :-
+	get_residual(Fact, _),
+	!.
+truth_value(_, false) :-
+	!.
+
+/*-----------------------------------------------------------------------------
+ * The rest is the same for all XSB benchmarks:
+ *-----------------------------------------------------------------------------
+ */
+
+:- consult('bench_lib.P').
+

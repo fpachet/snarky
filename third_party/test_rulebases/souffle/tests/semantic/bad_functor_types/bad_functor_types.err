@@ -1,0 +1,33 @@
+Error: Undefined type in attribute i:int in file bad_functor_types.dl at line 2
+.functor bad_param(i: int): symbol
+----------------------^------------
+Error: Undefined type double in return type in file bad_functor_types.dl at line 5
+.functor bad_return(i: number): double
+--------------------------------^------
+Error: Functor arity mismatch: Got 2 arguments, expecting 1 in file bad_functor_types.dl at line 15
+C(c) :- A(a), c = @good_functor(a, a).
+------------------^--------------------
+Error: Unable to deduce type for variable b in file bad_functor_types.dl at line 17
+C(c) :- B(b), c = @good_functor(b).
+----------^-------------------------
+Following constraints are incompatible:
+   Type of variable 'b' should be a subtype of 'number' in file bad_functor_types.dl at line 17
+C(c) :- B(b), c = @good_functor(b).
+--------^---------------------------
+   Type of variable 'b' should be a subtype of 'symbol'
+Error: Unable to determine type for positional parameter 0 in file bad_functor_types.dl at line 17
+C(c) :- B(b), c = @good_functor(b).
+--------------------------------^---
+Error: Functor arity mismatch: Got 2 arguments, expecting 1 in file bad_functor_types.dl at line 19
+C(c) :- B(b), c = @good_functor(b, b).
+------------------^--------------------
+Error: Invalid conversion of value of type number to positional parameter 0 with type symbol in file bad_functor_types.dl at line 19
+C(c) :- B(b), c = @good_functor(b, b).
+--------------------------------^------
+Error: Functors which are not stateful cannot use UDTs in file bad_functor_types.dl at line 23
+.functor bad_not_stateful(List): List
+--------------------------^-----------
+Error: Functors which are not stateful cannot use UDTs in file bad_functor_types.dl at line 23
+.functor bad_not_stateful(List): List
+---------------------------------^----
+9 errors generated, evaluation aborted

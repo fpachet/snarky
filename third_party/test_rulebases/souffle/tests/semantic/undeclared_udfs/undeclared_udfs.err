@@ -1,0 +1,10 @@
+Error: Undefined user-defined functor foo in file undeclared_udfs.dl at line 3
+A(@foo(x)) :- @goo(x) < 10.
+--^-------------------------
+Error: Ungrounded variable x in file undeclared_udfs.dl at line 3
+A(@foo(x)) :- @goo(x) < 10.
+-------^--------------------
+Error: Undefined user-defined functor goo in file undeclared_udfs.dl at line 3
+A(@foo(x)) :- @goo(x) < 10.
+--------------^-------------
+3 errors generated, evaluation aborted

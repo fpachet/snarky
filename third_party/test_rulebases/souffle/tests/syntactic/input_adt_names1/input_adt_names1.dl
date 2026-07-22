@@ -1,0 +1,23 @@
+// Souffle - A Datalog Compiler
+// Copyright (c) 2021, The Souffle Developers. All rights reserved
+// Licensed under the Universal Permissive License v 1.0 as shown at:
+// - https://opensource.org/licenses/UPL
+// - <souffle root>/licenses/SOUFFLE-UPL.txt
+
+.type MyADT
+  = A{}
+  | B?{}
+  | ?C{}
+  | _D{}
+  | A2  {x : number}
+  | B?2 {x : number}
+  | ?C2 {x : number}
+  | _D2 {x : number}
+
+.decl A(v : MyADT)
+.decl B(v : MyADT)
+
+B(v) :- A(v).
+
+.input A
+.output B

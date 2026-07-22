@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<PositiveEntailmentTest id="AssertRetract"
+    src="http://www.w3.org/2005/rules/test/repository/tc/AssertRetract" xmlns="http://www.w3.org/2009/10/rif-test#">
+    <status>Approved</status>
+    <dialect>PRD</dialect>
+    <purpose>Retract + Assert Action of RIF PRD</purpose>
+    <description>Demonstrates the combination of the assert and retract action in RIF PRD. The rule retracts every facts about the existing customer object and asserts a new fact with a new discount value of "0". Note, the combination of retract and assert in this example does not behave like a modify action, since the &lt;tt&gt;ex:status&lt;/tt&gt; &lt;tt&gt;ex:John&lt;/tt&gt; is retracted as well (and, therefore, re-initialized to "unknown" by the second rule).</description>
+    <PremiseDocument>
+        <Normative syntax="RIF/XML">
+            <name>AssertRetract-premise.rif</name>
+            <remote>http://www.w3.org/2005/rules/test/repository/tc/AssertRetract/AssertRetract-premise.rif</remote>
+        </Normative>
+        <Presentation syntax="RIFPRD-PS"><![CDATA[
+Document(
+ Prefix(ex <http://example.org/example#>)
+ Prefix(xs <http://www.w3.org/2001/XMLSchema#>) 
+
+ Group ( 
+  Forall ?X (
+   If 
+      ?X[ex:status -> "normal" ex:discount -> "10"] 
+   Then Do ( 
+      Retract (?X)
+      Assert  (?X[ex:discount -> "0"])
+   )
+  )
+
+  If 
+      Not( ex:john[ex:status -> "normal"] )
+  Then Do ( 
+      Assert  (ex:john[ex:status -> "unkown"])
+  )
+
+  ex:john[ex:status -> "normal" ex:discount -> "10"]
+
+ )
+)
+]]></Presentation>
+    </PremiseDocument>
+    <ConclusionDocument>
+        <Normative syntax="RIF/XML">
+            <name>AssertRetract-conclusion.rif</name>
+            <remote>http://www.w3.org/2005/rules/test/repository/tc/AssertRetract/AssertRetract-conclusion.rif</remote>
+        </Normative>
+        <Presentation syntax="RIFPRD-PS"><![CDATA[
+ex:john[ex:status -> "unknown" ex:discount -> "0"]
+]]></Presentation>
+    </ConclusionDocument>
+</PositiveEntailmentTest>

@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<PositiveEntailmentTest id="YoungParentDiscount_1"
+    src="http://www.w3.org/2005/rules/test/repository/tc/YoungParentDiscount_1" xmlns="http://www.w3.org/2009/10/rif-test#">
+    <status>Approved</status>
+    <dialect>BLD</dialect>
+    <Combinations>
+        <profile>http://www.w3.org/ns/entailment/RDF</profile>
+    </Combinations>
+    <purpose>This test case illustrates the use of guard predicates with built-ins, as well as RDF+BLD combinations.</purpose>
+    <description>The first rule says that a child is eligible for a "young-parents" discount if the difference between the child's age and one of the parent's age is less than 25 years. The second rule says that if a parent's age is not numeric, the parent will be marked as needing to be checked for eligibility. Note that external built-ins can be nested arbitrarily. Note also that built-ins in RIF are defined for arguments of specific datatypes. When an argument is not of the appropriate datatype, it is an error. Since the model-theoretic semantics for RIF does not include the notion of an error, the values of built-in predicates and functions are unspecified in such cases. In order to enable writing of rule sets with controlled behavior, RIF defines guard predicates for each datatype.</description>
+    <ImportedDocument>
+        <Normative syntax="RDF/XML">
+            <name>YoungParentDiscount_1-import001.rdf</name>
+            <remote>http://www.w3.org/2005/rules/test/repository/tc/YoungParentDiscount_1/YoungParentDiscount_1-import001</remote>
+        </Normative>
+        <Presentation syntax="Turtle"><![CDATA[
+@prefix ex: <http://example.org/example#> .
+@prefix xs: <http://www.w3.org/2001/XMLSchema#> .
+
+ex:littleJoeDoe ex:parent ex:JoanDoe, ex:JohnDoe .
+ex:littleJoeDoe ex:age 10 .
+ex:JohnDoe ex:age 34 .
+ex:JoanDoe ex:age "29"^^xs:string .
+]]></Presentation>
+    </ImportedDocument>
+    <PremiseDocument>
+        <Normative syntax="RIF/XML">
+            <name>YoungParentDiscount_1-premise.rif</name>
+            <remote>http://www.w3.org/2005/rules/test/repository/tc/YoungParentDiscount_1/YoungParentDiscount_1-premise.rif</remote>
+        </Normative>
+        <Presentation syntax="RIFBLD-PS"><![CDATA[
+Document(
+  Prefix(ex  <http://example.org/example#>)
+  Prefix(func <http://www.w3.org/2007/rif-builtin-function#>)
+  Prefix(pred <http://www.w3.org/2007/rif-builtin-predicate#>)
+  Import(<http://example.org/mygraph> <http://www.w3.org/ns/entailment/RDF>)
+  
+  Group  (
+    Forall ?c ?p ?ca ?pa(
+         ?p # ex:YoungParent  :-
+             And( ?c[ ex:parent -> ?p ex:age -> ?ca ]
+                  ?p[ ex:age -> ?pa ]
+                  External( pred:is-literal-integer( ?pa ) )
+                  External( pred:is-literal-integer( ?ca ) )
+                  External( pred:numeric-less-than(External( func:numeric-subtract( ?pa ?ca ) ) 25 ) )
+                )
+    )
+
+    Forall ?c ?p ?ca ?pa(
+         ?p # ex:ParentToBeChecked  :-
+             And( ?c[ ex:parent -> ?p ex:age -> ?ca ]
+                  ?p[ ex:age -> ?pa ]
+                  Or ( External( pred:is-literal-not-integer( ?pa ) )
+                       External( pred:is-literal-not-integer( ?ca ) ) ) )
+    )
+  ) 
+)
+]]></Presentation>
+    </PremiseDocument>
+    <ConclusionDocument>
+        <Normative syntax="RIF/XML">
+            <name>YoungParentDiscount_1-conclusion.rif</name>
+            <remote>http://www.w3.org/2005/rules/test/repository/tc/YoungParentDiscount_1/YoungParentDiscount_1-conclusion.rif</remote>
+        </Normative>
+        <Presentation syntax="RIFBLD-PS"><![CDATA[
+And ( ex:JohnDoe # ex:YoungParent ex:JoanDoe # ex:ParentToBeChecked )
+]]></Presentation>
+    </ConclusionDocument>
+</PositiveEntailmentTest>

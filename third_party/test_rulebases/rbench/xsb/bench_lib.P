@@ -1,0 +1,183 @@
+%==============================================================================
+% Project:	rbench - Logic Programming and Database Benchmarks
+% Filename:	xsb/bench_lib.P
+% Purpose:	XSB predicate to run a benchmark and measure runtime
+% Last Change:	20.06.2018
+% Language:	Shellscript (bash)
+% Author:	Stefan Brass
+% EMail:	brass@informatik.uni-halle.de
+% WWW:		http://www.informatik.uni-halle.de/~brass/
+% Address:	Feldschloesschen 15, D-06120 Halle (Saale), GERMANY
+% Note:		There is no warranty at all - this code may contain bugs.
+% Copyright:	The benchmarks are from the OpenRuleBench. Ask the authors.
+%		The shellscripts and the result database are from me.
+%		You can use them as you wish, but don't make me responsible!
+%		I would be interested to hear about improved versions.
+%==============================================================================
+
+% Query results are store here:
+output_prefix('result/').
+
+% The timing data are written to this file:
+result_file('RUN_BENCH__RESULT').
+
+/*-----------------------------------------------------------------------------
+ * Main Predicate: Run the Test and Write File RUN__BENCH_RESULT.
+ *-----------------------------------------------------------------------------
+ */
+
+test(FileID, FileName) :- 
+	% The benchmark ID is defined in the benchmark-specific file:
+	bench_id(BenchID),
+	% Open output file for timing data:
+	result_file(ResultFileName),
+	open(ResultFileName, write, ResultFile),
+	% Write Benchmark ID to output file:
+	write(ResultFile, BenchID),
+	write(ResultFile, ':'),
+	write(ResultFile, FileID),
+	write(ResultFile, '\t'),
+	% Get times before Load (both times are in s):
+	walltime(Real0),
+	cputime(CPU0),
+	% Load Data:
+	load_data(FileName),
+	% Get times after Load:
+	cputime(CPU1),
+	walltime(Real1),
+	% Compute Load times:
+	LoadCPU is floor((CPU1 - CPU0) * 1000),
+	LoadReal is floor((Real1 - Real0) * 1000),
+	% Write load CPU time to output file:
+	write(ResultFile, LoadCPU),
+	write(ResultFile, '\t'),
+	flush_output(ResultFile),
+	% Get times before Exec:
+	walltime(Real3),
+	cputime(CPU3),
+	% NOW THE BENCHMARK QUERY:
+	bench,
+	% Get times after Exec:
+	cputime(CPU4),
+	walltime(Real4),
+	% Compute Times for Benchmark Execution:
+	ExecCPU is floor((CPU4 - CPU3) * 1000),
+	ExecReal is floor((Real4 - Real3) * 1000),
+	% Write Exec CPU time to output file:
+	write(ResultFile, ExecCPU),
+	write(ResultFile, '\t'),
+	% Write total CPU time to output file:
+	TotalCPU is floor(CPU4 * 1000),
+	write(ResultFile, TotalCPU),
+	write(ResultFile, '\t'),
+	% Compare CPU times with real times, write "Warn" status if strange:
+	status(LoadCPU, LoadReal, ExecCPU, ExecReal, Status),
+	write(ResultFile, Status),
+	write(ResultFile, '\t'),
+	close(ResultFile).
+
+/*-----------------------------------------------------------------------------
+ * Comparison of Wallclock Time and CPU Time:
+ *-----------------------------------------------------------------------------
+ */
+
+/* If the two times differ to much, we output status 'Warn': */
+
+status(LoadCPU, LoadReal, _ExecCPU, _ExecReal, 'Warn1') :-
+	LoadCPU > LoadReal,
+	!.
+status(LoadCPU, LoadReal, _ExecCPU, _ExecReal, 'Warn2') :-
+	LoadReal > LoadCPU * 1.15,
+	!.
+status(_LoadCPU, _LoadReal, ExecCPU, ExecReal, 'Warn3') :-
+	ExecCPU > ExecReal,
+	!.
+status(_LoadCPU, _LoadReal, ExecCPU, ExecReal, 'Warn4') :-
+	ExecReal > ExecCPU * 1.15,
+	!.
+status(_LoadCPU, _LoadReal, _ExecCPU, _ExecReal, 'OK').
+
+
+/*-----------------------------------------------------------------------------
+ * Alternative Main Predicate with Writing of the Query Output File:
+ *-----------------------------------------------------------------------------
+ */
+
+test_write(FileID, FileName) :- 
+	% The benchmark ID is defined in the benchmark-specific file:
+	bench_id(BenchID),
+	% Compute output file name for query result:
+	output_file(BenchID, FileID, OutputFileName),
+	% Open query result file:
+	open(OutputFileName, write, OutputFile),
+	% Open result file for timing data:
+	result_file(ResultFileName),
+	open(ResultFileName, write, ResultFile),
+	% Write Benchmark ID to output file:
+	write(ResultFile, BenchID),
+	write(ResultFile, '@'),
+	write(ResultFile, FileID),
+	write(ResultFile, '\t'),
+	% Get times before Load (both times are in s):
+	walltime(Real0),
+	cputime(CPU0),
+	% Load Data:
+	load_data(FileName),
+	% Get times after Load:
+	cputime(CPU1),
+	walltime(Real1),
+	% Compute Load times:
+	LoadCPU is floor((CPU1 - CPU0) * 1000),
+	LoadReal is floor((Real1 - Real0) * 1000),
+	% Write load CPU time to output file:
+	write(ResultFile, LoadCPU),
+	write(ResultFile, '\t'),
+	flush_output(ResultFile),
+	% Get times before Exec:
+	walltime(Real3),
+	cputime(CPU3),
+	% NOW THE BENCHMARK QUERY:
+	bench_write(OutputFile),
+	% Get times after Exec:
+	cputime(CPU4),
+	walltime(Real4),
+	% Compute Times for Benchmark Execution:
+	ExecCPU is floor((CPU4 - CPU3) * 1000),
+	ExecReal is floor((Real4 - Real3) * 1000),
+	% Write Exec CPU time to output file:
+	write(ResultFile, ExecCPU),
+	write(ResultFile, '\t'),
+	% Write total CPU time to output file:
+	TotalCPU is floor(CPU4 * 1000),
+	write(ResultFile, TotalCPU),
+	write(ResultFile, '\t'),
+	% Compare CPU times with real times, write "Warn" status if strange:
+	status(LoadCPU, LoadReal, ExecCPU, ExecReal, Status),
+	write(ResultFile, Status),
+	write(ResultFile, '\t'),
+	close(ResultFile),
+	% Close query result file:
+	close(OutputFile).
+
+/*-----------------------------------------------------------------------------
+ * Compute output file name:
+ *-----------------------------------------------------------------------------
+ */
+
+output_file(BenchID, FileID, ResultFileName) :-
+	output_prefix(Prefix),
+	name(Prefix, PrefixChars),
+	name(BenchID, BenchIDChars),
+	name('@', SepChars),
+	name(FileID, FileIDChars),
+	name('.tsv', ExtensionChars),
+	append(PrefixChars, BenchIDChars, L1),
+	append(L1, SepChars, L2),
+	append(L2, FileIDChars, L3),
+	append(L3, ExtensionChars, L4),
+	name(ResultFileName, L4).
+
+append([], L, L).
+append([F|R], L, [F|RL]) :-
+	append(R, L, RL).
+

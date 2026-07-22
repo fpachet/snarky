@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<Document xmlns="http://www.w3.org/2007/rif#">
+  <payload>
+    <Group>
+      <sentence>
+        <Forall>
+          <declare><Var>X</Var></declare>
+          <declare><Var>C</Var></declare>
+          <formula>
+            <Implies>
+              <if>
+                <And>
+                  <formula>
+                    <Frame>
+                      <object><Var>X</Var></object>
+                      <slot ordered="yes">
+                        <Const type="http://www.w3.org/2007/rif#iri">http://example.org/example#count</Const>
+                        <Var>C</Var>
+                      </slot>
+                    </Frame>
+                  </formula> 
+                  <formula>
+                    <External>
+                      <content>
+                       <Atom>    
+                         <op>
+                            <Const type="rif:iri">http://www.w3.org/2007/rif-builtin-predicate#numeric-greater-than</Const>
+                         </op>
+                         <args ordered="yes">
+                           <Var>C</Var>
+                           <Const type="http://www.w3.org/2001/XMLSchema#integer">0</Const>
+                         </args>
+                       </Atom>
+                      </content>
+                    </External>
+                  </formula>
+                </And>  
+              </if>
+              <then>
+                <Do>
+                  <actions ordered="yes">
+                    <Modify>
+                      <target>
+                        <Frame>
+                          <object><Var>X</Var></object>
+                          <slot ordered="yes">
+                            <Const type="http://www.w3.org/2007/rif#iri">http://example.org/example#count</Const>
+                            <External>
+                              <content>
+                                <Expr>    
+                                  <op>
+                                    <Const type="rif:iri">http://www.w3.org/2007/rif-builtin-function#numeric-subtract</Const>
+                                  </op>
+                                  <args ordered="yes">
+                                    <Var>C</Var>
+                                    <Const type="http://www.w3.org/2001/XMLSchema#integer">1</Const>
+                                  </args>
+                                </Expr>
+                              </content>
+                            </External>
+                          </slot>
+                        </Frame>
+                      </target>
+                    </Modify>
+                  </actions>
+                </Do>
+              </then>
+            </Implies>
+          </formula>
+        </Forall>
+      </sentence>
+      <sentence>
+        <Frame>
+          <object>
+            <Const type="http://www.w3.org/2007/rif#iri">http://example.org/example#foo</Const>
+          </object>
+          <slot ordered="yes">
+            <Const type="http://www.w3.org/2007/rif#iri">http://example.org/example#count</Const>
+            <Const type="http://www.w3.org/2001/XMLSchema#integer">10</Const>
+          </slot>
+        </Frame>
+      </sentence> 
+    </Group>
+  </payload>
+</Document>
