@@ -18,3 +18,14 @@ WHEN
 THEN
     ADD ($effet depend_seulement_d_idee_inadequate $idee)
 END
+
+# Schéma explicite de réfutation d'une hypothèse nommée. Une hypothèse n'est
+# jamais rejetée parce que sa conclusion manque : il faut que cette conclusion
+# ait elle-même été établie avec le statut FAUX.
+RULE COMP_hypothese_refutee_par_fait_faux
+WHEN
+    ($hypothese affirme $proposition)
+    $proposition ' FAUX
+THEN
+    ADD $hypothese ' FAUX
+END

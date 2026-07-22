@@ -1,0 +1,9 @@
+# Fragment publié après validation de E3P07.
+RULE E3P07_conatus_est_essence_actuelle
+WHEN
+    ($effort vise_perseverance_de $chose)
+    ($essence est_essence_actuelle_de $chose)
+THEN
+    ADD ($effort n_est_rien_hors_de $essence)
+    ADD ($effort est_identique_ontologiquement_a $essence)
+END

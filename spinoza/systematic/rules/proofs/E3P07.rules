@@ -1,0 +1,12 @@
+# E3P07D : l'effort suit de l'essence, reste dans les limites de sa nature et
+# est précisément l'effort de persévérance déjà établi par E3P06.
+RULE E3P07D_effort_identique_essence_actuelle
+WHEN
+    ($effort suit_necessairement_de $essence)
+    ($essence est_essence_actuelle_de $chose)
+    ($effort est_dans_limites_nature_de $chose)
+    ($effort vise_perseverance_de $chose)
+THEN
+    ADD ($effort n_est_rien_hors_de $essence)
+    ADD ($effort est_identique_ontologiquement_a $essence)
+END

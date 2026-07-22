@@ -1,0 +1,8 @@
+# Fragment publié après validation de E3P05.
+RULE E3P05_destruction_implique_contrariete
+WHEN
+    ($premier peut_detruire $second)
+THEN
+    ADD ($premier est_contraire_a $second)
+    ADD ($second est_contraire_a $premier)
+END

@@ -1,0 +1,50 @@
+schema_version: 1
+id: E3P04
+model: ethics_iii_systematic_v1
+source_unit: E3P04
+source_text: >-
+  Nulle chose ne peut être détruite sinon par une cause extérieure.
+fact_files:
+  - facts/postulates.yaml
+rule_files:
+  - rules/proofs/E3P04.rules
+rule_catalog: rules/catalog.yaml
+forbidden_rules:
+  - E3P04_cause_interne_non_destructrice
+allowed_rule_origins:
+  - textual
+cases:
+  - id: cause_interne
+    initial_facts:
+      - "(definition0 est_definition_de chose0)"
+      - "(definition0 affirme essence0)"
+      - "(essence0 est_essence_de chose0)"
+      - "(cause_interne0 est_interne_a chose0)"
+    goals:
+      - entity: "(cause_interne0 detruit chose0)"
+        status: FAUX
+      - entity: "(cause_interne0 peut_detruire chose0)"
+        status: FAUX
+    expected:
+      status: proved
+      proof_depths: [2, 2]
+  - id: cause_exterieure_non_exclue
+    initial_facts:
+      - "(definition0 est_definition_de chose0)"
+      - "(definition0 affirme essence0)"
+      - "(essence0 est_essence_de chose0)"
+      - "(cause_exterieure0 est_externe_a chose0)"
+    goals: []
+    must_not_derive:
+      - entity: "(cause_exterieure0 detruit chose0)"
+        status: FAUX
+      - entity: "(cause_exterieure0 peut_detruire chose0)"
+        status: FAUX
+    expected:
+      status: proved
+formalization_status: proved_with_explicit_false_statuses
+result: proved
+limitations:
+  - >-
+    La proposition exclut les causes internes ; elle n'affirme pas que toute
+    cause extérieure détruit effectivement la chose.

@@ -1,0 +1,11 @@
+# Fragment publié après validation de E3P06. Le témoin de l'effort est
+# explicite afin de ne pas créer silencieusement un individu logique.
+RULE E3P06_chose_singuliere_conatus
+WHEN
+    ($chose est_chose_singuliere VRAI)
+    ($effort est_effort_de $chose)
+THEN
+    ADD ($chose s_efforce_de_perseverer_dans son_etre)
+    ADD ($effort vise_perseverance_de $chose)
+    ADD ($effort est_puissance_existence_de $chose)
+END

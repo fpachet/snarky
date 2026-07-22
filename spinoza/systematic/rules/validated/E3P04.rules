@@ -1,0 +1,9 @@
+# Fragment publié après validation de E3P04, pour les seules propositions
+# suivantes.
+RULE E3P04_cause_interne_non_destructrice
+WHEN
+    ($cause est_interne_a $chose)
+THEN
+    ADD ($cause detruit $chose) ' FAUX
+    ADD ($cause peut_detruire $chose) ' FAUX
+END

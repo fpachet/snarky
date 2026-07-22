@@ -1,0 +1,30 @@
+# E3P08D : supposer une durée finie à la puissance d'exister revient à lui
+# attribuer la capacité de supprimer la chose. E3P04 réfute explicitement
+# cette proposition ; la règle de compilation réfute alors l'hypothèse.
+RULE E3P08D_duree_finie_implique_autodestruction
+WHEN
+    ($hypothese suppose ($effort enveloppe temps_fini))
+    ($effort est_puissance_existence_de $chose)
+THEN
+    ADD ($hypothese affirme ($chose peut_detruire $chose))
+END
+
+RULE E3P08D_refutation_duree_finie
+WHEN
+    ($hypothese suppose ($effort enveloppe temps_fini))
+    $hypothese ' FAUX
+THEN
+    ADD ($effort enveloppe temps_fini) ' FAUX
+END
+
+# La seconde branche de la démonstration est conditionnelle : en l'absence
+# explicite de destruction extérieure, la même puissance continue d'exister.
+# Le collectif est un témoin borné de « toute cause extérieure ».
+RULE E3P08D_absence_destruction_exterieure_assure_continuation
+WHEN
+    ($causes represente_toutes_causes_exterieures_de $chose)
+    ($causes detruit $chose) ' FAUX
+    ($effort est_puissance_existence_de $chose)
+THEN
+    ADD ($effort enveloppe temps_indefini)
+END

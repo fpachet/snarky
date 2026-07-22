@@ -1,0 +1,53 @@
+schema_version: 1
+id: E3P05
+model: ethics_iii_systematic_v1
+source_unit: E3P05
+source_text: >-
+  Des choses sont de nature contraire, c'est-à-dire ne peuvent être dans le
+  même sujet, dans la mesure où l'une peut détruire l'autre.
+fact_files:
+  - facts/postulates.yaml
+rule_files:
+  - rules/validated/E3P04.rules
+  - rules/proofs/E3P05.rules
+  - rules/compilation.rules
+rule_catalog: rules/catalog.yaml
+forbidden_rules:
+  - E3P05_destruction_implique_contrariete
+allowed_rule_origins:
+  - textual
+  - textual_theorem
+  - compilation
+cases:
+  - id: destruction_mutuelle_incompatible
+    initial_facts:
+      - "(cohabitation0 reunit chose_a)"
+      - "(cohabitation0 reunit chose_b)"
+      - "(cohabitation0 a_sujet sujet0)"
+      - "(chose_a peut_detruire chose_b)"
+    goals:
+      - entity: cohabitation0
+        status: FAUX
+      - "(chose_a est_contraire_a chose_b)"
+      - "(chose_b est_contraire_a chose_a)"
+    expected:
+      status: proved
+      proof_depths: [3, 4, 4]
+  - id: simple_cohabitation
+    initial_facts:
+      - "(cohabitation0 reunit chose_a)"
+      - "(cohabitation0 reunit chose_b)"
+      - "(cohabitation0 a_sujet sujet0)"
+    goals: []
+    must_not_derive:
+      - entity: cohabitation0
+        status: FAUX
+      - "(chose_a est_contraire_a chose_b)"
+    expected:
+      status: proved
+formalization_status: proved_with_compilation_rule
+result: proved
+limitations:
+  - >-
+    « Ne peuvent être dans le même sujet » est représenté par la réfutation
+    explicite d'une hypothèse nommée de cohabitation.

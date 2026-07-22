@@ -82,7 +82,7 @@ existentielle dans le moteur actuel.
 
 ## Tranche 2 — E3P04–E3P08 : destruction et conatus
 
-Priorité immédiate.
+Statut : fragment exécutable achevé.
 
 Concepts à introduire :
 
@@ -114,7 +114,16 @@ nécessaire.
 Critère de sortie : cinq manifestes exécutables, avec au moins un contre-test
 par proposition et aucune négation par défaut.
 
+Résultat : critère atteint. Les statuts `FAUX` suffisent pour ce fragment sans
+ajout d'une primitive de contrainte. E3P05 et E3P08 utilisent une réfutation
+bornée : une hypothèse nommée affirme un terme propositionnel, puis devient
+`FAUX` quand ce terme est explicitement réfuté. Cette solution devra être
+réévaluée si une proposition ultérieure exige une incompatibilité globale ou
+une preuve par contradiction non bornée.
+
 ## Tranche 3 — E3P09–E3P11 : désir, joie et tristesse
+
+Priorité immédiate.
 
 Concepts à introduire :
 

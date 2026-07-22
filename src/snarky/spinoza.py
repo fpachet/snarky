@@ -25,6 +25,8 @@ class CaseResult:
     proof_depths: tuple[int | None, ...]
     rule_names: tuple[str, ...]
     rule_origins: tuple[str, ...]
+    forbidden_facts: tuple[Fact, ...]
+    forbidden_violations: tuple[Fact, ...]
 
 
 def load_historical_rules(root: Path) -> tuple[Rule, ...]:
@@ -142,6 +144,9 @@ def run_case(
         *(_load_manifest_fact(entry) for entry in selected["initial_facts"]),
     )
     goals = tuple(_load_manifest_fact(entry) for entry in selected["goals"])
+    forbidden_facts = tuple(
+        _load_manifest_fact(entry) for entry in selected.get("must_not_derive", [])
+    )
     result = ForwardEngine(active_rules).run(initial_facts)
     proof_depths = tuple(
         result.provenance.depth(goal) if goal in result.facts else None
@@ -167,14 +172,21 @@ def run_case(
     for goal in goals:
         if goal in result.facts:
             visit_proof(goal)
+    forbidden_violations = tuple(
+        fact for fact in forbidden_facts if fact in result.facts
+    )
     return CaseResult(
         theorem_id=theorem_id,
         case_id=case_id,
         goals=goals,
-        proved=all(goal in result.facts for goal in goals),
+        proved=(
+            all(goal in result.facts for goal in goals) and not forbidden_violations
+        ),
         proof_depths=proof_depths,
         rule_names=tuple(used_rules),
         rule_origins=tuple(
             rule_origins.get(rule_name, "unclassified") for rule_name in used_rules
         ),
+        forbidden_facts=forbidden_facts,
+        forbidden_violations=forbidden_violations,
     )

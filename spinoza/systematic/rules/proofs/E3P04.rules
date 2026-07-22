@@ -1,0 +1,20 @@
+# E3P04D : la définition d'une chose affirme son essence et ne peut donc pas
+# fournir une négation interne de cette essence.
+RULE E3P04D_definition_affirme_non_negation
+WHEN
+    ($definition est_definition_de $chose)
+    ($definition affirme $essence)
+    ($essence est_essence_de $chose)
+    ($cause est_interne_a $chose)
+THEN
+    ADD ($cause nie $essence) ' FAUX
+END
+
+RULE E3P04D_non_negation_interdit_destruction
+WHEN
+    ($essence est_essence_de $chose)
+    ($cause nie $essence) ' FAUX
+THEN
+    ADD ($cause detruit $chose) ' FAUX
+    ADD ($cause peut_detruire $chose) ' FAUX
+END

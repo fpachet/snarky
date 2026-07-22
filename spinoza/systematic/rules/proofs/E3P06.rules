@@ -1,0 +1,23 @@
+# E3P06D : une chose singulière est intérieure à elle-même. Son expression de
+# la puissance divine, son impossibilité de s'autodétruire et son opposition à
+# une menace extérieure constituent ici les prémisses explicites du conatus.
+RULE E3P06D_chose_interieure_a_elle_meme
+WHEN
+    ($chose est_chose_singuliere VRAI)
+THEN
+    ADD ($chose est_interne_a $chose)
+END
+
+RULE E3P06D_puissance_non_autodestructrice_est_conatus
+WHEN
+    ($chose est_chose_singuliere VRAI)
+    ($chose exprime_puissance_de dieu)
+    ($chose peut_detruire $chose) ' FAUX
+    ($menace represente_ce_qui_peut_detruire $chose)
+    ($chose est_contraire_a $menace)
+    ($effort est_effort_de $chose)
+THEN
+    ADD ($chose s_efforce_de_perseverer_dans son_etre)
+    ADD ($effort vise_perseverance_de $chose)
+    ADD ($effort est_puissance_existence_de $chose)
+END

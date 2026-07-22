@@ -1,0 +1,54 @@
+schema_version: 1
+id: E3P06
+model: ethics_iii_systematic_v1
+source_unit: E3P06
+source_text: >-
+  Chaque chose, autant qu'il est en elle, s'efforce de persévérer dans son
+  être.
+fact_files:
+  - facts/postulates.yaml
+rule_files:
+  - rules/external.rules
+  - rules/validated/E3P04.rules
+  - rules/validated/E3P05.rules
+  - rules/proofs/E3P06.rules
+rule_catalog: rules/catalog.yaml
+forbidden_rules:
+  - E3P06_chose_singuliere_conatus
+allowed_rule_origins:
+  - textual
+  - textual_theorem
+  - external_textual
+cases:
+  - id: chose_singuliere
+    initial_facts:
+      - "(chose0 est_chose_singuliere VRAI)"
+      - "(etendue est_attribut_de dieu)"
+      - "(menace0 represente_ce_qui_peut_detruire chose0)"
+      - "(menace0 peut_detruire chose0)"
+      - "(effort0 est_effort_de chose0)"
+    goals:
+      - "(chose0 s_efforce_de_perseverer_dans son_etre)"
+      - "(effort0 vise_perseverance_de chose0)"
+      - "(effort0 est_puissance_existence_de chose0)"
+    expected:
+      status: proved
+      proof_depths: [3, 3, 3]
+  - id: puissance_non_etablie
+    initial_facts:
+      - "(chose0 est_chose_singuliere VRAI)"
+      - "(menace0 represente_ce_qui_peut_detruire chose0)"
+      - "(menace0 peut_detruire chose0)"
+      - "(effort0 est_effort_de chose0)"
+    goals: []
+    must_not_derive:
+      - "(chose0 s_efforce_de_perseverer_dans son_etre)"
+      - "(effort0 est_puissance_existence_de chose0)"
+    expected:
+      status: proved
+formalization_status: proved_with_external_textual_bridges
+result: proved
+limitations:
+  - >-
+    Le témoin effort0 est déclaré explicitement parce que le moteur ne crée
+    pas encore d'individu existentiel frais.

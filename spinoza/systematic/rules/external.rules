@@ -2,9 +2,9 @@
 # Ils sont formulés comme ponts d'inférence explicites et non comme conclusions
 # de la partie III.
 
-# E1P36 : une idée donnée produit nécessairement un effet. Le témoin de cet
+# E1P36 : toute chose donnée produit nécessairement un effet. Le témoin de cet
 # effet est fourni explicitement car le moteur ne crée pas encore d'objet.
-RULE E1P36_idee_donnee_effet_necessaire
+RULE E1P36_donnee_effet_necessaire
 WHEN
     ($idee est_donnee VRAI)
     ($effet est_temoignage_effet_de $idee)
@@ -41,4 +41,33 @@ WHEN
     ($attribut_source est_distinct_de $attribut_cible)
 THEN
     ADD ($source $determination $cible) ' FAUX
+END
+
+# E1P25C : les choses singulières sont des modes déterminés des attributs de
+# Dieu. Le choix de l'attribut reste explicite dans l'instanciation ground.
+RULE E1P25C_chose_singuliere_mode_determine
+WHEN
+    ($chose est_chose_singuliere VRAI)
+    ($attribut est_attribut_de dieu)
+THEN
+    ADD ($chose est_mode_determine_de $attribut)
+END
+
+# E1P34 : le mode déterminé exprime la puissance de Dieu sous son attribut.
+RULE E1P34_mode_exprime_puissance
+WHEN
+    ($chose est_mode_determine_de $attribut)
+    ($attribut est_attribut_de dieu)
+THEN
+    ADD ($chose exprime_puissance_de dieu)
+END
+
+# E1P29 : l'effet nécessaire d'une essence actuelle reste dans les limites de
+# la nature de la chose dont elle est l'essence.
+RULE E1P29_effet_dans_limites_nature
+WHEN
+    ($effet suit_necessairement_de $essence)
+    ($essence est_essence_actuelle_de $chose)
+THEN
+    ADD ($effet est_dans_limites_nature_de $chose)
 END

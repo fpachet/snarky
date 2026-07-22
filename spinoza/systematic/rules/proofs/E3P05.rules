@@ -1,0 +1,30 @@
+# E3P05D : l'hypothèse de coexistence transforme ses éléments en causes
+# internes du sujet commun et affirme la menace qui serait alors intérieure.
+RULE E3P05D_cohabitation_rend_elements_internes
+WHEN
+    ($cohabitation reunit $element)
+    ($cohabitation a_sujet $sujet)
+THEN
+    ADD ($element est_interne_a $sujet)
+END
+
+RULE E3P05D_destruction_element_menace_sujet
+WHEN
+    ($cohabitation reunit $premier)
+    ($cohabitation reunit $second)
+    ($cohabitation a_sujet $sujet)
+    ($premier peut_detruire $second)
+THEN
+    ADD ($cohabitation affirme ($premier peut_detruire $sujet))
+END
+
+RULE E3P05D_refutation_etablit_contrariete
+WHEN
+    $cohabitation ' FAUX
+    ($cohabitation reunit $premier)
+    ($cohabitation reunit $second)
+    ($premier peut_detruire $second)
+THEN
+    ADD ($premier est_contraire_a $second)
+    ADD ($second est_contraire_a $premier)
+END

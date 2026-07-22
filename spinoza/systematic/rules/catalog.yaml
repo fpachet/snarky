@@ -13,7 +13,7 @@ rules:
     origin: textual
     source: E3D3
     status: candidate
-  - ids: [E1P36_idee_donnee_effet_necessaire]
+  - ids: [E1P36_donnee_effet_necessaire]
     origin: external_textual
     sources: [E1P36]
     status: reconstructed_with_explicit_witness
@@ -42,3 +42,72 @@ rules:
     status: explicit_modeling_choice
     note: >-
       L'exclusivite est representee positivement sans negation par defaut.
+  - ids: [COMP_hypothese_refutee_par_fait_faux]
+    origin: compilation
+    sources: [E3P05, E3P08]
+    status: explicit_reductio_schema
+    note: >-
+      Une hypothese nommee est refutee seulement quand la proposition qu'elle
+      affirme possede le statut explicite FAUX.
+  - ids: [E1P25C_chose_singuliere_mode_determine]
+    origin: external_textual
+    sources: [E1P25C]
+    status: reconstructed_bridge
+  - ids: [E1P34_mode_exprime_puissance]
+    origin: external_textual
+    sources: [E1P34]
+    status: reconstructed_bridge
+  - ids: [E1P29_effet_dans_limites_nature]
+    origin: external_textual
+    sources: [E1P29]
+    status: reconstructed_bridge
+  - ids:
+      - E3P04D_definition_affirme_non_negation
+      - E3P04D_non_negation_interdit_destruction
+    origin: textual
+    source: E3P04D
+    status: validated_fragment
+  - ids:
+      - E3P05D_cohabitation_rend_elements_internes
+      - E3P05D_destruction_element_menace_sujet
+      - E3P05D_refutation_etablit_contrariete
+    origin: textual
+    source: E3P05D
+    status: validated_fragment
+  - ids:
+      - E3P06D_chose_interieure_a_elle_meme
+      - E3P06D_puissance_non_autodestructrice_est_conatus
+    origin: textual
+    source: E3P06D
+    status: validated_fragment
+  - ids: [E3P07D_effort_identique_essence_actuelle]
+    origin: textual
+    source: E3P07D
+    status: validated_fragment
+  - ids:
+      - E3P08D_duree_finie_implique_autodestruction
+      - E3P08D_refutation_duree_finie
+      - E3P08D_absence_destruction_exterieure_assure_continuation
+    origin: textual
+    source: E3P08D
+    status: validated_fragment
+  - ids: [E3P04_cause_interne_non_destructrice]
+    origin: textual_theorem
+    source: E3P04
+    status: validated_for_later_propositions
+  - ids: [E3P05_destruction_implique_contrariete]
+    origin: textual_theorem
+    source: E3P05
+    status: validated_for_later_propositions
+  - ids: [E3P06_chose_singuliere_conatus]
+    origin: textual_theorem
+    source: E3P06
+    status: validated_for_later_propositions
+  - ids: [E3P07_conatus_est_essence_actuelle]
+    origin: textual_theorem
+    source: E3P07
+    status: validated_for_later_propositions
+  - ids: [E3P08_conatus_duree_indefinie]
+    origin: textual_theorem
+    source: E3P08
+    status: validated_for_later_propositions

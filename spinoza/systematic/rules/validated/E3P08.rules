@@ -1,0 +1,8 @@
+# Fragment publié après validation de E3P08.
+RULE E3P08_conatus_duree_indefinie
+WHEN
+    ($effort vise_perseverance_de $chose)
+THEN
+    ADD ($effort enveloppe temps_fini) ' FAUX
+    ADD ($effort enveloppe temps_indefini)
+END
