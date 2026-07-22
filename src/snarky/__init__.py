@@ -1,4 +1,4 @@
-"""Public API of the Snarky BOOJUM-inspired inference engine."""
+"""Public API of the Snarky inference engine."""
 
 from .actions import AddFact, add
 from .engine import EngineLimits, ForwardEngine, InferenceLimitError, RunResult

@@ -1,8 +1,21 @@
 # Snarky
 
-Snarky est un projet de moteur d’inférence symbolique en Python inspiré de
-SNARK, de Jean-Louis Laurière, et surtout de BOOJUM, développé par Jean-Luc
-Dormoy.
+Snarky est un moteur d’inférence symbolique en Python inspiré de SNARK, de
+Jean-Louis Laurière, et de BOOJUM, développé par Jean-Luc Dormoy. Il ne cherche
+pas à reproduire exactement BOOJUM : Snarky possède sa propre sémantique et
+sera notamment enrichi par du raisonnement sous contraintes.
+
+## Pourquoi « Snarky » ?
+
+Le nom rend d’abord hommage au langage historique SNARK, l’une des principales
+sources d’inspiration du projet. Il constitue aussi un clin d’œil à Snarky
+Puppy, groupe emblématique de la fusion musicale.
+
+Cette idée de fusion décrit l’ambition de Snarky : faire coopérer dans un même
+moteur des langages de règles symboliques, des solveurs de contraintes tels
+qu’OR-Tools et, à terme, d’autres algorithmes d’inférence. Snarky ne désigne donc
+pas une réimplémentation de SNARK ou de BOOJUM, mais un moteur hybride qui en
+prolonge certains principes.
 
 L’objectif est de construire un moteur expressif, déterministe et testable,
 capable de manipuler :
@@ -30,7 +43,7 @@ point fixe, la réfraction et la provenance avec profondeur de preuve.
 
 Le contenu actuel comprend :
 
-- [`docs/prompt_codex_moteur_boojum.md`](docs/prompt_codex_moteur_boojum.md),
+- [`docs/prompt_codex_moteur_snarky.md`](docs/prompt_codex_moteur_snarky.md),
   la spécification détaillée du moteur ;
 - [`docs/prompt_codex_spinoza_ethique_III.md`](docs/prompt_codex_spinoza_ethique_III.md),
   la spécification du cas d’étude Spinoza ;
@@ -42,7 +55,7 @@ Le contenu actuel comprend :
   native destinée au debug du moteur ;
 - [`docs/semantics.md`](docs/semantics.md), les décisions sémantiques du moteur
   de référence ;
-- [`src/boojum`](src/boojum), le package Python et son API publique.
+- [`src/snarky`](src/snarky), le package Python et son API publique.
 
 ## Démarrage rapide
 
@@ -56,7 +69,7 @@ pytest
 Exemple minimal avec l’API Python :
 
 ```python
-from boojum import Atom, Fact, ForwardEngine, Rule, Triple, Variable, add, when
+from snarky import Atom, Fact, ForwardEngine, Rule, Triple, Variable, add, when
 
 x = Variable("x")
 y = Variable("y")
@@ -80,7 +93,7 @@ result = ForwardEngine((rule,)).run(facts)
 
 ## Base de debug initiale
 
-La base `mini_boojum` constitue le premier test d’intégration. Elle tient
+La base `mini_snarky` constitue le premier test d’intégration. Elle tient
 en quatre règles et neuf faits initiaux, tout en testant :
 
 1. une jointure sur deux prémisses ;
@@ -93,7 +106,7 @@ en quatre règles et neuf faits initiaux, tout en testant :
 Le moteur naïf reproduit son point fixe attendu : six faits dérivés, dont un à
 profondeur de preuve deux. Voir :
 
-- [`mini_boojum.rules`](tests/rulebases/debug/mini_boojum.rules) ;
+- [`mini_snarky.rules`](tests/rulebases/debug/mini_snarky.rules) ;
 - [`initial_facts.yaml`](tests/rulebases/debug/initial_facts.yaml) ;
 - [`expected.yaml`](tests/rulebases/debug/expected.yaml).
 
@@ -126,7 +139,7 @@ répertoire existant.
    ouvertes.
 2. ~~Définir la sémantique opérationnelle minimale.~~
 3. ~~Implémenter les termes immuables, substitutions et matching récursif.~~
-4. ~~Faire passer la base `mini_boojum` avec un moteur naïf de référence.~~
+4. ~~Faire passer la base `mini_snarky` avec un moteur naïf de référence.~~
 5. Ajouter provenance, indexation et stratégies d’instanciation optimisées.
 6. Reproduire les démonstrations Spinoza P19, P21, P22 et P33.
 7. Ajouter une couche optionnelle de raisonnement par contraintes pour

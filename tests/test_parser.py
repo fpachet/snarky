@@ -2,7 +2,7 @@ from pathlib import Path
 
 import pytest
 
-from boojum import (
+from snarky import (
     Atom,
     ComparisonPremise,
     FactPremise,
@@ -25,8 +25,8 @@ def test_parse_recursive_term_with_relation_variable() -> None:
     )
 
 
-def test_parse_mini_boojum_rules() -> None:
-    text = (PROJECT_ROOT / "tests/rulebases/debug/mini_boojum.rules").read_text()
+def test_parse_mini_snarky_rules() -> None:
+    text = (PROJECT_ROOT / "tests/rulebases/debug/mini_snarky.rules").read_text()
 
     rules = parse_rules(text)
 

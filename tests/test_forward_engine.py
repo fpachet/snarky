@@ -2,15 +2,15 @@ from pathlib import Path
 
 import yaml
 
-from boojum import Fact, ForwardEngine, Status, parse_rules, parse_term, render_term
-from boojum.serialization import load_facts
+from snarky import Fact, ForwardEngine, Status, parse_rules, parse_term, render_term
+from snarky.serialization import load_facts
 
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
 FIXTURE_ROOT = PROJECT_ROOT / "tests/rulebases/debug"
 
 
-def test_mini_boojum_reaches_expected_fixed_point_with_provenance() -> None:
-    rules = parse_rules((FIXTURE_ROOT / "mini_boojum.rules").read_text())
+def test_mini_snarky_reaches_expected_fixed_point_with_provenance() -> None:
+    rules = parse_rules((FIXTURE_ROOT / "mini_snarky.rules").read_text())
     initial_facts = load_facts(FIXTURE_ROOT / "initial_facts.yaml")
     expected = yaml.safe_load((FIXTURE_ROOT / "expected.yaml").read_text())
 

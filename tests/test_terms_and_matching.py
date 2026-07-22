@@ -1,4 +1,4 @@
-from boojum import (
+from snarky import (
     Atom,
     PatternMatcher,
     Status,

@@ -1,8 +1,8 @@
-# Prompt Codex — Reconstruction d’un moteur moderne inspiré de BOOJUM
+# Prompt Codex — Conception de Snarky, moteur moderne inspiré de BOOJUM
 
 ## Mission générale
 
-Construire en Python un moteur de règles moderne, testable et documenté, inspiré de **SNARK et surtout de BOOJUM**, capable de manipuler des règles d’ordres 0, 1 et 2, des faits récursifs, des faits portant sur des faits et des instanciations obtenues par propagation de contraintes.
+Construire en Python **Snarky**, un moteur de règles moderne, testable et documenté, inspiré de **SNARK et surtout de BOOJUM**, capable de manipuler des règles d’ordres 0, 1 et 2, des faits récursifs, des faits portant sur des faits et des instanciations obtenues par propagation de contraintes.
 
 Le projet ne doit pas prétendre reproduire exactement le logiciel historique BOOJUM, dont le code source et plusieurs détails d’implémentation ne sont pas disponibles. Il doit produire :
 
@@ -354,7 +354,7 @@ La version initiale du chaînage avant utilisera le matching orienté, sauf just
 ## 4. Architecture logicielle souhaitée
 
 ```text
-src/boojum/
+src/snarky/
     terms.py
     variables.py
     facts.py
@@ -718,7 +718,7 @@ engine.why_not(goal)
 ### 11.1 API Python
 
 ```python
-from boojum import Atom, Variable, Triple, Fact, Rule, when, add
+from snarky import Atom, Variable, Triple, Fact, Rule, when, add
 
 x = Variable("x")
 y = Variable("y")
