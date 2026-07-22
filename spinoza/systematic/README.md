@@ -4,6 +4,9 @@ Ce modèle repart des définitions, postulats et dépendances textuelles. Il ne
 charge jamais la reconstruction historique de Gondran, conservée séparément
 dans `spinoza/rules/historical.rules`.
 
+Le déroulement complet du travail est défini dans
+[`reports/roadmap.md`](reports/roadmap.md).
+
 L'objectif n'est pas de transformer immédiatement chaque proposition en une
 règle qui contient déjà sa conclusion. Pour tester `E3Pxx`, le manifeste :
 

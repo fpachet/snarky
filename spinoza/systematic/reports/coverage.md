@@ -9,6 +9,9 @@
 Couverture actuelle : 3 propositions sur 59. La prochaine tranche doit traiter
 E3P04–E3P08, autour de la destruction extérieure et du conatus.
 
+L'ordre des tranches, leurs concepts et leurs critères de sortie sont décrits
+dans [`roadmap.md`](roadmap.md).
+
 Les résultats « prouvée » signifient ici qu'une instanciation ground de chaque
 branche de l'énoncé atteint ses buts. Ils ne constituent pas encore une preuve
 dans un calcul quantifié complet.
