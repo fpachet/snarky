@@ -1,0 +1,45 @@
+schema_version: 1
+id: E3P14
+model: ethics_iii_systematic_v1
+source_unit: E3P14
+source_text: >-
+  Si l'Âme a été affectée une fois de deux affections en même temps, sitôt que
+  plus tard elle sera affectée de l'une, elle sera affectée aussi de l'autre.
+fact_files: [facts/postulates.yaml]
+rule_files:
+  - rules/external.rules
+  - rules/proofs/E3P14.rules
+rule_catalog: rules/catalog.yaml
+forbidden_rules:
+  - E3P14_association_reactive_seconde_affection
+allowed_rule_origins: [textual, external_textual]
+cases:
+  - id: association_memorielle
+    initial_facts:
+      - "(episode0 associe affection_premiere0)"
+      - "(episode0 associe affection_seconde0)"
+      - "(episode0 a_affecte_simultanement corps0)"
+      - "(ame0 est_idee_de corps0)"
+      - "(ame0 imagine affection_premiere0)"
+      - "(affection_seconde0 est_affection_de corps0)"
+      - "(idee_seconde0 est_idee_de affection_seconde0)"
+    goals:
+      - "(ame0 se_souvient_de affection_seconde0)"
+      - "(affection_seconde0 affecte corps0)"
+      - "(affection_seconde0 affecte ame0)"
+    expected:
+      status: proved
+      proof_depths: [1, 2, 3]
+  - id: sans_association_passee
+    initial_facts:
+      - "(ame0 est_idee_de corps0)"
+      - "(ame0 imagine affection_premiere0)"
+      - "(affection_seconde0 est_affection_de corps0)"
+      - "(idee_seconde0 est_idee_de affection_seconde0)"
+    goals: []
+    must_not_derive:
+      - "(ame0 se_souvient_de affection_seconde0)"
+      - "(affection_seconde0 affecte ame0)"
+    expected: {status: proved}
+formalization_status: proved_with_external_memory_bridge
+result: proved

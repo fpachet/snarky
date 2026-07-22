@@ -317,8 +317,52 @@ def test_e3p11_covers_four_variations_and_joy_sadness_scholium() -> None:
     assert neutral.proved
 
 
+def test_e3p12_to_e3p18_preserve_imagination_contexts() -> None:
+    beneficial = run_case(SYSTEMATIC_ROOT, "E3P12", "augmentation_et_soutien")
+    resemblance = run_case(
+        SYSTEMATIC_ROOT,
+        "E3P16",
+        "ressemblances_joyeuse_et_triste",
+    )
+    temporal = run_case(
+        SYSTEMATIC_ROOT,
+        "E3P18",
+        "scolie_existence_affirmee_dans_imagination",
+    )
+
+    assert beneficial.proved
+    assert beneficial.proof_depths == (2, 2)
+    assert beneficial.forbidden_violations == ()
+    assert resemblance.proved
+    assert resemblance.proof_depths == (4, 4)
+    assert resemblance.forbidden_violations == ()
+    assert temporal.proved
+    assert temporal.proof_depths == (2,)
+    assert temporal.forbidden_violations == ()
+
+
+def test_e3p15_and_e3p17_keep_accident_and_conflict_explicit() -> None:
+    accident = run_case(
+        SYSTEMATIC_ROOT,
+        "E3P15",
+        "causes_accidentelles_trois_affects",
+    )
+    efficient = run_case(
+        SYSTEMATIC_ROOT,
+        "E3P15",
+        "cause_reellement_efficiente",
+    )
+    fluctuation = run_case(SYSTEMATIC_ROOT, "E3P17", "amour_haine_simultanes")
+
+    assert accident.proved
+    assert accident.proof_depths == (2, 2, 2, 3, 3, 3, 3)
+    assert efficient.proved
+    assert fluctuation.proved
+    assert fluctuation.proof_depths == (1, 1, 2, 2)
+
+
 def test_each_systematic_manifest_since_e3p04_has_passing_counter_cases() -> None:
-    for proposition in range(4, 12):
+    for proposition in range(4, 19):
         theorem_id = f"E3P{proposition:02d}"
         manifest = yaml.safe_load(
             (SYSTEMATIC_ROOT / "theorems" / f"{theorem_id}.yaml").read_text(
@@ -368,7 +412,7 @@ def test_systematic_manifests_do_not_load_the_historical_model() -> None:
 
 
 def test_systematic_manifests_load_only_current_proof_and_prior_theorems() -> None:
-    for proposition in range(4, 12):
+    for proposition in range(4, 19):
         theorem_id = f"E3P{proposition:02d}"
         manifest = yaml.safe_load(
             (SYSTEMATIC_ROOT / "theorems" / f"{theorem_id}.yaml").read_text(

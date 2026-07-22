@@ -1,0 +1,33 @@
+# La proposition exige l'égalité des deux efforts affectifs pour conclure au
+# conflit simultané. Le scolie admet aussi un objet efficient des deux affects.
+RULE E3P17D_amour_haine_egaux_fluctuation
+WHEN
+    ($ame aime $objet)
+    ($ame hait $objet)
+    ($amour est_effort_affectif_d_amour_pour $objet)
+    ($haine est_effort_affectif_de_haine_pour $objet)
+    ($amour a_meme_intensite_que $haine)
+THEN
+    ADD ($ame aime_et_hait_en_meme_temps $objet)
+    ADD ($ame est_en fluctuation_de_l_ame)
+END
+
+RULE E3P17S_affects_contraires_definissent_fluctuation
+WHEN
+    ($premier est_affect_de $ame)
+    ($second est_affect_de $ame)
+    ($premier est_contraire_a $second)
+THEN
+    ADD ($ame est_en fluctuation_de_l_ame)
+END
+
+RULE E3P17S_objet_cause_multiple_affects_contraires
+WHEN
+    ($objet est_cause_efficiente_de $premier)
+    ($objet est_cause_efficiente_de $second)
+    ($premier est_affect_de $ame)
+    ($second est_affect_de $ame)
+    ($premier est_contraire_a $second)
+THEN
+    ADD ($objet cause_affects_multiples_et_contraires_de $ame)
+END

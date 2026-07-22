@@ -157,7 +157,7 @@ suit l'effort, la volonté, l'appétit ou le désir, sans règle converse.
 
 ## Tranche 4 — E3P12–E3P18 : imagination et association
 
-Priorité immédiate.
+Statut : fragment exécutable achevé, corollaires et scolies principales inclus.
 
 Concepts à introduire :
 
@@ -178,7 +178,17 @@ les associations d'affects, les causes accidentelles et la temporalité.
 Critère de sortie : aucune règle ne doit dériver `P` de `x imagine P` sans une
 règle textuelle explicitement justifiée.
 
+Résultat : critère atteint. Les objets imaginés, les propositions de
+ressemblance et les affirmations d'existence restent dans leurs contextes. Des
+contre-cas exécutables interdisent l'aplatissement vers une présence, un trait
+ou une existence brute. E3P14 fournit l'association mémorielle ; E3P15–E3P17
+enchaînent cause accidentelle, ressemblance et fluctuation ; E3P18 distingue
+passé, présent et futur et formalise espoir, crainte, sécurité, désespoir,
+épanouissement et resserrement de conscience.
+
 ## Jalon A — E3P19–E3P22
+
+Priorité immédiate.
 
 Reconstruire systématiquement E3P19, E3P20, E3P21 et E3P22 depuis les tranches
 précédentes, puis comparer :
@@ -190,6 +200,11 @@ précédentes, puis comparer :
 Ce jalon doit identifier les règles historiques trop fortes, les étapes
 condensées et les différences de profondeur de preuve. E3P21 doit aussi
 documenter la dimension quantitative de l'intensité des affects.
+
+Le rapport Cavarretta de 1988 ajoute, pour ce jalon, les hypothèses,
+intermédiaires et conclusions annexes produits par SpinoLog. Le protocole
+d'intégration et d'audit est détaillé dans
+[`../../reports/spinolog_1988_enrichment.md`](../../reports/spinolog_1988_enrichment.md).
 
 ## Tranche 5 — E3P23–E3P32 : affects sociaux et imitation
 

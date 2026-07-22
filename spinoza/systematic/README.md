@@ -9,6 +9,10 @@ Le texte français de référence est conservé dans
 et le déroulement complet du travail est défini dans
 [`reports/roadmap.md`](reports/roadmap.md).
 
+Le rapport historique complet de Cavarretta et les enrichissements qu'il
+suggère sont analysés séparément dans
+[`../reports/spinolog_1988_enrichment.md`](../reports/spinolog_1988_enrichment.md).
+
 L'objectif n'est pas de transformer immédiatement chaque proposition en une
 règle qui contient déjà sa conclusion. Pour tester `E3Pxx`, le manifeste :
 
@@ -19,7 +23,7 @@ règle qui contient déjà sa conclusion. Pour tester `E3Pxx`, le manifeste :
 4. demande au moteur de dériver des faits représentant l'énoncé ;
 5. conserve la chaîne minimale des règles effectivement employées.
 
-## Fragments exécutables : E3P01–E3P11
+## Fragments exécutables : E3P01–E3P18
 
 Le fragment initial formalise :
 
@@ -63,6 +67,21 @@ juger un objet bon ne suffit jamais à dériver que l'homme s'efforce vers lui,
 le veut, l'appète ou le désire. De même, `persevere_en_tant_qu_elle_a` conserve
 l'idée adéquate ou inadéquate comme argument au lieu d'effacer ce contexte.
 
+E3P12–E3P18 construisent une couche intentionnelle explicite. `imagine`,
+`se_souvient_de`, `imagine_sous_temps` et `affirme_dans_imagination` gardent
+leurs contenus comme arguments, y compris lorsqu'il s'agit de propositions
+imbriquées. Les tests vérifient notamment que :
+
+- considérer imaginativement un objet comme présent ne le rend pas présent ;
+- imaginer qu'une chose possède un trait ne lui attribue pas réellement ce
+  trait ;
+- affirmer une existence dans l'imagination ne produit pas un fait brut
+  d'existence.
+
+Cette tranche rend également exécutables les causes accidentelles, sympathie
+et antipathie, la coexistence d'amour et de haine, la fluctuation de l'âme et
+les six affects temporels définis dans le scolie de E3P18.
+
 E1P36 affirme l'existence d'un effet sans le nommer. Comme Snarky ne possède
 pas encore de création existentielle, chaque cas fournit un témoin `effet0` et
 la règle externe dérive explicitement qu'il suit nécessairement de l'idée.
@@ -86,3 +105,7 @@ Les variations de puissance de E3P11 sont encore qualitatives. Le modèle ne
 compare pas leur intensité et n'interprète pas l'absence d'un quatrième affect
 primitif comme sa fausseté ; ces deux propriétés demanderont respectivement
 une extension quantitative et une fermeture déclarée du domaine.
+
+E3P18 établit l'identité qualitative de l'affect à travers les images passée,
+présente et future. Il ne prouve pas encore une égalité numérique d'intensité,
+qui dépendra de la future extension quantitative du moteur ou de l'ontologie.

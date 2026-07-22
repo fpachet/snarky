@@ -1,0 +1,11 @@
+RULE E3P14_association_reactive_seconde_affection
+WHEN
+    ($episode associe $premiere)
+    ($episode associe $seconde)
+    ($episode a_affecte_simultanement $corps)
+    ($ame est_idee_de $corps)
+    ($ame imagine $premiere)
+THEN
+    ADD ($seconde affecte $ame)
+    ADD ($seconde est_associe_par_memoire_a $premiere)
+END

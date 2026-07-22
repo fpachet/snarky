@@ -1,0 +1,11 @@
+RULE E3P17_amour_haine_egaux_fluctuation
+WHEN
+    ($ame aime $objet)
+    ($ame hait $objet)
+    ($amour est_effort_affectif_d_amour_pour $objet)
+    ($haine est_effort_affectif_de_haine_pour $objet)
+    ($amour a_meme_intensite_que $haine)
+THEN
+    ADD ($ame aime_et_hait_en_meme_temps $objet)
+    ADD ($ame est_en fluctuation_de_l_ame)
+END

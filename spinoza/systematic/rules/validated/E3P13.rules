@@ -1,0 +1,43 @@
+RULE E3P13_nuisance_effort_souvenir_excluant
+WHEN
+    ($ame imagine $nuisance)
+    ($nuisance diminue_puissance_agir_de $corps)
+    ($souvenir exclut_existence_de $nuisance)
+THEN
+    ADD ($ame s_efforce_de_se_souvenir_de $souvenir)
+    ADD ($ame a_en_aversion_d_imaginer $nuisance)
+END
+
+RULE E3P13S_joie_accompagnee_cause_est_amour
+WHEN
+    ($joie est_joie_de $ame)
+    ($idee_cause est_idee_de $cause)
+    ($idee_cause accompagne $joie)
+THEN
+    ADD ($ame aime $cause)
+END
+
+RULE E3P13S_tristesse_accompagnee_cause_est_haine
+WHEN
+    ($tristesse est_tristesse_de $ame)
+    ($idee_cause est_idee_de $cause)
+    ($idee_cause accompagne $tristesse)
+THEN
+    ADD ($ame hait $cause)
+END
+
+RULE E3P13S_amour_effort_conserver
+WHEN
+    ($ame aime $objet)
+THEN
+    ADD ($ame s_efforce_de_garder_present $objet)
+    ADD ($ame s_efforce_de_conserver $objet)
+END
+
+RULE E3P13S_haine_effort_detruire
+WHEN
+    ($ame hait $objet)
+THEN
+    ADD ($ame s_efforce_d_ecarter $objet)
+    ADD ($ame s_efforce_de_detruire $objet)
+END

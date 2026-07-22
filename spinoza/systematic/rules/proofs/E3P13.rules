@@ -1,0 +1,68 @@
+# E3P13D : la diminution ou la réduction persiste dans le contexte imaginé ;
+# un témoin explicite fournit la chose dont l'image exclut la première.
+RULE E3P13D_diminution_effort_souvenir_excluant
+WHEN
+    ($ame imagine $nuisance)
+    ($idee_nuisance est_idee_de $nuisance)
+    ($idee_nuisance diminue_puissance_agir_de $ame)
+    ($souvenir exclut_existence_de $nuisance)
+    ($ame a_conscience_de $effort)
+THEN
+    ADD ($ame s_efforce_de_se_souvenir_de $souvenir)
+    ADD ($ame s_efforce_d_imaginer ($souvenir exclut_existence_de $nuisance))
+END
+
+RULE E3P13D_reduction_effort_souvenir_excluant
+WHEN
+    ($ame imagine $nuisance)
+    ($idee_nuisance est_idee_de $nuisance)
+    ($idee_nuisance reduit_puissance_agir_de $ame)
+    ($souvenir exclut_existence_de $nuisance)
+    ($ame a_conscience_de $effort)
+THEN
+    ADD ($ame s_efforce_de_se_souvenir_de $souvenir)
+    ADD ($ame s_efforce_d_imaginer ($souvenir exclut_existence_de $nuisance))
+END
+
+RULE E3P13C_aversion_imaginer_nuisance
+WHEN
+    ($ame s_efforce_de_se_souvenir_de $souvenir)
+    ($souvenir exclut_existence_de $nuisance)
+THEN
+    ADD ($ame a_en_aversion_d_imaginer $nuisance)
+END
+
+# E3P13S : amour et haine gardent l'idée de leur cause extérieure.
+RULE E3P13S_joie_cause_exterieure_amour
+WHEN
+    ($joie est_joie_de $ame)
+    ($idee_cause est_idee_de $cause_exterieure)
+    ($idee_cause accompagne $joie)
+THEN
+    ADD ($ame aime $cause_exterieure)
+END
+
+RULE E3P13S_tristesse_cause_exterieure_haine
+WHEN
+    ($tristesse est_tristesse_de $ame)
+    ($idee_cause est_idee_de $cause_exterieure)
+    ($idee_cause accompagne $tristesse)
+THEN
+    ADD ($ame hait $cause_exterieure)
+END
+
+RULE E3P13S_amour_conserve_presence
+WHEN
+    ($ame aime $objet)
+THEN
+    ADD ($ame s_efforce_de_garder_present $objet)
+    ADD ($ame s_efforce_de_conserver $objet)
+END
+
+RULE E3P13S_haine_ecarte_detruit
+WHEN
+    ($ame hait $objet)
+THEN
+    ADD ($ame s_efforce_d_ecarter $objet)
+    ADD ($ame s_efforce_de_detruire $objet)
+END

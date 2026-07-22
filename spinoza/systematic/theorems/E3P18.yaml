@@ -1,0 +1,121 @@
+schema_version: 1
+id: E3P18
+model: ethics_iii_systematic_v1
+source_unit: E3P18
+source_text: >-
+  L'homme éprouve par l'image d'une chose passée ou future la même affection
+  de Joie ou de Tristesse que par l'image d'une chose présente.
+fact_files: [facts/postulates.yaml]
+rule_files:
+  - rules/external.rules
+  - rules/proofs/E3P18.rules
+rule_catalog: rules/catalog.yaml
+forbidden_rules:
+  - E3P18_image_temporelle_conserve_joie
+  - E3P18_image_temporelle_conserve_tristesse
+allowed_rule_origins: [textual, external_textual]
+cases:
+  - id: affects_passes_et_futurs
+    initial_facts:
+      - "(image_joie_passee0 est_image_de objet_joie_passee0)"
+      - "(image_joie_passee0 est_jointe_a_image_de_temps passe)"
+      - "(homme0 est_affecte_par image_joie_passee0)"
+      - "(image_joie_passee0 suscite joie_passee0)"
+      - "(joie_passee0 est_joie_de homme0)"
+      - "(image_joie_future0 est_image_de objet_joie_future0)"
+      - "(image_joie_future0 est_jointe_a_image_de_temps futur)"
+      - "(homme0 est_affecte_par image_joie_future0)"
+      - "(image_joie_future0 suscite joie_future0)"
+      - "(joie_future0 est_joie_de homme0)"
+      - "(image_tristesse_passee0 est_image_de objet_tristesse_passee0)"
+      - "(image_tristesse_passee0 est_jointe_a_image_de_temps passe)"
+      - "(homme0 est_affecte_par image_tristesse_passee0)"
+      - "(image_tristesse_passee0 suscite tristesse_passee0)"
+      - "(tristesse_passee0 est_tristesse_de homme0)"
+      - "(image_tristesse_future0 est_image_de objet_tristesse_future0)"
+      - "(image_tristesse_future0 est_jointe_a_image_de_temps futur)"
+      - "(homme0 est_affecte_par image_tristesse_future0)"
+      - "(image_tristesse_future0 suscite tristesse_future0)"
+      - "(tristesse_future0 est_tristesse_de homme0)"
+    goals:
+      - "(homme0 eprouve_joie_par (objet_joie_passee0 sous_temps passe))"
+      - "((image_joie_passee0 sous_temps passe) suscite_meme_affect_que (image_joie_passee0 sous_temps present))"
+      - "(homme0 eprouve_joie_par (objet_joie_future0 sous_temps futur))"
+      - "((image_joie_future0 sous_temps futur) suscite_meme_affect_que (image_joie_future0 sous_temps present))"
+      - "(homme0 eprouve_tristesse_par (objet_tristesse_passee0 sous_temps passe))"
+      - "((image_tristesse_passee0 sous_temps passe) suscite_meme_affect_que (image_tristesse_passee0 sous_temps present))"
+      - "(homme0 eprouve_tristesse_par (objet_tristesse_future0 sous_temps futur))"
+      - "((image_tristesse_future0 sous_temps futur) suscite_meme_affect_que (image_tristesse_future0 sous_temps present))"
+    must_not_derive:
+      - "(objet_joie_passee0 existe VRAI)"
+      - "(objet_joie_future0 existe VRAI)"
+      - "(objet_tristesse_passee0 existe VRAI)"
+      - "(objet_tristesse_future0 existe VRAI)"
+    expected:
+      status: proved
+      proof_depths: [2, 2, 2, 2, 2, 2, 2, 2]
+  - id: scolie_existence_affirmee_dans_imagination
+    initial_facts:
+      - "(image0 est_image_de objet0)"
+      - "(image0 est_jointe_a_image_de_temps futur)"
+      - "(homme0 est_affecte_par image0)"
+      - entity: "(affection_corporelle0 exclut_existence_de objet0)"
+        status: FAUX
+    goals:
+      - "(homme0 affirme_dans_imagination (objet0 existe VRAI))"
+    must_not_derive:
+      - "(objet0 existe VRAI)"
+    expected:
+      status: proved
+      proof_depths: [2]
+  - id: scolie_affects_temporels
+    initial_facts:
+      - "(espoir0 est_joie_de homme0)"
+      - "(espoir0 est_inconstant VRAI)"
+      - "(espoir0 nait_de_image_temporelle image_espoir0)"
+      - "(image_espoir0 issue_tenue_pour_douteuse VRAI)"
+      - "(crainte0 est_tristesse_de homme0)"
+      - "(crainte0 est_inconstant VRAI)"
+      - "(crainte0 nait_de_image_temporelle image_crainte0)"
+      - "(image_crainte0 issue_tenue_pour_douteuse VRAI)"
+      - "(securite0 est_espoir_de homme0)"
+      - "(securite0 nait_de_image_temporelle image_securite0)"
+      - entity: "(image_securite0 issue_tenue_pour_douteuse VRAI)"
+        status: FAUX
+      - "(desespoir0 est_crainte_de homme0)"
+      - "(desespoir0 nait_de_image_temporelle image_desespoir0)"
+      - entity: "(image_desespoir0 issue_tenue_pour_douteuse VRAI)"
+        status: FAUX
+      - "(epanouissement0 est_joie_de homme0)"
+      - "(epanouissement0 nait_de_image_temporelle image_passee_joyeuse0)"
+      - "(image_passee_joyeuse0 porte_sur_temps passe)"
+      - "(image_passee_joyeuse0 issue_a_ete_tenue_pour_douteuse VRAI)"
+      - "(resserrement0 est_tristesse_de homme0)"
+      - "(resserrement0 nait_de_image_temporelle image_passee_triste0)"
+      - "(image_passee_triste0 porte_sur_temps passe)"
+      - "(image_passee_triste0 issue_a_ete_tenue_pour_douteuse VRAI)"
+    goals:
+      - "(espoir0 est_espoir_de homme0)"
+      - "(crainte0 est_crainte_de homme0)"
+      - "(securite0 est_securite_de homme0)"
+      - "(desespoir0 est_desespoir_de homme0)"
+      - "(epanouissement0 est_epanouissement_de homme0)"
+      - "(resserrement0 est_resserrement_de_conscience_de homme0)"
+    expected:
+      status: proved
+      proof_depths: [1, 1, 1, 1, 1, 1]
+  - id: joie_constante_non_espoir
+    initial_facts:
+      - "(joie_constante0 est_joie_de homme0)"
+      - "(joie_constante0 nait_de_image_temporelle image0)"
+      - "(image0 issue_tenue_pour_douteuse VRAI)"
+    goals: []
+    must_not_derive:
+      - "(joie_constante0 est_espoir_de homme0)"
+    expected: {status: proved}
+formalization_status: proved_with_two_scholia
+result: proved
+limitations:
+  - >-
+    L'identité de l'affect est qualitative ; aucune intensité numérique n'est
+    encore comparée entre présent, passé et futur.

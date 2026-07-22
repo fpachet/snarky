@@ -1,0 +1,65 @@
+schema_version: 1
+id: E3P16
+model: ethics_iii_systematic_v1
+source_unit: E3P16
+source_text: >-
+  Par cela seul que nous imaginons qu'une chose ressemble à un objet affectant
+  habituellement l'Âme de Joie ou de Tristesse, nous aimerons cette chose ou
+  l'aurons en haine.
+fact_files: [facts/postulates.yaml]
+rule_files:
+  - rules/validated/E3P14.rules
+  - rules/validated/E3P15.rules
+  - rules/proofs/E3P16.rules
+rule_catalog: rules/catalog.yaml
+forbidden_rules:
+  - E3P16_ressemblance_joyeuse_amour
+  - E3P16_ressemblance_triste_haine
+allowed_rule_origins: [textual, textual_theorem]
+cases:
+  - id: ressemblances_joyeuse_et_triste
+    initial_facts:
+      - "(ame0 imagine (chose_aimee0 a_trait trait_joyeux0))"
+      - "(objet_joyeux0 a_trait trait_joyeux0)"
+      - "(objet_joyeux0 produit_habituellement joie0)"
+      - "(episode_joyeux0 associe trait_joyeux0)"
+      - "(episode_joyeux0 associe joie0)"
+      - "(episode_joyeux0 a_affecte_simultanement corps0)"
+      - "(joie0 est_joie_de ame0)"
+      - entity: "(trait_joyeux0 est_cause_efficiente_de joie0)"
+        status: FAUX
+      - "(ame0 imagine (chose_haie0 a_trait trait_triste0))"
+      - "(objet_triste0 a_trait trait_triste0)"
+      - "(objet_triste0 produit_habituellement tristesse0)"
+      - "(episode_triste0 associe trait_triste0)"
+      - "(episode_triste0 associe tristesse0)"
+      - "(episode_triste0 a_affecte_simultanement corps0)"
+      - "(tristesse0 est_tristesse_de ame0)"
+      - entity: "(trait_triste0 est_cause_efficiente_de tristesse0)"
+        status: FAUX
+      - "(ame0 est_idee_de corps0)"
+    goals:
+      - "(ame0 aime chose_aimee0)"
+      - "(ame0 hait chose_haie0)"
+    must_not_derive:
+      - "(chose_aimee0 a_trait trait_joyeux0)"
+      - "(chose_haie0 a_trait trait_triste0)"
+    expected:
+      status: proved
+      proof_depths: [4, 4]
+  - id: ressemblance_sans_association_affective
+    initial_facts:
+      - "(ame0 imagine (chose0 a_trait trait0))"
+      - "(objet0 a_trait trait0)"
+      - "(objet0 produit_habituellement joie0)"
+      - "(joie0 est_joie_de ame0)"
+      - entity: "(trait0 est_cause_efficiente_de joie0)"
+        status: FAUX
+      - "(ame0 est_idee_de corps0)"
+    goals: []
+    must_not_derive:
+      - "(ame0 aime chose0)"
+      - "(chose0 a_trait trait0)"
+    expected: {status: proved}
+formalization_status: proved_with_preserved_imagined_proposition
+result: proved

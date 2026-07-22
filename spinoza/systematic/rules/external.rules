@@ -144,3 +144,58 @@ WHEN
 THEN
     ADD ($idee reduit_puissance_agir_de $ame)
 END
+
+# E2P17 : une affection corporelle enveloppant la nature d'un objet extérieur
+# fait que l'âme imagine cet objet et le considère comme présent. Aucun fait
+# affirmant l'existence réelle de l'objet n'est produit.
+RULE E2P17_affection_objet_imagination_presence
+WHEN
+    ($affection affecte $corps)
+    ($affection enveloppe_nature_de $objet)
+    ($ame est_idee_de $corps)
+THEN
+    ADD ($ame imagine $objet)
+    ADD ($ame considere_comme_present $objet)
+END
+
+# E2P18 : une association corporelle passée permet à l'image d'un premier
+# terme de rappeler le second.
+RULE E2P18_association_rappelle_seconde_affection
+WHEN
+    ($episode associe $premiere)
+    ($episode associe $seconde)
+    ($episode a_affecte_simultanement $corps)
+    ($ame est_idee_de $corps)
+    ($ame imagine $premiere)
+THEN
+    ADD ($ame se_souvient_de $seconde)
+END
+
+# E2P16C2 : les imaginations indiquent les affections du corps plutôt que la
+# nature réelle des objets extérieurs.
+RULE E2P16C2_souvenir_indique_affection_corps
+WHEN
+    ($ame se_souvient_de $affection)
+    ($affection est_affection_de $corps)
+THEN
+    ADD ($affection affecte $corps)
+END
+
+# E2P44S : le passé et le futur viennent de la jonction de l'image de la chose
+# avec une image temporelle ; ils ne modifient pas l'image considérée seule.
+RULE E2P44S_image_jointe_au_temps
+WHEN
+    ($image est_image_de $objet)
+    ($image est_jointe_a_image_de_temps $temps)
+    ($homme est_affecte_par $image)
+THEN
+    ADD ($homme imagine_sous_temps ($objet sous_temps $temps))
+END
+
+RULE E2P17_image_fait_considerer_objet_present
+WHEN
+    ($image est_image_de $objet)
+    ($homme est_affecte_par $image)
+THEN
+    ADD ($homme considere_comme_present $objet)
+END

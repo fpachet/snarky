@@ -1,0 +1,54 @@
+# Une cause efficiente d'une affection neutre devient cause accidentelle de
+# l'affect associé seulement si elle n'est pas cause efficiente de cet affect.
+RULE E3P15D_cause_accidentelle_joie
+WHEN
+    ($objet est_cause_efficiente_de $affection_neutre)
+    ($affection_neutre est_neutre_pour_puissance_de $ame)
+    ($affect est_associe_par_memoire_a $affection_neutre)
+    ($affect est_joie_de $ame)
+    ($objet est_cause_efficiente_de $affect) ' FAUX
+THEN
+    ADD ($objet est_cause_accidentelle_de $affect)
+END
+
+RULE E3P15D_cause_accidentelle_tristesse
+WHEN
+    ($objet est_cause_efficiente_de $affection_neutre)
+    ($affection_neutre est_neutre_pour_puissance_de $ame)
+    ($affect est_associe_par_memoire_a $affection_neutre)
+    ($affect est_tristesse_de $ame)
+    ($objet est_cause_efficiente_de $affect) ' FAUX
+THEN
+    ADD ($objet est_cause_accidentelle_de $affect)
+END
+
+RULE E3P15D_cause_accidentelle_desir
+WHEN
+    ($objet est_cause_efficiente_de $affection_neutre)
+    ($affection_neutre est_neutre_pour_puissance_de $ame)
+    ($affect est_associe_par_memoire_a $affection_neutre)
+    ($affect est_desir_de $ame)
+    ($objet est_cause_efficiente_de $affect) ' FAUX
+THEN
+    ADD ($objet est_cause_accidentelle_de $affect)
+END
+
+# Corollaire et scolie : les causes accidentelles de joie ou de tristesse sont
+# aimées ou haïes, ce qui rend explicites sympathie et antipathie.
+RULE E3P15C_cause_accidentelle_joie_aimee
+WHEN
+    ($objet est_cause_accidentelle_de $joie)
+    ($joie est_joie_de $ame)
+THEN
+    ADD ($ame aime $objet)
+    ADD ($ame eprouve_sympathie_pour $objet)
+END
+
+RULE E3P15C_cause_accidentelle_tristesse_haie
+WHEN
+    ($objet est_cause_accidentelle_de $tristesse)
+    ($tristesse est_tristesse_de $ame)
+THEN
+    ADD ($ame hait $objet)
+    ADD ($ame eprouve_antipathie_pour $objet)
+END

@@ -24,6 +24,13 @@ Chaque preuve est décrite dans son manifeste, par exemple
 [`theorems/E3P19.yaml`](theorems/E3P19.yaml). Le moteur part uniquement des
 hypothèses du cas et aucune règle nommée `E3Pxx_as_direct_rule` n'est autorisée.
 
+Le rapport complet de Fabrice Cavarretta sur SpinoLog est conservé dans
+[`../docs/Cavarretta-X1988-SpinozaExpertSystem.pdf`](../docs/Cavarretta-X1988-SpinozaExpertSystem.pdf).
+Il fournit une base historique plus large que la présentation. Son intégration
+séparée, les audits de clôture et les extensions qu'il suggère sont documentés
+dans
+[`reports/spinolog_1988_enrichment.md`](reports/spinolog_1988_enrichment.md).
+
 ## Palier B — toute la partie III
 
 Le fichier [`sources/ethique_III_appuhn_1913.txt`](sources/ethique_III_appuhn_1913.txt)
@@ -39,10 +46,11 @@ la traduction Appuhn (1913) :
 - 1 définition générale des affects.
 
 Les 59 fichiers `theorems/E3P01.yaml` à `theorems/E3P59.yaml` rendent la suite
-du travail incrémentale et vérifiable. Les quatre cas historiques sont
-`proved`; les 55 autres sont volontairement `not_proved` et indiquent ce qui
-manque. Une proposition ne doit devenir exécutable qu'après validation de ses
-hypothèses, de son but et des règles antérieures qu'elle mobilise.
+du travail incrémentale et vérifiable. Dans cette couche historique, les quatre
+cas reconstruits depuis la présentation sont `proved` ; les autres manifestes
+indiquent encore ce qui manque. Le modèle systématique possède son propre état
+d'avancement. Une proposition ne doit devenir exécutable qu'après validation
+de ses hypothèses, de son but et des règles antérieures qu'elle mobilise.
 
 Le graphe [`reports/dependency_graph.json`](reports/dependency_graph.json)
 exporte les références numériques détectées dans le texte. Ce sont des
@@ -93,7 +101,7 @@ script générateur.
 
 Le dossier [`systematic`](systematic/README.md) reprend la formalisation à
 partir des définitions, postulats et dépendances explicites. Il ne charge pas
-les règles historiques. Le premier fragment exécutable couvre E3P01–E3P03 et
-rend visibles les ponts importés des parties I et II. Le
+les règles historiques. Les fragments exécutables couvrent désormais
+E3P01–E3P18 et rendent visibles les ponts importés des parties I et II. Le
 [`plan de modélisation`](systematic/reports/roadmap.md) décrit l'ordre complet
 jusqu'à E3P59 et aux définitions finales des affects.

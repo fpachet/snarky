@@ -1,0 +1,95 @@
+# L'image considérée seule conserve la qualité de l'affect, quel que soit le
+# temps auquel elle est jointe.
+RULE E3P18D_image_temporelle_meme_affect
+WHEN
+    ($image est_image_de $objet)
+    ($image est_jointe_a_image_de_temps $temps)
+    ($homme imagine_sous_temps ($objet sous_temps $temps))
+    ($image suscite $affect)
+    ($affect est_joie_de $homme)
+THEN
+    ADD (($image sous_temps $temps) suscite_meme_affect_que ($image sous_temps present))
+    ADD ($homme eprouve_joie_par ($objet sous_temps $temps))
+END
+
+RULE E3P18D_image_temporelle_meme_tristesse
+WHEN
+    ($image est_image_de $objet)
+    ($image est_jointe_a_image_de_temps $temps)
+    ($homme imagine_sous_temps ($objet sous_temps $temps))
+    ($image suscite $affect)
+    ($affect est_tristesse_de $homme)
+THEN
+    ADD (($image sous_temps $temps) suscite_meme_affect_que ($image sous_temps present))
+    ADD ($homme eprouve_tristesse_par ($objet sous_temps $temps))
+END
+
+# Scolie I : l'existence est affirmée dans le contexte imaginatif seulement ;
+# aucune existence brute de l'objet ne suit de cette règle.
+RULE E3P18S1_image_temporelle_affirme_existence_dans_contexte
+WHEN
+    ($homme imagine_sous_temps ($objet sous_temps $temps))
+    ($affection_corporelle exclut_existence_de $objet) ' FAUX
+THEN
+    ADD ($homme affirme_dans_imagination ($objet existe VRAI))
+END
+
+# Scolie II : définitions temporelles des affects. Le doute est un fait
+# explicite ; son retrait est représenté par le statut FAUX.
+RULE E3P18S_joie_inconstante_douteuse_espoir
+WHEN
+    ($affect est_joie_de $homme)
+    ($affect est_inconstant VRAI)
+    ($affect nait_de_image_temporelle $image)
+    ($image issue_tenue_pour_douteuse VRAI)
+THEN
+    ADD ($affect est_espoir_de $homme)
+END
+
+RULE E3P18S_tristesse_inconstante_douteuse_crainte
+WHEN
+    ($affect est_tristesse_de $homme)
+    ($affect est_inconstant VRAI)
+    ($affect nait_de_image_temporelle $image)
+    ($image issue_tenue_pour_douteuse VRAI)
+THEN
+    ADD ($affect est_crainte_de $homme)
+END
+
+RULE E3P18S_espoir_sans_doute_securite
+WHEN
+    ($affect est_espoir_de $homme)
+    ($image issue_tenue_pour_douteuse VRAI) ' FAUX
+    ($affect nait_de_image_temporelle $image)
+THEN
+    ADD ($affect est_securite_de $homme)
+END
+
+RULE E3P18S_crainte_sans_doute_desespoir
+WHEN
+    ($affect est_crainte_de $homme)
+    ($image issue_tenue_pour_douteuse VRAI) ' FAUX
+    ($affect nait_de_image_temporelle $image)
+THEN
+    ADD ($affect est_desespoir_de $homme)
+END
+
+RULE E3P18S_joie_passee_issue_douteuse_epanouissement
+WHEN
+    ($affect est_joie_de $homme)
+    ($affect nait_de_image_temporelle $image)
+    ($image porte_sur_temps passe)
+    ($image issue_a_ete_tenue_pour_douteuse VRAI)
+THEN
+    ADD ($affect est_epanouissement_de $homme)
+END
+
+RULE E3P18S_tristesse_passee_resserrement
+WHEN
+    ($affect est_tristesse_de $homme)
+    ($affect nait_de_image_temporelle $image)
+    ($image porte_sur_temps passe)
+    ($image issue_a_ete_tenue_pour_douteuse VRAI)
+THEN
+    ADD ($affect est_resserrement_de_conscience_de $homme)
+END

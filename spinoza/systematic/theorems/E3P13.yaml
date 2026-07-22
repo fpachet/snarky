@@ -1,0 +1,76 @@
+schema_version: 1
+id: E3P13
+model: ethics_iii_systematic_v1
+source_unit: E3P13
+source_text: >-
+  Quand l'Âme imagine ce qui diminue ou réduit la puissance d'agir du Corps,
+  elle s'efforce de se souvenir de choses qui excluent l'existence de ce
+  qu'elle imagine.
+fact_files: [facts/postulates.yaml]
+rule_files:
+  - rules/external.rules
+  - rules/validated/E3P09.rules
+  - rules/validated/E3P11.rules
+  - rules/proofs/E3P13.rules
+rule_catalog: rules/catalog.yaml
+forbidden_rules:
+  - E3P13_nuisance_effort_souvenir_excluant
+  - E3P13S_joie_accompagnee_cause_est_amour
+  - E3P13S_tristesse_accompagnee_cause_est_haine
+  - E3P13S_amour_effort_conserver
+  - E3P13S_haine_effort_detruire
+allowed_rule_origins: [textual, textual_theorem, external_textual]
+cases:
+  - id: souvenir_excluant_nuisance
+    initial_facts:
+      - "(affection0 affecte corps0)"
+      - "(affection0 enveloppe_nature_de nuisance0)"
+      - "(idee_affection0 est_idee_de affection0)"
+      - "(nuisance0 diminue_puissance_agir_de corps0)"
+      - "(idee_nuisance0 est_idee_de nuisance0)"
+      - "(souvenir0 exclut_existence_de nuisance0)"
+      - "(ame0 est_idee_de corps0)"
+      - "(ame0 est_chose_singuliere VRAI)"
+      - "(effort0 est_effort_de ame0)"
+    goals:
+      - "(ame0 s_efforce_de_se_souvenir_de souvenir0)"
+      - "(ame0 s_efforce_d_imaginer (souvenir0 exclut_existence_de nuisance0))"
+      - "(ame0 a_en_aversion_d_imaginer nuisance0)"
+    expected:
+      status: proved
+      proof_depths: [2, 2, 3]
+  - id: nuisance_sans_souvenir_excluant
+    initial_facts:
+      - "(affection0 affecte corps0)"
+      - "(affection0 enveloppe_nature_de nuisance0)"
+      - "(idee_affection0 est_idee_de affection0)"
+      - "(nuisance0 diminue_puissance_agir_de corps0)"
+      - "(idee_nuisance0 est_idee_de nuisance0)"
+      - "(ame0 est_idee_de corps0)"
+      - "(ame0 est_chose_singuliere VRAI)"
+      - "(effort0 est_effort_de ame0)"
+    goals: []
+    must_not_derive:
+      - "(ame0 s_efforce_de_se_souvenir_de souvenir0)"
+      - "(ame0 a_en_aversion_d_imaginer nuisance0)"
+    expected: {status: proved}
+  - id: scolie_amour_haine
+    initial_facts:
+      - "(joie0 est_joie_de ame0)"
+      - "(idee_cause_joyeuse0 est_idee_de cause_joyeuse0)"
+      - "(idee_cause_joyeuse0 accompagne joie0)"
+      - "(tristesse0 est_tristesse_de ame0)"
+      - "(idee_cause_triste0 est_idee_de cause_triste0)"
+      - "(idee_cause_triste0 accompagne tristesse0)"
+    goals:
+      - "(ame0 aime cause_joyeuse0)"
+      - "(ame0 s_efforce_de_garder_present cause_joyeuse0)"
+      - "(ame0 s_efforce_de_conserver cause_joyeuse0)"
+      - "(ame0 hait cause_triste0)"
+      - "(ame0 s_efforce_d_ecarter cause_triste0)"
+      - "(ame0 s_efforce_de_detruire cause_triste0)"
+    expected:
+      status: proved
+      proof_depths: [1, 2, 2, 1, 2, 2]
+formalization_status: proved_with_corollary_and_scholium
+result: proved

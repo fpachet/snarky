@@ -2,11 +2,19 @@
 
 ## Périmètre
 
-La source historique est la présentation de Michel Gondran,
-`docs/Gondran.ppt`, datée de 2006 et décrivant un travail réalisé en 1987 avec
-Fabrice Cavarretta, d'abord en SNARK puis en BOOJUM. Les diapositives 10 à 12
-présentent la base ; les diapositives 14 à 17 détaillent E3P19, E3P21, E3P22 et
-E3P33.
+La source historique initialement reconstruite est la présentation de Michel
+Gondran, `docs/Gondran.ppt`, datée de 2006 et décrivant un travail réalisé en
+1987 avec Fabrice Cavarretta, d'abord en SNARK puis en BOOJUM. Les diapositives
+10 à 12 présentent la base ; les diapositives 14 à 17 détaillent E3P19, E3P21,
+E3P22 et E3P33.
+
+Le rapport complet de Cavarretta,
+[`../../docs/Cavarretta-X1988-SpinozaExpertSystem.pdf`](../../docs/Cavarretta-X1988-SpinozaExpertSystem.pdf),
+documente une version de juillet 1988 beaucoup plus étendue. Son exploitation
+future est planifiée dans
+[`spinolog_1988_enrichment.md`](spinolog_1988_enrichment.md). Tant que cette
+transcription n'est pas réalisée, la présente reconstruction continue de viser
+strictement les diapositives de Gondran et ses résultats ne changent pas.
 
 La reconstruction compte 21 règles exécutables. Elle conserve séparément deux
 formes non exécutables et n'ajoute pas silencieusement de sémantique pour

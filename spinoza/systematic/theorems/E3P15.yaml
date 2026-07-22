@@ -1,0 +1,67 @@
+schema_version: 1
+id: E3P15
+model: ethics_iii_systematic_v1
+source_unit: E3P15
+source_text: >-
+  Une chose quelconque peut être par accident cause de Joie, de Tristesse ou
+  de Désir.
+fact_files: [facts/postulates.yaml]
+rule_files:
+  - rules/validated/E3P14.rules
+  - rules/proofs/E3P15.rules
+rule_catalog: rules/catalog.yaml
+forbidden_rules:
+  - E3P15_cause_neutre_devient_accidentelle
+  - E3P15C_cause_accidentelle_joie_amour
+  - E3P15C_cause_accidentelle_tristesse_haine
+allowed_rule_origins: [textual, textual_theorem]
+cases:
+  - id: causes_accidentelles_trois_affects
+    initial_facts:
+      - "(episode0 associe affection_neutre0)"
+      - "(episode0 associe joie0)"
+      - "(episode0 associe tristesse0)"
+      - "(episode0 associe desir0)"
+      - "(episode0 a_affecte_simultanement corps0)"
+      - "(ame0 est_idee_de corps0)"
+      - "(ame0 imagine affection_neutre0)"
+      - "(objet0 est_cause_efficiente_de affection_neutre0)"
+      - "(affection_neutre0 est_neutre_pour_puissance_de ame0)"
+      - "(joie0 est_joie_de ame0)"
+      - "(tristesse0 est_tristesse_de ame0)"
+      - "(desir0 est_desir_de ame0)"
+      - entity: "(objet0 est_cause_efficiente_de joie0)"
+        status: FAUX
+      - entity: "(objet0 est_cause_efficiente_de tristesse0)"
+        status: FAUX
+      - entity: "(objet0 est_cause_efficiente_de desir0)"
+        status: FAUX
+    goals:
+      - "(objet0 est_cause_accidentelle_de joie0)"
+      - "(objet0 est_cause_accidentelle_de tristesse0)"
+      - "(objet0 est_cause_accidentelle_de desir0)"
+      - "(ame0 aime objet0)"
+      - "(ame0 hait objet0)"
+      - "(ame0 eprouve_sympathie_pour objet0)"
+      - "(ame0 eprouve_antipathie_pour objet0)"
+    expected:
+      status: proved
+      proof_depths: [2, 2, 2, 3, 3, 3, 3]
+  - id: cause_reellement_efficiente
+    initial_facts:
+      - "(episode0 associe affection_neutre0)"
+      - "(episode0 associe joie0)"
+      - "(episode0 a_affecte_simultanement corps0)"
+      - "(ame0 est_idee_de corps0)"
+      - "(ame0 imagine affection_neutre0)"
+      - "(objet0 est_cause_efficiente_de affection_neutre0)"
+      - "(affection_neutre0 est_neutre_pour_puissance_de ame0)"
+      - "(joie0 est_joie_de ame0)"
+      - "(objet0 est_cause_efficiente_de joie0)"
+    goals: []
+    must_not_derive:
+      - "(objet0 est_cause_accidentelle_de joie0)"
+      - "(ame0 eprouve_sympathie_pour objet0)"
+    expected: {status: proved}
+formalization_status: proved_with_corollary_and_scholium
+result: proved

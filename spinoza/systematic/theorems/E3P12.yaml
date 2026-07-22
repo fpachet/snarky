@@ -1,0 +1,56 @@
+schema_version: 1
+id: E3P12
+model: ethics_iii_systematic_v1
+source_unit: E3P12
+source_text: >-
+  L'Âme, autant qu'elle peut, s'efforce d'imaginer ce qui accroît ou seconde
+  la puissance d'agir du Corps.
+fact_files: [facts/postulates.yaml]
+rule_files:
+  - rules/external.rules
+  - rules/validated/E3P06.rules
+  - rules/validated/E3P11.rules
+  - rules/proofs/E3P12.rules
+rule_catalog: rules/catalog.yaml
+forbidden_rules:
+  - E3P12_imagination_augmentation_effort
+  - E3P12_imagination_soutien_effort
+allowed_rule_origins: [textual, textual_theorem, external_textual]
+cases:
+  - id: augmentation_et_soutien
+    initial_facts:
+      - "(affection_augmentation0 affecte corps0)"
+      - "(affection_augmentation0 enveloppe_nature_de objet_augmentation0)"
+      - "(objet_augmentation0 augmente_puissance_agir_de corps0)"
+      - "(idee_augmentation0 est_idee_de objet_augmentation0)"
+      - "(affection_soutien0 affecte corps0)"
+      - "(affection_soutien0 enveloppe_nature_de objet_soutien0)"
+      - "(objet_soutien0 seconde_puissance_agir_de corps0)"
+      - "(idee_soutien0 est_idee_de objet_soutien0)"
+      - "(ame0 est_idee_de corps0)"
+      - "(ame0 est_chose_singuliere VRAI)"
+      - "(effort0 est_effort_de ame0)"
+    goals:
+      - "(ame0 s_efforce_d_imaginer objet_augmentation0)"
+      - "(ame0 s_efforce_d_imaginer objet_soutien0)"
+    must_not_derive:
+      - "(objet_augmentation0 est_present VRAI)"
+      - "(objet_soutien0 est_present VRAI)"
+    expected:
+      status: proved
+      proof_depths: [2, 2]
+  - id: objet_imagine_neutre
+    initial_facts:
+      - "(affection_neutre0 affecte corps0)"
+      - "(affection_neutre0 enveloppe_nature_de objet_neutre0)"
+      - "(idee_neutre0 est_idee_de objet_neutre0)"
+      - "(ame0 est_idee_de corps0)"
+      - "(ame0 est_chose_singuliere VRAI)"
+      - "(effort0 est_effort_de ame0)"
+    goals: []
+    must_not_derive:
+      - "(ame0 s_efforce_d_imaginer objet_neutre0)"
+      - "(objet_neutre0 est_present VRAI)"
+    expected: {status: proved}
+formalization_status: proved_with_preserved_imagination_context
+result: proved

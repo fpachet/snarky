@@ -1,0 +1,11 @@
+# Le rappel fourni par E2P18 réactive l'affection correspondante du corps et,
+# via l'idée de cette affection, celle de l'âme.
+RULE E3P14D_souvenir_reactive_affection_ame
+WHEN
+    ($ame se_souvient_de $affection)
+    ($affection affecte $corps)
+    ($idee_affection est_idee_de $affection)
+    ($ame est_idee_de $corps)
+THEN
+    ADD ($affection affecte $ame)
+END

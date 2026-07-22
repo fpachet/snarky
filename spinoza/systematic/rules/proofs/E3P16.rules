@@ -1,0 +1,34 @@
+# L'imagination d'une ressemblance reste un terme imbriqué : elle permet
+# d'imaginer le trait, mais n'affirme jamais que la chose le possède réellement.
+RULE E3P16D_ressemblance_imaginee_active_image_trait
+WHEN
+    ($ame imagine ($chose a_trait $trait))
+THEN
+    ADD ($ame imagine $trait)
+END
+
+RULE E3P16D_trait_associe_transfere_joie
+WHEN
+    ($ame imagine ($chose a_trait $trait))
+    ($ame imagine $trait)
+    ($objet a_trait $trait)
+    ($objet produit_habituellement $affect)
+    ($affect affecte $ame)
+    ($affect est_joie_de $ame)
+    ($trait est_cause_efficiente_de $affect) ' FAUX
+THEN
+    ADD ($chose est_cause_accidentelle_de $affect)
+END
+
+RULE E3P16D_trait_associe_transfere_tristesse
+WHEN
+    ($ame imagine ($chose a_trait $trait))
+    ($ame imagine $trait)
+    ($objet a_trait $trait)
+    ($objet produit_habituellement $affect)
+    ($affect affecte $ame)
+    ($affect est_tristesse_de $ame)
+    ($trait est_cause_efficiente_de $affect) ' FAUX
+THEN
+    ADD ($chose est_cause_accidentelle_de $affect)
+END

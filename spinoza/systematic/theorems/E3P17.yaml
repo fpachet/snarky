@@ -1,0 +1,65 @@
+schema_version: 1
+id: E3P17
+model: ethics_iii_systematic_v1
+source_unit: E3P17
+source_text: >-
+  Si nous imaginons qu'une chose qui cause habituellement la Tristesse
+  ressemble à une autre qui cause une Joie également grande, nous l'aurons en
+  haine et l'aimerons en même temps.
+fact_files: [facts/postulates.yaml]
+rule_files:
+  - rules/validated/E3P13.rules
+  - rules/validated/E3P16.rules
+  - rules/proofs/E3P17.rules
+rule_catalog: rules/catalog.yaml
+forbidden_rules:
+  - E3P17_amour_haine_egaux_fluctuation
+allowed_rule_origins: [textual, textual_theorem]
+cases:
+  - id: amour_haine_simultanes
+    initial_facts:
+      - "(tristesse0 est_tristesse_de ame0)"
+      - "(idee_chose0 est_idee_de chose0)"
+      - "(idee_chose0 accompagne tristesse0)"
+      - "(ame0 imagine (chose0 a_trait trait_joyeux0))"
+      - "(objet_joyeux0 a_trait trait_joyeux0)"
+      - "(objet_joyeux0 affecte_habituellement ame0)"
+      - "(objet_joyeux0 produit_habituellement joie0)"
+      - "(joie0 est_joie_de ame0)"
+      - "(amour0 est_effort_affectif_d_amour_pour chose0)"
+      - "(haine0 est_effort_affectif_de_haine_pour chose0)"
+      - "(amour0 a_meme_intensite_que haine0)"
+    goals:
+      - "(ame0 hait chose0)"
+      - "(ame0 aime chose0)"
+      - "(ame0 aime_et_hait_en_meme_temps chose0)"
+      - "(ame0 est_en fluctuation_de_l_ame)"
+    expected:
+      status: proved
+      proof_depths: [1, 1, 2, 2]
+  - id: amour_haine_sans_egalite
+    initial_facts:
+      - "(ame0 aime chose0)"
+      - "(ame0 hait chose0)"
+      - "(amour0 est_effort_affectif_d_amour_pour chose0)"
+      - "(haine0 est_effort_affectif_de_haine_pour chose0)"
+    goals: []
+    must_not_derive:
+      - "(ame0 aime_et_hait_en_meme_temps chose0)"
+      - "(ame0 est_en fluctuation_de_l_ame)"
+    expected: {status: proved}
+  - id: scolie_objet_cause_affects_contraires
+    initial_facts:
+      - "(objet0 est_cause_efficiente_de joie0)"
+      - "(objet0 est_cause_efficiente_de tristesse0)"
+      - "(joie0 est_affect_de ame0)"
+      - "(tristesse0 est_affect_de ame0)"
+      - "(joie0 est_contraire_a tristesse0)"
+    goals:
+      - "(ame0 est_en fluctuation_de_l_ame)"
+      - "(objet0 cause_affects_multiples_et_contraires_de ame0)"
+    expected:
+      status: proved
+      proof_depths: [1, 1]
+formalization_status: proved_with_scholium
+result: proved

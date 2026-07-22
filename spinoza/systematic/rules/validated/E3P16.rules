@@ -1,0 +1,21 @@
+RULE E3P16_ressemblance_joyeuse_amour
+WHEN
+    ($ame imagine ($chose a_trait $trait))
+    ($objet a_trait $trait)
+    ($objet affecte_habituellement $ame)
+    ($affect est_joie_de $ame)
+    ($objet produit_habituellement $affect)
+THEN
+    ADD ($ame aime $chose)
+END
+
+RULE E3P16_ressemblance_triste_haine
+WHEN
+    ($ame imagine ($chose a_trait $trait))
+    ($objet a_trait $trait)
+    ($objet affecte_habituellement $ame)
+    ($affect est_tristesse_de $ame)
+    ($objet produit_habituellement $affect)
+THEN
+    ADD ($ame hait $chose)
+END

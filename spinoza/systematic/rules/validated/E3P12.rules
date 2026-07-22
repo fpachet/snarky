@@ -1,0 +1,15 @@
+RULE E3P12_imagination_augmentation_effort
+WHEN
+    ($ame imagine $objet)
+    ($objet augmente_puissance_agir_de $corps)
+THEN
+    ADD ($ame s_efforce_d_imaginer $objet)
+END
+
+RULE E3P12_imagination_soutien_effort
+WHEN
+    ($ame imagine $objet)
+    ($objet seconde_puissance_agir_de $corps)
+THEN
+    ADD ($ame s_efforce_d_imaginer $objet)
+END

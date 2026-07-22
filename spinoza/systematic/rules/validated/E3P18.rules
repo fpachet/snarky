@@ -1,0 +1,19 @@
+RULE E3P18_image_temporelle_conserve_joie
+WHEN
+    ($image est_image_de $objet)
+    ($image est_jointe_a_image_de_temps $temps)
+    ($image suscite $affect)
+    ($affect est_joie_de $homme)
+THEN
+    ADD ($homme eprouve_joie_par ($objet sous_temps $temps))
+END
+
+RULE E3P18_image_temporelle_conserve_tristesse
+WHEN
+    ($image est_image_de $objet)
+    ($image est_jointe_a_image_de_temps $temps)
+    ($image suscite $affect)
+    ($affect est_tristesse_de $homme)
+THEN
+    ADD ($homme eprouve_tristesse_par ($objet sous_temps $temps))
+END
