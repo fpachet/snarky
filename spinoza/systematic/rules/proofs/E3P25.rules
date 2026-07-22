@@ -1,0 +1,48 @@
+# Affirmer et nier sont des efforts intentionnels portant à la fois sur un
+# contenu et sur le sujet auquel ce contenu est attribué. Ils ne produisent ni
+# le contenu, ni son existence comme faits bruts.
+RULE E3P25D_joie_chose_aimee_effort_affirmer
+WHEN
+    ($ame aime $cible)
+    ($ame imagine ($contenu affecte_de_joie $cible))
+    ($ame imagine ($affect_source a_pour_cause_exterieure $contenu))
+    ($affect_observateur correspond_a_affect_imagine $affect_source)
+    ($affect_observateur est_joie_de $ame)
+THEN
+    ADD ($ame s_efforce_d_affirmer ($contenu est_affirme_de $cible))
+    ADD ($ame s_efforce_de_considerer_comme_present ($contenu affecte_de_joie $cible))
+END
+
+RULE E3P25D_tristesse_chose_aimee_effort_nier
+WHEN
+    ($ame aime $cible)
+    ($ame imagine ($contenu affecte_de_tristesse $cible))
+    ($ame imagine ($affect_source a_pour_cause_exterieure $contenu))
+    ($affect_observateur correspond_a_affect_imagine $affect_source)
+    ($affect_observateur est_tristesse_de $ame)
+THEN
+    ADD ($ame s_efforce_de_nier ($contenu est_nie_de $cible))
+    ADD ($ame s_efforce_d_exclure_existence_de ($contenu affecte_de_tristesse $cible))
+END
+
+RULE E3P25D_joie_de_soi_effort_affirmer
+WHEN
+    ($ame imagine ($contenu affecte_de_joie $ame))
+    ($ame imagine ($affect_source a_pour_cause_exterieure $contenu))
+    ($affect_observateur correspond_a_affect_imagine $affect_source)
+    ($affect_observateur est_joie_de $ame)
+THEN
+    ADD ($ame s_efforce_d_affirmer ($contenu est_affirme_de $ame))
+    ADD ($ame s_efforce_de_considerer_comme_present ($contenu affecte_de_joie $ame))
+END
+
+RULE E3P25D_tristesse_de_soi_effort_nier
+WHEN
+    ($ame imagine ($contenu affecte_de_tristesse $ame))
+    ($ame imagine ($affect_source a_pour_cause_exterieure $contenu))
+    ($affect_observateur correspond_a_affect_imagine $affect_source)
+    ($affect_observateur est_tristesse_de $ame)
+THEN
+    ADD ($ame s_efforce_de_nier ($contenu est_nie_de $ame))
+    ADD ($ame s_efforce_d_exclure_existence_de ($contenu affecte_de_tristesse $ame))
+END

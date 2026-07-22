@@ -24,16 +24,22 @@
 | E3P20 | 2 | destruction de la chose haïe et frontière SpinoLog 20bis | E3P11, E3P13, E3P19 |
 | E3P21 | 3 | affects partagés et ordre qualitatif d’intensité | E3P11, E3P13, E3P19 |
 | E3P22 | 4 | causes extérieures, amour/haine et affects sociaux | E3P11, E3P13, E3P19, E3P21 |
+| E3P23 | 3 | inversion des affects et ordre qualitatif d’intensité | E3P11, E3P13, E3P20, E3P21 |
+| E3P24 | 4 | inversion envers la cause extérieure et envie | E3P13, E3P22, E3P23 |
+| E3P25 | 3 | affirmation et négation contextualisées | E3P11, E3P13, E3P19, E3P21, E3P22 |
+| E3P26 | 3 | affirmation/négation de la chose haïe et estimations | E3P22, E3P23 |
 
-Couverture actuelle : 22 propositions sur 59. Toutes les propositions depuis
+Couverture actuelle : 26 propositions sur 59. Toutes les propositions depuis
 E3P04 possèdent au moins un contre-cas de non-dérivation. E3P09 et E3P11
 exécutent aussi les principaux fragments ontologiques de leurs scolies :
 volonté, appétit, désir, jugement de bonté, joie, tristesse et leurs variantes
 corporelles. E3P12–E3P18 ajoutent imagination, aversion, association,
 ressemblance, fluctuation et affects temporels. E3P19–E3P22 ajoutent les
 affects portant sur la chose aimée, une intensité ordinale, les causes
-extérieures et commisération, faveur et indignation. Le prochain jalon couvre
-E3P23–E3P32, avec E3P27 comme test central de la similitude.
+extérieures et commisération, faveur et indignation. E3P23–E3P26 ajoutent
+l'inversion affective envers la chose haïe, l'envie, les efforts contextualisés
+d'affirmer ou de nier, l'orgueil, la surestime et la mésestime. La prochaine
+frontière est E3P27, test central de la similitude.
 
 L'ordre des tranches, leurs concepts et leurs critères de sortie sont décrits
 dans [`roadmap.md`](roadmap.md).
@@ -69,3 +75,9 @@ qualitatif entre affects sources et affects de l'amant. Ses contre-tests
 interdisent les conclusions annexes `QQCHOSE`, gloire et jalousie de SpinoLog ;
 E3P20 n'importe pas sa proposition 20bis. Le rapport détaillé est
 [`milestone_e3p19_e3p22.md`](milestone_e3p19_e3p22.md).
+
+E3P23–E3P26 n'aplatissent pas davantage les contextes. En particulier,
+`s_efforce_d_affirmer` et `s_efforce_de_nier` portent sur une proposition qui
+conserve le contenu et sa cible ; aucun état brut `EXISTANT` ou `INEXISTANT`
+n'est produit. La tranche et sa divergence avec SpinoLog sont détaillées dans
+[`tranche_e3p23_e3p26.md`](tranche_e3p23_e3p26.md).

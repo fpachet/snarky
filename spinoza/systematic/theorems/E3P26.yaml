@@ -1,0 +1,84 @@
+schema_version: 1
+id: E3P26
+model: ethics_iii_systematic_v1
+source_unit: E3P26
+source_text: >-
+  Nous nous efforçons d'affirmer d'une chose que nous avons en haine tout ce
+  que nous imaginons qui l'affecte de Tristesse, et de nier tout ce que nous
+  imaginons qui l'affecte de Joie.
+fact_files: [facts/postulates.yaml]
+rule_files:
+  - rules/validated/E3P22.rules
+  - rules/validated/E3P23.rules
+  - rules/proofs/E3P26.rules
+rule_catalog: rules/catalog.yaml
+forbidden_rules:
+  - E3P26_tristesse_chose_haie_effort_affirmer
+  - E3P26_joie_chose_haie_effort_nier
+  - E3P26S_orgueil_sur_evaluation_de_soi
+  - E3P26S_surestime_sur_evaluation_autrui
+  - E3P26S_mesestime_sous_evaluation_autrui
+allowed_rule_origins: [textual, textual_theorem]
+cases:
+  - id: affirmer_et_nier_de_la_chose_haie
+    initial_facts:
+      - "(ame0 hait objet_hai0)"
+      - "(ame0 imagine (contenu_triste0 affecte_de_tristesse objet_hai0))"
+      - "(tristesse_source0 est_temoignage_affectif_de (contenu_triste0 affecte_de_tristesse objet_hai0))"
+      - "(image_tristesse_source0 est_image_de (tristesse_source0 est_tristesse_de objet_hai0))"
+      - "(joie_observateur0 accompagne image_tristesse_source0)"
+      - "(joie_observateur0 est_passion_de ame0)"
+      - "(ame0 imagine (contenu_joyeux0 affecte_de_joie objet_hai0))"
+      - "(joie_source0 est_temoignage_affectif_de (contenu_joyeux0 affecte_de_joie objet_hai0))"
+      - "(image_joie_source0 est_image_de (joie_source0 est_joie_de objet_hai0))"
+      - "(tristesse_observateur0 accompagne image_joie_source0)"
+      - "(tristesse_observateur0 est_passion_de ame0)"
+    goals:
+      - "(joie_observateur0 est_joie_de ame0)"
+      - "(tristesse_observateur0 est_tristesse_de ame0)"
+      - "(ame0 s_efforce_d_affirmer (contenu_triste0 est_affirme_de objet_hai0))"
+      - "(ame0 s_efforce_de_considerer_comme_present (contenu_triste0 affecte_de_tristesse objet_hai0))"
+      - "(ame0 s_efforce_de_nier (contenu_joyeux0 est_nie_de objet_hai0))"
+      - "(ame0 s_efforce_d_exclure_existence_de (contenu_joyeux0 affecte_de_joie objet_hai0))"
+    must_not_derive:
+      - "(contenu_triste0 affecte_de_tristesse objet_hai0)"
+      - "(contenu_joyeux0 affecte_de_joie objet_hai0)"
+      - "(ame0 s_efforce_que (contenu_triste0 est_existant VRAI))"
+      - "(ame0 s_efforce_que (contenu_joyeux0 est_inexistant VRAI))"
+    expected:
+      status: proved
+      proof_depths: [2, 2, 3, 3, 3, 3]
+  - id: scolie_estimes
+    initial_facts:
+      - "(orgueil0 est_joie_de homme0)"
+      - "(homme0 fait_plus_de_cas_que_juste_de homme0)"
+      - "(orgueil0 nait_de (homme0 fait_plus_de_cas_que_juste_de homme0))"
+      - "(surestime0 est_joie_de homme0)"
+      - "(homme0 fait_plus_de_cas_que_juste_de autrui_surestime0)"
+      - "(surestime0 nait_de (homme0 fait_plus_de_cas_que_juste_de autrui_surestime0))"
+      - "(mesestime0 est_joie_de homme0)"
+      - "(homme0 fait_moins_de_cas_que_juste_de autrui_mesestime0)"
+      - "(mesestime0 nait_de (homme0 fait_moins_de_cas_que_juste_de autrui_mesestime0))"
+    goals:
+      - "(orgueil0 est_orgueil_de homme0)"
+      - "(orgueil0 est_espece_de delire)"
+      - "(surestime0 est_surestime_de homme0)"
+      - "(mesestime0 est_mesestime_de homme0)"
+    expected:
+      status: proved
+      proof_depths: [1, 1, 1, 1]
+  - id: estimation_sans_joie
+    initial_facts:
+      - "(homme0 fait_plus_de_cas_que_juste_de homme0)"
+      - "(affect0 nait_de (homme0 fait_plus_de_cas_que_juste_de homme0))"
+    goals: []
+    must_not_derive:
+      - "(affect0 est_orgueil_de homme0)"
+      - "(affect0 est_espece_de delire)"
+    expected: {status: proved}
+formalization_status: proved_with_scholium
+result: proved
+limitations:
+  - >-
+    Les évaluations « plus ou moins qu'il n'est juste » sont des relations
+    qualitatives ; aucun seuil numérique de justice n'est supposé.

@@ -324,7 +324,9 @@ rules:
     origin: textual
     source: E3P20D
     status: validated_fragment
-  - ids: [E3P20_destruction_chose_haie_joie]
+  - ids:
+      - E3P20_destruction_chose_haie_joie
+      - E3P20_exclusion_chose_haie_seconde_effort
     origin: textual_theorem
     source: E3P20
     status: validated_for_later_propositions
@@ -369,9 +371,81 @@ rules:
   - ids:
       - E3P22_cause_joyeuse_devient_objet_amour
       - E3P22_cause_triste_devient_objet_haine
+      - E3P22_action_joyeuse_affecte_objet
+      - E3P22_action_triste_affecte_objet
       - E3P22S_commiseration_par_dommage_autrui
       - E3P22S_faveur_envers_bienfaiteur_autrui
       - E3P22S_indignation_envers_auteur_mal_autrui
     origin: textual_theorem
     sources: [E3P22, E3P22S]
+    status: validated_for_later_propositions
+  - ids:
+      - E3P23D_joie_chose_haie_reduit_effort
+      - E3P23D_correspondance_joie_par_tristesse_haie
+      - E3P23D_correspondance_tristesse_par_joie_haie
+      - E3P23D_intensite_joie_suit_tristesse_haie
+      - E3P23D_intensite_tristesse_suit_joie_haie
+    origin: textual
+    source: E3P23D
+    status: validated_fragment
+  - ids:
+      - E3P23_tristesse_chose_haie_produit_joie
+      - E3P23_joie_chose_haie_produit_tristesse
+      - E3P23_ordre_joie_suit_tristesse_haie
+      - E3P23_ordre_tristesse_suit_joie_haie
+    origin: textual_theorem
+    source: E3P23
+    status: validated_for_later_propositions
+  - ids: [E3P24D_cause_exterieure_accompagne_affect_contraire]
+    origin: textual
+    source: E3P24D
+    status: validated_fragment
+  - ids: [E3P24S_haine_disposee_aux_affects_contraires_envie]
+    origin: textual
+    source: E3P24S
+    status: validated_scholium_fragment
+  - ids:
+      - E3P24_joie_chose_haie_produit_haine_cause
+      - E3P24_tristesse_chose_haie_produit_amour_cause
+      - E3P24S_envie_envers_chose_haie
+    origin: textual_theorem
+    sources: [E3P24, E3P24S]
+    status: validated_for_later_propositions
+  - ids:
+      - E3P25D_joie_chose_aimee_effort_affirmer
+      - E3P25D_tristesse_chose_aimee_effort_nier
+      - E3P25D_joie_de_soi_effort_affirmer
+      - E3P25D_tristesse_de_soi_effort_nier
+    origin: textual
+    source: E3P25D
+    status: validated_fragment
+  - ids:
+      - E3P25_joie_chose_aimee_effort_affirmer
+      - E3P25_tristesse_chose_aimee_effort_nier
+      - E3P25_joie_de_soi_effort_affirmer
+      - E3P25_tristesse_de_soi_effort_nier
+    origin: textual_theorem
+    source: E3P25
+    status: validated_for_later_propositions
+  - ids:
+      - E3P26D_tristesse_chose_haie_effort_affirmer
+      - E3P26D_joie_chose_haie_effort_nier
+    origin: textual
+    source: E3P26D
+    status: validated_fragment
+  - ids:
+      - E3P26S_sur_evaluation_de_soi_orgueil
+      - E3P26S_sur_evaluation_autrui_surestime
+      - E3P26S_sous_evaluation_autrui_mesestime
+    origin: textual
+    source: E3P26S
+    status: validated_scholium_fragment
+  - ids:
+      - E3P26_tristesse_chose_haie_effort_affirmer
+      - E3P26_joie_chose_haie_effort_nier
+      - E3P26S_orgueil_sur_evaluation_de_soi
+      - E3P26S_surestime_sur_evaluation_autrui
+      - E3P26S_mesestime_sous_evaluation_autrui
+    origin: textual_theorem
+    sources: [E3P26, E3P26S]
     status: validated_for_later_propositions

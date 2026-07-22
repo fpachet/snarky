@@ -1,0 +1,43 @@
+RULE E3P26_tristesse_chose_haie_effort_affirmer
+WHEN
+    ($ame hait $cible)
+    ($ame imagine ($contenu affecte_de_tristesse $cible))
+THEN
+    ADD ($ame s_efforce_d_affirmer ($contenu est_affirme_de $cible))
+END
+
+RULE E3P26_joie_chose_haie_effort_nier
+WHEN
+    ($ame hait $cible)
+    ($ame imagine ($contenu affecte_de_joie $cible))
+THEN
+    ADD ($ame s_efforce_de_nier ($contenu est_nie_de $cible))
+END
+
+RULE E3P26S_orgueil_sur_evaluation_de_soi
+WHEN
+    ($affect est_joie_de $homme)
+    ($homme fait_plus_de_cas_que_juste_de $homme)
+    ($affect nait_de ($homme fait_plus_de_cas_que_juste_de $homme))
+THEN
+    ADD ($affect est_orgueil_de $homme)
+    ADD ($affect est_espece_de delire)
+END
+
+RULE E3P26S_surestime_sur_evaluation_autrui
+WHEN
+    ($affect est_joie_de $homme)
+    ($homme fait_plus_de_cas_que_juste_de $autrui)
+    ($affect nait_de ($homme fait_plus_de_cas_que_juste_de $autrui))
+THEN
+    ADD ($affect est_surestime_de $homme)
+END
+
+RULE E3P26S_mesestime_sous_evaluation_autrui
+WHEN
+    ($affect est_joie_de $homme)
+    ($homme fait_moins_de_cas_que_juste_de $autrui)
+    ($affect nait_de ($homme fait_moins_de_cas_que_juste_de $autrui))
+THEN
+    ADD ($affect est_mesestime_de $homme)
+END

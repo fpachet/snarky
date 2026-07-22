@@ -1,0 +1,56 @@
+# E3P23 inverse l'affect de la chose haïe dans l'observateur. La joie obtenue
+# fonde l'effort d'affirmer le contenu triste ; la tristesse fonde l'effort de
+# nier le contenu joyeux.
+RULE E3P26D_tristesse_chose_haie_effort_affirmer
+WHEN
+    ($ame hait $cible)
+    ($ame imagine ($contenu affecte_de_tristesse $cible))
+    ($ame imagine ($affect_source a_pour_cause_exterieure $contenu))
+    ($affect_observateur correspond_a_affect_contraire_imagine $affect_source)
+    ($affect_observateur est_joie_de $ame)
+THEN
+    ADD ($ame s_efforce_d_affirmer ($contenu est_affirme_de $cible))
+    ADD ($ame s_efforce_de_considerer_comme_present ($contenu affecte_de_tristesse $cible))
+END
+
+RULE E3P26D_joie_chose_haie_effort_nier
+WHEN
+    ($ame hait $cible)
+    ($ame imagine ($contenu affecte_de_joie $cible))
+    ($ame imagine ($affect_source a_pour_cause_exterieure $contenu))
+    ($affect_observateur correspond_a_affect_contraire_imagine $affect_source)
+    ($affect_observateur est_tristesse_de $ame)
+THEN
+    ADD ($ame s_efforce_de_nier ($contenu est_nie_de $cible))
+    ADD ($ame s_efforce_d_exclure_existence_de ($contenu affecte_de_joie $cible))
+END
+
+# Scolie : trois joies d'estimation excessive ou insuffisante. L'orgueil est
+# en outre explicitement classé comme une espèce de délire.
+RULE E3P26S_sur_evaluation_de_soi_orgueil
+WHEN
+    ($affect est_joie_de $homme)
+    ($homme fait_plus_de_cas_que_juste_de $homme)
+    ($affect nait_de ($homme fait_plus_de_cas_que_juste_de $homme))
+THEN
+    ADD ($affect est_orgueil_de $homme)
+    ADD ($affect est_espece_de delire)
+END
+
+RULE E3P26S_sur_evaluation_autrui_surestime
+WHEN
+    ($affect est_joie_de $homme)
+    ($homme fait_plus_de_cas_que_juste_de $autrui)
+    ($affect nait_de ($homme fait_plus_de_cas_que_juste_de $autrui))
+THEN
+    ADD ($affect est_surestime_de $homme)
+END
+
+RULE E3P26S_sous_evaluation_autrui_mesestime
+WHEN
+    ($affect est_joie_de $homme)
+    ($homme fait_moins_de_cas_que_juste_de $autrui)
+    ($affect nait_de ($homme fait_moins_de_cas_que_juste_de $autrui))
+THEN
+    ADD ($affect est_mesestime_de $homme)
+END

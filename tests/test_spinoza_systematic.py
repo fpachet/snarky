@@ -423,8 +423,52 @@ def test_spinolog_extensions_remain_outside_systematic_layer() -> None:
     )
 
 
+def test_e3p23_to_e3p26_invert_affects_without_flattening_contexts() -> None:
+    contrary_affect = run_case(
+        SYSTEMATIC_ROOT,
+        "E3P23",
+        "tristesses_chose_haie_produisent_joies",
+    )
+    external_cause = run_case(
+        SYSTEMATIC_ROOT,
+        "E3P24",
+        "haine_envers_cause_de_joie",
+    )
+    loved_assertions = run_case(
+        SYSTEMATIC_ROOT,
+        "E3P25",
+        "affirmer_et_nier_de_la_chose_aimee",
+    )
+    hated_assertions = run_case(
+        SYSTEMATIC_ROOT,
+        "E3P26",
+        "affirmer_et_nier_de_la_chose_haie",
+    )
+
+    assert contrary_affect.proved
+    assert contrary_affect.proof_depths == (1, 1, 3, 3, 4, 4, 4, 4, 5)
+    assert external_cause.proved
+    assert external_cause.proof_depths == (1, 2, 2, 3, 4)
+    assert loved_assertions.proved
+    assert loved_assertions.proof_depths == (4, 4, 6, 6, 6, 6)
+    assert loved_assertions.forbidden_violations == ()
+    assert hated_assertions.proved
+    assert hated_assertions.proof_depths == (2, 2, 3, 3, 3, 3)
+    assert hated_assertions.forbidden_violations == ()
+
+
+def test_e3p24_and_e3p26_scholia_define_social_affects() -> None:
+    envy = run_case(SYSTEMATIC_ROOT, "E3P24", "scolie_envie")
+    estimates = run_case(SYSTEMATIC_ROOT, "E3P26", "scolie_estimes")
+
+    assert envy.proved
+    assert envy.proof_depths == (1,)
+    assert estimates.proved
+    assert estimates.proof_depths == (1, 1, 1, 1)
+
+
 def test_each_systematic_manifest_since_e3p04_has_passing_counter_cases() -> None:
-    for proposition in range(4, 23):
+    for proposition in range(4, 27):
         theorem_id = f"E3P{proposition:02d}"
         manifest = yaml.safe_load(
             (SYSTEMATIC_ROOT / "theorems" / f"{theorem_id}.yaml").read_text(
@@ -474,7 +518,7 @@ def test_systematic_manifests_do_not_load_the_historical_model() -> None:
 
 
 def test_systematic_manifests_load_only_current_proof_and_prior_theorems() -> None:
-    for proposition in range(4, 23):
+    for proposition in range(4, 27):
         theorem_id = f"E3P{proposition:02d}"
         manifest = yaml.safe_load(
             (SYSTEMATIC_ROOT / "theorems" / f"{theorem_id}.yaml").read_text(

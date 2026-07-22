@@ -1,0 +1,51 @@
+RULE E3P23_tristesse_chose_haie_produit_joie
+WHEN
+    ($ame hait $objet)
+    ($ame imagine ($affect_source est_tristesse_de $objet))
+    ($image est_image_de ($affect_source est_tristesse_de $objet))
+    ($affect_observateur accompagne $image)
+    ($affect_observateur est_passion_de $ame)
+THEN
+    ADD ($affect_observateur est_joie_de $ame)
+    ADD ($affect_observateur correspond_a_affect_contraire_imagine $affect_source)
+    ADD ($affect_observateur varie_selon_degre_de $affect_source)
+END
+
+RULE E3P23_joie_chose_haie_produit_tristesse
+WHEN
+    ($ame hait $objet)
+    ($ame imagine ($affect_source est_joie_de $objet))
+    ($image est_image_de ($affect_source est_joie_de $objet))
+    ($affect_observateur accompagne $image)
+    ($affect_observateur est_passion_de $ame)
+THEN
+    ADD ($affect_observateur est_tristesse_de $ame)
+    ADD ($affect_observateur correspond_a_affect_contraire_imagine $affect_source)
+    ADD ($affect_observateur varie_selon_degre_de $affect_source)
+END
+
+RULE E3P23_ordre_joie_suit_tristesse_haie
+WHEN
+    ($ame imagine ($source_forte est_plus_intense_que $source_faible))
+    ($source_forte est_tristesse_imaginee_de $objet)
+    ($source_faible est_tristesse_imaginee_de $objet)
+    ($joie_forte correspond_a_affect_contraire_imagine $source_forte)
+    ($joie_faible correspond_a_affect_contraire_imagine $source_faible)
+    ($joie_forte est_joie_de $ame)
+    ($joie_faible est_joie_de $ame)
+THEN
+    ADD ($joie_forte est_plus_intense_que $joie_faible)
+END
+
+RULE E3P23_ordre_tristesse_suit_joie_haie
+WHEN
+    ($ame imagine ($source_forte est_plus_intense_que $source_faible))
+    ($source_forte est_joie_imaginee_de $objet)
+    ($source_faible est_joie_imaginee_de $objet)
+    ($tristesse_forte correspond_a_affect_contraire_imagine $source_forte)
+    ($tristesse_faible correspond_a_affect_contraire_imagine $source_faible)
+    ($tristesse_forte est_tristesse_de $ame)
+    ($tristesse_faible est_tristesse_de $ame)
+THEN
+    ADD ($tristesse_forte est_plus_intense_que $tristesse_faible)
+END

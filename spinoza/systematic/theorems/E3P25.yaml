@@ -1,0 +1,91 @@
+schema_version: 1
+id: E3P25
+model: ethics_iii_systematic_v1
+source_unit: E3P25
+source_text: >-
+  Nous nous efforçons d'affirmer de nous et de la chose aimée tout ce que nous
+  imaginons qui l'affecte ou nous affecte de Joie, et de nier ce qui l'affecte
+  ou nous affecte de Tristesse.
+fact_files: [facts/postulates.yaml]
+rule_files:
+  - rules/validated/E3P11.rules
+  - rules/validated/E3P13.rules
+  - rules/validated/E3P19.rules
+  - rules/validated/E3P21.rules
+  - rules/validated/E3P22.rules
+  - rules/proofs/E3P25.rules
+rule_catalog: rules/catalog.yaml
+forbidden_rules:
+  - E3P25_joie_chose_aimee_effort_affirmer
+  - E3P25_tristesse_chose_aimee_effort_nier
+  - E3P25_joie_de_soi_effort_affirmer
+  - E3P25_tristesse_de_soi_effort_nier
+allowed_rule_origins: [textual, textual_theorem]
+cases:
+  - id: affirmer_et_nier_de_la_chose_aimee
+    initial_facts:
+      - "(ame0 aime objet_aime0)"
+      - "(ame0 imagine (contenu_joyeux0 affecte_de_joie objet_aime0))"
+      - "(joie_source0 est_temoignage_affectif_de (contenu_joyeux0 affecte_de_joie objet_aime0))"
+      - "(image_joie_source0 est_image_de (joie_source0 est_joie_de objet_aime0))"
+      - "(joie_observateur0 accompagne image_joie_source0)"
+      - "(joie_observateur0 est_passion_de ame0)"
+      - "(ame0 imagine (contenu_triste0 affecte_de_tristesse objet_aime0))"
+      - "(tristesse_source0 est_temoignage_affectif_de (contenu_triste0 affecte_de_tristesse objet_aime0))"
+      - "(image_tristesse_source0 est_image_de (tristesse_source0 est_tristesse_de objet_aime0))"
+      - "(tristesse_observateur0 accompagne image_tristesse_source0)"
+      - "(tristesse_observateur0 est_passion_de ame0)"
+    goals:
+      - "(joie_observateur0 est_joie_de ame0)"
+      - "(tristesse_observateur0 est_tristesse_de ame0)"
+      - "(ame0 s_efforce_d_affirmer (contenu_joyeux0 est_affirme_de objet_aime0))"
+      - "(ame0 s_efforce_de_considerer_comme_present (contenu_joyeux0 affecte_de_joie objet_aime0))"
+      - "(ame0 s_efforce_de_nier (contenu_triste0 est_nie_de objet_aime0))"
+      - "(ame0 s_efforce_d_exclure_existence_de (contenu_triste0 affecte_de_tristesse objet_aime0))"
+    must_not_derive:
+      - "(contenu_joyeux0 affecte_de_joie objet_aime0)"
+      - "(contenu_triste0 affecte_de_tristesse objet_aime0)"
+      - "(ame0 s_efforce_que (contenu_joyeux0 est_existant VRAI))"
+      - "(ame0 s_efforce_que (contenu_triste0 est_inexistant VRAI))"
+    expected:
+      status: proved
+      proof_depths: [4, 4, 6, 6, 6, 6]
+  - id: affirmer_et_nier_de_soi
+    initial_facts:
+      - "(ame0 imagine (contenu_joyeux0 affecte_de_joie ame0))"
+      - "(joie_source0 est_temoignage_affectif_de (contenu_joyeux0 affecte_de_joie ame0))"
+      - "(image_joie_source0 est_image_de (joie_source0 est_joie_de ame0))"
+      - "(joie_observateur0 accompagne image_joie_source0)"
+      - "(joie_observateur0 est_joie_de ame0)"
+      - "(ame0 imagine (contenu_triste0 affecte_de_tristesse ame0))"
+      - "(tristesse_source0 est_temoignage_affectif_de (contenu_triste0 affecte_de_tristesse ame0))"
+      - "(image_tristesse_source0 est_image_de (tristesse_source0 est_tristesse_de ame0))"
+      - "(tristesse_observateur0 accompagne image_tristesse_source0)"
+      - "(tristesse_observateur0 est_tristesse_de ame0)"
+    goals:
+      - "(joie_observateur0 correspond_a_affect_imagine joie_source0)"
+      - "(tristesse_observateur0 correspond_a_affect_imagine tristesse_source0)"
+      - "(ame0 s_efforce_d_affirmer (contenu_joyeux0 est_affirme_de ame0))"
+      - "(ame0 s_efforce_de_nier (contenu_triste0 est_nie_de ame0))"
+    must_not_derive:
+      - "(contenu_joyeux0 affecte_de_joie ame0)"
+      - "(contenu_triste0 affecte_de_tristesse ame0)"
+    expected:
+      status: proved
+      proof_depths: [2, 2, 3, 3]
+  - id: contenu_sans_affect_correspondant
+    initial_facts:
+      - "(ame0 aime objet_aime0)"
+      - "(ame0 imagine (contenu0 affecte_de_joie objet_aime0))"
+      - "(joie_source0 est_temoignage_affectif_de (contenu0 affecte_de_joie objet_aime0))"
+    goals: []
+    must_not_derive:
+      - "(ame0 s_efforce_d_affirmer (contenu0 est_affirme_de objet_aime0))"
+      - "(contenu0 affecte_de_joie objet_aime0)"
+    expected: {status: proved}
+formalization_status: proved_with_scoped_affirmation_and_denial
+result: proved
+limitations:
+  - >-
+    Contrairement à SpinoLog, affirmer ou nier conserve le contenu et son sujet
+    au lieu de les réduire à l'existence ou l'inexistence d'un objet.

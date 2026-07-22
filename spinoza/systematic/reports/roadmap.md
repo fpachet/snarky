@@ -215,7 +215,7 @@ comparaison des chaînes et des clôtures est publiée dans
 
 ## Tranche 5 — E3P23–E3P32 : affects sociaux et imitation
 
-Priorité immédiate.
+Statut : E3P23–E3P26 achevées ; préparation de E3P27 prioritaire.
 
 Concepts principaux : joie ou tristesse de la chose haïe, commisération,
 faveur, indignation, envie, imitation des affects, similitude, ambition et
@@ -223,6 +223,17 @@ humanité.
 
 E3P27 constitue le test principal des règles d'ordre 2 : les propositions
 imaginées et les affects d'autrui doivent rester des termes imbriqués.
+
+Résultat intermédiaire : E3P23–E3P24 inversent la valence envers la chose haïe
+et sa cause ; E3P25–E3P26 conservent le contenu et le sujet des efforts
+d'affirmer ou de nier. Envie, orgueil, surestime et mésestime sont exécutables.
+L'audit est publié dans
+[`tranche_e3p23_e3p26.md`](tranche_e3p23_e3p26.md).
+
+Avant E3P27, la similitude doit distinguer au minimum ressemblance de trait,
+similitude corporelle pertinente et similitude supposée dans l'imagination.
+L'absence préalable d'affect devra être un fait explicite, non une négation par
+défaut.
 
 ## Tranche 6 — E3P33–E3P44 : réciprocité, gloire et haine
 

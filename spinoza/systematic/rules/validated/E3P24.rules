@@ -1,0 +1,24 @@
+RULE E3P24_joie_chose_haie_produit_haine_cause
+WHEN
+    ($ame hait $objet)
+    ($ame imagine ($cause affecte_de_joie $objet))
+THEN
+    ADD ($ame hait $cause)
+END
+
+RULE E3P24_tristesse_chose_haie_produit_amour_cause
+WHEN
+    ($ame hait $objet)
+    ($ame imagine ($cause affecte_de_tristesse $objet))
+THEN
+    ADD ($ame aime $cause)
+END
+
+RULE E3P24S_envie_envers_chose_haie
+WHEN
+    ($ame hait $autrui)
+    ($ame est_disposee_a_joie_du_mal_de $autrui)
+    ($ame est_disposee_a_tristesse_du_bien_de $autrui)
+THEN
+    ADD ($ame eprouve_envie_envers $autrui)
+END

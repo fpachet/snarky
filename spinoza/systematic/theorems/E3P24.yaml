@@ -1,0 +1,80 @@
+schema_version: 1
+id: E3P24
+model: ethics_iii_systematic_v1
+source_unit: E3P24
+source_text: >-
+  Si nous imaginons que quelqu'un affecte de Joie une chose que nous avons en
+  haine, nous le haïrons ; s'il l'affecte de Tristesse, nous l'aimerons.
+fact_files: [facts/postulates.yaml]
+rule_files:
+  - rules/validated/E3P13.rules
+  - rules/validated/E3P22.rules
+  - rules/validated/E3P23.rules
+  - rules/proofs/E3P24.rules
+rule_catalog: rules/catalog.yaml
+forbidden_rules:
+  - E3P24_joie_chose_haie_produit_haine_cause
+  - E3P24_tristesse_chose_haie_produit_amour_cause
+  - E3P24S_envie_envers_chose_haie
+allowed_rule_origins: [textual, textual_theorem]
+cases:
+  - id: haine_envers_cause_de_joie
+    initial_facts:
+      - "(ame0 hait objet_hai0)"
+      - "(ame0 imagine (agent_joyeux0 affecte_de_joie objet_hai0))"
+      - "(joie_source0 est_temoignage_affectif_de (agent_joyeux0 affecte_de_joie objet_hai0))"
+      - "(image_joie_source0 est_image_de (joie_source0 est_joie_de objet_hai0))"
+      - "(tristesse_observateur0 accompagne image_joie_source0)"
+      - "(tristesse_observateur0 est_passion_de ame0)"
+      - "(idee_agent_joyeux0 est_idee_de agent_joyeux0)"
+    goals:
+      - "(ame0 imagine (joie_source0 est_joie_de objet_hai0))"
+      - "(tristesse_observateur0 est_tristesse_de ame0)"
+      - "(tristesse_observateur0 correspond_a_affect_contraire_imagine joie_source0)"
+      - "(idee_agent_joyeux0 accompagne tristesse_observateur0)"
+      - "(ame0 hait agent_joyeux0)"
+    must_not_derive:
+      - "(agent_joyeux0 affecte_de_joie objet_hai0)"
+    expected:
+      status: proved
+      proof_depths: [1, 2, 2, 3, 4]
+  - id: amour_envers_cause_de_tristesse
+    initial_facts:
+      - "(ame0 hait objet_hai0)"
+      - "(ame0 imagine (agent_triste0 affecte_de_tristesse objet_hai0))"
+      - "(tristesse_source0 est_temoignage_affectif_de (agent_triste0 affecte_de_tristesse objet_hai0))"
+      - "(image_tristesse_source0 est_image_de (tristesse_source0 est_tristesse_de objet_hai0))"
+      - "(joie_observateur0 accompagne image_tristesse_source0)"
+      - "(joie_observateur0 est_passion_de ame0)"
+      - "(idee_agent_triste0 est_idee_de agent_triste0)"
+    goals:
+      - "(ame0 imagine (tristesse_source0 est_tristesse_de objet_hai0))"
+      - "(joie_observateur0 est_joie_de ame0)"
+      - "(joie_observateur0 correspond_a_affect_contraire_imagine tristesse_source0)"
+      - "(idee_agent_triste0 accompagne joie_observateur0)"
+      - "(ame0 aime agent_triste0)"
+    must_not_derive:
+      - "(agent_triste0 affecte_de_tristesse objet_hai0)"
+    expected:
+      status: proved
+      proof_depths: [1, 2, 2, 3, 4]
+  - id: scolie_envie
+    initial_facts:
+      - "(ame0 hait autrui0)"
+      - "(ame0 est_disposee_a_joie_du_mal_de autrui0)"
+      - "(ame0 est_disposee_a_tristesse_du_bien_de autrui0)"
+    goals:
+      - "(ame0 eprouve_envie_envers autrui0)"
+    expected:
+      status: proved
+      proof_depths: [1]
+  - id: dispositions_incompletes_non_envie
+    initial_facts:
+      - "(ame0 hait autrui0)"
+      - "(ame0 est_disposee_a_joie_du_mal_de autrui0)"
+    goals: []
+    must_not_derive:
+      - "(ame0 eprouve_envie_envers autrui0)"
+    expected: {status: proved}
+formalization_status: proved_with_scholium
+result: proved

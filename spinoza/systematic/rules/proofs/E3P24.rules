@@ -1,0 +1,22 @@
+# E3P23 transmet à l'observateur l'affect contraire de celui de la chose haïe.
+# L'idée de la cause extérieure accompagne cet affect ; E3P13S nomme ensuite
+# la haine ou l'amour envers cette cause.
+RULE E3P24D_cause_exterieure_accompagne_affect_contraire
+WHEN
+    ($ame imagine ($affect_source a_pour_cause_exterieure $cause))
+    ($affect_observateur correspond_a_affect_contraire_imagine $affect_source)
+    ($idee_cause est_idee_de $cause)
+THEN
+    ADD ($idee_cause accompagne $affect_observateur)
+END
+
+# Scolie : l'envie est la haine considérée avec les deux dispositions
+# contraires envers le mal et le bien d'autrui.
+RULE E3P24S_haine_disposee_aux_affects_contraires_envie
+WHEN
+    ($ame hait $autrui)
+    ($ame est_disposee_a_joie_du_mal_de $autrui)
+    ($ame est_disposee_a_tristesse_du_bien_de $autrui)
+THEN
+    ADD ($ame eprouve_envie_envers $autrui)
+END

@@ -1,0 +1,97 @@
+schema_version: 1
+id: E3P23
+model: ethics_iii_systematic_v1
+source_unit: E3P23
+source_text: >-
+  Qui imagine affecté de Tristesse ce qu'il a en haine, sera joyeux ; s'il
+  l'imagine affecté de Joie, il sera contristé ; et les deux affections
+  varieront selon l'affection contraire dans la chose haïe.
+fact_files: [facts/postulates.yaml]
+rule_files:
+  - rules/validated/E3P11.rules
+  - rules/validated/E3P13.rules
+  - rules/validated/E3P20.rules
+  - rules/validated/E3P21.rules
+  - rules/proofs/E3P23.rules
+rule_catalog: rules/catalog.yaml
+forbidden_rules:
+  - E3P23_tristesse_chose_haie_produit_joie
+  - E3P23_joie_chose_haie_produit_tristesse
+  - E3P23_ordre_joie_suit_tristesse_haie
+  - E3P23_ordre_tristesse_suit_joie_haie
+allowed_rule_origins: [textual, textual_theorem]
+cases:
+  - id: tristesses_chose_haie_produisent_joies
+    initial_facts:
+      - "(ame0 hait objet_hai0)"
+      - "(ame0 imagine (tristesse_source_forte0 est_tristesse_de objet_hai0))"
+      - "(ame0 imagine (tristesse_source_faible0 est_tristesse_de objet_hai0))"
+      - "(ame0 imagine (tristesse_source_forte0 est_plus_intense_que tristesse_source_faible0))"
+      - "(tristesse_source_forte0 est_tristesse_imaginee_de objet_hai0)"
+      - "(tristesse_source_faible0 est_tristesse_imaginee_de objet_hai0)"
+      - "(image_tristesse_forte0 est_image_de (tristesse_source_forte0 est_tristesse_de objet_hai0))"
+      - "(image_tristesse_faible0 est_image_de (tristesse_source_faible0 est_tristesse_de objet_hai0))"
+      - "(joie_observateur_forte0 accompagne image_tristesse_forte0)"
+      - "(joie_observateur_faible0 accompagne image_tristesse_faible0)"
+      - "(joie_observateur_forte0 est_passion_de ame0)"
+      - "(joie_observateur_faible0 est_passion_de ame0)"
+    goals:
+      - "((tristesse_source_forte0 est_tristesse_de objet_hai0) exclut_existence_de objet_hai0)"
+      - "((tristesse_source_faible0 est_tristesse_de objet_hai0) exclut_existence_de objet_hai0)"
+      - "(joie_observateur_forte0 est_joie_de ame0)"
+      - "(joie_observateur_faible0 est_joie_de ame0)"
+      - "(joie_observateur_forte0 correspond_a_affect_contraire_imagine tristesse_source_forte0)"
+      - "(joie_observateur_faible0 correspond_a_affect_contraire_imagine tristesse_source_faible0)"
+      - "(joie_observateur_forte0 varie_selon_degre_de tristesse_source_forte0)"
+      - "(joie_observateur_faible0 varie_selon_degre_de tristesse_source_faible0)"
+      - "(joie_observateur_forte0 est_plus_intense_que joie_observateur_faible0)"
+    must_not_derive:
+      - "(objet_hai0 est_detruit VRAI)"
+      - "(ame0 imagine (qqchose0 affecte_de_tristesse objet_hai0))"
+    expected:
+      status: proved
+      proof_depths: [1, 1, 3, 3, 4, 4, 4, 4, 5]
+  - id: joies_chose_haie_produisent_tristesses
+    initial_facts:
+      - "(ame0 hait objet_hai0)"
+      - "(ame0 imagine (joie_source_forte0 est_joie_de objet_hai0))"
+      - "(ame0 imagine (joie_source_faible0 est_joie_de objet_hai0))"
+      - "(ame0 imagine (joie_source_forte0 est_plus_intense_que joie_source_faible0))"
+      - "(joie_source_forte0 est_joie_imaginee_de objet_hai0)"
+      - "(joie_source_faible0 est_joie_imaginee_de objet_hai0)"
+      - "(image_joie_forte0 est_image_de (joie_source_forte0 est_joie_de objet_hai0))"
+      - "(image_joie_faible0 est_image_de (joie_source_faible0 est_joie_de objet_hai0))"
+      - "(tristesse_observateur_forte0 accompagne image_joie_forte0)"
+      - "(tristesse_observateur_faible0 accompagne image_joie_faible0)"
+      - "(tristesse_observateur_forte0 est_passion_de ame0)"
+      - "(tristesse_observateur_faible0 est_passion_de ame0)"
+    goals:
+      - "((joie_source_forte0 est_joie_de objet_hai0) pose_existence_de objet_hai0)"
+      - "((joie_source_faible0 est_joie_de objet_hai0) pose_existence_de objet_hai0)"
+      - "(tristesse_observateur_forte0 est_tristesse_de ame0)"
+      - "(tristesse_observateur_faible0 est_tristesse_de ame0)"
+      - "(tristesse_observateur_forte0 correspond_a_affect_contraire_imagine joie_source_forte0)"
+      - "(tristesse_observateur_faible0 correspond_a_affect_contraire_imagine joie_source_faible0)"
+      - "(tristesse_observateur_forte0 varie_selon_degre_de joie_source_forte0)"
+      - "(tristesse_observateur_faible0 varie_selon_degre_de joie_source_faible0)"
+      - "(tristesse_observateur_forte0 est_plus_intense_que tristesse_observateur_faible0)"
+    expected:
+      status: proved
+      proof_depths: [1, 1, 3, 3, 4, 4, 4, 4, 5]
+  - id: affect_objet_sans_haine
+    initial_facts:
+      - "(ame0 imagine (tristesse_source0 est_tristesse_de objet0))"
+      - "(image_tristesse0 est_image_de (tristesse_source0 est_tristesse_de objet0))"
+      - "(joie_observateur0 accompagne image_tristesse0)"
+      - "(joie_observateur0 est_passion_de ame0)"
+    goals: []
+    must_not_derive:
+      - "(joie_observateur0 est_joie_de ame0)"
+      - "(joie_observateur0 correspond_a_affect_contraire_imagine tristesse_source0)"
+    expected: {status: proved}
+formalization_status: proved_with_opposite_qualitative_intensity
+result: proved
+limitations:
+  - >-
+    Le combat intérieur annoncé dans le scolie dépend de l'imitation affective
+    de E3P27 et reste donc explicitement différé.

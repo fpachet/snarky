@@ -14,6 +14,26 @@ THEN
     ADD ($ame hait $cause)
 END
 
+# Fragments de normalisation réutilisables : l'action imaginée possède un
+# témoin affectif et une cause extérieure, toujours sous le contexte de l'âme.
+RULE E3P22_action_joyeuse_affecte_objet
+WHEN
+    ($ame imagine ($cause affecte_de_joie $objet))
+    ($affect_source est_temoignage_affectif_de ($cause affecte_de_joie $objet))
+THEN
+    ADD ($ame imagine ($affect_source est_joie_de $objet))
+    ADD ($ame imagine ($affect_source a_pour_cause_exterieure $cause))
+END
+
+RULE E3P22_action_triste_affecte_objet
+WHEN
+    ($ame imagine ($cause affecte_de_tristesse $objet))
+    ($affect_source est_temoignage_affectif_de ($cause affecte_de_tristesse $objet))
+THEN
+    ADD ($ame imagine ($affect_source est_tristesse_de $objet))
+    ADD ($ame imagine ($affect_source a_pour_cause_exterieure $cause))
+END
+
 RULE E3P22S_commiseration_par_dommage_autrui
 WHEN
     ($affect est_tristesse_de $ame)

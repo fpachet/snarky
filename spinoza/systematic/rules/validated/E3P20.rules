@@ -6,3 +6,19 @@ WHEN
 THEN
     ADD ($affect est_joie_de $ame)
 END
+
+# Forme réutilisable de la démonstration : toute proposition imaginée qui
+# exclut l'existence de la chose haïe seconde l'effort de l'écarter.
+RULE E3P20_exclusion_chose_haie_seconde_effort
+WHEN
+    ($ame hait $objet)
+    ($ame s_efforce_d_ecarter $objet)
+    ($ame imagine $proposition)
+    ($proposition exclut_existence_de $objet)
+    ($image est_image_de $proposition)
+    ($affect accompagne $image)
+    ($affect est_passion_de $ame)
+THEN
+    ADD ($image seconde_effort_d_ecarter_de $ame)
+    ADD ($affect fait_passer_ame_vers perfection_plus_grande)
+END

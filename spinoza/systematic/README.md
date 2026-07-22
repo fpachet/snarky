@@ -23,7 +23,7 @@ règle qui contient déjà sa conclusion. Pour tester `E3Pxx`, le manifeste :
 4. demande au moteur de dériver des faits représentant l'énoncé ;
 5. conserve la chaîne minimale des règles effectivement employées.
 
-## Fragments exécutables : E3P01–E3P22
+## Fragments exécutables : E3P01–E3P26
 
 Le fragment initial formalise :
 
@@ -90,6 +90,13 @@ sa cause extérieure. Le scolie de E3P22 ajoute commisération, faveur et
 indignation. Les chaînes, clôtures et divergences avec SpinoLog sont détaillées
 dans
 [`reports/milestone_e3p19_e3p22.md`](reports/milestone_e3p19_e3p22.md).
+
+E3P23–E3P26 inversent explicitement les affects portant sur une chose haïe,
+définissent l'envie, l'orgueil, la surestime et la mésestime, puis représentent
+les efforts d'affirmer et de nier sans réduire leur contenu à un état
+`EXISTANT` ou `INEXISTANT`. La comparaison avec SpinoLog et les audits de
+clôture sont consignés dans
+[`reports/tranche_e3p23_e3p26.md`](reports/tranche_e3p23_e3p26.md).
 
 Le lanceur expose pour chaque cas le nombre de faits initiaux et dérivés, le
 nombre de dérivations et toutes les règles activées. Ces données permettent un

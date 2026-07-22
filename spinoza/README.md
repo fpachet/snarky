@@ -102,6 +102,6 @@ script générateur.
 Le dossier [`systematic`](systematic/README.md) reprend la formalisation à
 partir des définitions, postulats et dépendances explicites. Il ne charge pas
 les règles historiques. Les fragments exécutables couvrent désormais
-E3P01–E3P22 et rendent visibles les ponts importés des parties I et II. Le
+E3P01–E3P26 et rendent visibles les ponts importés des parties I et II. Le
 [`plan de modélisation`](systematic/reports/roadmap.md) décrit l'ordre complet
 jusqu'à E3P59 et aux définitions finales des affects.
