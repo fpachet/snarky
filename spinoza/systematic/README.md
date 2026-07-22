@@ -23,7 +23,7 @@ règle qui contient déjà sa conclusion. Pour tester `E3Pxx`, le manifeste :
 4. demande au moteur de dériver des faits représentant l'énoncé ;
 5. conserve la chaîne minimale des règles effectivement employées.
 
-## Fragments exécutables : E3P01–E3P26
+## Fragments exécutables : E3P01–E3P32
 
 Le fragment initial formalise :
 
@@ -98,6 +98,15 @@ les efforts d'affirmer et de nier sans réduire leur contenu à un état
 clôture sont consignés dans
 [`reports/tranche_e3p23_e3p26.md`](reports/tranche_e3p23_e3p26.md).
 
+E3P27–E3P32 introduisent l'imitation affective, les conduites orientées par
+la joie et la tristesse, l'approbation sociale, la considération de soi,
+l'accord affectif et l'envie liée à une possession exclusive. La similitude
+pertinente est construite depuis les corps de l'observateur et d'autrui ; une
+simple ressemblance de trait ne suffit pas. L'absence préalable d'affect et
+l'exclusivité d'un objet sont toujours des faits positifs. Les choix de
+formalisation et la comparaison avec SpinoLog sont consignés dans
+[`reports/tranche_e3p27_e3p32.md`](reports/tranche_e3p27_e3p32.md).
+
 Le lanceur expose pour chaque cas le nombre de faits initiaux et dérivés, le
 nombre de dérivations et toutes les règles activées. Ces données permettent un
 audit en lecture seule de la clôture sans modifier le moteur d'inférence.
@@ -131,3 +140,9 @@ formaliser.
 E3P18 établit l'identité qualitative de l'affect à travers les images passée,
 présente et future. Il ne prouve pas encore une égalité numérique d'intensité,
 qui dépendra de la future extension quantitative du moteur ou de l'ontologie.
+
+E3P27 emploie une similitude corporelle contextualisée, mais ne prétend pas
+encore définir une métrique générale de similitude. Dans E3P31, amour, désir et
+haine restent des relations distinctes. Dans E3P32, l'absence du fait positif
+`ne_peut_etre_possede_que_par_un` ne permet pas de conclure que l'objet est
+partageable.

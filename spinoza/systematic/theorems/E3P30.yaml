@@ -1,0 +1,94 @@
+schema_version: 1
+id: E3P30
+model: ethics_iii_systematic_v1
+source_unit: E3P30
+source_text: >-
+  Qui a fait quelque chose qu'il imagine affecter les autres de Joie se
+  considérera lui-même avec Joie ; s'il l'imagine les affecter de Tristesse,
+  il se considérera lui-même avec Tristesse.
+fact_files: [facts/postulates.yaml]
+rule_files:
+  - rules/validated/E3P27.rules
+  - rules/proofs/E3P30.rules
+rule_catalog: rules/catalog.yaml
+forbidden_rules:
+  - E3P30_action_joyeuse_consideration_de_soi
+  - E3P30_action_triste_consideration_de_soi
+  - E3P30S_gloire_par_louange_interieure
+  - E3P30S_honte_par_blame_interieur
+  - E3P30S_contentement_de_soi
+  - E3P30S_repentir
+allowed_rule_origins: [textual, textual_theorem]
+cases:
+  - id: consideration_de_soi_par_affects_d_autrui
+    initial_facts:
+      - "(autrui0 a_corps corps_autrui0)"
+      - "(homme0 est_idee_de corps_homme0)"
+      - "(corps_autrui0 a_nature_corporelle_similaire_a corps_homme0)"
+      - "(homme0 imagine autrui0)"
+      - "(homme0 est_sans_affect_prealable_envers autrui0)"
+      - "(homme0 a_fait action_joyeuse0)"
+      - "(homme0 imagine (action_joyeuse0 affecte_de_joie autrui0))"
+      - "(joie_source0 est_temoignage_affectif_de (action_joyeuse0 affecte_de_joie autrui0))"
+      - "(image_joie0 est_image_de (joie_source0 est_joie_de autrui0))"
+      - "(joie_imitee0 accompagne image_joie0)"
+      - "(joie_imitee0 est_temoignage_affectif_d_imitation_de joie_source0)"
+      - "(idee_soi0 est_idee_de homme0)"
+      - "(homme0 a_fait action_triste0)"
+      - "(homme0 imagine (action_triste0 affecte_de_tristesse autrui0))"
+      - "(tristesse_source0 est_temoignage_affectif_de (action_triste0 affecte_de_tristesse autrui0))"
+      - "(image_tristesse0 est_image_de (tristesse_source0 est_tristesse_de autrui0))"
+      - "(tristesse_imitee0 accompagne image_tristesse0)"
+      - "(tristesse_imitee0 est_temoignage_affectif_d_imitation_de tristesse_source0)"
+    goals:
+      - "(homme0 imagine (joie_source0 est_joie_de autrui0))"
+      - "(joie_imitee0 est_joie_de homme0)"
+      - "(idee_soi0 accompagne joie_imitee0)"
+      - "(homme0 se_considere_avec_joie VRAI)"
+      - "(homme0 imagine (tristesse_source0 est_tristesse_de autrui0))"
+      - "(tristesse_imitee0 est_tristesse_de homme0)"
+      - "(idee_soi0 accompagne tristesse_imitee0)"
+      - "(homme0 se_considere_avec_tristesse VRAI)"
+    must_not_derive:
+      - "(joie_imitee0 est_gloire_de homme0)"
+      - "(tristesse_imitee0 est_honte_de homme0)"
+    expected:
+      status: proved
+      proof_depths: [1, 2, 3, 4, 1, 2, 3, 4]
+  - id: scolie_gloire_honte_contentement_repentir
+    initial_facts:
+      - "(gloire0 est_joie_de homme0)"
+      - "(gloire0 a_pour_cause_interieure homme0)"
+      - "(homme0 se_croit_loue VRAI)"
+      - "(honte0 est_tristesse_de homme0)"
+      - "(honte0 a_pour_cause_interieure homme0)"
+      - "(homme0 se_croit_blame VRAI)"
+      - "(contentement0 est_joie_de homme0)"
+      - "(contentement0 a_pour_cause_interieure homme0)"
+      - "(contentement0 nait_hors_croyance_de_louange VRAI)"
+      - "(repentir0 est_tristesse_de homme0)"
+      - "(repentir0 a_pour_cause_interieure homme0)"
+      - "(repentir0 nait_hors_croyance_de_blame VRAI)"
+    goals:
+      - "(gloire0 est_gloire_de homme0)"
+      - "(honte0 est_honte_de homme0)"
+      - "(contentement0 est_contentement_de_soi_de homme0)"
+      - "(repentir0 est_repentir_de homme0)"
+    expected:
+      status: proved
+      proof_depths: [1, 1, 1, 1]
+  - id: joie_interieure_sans_louange_non_gloire
+    initial_facts:
+      - "(joie0 est_joie_de homme0)"
+      - "(joie0 a_pour_cause_interieure homme0)"
+    goals: []
+    must_not_derive:
+      - "(joie0 est_gloire_de homme0)"
+      - "(joie0 est_contentement_de_soi_de homme0)"
+    expected: {status: proved}
+formalization_status: proved_with_scholium
+result: proved
+limitations:
+  - >-
+    Les croyances de louange et de blâme sont explicites. Le modèle n'adopte
+    pas la propagation plus large de la gloire observée dans SpinoLog.

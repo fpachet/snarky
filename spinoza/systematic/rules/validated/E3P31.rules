@@ -1,0 +1,50 @@
+RULE E3P31_accord_amour_constance
+WHEN
+    ($ame aime $objet)
+    ($autrui est_semblable_affectivement_pour $ame)
+    ($ame imagine ($autrui aime $objet))
+THEN
+    ADD ($ame aime_plus_constamment $objet)
+END
+
+RULE E3P31_accord_desir_constance
+WHEN
+    ($ame desire $objet)
+    ($autrui est_semblable_affectivement_pour $ame)
+    ($ame imagine ($autrui desire $objet))
+THEN
+    ADD ($ame desire_plus_constamment $objet)
+END
+
+RULE E3P31_accord_haine_constance
+WHEN
+    ($ame hait $objet)
+    ($autrui est_semblable_affectivement_pour $ame)
+    ($ame imagine ($autrui hait $objet))
+THEN
+    ADD ($ame hait_plus_constamment $objet)
+END
+
+RULE E3P31_desaccord_fluctuation
+WHEN
+    ($ame aime $objet)
+    ($autrui est_semblable_affectivement_pour $ame)
+    ($ame imagine ($autrui a_en_aversion $objet))
+THEN
+    ADD ($ame a_en_aversion_imitee $objet)
+    ADD ($ame est_en fluctuation_de_l_ame)
+END
+
+RULE E3P31C_amour_approbation_universelle
+WHEN
+    ($ame aime $objet)
+THEN
+    ADD ($ame s_efforce_que (tous aiment $objet))
+END
+
+RULE E3P31C_haine_desapprobation_universelle
+WHEN
+    ($ame hait $objet)
+THEN
+    ADD ($ame s_efforce_que (tous haissent $objet))
+END

@@ -1,0 +1,113 @@
+# La similitude pertinente pour E3P27 relie les natures corporelles. Elle est
+# qualifiée « pour » l'âme qui imagine autrui et ne se confond pas avec le
+# partage d'un trait quelconque utilisé dans E3P16.
+RULE E3P27D_similitude_corporelle_pertinente
+WHEN
+    ($autrui a_corps $corps_autrui)
+    ($ame est_idee_de $corps_ame)
+    ($corps_autrui a_nature_corporelle_similaire_a $corps_ame)
+    ($ame imagine $autrui)
+THEN
+    ADD ($autrui est_semblable_affectivement_pour $ame)
+    ADD ($ame imagine ($autrui est_semblable_affectivement_a $ame))
+END
+
+# L'absence préalable d'affect est un fait positif. Elle n'est jamais déduite
+# de l'absence d'amour ou de haine dans la base.
+RULE E3P27D_imitation_joie
+WHEN
+    ($autrui est_semblable_affectivement_pour $ame)
+    ($ame est_sans_affect_prealable_envers $autrui)
+    ($ame imagine ($source est_joie_de $autrui))
+    ($image est_image_de ($source est_joie_de $autrui))
+    ($affect accompagne $image)
+    ($affect est_temoignage_affectif_d_imitation_de $source)
+THEN
+    ADD ($affect est_joie_de $ame)
+    ADD ($affect correspond_a_affect_imagine $source)
+    ADD ($affect est_imitation_de $source)
+END
+
+RULE E3P27D_imitation_tristesse
+WHEN
+    ($autrui est_semblable_affectivement_pour $ame)
+    ($ame est_sans_affect_prealable_envers $autrui)
+    ($ame imagine ($source est_tristesse_de $autrui))
+    ($image est_image_de ($source est_tristesse_de $autrui))
+    ($affect accompagne $image)
+    ($affect est_temoignage_affectif_d_imitation_de $source)
+THEN
+    ADD ($affect est_tristesse_de $ame)
+    ADD ($affect correspond_a_affect_imagine $source)
+    ADD ($affect est_imitation_de $source)
+END
+
+RULE E3P27D_imitation_desir
+WHEN
+    ($autrui est_semblable_affectivement_pour $ame)
+    ($ame est_sans_affect_prealable_envers $autrui)
+    ($ame imagine ($source est_desir_de $autrui))
+    ($image est_image_de ($source est_desir_de $autrui))
+    ($affect accompagne $image)
+    ($affect est_temoignage_affectif_d_imitation_de $source)
+THEN
+    ADD ($affect est_desir_de $ame)
+    ADD ($affect correspond_a_affect_imagine $source)
+    ADD ($affect est_imitation_de $source)
+END
+
+# Scolie : noms particuliers de l'imitation de tristesse et de désir.
+RULE E3P27S_imitation_tristesse_commiseration
+WHEN
+    ($affect est_tristesse_de $ame)
+    ($affect est_imitation_de $source)
+    ($source est_tristesse_imaginee_de $autrui)
+THEN
+    ADD ($affect est_commiseration_de $ame)
+END
+
+RULE E3P27S_imitation_desir_emulation
+WHEN
+    ($affect est_desir_de $ame)
+    ($affect est_imitation_de $source)
+    ($source est_desir_imagine_de $autrui)
+THEN
+    ADD ($affect est_emulation_de $ame)
+END
+
+# Corollaire I : l'idée de l'agent accompagne l'affect imité ; E3P13S nomme
+# ensuite l'amour ou la haine. L'absence préalable vise ici l'agent.
+RULE E3P27C1_cause_accompagne_affect_imite
+WHEN
+    ($ame est_sans_affect_prealable_envers $agent)
+    ($ame imagine ($source a_pour_cause_exterieure $agent))
+    ($affect correspond_a_affect_imagine $source)
+    ($idee_agent est_idee_de $agent)
+THEN
+    ADD ($idee_agent accompagne $affect)
+END
+
+# Corollaire II : la haine envers la chose dont la misère produit la
+# commisération est explicitement fausse, non simplement absente.
+RULE E3P27C2_commiseration_exclut_haine
+WHEN
+    ($affect est_commiseration_de $ame)
+    ($affect est_imitation_de $source)
+    ($source est_tristesse_imaginee_de $autrui)
+THEN
+    ADD ($ame hait $autrui) ' FAUX
+END
+
+# Corollaire III et scolie : un témoin explicite matérialise le désir de
+# délivrer autrui ; ce désir né de la commisération est la bienveillance.
+RULE E3P27C3_commiseration_effort_delivrer
+WHEN
+    ($affect est_commiseration_de $ame)
+    ($affect nait_du_dommage_de $autrui)
+    ($misere est_misere_de $autrui)
+    ($desir est_temoignage_desir_ne_de $affect)
+THEN
+    ADD ($ame s_efforce_de_delivrer ($autrui est_afflige_par $misere))
+    ADD ($desir est_desir_de $ame)
+    ADD ($desir est_bienveillance_de $ame)
+END

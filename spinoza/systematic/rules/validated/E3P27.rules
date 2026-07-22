@@ -1,0 +1,90 @@
+RULE E3P27_similitude_corporelle_pertinente
+WHEN
+    ($autrui a_corps $corps_autrui)
+    ($ame est_idee_de $corps_ame)
+    ($corps_autrui a_nature_corporelle_similaire_a $corps_ame)
+    ($ame imagine $autrui)
+THEN
+    ADD ($autrui est_semblable_affectivement_pour $ame)
+END
+
+RULE E3P27_imitation_joie
+WHEN
+    ($autrui est_semblable_affectivement_pour $ame)
+    ($ame est_sans_affect_prealable_envers $autrui)
+    ($ame imagine ($source est_joie_de $autrui))
+    ($image est_image_de ($source est_joie_de $autrui))
+    ($affect accompagne $image)
+    ($affect est_temoignage_affectif_d_imitation_de $source)
+THEN
+    ADD ($affect est_joie_de $ame)
+    ADD ($affect correspond_a_affect_imagine $source)
+    ADD ($affect est_imitation_de $source)
+END
+
+RULE E3P27_imitation_tristesse
+WHEN
+    ($autrui est_semblable_affectivement_pour $ame)
+    ($ame est_sans_affect_prealable_envers $autrui)
+    ($ame imagine ($source est_tristesse_de $autrui))
+    ($image est_image_de ($source est_tristesse_de $autrui))
+    ($affect accompagne $image)
+    ($affect est_temoignage_affectif_d_imitation_de $source)
+THEN
+    ADD ($affect est_tristesse_de $ame)
+    ADD ($affect correspond_a_affect_imagine $source)
+    ADD ($affect est_imitation_de $source)
+END
+
+RULE E3P27_imitation_desir
+WHEN
+    ($autrui est_semblable_affectivement_pour $ame)
+    ($ame est_sans_affect_prealable_envers $autrui)
+    ($ame imagine ($source est_desir_de $autrui))
+    ($image est_image_de ($source est_desir_de $autrui))
+    ($affect accompagne $image)
+    ($affect est_temoignage_affectif_d_imitation_de $source)
+THEN
+    ADD ($affect est_desir_de $ame)
+    ADD ($affect correspond_a_affect_imagine $source)
+    ADD ($affect est_imitation_de $source)
+END
+
+RULE E3P27S_commiseration_par_imitation_tristesse
+WHEN
+    ($affect est_tristesse_de $ame)
+    ($affect est_imitation_de $source)
+    ($source est_tristesse_imaginee_de $autrui)
+THEN
+    ADD ($affect est_commiseration_de $ame)
+END
+
+RULE E3P27S_emulation_par_imitation_desir
+WHEN
+    ($affect est_desir_de $ame)
+    ($affect est_imitation_de $source)
+    ($source est_desir_imagine_de $autrui)
+THEN
+    ADD ($affect est_emulation_de $ame)
+END
+
+RULE E3P27C2_commiseration_interdit_haine
+WHEN
+    ($affect est_commiseration_de $ame)
+    ($affect est_imitation_de $source)
+    ($source est_tristesse_imaginee_de $autrui)
+THEN
+    ADD ($ame hait $autrui) ' FAUX
+END
+
+RULE E3P27C3_bienveillance_ne_de_commiseration
+WHEN
+    ($affect est_commiseration_de $ame)
+    ($affect nait_du_dommage_de $autrui)
+    ($misere est_misere_de $autrui)
+    ($desir est_temoignage_desir_ne_de $affect)
+THEN
+    ADD ($ame s_efforce_de_delivrer ($autrui est_afflige_par $misere))
+    ADD ($desir est_desir_de $ame)
+    ADD ($desir est_bienveillance_de $ame)
+END

@@ -28,8 +28,14 @@
 | E3P24 | 4 | inversion envers la cause extérieure et envie | E3P13, E3P22, E3P23 |
 | E3P25 | 3 | affirmation et négation contextualisées | E3P11, E3P13, E3P19, E3P21, E3P22 |
 | E3P26 | 3 | affirmation/négation de la chose haïe et estimations | E3P22, E3P23 |
+| E3P27 | 5 | similitude corporelle, imitation, commisération et émulation | E2P16, E2P17, E3P13, E3P22–E3P23 |
+| E3P28 | 3 | effort de procurer la joie et d'écarter la tristesse | E3P11–E3P13 |
+| E3P29 | 4 | approbation sociale, ambition, humanité, louange et blâme | E3P27–E3P28 |
+| E3P30 | 3 | considération de soi, gloire, honte, contentement et repentir | E3P27 |
+| E3P31 | 4 | accord affectif, constance, fluctuation et ambition | E3P27 |
+| E3P32 | 3 | possession exclusive, obstacle, envie et imitation enfantine | E3P27 |
 
-Couverture actuelle : 26 propositions sur 59. Toutes les propositions depuis
+Couverture actuelle : 32 propositions sur 59. Toutes les propositions depuis
 E3P04 possèdent au moins un contre-cas de non-dérivation. E3P09 et E3P11
 exécutent aussi les principaux fragments ontologiques de leurs scolies :
 volonté, appétit, désir, jugement de bonté, joie, tristesse et leurs variantes
@@ -38,8 +44,10 @@ ressemblance, fluctuation et affects temporels. E3P19–E3P22 ajoutent les
 affects portant sur la chose aimée, une intensité ordinale, les causes
 extérieures et commisération, faveur et indignation. E3P23–E3P26 ajoutent
 l'inversion affective envers la chose haïe, l'envie, les efforts contextualisés
-d'affirmer ou de nier, l'orgueil, la surestime et la mésestime. La prochaine
-frontière est E3P27, test central de la similitude.
+d'affirmer ou de nier, l'orgueil, la surestime et la mésestime. E3P27–E3P32
+ajoutent la similitude corporelle pertinente, l'imitation des affects, les
+conduites sociales, la considération de soi, l'accord affectif et la rivalité
+pour une possession exclusive. La prochaine frontière est E3P33.
 
 L'ordre des tranches, leurs concepts et leurs critères de sortie sont décrits
 dans [`roadmap.md`](roadmap.md).
@@ -81,3 +89,10 @@ E3P23–E3P26 n'aplatissent pas davantage les contextes. En particulier,
 conserve le contenu et sa cible ; aucun état brut `EXISTANT` ou `INEXISTANT`
 n'est produit. La tranche et sa divergence avec SpinoLog sont détaillées dans
 [`tranche_e3p23_e3p26.md`](tranche_e3p23_e3p26.md).
+
+E3P27–E3P32 ne tirent aucune conséquence de la seule ressemblance de trait ni
+de l'absence silencieuse d'un affect. E3P30 exige en outre louange ou blâme
+explicites pour conclure à la gloire ou à la honte ; E3P31 ne confond pas désir
+et amour ; E3P32 exige l'exclusivité positive de la possession avant de
+conclure à l'obstacle et à l'envie. L'audit est publié dans
+[`tranche_e3p27_e3p32.md`](tranche_e3p27_e3p32.md).

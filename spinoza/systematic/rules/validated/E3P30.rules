@@ -1,0 +1,53 @@
+RULE E3P30_action_joyeuse_consideration_de_soi
+WHEN
+    ($homme a_fait $action)
+    ($homme imagine ($action affecte_de_joie $autrui))
+    ($autrui est_semblable_affectivement_pour $homme)
+THEN
+    ADD ($homme se_considere_avec_joie VRAI)
+END
+
+RULE E3P30_action_triste_consideration_de_soi
+WHEN
+    ($homme a_fait $action)
+    ($homme imagine ($action affecte_de_tristesse $autrui))
+    ($autrui est_semblable_affectivement_pour $homme)
+THEN
+    ADD ($homme se_considere_avec_tristesse VRAI)
+END
+
+RULE E3P30S_gloire_par_louange_interieure
+WHEN
+    ($affect est_joie_de $homme)
+    ($affect a_pour_cause_interieure $homme)
+    ($homme se_croit_loue VRAI)
+THEN
+    ADD ($affect est_gloire_de $homme)
+END
+
+RULE E3P30S_honte_par_blame_interieur
+WHEN
+    ($affect est_tristesse_de $homme)
+    ($affect a_pour_cause_interieure $homme)
+    ($homme se_croit_blame VRAI)
+THEN
+    ADD ($affect est_honte_de $homme)
+END
+
+RULE E3P30S_contentement_de_soi
+WHEN
+    ($affect est_joie_de $homme)
+    ($affect a_pour_cause_interieure $homme)
+    ($affect nait_hors_croyance_de_louange VRAI)
+THEN
+    ADD ($affect est_contentement_de_soi_de $homme)
+END
+
+RULE E3P30S_repentir
+WHEN
+    ($affect est_tristesse_de $homme)
+    ($affect a_pour_cause_interieure $homme)
+    ($affect nait_hors_croyance_de_blame VRAI)
+THEN
+    ADD ($affect est_repentir_de $homme)
+END

@@ -1,0 +1,53 @@
+RULE E3P29_joie_sociale_effort_faire
+WHEN
+    ($groupe est_groupe_d_hommes VRAI)
+    ($groupe est_semblable_affectivement_pour $ame)
+    ($ame imagine ($groupe voit_avec_joie $action))
+THEN
+    ADD ($ame s_efforce_de_faire $action)
+END
+
+RULE E3P29_aversion_sociale_aversion_faire
+WHEN
+    ($groupe est_groupe_d_hommes VRAI)
+    ($groupe est_semblable_affectivement_pour $ame)
+    ($ame imagine ($groupe a_en_aversion $action))
+THEN
+    ADD ($ame a_en_aversion_de_faire $action)
+END
+
+RULE E3P29S_ambition_pour_plaire
+WHEN
+    ($ame s_efforce_de_faire $action)
+    ($effort est_effort_de_faire $action)
+    ($effort vise_seulement_a_plaire_aux $hommes)
+THEN
+    ADD ($effort est_ambition_de $ame)
+END
+
+RULE E3P29S_humanite_pour_bien_commun
+WHEN
+    ($ame s_efforce_de_faire $action)
+    ($effort est_effort_de_faire $action)
+    ($effort vise_bien_commun VRAI)
+THEN
+    ADD ($effort est_humanite_de $ame)
+END
+
+RULE E3P29S_louange_action_agreable
+WHEN
+    ($affect est_joie_de $ame)
+    ($ame imagine ($autrui a_fait $action))
+    ($action est_effort_d_autrui_pour_etre_agreable_a $ame)
+THEN
+    ADD ($affect est_louange_de $ame)
+END
+
+RULE E3P29S_blame_action_aversive
+WHEN
+    ($affect est_tristesse_de $ame)
+    ($ame imagine ($autrui a_fait $action))
+    ($ame a_en_aversion_de_faire $action)
+THEN
+    ADD ($affect est_blame_de $ame)
+END

@@ -467,8 +467,85 @@ def test_e3p24_and_e3p26_scholia_define_social_affects() -> None:
     assert estimates.proof_depths == (1, 1, 1, 1)
 
 
+def test_e3p27_imitates_affects_only_through_relevant_similarity() -> None:
+    imitation = run_case(
+        SYSTEMATIC_ROOT,
+        "E3P27",
+        "imitation_de_trois_affects",
+    )
+    simple_trait = run_case(
+        SYSTEMATIC_ROOT,
+        "E3P27",
+        "simple_trait_sans_similitude_corporelle",
+    )
+
+    assert imitation.proved
+    assert imitation.proof_depths == (1, 2, 2, 2, 2, 3, 3)
+    assert imitation.forbidden_violations == ()
+    assert simple_trait.proved
+    assert simple_trait.forbidden_violations == ()
+
+
+def test_e3p28_to_e3p30_connect_conduct_social_affects_and_internal_cause() -> None:
+    conduct = run_case(
+        SYSTEMATIC_ROOT,
+        "E3P28",
+        "procurer_joie_et_ecarter_tristesse",
+    )
+    approval = run_case(
+        SYSTEMATIC_ROOT,
+        "E3P29",
+        "approbation_et_aversion_des_hommes",
+    )
+    self_consideration = run_case(
+        SYSTEMATIC_ROOT,
+        "E3P30",
+        "consideration_de_soi_par_affects_d_autrui",
+    )
+    no_glory = run_case(
+        SYSTEMATIC_ROOT,
+        "E3P30",
+        "joie_interieure_sans_louange_non_gloire",
+    )
+
+    assert conduct.proved
+    assert conduct.proof_depths == (1, 1, 1, 1, 1, 1, 1)
+    assert approval.proved
+    assert approval.proof_depths == (1, 2, 3, 4, 2, 3, 4)
+    assert self_consideration.proved
+    assert self_consideration.proof_depths == (1, 2, 3, 4, 1, 2, 3, 4)
+    assert no_glory.proved
+    assert no_glory.forbidden_violations == ()
+
+
+def test_e3p31_and_e3p32_preserve_similarity_and_exclusive_possession() -> None:
+    agreement = run_case(
+        SYSTEMATIC_ROOT,
+        "E3P31",
+        "accord_amour_desir_haine",
+    )
+    exclusive = run_case(
+        SYSTEMATIC_ROOT,
+        "E3P32",
+        "possession_exclusive_et_envie",
+    )
+    shareable = run_case(
+        SYSTEMATIC_ROOT,
+        "E3P32",
+        "objet_non_exclusif",
+    )
+
+    assert agreement.proved
+    assert agreement.proof_depths == (1, 2, 2, 2)
+    assert exclusive.proved
+    assert exclusive.proof_depths == (1, 1, 2, 3, 3, 4, 5, 6)
+    assert exclusive.forbidden_violations == ()
+    assert shareable.proved
+    assert shareable.forbidden_violations == ()
+
+
 def test_each_systematic_manifest_since_e3p04_has_passing_counter_cases() -> None:
-    for proposition in range(4, 27):
+    for proposition in range(4, 33):
         theorem_id = f"E3P{proposition:02d}"
         manifest = yaml.safe_load(
             (SYSTEMATIC_ROOT / "theorems" / f"{theorem_id}.yaml").read_text(
@@ -518,7 +595,7 @@ def test_systematic_manifests_do_not_load_the_historical_model() -> None:
 
 
 def test_systematic_manifests_load_only_current_proof_and_prior_theorems() -> None:
-    for proposition in range(4, 27):
+    for proposition in range(4, 33):
         theorem_id = f"E3P{proposition:02d}"
         manifest = yaml.safe_load(
             (SYSTEMATIC_ROOT / "theorems" / f"{theorem_id}.yaml").read_text(

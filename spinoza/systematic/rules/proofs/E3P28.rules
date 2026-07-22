@@ -1,0 +1,38 @@
+# Le lien entre un événement imaginé et l'affect attendu reste une prémisse
+# explicite. La simple imagination de l'événement ne suffit pas.
+RULE E3P28D_joie_effort_procurer_venue
+WHEN
+    ($ame imagine ($evenement mene_a $affect))
+    ($affect est_joie_de $ame)
+    ($affect est_affect_attendu_de $evenement)
+THEN
+    ADD ($ame s_efforce_de_procurer_venue_de $evenement)
+    ADD ($ame s_efforce_de_considerer_comme_present $evenement)
+    ADD ($ame appete $evenement)
+    ADD ($ame tend_vers $evenement)
+END
+
+RULE E3P28D_tristesse_effort_ecarter_detruire
+WHEN
+    ($ame imagine ($evenement mene_a $affect))
+    ($affect est_tristesse_de $ame)
+    ($affect est_affect_attendu_de $evenement)
+THEN
+    ADD ($ame s_efforce_d_ecarter $evenement)
+    ADD ($ame s_efforce_de_detruire $evenement)
+    ADD ($ame a_en_aversion_d_imaginer $evenement)
+END
+
+# Branche « contraire à ce qui mène à la joie » : la contrariété et l'affect
+# opposé sont tous deux déclarés, sans algèbre globale des signes.
+RULE E3P28D_contraire_joie_mene_tristesse
+WHEN
+    ($ame imagine ($evenement est_contraire_a $cause_joyeuse))
+    ($cause_joyeuse mene_a $joie)
+    ($joie est_joie_de $ame)
+    ($tristesse est_contraire_a $joie)
+    ($tristesse est_tristesse_de $ame)
+    ($tristesse est_affect_attendu_de $evenement)
+THEN
+    ADD ($ame imagine ($evenement mene_a $tristesse))
+END

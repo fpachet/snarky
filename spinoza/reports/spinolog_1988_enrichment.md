@@ -189,8 +189,10 @@ formalisation systématique des propositions concernées.
    [`../systematic/reports/milestone_e3p19_e3p22.md`](../systematic/reports/milestone_e3p19_e3p22.md) :
    les conclusions annexes servent de contre-tests, sans transcription de la
    base SpinoLog complète.
-2. Avant E3P27, formaliser la typologie de la similitude et ses conditions
-   d'application.
+2. La typologie requise avant E3P27 est désormais formalisée et testée dans
+   [`../systematic/reports/tranche_e3p27_e3p32.md`](../systematic/reports/tranche_e3p27_e3p32.md) :
+   similitude corporelle pertinente, simple ressemblance de trait et absence
+   préalable d'affect restent distinctes.
 3. Avant E3P33, comparer texte, rapport 1988, présentation 2006 et modèle
    systématique.
 4. Avant E3P45–E3P48, rendre visibles les conclusions annexes, contradictions

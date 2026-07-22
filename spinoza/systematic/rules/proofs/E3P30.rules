@@ -1,0 +1,91 @@
+# L'action accomplie est une cause intérieure. Son effet imaginé sur autrui
+# devient l'affect source que E3P27 transmet à l'agent.
+RULE E3P30D_action_joyeuse_affecte_autrui
+WHEN
+    ($homme a_fait $action)
+    ($homme imagine ($action affecte_de_joie $autrui))
+    ($source est_temoignage_affectif_de ($action affecte_de_joie $autrui))
+THEN
+    ADD ($homme imagine ($source est_joie_de $autrui))
+    ADD ($homme imagine ($source a_pour_cause_interieure $homme))
+    ADD ($homme imagine ($homme est_cause_de $action))
+END
+
+RULE E3P30D_action_triste_affecte_autrui
+WHEN
+    ($homme a_fait $action)
+    ($homme imagine ($action affecte_de_tristesse $autrui))
+    ($source est_temoignage_affectif_de ($action affecte_de_tristesse $autrui))
+THEN
+    ADD ($homme imagine ($source est_tristesse_de $autrui))
+    ADD ($homme imagine ($source a_pour_cause_interieure $homme))
+    ADD ($homme imagine ($homme est_cause_de $action))
+END
+
+RULE E3P30D_idee_de_soi_accompagne_affect_imite
+WHEN
+    ($homme imagine ($source a_pour_cause_interieure $homme))
+    ($affect correspond_a_affect_imagine $source)
+    ($idee_soi est_idee_de $homme)
+THEN
+    ADD ($idee_soi accompagne $affect)
+    ADD ($affect a_pour_cause_interieure $homme)
+END
+
+RULE E3P30D_joie_cause_interieure_consideration_joyeuse
+WHEN
+    ($affect est_joie_de $homme)
+    ($affect a_pour_cause_interieure $homme)
+    ($idee_soi est_idee_de $homme)
+    ($idee_soi accompagne $affect)
+THEN
+    ADD ($homme se_considere_avec_joie VRAI)
+END
+
+RULE E3P30D_tristesse_cause_interieure_consideration_triste
+WHEN
+    ($affect est_tristesse_de $homme)
+    ($affect a_pour_cause_interieure $homme)
+    ($idee_soi est_idee_de $homme)
+    ($idee_soi accompagne $affect)
+THEN
+    ADD ($homme se_considere_avec_tristesse VRAI)
+END
+
+# Scolie : les noms dépendent de la cause intérieure et de la croyance d'être
+# loué ou blâmé. Une joie intérieure quelconque ne suffit pas à la gloire.
+RULE E3P30S_joie_cause_interieure_louange_gloire
+WHEN
+    ($affect est_joie_de $homme)
+    ($affect a_pour_cause_interieure $homme)
+    ($homme se_croit_loue VRAI)
+THEN
+    ADD ($affect est_gloire_de $homme)
+END
+
+RULE E3P30S_tristesse_cause_interieure_blame_honte
+WHEN
+    ($affect est_tristesse_de $homme)
+    ($affect a_pour_cause_interieure $homme)
+    ($homme se_croit_blame VRAI)
+THEN
+    ADD ($affect est_honte_de $homme)
+END
+
+RULE E3P30S_joie_interieure_hors_louange_contentement
+WHEN
+    ($affect est_joie_de $homme)
+    ($affect a_pour_cause_interieure $homme)
+    ($affect nait_hors_croyance_de_louange VRAI)
+THEN
+    ADD ($affect est_contentement_de_soi_de $homme)
+END
+
+RULE E3P30S_tristesse_interieure_hors_blame_repentir
+WHEN
+    ($affect est_tristesse_de $homme)
+    ($affect a_pour_cause_interieure $homme)
+    ($affect nait_hors_croyance_de_blame VRAI)
+THEN
+    ADD ($affect est_repentir_de $homme)
+END

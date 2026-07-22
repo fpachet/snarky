@@ -215,7 +215,7 @@ comparaison des chaînes et des clôtures est publiée dans
 
 ## Tranche 5 — E3P23–E3P32 : affects sociaux et imitation
 
-Statut : E3P23–E3P26 achevées ; préparation de E3P27 prioritaire.
+Statut : achevée.
 
 Concepts principaux : joie ou tristesse de la chose haïe, commisération,
 faveur, indignation, envie, imitation des affects, similitude, ambition et
@@ -230,12 +230,17 @@ d'affirmer ou de nier. Envie, orgueil, surestime et mésestime sont exécutables
 L'audit est publié dans
 [`tranche_e3p23_e3p26.md`](tranche_e3p23_e3p26.md).
 
-Avant E3P27, la similitude doit distinguer au minimum ressemblance de trait,
-similitude corporelle pertinente et similitude supposée dans l'imagination.
-L'absence préalable d'affect devra être un fait explicite, non une négation par
-défaut.
+Résultat : E3P27 distingue ressemblance de trait et similitude corporelle
+pertinente ; l'absence préalable d'affect est un fait explicite, non une
+négation par défaut. E3P28–E3P32 rendent exécutables les orientations de
+l'action, l'approbation sociale, la considération de soi, la constance et la
+fluctuation affectives, ainsi que l'envie portant sur une possession exclusive.
+La tranche est auditée dans
+[`tranche_e3p27_e3p32.md`](tranche_e3p27_e3p32.md).
 
 ## Tranche 6 — E3P33–E3P44 : réciprocité, gloire et haine
+
+Statut : prochaine tranche ; E3P33 prioritaire.
 
 Objectifs : reprendre systématiquement E3P33, puis représenter l'amour
 réciproque, la gloire, la jalousie, les désirs issus des affects, la vengeance

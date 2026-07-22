@@ -1,0 +1,61 @@
+# La joie qu'autrui tire de l'objet est d'abord transformée en un affect source
+# d'autrui. E3P27 assure ensuite son imitation par l'observateur.
+RULE E3P32D_joie_tiree_objet_devient_affect_autrui
+WHEN
+    ($ame imagine ($autrui tire_joie_de $objet))
+    ($source est_temoignage_affectif_de ($autrui tire_joie_de $objet))
+THEN
+    ADD ($ame imagine ($source est_joie_de $autrui))
+    ADD ($source a_pour_objet $objet)
+END
+
+RULE E3P32D_imitation_joie_fait_aimer_desirer_objet
+WHEN
+    ($affect est_joie_de $ame)
+    ($affect correspond_a_affect_imagine $source)
+    ($source a_pour_objet $objet)
+THEN
+    ADD ($ame aime $objet)
+    ADD ($ame desire_tirer_joie_de $objet)
+END
+
+# La possession d'autrui n'est un obstacle que si l'objet est déclaré
+# exclusivement possédable par un seul individu.
+RULE E3P32D_possession_exclusive_obstacle_joie
+WHEN
+    ($objet ne_peut_etre_possede_que_par_un VRAI)
+    ($autrui possede $objet)
+    ($ame desire_tirer_joie_de $objet)
+THEN
+    ADD (($autrui possession_de $objet) est_obstacle_a ($ame tire_joie_de $objet))
+END
+
+RULE E3P32D_obstacle_effort_retirer_possession
+WHEN
+    ($ame imagine ($autrui tire_joie_de $objet))
+    ($ame desire_tirer_joie_de $objet)
+    (($autrui possession_de $objet) est_obstacle_a ($ame tire_joie_de $objet))
+THEN
+    ADD ($ame s_efforce_de_retirer ($autrui possession_de $objet))
+END
+
+# Scolie : l'effort exclusif devient envie envers l'heureux possesseur.
+RULE E3P32S_effort_exclusif_envie
+WHEN
+    ($ame s_efforce_de_retirer ($autrui possession_de $objet))
+    ($ame imagine ($autrui tire_joie_de $objet))
+THEN
+    ADD ($ame eprouve_envie_envers $autrui)
+END
+
+# L'exemple des enfants reste une règle distincte : voir l'action d'un
+# semblable produit le désir de l'imiter, sans affirmer que l'action est faite.
+RULE E3P32S_enfant_desire_imiter_action
+WHEN
+    ($enfant est_enfant VRAI)
+    ($autrui est_semblable_affectivement_pour $enfant)
+    ($enfant imagine ($autrui a_fait $action))
+THEN
+    ADD ($enfant desire_imiter $action)
+    ADD ($enfant s_efforce_d_imiter $action)
+END

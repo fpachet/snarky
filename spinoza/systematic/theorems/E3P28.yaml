@@ -1,0 +1,66 @@
+schema_version: 1
+id: E3P28
+model: ethics_iii_systematic_v1
+source_unit: E3P28
+source_text: >-
+  Tout ce que nous imaginons qui mène à la Joie, nous nous efforçons d'en
+  procurer la venue ; ce qui lui est contraire ou mène à la Tristesse, nous
+  nous efforçons de l'écarter ou de le détruire.
+fact_files: [facts/postulates.yaml]
+rule_files:
+  - rules/proofs/E3P28.rules
+rule_catalog: rules/catalog.yaml
+forbidden_rules:
+  - E3P28_joie_effort_procurer_venue
+  - E3P28_tristesse_effort_ecarter_detruire
+  - E3P28_contraire_joie_mene_tristesse
+allowed_rule_origins: [textual]
+cases:
+  - id: procurer_joie_et_ecarter_tristesse
+    initial_facts:
+      - "(ame0 imagine (evenement_joyeux0 mene_a joie_attendue0))"
+      - "(joie_attendue0 est_joie_de ame0)"
+      - "(joie_attendue0 est_affect_attendu_de evenement_joyeux0)"
+      - "(ame0 imagine (evenement_triste0 mene_a tristesse_attendue0))"
+      - "(tristesse_attendue0 est_tristesse_de ame0)"
+      - "(tristesse_attendue0 est_affect_attendu_de evenement_triste0)"
+    goals:
+      - "(ame0 s_efforce_de_procurer_venue_de evenement_joyeux0)"
+      - "(ame0 s_efforce_de_considerer_comme_present evenement_joyeux0)"
+      - "(ame0 appete evenement_joyeux0)"
+      - "(ame0 tend_vers evenement_joyeux0)"
+      - "(ame0 s_efforce_d_ecarter evenement_triste0)"
+      - "(ame0 s_efforce_de_detruire evenement_triste0)"
+      - "(ame0 a_en_aversion_d_imaginer evenement_triste0)"
+    must_not_derive:
+      - "(evenement_joyeux0 existe VRAI)"
+      - "(evenement_triste0 est_detruit VRAI)"
+    expected:
+      status: proved
+      proof_depths: [1, 1, 1, 1, 1, 1, 1]
+  - id: contraire_a_ce_qui_mene_a_joie
+    initial_facts:
+      - "(ame0 imagine (obstacle0 est_contraire_a cause_joyeuse0))"
+      - "(cause_joyeuse0 mene_a joie0)"
+      - "(joie0 est_joie_de ame0)"
+      - "(tristesse0 est_contraire_a joie0)"
+      - "(tristesse0 est_tristesse_de ame0)"
+      - "(tristesse0 est_affect_attendu_de obstacle0)"
+    goals:
+      - "(ame0 imagine (obstacle0 mene_a tristesse0))"
+      - "(ame0 s_efforce_d_ecarter obstacle0)"
+      - "(ame0 s_efforce_de_detruire obstacle0)"
+    expected:
+      status: proved
+      proof_depths: [1, 2, 2]
+  - id: evenement_sans_affect_attendu
+    initial_facts:
+      - "(ame0 imagine evenement0)"
+      - "(joie0 est_joie_de ame0)"
+    goals: []
+    must_not_derive:
+      - "(ame0 s_efforce_de_procurer_venue_de evenement0)"
+      - "(ame0 s_efforce_d_ecarter evenement0)"
+    expected: {status: proved}
+formalization_status: proved_with_two_valences
+result: proved

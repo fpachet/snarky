@@ -1,0 +1,27 @@
+RULE E3P32_joie_autrui_objet_exclusif_effort_retirer
+WHEN
+    ($autrui est_semblable_affectivement_pour $ame)
+    ($ame imagine ($autrui tire_joie_de $objet))
+    ($objet ne_peut_etre_possede_que_par_un VRAI)
+    ($autrui possede $objet)
+THEN
+    ADD ($ame s_efforce_de_retirer ($autrui possession_de $objet))
+END
+
+RULE E3P32S_envie_possesseur_exclusif
+WHEN
+    ($ame s_efforce_de_retirer ($autrui possession_de $objet))
+    ($ame imagine ($autrui tire_joie_de $objet))
+THEN
+    ADD ($ame eprouve_envie_envers $autrui)
+END
+
+RULE E3P32S_enfant_imite_action
+WHEN
+    ($enfant est_enfant VRAI)
+    ($autrui est_semblable_affectivement_pour $enfant)
+    ($enfant imagine ($autrui a_fait $action))
+THEN
+    ADD ($enfant desire_imiter $action)
+    ADD ($enfant s_efforce_d_imiter $action)
+END

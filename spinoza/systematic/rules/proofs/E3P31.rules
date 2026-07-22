@@ -1,0 +1,90 @@
+# L'accord imaginé ajoute une cause à l'affect déjà présent. Amour, désir et
+# haine restent trois relations distinctes ; le désir n'est pas assimilé à
+# l'amour comme dans la reconstruction SpinoLog.
+RULE E3P31D_accord_amour_rend_plus_constant
+WHEN
+    ($ame aime $objet)
+    ($autrui est_semblable_affectivement_pour $ame)
+    ($ame imagine ($autrui aime $objet))
+THEN
+    ADD ($ame aime_plus_constamment $objet)
+END
+
+RULE E3P31D_accord_desir_rend_plus_constant
+WHEN
+    ($ame desire $objet)
+    ($autrui est_semblable_affectivement_pour $ame)
+    ($ame imagine ($autrui desire $objet))
+THEN
+    ADD ($ame desire_plus_constamment $objet)
+END
+
+RULE E3P31D_accord_haine_rend_plus_constante
+WHEN
+    ($ame hait $objet)
+    ($autrui est_semblable_affectivement_pour $ame)
+    ($ame imagine ($autrui hait $objet))
+THEN
+    ADD ($ame hait_plus_constamment $objet)
+END
+
+# Le désaccord produit la coexistence explicite des orientations opposées,
+# puis la fluctuation de l'âme.
+RULE E3P31D_amour_et_aversion_imitee_fluctuation
+WHEN
+    ($ame aime $objet)
+    ($autrui est_semblable_affectivement_pour $ame)
+    ($ame imagine ($autrui a_en_aversion $objet))
+THEN
+    ADD ($ame a_en_aversion_imitee $objet)
+    ADD ($ame aime_et_a_en_aversion $objet)
+    ADD ($ame est_en fluctuation_de_l_ame)
+END
+
+RULE E3P31D_aversion_et_amour_imite_fluctuation
+WHEN
+    ($ame a_en_aversion $objet)
+    ($autrui est_semblable_affectivement_pour $ame)
+    ($ame imagine ($autrui aime $objet))
+THEN
+    ADD ($ame aime_par_imitation $objet)
+    ADD ($ame aime_et_a_en_aversion $objet)
+    ADD ($ame est_en fluctuation_de_l_ame)
+END
+
+# Corollaire : chacun s'efforce d'universaliser ses propres objets d'amour et
+# de haine. « tous » reste un terme collectif explicite.
+RULE E3P31C_amour_effort_approbation_universelle
+WHEN
+    ($ame aime $objet)
+THEN
+    ADD ($ame s_efforce_que (tous aiment $objet))
+END
+
+RULE E3P31C_haine_effort_desapprobation_universelle
+WHEN
+    ($ame hait $objet)
+THEN
+    ADD ($ame s_efforce_que (tous haissent $objet))
+END
+
+# Scolie : cet effort est une ambition ; deux ambitions qui se font obstacle
+# peuvent conduire à une haine mutuelle.
+RULE E3P31S_effort_approbation_est_ambition
+WHEN
+    ($ame s_efforce_que (tous $orientation $objet))
+    ($effort est_effort_d_approbation_de ($orientation porte_sur $objet))
+THEN
+    ADD ($effort est_ambition_de $ame)
+END
+
+RULE E3P31S_ambitions_obstacles_haine_mutuelle
+WHEN
+    ($premier fait_obstacle_a $second)
+    ($second fait_obstacle_a $premier)
+    ($effort_premier est_ambition_de $premier)
+    ($effort_second est_ambition_de $second)
+THEN
+    ADD ($premier hait $second)
+    ADD ($second hait $premier)
+END

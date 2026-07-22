@@ -1,0 +1,89 @@
+# La joie ou l'aversion imaginée des hommes devient un affect attendu de
+# l'action seulement si le groupe est semblable affectivement pour l'âme.
+RULE E3P29D_joie_des_hommes_mene_a_joie
+WHEN
+    ($groupe est_groupe_d_hommes VRAI)
+    ($groupe est_semblable_affectivement_pour $ame)
+    ($ame imagine ($groupe voit_avec_joie $action))
+    ($affect est_temoignage_affectif_social_de ($groupe voit_avec_joie $action))
+THEN
+    ADD ($affect est_joie_de $ame)
+    ADD ($affect est_affect_attendu_de $action)
+    ADD ($ame imagine ($action mene_a $affect))
+END
+
+RULE E3P29D_aversion_des_hommes_mene_a_tristesse
+WHEN
+    ($groupe est_groupe_d_hommes VRAI)
+    ($groupe est_semblable_affectivement_pour $ame)
+    ($ame imagine ($groupe a_en_aversion $action))
+    ($affect est_temoignage_affectif_social_de ($groupe a_en_aversion $action))
+THEN
+    ADD ($affect est_tristesse_de $ame)
+    ADD ($affect est_affect_attendu_de $action)
+    ADD ($ame imagine ($action mene_a $affect))
+END
+
+# E3P28 fournit l'orientation générale ; ces règles la spécialisent en faire
+# ou avoir en aversion de faire une action.
+RULE E3P29D_effort_procurer_action_devient_effort_faire
+WHEN
+    ($ame imagine ($groupe voit_avec_joie $action))
+    ($ame s_efforce_de_procurer_venue_de $action)
+THEN
+    ADD ($ame s_efforce_de_faire $action)
+END
+
+RULE E3P29D_effort_ecarter_action_devient_aversion_faire
+WHEN
+    ($ame imagine ($groupe a_en_aversion $action))
+    ($ame s_efforce_d_ecarter $action)
+THEN
+    ADD ($ame a_en_aversion_de_faire $action)
+END
+
+# Scolie : ambition, humanité, louange et blâme.
+RULE E3P29S_effort_plaire_ambition
+WHEN
+    ($ame s_efforce_de_faire $action)
+    ($effort est_effort_de_faire $action)
+    ($effort vise_seulement_a_plaire_aux $hommes)
+THEN
+    ADD ($effort est_ambition_de $ame)
+END
+
+RULE E3P29S_abstention_plaire_ambition
+WHEN
+    ($ame s_abstient_de_faire $action)
+    ($effort est_effort_d_abstention_de $action)
+    ($effort vise_seulement_a_plaire_aux $hommes)
+THEN
+    ADD ($effort est_ambition_de $ame)
+END
+
+RULE E3P29S_effort_bien_commun_humanite
+WHEN
+    ($ame s_efforce_de_faire $action)
+    ($effort est_effort_de_faire $action)
+    ($effort vise_bien_commun VRAI)
+THEN
+    ADD ($effort est_humanite_de $ame)
+END
+
+RULE E3P29S_joie_action_agreable_louange
+WHEN
+    ($affect est_joie_de $ame)
+    ($ame imagine ($autrui a_fait $action))
+    ($action est_effort_d_autrui_pour_etre_agreable_a $ame)
+THEN
+    ADD ($affect est_louange_de $ame)
+END
+
+RULE E3P29S_tristesse_action_aversive_blame
+WHEN
+    ($affect est_tristesse_de $ame)
+    ($ame imagine ($autrui a_fait $action))
+    ($ame a_en_aversion_de_faire $action)
+THEN
+    ADD ($affect est_blame_de $ame)
+END
