@@ -1,0 +1,98 @@
+# Imaginer son impuissance contrarie l'effort publié par E3P54. La tristesse
+# est ensuite obtenue par le passage à une perfection moindre de E3P11S.
+RULE E3P55D_image_impuissance_reduit_effort
+WHEN
+    ($ame imagine ($ame est_impuissante_a $action))
+    ($image_impuissance est_image_de ($ame est_impuissante_a $action))
+    ($effort est_effort_d_imaginer $contenu_puissant)
+    ($contenu_puissant pose_puissance_agir_de $ame)
+THEN
+    ADD ($image_impuissance reduit $effort)
+END
+
+RULE E3P55D_effort_reduit_produit_passage_triste
+WHEN
+    ($image_impuissance reduit $effort)
+    ($effort est_effort_de $ame)
+    ($tristesse est_temoignage_affectif_de ($image_impuissance reduit $effort))
+THEN
+    ADD ($tristesse est_passion_de $ame)
+    ADD ($tristesse fait_passer_ame_vers perfection_moindre)
+END
+
+RULE E3P55C_blame_imagine_alimente_tristesse
+WHEN
+    ($ame imagine ($autrui blame $ame))
+    ($tristesse_base est_tristesse_de $ame)
+    ($tristesse_blame est_tristesse_de $ame)
+    ($tristesse_blame nait_de_blame_imagine_de $autrui)
+THEN
+    ADD ($tristesse_blame est_plus_intense_que $tristesse_base)
+END
+
+RULE E3P55S_tristesse_faiblesse_humilite
+WHEN
+    ($tristesse est_tristesse_de $ame)
+    ($idee_faiblesse est_idee_de ($ame a_faiblesse $faiblesse))
+    ($idee_faiblesse accompagne $tristesse)
+THEN
+    ADD ($tristesse est_humilite_de $ame)
+END
+
+RULE E3P55S_joie_consideration_soi_amour_propre
+WHEN
+    ($joie est_joie_de $ame)
+    ($joie a_pour_cause_interieure $ame)
+    ($ame se_considere_avec_joie VRAI)
+THEN
+    ADD ($joie est_amour_propre_de $ame)
+    ADD ($joie est_contentement_de_soi_de $ame)
+END
+
+RULE E3P55S_pair_faible_ou_vertueux_prepare_envie
+WHEN
+    ($autrui est_semblable_affectivement_pour $ame)
+    ($ame imagine ($autrui a_faiblesse $faiblesse))
+    ($joie est_joie_de $ame)
+    ($joie nait_de_faiblesse_imaginee_de $autrui)
+    ($ame imagine ($autrui a_vertu $vertu))
+    ($tristesse est_tristesse_de $ame)
+    ($tristesse nait_de_vertu_imaginee_de $autrui)
+THEN
+    ADD ($ame est_disposee_a_joie_du_mal_de $autrui)
+    ADD ($ame est_disposee_a_tristesse_du_bien_de $autrui)
+    ADD ($ame eprouve_envie_envers $autrui)
+END
+
+# Le corollaire exclut positivement l'envie quand la vertu est propre à une
+# nature étrangère ; la vénération conserve au contraire sa singularité.
+RULE E3P55CS_vertu_etrangere_veneration_sans_envie
+WHEN
+    ($vertu appartient_en_propre_a_nature_de $autrui)
+    ($vertu est_etrangere_a_nature_de $ame)
+    ($ame admire $vertu)
+    ($veneration est_temoignage_veneration_de $autrui)
+THEN
+    ADD ($veneration est_veneration_de $ame)
+    ADD ($ame eprouve_envie_envers $autrui) ' FAUX
+END
+
+# E3P28 oriente l'écartement de la tristesse ; le scolie fournit deux moyens
+# distincts, activés seulement lorsqu'une stratégie est explicitement donnée.
+RULE E3P55S_ecarte_comparaison_par_interpretation_fausse
+WHEN
+    ($ame s_efforce_d_ecarter $tristesse)
+    ($strategie est_strategie_d_ecartement_de $tristesse)
+    ($strategie vise_actions_de $autrui)
+THEN
+    ADD ($ame interprete_faussement_actions_de $autrui)
+END
+
+RULE E3P55S_ecarte_comparaison_en_ornant_actions
+WHEN
+    ($ame s_efforce_d_ecarter $tristesse)
+    ($strategie est_strategie_d_ecartement_de $tristesse)
+    ($strategie vise_actions_de $ame)
+THEN
+    ADD ($ame orne_ses_actions VRAI)
+END

@@ -1,0 +1,18 @@
+RULE E3P54_effort_imagine_ce_qui_pose_puissance
+WHEN
+    ($effort est_identique_ontologiquement_a $essence)
+    ($essence est_essence_actuelle_de $ame)
+    ($contenu pose_puissance_agir_de $ame)
+THEN
+    ADD ($effort est_effort_d_imaginer $contenu)
+    ADD ($ame s_efforce_d_imaginer $contenu)
+END
+
+RULE E3P54_effort_exclut_ce_qui_nie_puissance
+WHEN
+    ($effort est_identique_ontologiquement_a $essence)
+    ($essence est_essence_actuelle_de $ame)
+    ($contenu nie_puissance_agir_de $ame)
+THEN
+    ADD ($ame s_efforce_d_imaginer $contenu) ' FAUX
+END

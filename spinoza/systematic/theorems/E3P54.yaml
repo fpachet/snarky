@@ -1,0 +1,65 @@
+schema_version: 1
+id: E3P54
+model: ethics_iii_systematic_v1
+source_unit: E3P54
+source_text: >-
+  L'Âme s'efforce d'imaginer cela seulement qui pose sa propre puissance
+  d'agir.
+fact_files: [facts/postulates.yaml]
+rule_files:
+  - rules/validated/E3P07.rules
+  - rules/proofs/E3P54.rules
+rule_catalog: rules/catalog.yaml
+forbidden_rules:
+  - E3P54_effort_imagine_ce_qui_pose_puissance
+  - E3P54_effort_exclut_ce_qui_nie_puissance
+allowed_rule_origins: [textual, textual_theorem]
+cases:
+  - id: contenu_posant_puissance
+    initial_facts:
+      - "(effort0 vise_perseverance_de ame0)"
+      - "(essence0 est_essence_actuelle_de ame0)"
+      - "(contenu0 pose_puissance_agir_de ame0)"
+    goals:
+      - "(effort0 est_identique_ontologiquement_a essence0)"
+      - "(essence0 affirme contenu0)"
+      - "(effort0 est_effort_d_imaginer contenu0)"
+      - "(ame0 s_efforce_d_imaginer contenu0)"
+    expected:
+      status: proved
+      proof_depths: [1, 2, 3, 3]
+  - id: contenu_niant_puissance
+    initial_facts:
+      - "(effort0 vise_perseverance_de ame0)"
+      - "(essence0 est_essence_actuelle_de ame0)"
+      - "(contenu_impuissant0 nie_puissance_agir_de ame0)"
+    goals:
+      - entity: "(essence0 affirme contenu_impuissant0)"
+        status: FAUX
+      - entity: "(ame0 s_efforce_d_imaginer contenu_impuissant0)"
+        status: FAUX
+    must_not_derive:
+      - "(ame0 s_efforce_d_imaginer contenu_impuissant0)"
+    expected:
+      status: proved
+      proof_depths: [2, 2]
+  - id: contenu_sans_rapport_a_puissance
+    initial_facts:
+      - "(effort0 vise_perseverance_de ame0)"
+      - "(essence0 est_essence_actuelle_de ame0)"
+      - "(contenu_neutre0 est_contenu_neutre_pour ame0)"
+    goals:
+      - "(effort0 est_identique_ontologiquement_a essence0)"
+    must_not_derive:
+      - "(ame0 s_efforce_d_imaginer contenu_neutre0)"
+      - entity: "(ame0 s_efforce_d_imaginer contenu_neutre0)"
+        status: FAUX
+    expected:
+      status: proved
+      proof_depths: [1]
+formalization_status: proved_with_explicit_exclusivity
+result: proved
+limitations:
+  - >-
+    Le « seulement » est vérifié par qualification positive des contenus et
+    par statut FAUX explicite, jamais par fermeture du monde.

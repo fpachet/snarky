@@ -1,0 +1,57 @@
+# E2P19 et E2P23 : l'âme ne se connaît que par les affections de son corps
+# et les idées de ces affections. Le témoin composé reste explicite.
+RULE E2P19_E2P23_connaissance_de_soi_par_affection_corporelle
+WHEN
+    ($ame est_idee_de $corps)
+    ($affection est_affection_de $corps)
+    ($idee_affection est_idee_de $affection)
+THEN
+    ADD ($ame se_connait_par ($affection et $idee_affection))
+END
+
+RULE E3P53D_consideration_de_soi_passage_perfection
+WHEN
+    ($ame se_connait_par $temoin_corporel)
+    ($ame se_considere_par $temoin_corporel)
+    ($ame considere_puissance_agir_de $ame)
+    ($idee_soi est_idee_de $ame)
+    ($joie est_temoignage_affectif_de ($ame considere $ame))
+THEN
+    ADD ($joie est_passion_de $ame)
+    ADD ($joie fait_passer_ame_vers perfection_plus_grande)
+    ADD ($idee_soi accompagne $joie)
+    ADD ($joie a_pour_cause_interieure $ame)
+END
+
+# La seconde branche de l'énoncé reste ordinale : un degré de distinction plus
+# grand transmet seulement un ordre qualitatif aux joies correspondantes.
+RULE E3P53D_distinction_accrue_joie_accrue
+WHEN
+    ($consideration_faible est_consideration_de ($ame et puissance_agir))
+    ($consideration_faible a_degre_de_distinction $degre_faible)
+    ($joie_faible nait_de_consideration $consideration_faible)
+    ($consideration_forte est_consideration_de ($ame et puissance_agir))
+    ($consideration_forte a_degre_de_distinction $degre_fort)
+    ($degre_fort est_plus_distinct_que $degre_faible)
+    ($joie_forte nait_de_consideration $consideration_forte)
+THEN
+    ADD ($joie_forte est_plus_intense_que $joie_faible)
+END
+
+# Corollaire : la louange imaginée ajoute une joie imitée qui garde l'idée de
+# soi comme cause. Les deux joies sont des témoins distincts.
+RULE E3P53C_louange_imaginee_alimente_joie_de_soi
+WHEN
+    ($ame imagine ($autrui loue $ame))
+    ($joie_base est_joie_de $ame)
+    ($joie_base a_pour_cause_interieure $ame)
+    ($joie_autrui est_joie_imaginee_de $autrui)
+    ($joie_autrui a_pour_cause_imaginee $ame)
+    ($joie_louange est_imitation_de $joie_autrui)
+    ($idee_soi est_idee_de $ame)
+THEN
+    ADD ($joie_louange est_joie_de $ame)
+    ADD ($idee_soi accompagne $joie_louange)
+    ADD ($joie_louange a_pour_cause_interieure $ame)
+    ADD ($joie_louange est_plus_intense_que $joie_base)
+END

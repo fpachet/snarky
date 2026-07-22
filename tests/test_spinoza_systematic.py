@@ -1000,8 +1000,95 @@ def test_e3p52_requires_positive_absence_for_isolated_attention() -> None:
     assert wonder.proof_depths == (1, 2, 1, 1)
 
 
+def test_e3p53_grounds_self_consideration_in_bodily_self_knowledge() -> None:
+    self_joy = run_case(
+        SYSTEMATIC_ROOT,
+        "E3P53",
+        "consideration_de_soi_et_puissance",
+    )
+    disconnected = run_case(
+        SYSTEMATIC_ROOT,
+        "E3P53",
+        "consideration_sans_lien_corporel",
+    )
+    distinct = run_case(
+        SYSTEMATIC_ROOT,
+        "E3P53",
+        "imagination_plus_distincte",
+    )
+
+    assert self_joy.proved
+    assert self_joy.proof_depths == (1, 2, 2, 2, 3)
+    assert disconnected.proved
+    assert disconnected.forbidden_violations == ()
+    assert distinct.proved
+    assert distinct.proof_depths == (1,)
+
+
+def test_e3p54_represents_only_with_explicit_content_qualification() -> None:
+    powerful = run_case(SYSTEMATIC_ROOT, "E3P54", "contenu_posant_puissance")
+    powerless = run_case(SYSTEMATIC_ROOT, "E3P54", "contenu_niant_puissance")
+    neutral = run_case(
+        SYSTEMATIC_ROOT,
+        "E3P54",
+        "contenu_sans_rapport_a_puissance",
+    )
+
+    assert powerful.proved
+    assert powerful.proof_depths == (1, 2, 3, 3)
+    assert powerless.proved
+    assert powerless.proof_depths == (2, 2)
+    assert powerless.forbidden_violations == ()
+    assert neutral.proved
+    assert neutral.forbidden_violations == ()
+
+
+def test_e3p55_requires_similarity_for_envy_of_virtue() -> None:
+    sadness = run_case(SYSTEMATIC_ROOT, "E3P55", "imagination_impuissance")
+    peer = run_case(SYSTEMATIC_ROOT, "E3P55", "envie_envers_pair")
+    dissimilar = run_case(SYSTEMATIC_ROOT, "E3P55", "vertu_sans_similitude")
+    foreign = run_case(SYSTEMATIC_ROOT, "E3P55", "vertu_etrangere_veneree")
+
+    assert sadness.proved
+    assert sadness.proof_depths == (1, 2, 3, 3, 4)
+    assert peer.proved
+    assert peer.proof_depths == (1, 1, 1)
+    assert dissimilar.proved
+    assert dissimilar.forbidden_violations == ()
+    assert foreign.proved
+    assert foreign.proof_depths == (1, 1)
+
+
+def test_e3p56_constructs_affective_species_without_domain_closure() -> None:
+    distinct = run_case(
+        SYSTEMATIC_ROOT,
+        "E3P56",
+        "objets_distincts_joies_distinctes",
+    )
+    same_nature = run_case(
+        SYSTEMATIC_ROOT,
+        "E3P56",
+        "meme_nature_sans_difference",
+    )
+    derived = run_case(SYSTEMATIC_ROOT, "E3P56", "affect_derive_et_desir")
+    governed = run_case(
+        SYSTEMATIC_ROOT,
+        "E3P56",
+        "conduites_gouvernantes_non_passions",
+    )
+
+    assert distinct.proved
+    assert distinct.proof_depths == (1, 1, 1, 1, 2)
+    assert same_nature.proved
+    assert same_nature.forbidden_violations == ()
+    assert derived.proved
+    assert derived.proof_depths == (1, 2, 3)
+    assert governed.proved
+    assert governed.proof_depths == (1, 1, 1, 1, 1, 1)
+
+
 def test_each_systematic_manifest_since_e3p04_has_passing_counter_cases() -> None:
-    for proposition in range(4, 53):
+    for proposition in range(4, 57):
         theorem_id = f"E3P{proposition:02d}"
         manifest = yaml.safe_load(
             (SYSTEMATIC_ROOT / "theorems" / f"{theorem_id}.yaml").read_text(
@@ -1051,7 +1138,7 @@ def test_systematic_manifests_do_not_load_the_historical_model() -> None:
 
 
 def test_systematic_manifests_load_only_current_proof_and_prior_theorems() -> None:
-    for proposition in range(4, 53):
+    for proposition in range(4, 57):
         theorem_id = f"E3P{proposition:02d}"
         manifest = yaml.safe_load(
             (SYSTEMATIC_ROOT / "theorems" / f"{theorem_id}.yaml").read_text(

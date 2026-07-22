@@ -1,0 +1,114 @@
+schema_version: 1
+id: E3P56
+model: ethics_iii_systematic_v1
+source_unit: E3P56
+source_text: >-
+  Il y a autant d'espèces de Joie, de Tristesse et de Désir, et des affections
+  composées ou dérivées, qu'il y a d'espèces d'objets qui nous affectent.
+fact_files: [facts/postulates.yaml]
+rule_files:
+  - rules/proofs/E3P56.rules
+rule_catalog: rules/catalog.yaml
+forbidden_rules:
+  - E3P56_passion_espece_selon_objet
+  - E3P56_objets_distincts_affects_distincts
+  - E3P56_desir_espece_selon_affect_source
+allowed_rule_origins: [textual]
+cases:
+  - id: objets_distincts_joies_distinctes
+    initial_facts:
+      - "(joie_a0 est_passion_de ame0)"
+      - "(joie_a0 nait_de_objet objet_a0)"
+      - "(objet_a0 a_nature nature_a0)"
+      - "(joie_b0 est_passion_de ame0)"
+      - "(joie_b0 nait_de_objet objet_b0)"
+      - "(objet_b0 a_nature nature_b0)"
+      - "(nature_a0 est_distincte_de nature_b0)"
+    goals:
+      - "(joie_a0 enveloppe_nature_de objet_a0)"
+      - "(joie_b0 enveloppe_nature_de objet_b0)"
+      - "(joie_a0 est_espece_affective_liee_a nature_a0)"
+      - "(joie_b0 est_espece_affective_liee_a nature_b0)"
+      - "(joie_a0 differe_par_nature_de joie_b0)"
+    expected:
+      status: proved
+      proof_depths: [1, 1, 1, 1, 2]
+  - id: meme_nature_sans_difference
+    initial_facts:
+      - "(joie_a0 est_passion_de ame0)"
+      - "(joie_a0 nait_de_objet objet_a0)"
+      - "(objet_a0 a_nature nature_commune0)"
+      - "(joie_b0 est_passion_de ame0)"
+      - "(joie_b0 nait_de_objet objet_b0)"
+      - "(objet_b0 a_nature nature_commune0)"
+    goals:
+      - "(joie_a0 est_espece_affective_liee_a nature_commune0)"
+      - "(joie_b0 est_espece_affective_liee_a nature_commune0)"
+    must_not_derive:
+      - "(joie_a0 differe_par_nature_de joie_b0)"
+    expected:
+      status: proved
+      proof_depths: [1, 1]
+  - id: affect_derive_et_desir
+    initial_facts:
+      - "(tristesse0 est_passion_de ame0)"
+      - "(tristesse0 nait_de_objet objet0)"
+      - "(objet0 a_nature nature_objet0)"
+      - "(haine0 derive_de tristesse0)"
+      - "(desir0 est_desir_de ame0)"
+      - "(desir0 nait_de haine0)"
+    goals:
+      - "(tristesse0 est_espece_affective_liee_a nature_objet0)"
+      - "(haine0 est_espece_affective_liee_a nature_objet0)"
+      - "(desir0 est_espece_affective_liee_a nature_objet0)"
+    expected:
+      status: proved
+      proof_depths: [1, 2, 3]
+  - id: especes_nommees_par_objet
+    initial_facts:
+      - "(gourmandise0 est_amour_ou_desir_immodere_de chere)"
+      - "(gourmandise0 est_affect_de ame0)"
+      - "(ivrognerie0 est_amour_ou_desir_immodere_de boisson)"
+      - "(ivrognerie0 est_affect_de ame0)"
+      - "(lubricite0 est_amour_ou_desir_immodere_de coit)"
+      - "(lubricite0 est_affect_de ame0)"
+      - "(avarice0 est_amour_ou_desir_immodere_de richesses)"
+      - "(avarice0 est_affect_de ame0)"
+      - "(ambition0 est_amour_ou_desir_immodere_de gloire)"
+      - "(ambition0 est_affect_de ame0)"
+    goals:
+      - "(gourmandise0 est_gourmandise_de ame0)"
+      - "(ivrognerie0 est_ivrognerie_de ame0)"
+      - "(lubricite0 est_lubricite_de ame0)"
+      - "(avarice0 est_avarice_de ame0)"
+      - "(ambition0 est_ambition_de ame0)"
+    expected:
+      status: proved
+      proof_depths: [1, 1, 1, 1, 1]
+  - id: conduites_gouvernantes_non_passions
+    initial_facts:
+      - "(temperance0 gouverne gourmandise0)"
+      - "(temperance0 est_conduite_raisonnable_de ame0)"
+      - "(sobriete0 gouverne ivrognerie0)"
+      - "(sobriete0 est_conduite_raisonnable_de ame0)"
+      - "(chastete0 gouverne lubricite0)"
+      - "(chastete0 est_conduite_raisonnable_de ame0)"
+    goals:
+      - "(temperance0 manifeste_puissance_gouvernante_de ame0)"
+      - entity: "(temperance0 est_affect_ou_passion_de ame0)"
+        status: FAUX
+      - "(sobriete0 manifeste_puissance_gouvernante_de ame0)"
+      - entity: "(sobriete0 est_affect_ou_passion_de ame0)"
+        status: FAUX
+      - "(chastete0 manifeste_puissance_gouvernante_de ame0)"
+      - entity: "(chastete0 est_affect_ou_passion_de ame0)"
+        status: FAUX
+    expected:
+      status: proved
+      proof_depths: [1, 1, 1, 1, 1, 1]
+formalization_status: proved_with_constructive_species_mapping
+result: proved
+limitations:
+  - >-
+    Le modèle construit une espèce affective pour chaque nature d'objet
+    instanciée ; il ne dénombre pas un domaine universel d'objets.

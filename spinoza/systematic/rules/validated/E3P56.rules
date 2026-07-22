@@ -1,0 +1,26 @@
+RULE E3P56_passion_espece_selon_objet
+WHEN
+    ($affect est_passion_de $ame)
+    ($affect nait_de_objet $objet)
+    ($objet a_nature $nature_objet)
+THEN
+    ADD ($affect est_espece_affective_liee_a $nature_objet)
+END
+
+RULE E3P56_objets_distincts_affects_distincts
+WHEN
+    ($affect_un est_espece_affective_liee_a $nature_un)
+    ($affect_deux est_espece_affective_liee_a $nature_deux)
+    ($nature_un est_distincte_de $nature_deux)
+THEN
+    ADD ($affect_un differe_par_nature_de $affect_deux)
+END
+
+RULE E3P56_desir_espece_selon_affect_source
+WHEN
+    ($desir est_desir_de $ame)
+    ($desir nait_de $affect_source)
+    ($affect_source est_espece_affective_liee_a $nature_objet)
+THEN
+    ADD ($desir est_espece_affective_liee_a $nature_objet)
+END

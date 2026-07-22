@@ -1,0 +1,22 @@
+RULE E3P53_consideration_de_soi_joie
+WHEN
+    ($ame se_considere_par $temoin_corporel)
+    ($ame considere_puissance_agir_de $ame)
+    ($joie est_temoignage_affectif_de ($ame considere $ame))
+THEN
+    ADD ($joie est_joie_de $ame)
+    ADD ($joie a_pour_cause_interieure $ame)
+END
+
+RULE E3P53_distinction_accrue_joie_accrue
+WHEN
+    ($consideration_faible est_consideration_de ($ame et puissance_agir))
+    ($consideration_faible a_degre_de_distinction $degre_faible)
+    ($joie_faible nait_de_consideration $consideration_faible)
+    ($consideration_forte est_consideration_de ($ame et puissance_agir))
+    ($consideration_forte a_degre_de_distinction $degre_fort)
+    ($degre_fort est_plus_distinct_que $degre_faible)
+    ($joie_forte nait_de_consideration $consideration_forte)
+THEN
+    ADD ($joie_forte est_plus_intense_que $joie_faible)
+END

@@ -1,0 +1,32 @@
+# E3P07 identifie l'effort de l'âme à son essence actuelle. Le contenu qui
+# pose sa puissance est ensuite affirmé par cette essence.
+RULE E3P54D_essence_affirme_contenu_possible
+WHEN
+    ($effort est_identique_ontologiquement_a $essence)
+    ($essence est_essence_actuelle_de $ame)
+    ($contenu pose_puissance_agir_de $ame)
+THEN
+    ADD ($essence affirme $contenu)
+END
+
+RULE E3P54D_essence_determine_effort_d_imaginer
+WHEN
+    ($effort est_identique_ontologiquement_a $essence)
+    ($essence est_essence_actuelle_de $ame)
+    ($essence affirme $contenu)
+THEN
+    ADD ($effort est_effort_d_imaginer $contenu)
+    ADD ($ame s_efforce_d_imaginer $contenu)
+END
+
+# Le « seulement » est une exclusion explicite. Il ne repose jamais sur
+# l'absence silencieuse d'une règle produisant l'effort.
+RULE E3P54D_essence_n_affirme_pas_impuissance
+WHEN
+    ($effort est_identique_ontologiquement_a $essence)
+    ($essence est_essence_actuelle_de $ame)
+    ($contenu nie_puissance_agir_de $ame)
+THEN
+    ADD ($essence affirme $contenu) ' FAUX
+    ADD ($ame s_efforce_d_imaginer $contenu) ' FAUX
+END

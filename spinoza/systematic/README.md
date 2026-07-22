@@ -23,7 +23,7 @@ règle qui contient déjà sa conclusion. Pour tester `E3Pxx`, le manifeste :
 4. demande au moteur de dériver des faits représentant l'énoncé ;
 5. conserve la chaîne minimale des règles effectivement employées.
 
-## Fragments exécutables : E3P01–E3P52
+## Fragments exécutables : E3P01–E3P56
 
 Le fragment initial formalise :
 
@@ -143,6 +143,15 @@ trait singulier exige une absence associative explicite et produit les
 variantes textuelles de l'étonnement ou du mépris. L'audit est publié dans
 [`reports/tranche_e3p49_e3p52.md`](reports/tranche_e3p49_e3p52.md).
 
+E3P53–E3P56 ancrent la connaissance de soi dans l'affection du corps et son
+idée, puis transmettent qualitativement distinction, louange et blâme aux
+affects correspondants. E3P54 qualifie positivement les contenus qui posent ou
+nient la puissance. E3P55 exige la similitude pour l'envie de la vertu et
+distingue celle-ci de la vénération d'une vertu étrangère. E3P56 construit les
+espèces affectives selon les natures d'objets instanciées et sépare les
+conduites gouvernantes des passions. L'audit est publié dans
+[`reports/tranche_e3p53_e3p56.md`](reports/tranche_e3p53_e3p56.md).
+
 Le lanceur expose pour chaque cas le nombre de faits initiaux et dérivés, le
 nombre de dérivations et toutes les règles activées. Ces données permettent un
 audit en lecture seule de la clôture sans modifier le moteur d'inférence.
@@ -209,3 +218,8 @@ une simple chose en présage sans association d'espoir ou de crainte. E3P51
 réifie les épisodes corporels et temporels sans les réduire à une identité
 globale de la personne. E3P52 compare qualitativement des durées d'attention,
 sans horloge numérique, et exige un fait positif d'absence d'alternative.
+E3P53 ne fournit pas de métrique de distinction. E3P54 exprime l'exclusivité
+par qualification et statut `FAUX`, non par quantification universelle. E3P55
+ne génère pas spontanément les deux branches d'une alternative pratique.
+E3P56 construit une correspondance entre objets et espèces affectives sans
+fermer ni dénombrer le domaine des objets.

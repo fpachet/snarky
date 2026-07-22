@@ -212,7 +212,11 @@ formalisation systématique des propositions concernées.
    le `doute` de SpinoLog pour E3P49 est remplacé par un ordre qualitatif à
    motif égal. Le rapport indique que E3P50–E3P53 n'étaient pas exploitées ;
    la reconstruction de E3P50–E3P52 repart donc directement du texte.
-6. Après E3P59, évaluer séparément méta-ontologie, témoins frais et génération
+6. L'audit E3P53–E3P56 est réalisé dans
+   [`../systematic/reports/tranche_e3p53_e3p56.md`](../systematic/reports/tranche_e3p53_e3p56.md) :
+   E3P53, explicitement non exploitée par SpinoLog, est reconstruite depuis le
+   texte ; E3P54–E3P56 restent également isolées des règles historiques.
+7. Après E3P59, évaluer séparément méta-ontologie, témoins frais et génération
    d'hypothèses.
 
 Le rapport sert ainsi à la fois de source historique, de jeu de régression et

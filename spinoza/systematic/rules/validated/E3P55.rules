@@ -1,0 +1,21 @@
+RULE E3P55_image_impuissance_tristesse
+WHEN
+    ($ame imagine ($ame est_impuissante_a $action))
+    ($image_impuissance est_image_de ($ame est_impuissante_a $action))
+    ($effort est_effort_d_imaginer $contenu_puissant)
+    ($contenu_puissant pose_puissance_agir_de $ame)
+    ($tristesse est_temoignage_affectif_de ($image_impuissance reduit $effort))
+THEN
+    ADD ($image_impuissance reduit $effort)
+    ADD ($tristesse est_tristesse_de $ame)
+END
+
+RULE E3P55C_envie_vertu_exige_pair
+WHEN
+    ($autrui est_semblable_affectivement_pour $ame)
+    ($ame imagine ($autrui a_vertu $vertu))
+    ($tristesse est_tristesse_de $ame)
+    ($tristesse nait_de_vertu_imaginee_de $autrui)
+THEN
+    ADD ($ame eprouve_envie_envers $autrui)
+END

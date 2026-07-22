@@ -54,8 +54,12 @@
 | E3P50 | 4 | causes accidentelles, présages, croyance et superstition | E3P15, E3P18, E3P25, E3P28 |
 | E3P51 | 6 | diversité corporelle, temporelle, jugements et courage | E2POST3, E3P28, E3P39, E3P49 |
 | E3P52 | 6 | attention prolongée, étonnement et mépris | E2P18, E3P12, E3P15, E3P27 |
+| E3P53 | 4 | connaissance de soi, joie, distinction et louange | E2P19, E2P23, E3P11, E3P27, E3P29 |
+| E3P54 | 3 | essence, contenus posant la puissance et exclusion explicite | E3P07 |
+| E3P55 | 7 | impuissance, humilité, amour-propre, envie et vénération | E3P09, E3P11, E3P24, E3P28, E3P32, E3P52–E3P54 |
+| E3P56 | 5 | espèces affectives, objets et conduites gouvernantes | E2P17, E2P40, E3P01, E3P03, E3P09, E3P11 |
 
-Couverture actuelle : 52 propositions sur 59. Toutes les propositions depuis
+Couverture actuelle : 56 propositions sur 59. Toutes les propositions depuis
 E3P04 possèdent au moins un contre-cas de non-dérivation. E3P09 et E3P11
 exécutent aussi les principaux fragments ontologiques de leurs scolies :
 volonté, appétit, désir, jugement de bonté, joie, tristesse et leurs variantes
@@ -74,7 +78,9 @@ haine. E3P41–E3P44 ajoutent gratitude, cruauté, ingratitude et transformation
 de la haine en amour. E3P45–E3P48 ajoutent transfert triangulaire,
 généralisation sociale, affect mixte et réattribution causale. E3P49–E3P52
 ajoutent liberté et nécessité imaginées, présages, variabilité affective et
-attention singulière. La prochaine frontière est E3P53.
+attention singulière. E3P53–E3P56 ajoutent connaissance de soi, exclusivité
+des contenus de puissance, comparaison sociale et espèces affectives. La
+prochaine frontière est E3P57.
 
 L'ordre des tranches, leurs concepts et leurs critères de sortie sont décrits
 dans [`roadmap.md`](roadmap.md).
@@ -165,3 +171,12 @@ distingue les manières corporelles et les temps concernés. E3P52 exige une
 absence associative positive avant de prolonger la considération et reste
 ordinal plutôt que chronométrique. L'audit est publié dans
 [`tranche_e3p49_e3p52.md`](tranche_e3p49_e3p52.md).
+
+E3P53 exige le lien positif entre corps, affection et idée avant de produire
+la joie de se considérer. E3P54 ne tire rien d'un contenu neutre et représente
+explicitement comme `FAUX` l'effort dirigé vers un contenu qui nie la
+puissance. E3P55 n'infère l'envie de la vertu qu'envers un semblable et marque
+positivement son exclusion envers une nature étrangère. E3P56 ne distingue
+deux affects qu'après distinction des natures de leurs objets et ne confond
+pas conduite gouvernante et passion. L'audit est publié dans
+[`tranche_e3p53_e3p56.md`](tranche_e3p53_e3p56.md).

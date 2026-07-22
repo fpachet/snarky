@@ -102,7 +102,7 @@ script générateur.
 Le dossier [`systematic`](systematic/README.md) reprend la formalisation à
 partir des définitions, postulats et dépendances explicites. Il ne charge pas
 les règles historiques. Les fragments exécutables couvrent désormais
-E3P01–E3P52 et rendent visibles les ponts importés des parties I et II.
+E3P01–E3P56 et rendent visibles les ponts importés des parties I et II.
 
 Cette couverture comprend notamment le conatus, les affects primitifs,
 l'imagination et la mémoire, les affects temporels, l'amour et la haine, leur
@@ -129,7 +129,12 @@ les présages issus d'associations affectives, la variabilité individuelle et
 temporelle, puis l'attention prolongée et les familles de l'étonnement et du
 mépris. L'absence d'alternative associative reste un fait positif.
 
-Huit rapports décrivent les derniers jalons et leur comparaison avec Gondran
+E3P53–E3P56 relient la considération de soi aux affections corporelles,
+représentent explicitement le « seulement » des contenus qui posent la
+puissance, distinguent humilité, amour-propre, envie et vénération, puis
+construisent les espèces affectives selon la nature de leurs objets.
+
+Neuf rapports décrivent les derniers jalons et leur comparaison avec Gondran
 et Cavarretta :
 
 - [`systematic/reports/milestone_e3p19_e3p22.md`](systematic/reports/milestone_e3p19_e3p22.md) ;
@@ -139,10 +144,11 @@ et Cavarretta :
 - [`systematic/reports/tranche_e3p37_e3p40.md`](systematic/reports/tranche_e3p37_e3p40.md) ;
 - [`systematic/reports/tranche_e3p41_e3p44.md`](systematic/reports/tranche_e3p41_e3p44.md) ;
 - [`systematic/reports/tranche_e3p45_e3p48.md`](systematic/reports/tranche_e3p45_e3p48.md) ;
-- [`systematic/reports/tranche_e3p49_e3p52.md`](systematic/reports/tranche_e3p49_e3p52.md).
+- [`systematic/reports/tranche_e3p49_e3p52.md`](systematic/reports/tranche_e3p49_e3p52.md) ;
+- [`systematic/reports/tranche_e3p53_e3p56.md`](systematic/reports/tranche_e3p53_e3p56.md).
 
-La suite de tests comprend actuellement 82 tests réussis. La prochaine
-frontière est E3P53 : elle doit relier la considération de soi à la joie et à
-la tristesse qui en découlent. Le
+La suite de tests comprend actuellement 86 tests réussis. La prochaine
+frontière est E3P57 : elle doit relier la différence des affects individuels
+à celle des essences, avant les deux propositions sur les affects actifs. Le
 [`plan de modélisation`](systematic/reports/roadmap.md) décrit l'ordre complet
 jusqu'à E3P59 et aux définitions finales des affects.

@@ -1,0 +1,87 @@
+# Chaque passion exprime la nature de l'objet extérieur qui l'a déterminée.
+RULE E3P56D_passion_enveloppe_nature_objet
+WHEN
+    ($affect est_passion_de $ame)
+    ($affect nait_de_objet $objet)
+    ($objet a_nature $nature_objet)
+THEN
+    ADD ($affect enveloppe_nature_de $objet)
+    ADD ($affect est_espece_affective_liee_a $nature_objet)
+END
+
+RULE E3P56D_causes_distinctes_especes_distinctes
+WHEN
+    ($affect_un est_espece_affective_liee_a $nature_un)
+    ($affect_deux est_espece_affective_liee_a $nature_deux)
+    ($nature_un est_distincte_de $nature_deux)
+THEN
+    ADD ($affect_un differe_par_nature_de $affect_deux)
+END
+
+RULE E3P56D_affect_derive_conserve_espece_objet
+WHEN
+    ($affect_derive derive_de $affect_source)
+    ($affect_source est_espece_affective_liee_a $nature_objet)
+THEN
+    ADD ($affect_derive est_espece_affective_liee_a $nature_objet)
+END
+
+RULE E3P56D_desir_differencie_par_affect_source
+WHEN
+    ($desir est_desir_de $ame)
+    ($desir nait_de $affect_source)
+    ($affect_source est_espece_affective_liee_a $nature_objet)
+THEN
+    ADD ($desir est_espece_affective_liee_a $nature_objet)
+END
+
+RULE E3P56S_objet_chere_gourmandise
+WHEN
+    ($affect est_amour_ou_desir_immodere_de chere)
+    ($affect est_affect_de $ame)
+THEN
+    ADD ($affect est_gourmandise_de $ame)
+END
+
+RULE E3P56S_objet_boisson_ivrognerie
+WHEN
+    ($affect est_amour_ou_desir_immodere_de boisson)
+    ($affect est_affect_de $ame)
+THEN
+    ADD ($affect est_ivrognerie_de $ame)
+END
+
+RULE E3P56S_objet_coit_lubricite
+WHEN
+    ($affect est_amour_ou_desir_immodere_de coit)
+    ($affect est_affect_de $ame)
+THEN
+    ADD ($affect est_lubricite_de $ame)
+END
+
+RULE E3P56S_objet_richesses_avarice
+WHEN
+    ($affect est_amour_ou_desir_immodere_de richesses)
+    ($affect est_affect_de $ame)
+THEN
+    ADD ($affect est_avarice_de $ame)
+END
+
+RULE E3P56S_objet_gloire_ambition
+WHEN
+    ($affect est_amour_ou_desir_immodere_de gloire)
+    ($affect est_affect_de $ame)
+THEN
+    ADD ($affect est_ambition_de $ame)
+END
+
+# Tempérance, sobriété et chasteté ne sont pas des affects contraires : elles
+# manifestent une puissance de gouvernement explicitement déclarée.
+RULE E3P56S_gouvernement_n_est_pas_passion_contraire
+WHEN
+    ($conduite gouverne $affect)
+    ($conduite est_conduite_raisonnable_de $ame)
+THEN
+    ADD ($conduite manifeste_puissance_gouvernante_de $ame)
+    ADD ($conduite est_affect_ou_passion_de $ame) ' FAUX
+END

@@ -1,0 +1,86 @@
+schema_version: 1
+id: E3P53
+model: ethics_iii_systematic_v1
+source_unit: E3P53
+source_text: >-
+  Quand l'Âme se considère elle-même et considère sa puissance d'agir, elle
+  est joyeuse, et d'autant plus qu'elle s'imagine plus distinctement.
+fact_files: [facts/postulates.yaml]
+rule_files:
+  - rules/validated/E3P11.rules
+  - rules/proofs/E3P53.rules
+rule_catalog: rules/catalog.yaml
+forbidden_rules:
+  - E3P53_consideration_de_soi_joie
+  - E3P53_distinction_accrue_joie_accrue
+allowed_rule_origins: [external_textual, textual, textual_theorem]
+cases:
+  - id: consideration_de_soi_et_puissance
+    initial_facts:
+      - "(ame0 est_idee_de corps0)"
+      - "(affection0 est_affection_de corps0)"
+      - "(idee_affection0 est_idee_de affection0)"
+      - "(ame0 se_considere_par (affection0 et idee_affection0))"
+      - "(ame0 considere_puissance_agir_de ame0)"
+      - "(idee_soi0 est_idee_de ame0)"
+      - "(joie0 est_temoignage_affectif_de (ame0 considere ame0))"
+    goals:
+      - "(ame0 se_connait_par (affection0 et idee_affection0))"
+      - "(joie0 est_passion_de ame0)"
+      - "(joie0 fait_passer_ame_vers perfection_plus_grande)"
+      - "(joie0 a_pour_cause_interieure ame0)"
+      - "(joie0 est_joie_de ame0)"
+    expected:
+      status: proved
+      proof_depths: [1, 2, 2, 2, 3]
+  - id: consideration_sans_lien_corporel
+    initial_facts:
+      - "(ame0 est_idee_de corps0)"
+      - "(affection0 est_affection_de autre_corps0)"
+      - "(idee_affection0 est_idee_de affection0)"
+      - "(ame0 se_considere_par (affection0 et idee_affection0))"
+      - "(ame0 considere_puissance_agir_de ame0)"
+      - "(idee_soi0 est_idee_de ame0)"
+      - "(joie0 est_temoignage_affectif_de (ame0 considere ame0))"
+    goals: []
+    must_not_derive:
+      - "(ame0 se_connait_par (affection0 et idee_affection0))"
+      - "(joie0 est_joie_de ame0)"
+    expected: {status: proved}
+  - id: imagination_plus_distincte
+    initial_facts:
+      - "(consideration_faible0 est_consideration_de (ame0 et puissance_agir))"
+      - "(consideration_faible0 a_degre_de_distinction degre_faible0)"
+      - "(joie_faible0 nait_de_consideration consideration_faible0)"
+      - "(consideration_forte0 est_consideration_de (ame0 et puissance_agir))"
+      - "(consideration_forte0 a_degre_de_distinction degre_fort0)"
+      - "(degre_fort0 est_plus_distinct_que degre_faible0)"
+      - "(joie_forte0 nait_de_consideration consideration_forte0)"
+    goals:
+      - "(joie_forte0 est_plus_intense_que joie_faible0)"
+    expected:
+      status: proved
+      proof_depths: [1]
+  - id: corollaire_louange_imaginee
+    initial_facts:
+      - "(ame0 imagine (autrui0 loue ame0))"
+      - "(joie_base0 est_joie_de ame0)"
+      - "(joie_base0 a_pour_cause_interieure ame0)"
+      - "(joie_autrui0 est_joie_imaginee_de autrui0)"
+      - "(joie_autrui0 a_pour_cause_imaginee ame0)"
+      - "(joie_louange0 est_imitation_de joie_autrui0)"
+      - "(idee_soi0 est_idee_de ame0)"
+    goals:
+      - "(joie_louange0 est_joie_de ame0)"
+      - "(idee_soi0 accompagne joie_louange0)"
+      - "(joie_louange0 a_pour_cause_interieure ame0)"
+      - "(joie_louange0 est_plus_intense_que joie_base0)"
+    expected:
+      status: proved
+      proof_depths: [1, 1, 1, 1]
+formalization_status: proved_with_corporeal_self_knowledge_and_qualitative_intensity
+result: proved
+limitations:
+  - >-
+    La distinction et l'intensité sont des ordres qualitatifs entre témoins ;
+    aucune métrique numérique n'est introduite.
