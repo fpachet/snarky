@@ -58,6 +58,10 @@ Le contenu actuel comprend :
   la spécification du cas d’étude Spinoza ;
 - [`docs/Gondran.ppt`](docs/Gondran.ppt), la présentation historique de Michel
   Gondran sur la modélisation de l’*Éthique* en SNARK/BOOJUM ;
+- [`docs/Cavarretta-X1988-SpinozaExpertSystem.pdf`](docs/Cavarretta-X1988-SpinozaExpertSystem.pdf),
+  le rapport complet de Fabrice Cavarretta sur SpinoLog ; ses apports possibles
+  au projet sont analysés dans
+  [`spinoza/reports/spinolog_1988_enrichment.md`](spinoza/reports/spinolog_1988_enrichment.md) ;
 - [`spinoza`](spinoza/README.md), la base historique exécutable, les quatre
   preuves reproduites et le corpus structuré des 59 propositions de
   l’Éthique III ;
