@@ -207,7 +207,12 @@ formalisation systématique des propositions concernées.
    [`../systematic/reports/tranche_e3p45_e3p48.md`](../systematic/reports/tranche_e3p45_e3p48.md) :
    les conclusions annexes de E3P45 sont interdites, l'écart textuel de E3P47
    est marqué interprétatif, et E3P48 sépare réattribution, négation et doute.
-5. Après E3P59, évaluer séparément méta-ontologie, témoins frais et génération
+5. L'audit E3P49–E3P52 est réalisé dans
+   [`../systematic/reports/tranche_e3p49_e3p52.md`](../systematic/reports/tranche_e3p49_e3p52.md) :
+   le `doute` de SpinoLog pour E3P49 est remplacé par un ordre qualitatif à
+   motif égal. Le rapport indique que E3P50–E3P53 n'étaient pas exploitées ;
+   la reconstruction de E3P50–E3P52 repart donc directement du texte.
+6. Après E3P59, évaluer séparément méta-ontologie, témoins frais et génération
    d'hypothèses.
 
 Le rapport sert ainsi à la fois de source historique, de jeu de régression et

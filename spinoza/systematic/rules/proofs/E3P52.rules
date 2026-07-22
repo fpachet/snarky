@@ -1,0 +1,133 @@
+# Un objet déjà vu avec d'autres réactive leur association et détourne la
+# considération vers un autre objet.
+RULE E3P52D_objet_coobserve_rappelle_autre
+WHEN
+    ($episode a_montre_simultanement $objet)
+    ($episode a_montre_simultanement $autre)
+    ($ame se_souvient_de $episode)
+    ($ame considere $objet)
+THEN
+    ADD ($ame se_souvient_de $autre)
+    ADD ($ame passe_de_consideration ($objet vers $autre))
+END
+
+RULE E3P52D_objet_commun_detourne_consideration
+WHEN
+    ($ame imagine ($objet n_a_que_trait_commun $trait))
+    ($trait est_commun_a $autre)
+    ($ame considere $objet)
+THEN
+    ADD ($ame passe_de_consideration ($objet vers $autre))
+END
+
+# Pour la singularité, l'absence d'alternative associative est un fait
+# positif. Elle ne résulte jamais de l'absence silencieuse d'une association.
+RULE E3P52D_singularite_retient_consideration
+WHEN
+    ($ame imagine ($objet a_trait_singulier $trait))
+    ($ame n_a_jamais_vu_avant $trait)
+    ($ame est_sans_alternative_associative_pour $objet)
+    ($consideration est_consideration_de $objet)
+THEN
+    ADD ($ame considere_uniquement $objet)
+    ADD ($consideration est_prolongee VRAI)
+END
+
+RULE E3P52D_consideration_singuliere_plus_longue
+WHEN
+    ($ame passe_de_consideration ($objet_commun vers $autre))
+    ($consideration_commune est_consideration_de $objet_commun)
+    ($consideration_singuliere est_consideration_de $objet_singulier)
+    ($consideration_singuliere est_prolongee VRAI)
+THEN
+    ADD ($consideration_singuliere est_plus_longue_que $consideration_commune)
+END
+
+RULE E3P52S_singularite_isolee_etonnement
+WHEN
+    ($ame imagine ($objet a_trait_singulier $trait))
+    ($ame considere_uniquement $objet)
+    ($etonnement est_temoignage_etonnement_de ($ame envers $objet))
+THEN
+    ADD ($etonnement est_etonnement_de $ame)
+    ADD ($etonnement a_pour_objet $objet)
+END
+
+RULE E3P52S_etonnement_mal_consternation
+WHEN
+    ($etonnement est_etonnement_de $ame)
+    ($etonnement a_pour_objet $mal)
+    ($ame craint $mal)
+    ($ame est_incapable_de_considerer_moyen_d_eviter $mal)
+    ($consternation est_temoignage_consternation_de $mal)
+THEN
+    ADD ($consternation est_consternation_de $ame)
+END
+
+RULE E3P52S_etonnement_prudence_veneration
+WHEN
+    ($etonnement est_etonnement_de $ame)
+    ($etonnement a_pour_objet $homme)
+    ($ame imagine ($homme a_trait prudence))
+    ($ame considere ($homme l_emporte_sur $ame))
+    ($veneration est_temoignage_veneration_de $homme)
+THEN
+    ADD ($veneration est_veneration_de $ame)
+END
+
+RULE E3P52S_etonnement_colere_horreur
+WHEN
+    ($etonnement est_etonnement_de $ame)
+    ($etonnement a_pour_objet $homme)
+    ($ame imagine ($homme a_trait colere))
+    ($horreur est_temoignage_horreur_de $homme)
+THEN
+    ADD ($horreur est_horreur_de $ame)
+END
+
+RULE E3P52S_amour_joint_etonnement_ferveur
+WHEN
+    ($ame aime $objet)
+    ($etonnement est_etonnement_de $ame)
+    ($etonnement a_pour_objet $objet)
+    ($amour est_amour_de ($ame envers $objet))
+    ($amour_ordinaire est_amour_sans_etonnement_de ($ame envers $objet))
+    ($ferveur est_temoignage_ferveur_de ($ame envers $objet))
+THEN
+    ADD ($ferveur est_ferveur_de $ame)
+    ADD ($amour est_plus_intense_que $amour_ordinaire)
+END
+
+# Le mépris exige une négation explicite de toutes les causes pertinentes.
+RULE E3P52S_negation_causes_etonnement_mepris
+WHEN
+    ($ame considere_attentivement $objet)
+    ($ame nie_toute_cause_d_etonnement_dans $objet)
+    ($ame nie_toute_cause_d_amour_dans $objet)
+    ($ame nie_toute_cause_de_crainte_dans $objet)
+    ($mepris est_temoignage_mepris_de ($ame envers $objet))
+THEN
+    ADD ($mepris est_mepris_de $ame)
+    ADD ($mepris a_pour_objet $objet)
+    ADD ($ame pense_surtout_a_ce_qui_n_est_pas_dans $objet)
+END
+
+RULE E3P52S_mepris_chose_haie_derision
+WHEN
+    ($mepris est_mepris_de $ame)
+    ($mepris a_pour_objet $objet)
+    ($ame hait $objet)
+    ($derision est_temoignage_derision_de ($ame envers $objet))
+THEN
+    ADD ($derision est_derision_de $ame)
+END
+
+RULE E3P52S_mepris_sottise_dedain
+WHEN
+    ($mepris est_mepris_de $ame)
+    ($mepris a_pour_objet $objet)
+    ($ame imagine ($objet a_trait sottise))
+    ($dedain est_temoignage_dedain_de ($ame envers $objet))
+THEN
+    ADD ($dedain est_dedain_de $ame)
+END

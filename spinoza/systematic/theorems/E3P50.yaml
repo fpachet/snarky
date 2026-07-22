@@ -1,0 +1,104 @@
+schema_version: 1
+id: E3P50
+model: ethics_iii_systematic_v1
+source_unit: E3P50
+source_text: >-
+  Une chose quelconque peut par accident être cause d'Espoir ou de Crainte.
+fact_files: [facts/postulates.yaml]
+rule_files:
+  - rules/validated/E3P15.rules
+  - rules/proofs/E3P50.rules
+rule_catalog: rules/catalog.yaml
+forbidden_rules:
+  - E3P50_chose_accidentelle_cause_espoir
+  - E3P50_chose_accidentelle_cause_crainte
+  - E3P50S_cause_espoir_bon_presage
+  - E3P50S_cause_crainte_mauvais_presage
+allowed_rule_origins: [textual, textual_theorem]
+cases:
+  - id: bon_presage
+    initial_facts:
+      - "(presage0 est_cause_efficiente_de affection_neutre0)"
+      - "(affection_neutre0 est_neutre_pour_puissance_de ame0)"
+      - "(espoir0 est_associe_par_memoire_a affection_neutre0)"
+      - entity: "(presage0 est_cause_efficiente_de espoir0)"
+        status: FAUX
+      - "(espoir0 est_espoir_de ame0)"
+      - "(espoir0 nait_de_image_temporelle image0)"
+      - "(espoir0 porte_sur_issue issue0)"
+      - "(image0 porte_sur_issue issue0)"
+    goals:
+      - "(presage0 est_cause_accidentelle_de espoir0)"
+      - "(presage0 est_cause_accidentelle_d_espoir_pour ame0)"
+      - "(presage0 est_bon_presage_pour ame0)"
+      - "(espoir0 est_joie_de ame0)"
+      - "(ame0 aime presage0)"
+      - "(ame0 s_efforce_d_employer_comme_moyen presage0)"
+    expected:
+      status: proved
+      proof_depths: [1, 2, 3, 3, 3, 3]
+  - id: mauvais_presage
+    initial_facts:
+      - "(presage0 est_cause_efficiente_de affection_neutre0)"
+      - "(affection_neutre0 est_neutre_pour_puissance_de ame0)"
+      - "(crainte0 est_associe_par_memoire_a affection_neutre0)"
+      - entity: "(presage0 est_cause_efficiente_de crainte0)"
+        status: FAUX
+      - "(crainte0 est_crainte_de ame0)"
+      - "(crainte0 nait_de_image_temporelle image0)"
+      - "(crainte0 porte_sur_issue issue0)"
+      - "(image0 porte_sur_issue issue0)"
+    goals:
+      - "(presage0 est_cause_accidentelle_de crainte0)"
+      - "(presage0 est_cause_accidentelle_de_crainte_pour ame0)"
+      - "(presage0 est_mauvais_presage_pour ame0)"
+      - "(crainte0 est_tristesse_de ame0)"
+      - "(ame0 hait presage0)"
+      - "(ame0 s_efforce_d_ecarter presage0)"
+    expected:
+      status: proved
+      proof_depths: [1, 2, 3, 3, 3, 3]
+  - id: espoir_crainte_croyance_et_superstition
+    initial_facts:
+      - "(espoir0 est_espoir_de ame0)"
+      - "(espoir0 porte_sur_issue issue0)"
+      - "(crainte0 est_crainte_de ame0)"
+      - "(crainte0 porte_sur_issue issue0)"
+      - "(ame0 espere issue0)"
+      - "(croyance_espoir0 porte_sur issue0)"
+      - "(ame0 craint issue_redoutee0)"
+      - "(croyance_crainte0 porte_sur issue_redoutee0)"
+      - "(presage0 est_cause_accidentelle_de espoir0)"
+      - "(ame0 traite_comme_signe_necessaire (presage0 annonce issue0))"
+      - "(superstition0 est_temoignage_superstition_de (ame0 envers presage0))"
+    goals:
+      - "(espoir0 ne_va_pas_sans crainte0)"
+      - "(crainte0 ne_va_pas_sans espoir0)"
+      - "(ame0 croit_facilement croyance_espoir0)"
+      - "(ame0 fait_plus_de_cas_que_juste_de issue0)"
+      - "(ame0 croit_difficilement croyance_crainte0)"
+      - "(ame0 fait_moins_de_cas_que_juste_de issue_redoutee0)"
+      - "(superstition0 est_superstition_de ame0)"
+    expected:
+      status: proved
+      proof_depths: [1, 1, 1, 1, 1, 1, 1]
+  - id: chose_neutre_sans_association
+    initial_facts:
+      - "(presage0 est_cause_efficiente_de affection_neutre0)"
+      - "(affection_neutre0 est_neutre_pour_puissance_de ame0)"
+      - entity: "(presage0 est_cause_efficiente_de espoir0)"
+        status: FAUX
+      - "(espoir0 est_espoir_de ame0)"
+      - "(espoir0 nait_de_image_temporelle image0)"
+      - "(image0 porte_sur_issue issue0)"
+    goals: []
+    must_not_derive:
+      - "(presage0 est_cause_accidentelle_de espoir0)"
+      - "(presage0 est_bon_presage_pour ame0)"
+    expected: {status: proved}
+formalization_status: proved_with_scholium_presages_and_superstition
+result: proved
+limitations:
+  - >-
+    Le présage reste une cause accidentelle issue d'une association explicite.
+    Il ne devient jamais cause efficiente réelle de l'issue attendue.

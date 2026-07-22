@@ -50,8 +50,12 @@
 | E3P46 | 3 | nom général, classe ou nation et transfert aux membres | E3P13, E3P16 |
 | E3P47 | 4 | joie mêlée de tristesse et souvenir du mal passé | E2P17, E3P20, E3P23, E3P27 |
 | E3P48 | 4 | réattribution totale, cause partagée et ordre causal | E3P13 |
+| E3P49 | 4 | cause libre ou nécessaire, motif égal et intensité ordinale | E1D7, E3P13 |
+| E3P50 | 4 | causes accidentelles, présages, croyance et superstition | E3P15, E3P18, E3P25, E3P28 |
+| E3P51 | 6 | diversité corporelle, temporelle, jugements et courage | E2POST3, E3P28, E3P39, E3P49 |
+| E3P52 | 6 | attention prolongée, étonnement et mépris | E2P18, E3P12, E3P15, E3P27 |
 
-Couverture actuelle : 48 propositions sur 59. Toutes les propositions depuis
+Couverture actuelle : 52 propositions sur 59. Toutes les propositions depuis
 E3P04 possèdent au moins un contre-cas de non-dérivation. E3P09 et E3P11
 exécutent aussi les principaux fragments ontologiques de leurs scolies :
 volonté, appétit, désir, jugement de bonté, joie, tristesse et leurs variantes
@@ -68,8 +72,9 @@ ordonnée, jalousie triangulaire et configuration mémorielle. E3P37–E3P40
 ajoutent désir ordonné, haine accrue, action inhibée et réciprocité de la
 haine. E3P41–E3P44 ajoutent gratitude, cruauté, ingratitude et transformation
 de la haine en amour. E3P45–E3P48 ajoutent transfert triangulaire,
-généralisation sociale, affect mixte et réattribution causale. La prochaine
-frontière est E3P49.
+généralisation sociale, affect mixte et réattribution causale. E3P49–E3P52
+ajoutent liberté et nécessité imaginées, présages, variabilité affective et
+attention singulière. La prochaine frontière est E3P53.
 
 L'ordre des tranches, leurs concepts et leurs critères de sortie sont décrits
 dans [`roadmap.md`](roadmap.md).
@@ -152,3 +157,11 @@ similitude ; son scolie distingue réduction et suppression. E3P48 ne confond
 ni diminution et destruction, ni retrait causal et négation, ni révision
 affective et doute. L'audit est publié dans
 [`tranche_e3p45_e3p48.md`](tranche_e3p45_e3p48.md).
+
+E3P49 compare l'amour et la haine seulement quand le motif est explicitement
+égal et ne remplace pas l'intensité par le doute. E3P50 exige une association
+positive avec l'espoir ou la crainte avant de produire un présage. E3P51
+distingue les manières corporelles et les temps concernés. E3P52 exige une
+absence associative positive avant de prolonger la considération et reste
+ordinal plutôt que chronométrique. L'audit est publié dans
+[`tranche_e3p49_e3p52.md`](tranche_e3p49_e3p52.md).

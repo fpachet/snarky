@@ -1,0 +1,131 @@
+schema_version: 1
+id: E3P52
+model: ethics_iii_systematic_v1
+source_unit: E3P52
+source_text: >-
+  Un objet déjà vu avec d'autres, ou n'ayant rien que de commun, n'est pas
+  considéré aussi longtemps qu'un objet imaginé avec quelque chose de
+  singulier.
+fact_files: [facts/postulates.yaml]
+rule_files:
+  - rules/proofs/E3P52.rules
+rule_catalog: rules/catalog.yaml
+forbidden_rules:
+  - E3P52_objet_singulier_consideration_plus_longue
+  - E3P52S_singularite_isolee_produit_etonnement
+allowed_rule_origins: [textual]
+cases:
+  - id: objet_commun_et_objet_singulier
+    initial_facts:
+      - "(episode0 a_montre_simultanement objet_commun0)"
+      - "(episode0 a_montre_simultanement autre0)"
+      - "(ame0 se_souvient_de episode0)"
+      - "(ame0 considere objet_commun0)"
+      - "(consideration_commune0 est_consideration_de objet_commun0)"
+      - "(ame0 imagine (objet_singulier0 a_trait_singulier trait0))"
+      - "(ame0 n_a_jamais_vu_avant trait0)"
+      - "(ame0 est_sans_alternative_associative_pour objet_singulier0)"
+      - "(consideration_singuliere0 est_consideration_de objet_singulier0)"
+    goals:
+      - "(ame0 se_souvient_de autre0)"
+      - "(ame0 passe_de_consideration (objet_commun0 vers autre0))"
+      - "(ame0 considere_uniquement objet_singulier0)"
+      - "(consideration_singuliere0 est_prolongee VRAI)"
+      - "(consideration_singuliere0 est_plus_longue_que consideration_commune0)"
+    must_not_derive:
+      - "(objet_singulier0 a_trait_singulier trait0)"
+    expected:
+      status: proved
+      proof_depths: [1, 1, 1, 1, 2]
+  - id: singularite_sans_absence_positive
+    initial_facts:
+      - "(ame0 imagine (objet_singulier0 a_trait_singulier trait0))"
+      - "(ame0 n_a_jamais_vu_avant trait0)"
+      - "(consideration0 est_consideration_de objet_singulier0)"
+    goals: []
+    must_not_derive:
+      - "(ame0 considere_uniquement objet_singulier0)"
+      - "(consideration0 est_prolongee VRAI)"
+    expected: {status: proved}
+  - id: objet_n_ayant_que_trait_commun
+    initial_facts:
+      - "(ame0 imagine (objet_commun0 n_a_que_trait_commun trait0))"
+      - "(trait0 est_commun_a autre0)"
+      - "(ame0 considere objet_commun0)"
+      - "(consideration_commune0 est_consideration_de objet_commun0)"
+      - "(ame0 imagine (objet_singulier0 a_trait_singulier trait_singulier0))"
+      - "(ame0 n_a_jamais_vu_avant trait_singulier0)"
+      - "(ame0 est_sans_alternative_associative_pour objet_singulier0)"
+      - "(consideration_singuliere0 est_consideration_de objet_singulier0)"
+    goals:
+      - "(ame0 passe_de_consideration (objet_commun0 vers autre0))"
+      - "(ame0 considere_uniquement objet_singulier0)"
+      - "(consideration_singuliere0 est_prolongee VRAI)"
+      - "(consideration_singuliere0 est_plus_longue_que consideration_commune0)"
+    expected:
+      status: proved
+      proof_depths: [1, 1, 1, 2]
+  - id: etonnement_consternation_veneration_horreur
+    initial_facts:
+      - "(ame0 imagine (mal0 a_trait_singulier trait_mal0))"
+      - "(ame0 considere_uniquement mal0)"
+      - "(etonnement_mal0 est_temoignage_etonnement_de (ame0 envers mal0))"
+      - "(ame0 craint mal0)"
+      - "(ame0 est_incapable_de_considerer_moyen_d_eviter mal0)"
+      - "(consternation0 est_temoignage_consternation_de mal0)"
+      - "(etonnement_prudent0 est_etonnement_de ame0)"
+      - "(etonnement_prudent0 a_pour_objet prudent0)"
+      - "(ame0 imagine (prudent0 a_trait prudence))"
+      - "(ame0 considere (prudent0 l_emporte_sur ame0))"
+      - "(veneration0 est_temoignage_veneration_de prudent0)"
+      - "(etonnement_colere0 est_etonnement_de ame0)"
+      - "(etonnement_colere0 a_pour_objet colerique0)"
+      - "(ame0 imagine (colerique0 a_trait colere))"
+      - "(horreur0 est_temoignage_horreur_de colerique0)"
+    goals:
+      - "(etonnement_mal0 est_etonnement_de ame0)"
+      - "(consternation0 est_consternation_de ame0)"
+      - "(veneration0 est_veneration_de ame0)"
+      - "(horreur0 est_horreur_de ame0)"
+    expected:
+      status: proved
+      proof_depths: [1, 2, 1, 1]
+  - id: ferveur
+    initial_facts:
+      - "(ame0 aime objet0)"
+      - "(etonnement0 est_etonnement_de ame0)"
+      - "(etonnement0 a_pour_objet objet0)"
+      - "(amour0 est_amour_de (ame0 envers objet0))"
+      - "(amour_ordinaire0 est_amour_sans_etonnement_de (ame0 envers objet0))"
+      - "(ferveur0 est_temoignage_ferveur_de (ame0 envers objet0))"
+    goals:
+      - "(ferveur0 est_ferveur_de ame0)"
+      - "(amour0 est_plus_intense_que amour_ordinaire0)"
+    expected:
+      status: proved
+      proof_depths: [1, 1]
+  - id: mepris_derision_et_dedain
+    initial_facts:
+      - "(ame0 considere_attentivement objet0)"
+      - "(ame0 nie_toute_cause_d_etonnement_dans objet0)"
+      - "(ame0 nie_toute_cause_d_amour_dans objet0)"
+      - "(ame0 nie_toute_cause_de_crainte_dans objet0)"
+      - "(mepris0 est_temoignage_mepris_de (ame0 envers objet0))"
+      - "(ame0 hait objet0)"
+      - "(ame0 imagine (objet0 a_trait sottise))"
+      - "(derision0 est_temoignage_derision_de (ame0 envers objet0))"
+      - "(dedain0 est_temoignage_dedain_de (ame0 envers objet0))"
+    goals:
+      - "(mepris0 est_mepris_de ame0)"
+      - "(ame0 pense_surtout_a_ce_qui_n_est_pas_dans objet0)"
+      - "(derision0 est_derision_de ame0)"
+      - "(dedain0 est_dedain_de ame0)"
+    expected:
+      status: proved
+      proof_depths: [1, 1, 2, 2]
+formalization_status: proved_with_qualitative_attention_and_scholium
+result: proved
+limitations:
+  - >-
+    La durée de considération est un ordre qualitatif. L'absence d'alternative
+    associative et la négation des causes du mépris sont toujours positives.

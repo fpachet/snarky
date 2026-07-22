@@ -278,7 +278,7 @@ l'auto-dommage par un statut `FAUX` explicite. L'audit est publié dans
 
 ## Tranche 7 — E3P45–E3P59 : généralisation et affects actifs
 
-Statut : E3P45–E3P48 achevées ; E3P49 prioritaire.
+Statut : E3P45–E3P52 achevées ; E3P53 prioritaire.
 
 Concepts principaux : transfert des affects aux classes d'individus,
 association des causes, étonnement, considération, considération de soi,
@@ -291,6 +291,13 @@ préalable, puis représente le souvenir qui réduit sans supprimer une
 détermination triste. E3P48 distingue retrait causal total, causalité partagée
 et doute épistémique. L'audit est publié dans
 [`tranche_e3p45_e3p48.md`](tranche_e3p45_e3p48.md).
+
+Résultat E3P49–E3P52 : E3P49 compare les affects à motif égal sans employer le
+doute comme mesure ; E3P50 exige une association positive avec espoir ou
+crainte avant de nommer un présage ; E3P51 distingue constitutions et temps ;
+E3P52 distingue durée d'attention, étonnement et mépris sans négation par
+défaut. L'audit est publié dans
+[`tranche_e3p49_e3p52.md`](tranche_e3p49_e3p52.md).
 
 E3P58–E3P59 doivent réutiliser explicitement les résultats de E3P01–E3P03,
 fermant ainsi la boucle architecturale de la partie III.

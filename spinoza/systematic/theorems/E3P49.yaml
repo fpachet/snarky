@@ -1,0 +1,107 @@
+schema_version: 1
+id: E3P49
+model: ethics_iii_systematic_v1
+source_unit: E3P49
+source_text: >-
+  L'Amour et la Haine envers une chose que nous imaginons qui est libre
+  doivent tous deux être plus grands, à motif égal, qu'envers une chose
+  nécessaire.
+fact_files: [facts/postulates.yaml]
+rule_files:
+  - rules/validated/E3P48.rules
+  - rules/proofs/E3P49.rules
+rule_catalog: rules/catalog.yaml
+forbidden_rules:
+  - E3P49_amour_cause_libre_plus_grand
+  - E3P49_haine_cause_libre_plus_grande
+allowed_rule_origins: [external_textual, textual, textual_theorem]
+cases:
+  - id: amour_libre_plus_grand
+    initial_facts:
+      - "(ame0 imagine (libre0 est_libre VRAI))"
+      - "(ame0 imagine (necessaire0 est_necessaire VRAI))"
+      - "(autre_cause0 est_cause_conjointe_avec necessaire0)"
+      - "(necessaire0 cause joie0)"
+      - "(autre_cause0 cause joie0)"
+      - "(amour_libre0 est_amour_de (ame0 envers libre0))"
+      - "(amour_libre0 enveloppe joie0)"
+      - "(amour_libre0 correspond_a_motif motif0)"
+      - "(amour_necessaire0 est_amour_de (ame0 envers necessaire0))"
+      - "(amour_necessaire0 enveloppe joie0)"
+      - "(amour_necessaire0 correspond_a_motif motif0)"
+    goals:
+      - "(ame0 imagine (libre0 est_percu_par_soi_sans_autres VRAI))"
+      - "(necessaire0 n_est_pas_cause_unique_de joie0)"
+      - "(amour_necessaire0 est_diminue_envers necessaire0)"
+      - "(amour_libre0 est_plus_intense_que amour_necessaire0)"
+    must_not_derive:
+      - "(ame0 doute (ame0 aime necessaire0))"
+      - "(ame0 imagine (qqchose0 cause necessaire0))"
+    expected:
+      status: proved
+      proof_depths: [1, 1, 2, 3]
+  - id: haine_libre_plus_grande
+    initial_facts:
+      - "(ame0 imagine (libre0 est_libre VRAI))"
+      - "(ame0 imagine (necessaire0 est_necessaire VRAI))"
+      - "(autre_cause0 est_cause_conjointe_avec necessaire0)"
+      - "(necessaire0 cause tristesse0)"
+      - "(autre_cause0 cause tristesse0)"
+      - "(haine_libre0 est_haine_de (ame0 envers libre0))"
+      - "(haine_libre0 enveloppe tristesse0)"
+      - "(haine_libre0 correspond_a_motif motif0)"
+      - "(haine_necessaire0 est_haine_de (ame0 envers necessaire0))"
+      - "(haine_necessaire0 enveloppe tristesse0)"
+      - "(haine_necessaire0 correspond_a_motif motif0)"
+    goals:
+      - "(necessaire0 demeure_cause_partielle_de tristesse0)"
+      - "(haine_necessaire0 est_diminuee_envers necessaire0)"
+      - "(haine_libre0 est_plus_intense_que haine_necessaire0)"
+    must_not_derive:
+      - "(ame0 doute (ame0 hait necessaire0))"
+    expected:
+      status: proved
+      proof_depths: [1, 2, 3]
+  - id: motifs_differents_non_comparables
+    initial_facts:
+      - "(ame0 imagine (libre0 est_libre VRAI))"
+      - "(ame0 imagine (necessaire0 est_necessaire VRAI))"
+      - "(autre_cause0 est_cause_conjointe_avec necessaire0)"
+      - "(necessaire0 cause joie0)"
+      - "(autre_cause0 cause joie0)"
+      - "(amour_libre0 est_amour_de (ame0 envers libre0))"
+      - "(amour_libre0 enveloppe joie0)"
+      - "(amour_libre0 correspond_a_motif motif_libre0)"
+      - "(amour_necessaire0 est_amour_de (ame0 envers necessaire0))"
+      - "(amour_necessaire0 enveloppe joie0)"
+      - "(amour_necessaire0 correspond_a_motif motif_necessaire0)"
+    goals:
+      - "(amour_necessaire0 est_diminue_envers necessaire0)"
+    must_not_derive:
+      - "(amour_libre0 est_plus_intense_que amour_necessaire0)"
+    expected:
+      status: proved
+      proof_depths: [2]
+  - id: scolie_affect_humain_amplifie
+    initial_facts:
+      - "(ame0 imagine (humain0 est_libre VRAI))"
+      - "(humain0 est_semblable_affectivement_pour ame0)"
+      - "(affect_humain0 est_affect_envers humain0)"
+      - "(composante_libre0 est_composante_de affect_humain0)"
+      - "(composante_imitee0 est_composante_imitee_de affect_humain0)"
+      - "(affect_objet0 est_affect_envers objet0)"
+      - "(affect_humain0 partage_motif_avec affect_objet0)"
+    goals:
+      - "(affect_humain0 est_plus_intense_que affect_objet0)"
+    expected:
+      status: proved
+      proof_depths: [1]
+formalization_status: proved_with_qualitative_equal_motive
+result: proved
+limitations:
+  - >-
+    « À motif égal » est une identité explicite du témoin de motif. La grandeur
+    des affects reste un ordre qualitatif sans coefficient.
+  - >-
+    Contrairement à SpinoLog, la diminution n'est jamais exprimée par un doute
+    ni par la création d'une cause anonyme.

@@ -1,0 +1,109 @@
+# E2 Postulat 3 et l'axiome suivant le Lemme 3 : les épisodes corporels
+# distincts déterminent des affections humaines distinctes.
+RULE E2POST3_affection_corporelle_devient_affection_humaine
+WHEN
+    ($homme a_corps $corps)
+    ($episode est_affection_de $corps)
+    ($episode est_causee_par $objet)
+    ($episode a_maniere $maniere)
+THEN
+    ADD ($homme est_affecte_par ($objet sous_maniere $maniere))
+END
+
+RULE E3P51D_deux_hommes_affectes_diversement
+WHEN
+    ($homme_un est_affecte_par ($objet sous_maniere $maniere_un))
+    ($homme_deux est_affecte_par ($objet sous_maniere $maniere_deux))
+    ($maniere_un est_distincte_de $maniere_deux)
+THEN
+    ADD (($homme_un et $homme_deux) sont_affectes_diversement_par $objet)
+END
+
+RULE E3P51D_meme_homme_affecte_diversement_dans_temps
+WHEN
+    ($homme est_affecte_par ($objet sous_maniere $maniere_un))
+    ($homme est_affecte_par ($objet sous_maniere $maniere_deux))
+    ($maniere_un a_lieu_au_temps $temps_un)
+    ($maniere_deux a_lieu_au_temps $temps_deux)
+    ($temps_un est_distinct_de $temps_deux)
+THEN
+    ADD ($homme est_affecte_diversement_par $objet)
+    ADD (($homme envers $objet) varie_avec_temps ($temps_un et $temps_deux))
+END
+
+# Les jugements suivent les affects propres de chaque agent.
+RULE E3P51S_joie_fonde_jugement_bon
+WHEN
+    ($affect est_joie_de $homme)
+    ($affect a_pour_objet $objet)
+THEN
+    ADD ($homme juge_bon $objet)
+END
+
+RULE E3P51S_tristesse_fonde_jugement_mauvais
+WHEN
+    ($affect est_tristesse_de $homme)
+    ($affect a_pour_objet $objet)
+THEN
+    ADD ($homme juge_mauvais $objet)
+END
+
+RULE E3P51S_mepris_mal_habituellement_craint_intrepide
+WHEN
+    ($observateur craint $mal)
+    ($homme meprise $mal)
+    ($intrepidite est_temoignage_intrepidite_de ($homme envers $mal))
+THEN
+    ADD ($intrepidite est_intrepidite_de $homme)
+END
+
+RULE E3P51S_desir_nuire_non_reduit_audace
+WHEN
+    ($desir vise_a_nuire $ennemi)
+    ($desir est_desir_de $homme)
+    ($peur retient_habituellement $observateur)
+    ($peur reduit $desir) ' FAUX
+    ($audace est_temoignage_audace_de ($homme envers $ennemi))
+THEN
+    ADD ($audace est_audace_de $homme)
+END
+
+RULE E3P51S_crainte_mal_meprise_peureux
+WHEN
+    ($observateur meprise $mal)
+    ($homme craint $mal)
+    ($peur est_temoignage_peur_de ($homme envers $mal))
+THEN
+    ADD ($peur est_peur_de $homme)
+END
+
+RULE E3P51S_desir_reduit_par_peur_pusillanimite
+WHEN
+    ($desir est_desir_de $homme)
+    ($peur reduit $desir)
+    ($peur ne_retient_pas $observateur)
+    ($pusillanimite est_temoignage_pusillanimite_de ($homme envers $peur))
+THEN
+    ADD ($pusillanimite est_pusillanimite_de $homme)
+END
+
+# Joie et tristesse accompagnées de l'idée de soi réemploient E3P30S.
+RULE E3P51S_affect_auto_cause_prepare_contentement
+WHEN
+    ($joie est_joie_de $homme)
+    ($idee_soi est_idee_de $homme)
+    ($idee_soi accompagne $joie)
+    ($joie nait_hors_croyance_de_louange VRAI)
+THEN
+    ADD ($joie a_pour_cause_interieure $homme)
+END
+
+RULE E3P51S_affect_auto_cause_prepare_repentir
+WHEN
+    ($tristesse est_tristesse_de $homme)
+    ($idee_soi est_idee_de $homme)
+    ($idee_soi accompagne $tristesse)
+    ($tristesse nait_hors_croyance_de_blame VRAI)
+THEN
+    ADD ($tristesse a_pour_cause_interieure $homme)
+END

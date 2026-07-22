@@ -102,7 +102,7 @@ script générateur.
 Le dossier [`systematic`](systematic/README.md) reprend la formalisation à
 partir des définitions, postulats et dépendances explicites. Il ne charge pas
 les règles historiques. Les fragments exécutables couvrent désormais
-E3P01–E3P48 et rendent visibles les ponts importés des parties I et II.
+E3P01–E3P52 et rendent visibles les ponts importés des parties I et II.
 
 Cette couverture comprend notamment le conatus, les affects primitifs,
 l'imagination et la mémoire, les affects temporels, l'amour et la haine, leur
@@ -124,7 +124,12 @@ classe ou de nation, joie mêlée de tristesse et réattribution causale. Les
 écarts de E3P45, E3P47 et E3P48 avec SpinoLog sont rendus exécutables comme
 contre-cas ou provenance interprétative explicite.
 
-Sept rapports décrivent les derniers jalons et leur comparaison avec Gondran
+E3P49–E3P52 ajoutent la comparaison qualitative des affects à motif égal,
+les présages issus d'associations affectives, la variabilité individuelle et
+temporelle, puis l'attention prolongée et les familles de l'étonnement et du
+mépris. L'absence d'alternative associative reste un fait positif.
+
+Huit rapports décrivent les derniers jalons et leur comparaison avec Gondran
 et Cavarretta :
 
 - [`systematic/reports/milestone_e3p19_e3p22.md`](systematic/reports/milestone_e3p19_e3p22.md) ;
@@ -133,10 +138,11 @@ et Cavarretta :
 - [`systematic/reports/tranche_e3p33_e3p36.md`](systematic/reports/tranche_e3p33_e3p36.md) ;
 - [`systematic/reports/tranche_e3p37_e3p40.md`](systematic/reports/tranche_e3p37_e3p40.md) ;
 - [`systematic/reports/tranche_e3p41_e3p44.md`](systematic/reports/tranche_e3p41_e3p44.md) ;
-- [`systematic/reports/tranche_e3p45_e3p48.md`](systematic/reports/tranche_e3p45_e3p48.md).
+- [`systematic/reports/tranche_e3p45_e3p48.md`](systematic/reports/tranche_e3p45_e3p48.md) ;
+- [`systematic/reports/tranche_e3p49_e3p52.md`](systematic/reports/tranche_e3p49_e3p52.md).
 
-La suite de tests comprend actuellement 78 tests réussis. La prochaine
-frontière est E3P49 : elle doit comparer la cause imaginée libre ou nécessaire
-sans confondre intensité diminuée et doute épistémique. Le
+La suite de tests comprend actuellement 82 tests réussis. La prochaine
+frontière est E3P53 : elle doit relier la considération de soi à la joie et à
+la tristesse qui en découlent. Le
 [`plan de modélisation`](systematic/reports/roadmap.md) décrit l'ordre complet
 jusqu'à E3P59 et aux définitions finales des affects.

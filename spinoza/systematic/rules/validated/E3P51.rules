@@ -1,0 +1,19 @@
+RULE E3P51_hommes_divers_affectes_diversement
+WHEN
+    ($homme_un est_affecte_par ($objet sous_maniere $maniere_un))
+    ($homme_deux est_affecte_par ($objet sous_maniere $maniere_deux))
+    ($maniere_un est_distincte_de $maniere_deux)
+THEN
+    ADD (($homme_un et $homme_deux) sont_affectes_diversement_par $objet)
+END
+
+RULE E3P51_meme_homme_varie_dans_temps
+WHEN
+    ($homme est_affecte_par ($objet sous_maniere $maniere_un))
+    ($homme est_affecte_par ($objet sous_maniere $maniere_deux))
+    ($maniere_un a_lieu_au_temps $temps_un)
+    ($maniere_deux a_lieu_au_temps $temps_deux)
+    ($temps_un est_distinct_de $temps_deux)
+THEN
+    ADD ($homme est_affecte_diversement_par $objet)
+END

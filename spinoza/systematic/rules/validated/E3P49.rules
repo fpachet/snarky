@@ -1,0 +1,23 @@
+RULE E3P49_amour_cause_libre_plus_grand
+WHEN
+    ($ame imagine ($objet_libre est_libre VRAI))
+    ($ame imagine ($objet_necessaire est_necessaire VRAI))
+    ($amour_libre est_amour_de ($ame envers $objet_libre))
+    ($amour_necessaire est_amour_de ($ame envers $objet_necessaire))
+    ($amour_libre correspond_a_motif $motif)
+    ($amour_necessaire correspond_a_motif $motif)
+THEN
+    ADD ($amour_libre est_plus_intense_que $amour_necessaire)
+END
+
+RULE E3P49_haine_cause_libre_plus_grande
+WHEN
+    ($ame imagine ($objet_libre est_libre VRAI))
+    ($ame imagine ($objet_necessaire est_necessaire VRAI))
+    ($haine_libre est_haine_de ($ame envers $objet_libre))
+    ($haine_necessaire est_haine_de ($ame envers $objet_necessaire))
+    ($haine_libre correspond_a_motif $motif)
+    ($haine_necessaire correspond_a_motif $motif)
+THEN
+    ADD ($haine_libre est_plus_intense_que $haine_necessaire)
+END

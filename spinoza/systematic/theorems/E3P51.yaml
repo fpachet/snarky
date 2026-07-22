@@ -1,0 +1,142 @@
+schema_version: 1
+id: E3P51
+model: ethics_iii_systematic_v1
+source_unit: E3P51
+source_text: >-
+  Des hommes divers peuvent être affectés de diverses manières par un seul et
+  même objet, et un seul et même homme peut l'être diversement en divers temps.
+fact_files: [facts/postulates.yaml]
+rule_files:
+  - rules/validated/E3P13.rules
+  - rules/validated/E3P30.rules
+  - rules/proofs/E3P51.rules
+rule_catalog: rules/catalog.yaml
+forbidden_rules:
+  - E3P51_hommes_divers_affectes_diversement
+  - E3P51_meme_homme_varie_dans_temps
+allowed_rule_origins: [external_textual, textual, textual_theorem]
+cases:
+  - id: deux_hommes_meme_objet
+    initial_facts:
+      - "(homme_un0 a_corps corps_un0)"
+      - "(episode_un0 est_affection_de corps_un0)"
+      - "(episode_un0 est_causee_par objet0)"
+      - "(episode_un0 a_maniere maniere_un0)"
+      - "(homme_deux0 a_corps corps_deux0)"
+      - "(episode_deux0 est_affection_de corps_deux0)"
+      - "(episode_deux0 est_causee_par objet0)"
+      - "(episode_deux0 a_maniere maniere_deux0)"
+      - "(maniere_un0 est_distincte_de maniere_deux0)"
+    goals:
+      - "(homme_un0 est_affecte_par (objet0 sous_maniere maniere_un0))"
+      - "(homme_deux0 est_affecte_par (objet0 sous_maniere maniere_deux0))"
+      - "((homme_un0 et homme_deux0) sont_affectes_diversement_par objet0)"
+    expected:
+      status: proved
+      proof_depths: [1, 1, 2]
+  - id: meme_homme_divers_temps
+    initial_facts:
+      - "(homme0 a_corps corps0)"
+      - "(episode_un0 est_affection_de corps0)"
+      - "(episode_un0 est_causee_par objet0)"
+      - "(episode_un0 a_maniere maniere_un0)"
+      - "(episode_deux0 est_affection_de corps0)"
+      - "(episode_deux0 est_causee_par objet0)"
+      - "(episode_deux0 a_maniere maniere_deux0)"
+      - "(maniere_un0 a_lieu_au_temps temps_un0)"
+      - "(maniere_deux0 a_lieu_au_temps temps_deux0)"
+      - "(temps_un0 est_distinct_de temps_deux0)"
+    goals:
+      - "(homme0 est_affecte_par (objet0 sous_maniere maniere_un0))"
+      - "(homme0 est_affecte_par (objet0 sous_maniere maniere_deux0))"
+      - "(homme0 est_affecte_diversement_par objet0)"
+      - "((homme0 envers objet0) varie_avec_temps (temps_un0 et temps_deux0))"
+    expected:
+      status: proved
+      proof_depths: [1, 1, 2, 2]
+  - id: jugements_affectifs_opposes
+    initial_facts:
+      - "(joie_un0 est_joie_de homme_un0)"
+      - "(joie_un0 a_pour_objet objet0)"
+      - "(idee_objet_un0 est_idee_de objet0)"
+      - "(idee_objet_un0 accompagne joie_un0)"
+      - "(tristesse_deux0 est_tristesse_de homme_deux0)"
+      - "(tristesse_deux0 a_pour_objet objet0)"
+      - "(idee_objet_deux0 est_idee_de objet0)"
+      - "(idee_objet_deux0 accompagne tristesse_deux0)"
+    goals:
+      - "(homme_un0 aime objet0)"
+      - "(homme_deux0 hait objet0)"
+      - "(homme_un0 juge_bon objet0)"
+      - "(homme_deux0 juge_mauvais objet0)"
+    expected:
+      status: proved
+      proof_depths: [1, 1, 1, 1]
+  - id: denominations_du_courage_et_de_la_peur
+    initial_facts:
+      - "(observateur0 craint mal_un0)"
+      - "(intrepide0 meprise mal_un0)"
+      - "(intrepidite0 est_temoignage_intrepidite_de (intrepide0 envers mal_un0))"
+      - "(desir_audacieux0 vise_a_nuire ennemi0)"
+      - "(desir_audacieux0 est_desir_de audacieux0)"
+      - "(peur_observateur0 retient_habituellement observateur0)"
+      - entity: "(peur_observateur0 reduit desir_audacieux0)"
+        status: FAUX
+      - "(audace0 est_temoignage_audace_de (audacieux0 envers ennemi0))"
+      - "(observateur0 meprise mal_deux0)"
+      - "(peureux0 craint mal_deux0)"
+      - "(peur0 est_temoignage_peur_de (peureux0 envers mal_deux0))"
+      - "(desir_pusillanime0 est_desir_de pusillanime0)"
+      - "(peur_pusillanime0 reduit desir_pusillanime0)"
+      - "(peur_pusillanime0 ne_retient_pas observateur0)"
+      - "(pusillanimite0 est_temoignage_pusillanimite_de (pusillanime0 envers peur_pusillanime0))"
+    goals:
+      - "(intrepidite0 est_intrepidite_de intrepide0)"
+      - "(audace0 est_audace_de audacieux0)"
+      - "(peur0 est_peur_de peureux0)"
+      - "(pusillanimite0 est_pusillanimite_de pusillanime0)"
+    expected:
+      status: proved
+      proof_depths: [1, 1, 1, 1]
+  - id: auto_cause_contentement_et_repentir
+    initial_facts:
+      - "(joie0 est_joie_de homme0)"
+      - "(idee_soi_joie0 est_idee_de homme0)"
+      - "(idee_soi_joie0 accompagne joie0)"
+      - "(joie0 nait_hors_croyance_de_louange VRAI)"
+      - "(tristesse0 est_tristesse_de homme0)"
+      - "(idee_soi_tristesse0 est_idee_de homme0)"
+      - "(idee_soi_tristesse0 accompagne tristesse0)"
+      - "(tristesse0 nait_hors_croyance_de_blame VRAI)"
+    goals:
+      - "(joie0 a_pour_cause_interieure homme0)"
+      - "(joie0 est_contentement_de_soi_de homme0)"
+      - "(tristesse0 a_pour_cause_interieure homme0)"
+      - "(tristesse0 est_repentir_de homme0)"
+    expected:
+      status: proved
+      proof_depths: [1, 2, 1, 2]
+  - id: manieres_non_distinguees
+    initial_facts:
+      - "(homme_un0 a_corps corps_un0)"
+      - "(episode_un0 est_affection_de corps_un0)"
+      - "(episode_un0 est_causee_par objet0)"
+      - "(episode_un0 a_maniere maniere0)"
+      - "(homme_deux0 a_corps corps_deux0)"
+      - "(episode_deux0 est_affection_de corps_deux0)"
+      - "(episode_deux0 est_causee_par objet0)"
+      - "(episode_deux0 a_maniere maniere0)"
+    goals:
+      - "(homme_un0 est_affecte_par (objet0 sous_maniere maniere0))"
+      - "(homme_deux0 est_affecte_par (objet0 sous_maniere maniere0))"
+    must_not_derive:
+      - "((homme_un0 et homme_deux0) sont_affectes_diversement_par objet0)"
+    expected:
+      status: proved
+      proof_depths: [1, 1]
+formalization_status: proved_with_scholium_variations
+result: proved
+limitations:
+  - >-
+    Les manières corporelles et les temps sont des témoins ground. Le modèle ne
+    quantifie pas sur toutes les affections possibles d'un corps.

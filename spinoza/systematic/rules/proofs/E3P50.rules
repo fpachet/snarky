@@ -1,0 +1,87 @@
+# La voie de E3P15 : une chose neutre associée à une image temporelle devient
+# cause accidentelle de l'espoir ou de la crainte.
+RULE E3P50D_cause_accidentelle_espoir
+WHEN
+    ($presage est_cause_accidentelle_de $espoir)
+    ($espoir est_espoir_de $ame)
+    ($image porte_sur_issue $issue)
+    ($espoir nait_de_image_temporelle $image)
+THEN
+    ADD ($presage est_cause_accidentelle_d_espoir_pour $ame)
+    ADD ($presage porte_sur_issue $issue)
+END
+
+RULE E3P50D_cause_accidentelle_crainte
+WHEN
+    ($presage est_cause_accidentelle_de $crainte)
+    ($crainte est_crainte_de $ame)
+    ($image porte_sur_issue $issue)
+    ($crainte nait_de_image_temporelle $image)
+THEN
+    ADD ($presage est_cause_accidentelle_de_crainte_pour $ame)
+    ADD ($presage porte_sur_issue $issue)
+END
+
+RULE E3P50S_presage_espoir_est_bon_presage
+WHEN
+    ($presage est_cause_accidentelle_d_espoir_pour $ame)
+    ($espoir est_espoir_de $ame)
+    ($espoir porte_sur_issue $issue)
+THEN
+    ADD ($presage est_bon_presage_pour $ame)
+    ADD ($espoir est_joie_de $ame)
+    ADD ($ame aime $presage)
+    ADD ($ame s_efforce_d_employer_comme_moyen $presage)
+END
+
+RULE E3P50S_presage_crainte_est_mauvais_presage
+WHEN
+    ($presage est_cause_accidentelle_de_crainte_pour $ame)
+    ($crainte est_crainte_de $ame)
+    ($crainte porte_sur_issue $issue)
+THEN
+    ADD ($presage est_mauvais_presage_pour $ame)
+    ADD ($crainte est_tristesse_de $ame)
+    ADD ($ame hait $presage)
+    ADD ($ame s_efforce_d_ecarter $presage)
+END
+
+# Espoir et crainte portant sur une même issue s'impliquent affectivement sans
+# se confondre ; les deux témoins restent distincts.
+RULE E3P50S_espoir_et_crainte_indissociables
+WHEN
+    ($espoir est_espoir_de $ame)
+    ($espoir porte_sur_issue $issue)
+    ($crainte est_crainte_de $ame)
+    ($crainte porte_sur_issue $issue)
+THEN
+    ADD ($espoir ne_va_pas_sans $crainte)
+    ADD ($crainte ne_va_pas_sans $espoir)
+END
+
+RULE E3P50S_espoir_facilite_croyance
+WHEN
+    ($ame espere $issue)
+    ($croyance porte_sur $issue)
+THEN
+    ADD ($ame croit_facilement $croyance)
+    ADD ($ame fait_plus_de_cas_que_juste_de $issue)
+END
+
+RULE E3P50S_crainte_rend_croyance_difficile
+WHEN
+    ($ame craint $issue)
+    ($croyance porte_sur $issue)
+THEN
+    ADD ($ame croit_difficilement $croyance)
+    ADD ($ame fait_moins_de_cas_que_juste_de $issue)
+END
+
+RULE E3P50S_presage_necessite_imaginee_superstition
+WHEN
+    ($presage est_cause_accidentelle_de $affect)
+    ($ame traite_comme_signe_necessaire ($presage annonce $issue))
+    ($superstition est_temoignage_superstition_de ($ame envers $presage))
+THEN
+    ADD ($superstition est_superstition_de $ame)
+END

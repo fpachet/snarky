@@ -1,0 +1,60 @@
+# E1D7 : la chose imaginée libre est perçue par elle-même, tandis que la chose
+# nécessaire est comprise avec d'autres causes.
+RULE E1D7_chose_libre_percue_par_soi_seule
+WHEN
+    ($ame imagine ($objet est_libre VRAI))
+THEN
+    ADD ($ame imagine ($objet est_percu_par_soi_sans_autres VRAI))
+END
+
+RULE E1D7_chose_necessaire_a_causes_conjointes
+WHEN
+    ($ame imagine ($objet est_necessaire VRAI))
+    ($autre_cause est_cause_conjointe_avec $objet)
+    ($objet cause $affect)
+    ($autre_cause cause $affect)
+THEN
+    ADD ($objet n_est_pas_cause_unique_de $affect)
+    ADD ($objet demeure_cause_partielle_de $affect)
+END
+
+# À motif égal, E3P48 diminue l'affection envers la cause nécessaire. La cause
+# libre, perçue seule, garde l'affection entière.
+RULE E3P49D_amour_libre_plus_grand_a_motif_egal
+WHEN
+    ($ame imagine ($objet_libre est_percu_par_soi_sans_autres VRAI))
+    ($amour_libre est_amour_de ($ame envers $objet_libre))
+    ($amour_libre correspond_a_motif $motif)
+    ($amour_necessaire est_amour_de ($ame envers $objet_necessaire))
+    ($amour_necessaire correspond_a_motif $motif)
+    ($amour_necessaire est_diminue_envers $objet_necessaire)
+THEN
+    ADD ($amour_libre est_plus_intense_que $amour_necessaire)
+END
+
+RULE E3P49D_haine_libre_plus_grande_a_motif_egal
+WHEN
+    ($ame imagine ($objet_libre est_percu_par_soi_sans_autres VRAI))
+    ($haine_libre est_haine_de ($ame envers $objet_libre))
+    ($haine_libre correspond_a_motif $motif)
+    ($haine_necessaire est_haine_de ($ame envers $objet_necessaire))
+    ($haine_necessaire correspond_a_motif $motif)
+    ($haine_necessaire est_diminuee_envers $objet_necessaire)
+THEN
+    ADD ($haine_libre est_plus_intense_que $haine_necessaire)
+END
+
+# Scolie : les humains se tiennent pour libres et l'imitation ajoute une
+# composante affective. Les deux contributions restent des témoins distincts.
+RULE E3P49S_liberte_humaine_et_imitation_amplifient_affect
+WHEN
+    ($ame imagine ($humain est_libre VRAI))
+    ($humain est_semblable_affectivement_pour $ame)
+    ($affect est_affect_envers $humain)
+    ($composante_libre est_composante_de $affect)
+    ($composante_imitation est_composante_imitee_de $affect)
+    ($affect_objet est_affect_envers $objet_non_humain)
+    ($affect partage_motif_avec $affect_objet)
+THEN
+    ADD ($affect est_plus_intense_que $affect_objet)
+END

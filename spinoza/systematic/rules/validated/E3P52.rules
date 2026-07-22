@@ -1,0 +1,18 @@
+RULE E3P52_objet_singulier_consideration_plus_longue
+WHEN
+    ($ame passe_de_consideration ($objet_commun vers $autre))
+    ($consideration_commune est_consideration_de $objet_commun)
+    ($consideration_singuliere est_consideration_de $objet_singulier)
+    ($consideration_singuliere est_prolongee VRAI)
+THEN
+    ADD ($consideration_singuliere est_plus_longue_que $consideration_commune)
+END
+
+RULE E3P52S_singularite_isolee_produit_etonnement
+WHEN
+    ($ame imagine ($objet a_trait_singulier $trait))
+    ($ame considere_uniquement $objet)
+    ($etonnement est_temoignage_etonnement_de ($ame envers $objet))
+THEN
+    ADD ($etonnement est_etonnement_de $ame)
+END

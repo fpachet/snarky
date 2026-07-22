@@ -1,0 +1,29 @@
+RULE E3P50_chose_accidentelle_cause_espoir
+WHEN
+    ($presage est_cause_accidentelle_de $espoir)
+    ($espoir est_espoir_de $ame)
+THEN
+    ADD ($presage est_cause_accidentelle_d_espoir_pour $ame)
+END
+
+RULE E3P50_chose_accidentelle_cause_crainte
+WHEN
+    ($presage est_cause_accidentelle_de $crainte)
+    ($crainte est_crainte_de $ame)
+THEN
+    ADD ($presage est_cause_accidentelle_de_crainte_pour $ame)
+END
+
+RULE E3P50S_cause_espoir_bon_presage
+WHEN
+    ($presage est_cause_accidentelle_d_espoir_pour $ame)
+THEN
+    ADD ($presage est_bon_presage_pour $ame)
+END
+
+RULE E3P50S_cause_crainte_mauvais_presage
+WHEN
+    ($presage est_cause_accidentelle_de_crainte_pour $ame)
+THEN
+    ADD ($presage est_mauvais_presage_pour $ame)
+END

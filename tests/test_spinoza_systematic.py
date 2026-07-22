@@ -907,8 +907,101 @@ def test_e3p48_separates_reattribution_diminution_and_doubt() -> None:
     assert insufficient.forbidden_violations == ()
 
 
+def test_e3p49_compares_free_and_necessary_causes_without_doubt() -> None:
+    love = run_case(SYSTEMATIC_ROOT, "E3P49", "amour_libre_plus_grand")
+    hate = run_case(SYSTEMATIC_ROOT, "E3P49", "haine_libre_plus_grande")
+    unequal_motives = run_case(
+        SYSTEMATIC_ROOT,
+        "E3P49",
+        "motifs_differents_non_comparables",
+    )
+
+    assert love.proved
+    assert love.proof_depths == (1, 1, 2, 3)
+    assert love.forbidden_violations == ()
+    assert hate.proved
+    assert hate.proof_depths == (1, 2, 3)
+    assert hate.forbidden_violations == ()
+    assert unequal_motives.proved
+    assert unequal_motives.forbidden_violations == ()
+
+
+def test_e3p50_requires_an_affective_association_for_an_omen() -> None:
+    good_omen = run_case(SYSTEMATIC_ROOT, "E3P50", "bon_presage")
+    bad_omen = run_case(SYSTEMATIC_ROOT, "E3P50", "mauvais_presage")
+    neutral = run_case(
+        SYSTEMATIC_ROOT,
+        "E3P50",
+        "chose_neutre_sans_association",
+    )
+
+    assert good_omen.proved
+    assert good_omen.proof_depths == (1, 2, 3, 3, 3, 3)
+    assert bad_omen.proved
+    assert bad_omen.proof_depths == (1, 2, 3, 3, 3, 3)
+    assert neutral.proved
+    assert neutral.forbidden_violations == ()
+
+
+def test_e3p51_makes_affective_variability_explicit() -> None:
+    between_people = run_case(
+        SYSTEMATIC_ROOT,
+        "E3P51",
+        "deux_hommes_meme_objet",
+    )
+    across_time = run_case(
+        SYSTEMATIC_ROOT,
+        "E3P51",
+        "meme_homme_divers_temps",
+    )
+    unspecified_manners = run_case(
+        SYSTEMATIC_ROOT,
+        "E3P51",
+        "manieres_non_distinguees",
+    )
+
+    assert between_people.proved
+    assert between_people.proof_depths == (1, 1, 2)
+    assert across_time.proved
+    assert across_time.proof_depths == (1, 1, 2, 2)
+    assert unspecified_manners.proved
+    assert unspecified_manners.forbidden_violations == ()
+
+
+def test_e3p52_requires_positive_absence_for_isolated_attention() -> None:
+    comparison = run_case(
+        SYSTEMATIC_ROOT,
+        "E3P52",
+        "objet_commun_et_objet_singulier",
+    )
+    no_positive_absence = run_case(
+        SYSTEMATIC_ROOT,
+        "E3P52",
+        "singularite_sans_absence_positive",
+    )
+    common_trait = run_case(
+        SYSTEMATIC_ROOT,
+        "E3P52",
+        "objet_n_ayant_que_trait_commun",
+    )
+    wonder = run_case(
+        SYSTEMATIC_ROOT,
+        "E3P52",
+        "etonnement_consternation_veneration_horreur",
+    )
+
+    assert comparison.proved
+    assert comparison.proof_depths == (1, 1, 1, 1, 2)
+    assert no_positive_absence.proved
+    assert no_positive_absence.forbidden_violations == ()
+    assert common_trait.proved
+    assert common_trait.proof_depths == (1, 1, 1, 2)
+    assert wonder.proved
+    assert wonder.proof_depths == (1, 2, 1, 1)
+
+
 def test_each_systematic_manifest_since_e3p04_has_passing_counter_cases() -> None:
-    for proposition in range(4, 49):
+    for proposition in range(4, 53):
         theorem_id = f"E3P{proposition:02d}"
         manifest = yaml.safe_load(
             (SYSTEMATIC_ROOT / "theorems" / f"{theorem_id}.yaml").read_text(
@@ -958,7 +1051,7 @@ def test_systematic_manifests_do_not_load_the_historical_model() -> None:
 
 
 def test_systematic_manifests_load_only_current_proof_and_prior_theorems() -> None:
-    for proposition in range(4, 49):
+    for proposition in range(4, 53):
         theorem_id = f"E3P{proposition:02d}"
         manifest = yaml.safe_load(
             (SYSTEMATIC_ROOT / "theorems" / f"{theorem_id}.yaml").read_text(
