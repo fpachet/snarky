@@ -1,0 +1,17 @@
+RULE E3P57_affects_different_selon_essences
+WHEN
+    ($affect_un est_individualise_par $essence_un)
+    ($affect_deux est_individualise_par $essence_deux)
+    ($essence_un est_distincte_de $essence_deux)
+THEN
+    ADD ($affect_un differe_autant_que_essence_de $affect_deux)
+END
+
+RULE E3P57_affect_vivant_selon_nature_espece
+WHEN
+    ($individu appartient_a_espece $espece)
+    ($espece a_nature $nature)
+    ($affect est_affect_de $individu)
+THEN
+    ADD ($affect est_individualise_par $nature)
+END

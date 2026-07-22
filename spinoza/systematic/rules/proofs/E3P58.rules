@@ -1,0 +1,53 @@
+# E2P43 : toute idée vraie est adéquate dans l'âme qui la conçoit.
+RULE E2P43_idee_vraie_est_adequate
+WHEN
+    ($ame concoit $idee)
+    ($idee est_vraie VRAI)
+THEN
+    ADD ($idee est_adequate_dans $ame)
+END
+
+# L'idée adéquate constitue l'essence par E3P03 et permet à l'âme de se
+# considérer elle-même et sa puissance, conditions publiées par E3P53.
+RULE E3P58D_idee_adequate_consideration_de_soi
+WHEN
+    ($idee est_adequate_dans $ame)
+    ($idee constitue_essence_de $ame)
+    ($joie est_temoignage_affectif_de ($ame considere $ame))
+THEN
+    ADD ($ame se_considere_par $idee)
+    ADD ($ame considere_puissance_agir_de $ame)
+END
+
+RULE E3P58D_joie_action_est_affect_actif
+WHEN
+    ($ame est_actif_dans $joie)
+    ($joie est_action_de $ame)
+    ($joie est_joie_de $ame)
+THEN
+    ADD ($joie est_affect_actif_de $ame)
+    ADD ($joie se_rapporte_a ($ame en_tant_que active))
+END
+
+# Le conatus produit également un désir actif lorsque son effet suit d'une
+# idée adéquate. Le témoin d'effort et le désir restent identiques.
+RULE E3P58D_effort_actif_est_desir_actif
+WHEN
+    ($ame est_actif_dans $effort)
+    ($effort est_action_de $ame)
+    ($effort vise_perseverance_de $ame)
+    ($effort est_appele desir)
+THEN
+    ADD ($effort est_desir_de $ame)
+    ADD ($effort est_affect_actif_de $ame)
+    ADD ($effort se_rapporte_a ($ame en_tant_que active))
+END
+
+# Une passion issue d'une idée inadéquate ne devient pas active par silence.
+RULE E3P58D_passion_inadequate_non_active
+WHEN
+    ($ame est_passif_dans $affect)
+    ($affect est_passion_de $ame)
+THEN
+    ADD ($affect est_affect_actif_de $ame) ' FAUX
+END

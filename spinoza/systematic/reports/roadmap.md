@@ -278,7 +278,7 @@ l'auto-dommage par un statut `FAUX` explicite. L'audit est publié dans
 
 ## Tranche 7 — E3P45–E3P59 : généralisation et affects actifs
 
-Statut : E3P45–E3P56 achevées ; E3P57 prioritaire.
+Statut : E3P45–E3P59 achevées ; couche propositionnelle complète.
 
 Concepts principaux : transfert des affects aux classes d'individus,
 association des causes, étonnement, considération, considération de soi,
@@ -305,8 +305,14 @@ pair et vénération d'une vertu étrangère ; E3P56 construit les espèces
 affectives sans prétendre clore leur domaine. L'audit est publié dans
 [`tranche_e3p53_e3p56.md`](tranche_e3p53_e3p56.md).
 
-E3P58–E3P59 doivent réutiliser explicitement les résultats de E3P01–E3P03,
-fermant ainsi la boucle architecturale de la partie III.
+Résultat E3P57–E3P59 : les essences individualisent les affects ; joie et
+désir actifs suivent d'idées adéquates ; la tristesse active est explicitement
+exclue. Fermeté, générosité, dégoût, lassitude et troubles corporels ferment le
+dernier scolie. L'audit est publié dans
+[`tranche_e3p57_e3p59.md`](tranche_e3p57_e3p59.md).
+
+E3P58–E3P59 réutilisent explicitement les résultats de E3P01–E3P03 et ferment
+ainsi la boucle architecturale de la partie III.
 
 ## Tranche 8 — définitions finales des affects
 
@@ -352,6 +358,10 @@ Une tranche est terminée lorsque le dépôt contient :
 - des tests différentiels garantissant que le modèle historique reste intact.
 
 ## Définition d'achèvement de l’Éthique III
+
+État courant : la couche des 59 propositions est achevée et reproductible.
+L'achèvement global défini ci-dessous reste ouvert tant que les 48 définitions
+finales des affects ne sont pas reliées systématiquement aux propositions.
 
 Le travail systématique sera considéré comme complet lorsque :
 

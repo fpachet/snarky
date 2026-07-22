@@ -1,0 +1,15 @@
+RULE E3P59_affect_actif_joie_ou_desir
+WHEN
+    ($affect est_affect_actif_de $ame)
+    ($affect est_joie_ou_desir_de $ame)
+THEN
+    ADD ($affect est_affect_actif_de_type joie_ou_desir)
+END
+
+RULE E3P59_tristesse_non_active
+WHEN
+    ($tristesse est_tristesse_de $ame)
+    ($tristesse reduit_puissance_de_connaitre_de $ame)
+THEN
+    ADD ($tristesse est_affect_actif_de $ame) ' FAUX
+END

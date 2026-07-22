@@ -65,7 +65,7 @@ Le contenu actuel comprend :
 - [`spinoza`](spinoza/README.md), le cas d'étude complet de l'*Éthique III* :
   corpus structuré des 59 propositions, reproduction historique des quatre
   preuves de Gondran et reconstruction systématique exécutable de E3P01 à
-  E3P56, avec faits, règles, provenance et contre-cas explicites ;
+  E3P59, avec faits, règles, provenance et contre-cas explicites ;
 - [`third_party/test_rulebases`](third_party/test_rulebases/README.md), une
   sélection de corpus de règles externes ;
 - [`tests/rulebases/debug`](tests/rulebases/debug/README.md), une petite base
@@ -212,8 +212,9 @@ répertoire existant.
 9. Poursuivre les optimisations mesurées : activations paresseuses,
    planification générale des jointures, sélection des règles candidates et
    optimisation des substitutions guidée par profilage.
-10. ~~Reproduire les démonstrations Spinoza P19, P21, P22 et P33, puis importer
-    la structure textuelle complète de l'Éthique III.~~
+10. ~~Reproduire les démonstrations Spinoza P19, P21, P22 et P33, importer la
+    structure textuelle complète de l'Éthique III, puis rendre exécutables les
+    59 propositions dans le modèle systématique.~~
 11. Ajouter une couche optionnelle de raisonnement par contraintes pour
    exprimer et résoudre des problèmes de satisfaction (CSP, SAT et variantes),
    notamment au moyen d’un adaptateur vers OR-Tools. Le moteur d’inférence

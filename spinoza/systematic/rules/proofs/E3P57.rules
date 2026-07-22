@@ -1,0 +1,61 @@
+# Le désir exprime directement l'essence actuelle de l'individu.
+RULE E3P57D_desir_exprime_essence_individuelle
+WHEN
+    ($desir est_desir_de $individu)
+    ($essence est_essence_actuelle_de $individu)
+THEN
+    ADD ($desir exprime_essence_de $individu)
+    ADD ($desir est_individualise_par $essence)
+END
+
+# Joie et tristesse sont le désir ou l'appétit modulé par une cause extérieure.
+RULE E3P57D_joie_ou_tristesse_herite_essence
+WHEN
+    ($affect est_joie_ou_tristesse_de $individu)
+    ($affect est_modulation_de $desir)
+    ($desir est_individualise_par $essence)
+THEN
+    ADD ($affect exprime_essence_de $individu)
+    ADD ($affect est_individualise_par $essence)
+END
+
+# Toute affection composée ou dérivée conserve l'individualisation de
+# l'affection primitive à laquelle elle se ramène.
+RULE E3P57D_affect_derive_herite_essence
+WHEN
+    ($affect se_ramene_a $affect_primitif)
+    ($affect_primitif est_individualise_par $essence)
+THEN
+    ADD ($affect est_individualise_par $essence)
+END
+
+RULE E3P57D_essences_distinctes_affects_distincts
+WHEN
+    ($affect_un est_individualise_par $essence_un)
+    ($affect_deux est_individualise_par $essence_deux)
+    ($essence_un est_distincte_de $essence_deux)
+THEN
+    ADD ($affect_un differe_autant_que_essence_de $affect_deux)
+    ADD ($affect_un differe_par_nature_de $affect_deux)
+END
+
+# Scolie : l'affect d'un vivant conserve la nature de son espèce. La règle est
+# générique et couvre cheval, homme, insecte, poisson et oiseau sans les fondre.
+RULE E3P57S_affect_vivant_exprime_nature_espece
+WHEN
+    ($individu appartient_a_espece $espece)
+    ($espece a_nature $nature)
+    ($affect est_affect_de $individu)
+THEN
+    ADD ($affect exprime_nature_de $espece)
+    ADD ($affect est_individualise_par $nature)
+END
+
+RULE E3P57S_epanouissement_exprime_ame_individu
+WHEN
+    ($epanouissement est_epanouissement_de $individu)
+    ($ame est_idee_de $individu)
+THEN
+    ADD ($epanouissement exprime_ame_de $individu)
+    ADD ($epanouissement est_individualise_par $ame)
+END

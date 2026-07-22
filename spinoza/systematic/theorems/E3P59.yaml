@@ -1,0 +1,150 @@
+schema_version: 1
+id: E3P59
+model: ethics_iii_systematic_v1
+source_unit: E3P59
+source_text: >-
+  Parmi toutes les affections qui se rapportent à l'Âme en tant qu'elle est
+  active, il n'y en a point qui ne se ramènent à la Joie et au Désir.
+fact_files: [facts/postulates.yaml]
+rule_files:
+  - rules/validated/E3P58.rules
+  - rules/proofs/E3P59.rules
+rule_catalog: rules/catalog.yaml
+forbidden_rules:
+  - E3P59_affect_actif_joie_ou_desir
+  - E3P59_tristesse_non_active
+allowed_rule_origins: [textual, textual_theorem]
+cases:
+  - id: joie_et_desir_actifs
+    initial_facts:
+      - "(ame0 est_actif_dans joie0)"
+      - "(joie0 est_action_de ame0)"
+      - "(joie0 est_joie_de ame0)"
+      - "(ame0 est_actif_dans desir0)"
+      - "(desir0 est_action_de ame0)"
+      - "(desir0 est_appele desir)"
+    goals:
+      - "(joie0 est_affect_actif_de ame0)"
+      - "(joie0 se_ramene_a joie)"
+      - "(joie0 est_affect_actif_de_type joie_ou_desir)"
+      - "(desir0 est_desir_de ame0)"
+      - "(desir0 est_affect_actif_de ame0)"
+      - "(desir0 se_ramene_a desir)"
+      - "(desir0 est_affect_actif_de_type joie_ou_desir)"
+    expected:
+      status: proved
+      proof_depths: [1, 2, 2, 1, 1, 2, 2]
+  - id: tristesse_non_active
+    initial_facts:
+      - "(tristesse0 est_tristesse_de ame0)"
+      - "(tristesse0 reduit_puissance_de_connaitre_de ame0)"
+    goals:
+      - entity: "(tristesse0 est_affect_actif_de ame0)"
+        status: FAUX
+      - entity: "(tristesse0 se_rapporte_a (ame0 en_tant_que active))"
+        status: FAUX
+    must_not_derive:
+      - "(tristesse0 est_affect_actif_de ame0)"
+    expected:
+      status: proved
+      proof_depths: [1, 1]
+  - id: fermete_et_generosite
+    initial_facts:
+      - "(desir_ferme0 est_affect_actif_de ame0)"
+      - "(desir_ferme0 est_desir_de ame0)"
+      - "(desir_ferme0 suit_seul_commandement_de raison)"
+      - "(desir_ferme0 vise_conservation_de ame0)"
+      - "(desir_genereux0 est_affect_actif_de ame0)"
+      - "(desir_genereux0 est_desir_de ame0)"
+      - "(desir_genereux0 suit_seul_commandement_de raison)"
+      - "(desir_genereux0 vise_assistance_de autrui0)"
+      - "(desir_genereux0 vise_lien_d_amitie_avec autrui0)"
+    goals:
+      - "(desir_ferme0 est_force_d_ame_de ame0)"
+      - "(desir_ferme0 est_fermete_de ame0)"
+      - "(desir_genereux0 est_force_d_ame_de ame0)"
+      - "(desir_genereux0 est_generosite_de ame0)"
+    expected:
+      status: proved
+      proof_depths: [1, 1, 1, 1]
+  - id: especes_de_force_d_ame
+    initial_facts:
+      - "(fermete0 est_fermete_de ame0)"
+      - "(temperance0 est_action_de ame0)"
+      - "(temperance0 vise_utilite_de ame0)"
+      - "(temperance0 suit_de fermete0)"
+      - "(sobriete0 est_action_de ame0)"
+      - "(sobriete0 vise_utilite_de ame0)"
+      - "(sobriete0 suit_de fermete0)"
+      - "(presence_esprit0 est_action_de ame0)"
+      - "(presence_esprit0 vise_utilite_de ame0)"
+      - "(presence_esprit0 suit_de fermete0)"
+      - "(generosite0 est_generosite_de ame0)"
+      - "(modestie0 est_action_de ame0)"
+      - "(modestie0 vise_utilite_de autrui0)"
+      - "(modestie0 suit_de generosite0)"
+      - "(clemence0 est_action_de ame0)"
+      - "(clemence0 vise_utilite_de autrui0)"
+      - "(clemence0 suit_de generosite0)"
+    goals:
+      - "(temperance0 est_espece_de_fermete_de ame0)"
+      - "(sobriete0 est_espece_de_fermete_de ame0)"
+      - "(presence_esprit0 est_espece_de_fermete_de ame0)"
+      - "(modestie0 est_espece_de_generosite_de ame0)"
+      - "(clemence0 est_espece_de_generosite_de ame0)"
+    expected:
+      status: proved
+      proof_depths: [1, 1, 1, 1, 1]
+  - id: degout_et_lassitude
+    initial_facts:
+      - "(ame0 jouit_de aliment0)"
+      - "(aliment0 est_present_a ame0)"
+      - "(corps0 a_nouvel_etat_apres_jouissance etat_nouveau0)"
+      - "(desir0 est_desir_de_jouir_de (ame0 envers aliment0))"
+      - "(desir0 se_maintient_par_presence_de aliment0)"
+      - "(degout0 est_temoignage_degout_de (ame0 envers aliment0))"
+      - "(lassitude0 est_temoignage_lassitude_de (ame0 envers aliment0))"
+    goals:
+      - "(etat_nouveau0 s_oppose_a desir0)"
+      - "(aliment0 devient_odieux_a ame0)"
+      - "(degout0 est_degout_de ame0)"
+      - "(lassitude0 est_lassitude_de ame0)"
+    expected:
+      status: proved
+      proof_depths: [1, 1, 2, 2]
+  - id: troubles_exterieurs_du_corps
+    initial_facts:
+      - "(tremblement0 est_trouble_exterieur_de corps0)"
+      - "(tremblement0 est_de_type tremblement)"
+      - "(tremblement0 est_sans_relation_mentale_pour ame0)"
+      - "(paleur0 est_trouble_exterieur_de corps0)"
+      - "(paleur0 est_de_type paleur)"
+      - "(paleur0 est_sans_relation_mentale_pour ame0)"
+      - "(sanglots0 est_trouble_exterieur_de corps0)"
+      - "(sanglots0 est_de_type sanglots)"
+      - "(sanglots0 est_sans_relation_mentale_pour ame0)"
+      - "(rire0 est_trouble_exterieur_de corps0)"
+      - "(rire0 est_de_type rire)"
+      - "(rire0 est_sans_relation_mentale_pour ame0)"
+    goals:
+      - "(tremblement0 se_rapporte_au_corps_seulement VRAI)"
+      - entity: "(tremblement0 est_affect_de_ame ame0)"
+        status: FAUX
+      - "(paleur0 se_rapporte_au_corps_seulement VRAI)"
+      - entity: "(paleur0 est_affect_de_ame ame0)"
+        status: FAUX
+      - "(sanglots0 se_rapporte_au_corps_seulement VRAI)"
+      - entity: "(sanglots0 est_affect_de_ame ame0)"
+        status: FAUX
+      - "(rire0 se_rapporte_au_corps_seulement VRAI)"
+      - entity: "(rire0 est_affect_de_ame ame0)"
+        status: FAUX
+    expected:
+      status: proved
+      proof_depths: [1, 1, 1, 1, 1, 1, 1, 1]
+formalization_status: proved_with_active_affect_closure_and_scholium
+result: proved
+limitations:
+  - >-
+    L'alternative Joie ou Désir est représentée par deux branches positives et
+    une exclusion explicite de la Tristesse, sans disjonction native.

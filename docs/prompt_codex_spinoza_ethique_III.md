@@ -482,9 +482,10 @@ Reproduire les démonstrations présentes dans les diapositives :
 - E3P22 ;
 - E3P33.
 
-### Palier B — Propositions 19 à 55
+### Palier B — Propositions 19 à 59 — réalisé
 
-Formaliser et tester les propositions 19 à 55.
+Formaliser et tester les propositions 19 à 59. Ce palier est désormais
+exécutable dans `spinoza/systematic/`, avec provenance et contre-cas.
 
 Pour chaque proposition, produire un statut :
 
@@ -508,11 +509,12 @@ rules:
   - "..."
 ```
 
-### Palier C — Propositions 1 à 18
+### Palier C — Propositions 1 à 18 — réalisé
 
-Revenir aux propositions précédentes afin de reconstruire les prémisses utilisées par 19 à 55.
+Revenir aux propositions précédentes afin de reconstruire les prémisses
+utilisées par 19 à 59. Ce socle est désormais lui aussi exécutable.
 
-### Palier D — Analyse critique
+### Palier D — Analyse critique — réalisée pour les propositions
 
 Comparer :
 
@@ -520,6 +522,10 @@ Comparer :
 - le modèle historique Spinolog ;
 - la nouvelle formalisation ;
 - la preuve générée.
+
+Les rapports de `spinoza/systematic/reports/` consignent cette comparaison
+jusqu'à E3P59. La formalisation des définitions finales E3DA01–E3DA48 reste un
+chantier séparé.
 
 ---
 

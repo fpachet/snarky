@@ -216,7 +216,11 @@ formalisation systématique des propositions concernées.
    [`../systematic/reports/tranche_e3p53_e3p56.md`](../systematic/reports/tranche_e3p53_e3p56.md) :
    E3P53, explicitement non exploitée par SpinoLog, est reconstruite depuis le
    texte ; E3P54–E3P56 restent également isolées des règles historiques.
-7. Après E3P59, évaluer séparément méta-ontologie, témoins frais et génération
+7. La clôture E3P57–E3P59 est publiée dans
+   [`../systematic/reports/tranche_e3p57_e3p59.md`](../systematic/reports/tranche_e3p57_e3p59.md) :
+   les affects actifs et le dernier scolie sont reconstruits sans charger la
+   base SpinoLog.
+8. Après E3P59, évaluer séparément méta-ontologie, témoins frais et génération
    d'hypothèses.
 
 Le rapport sert ainsi à la fois de source historique, de jeu de régression et

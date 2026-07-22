@@ -12,7 +12,7 @@
 | Définition générale des affects | 1 / 1 | texte importé |
 | Manifestes de théorèmes | 59 / 59 | créés |
 | Preuves historiques exécutables | 4 / 4 | reproduites |
-| Propositions prouvées symboliquement | 56 / 59 | en cours |
+| Propositions prouvées symboliquement | 59 / 59 | achevé |
 
 `source_imported` signifie que l'unité textuelle, ses sous-sections et ses
 références numériques candidates sont disponibles. Cela ne signifie pas que sa
@@ -25,11 +25,10 @@ d'affects.
 
 ## Ordre de poursuite
 
-1. E3P01–E3P56 : formalisation systématique exécutable achevée.
-2. E3P57–E3P59 : diversité individuelle et affects actifs.
+1. E3P01–E3P59 : formalisation systématique exécutable achevée.
+2. E3DA01–E3DA48 : prochaine couche systématique, distincte des propositions.
 
-Pour chaque proposition, le fichier `theorems/E3Pxx.yaml` doit passer de
-`source_imported` à `candidate`, puis à `proved`, `not_proved` documenté ou
+Chaque proposition possède maintenant un manifeste systématique `proved` ou
 `proved_with_interpretative_rules`. La règle réutilisable correspondant à une
 proposition n'est activée qu'après sa preuve et reste interdite pendant le test
 de cette même proposition.

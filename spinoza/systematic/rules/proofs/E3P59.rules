@@ -1,0 +1,111 @@
+# Les deux branches positives conservent la primitive à laquelle l'affect actif
+# se ramène. Elles ne transforment pas cette alternative en un terme indéfini.
+RULE E3P59D_affect_actif_joyeux_se_ramene_joie
+WHEN
+    ($affect est_affect_actif_de $ame)
+    ($affect est_joie_de $ame)
+THEN
+    ADD ($affect se_ramene_a joie)
+    ADD ($affect est_affect_actif_de_type joie_ou_desir)
+END
+
+RULE E3P59D_affect_actif_desirant_se_ramene_desir
+WHEN
+    ($affect est_affect_actif_de $ame)
+    ($affect est_desir_de $ame)
+THEN
+    ADD ($affect se_ramene_a desir)
+    ADD ($affect est_affect_actif_de_type joie_ou_desir)
+END
+
+# La tristesse réduit la puissance de connaître et reçoit donc une exclusion
+# active explicite, et non une simple non-dérivation.
+RULE E3P59D_tristesse_reduit_connaissance_non_active
+WHEN
+    ($tristesse est_tristesse_de $ame)
+    ($tristesse reduit_puissance_de_connaitre_de $ame)
+THEN
+    ADD ($tristesse est_affect_actif_de $ame) ' FAUX
+    ADD ($tristesse se_rapporte_a ($ame en_tant_que active)) ' FAUX
+END
+
+# Scolie : la force d'âme active se divise selon la fin rationnelle du désir.
+RULE E3P59S_desir_conservation_raison_fermete
+WHEN
+    ($desir est_affect_actif_de $ame)
+    ($desir est_desir_de $ame)
+    ($desir suit_seul_commandement_de raison)
+    ($desir vise_conservation_de $ame)
+THEN
+    ADD ($desir est_force_d_ame_de $ame)
+    ADD ($desir est_fermete_de $ame)
+END
+
+RULE E3P59S_desir_aide_amitie_raison_generosite
+WHEN
+    ($desir est_affect_actif_de $ame)
+    ($desir est_desir_de $ame)
+    ($desir suit_seul_commandement_de raison)
+    ($desir vise_assistance_de $autrui)
+    ($desir vise_lien_d_amitie_avec $autrui)
+THEN
+    ADD ($desir est_force_d_ame_de $ame)
+    ADD ($desir est_generosite_de $ame)
+END
+
+RULE E3P59S_action_utilite_agent_espece_fermete
+WHEN
+    ($action est_action_de $ame)
+    ($action vise_utilite_de $ame)
+    ($action suit_de $fermete)
+    ($fermete est_fermete_de $ame)
+THEN
+    ADD ($action est_espece_de_fermete_de $ame)
+END
+
+RULE E3P59S_action_utilite_autrui_espece_generosite
+WHEN
+    ($action est_action_de $ame)
+    ($action vise_utilite_de $autrui)
+    ($action suit_de $generosite)
+    ($generosite est_generosite_de $ame)
+THEN
+    ADD ($action est_espece_de_generosite_de $ame)
+END
+
+# La jouissance modifie le corps ; le nouvel état contrarie le désir maintenu
+# par la présence de l'aliment et produit dégoût et lassitude.
+RULE E3P59S_jouissance_aliment_nouvel_etat_corporel
+WHEN
+    ($ame jouit_de $aliment)
+    ($aliment est_present_a $ame)
+    ($corps a_nouvel_etat_apres_jouissance $etat_nouveau)
+    ($desir est_desir_de_jouir_de ($ame envers $aliment))
+    ($desir se_maintient_par_presence_de $aliment)
+THEN
+    ADD ($etat_nouveau s_oppose_a $desir)
+    ADD ($aliment devient_odieux_a $ame)
+END
+
+RULE E3P59S_opposition_aliment_degout_lassitude
+WHEN
+    ($etat_nouveau s_oppose_a $desir)
+    ($aliment devient_odieux_a $ame)
+    ($degout est_temoignage_degout_de ($ame envers $aliment))
+    ($lassitude est_temoignage_lassitude_de ($ame envers $aliment))
+THEN
+    ADD ($degout est_degout_de $ame)
+    ADD ($lassitude est_lassitude_de $ame)
+END
+
+# Tremblement, pâleur, sanglots et rire sont conservés comme manifestations
+# corporelles sans relation d'affect mental implicite.
+RULE E3P59S_trouble_exterieur_corps_seulement
+WHEN
+    ($trouble est_trouble_exterieur_de $corps)
+    ($trouble est_de_type $type_corporel)
+    ($trouble est_sans_relation_mentale_pour $ame)
+THEN
+    ADD ($trouble se_rapporte_au_corps_seulement VRAI)
+    ADD ($trouble est_affect_de_ame $ame) ' FAUX
+END

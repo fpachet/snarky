@@ -1,0 +1,18 @@
+RULE E3P58_joie_active
+WHEN
+    ($ame est_actif_dans $joie)
+    ($joie est_action_de $ame)
+    ($joie est_joie_de $ame)
+THEN
+    ADD ($joie est_affect_actif_de $ame)
+END
+
+RULE E3P58_desir_actif
+WHEN
+    ($ame est_actif_dans $effort)
+    ($effort est_action_de $ame)
+    ($effort est_appele desir)
+THEN
+    ADD ($effort est_desir_de $ame)
+    ADD ($effort est_affect_actif_de $ame)
+END

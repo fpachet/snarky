@@ -58,8 +58,11 @@
 | E3P54 | 3 | essence, contenus posant la puissance et exclusion explicite | E3P07 |
 | E3P55 | 7 | impuissance, humilité, amour-propre, envie et vénération | E3P09, E3P11, E3P24, E3P28, E3P32, E3P52–E3P54 |
 | E3P56 | 5 | espèces affectives, objets et conduites gouvernantes | E2P17, E2P40, E3P01, E3P03, E3P09, E3P11 |
+| E3P57 | 6 | affects individualisés par essences et natures d'espèces | E2P13, E3P09, E3P11, E3P56 |
+| E3P58 | 3 | joie et désir actifs issus d'idées adéquates | E2P40, E2P43, E3P01, E3P03, E3P09, E3P53 |
+| E3P59 | 6 | clôture active, fermeté, générosité, dégoût et lassitude | E3P01, E3P11, E3P58 |
 
-Couverture actuelle : 56 propositions sur 59. Toutes les propositions depuis
+Couverture actuelle : 59 propositions sur 59. Toutes les propositions depuis
 E3P04 possèdent au moins un contre-cas de non-dérivation. E3P09 et E3P11
 exécutent aussi les principaux fragments ontologiques de leurs scolies :
 volonté, appétit, désir, jugement de bonté, joie, tristesse et leurs variantes
@@ -80,10 +83,16 @@ généralisation sociale, affect mixte et réattribution causale. E3P49–E3P52
 ajoutent liberté et nécessité imaginées, présages, variabilité affective et
 attention singulière. E3P53–E3P56 ajoutent connaissance de soi, exclusivité
 des contenus de puissance, comparaison sociale et espèces affectives. La
-prochaine frontière est E3P57.
+séquence E3P57–E3P59 ajoute individualisation des affects, activité issue des
+idées adéquates et clôture sur joie ou désir. La couche propositionnelle est
+achevée ; la prochaine frontière distincte est E3DA01–E3DA48.
 
 L'ordre des tranches, leurs concepts et leurs critères de sortie sont décrits
 dans [`roadmap.md`](roadmap.md).
+
+Les sections « Prochaine frontière » des rapports de tranche conservent l'état
+historique du jalon au moment où il a été produit. La présente page et le
+rapport E3P57–E3P59 portent l'état courant à 59/59.
 
 Les résultats « prouvée » signifient ici qu'une instanciation ground de chaque
 branche de l'énoncé atteint ses buts. Ils ne constituent pas encore une preuve
@@ -180,3 +189,12 @@ positivement son exclusion envers une nature étrangère. E3P56 ne distingue
 deux affects qu'après distinction des natures de leurs objets et ne confond
 pas conduite gouvernante et passion. L'audit est publié dans
 [`tranche_e3p53_e3p56.md`](tranche_e3p53_e3p56.md).
+
+E3P57 exige une différence positive entre essences ou natures avant de
+distinguer les affects. E3P58 fait suivre activité, joie et désir d'un témoin
+d'idée vraie et adéquate ; une idée inadéquate produit au contraire une
+passion dont le statut actif est `FAUX`. E3P59 déploie joie et désir comme deux
+branches actives et réfute explicitement la tristesse active. Son scolie garde
+distinctes fermeté, générosité, saturation alimentaire et manifestations
+corporelles. L'audit final est publié dans
+[`tranche_e3p57_e3p59.md`](tranche_e3p57_e3p59.md).

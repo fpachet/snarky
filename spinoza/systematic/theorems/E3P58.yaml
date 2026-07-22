@@ -1,0 +1,76 @@
+schema_version: 1
+id: E3P58
+model: ethics_iii_systematic_v1
+source_unit: E3P58
+source_text: >-
+  Outre la Joie et le Désir qui sont des passions, il y a d'autres affections
+  de Joie et de Désir qui se rapportent à nous en tant que nous sommes actifs.
+fact_files: [facts/postulates.yaml]
+rule_files:
+  - rules/validated_theorems.rules
+  - rules/validated/E3P03.rules
+  - rules/validated/E3P53.rules
+  - rules/proofs/E3P58.rules
+rule_catalog: rules/catalog.yaml
+forbidden_rules:
+  - E3P58_joie_active
+  - E3P58_desir_actif
+allowed_rule_origins: [external_textual, textual, textual_theorem]
+cases:
+  - id: joie_issue_idee_adequate
+    initial_facts:
+      - "(ame0 concoit idee_vraie0)"
+      - "(idee_vraie0 est_vraie VRAI)"
+      - "(joie0 est_temoignage_affectif_de (ame0 considere ame0))"
+      - "(joie0 suit_necessairement_de idee_vraie0)"
+      - "(joie0 advient_en_ou_hors_de ame0)"
+    goals:
+      - "(idee_vraie0 est_adequate_dans ame0)"
+      - "(idee_vraie0 constitue_essence_de ame0)"
+      - "(ame0 se_considere_par idee_vraie0)"
+      - "(joie0 est_joie_de ame0)"
+      - "(joie0 est_action_de ame0)"
+      - "(joie0 est_affect_actif_de ame0)"
+      - "(joie0 se_rapporte_a (ame0 en_tant_que active))"
+    expected:
+      status: proved
+      proof_depths: [1, 2, 3, 4, 2, 5, 5]
+  - id: desir_issu_idee_adequate
+    initial_facts:
+      - "(ame0 concoit idee_vraie0)"
+      - "(idee_vraie0 est_vraie VRAI)"
+      - "(effort0 suit_necessairement_de idee_vraie0)"
+      - "(effort0 advient_en_ou_hors_de ame0)"
+      - "(effort0 vise_perseverance_de ame0)"
+      - "(effort0 est_appele desir)"
+    goals:
+      - "(idee_vraie0 est_adequate_dans ame0)"
+      - "(ame0 est_actif_dans effort0)"
+      - "(effort0 est_action_de ame0)"
+      - "(effort0 est_desir_de ame0)"
+      - "(effort0 est_affect_actif_de ame0)"
+      - "(effort0 se_rapporte_a (ame0 en_tant_que active))"
+    expected:
+      status: proved
+      proof_depths: [1, 2, 2, 3, 3, 3]
+  - id: affect_issu_idee_inadequate
+    initial_facts:
+      - "(affect0 suit_necessairement_de idee_inadequate0)"
+      - "(idee_inadequate0 est_inadequate_dans ame0)"
+      - "(affect0 advient_en_ou_hors_de ame0)"
+    goals:
+      - "(ame0 est_passif_dans affect0)"
+      - "(affect0 est_passion_de ame0)"
+      - entity: "(affect0 est_affect_actif_de ame0)"
+        status: FAUX
+    must_not_derive:
+      - "(affect0 est_affect_actif_de ame0)"
+    expected:
+      status: proved
+      proof_depths: [1, 1, 2]
+formalization_status: proved_with_adequate_idea_activity
+result: proved
+limitations:
+  - >-
+    L'existence d'idées adéquates est instanciée par un témoin d'idée vraie ;
+    le modèle ne quantifie pas sur toutes les idées de l'âme.

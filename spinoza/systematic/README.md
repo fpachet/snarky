@@ -23,7 +23,7 @@ règle qui contient déjà sa conclusion. Pour tester `E3Pxx`, le manifeste :
 4. demande au moteur de dériver des faits représentant l'énoncé ;
 5. conserve la chaîne minimale des règles effectivement employées.
 
-## Fragments exécutables : E3P01–E3P56
+## Fragments exécutables : E3P01–E3P59
 
 Le fragment initial formalise :
 
@@ -152,6 +152,14 @@ espèces affectives selon les natures d'objets instanciées et sépare les
 conduites gouvernantes des passions. L'audit est publié dans
 [`reports/tranche_e3p53_e3p56.md`](reports/tranche_e3p53_e3p56.md).
 
+E3P57–E3P59 ferment la séquence propositionnelle. E3P57 individualise chaque
+affect par une essence ou une nature d'espèce explicitement distincte. E3P58
+réemploie l'activité issue des idées adéquates et la joie de se considérer
+pour construire joie et désir actifs. E3P59 déploie les deux branches positives
+et exclut la tristesse active, puis rend exécutables fermeté, générosité,
+dégoût, lassitude et manifestations corporelles. Le rapport final est
+[`reports/tranche_e3p57_e3p59.md`](reports/tranche_e3p57_e3p59.md).
+
 Le lanceur expose pour chaque cas le nombre de faits initiaux et dérivés, le
 nombre de dérivations et toutes les règles activées. Ces données permettent un
 audit en lecture seule de la clôture sans modifier le moteur d'inférence.
@@ -223,3 +231,7 @@ par qualification et statut `FAUX`, non par quantification universelle. E3P55
 ne génère pas spontanément les deux branches d'une alternative pratique.
 E3P56 construit une correspondance entre objets et espèces affectives sans
 fermer ni dénombrer le domaine des objets.
+E3P57 conserve une dépendance qualitative entre différences d'essence et
+d'affect, sans métrique. E3P58 instancie l'existence d'une idée adéquate par un
+témoin. E3P59 remplace la disjonction « joie ou désir » par deux branches
+positives et un statut `FAUX` explicite pour la tristesse active.

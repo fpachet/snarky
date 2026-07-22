@@ -1087,8 +1087,60 @@ def test_e3p56_constructs_affective_species_without_domain_closure() -> None:
     assert governed.proof_depths == (1, 1, 1, 1, 1, 1)
 
 
+def test_e3p57_ties_affective_difference_to_explicit_essence_difference() -> None:
+    desires = run_case(SYSTEMATIC_ROOT, "E3P57", "desirs_de_deux_individus")
+    animals = run_case(SYSTEMATIC_ROOT, "E3P57", "cheval_et_homme")
+    same_essence = run_case(
+        SYSTEMATIC_ROOT,
+        "E3P57",
+        "essence_non_distinguee",
+    )
+
+    assert desires.proved
+    assert desires.proof_depths == (1, 1, 2, 2)
+    assert animals.proved
+    assert animals.proof_depths == (1, 1, 2)
+    assert same_essence.proved
+    assert same_essence.forbidden_violations == ()
+
+
+def test_e3p58_derives_active_joy_and_desire_only_from_adequate_ideas() -> None:
+    joy = run_case(SYSTEMATIC_ROOT, "E3P58", "joie_issue_idee_adequate")
+    desire = run_case(SYSTEMATIC_ROOT, "E3P58", "desir_issu_idee_adequate")
+    inadequate = run_case(
+        SYSTEMATIC_ROOT,
+        "E3P58",
+        "affect_issu_idee_inadequate",
+    )
+
+    assert joy.proved
+    assert joy.proof_depths == (1, 2, 3, 4, 2, 5, 5)
+    assert desire.proved
+    assert desire.proof_depths == (1, 2, 2, 3, 3, 3)
+    assert inadequate.proved
+    assert inadequate.proof_depths == (1, 1, 2)
+    assert inadequate.forbidden_violations == ()
+
+
+def test_e3p59_closes_active_affects_and_preserves_scholium_branches() -> None:
+    closure = run_case(SYSTEMATIC_ROOT, "E3P59", "joie_et_desir_actifs")
+    sadness = run_case(SYSTEMATIC_ROOT, "E3P59", "tristesse_non_active")
+    fortitude = run_case(SYSTEMATIC_ROOT, "E3P59", "fermete_et_generosite")
+    satiety = run_case(SYSTEMATIC_ROOT, "E3P59", "degout_et_lassitude")
+
+    assert closure.proved
+    assert closure.proof_depths == (1, 2, 2, 1, 1, 2, 2)
+    assert sadness.proved
+    assert sadness.proof_depths == (1, 1)
+    assert sadness.forbidden_violations == ()
+    assert fortitude.proved
+    assert fortitude.proof_depths == (1, 1, 1, 1)
+    assert satiety.proved
+    assert satiety.proof_depths == (1, 1, 2, 2)
+
+
 def test_each_systematic_manifest_since_e3p04_has_passing_counter_cases() -> None:
-    for proposition in range(4, 57):
+    for proposition in range(4, 60):
         theorem_id = f"E3P{proposition:02d}"
         manifest = yaml.safe_load(
             (SYSTEMATIC_ROOT / "theorems" / f"{theorem_id}.yaml").read_text(
@@ -1138,7 +1190,7 @@ def test_systematic_manifests_do_not_load_the_historical_model() -> None:
 
 
 def test_systematic_manifests_load_only_current_proof_and_prior_theorems() -> None:
-    for proposition in range(4, 57):
+    for proposition in range(4, 60):
         theorem_id = f"E3P{proposition:02d}"
         manifest = yaml.safe_load(
             (SYSTEMATIC_ROOT / "theorems" / f"{theorem_id}.yaml").read_text(

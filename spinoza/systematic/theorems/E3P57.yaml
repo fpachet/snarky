@@ -1,0 +1,110 @@
+schema_version: 1
+id: E3P57
+model: ethics_iii_systematic_v1
+source_unit: E3P57
+source_text: >-
+  Une affection quelconque de chaque individu diffère de l'affection d'un
+  autre, autant que l'essence de l'un diffère de l'essence de l'autre.
+fact_files: [facts/postulates.yaml]
+rule_files:
+  - rules/proofs/E3P57.rules
+rule_catalog: rules/catalog.yaml
+forbidden_rules:
+  - E3P57_affects_different_selon_essences
+  - E3P57_affect_vivant_selon_nature_espece
+allowed_rule_origins: [textual]
+cases:
+  - id: desirs_de_deux_individus
+    initial_facts:
+      - "(desir_un0 est_desir_de individu_un0)"
+      - "(essence_un0 est_essence_actuelle_de individu_un0)"
+      - "(desir_deux0 est_desir_de individu_deux0)"
+      - "(essence_deux0 est_essence_actuelle_de individu_deux0)"
+      - "(essence_un0 est_distincte_de essence_deux0)"
+    goals:
+      - "(desir_un0 est_individualise_par essence_un0)"
+      - "(desir_deux0 est_individualise_par essence_deux0)"
+      - "(desir_un0 differe_autant_que_essence_de desir_deux0)"
+      - "(desir_un0 differe_par_nature_de desir_deux0)"
+    expected:
+      status: proved
+      proof_depths: [1, 1, 2, 2]
+  - id: joies_et_tristesses_individuelles
+    initial_facts:
+      - "(desir_un0 est_desir_de individu_un0)"
+      - "(essence_un0 est_essence_actuelle_de individu_un0)"
+      - "(joie_un0 est_joie_ou_tristesse_de individu_un0)"
+      - "(joie_un0 est_modulation_de desir_un0)"
+      - "(desir_deux0 est_desir_de individu_deux0)"
+      - "(essence_deux0 est_essence_actuelle_de individu_deux0)"
+      - "(tristesse_deux0 est_joie_ou_tristesse_de individu_deux0)"
+      - "(tristesse_deux0 est_modulation_de desir_deux0)"
+      - "(essence_un0 est_distincte_de essence_deux0)"
+    goals:
+      - "(joie_un0 est_individualise_par essence_un0)"
+      - "(tristesse_deux0 est_individualise_par essence_deux0)"
+      - "(joie_un0 differe_autant_que_essence_de tristesse_deux0)"
+    expected:
+      status: proved
+      proof_depths: [2, 2, 3]
+  - id: affection_derivee
+    initial_facts:
+      - "(desir0 est_desir_de individu0)"
+      - "(essence0 est_essence_actuelle_de individu0)"
+      - "(amour0 se_ramene_a desir0)"
+    goals:
+      - "(desir0 est_individualise_par essence0)"
+      - "(amour0 est_individualise_par essence0)"
+    expected:
+      status: proved
+      proof_depths: [1, 2]
+  - id: cheval_et_homme
+    initial_facts:
+      - "(cheval0 appartient_a_espece espece_cheval)"
+      - "(espece_cheval a_nature nature_cheval)"
+      - "(lubricite_cheval0 est_affect_de cheval0)"
+      - "(homme0 appartient_a_espece espece_humaine)"
+      - "(espece_humaine a_nature nature_humaine)"
+      - "(lubricite_homme0 est_affect_de homme0)"
+      - "(nature_cheval est_distincte_de nature_humaine)"
+    goals:
+      - "(lubricite_cheval0 exprime_nature_de espece_cheval)"
+      - "(lubricite_homme0 exprime_nature_de espece_humaine)"
+      - "(lubricite_cheval0 differe_par_nature_de lubricite_homme0)"
+    expected:
+      status: proved
+      proof_depths: [1, 1, 2]
+  - id: epanouissements_individuels
+    initial_facts:
+      - "(epanouissement_un0 est_epanouissement_de individu_un0)"
+      - "(ame_un0 est_idee_de individu_un0)"
+      - "(epanouissement_deux0 est_epanouissement_de individu_deux0)"
+      - "(ame_deux0 est_idee_de individu_deux0)"
+      - "(ame_un0 est_distincte_de ame_deux0)"
+    goals:
+      - "(epanouissement_un0 exprime_ame_de individu_un0)"
+      - "(epanouissement_deux0 exprime_ame_de individu_deux0)"
+      - "(epanouissement_un0 differe_par_nature_de epanouissement_deux0)"
+    expected:
+      status: proved
+      proof_depths: [1, 1, 2]
+  - id: essence_non_distinguee
+    initial_facts:
+      - "(desir_un0 est_desir_de individu_un0)"
+      - "(essence_commune0 est_essence_actuelle_de individu_un0)"
+      - "(desir_deux0 est_desir_de individu_deux0)"
+      - "(essence_commune0 est_essence_actuelle_de individu_deux0)"
+    goals:
+      - "(desir_un0 est_individualise_par essence_commune0)"
+      - "(desir_deux0 est_individualise_par essence_commune0)"
+    must_not_derive:
+      - "(desir_un0 differe_autant_que_essence_de desir_deux0)"
+    expected:
+      status: proved
+      proof_depths: [1, 1]
+formalization_status: proved_with_constructive_essence_mapping
+result: proved
+limitations:
+  - >-
+    La proportion « autant que » est une dépendance qualitative entre témoins
+    d'essence ; elle ne constitue pas une mesure numérique de différence.

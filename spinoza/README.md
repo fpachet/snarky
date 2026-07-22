@@ -102,7 +102,7 @@ script générateur.
 Le dossier [`systematic`](systematic/README.md) reprend la formalisation à
 partir des définitions, postulats et dépendances explicites. Il ne charge pas
 les règles historiques. Les fragments exécutables couvrent désormais
-E3P01–E3P56 et rendent visibles les ponts importés des parties I et II.
+E3P01–E3P59 et rendent visibles les ponts importés des parties I et II.
 
 Cette couverture comprend notamment le conatus, les affects primitifs,
 l'imagination et la mémoire, les affects temporels, l'amour et la haine, leur
@@ -134,7 +134,12 @@ représentent explicitement le « seulement » des contenus qui posent la
 puissance, distinguent humilité, amour-propre, envie et vénération, puis
 construisent les espèces affectives selon la nature de leurs objets.
 
-Neuf rapports décrivent les derniers jalons et leur comparaison avec Gondran
+E3P57–E3P59 achèvent les propositions : les différences d'essence
+individualisent les affects, les idées adéquates produisent joie et désir
+actifs, et la tristesse active est explicitement exclue. Le dernier scolie
+formalise fermeté, générosité, dégoût, lassitude et troubles corporels.
+
+Dix rapports décrivent les derniers jalons et leur comparaison avec Gondran
 et Cavarretta :
 
 - [`systematic/reports/milestone_e3p19_e3p22.md`](systematic/reports/milestone_e3p19_e3p22.md) ;
@@ -145,10 +150,11 @@ et Cavarretta :
 - [`systematic/reports/tranche_e3p41_e3p44.md`](systematic/reports/tranche_e3p41_e3p44.md) ;
 - [`systematic/reports/tranche_e3p45_e3p48.md`](systematic/reports/tranche_e3p45_e3p48.md) ;
 - [`systematic/reports/tranche_e3p49_e3p52.md`](systematic/reports/tranche_e3p49_e3p52.md) ;
-- [`systematic/reports/tranche_e3p53_e3p56.md`](systematic/reports/tranche_e3p53_e3p56.md).
+- [`systematic/reports/tranche_e3p53_e3p56.md`](systematic/reports/tranche_e3p53_e3p56.md) ;
+- [`systematic/reports/tranche_e3p57_e3p59.md`](systematic/reports/tranche_e3p57_e3p59.md).
 
-La suite de tests comprend actuellement 86 tests réussis. La prochaine
-frontière est E3P57 : elle doit relier la différence des affects individuels
-à celle des essences, avant les deux propositions sur les affects actifs. Le
+La suite de tests comprend actuellement 89 tests réussis. Les 59 propositions
+sont toutes exécutables. Le prochain chantier distinct est l'intégration
+systématique des 48 définitions finales des affects. Le
 [`plan de modélisation`](systematic/reports/roadmap.md) décrit l'ordre complet
 jusqu'à E3P59 et aux définitions finales des affects.
