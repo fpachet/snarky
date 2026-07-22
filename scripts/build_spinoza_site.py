@@ -15,6 +15,10 @@ PROJECT_ROOT = Path(__file__).resolve().parents[1]
 SYSTEMATIC_ROOT = PROJECT_ROOT / "spinoza" / "systematic"
 SOURCE_ROOT = PROJECT_ROOT / "spinoza" / "sources"
 RULE_PATTERN = re.compile(r"^RULE\s+(\S+)", re.MULTILINE)
+RULE_BLOCK_PATTERN = re.compile(
+    r"^RULE\s+(?P<name>\S+)\s*\n.*?^END\s*$",
+    re.MULTILINE | re.DOTALL,
+)
 
 AFFECT_NAMES = (
     "Désir",
@@ -99,6 +103,21 @@ def _rule_names(root: Path, relative_paths: list[str]) -> list[str]:
     ]
 
 
+def _rule_definitions(root: Path) -> dict[str, dict[str, str]]:
+    definitions: dict[str, dict[str, str]] = {}
+    for path in sorted((root / "rules").rglob("*.rules")):
+        content = path.read_text(encoding="utf-8")
+        for match in RULE_BLOCK_PATTERN.finditer(content):
+            name = match.group("name")
+            if name in definitions:
+                raise ValueError(f"duplicate rule definition: {name}")
+            definitions[name] = {
+                "body": match.group(0).strip(),
+                "file": path.relative_to(root).as_posix(),
+            }
+    return definitions
+
+
 def _case_payload(
     unit_id: str,
     case: dict[str, Any],
@@ -143,10 +162,16 @@ def build_payload(project_root: Path = PROJECT_ROOT) -> dict[str, Any]:
             "source": entry.get("source"),
             "sources": entry.get("sources", []),
             "status": entry.get("status"),
+            "note": entry.get("note"),
         }
         for entry in catalog["rules"]
         for rule_id in entry["ids"]
     }
+    rule_definitions = _rule_definitions(systematic_root)
+    if catalog_by_rule.keys() != rule_definitions.keys():
+        missing = sorted(catalog_by_rule.keys() - rule_definitions.keys())
+        extra = sorted(rule_definitions.keys() - catalog_by_rule.keys())
+        raise ValueError(f"rule catalog mismatch: missing={missing}, extra={extra}")
 
     propositions: list[dict[str, Any]] = []
     for index in range(1, 60):
@@ -248,6 +273,35 @@ def build_payload(project_root: Path = PROJECT_ROOT) -> dict[str, Any]:
     explanation_count = sum(
         len(item["sections"]) for item in [*definitions, general_definition]
     )
+    all_units = [*propositions, *definitions, general_definition]
+    rules = []
+    for rule_id, metadata in catalog_by_rule.items():
+        declared_by = [
+            unit["id"] for unit in all_units if rule_id in unit["current_rules"]
+        ]
+        case_uses = [
+            {"unit_id": unit["id"], "case_id": case["id"]}
+            for unit in all_units
+            for case in unit["cases"]
+            if rule_id in case["rule_names"]
+        ]
+        sources = metadata["sources"] or (
+            [metadata["source"]] if metadata["source"] else []
+        )
+        rules.append(
+            {
+                "id": rule_id,
+                "kind": "rule",
+                "origin": metadata["origin"],
+                "status": metadata["status"],
+                "sources": sources,
+                "note": metadata["note"],
+                "body": rule_definitions[rule_id]["body"],
+                "file": rule_definitions[rule_id]["file"],
+                "declared_by": declared_by,
+                "case_uses": case_uses,
+            }
+        )
 
     return {
         "meta": {
@@ -267,6 +321,7 @@ def build_payload(project_root: Path = PROJECT_ROOT) -> dict[str, Any]:
         "propositions": propositions,
         "definitions": definitions,
         "general_definition": general_definition,
+        "rules": rules,
         "families": [
             {"start": start, "end": end, "label": label}
             for start, end, label in AFFECT_FAMILIES

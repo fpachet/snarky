@@ -59,6 +59,7 @@ function unitsForView() {
   if (state.view === "affects") {
     return [...model.definitions, model.general_definition];
   }
+  if (state.view === "rules") return model.rules;
   return [];
 }
 
@@ -71,6 +72,14 @@ function filteredUnits() {
       unit.title,
       unit.family,
       unit.source_text,
+      unit.origin,
+      unit.status,
+      unit.body,
+      unit.file,
+      unit.note,
+      ...(unit.sources ?? []),
+      ...(unit.declared_by ?? []),
+      ...(unit.case_uses ?? []).flatMap((use) => [use.unit_id, use.case_id]),
       ...(unit.sections ?? []).map((section) => section.text),
       ...(unit.current_rules ?? []),
     ].join(" ");
@@ -96,7 +105,7 @@ function routeFromHash() {
   const route = window.location.hash.slice(1);
   if (!route || route === "accueil") return;
   const [view, selectedId] = route.split("/");
-  if (!["propositions", "affects", "architecture"].includes(view)) return;
+  if (!["propositions", "affects", "rules", "architecture"].includes(view)) return;
   state.view = view;
   if (selectedId) state.selectedId = selectedId;
   if (model) render();
@@ -104,6 +113,23 @@ function routeFromHash() {
 
 function unitListItem(unit) {
   const selected = unit.id === state.selectedId;
+  if (unit.kind === "rule") {
+    return `
+      <li>
+        <button
+          type="button"
+          class="${selected ? "selected" : ""}"
+          data-select-unit="${escapeHtml(unit.id)}"
+          aria-current="${selected ? "true" : "false"}"
+        >
+          <span class="unit-code">${escapeHtml(unit.origin)}</span>
+          <span>
+            <strong>${escapeHtml(unit.id)}</strong>
+            <small>${escapeHtml(unit.status ?? "statut non renseigné")}</small>
+          </span>
+        </button>
+      </li>`;
+  }
   const subtitle = unit.family ?? unit.source_text;
   return `
     <li>
@@ -122,6 +148,22 @@ function unitListItem(unit) {
     </li>`;
 }
 
+function unitHref(unitId) {
+  if (unitId.startsWith("E3DA")) return `#affects/${unitId}`;
+  if (/^E3P\d{2}$/.test(unitId)) return `#propositions/${unitId}`;
+  return null;
+}
+
+function referenceItem(reference) {
+  const propositionMatch = reference.match(/^E3P\d{2}/);
+  const affectMatch = reference.match(/^E3DA(?:-GENERAL|\d{2})/);
+  const canonicalId = propositionMatch?.[0] ?? affectMatch?.[0] ?? reference;
+  const href = unitHref(canonicalId);
+  return href
+    ? `<li><a href="${href}">${escapeHtml(reference)}</a></li>`
+    : `<li><span class="rule-chip">${escapeHtml(reference)}</span></li>`;
+}
+
 function dependenciesSection(unit) {
   if (!unit.dependencies?.length) return "";
   return `
@@ -131,16 +173,7 @@ function dependenciesSection(unit) {
         <span>${unit.dependencies.length} référence${unit.dependencies.length > 1 ? "s" : ""}</span>
       </div>
       <ul class="dependency-list">
-        ${unit.dependencies
-          .map((reference) => {
-            const propositionId = reference.startsWith("E3P")
-              ? reference.slice(0, 5)
-              : null;
-            return propositionId
-              ? `<li><a href="#propositions/${propositionId}">${escapeHtml(reference)}</a></li>`
-              : `<li><span class="rule-chip">${escapeHtml(reference)}</span></li>`;
-          })
-          .join("")}
+        ${unit.dependencies.map(referenceItem).join("")}
       </ul>
     </section>`;
 }
@@ -177,7 +210,10 @@ function rulesSection(unit) {
       ${
         rules.length
           ? `<ul class="rule-list">${rules
-              .map((rule) => `<li class="rule-chip">${escapeHtml(rule)}</li>`)
+              .map(
+                (rule) =>
+                  `<li><a class="rule-chip" href="#rules/${rule}">${escapeHtml(rule)}</a></li>`,
+              )
               .join("")}</ul>`
           : '<p class="section-copy">Les règles décisives apparaissent dans les chaînes de preuve ci-dessous.</p>'
       }
@@ -208,7 +244,7 @@ function caseCard(testCase, index) {
             ? `<ol class="proof-chain">${rules
                 .map(
                   (rule, ruleIndex) =>
-                    `<li>${escapeHtml(rule)} <small>· ${escapeHtml(testCase.rule_origins[ruleIndex] ?? "")}</small></li>`,
+                    `<li><a href="#rules/${rule}">${escapeHtml(rule)}</a> <small>· ${escapeHtml(testCase.rule_origins[ruleIndex] ?? "")}</small></li>`,
                 )
                 .join("")}</ol>`
             : '<p class="section-copy">Aucune règle ne franchit cette frontière : la conclusion interdite n’est pas dérivée.</p>'
@@ -251,7 +287,71 @@ function limitationsSection(unit) {
     </section>`;
 }
 
+function linkedReferences(title, references) {
+  if (!references?.length) return "";
+  return `
+    <section class="detail-section">
+      <div class="section-title-row">
+        <h4>${escapeHtml(title)}</h4>
+        <span>${references.length} référence${references.length > 1 ? "s" : ""}</span>
+      </div>
+      <ul class="dependency-list">${references.map(referenceItem).join("")}</ul>
+    </section>`;
+}
+
+function renderRuleDetail(rule) {
+  if (!rule) {
+    return '<div class="detail-panel"><p class="section-copy">Sélectionnez une règle Snark.</p></div>';
+  }
+  const sourceUrl = `${model.meta.repository}/blob/main/spinoza/systematic/${rule.file}`;
+  return `
+    <article class="detail-panel rule-detail" aria-labelledby="detail-title">
+      <header class="detail-header">
+        <div class="detail-meta">
+          <span class="tag">Règle Snark</span>
+          <span class="tag">${escapeHtml(rule.origin)}</span>
+          <span class="tag success">${escapeHtml(rule.status ?? "non renseigné")}</span>
+        </div>
+        <h3 id="detail-title">${escapeHtml(rule.id)}</h3>
+        ${
+          rule.note
+            ? `<p class="rule-note">${escapeHtml(rule.note)}</p>`
+            : ""
+        }
+      </header>
+      <section class="detail-section">
+        <div class="section-title-row">
+          <h4>Code de la règle</h4>
+          <a class="source-file-link" href="${escapeHtml(sourceUrl)}" target="_blank" rel="noreferrer">${escapeHtml(rule.file)} ↗</a>
+        </div>
+        <pre class="snark-source"><code>${escapeHtml(rule.body)}</code></pre>
+      </section>
+      ${linkedReferences("Sources philosophiques", rule.sources)}
+      ${linkedReferences("Unités qui déclarent la règle", rule.declared_by)}
+      ${
+        rule.case_uses.length
+          ? `<section class="detail-section">
+              <div class="section-title-row">
+                <h4>Activations dans les preuves</h4>
+                <span>${rule.case_uses.length} cas</span>
+              </div>
+              <ul class="rule-usage-list">
+                ${rule.case_uses
+                  .map((use) => {
+                    const href = unitHref(use.unit_id);
+                    const label = `${use.unit_id} · ${use.case_id}`;
+                    return `<li>${href ? `<a href="${href}">${escapeHtml(label)}</a>` : escapeHtml(label)}</li>`;
+                  })
+                  .join("")}
+              </ul>
+            </section>`
+          : `<section class="detail-section"><p class="section-copy">Cette règle appartient au modèle, mais n’apparaît dans aucune chaîne minimale de preuve publiée.</p></section>`
+      }
+    </article>`;
+}
+
 function renderDetail(unit) {
+  if (unit?.kind === "rule" || state.view === "rules") return renderRuleDetail(unit);
   if (!unit) {
     return '<div class="detail-panel"><p class="section-copy">Sélectionnez une unité du corpus.</p></div>';
   }
@@ -287,7 +387,12 @@ function renderBrowser() {
     selected = units[0];
     state.selectedId = selected.id;
   }
-  const listLabel = state.view === "propositions" ? "propositions" : "définitions";
+  const listLabel =
+    state.view === "propositions"
+      ? "propositions"
+      : state.view === "rules"
+        ? "règles Snark"
+        : "définitions";
   app.innerHTML = `
     <div class="browser-layout">
       <aside class="unit-list-panel" aria-label="Liste des ${listLabel}">
@@ -361,7 +466,12 @@ viewButtons.forEach((button) => {
     state.view = button.dataset.view;
     state.query = "";
     searchInput.value = "";
-    state.selectedId = state.view === "propositions" ? "E3P01" : "E3DA01";
+    state.selectedId =
+      state.view === "propositions"
+        ? "E3P01"
+        : state.view === "rules"
+          ? model.rules[0].id
+          : "E3DA01";
     updateHash(state.view, state.view === "architecture" ? "" : state.selectedId);
     render();
   });

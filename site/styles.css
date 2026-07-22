@@ -643,6 +643,20 @@ kbd {
   line-height: 1;
 }
 
+.rule-detail .detail-header h3 {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: clamp(1.55rem, 3.3vw, 3rem);
+  overflow-wrap: anywhere;
+}
+
+.rule-note {
+  max-width: 850px;
+  margin: 1.5rem 0 0;
+  color: var(--ink-soft);
+  font-family: var(--serif);
+  font-size: 1.05rem;
+}
+
 .source-quote {
   position: relative;
   margin: 2rem 0 0;
@@ -738,9 +752,57 @@ details.text-section p {
 }
 
 .dependency-list a:hover,
-.dependency-list a:focus-visible {
+.dependency-list a:focus-visible,
+.rule-chip:hover,
+.rule-chip:focus-visible {
   color: white;
   background: var(--green);
+}
+
+.source-file-link {
+  color: var(--red);
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: 0.68rem;
+  overflow-wrap: anywhere;
+  text-align: right;
+}
+
+.snark-source {
+  max-width: 100%;
+  margin: 0;
+  padding: clamp(1rem, 2vw, 1.5rem);
+  overflow-x: auto;
+  color: #e7eee9;
+  border-left: 4px solid var(--gold);
+  background: #102c25;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.08);
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: 0.75rem;
+  line-height: 1.7;
+  tab-size: 4;
+}
+
+.rule-usage-list {
+  display: grid;
+  margin: 0;
+  padding: 0;
+  grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+  gap: 0.55rem;
+  list-style: none;
+}
+
+.rule-usage-list li,
+.rule-usage-list a {
+  color: var(--ink-soft);
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: 0.69rem;
+  overflow-wrap: anywhere;
+}
+
+.rule-usage-list li {
+  padding: 0.65rem 0.75rem;
+  border-left: 2px solid var(--gold);
+  background: rgba(255, 255, 255, 0.44);
 }
 
 .case-grid {
@@ -836,6 +898,11 @@ details.text-section p {
   font-family: var(--sans);
   font-size: 0.6rem;
   font-weight: 800;
+}
+
+.proof-chain a {
+  text-decoration-color: rgba(140, 53, 43, 0.45);
+  text-underline-offset: 0.2em;
 }
 
 .case-goals {

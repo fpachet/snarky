@@ -27,11 +27,14 @@ class _AssetParser(HTMLParser):
 
 def test_static_site_entrypoint_has_resolvable_relative_assets() -> None:
     parser = _AssetParser()
-    parser.feed((SITE_ROOT / "index.html").read_text(encoding="utf-8"))
+    html = (SITE_ROOT / "index.html").read_text(encoding="utf-8")
+    parser.feed(html)
 
     assert {"styles.css", "app.js"} <= set(parser.references)
     assert all((SITE_ROOT / reference).is_file() for reference in parser.references)
     assert (SITE_ROOT / ".nojekyll").is_file()
+    assert 'data-view="rules"' in html
+    assert 'href="#rules"' in html
 
 
 def test_static_model_contains_the_complete_executable_ethics_iii() -> None:
@@ -55,6 +58,13 @@ def test_static_model_contains_the_complete_executable_ethics_iii() -> None:
         f"E3DA{index:02d}" for index in range(1, 49)
     ]
     assert payload["general_definition"]["id"] == "E3DA-GENERAL"
+    assert len(payload["rules"]) == 608
+    assert len({rule["id"] for rule in payload["rules"]}) == 608
+    assert all(
+        rule["body"].startswith(f"RULE {rule['id']}\n") for rule in payload["rules"]
+    )
+    assert all(rule["file"].startswith("rules/") for rule in payload["rules"])
+    assert all(rule["origin"] and rule["status"] for rule in payload["rules"])
     assert all(
         item["result"].startswith("proved")
         for item in [
