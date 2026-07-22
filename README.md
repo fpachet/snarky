@@ -83,9 +83,9 @@ La base Fibonacci explicite utilise `LET $somme := $gauche + $droite` et ne
 reçoit qu’un fait racine : les sommes et les rangs des fils ne sont plus
 préchargés sous forme de tables.
 
-Les mises à jour et suppressions de faits, la création de symboles frais,
-l’évaluation semi-naïve et le raisonnement par contraintes restent à
-implémenter.
+Les mises à jour et suppressions de faits, la création de symboles frais et le
+raisonnement par contraintes restent à implémenter. L’évaluation semi-naïve
+est disponible via `SemiNaiveInstantiationStrategy`.
 
 ## Démarrage rapide
 

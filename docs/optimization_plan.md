@@ -137,10 +137,11 @@ de temps, cycles, faits, activations et tentatives de matching sont disponibles
 pour Fibonacci explicite. Restent notamment le pic mémoire, le détail du temps
 de parsing et les autres formes de jointure.
 
-Pour mesurer les progrès, chaque phase devra rejouer la plage `F(10)` à
-`F(17)`, rapporter les ratios par rapport au CSV de référence et indiquer les
-plus grands rangs passant sous 10 et 30 secondes. L'égalité différentielle
-avec l'oracle naïf reste obligatoire sur les rangs où son coût est acceptable.
+Pour mesurer les progrès, chaque phase devra rejouer au minimum la plage
+`F(10)` à `F(20)`, prolongée autant que le temps raisonnable le permet,
+rapporter les ratios par rapport au CSV de référence et indiquer les plus
+grands rangs passant sous 10 et 30 secondes. L'égalité différentielle avec
+l'oracle naïf reste obligatoire sur les rangs où son coût est acceptable.
 
 Avant de modifier les algorithmes :
 
@@ -168,7 +169,8 @@ Premiers scénarios :
 
 **État : à faire.** La première optimisation mesurée a directement ciblé
 l'indexation, principal coût révélé par Fibonacci. Le streaming reste utile
-pour réduire la mémoire et préparer l'évaluation semi-naïve.
+pour réduire la mémoire consommée par la stratégie semi-naïve et borner la
+matérialisation des activations.
 
 Transformer la stratégie naïve pour produire un itérateur d’activations au
 lieu d’un tuple complet.
