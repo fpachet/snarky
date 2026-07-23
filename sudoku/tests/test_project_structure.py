@@ -13,15 +13,23 @@ CLIPS_PUZZLES = (
 
 def test_sudoku_project_documents_and_rule_catalog_are_localized() -> None:
     assert (SUDOKU_ROOT / "README.md").is_file()
+    assert (SUDOKU_ROOT / "domain.py").is_file()
+    assert (SUDOKU_ROOT / "rulebase.py").is_file()
+    assert (SUDOKU_ROOT / "solver.py").is_file()
     assert (SUDOKU_ROOT / "docs/implementation_plan.md").is_file()
     assert (SUDOKU_ROOT / "fixtures/README.md").is_file()
     assert (SUDOKU_ROOT / "rules/README.md").is_file()
+    assert (SUDOKU_ROOT / "rules/topology.rules").is_file()
+    assert (SUDOKU_ROOT / "rules/singles.rules").is_file()
+    assert (SUDOKU_ROOT / "rules/locked_candidates.rules").is_file()
+    assert (SUDOKU_ROOT / "rules/pairs.rules").is_file()
+    assert (SUDOKU_ROOT / "rules/validation.rules").is_file()
 
     catalog = yaml.safe_load(
         (SUDOKU_ROOT / "rules/catalog.yaml").read_text(encoding="utf-8")
     )
 
-    assert catalog["status"] == "planned_non_executable"
+    assert catalog["status"] == "executable_p1_to_p6"
     assert [group["name"] for group in catalog["groups"]] == [
         "derive_solved_cells",
         "naked_singles",

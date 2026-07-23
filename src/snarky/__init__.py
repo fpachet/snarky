@@ -1,13 +1,15 @@
 """Public API of the Snarky inference engine."""
 
-from .actions import Action, AddFact, Let, add, let
+from .actions import Action, AddFact, Let, RemoveFact, add, let, remove
 from .engine import (
     EngineLimits,
     FactExists,
+    FactMutationKind,
     ForwardEngine,
     GroupExecutionMode,
     GroupRunResult,
     GroupStopReason,
+    InferenceEvent,
     InferenceLimitError,
     InferenceSession,
     RunResult,
@@ -38,7 +40,16 @@ from .parser import (
     parse_rules,
     parse_term,
 )
-from .premises import ComparisonOperator, ComparisonPremise, FactPremise
+from .plans import TechniquePlan, TechniquePlanResult, TechniquePlanStatus
+from .premises import (
+    ComparisonOperator,
+    ComparisonPremise,
+    ExistsPremise,
+    FactPremise,
+    NotExistsPremise,
+    exists,
+    not_exists,
+)
 from .rules import Rule, RuleGroup, when
 from .substitutions import EMPTY_SUBSTITUTION, Substitution
 from .terms import (
@@ -68,18 +79,22 @@ __all__ = [
     "EngineLimits",
     "Fact",
     "FactExists",
+    "FactMutationKind",
     "FactPremise",
+    "ExistsPremise",
     "ForwardEngine",
     "GroupExecutionMode",
     "GroupRunResult",
     "GroupStopReason",
     "InferenceLimitError",
+    "InferenceEvent",
     "InferenceSession",
     "IndexedInstantiationStrategy",
     "InstantiationMetrics",
     "InstantiationStrategy",
     "Let",
     "Number",
+    "NotExistsPremise",
     "NaiveInstantiationStrategy",
     "NumericExpression",
     "ParseError",
@@ -87,12 +102,16 @@ __all__ = [
     "Proposition",
     "Rule",
     "RuleGroup",
+    "RemoveFact",
     "RunResult",
     "SemiNaiveInstantiationStrategy",
     "Status",
     "StopCondition",
     "Substitution",
     "Term",
+    "TechniquePlan",
+    "TechniquePlanResult",
+    "TechniquePlanStatus",
     "Triple",
     "UnaryArithmeticExpression",
     "UnaryArithmeticOperator",
@@ -100,12 +119,15 @@ __all__ = [
     "Variable",
     "add",
     "evaluate_arithmetic",
+    "exists",
     "is_ground",
     "let",
+    "not_exists",
     "parse_arithmetic_expression",
     "parse_rule_groups",
     "parse_rules",
     "parse_term",
+    "remove",
     "render_term",
     "variables_in",
     "when",

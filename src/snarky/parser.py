@@ -5,7 +5,7 @@ from __future__ import annotations
 import re
 from dataclasses import dataclass
 
-from .actions import Action, AddFact, Let
+from .actions import Action, AddFact, Let, RemoveFact
 from .expressions import (
     BinaryArithmeticExpression,
     BinaryArithmeticOperator,
@@ -13,7 +13,14 @@ from .expressions import (
     UnaryArithmeticExpression,
     UnaryArithmeticOperator,
 )
-from .premises import ComparisonOperator, ComparisonPremise, FactPremise, Premise
+from .premises import (
+    ComparisonOperator,
+    ComparisonPremise,
+    ExistsPremise,
+    FactPremise,
+    NotExistsPremise,
+    Premise,
+)
 from .rules import Rule, RuleGroup
 from .terms import Atom, Number, Status, Term, Triple, Variable
 
@@ -118,11 +125,8 @@ def _parse_rule_lines(lines: tuple[str, ...]) -> tuple[Rule, ...]:
             raise ParseError(f"rule {name!r} is missing WHEN")
         position += 1
 
-        premises: list[Premise] = []
-        while position < len(lines) and lines[position] != "THEN":
-            premises.append(_parse_premise(lines[position]))
-            position += 1
-        if position >= len(lines):
+        premises, position = _parse_premise_block(lines, position, "THEN")
+        if position >= len(lines) or lines[position] != "THEN":
             raise ParseError(f"rule {name!r} is missing THEN")
         position += 1
 
@@ -135,8 +139,47 @@ def _parse_rule_lines(lines: tuple[str, ...]) -> tuple[Rule, ...]:
         position += 1
         if any(rule.name == name for rule in rules):
             raise ParseError(f"duplicate rule name {name!r}")
-        rules.append(Rule(name, tuple(premises), tuple(actions)))
+        try:
+            rules.append(Rule(name, tuple(premises), tuple(actions)))
+        except ValueError as error:
+            raise ParseError(str(error)) from error
     return tuple(rules)
+
+
+def _parse_premise_block(
+    lines: tuple[str, ...],
+    position: int,
+    terminator: str,
+) -> tuple[list[Premise], int]:
+    premises: list[Premise] = []
+    while position < len(lines) and lines[position] != terminator:
+        keyword = lines[position]
+        if keyword in {"EXISTS", "NOT EXISTS"}:
+            nested, position = _parse_premise_block(
+                lines,
+                position + 1,
+                "END_EXISTS",
+            )
+            if position >= len(lines) or lines[position] != "END_EXISTS":
+                raise ParseError(f"{keyword} block is missing END_EXISTS")
+            position += 1
+            try:
+                premise = (
+                    ExistsPremise(tuple(nested))
+                    if keyword == "EXISTS"
+                    else NotExistsPremise(tuple(nested))
+                )
+            except ValueError as error:
+                raise ParseError(str(error)) from error
+            premises.append(premise)
+            continue
+        if keyword == "END_EXISTS":
+            raise ParseError(f"unexpected END_EXISTS before {terminator}")
+        if terminator == "END_EXISTS" and keyword in {"THEN", "END"}:
+            raise ParseError("existential block is missing END_EXISTS")
+        premises.append(_parse_premise(keyword))
+        position += 1
+    return premises, position
 
 
 def _parse_premise(text: str) -> Premise:
@@ -171,16 +214,25 @@ def _parse_action(text: str) -> Action:
         expression = parse_arithmetic_expression(match.group("expression"))
         return Let(variable, expression)
     keyword, separator, body = text.partition(" ")
-    if keyword != "ADD" or not separator or not body.strip():
+    if keyword not in {"ADD", "REMOVE"} or not separator or not body.strip():
         raise ParseError(f"unsupported action {text!r}")
     tokens = _tokenize(body)
     split = _top_level_operator(tokens)
     if split is None:
-        return AddFact(_parse_all(tokens))
+        entity = _parse_all(tokens)
+        return AddFact(entity) if keyword == "ADD" else RemoveFact(entity)
     index, operator = split
     if operator != "'":
-        raise ParseError("ADD only accepts an optional status after apostrophe")
-    return AddFact(_parse_all(tokens[:index]), _parse_all(tokens[index + 1 :]))
+        raise ParseError(
+            f"{keyword} only accepts an optional status after apostrophe"
+        )
+    entity = _parse_all(tokens[:index])
+    status = _parse_all(tokens[index + 1 :])
+    return (
+        AddFact(entity, status)
+        if keyword == "ADD"
+        else RemoveFact(entity, status)
+    )
 
 
 def _tokenize_arithmetic(text: str) -> tuple[_Token, ...]:

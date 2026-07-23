@@ -42,12 +42,13 @@ La forme `entity ' status` matche simultanément l’entité et le statut du fai
 le statut peut être une variable. Les comparaisons sont évaluées après
 substitution et nécessitent des opérandes ground.
 
-Le moteur supporte l’action monotone `ADD` et la liaison arithmétique locale
-`LET`. Les actions sont exécutées dans leur ordre textuel. `LET` évalue une
-expression numérique déterministe, enrichit la substitution de l'activation
-et ne crée aucun fait. Les actions suivantes voient immédiatement la nouvelle
-liaison. `ADD` applique la substitution courante à son entité et à son statut,
-puis refuse tout résultat non ground.
+Le moteur supporte `ADD`, `REMOVE` et la liaison arithmétique locale `LET`.
+Les actions sont instanciées avant mutation, puis appliquées dans leur ordre
+textuel. `LET` évalue une expression numérique déterministe, enrichit la
+substitution de l'activation et ne crée aucun fait. Les actions suivantes
+voient immédiatement la nouvelle liaison. `ADD` et `REMOVE` appliquent la
+substitution courante à leur entité et à leur statut, puis refusent tout
+résultat non ground. Retirer un fait absent est une non-opération.
 
 Les expressions `LET` acceptent les nombres, les variables, les parenthèses et
 les opérateurs `+`, `-`, `*` et `/` avec leur précédence usuelle. Leurs
@@ -55,11 +56,14 @@ opérandes doivent être numériques et déjà liés ; il ne s'agit pas encore d
 résolution de contraintes. Une division par zéro ou un opérande invalide est
 une erreur d'exécution explicite. Voir [`arithmetic_actions.md`](arithmetic_actions.md).
 
-Les mises à jour, suppressions, négations par défaut et créations de symboles
-frais restent différées. Leur sémantique envisagée pour le premier cas d’étude
-est détaillée dans le
-[plan Sudoku](../sudoku/docs/implementation_plan.md), sans être présentée comme
-déjà disponible.
+Les prémisses `EXISTS` et `NOT EXISTS` contiennent une conjonction locale
+corrélée. Elles voient les variables déjà liées, mais leurs variables locales
+ne s’échappent pas. Les comparaisons doivent utiliser des variables liées.
+L’absence testée par `NOT EXISTS` reste distincte du statut `INEXISTANT`.
+
+Les modifications partielles, créations de symboles frais et hypothèses avec
+retour arrière restent différées. Voir
+[`mutations_and_negation.md`](mutations_and_negation.md).
 
 ## Instanciation et point fixe
 
@@ -69,6 +73,8 @@ les faits ayant satisfait les prémisses.
 
 La stratégie indexée maintient un index exact persistant pour chaque règle et
 l'étend uniquement avec les faits ajoutés depuis son évaluation précédente.
+Une suppression invalide les index append-only, qui sont reconstruits avant
+l’instanciation suivante.
 La stratégie semi-naïve ajoute un delta propre à chaque règle : après sa
 première évaluation exhaustive, elle ne produit que les jointures contenant au
 moins un fait de ce delta. Si plusieurs prémisses peuvent recevoir un fait
@@ -89,11 +95,12 @@ discipline préserve les faits, les dérivations, les cycles et la provenance.
 Dans une session persistante, une activation est identifiée par
 `(groupe, règle, substitution des prémisses)`. Les liaisons locales calculées
 par `LET` sont déterministes et ne changent pas son identité. La réfraction
-empêche son second déclenchement. Les actions de toutes les nouvelles
-activations sont appliquées jusqu’à ce qu’un cycle n’ajoute plus aucun fait.
-Sur une base initiale finie et des règles monotones sans création de termes, ce
-processus termine. Des limites explicites de cycles et de faits protègent les
-exécutions futures qui étendront ce périmètre.
+empêche son second déclenchement tant qu’elle reste continûment valide. Un
+retrait de support ou l’invalidation d’une prémisse négative expire la
+réfraction correspondante. Les actions de toutes les nouvelles activations
+sont appliquées jusqu’à ce qu’un cycle ne modifie plus aucun fait. Un point
+fixe mutable est atteint lorsqu’un cycle n’ajoute ni ne retire de fait. Des
+limites explicites de cycles et de faits protègent l’exécution.
 
 ## Groupes de règles et sessions persistantes
 
@@ -105,7 +112,7 @@ Quatre modes sont disponibles :
 
 - `SATURATE`, jusqu’au point fixe ;
 - `ONE_CYCLE`, pour un balayage ordonné des règles ;
-- `FIRST_CHANGE`, jusqu’à la première activation ajoutant un fait ;
+- `FIRST_CHANGE`, jusqu’à la première activation modifiant la mémoire ;
 - `UNTIL`, jusqu’à une condition déclarative ou au point fixe.
 
 Une règle située plus loin dans un groupe voit les faits ajoutés plus tôt
@@ -131,3 +138,7 @@ et une profondeur égale à `1 + max(profondeur des prémisses)`. Plusieurs
 dérivations peuvent être conservées pour un même fait ; `proof_depth` renvoie
 la profondeur minimale connue. Pour un fait produit après `LET`, la
 substitution enregistrée inclut les liaisons arithmétiques locales.
+
+En complément, chaque ajout ou retrait effectif produit un `InferenceEvent`
+chronologique. Ce journal n’est pas effacé lorsqu’un fait est retiré et permet
+de rejouer les transformations de la mémoire.

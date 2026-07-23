@@ -1,0 +1,49 @@
+GROUP validate_state
+    RULE detect_cell_without_candidate
+    WHEN
+        ($cell row $row)
+        NOT EXISTS
+            ($cell candidate $value)
+        END_EXISTS
+        NOT EXISTS
+            (sudoku state inconsistent)
+        END_EXISTS
+    THEN
+        ADD (sudoku state inconsistent)
+    END
+
+    RULE detect_duplicate_solved_value_in_unit
+    WHEN
+        ($first solved $value)
+        ($first unit $unit)
+        ($first index $first_index)
+        ($second solved $value)
+        ($second unit $unit)
+        ($second index $second_index)
+        $first_index < $second_index
+        NOT EXISTS
+            (sudoku state inconsistent)
+        END_EXISTS
+    THEN
+        ADD (sudoku state inconsistent)
+    END
+
+    RULE detect_solved_grid
+    WHEN
+        (sudoku state active)
+        NOT EXISTS
+            ($cell row $row)
+            NOT EXISTS
+                ($cell solved $value)
+            END_EXISTS
+        END_EXISTS
+        NOT EXISTS
+            (sudoku state inconsistent)
+        END_EXISTS
+        NOT EXISTS
+            (sudoku state solved)
+        END_EXISTS
+    THEN
+        ADD (sudoku state solved)
+    END
+END_GROUP

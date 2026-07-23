@@ -8,13 +8,13 @@ from types import MappingProxyType
 from typing import Any
 
 from .actions import Action
-from .premises import FactPremise, Premise
+from .premises import FactPremise, Premise, validate_premise_bindings
 from .terms import Status, Term
 
 
 @dataclass(frozen=True, slots=True)
 class Rule:
-    """An ordered set of premises followed by monotone actions."""
+    """An ordered set of premises followed by working-memory actions."""
 
     name: str
     premises: tuple[Premise, ...]
@@ -28,7 +28,9 @@ class Rule:
             raise ValueError(f"rule {self.name!r} must contain a premise")
         if not self.actions:
             raise ValueError(f"rule {self.name!r} must contain an action")
-        object.__setattr__(self, "premises", tuple(self.premises))
+        premises = tuple(self.premises)
+        validate_premise_bindings(premises)
+        object.__setattr__(self, "premises", premises)
         object.__setattr__(self, "actions", tuple(self.actions))
         object.__setattr__(self, "metadata", MappingProxyType(dict(self.metadata)))
 

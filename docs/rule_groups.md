@@ -76,8 +76,8 @@ car cela rendrait la réfraction et les deltas ambigus.
 
 - `SATURATE` : enchaînement avant jusqu’au point fixe ;
 - `ONE_CYCLE` : un seul balayage ordonné des règles, puis retour ;
-- `FIRST_CHANGE` : retour après la première activation qui ajoute au moins un
-  fait ;
+- `FIRST_CHANGE` : retour après la première activation qui ajoute ou retire au
+  moins un fait ;
 - `UNTIL` : enchaînement jusqu’à ce qu’une condition d’arrêt soit satisfaite,
   ou jusqu’au point fixe si elle ne peut pas l’être.
 
@@ -86,8 +86,8 @@ règle située plus loin dans le groupe voit les faits ajoutés par les règles
 précédentes pendant le même cycle.
 
 `FIRST_CHANGE` et `UNTIL` respectent l’atomicité d’une activation : toutes les
-actions d’une règle sont exécutées avant de tester l’arrêt. Cela évite de
-laisser une conclusion partiellement produite.
+actions d’une règle sont exécutées avant de tester l’arrêt. Le résultat expose
+les ajouts, retraits et événements produits par l’appel.
 
 ## Arrêt sur un but
 

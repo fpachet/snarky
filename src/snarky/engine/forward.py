@@ -6,18 +6,20 @@ from dataclasses import dataclass
 from enum import StrEnum
 from typing import Protocol
 
-from ..actions import AddFact, Let
+from ..actions import AddFact, Let, RemoveFact
 from ..facts import Fact
 from ..instantiation import (
+    IndexedInstantiationStrategy,
     InstantiationStrategy,
     SemiNaiveInstantiationStrategy,
 )
 from ..matching import PatternMatcher
-from ..premises import FactPremise
+from ..premises import ExistsPremise, FactPremise, NotExistsPremise, Premise
 from ..rules import Rule, RuleGroup
 from ..stores.naive import NaiveFactStore
 from ..substitutions import EMPTY_SUBSTITUTION, Substitution
 from ..terms import Term
+from .events import FactMutationKind, InferenceEvent
 from .provenance import Derivation, Provenance
 
 
@@ -88,6 +90,7 @@ class RunResult:
     cycles: int
     fired_activation_count: int
     provenance: Provenance
+    events: tuple[InferenceEvent, ...] = ()
 
 
 @dataclass(frozen=True, slots=True)
@@ -103,6 +106,30 @@ class GroupRunResult:
     fired_activation_count: int
     stop_reason: GroupStopReason
     provenance: Provenance
+    removed_facts: tuple[Fact, ...] = ()
+    events: tuple[InferenceEvent, ...] = ()
+
+    @property
+    def changed(self) -> bool:
+        """Return whether this invocation mutated the working memory."""
+
+        return bool(self.events)
+
+    @property
+    def mutation_count(self) -> int:
+        """Return the number of effective additions and removals."""
+
+        return len(self.events)
+
+
+@dataclass(frozen=True, slots=True)
+class _ActivationOutcome:
+    added_facts: tuple[Fact, ...]
+    removed_facts: tuple[Fact, ...]
+
+    @property
+    def mutation_count(self) -> int:
+        return len(self.added_facts) + len(self.removed_facts)
 
 
 class InferenceSession:
@@ -124,7 +151,10 @@ class InferenceSession:
         self._provenance = Provenance(self._store.facts)
         self._initial_facts = frozenset(self._store.facts)
         self._fired: set[ActivationKey] = set()
+        self._fired_supports: dict[ActivationKey, tuple[Fact, ...]] = {}
+        self._fired_activation_total = 0
         self._derivations: list[Derivation] = []
+        self._events: list[InferenceEvent] = []
         self._previous_fact_counts: dict[tuple[str, str], int] = {}
         self._groups: dict[str, RuleGroup] = {}
         self._cycles = 0
@@ -141,6 +171,12 @@ class InferenceSession:
 
         return self._provenance
 
+    @property
+    def events(self) -> tuple[InferenceEvent, ...]:
+        """Return the cumulative chronological mutation journal."""
+
+        return tuple(self._events)
+
     def snapshot(self) -> RunResult:
         """Return the cumulative state using the historical result shape."""
 
@@ -152,8 +188,9 @@ class InferenceSession:
             ),
             derivations=tuple(self._derivations),
             cycles=self._cycles,
-            fired_activation_count=len(self._fired),
+            fired_activation_count=self._fired_activation_total,
             provenance=self._provenance,
+            events=tuple(self._events),
         )
 
     def run_group(
@@ -176,15 +213,15 @@ class InferenceSession:
                 "with a different definition"
             )
 
-        start_fact_count = len(self._store)
         start_derivation_count = len(self._derivations)
-        start_fired_count = len(self._fired)
+        start_event_count = len(self._events)
+        start_fired_count = self._fired_activation_total
         if until is not None and until(self):
             return self._group_result(
                 group,
                 mode,
-                start_fact_count,
                 start_derivation_count,
+                start_event_count,
                 start_fired_count,
                 cycles=0,
                 stop_reason=GroupStopReason.CONDITION_MET,
@@ -192,7 +229,7 @@ class InferenceSession:
 
         for local_cycle in range(1, self.limits.max_cycles + 1):
             self._cycles += 1
-            added_this_cycle = 0
+            mutations_this_cycle = 0
             for rule in group.rules:
                 facts_snapshot = self._store.facts
                 state_key = (group.name, rule.name)
@@ -208,6 +245,11 @@ class InferenceSession:
                     facts_snapshot,
                     delta,
                 ):
+                    if any(
+                        fact not in self._store
+                        for fact in activation.premise_facts
+                    ):
+                        continue
                     key = ActivationKey(
                         group.name,
                         rule.name,
@@ -216,33 +258,35 @@ class InferenceSession:
                     if key in self._fired:
                         continue
                     self._fired.add(key)
-                    activation_added = self._fire_activation(
+                    self._fired_supports[key] = activation.premise_facts
+                    self._fired_activation_total += 1
+                    outcome = self._fire_activation(
                         group,
                         rule,
                         activation.substitution,
                         activation.premise_facts,
                     )
-                    added_this_cycle += activation_added
+                    mutations_this_cycle += outcome.mutation_count
 
                     if until is not None and until(self):
                         return self._group_result(
                             group,
                             mode,
-                            start_fact_count,
                             start_derivation_count,
+                            start_event_count,
                             start_fired_count,
                             cycles=local_cycle,
                             stop_reason=GroupStopReason.CONDITION_MET,
                         )
                     if (
                         mode is GroupExecutionMode.FIRST_CHANGE
-                        and activation_added
+                        and outcome.mutation_count
                     ):
                         return self._group_result(
                             group,
                             mode,
-                            start_fact_count,
                             start_derivation_count,
+                            start_event_count,
                             start_fired_count,
                             cycles=local_cycle,
                             stop_reason=GroupStopReason.FIRST_CHANGE,
@@ -252,18 +296,18 @@ class InferenceSession:
                 return self._group_result(
                     group,
                     mode,
-                    start_fact_count,
                     start_derivation_count,
+                    start_event_count,
                     start_fired_count,
                     cycles=local_cycle,
                     stop_reason=GroupStopReason.ONE_CYCLE,
                 )
-            if added_this_cycle == 0:
+            if mutations_this_cycle == 0:
                 return self._group_result(
                     group,
                     mode,
-                    start_fact_count,
                     start_derivation_count,
+                    start_event_count,
                     start_fired_count,
                     cycles=local_cycle,
                     stop_reason=GroupStopReason.FIXED_POINT,
@@ -280,60 +324,160 @@ class InferenceSession:
         rule: Rule,
         substitution: Substitution,
         premise_facts: tuple[Fact, ...],
-    ) -> int:
+    ) -> _ActivationOutcome:
         action_substitution = substitution
-        added = 0
+        staged: list[tuple[FactMutationKind, Fact]] = []
         for action in rule.actions:
             if isinstance(action, Let):
                 action_substitution = action.apply(action_substitution)
                 continue
-            if not isinstance(action, AddFact):
-                raise TypeError(f"unsupported action: {action!r}")
-            fact = action.instantiate(action_substitution)
-            derivation = self._provenance.record(
-                fact,
-                rule.name,
-                action_substitution,
-                premise_facts,
-                self._cycles,
-                rule_group=group.name,
-            )
-            self._derivations.append(derivation)
-            if self._store.add(fact):
-                added += 1
+            if isinstance(action, AddFact):
+                staged.append(
+                    (
+                        FactMutationKind.ADD,
+                        action.instantiate(action_substitution),
+                    )
+                )
+                continue
+            if isinstance(action, RemoveFact):
+                staged.append(
+                    (
+                        FactMutationKind.REMOVE,
+                        action.instantiate(action_substitution),
+                    )
+                )
+                continue
+            raise TypeError(f"unsupported action: {action!r}")
+
+        added: list[Fact] = []
+        removed: list[Fact] = []
+        for kind, fact in staged:
+            if kind is FactMutationKind.ADD:
+                derivation = self._provenance.record(
+                    fact,
+                    rule.name,
+                    action_substitution,
+                    premise_facts,
+                    self._cycles,
+                    rule_group=group.name,
+                )
+                self._derivations.append(derivation)
+                if not self._store.add(fact):
+                    continue
+                added.append(fact)
                 if len(self._store) > self.limits.max_facts:
                     raise InferenceLimitError(
                         f"maximum fact count ({self.limits.max_facts}) exceeded"
                     )
-        return added
+            elif self._store.remove(fact):
+                removed.append(fact)
+            else:
+                continue
+            self._events.append(
+                InferenceEvent(
+                    sequence=len(self._events) + 1,
+                    kind=kind,
+                    fact=fact,
+                    rule_name=rule.name,
+                    rule_group=group.name,
+                    substitution=action_substitution,
+                    premises=premise_facts,
+                    cycle=self._cycles,
+                )
+            )
+
+        if removed:
+            self._previous_fact_counts.clear()
+            self.strategy.invalidate()
+            absent_after_activation = frozenset(
+                fact for fact in removed if fact not in self._store
+            )
+            self._expire_removed_supports(absent_after_activation)
+        if any(fact in self._store for fact in added):
+            self._reconcile_negative_refraction()
+        return _ActivationOutcome(tuple(added), tuple(removed))
+
+    def _expire_removed_supports(self, removed: frozenset[Fact]) -> None:
+        expired = {
+            key
+            for key, supports in self._fired_supports.items()
+            if any(fact in removed for fact in supports)
+        }
+        self._fired.difference_update(expired)
+        for key in expired:
+            self._fired_supports.pop(key, None)
+
+    def _reconcile_negative_refraction(self) -> None:
+        """Expire fired negative activations invalidated by fact additions."""
+
+        oracle = IndexedInstantiationStrategy()
+        facts = self._store.facts
+        for group in self._groups.values():
+            for rule in group.rules:
+                fired_for_rule = {
+                    key
+                    for key in self._fired
+                    if (
+                        key.rule_group == group.name
+                        and key.rule_name == rule.name
+                    )
+                }
+                if not fired_for_rule or not _contains_negative(rule.premises):
+                    continue
+                active: set[ActivationKey] = set()
+                for activation in oracle.instantiate(rule, facts):
+                    active.add(
+                        ActivationKey(
+                            group.name,
+                            rule.name,
+                            activation.substitution.key,
+                        )
+                    )
+                expired = fired_for_rule - active
+                self._fired.difference_update(expired)
+                for key in expired:
+                    self._fired_supports.pop(key, None)
 
     def _group_result(
         self,
         group: RuleGroup,
         mode: GroupExecutionMode,
-        start_fact_count: int,
         start_derivation_count: int,
+        start_event_count: int,
         start_fired_count: int,
         *,
         cycles: int,
         stop_reason: GroupStopReason,
     ) -> GroupRunResult:
         facts = self._store.facts
+        events = tuple(self._events[start_event_count:])
         return GroupRunResult(
             group_name=group.name,
             mode=mode,
             facts=facts,
-            added_facts=facts[start_fact_count:],
+            added_facts=tuple(
+                event.fact
+                for event in events
+                if event.kind is FactMutationKind.ADD
+            ),
             derivations=tuple(self._derivations[start_derivation_count:]),
             cycles=cycles,
-            fired_activation_count=len(self._fired) - start_fired_count,
+            fired_activation_count=(
+                self._fired_activation_total - start_fired_count
+            ),
             stop_reason=stop_reason,
             provenance=self._provenance,
+            removed_facts=tuple(
+                event.fact
+                for event in events
+                if event.kind is FactMutationKind.REMOVE
+            ),
+            events=events,
         )
 
 
 class ForwardEngine:
-    """Monotone engine with semi-naïve instantiation and refraction by default."""
+    """Forward engine with semi-naïve instantiation and refraction by default."""
 
     def __init__(
         self,
@@ -362,3 +506,14 @@ class ForwardEngine:
         session = self.create_session(initial_facts)
         session.run_group(self.default_group)
         return session.snapshot()
+
+
+def _contains_negative(premises: tuple[Premise, ...]) -> bool:
+    for premise in premises:
+        if isinstance(premise, NotExistsPremise):
+            return True
+        if isinstance(premise, ExistsPremise) and _contains_negative(
+            premise.premises
+        ):
+            return True
+    return False

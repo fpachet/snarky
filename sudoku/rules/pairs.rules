@@ -1,0 +1,129 @@
+# Naked Pair: two cells of an unit contain exactly the same two values.
+
+GROUP naked_pairs
+    RULE eliminate_first_naked_pair_value_from_unit
+    WHEN
+        ($first unit $unit)
+        ($first index $first_index)
+        ($first candidate $first_value)
+        ($first candidate $second_value)
+        $first_value < $second_value
+        NOT EXISTS
+            ($first candidate $other_value)
+            $other_value != $first_value
+            $other_value != $second_value
+        END_EXISTS
+        ($second unit $unit)
+        ($second index $second_index)
+        $first_index < $second_index
+        ($second candidate $first_value)
+        ($second candidate $second_value)
+        NOT EXISTS
+            ($second candidate $other_value)
+            $other_value != $first_value
+            $other_value != $second_value
+        END_EXISTS
+        ($target unit $unit)
+        $target != $first
+        $target != $second
+        ($target candidate $first_value)
+    THEN
+        REMOVE ($target candidate $first_value)
+    END
+
+    RULE eliminate_second_naked_pair_value_from_unit
+    WHEN
+        ($first unit $unit)
+        ($first index $first_index)
+        ($first candidate $first_value)
+        ($first candidate $second_value)
+        $first_value < $second_value
+        NOT EXISTS
+            ($first candidate $other_value)
+            $other_value != $first_value
+            $other_value != $second_value
+        END_EXISTS
+        ($second unit $unit)
+        ($second index $second_index)
+        $first_index < $second_index
+        ($second candidate $first_value)
+        ($second candidate $second_value)
+        NOT EXISTS
+            ($second candidate $other_value)
+            $other_value != $first_value
+            $other_value != $second_value
+        END_EXISTS
+        ($target unit $unit)
+        $target != $first
+        $target != $second
+        ($target candidate $second_value)
+    THEN
+        REMOVE ($target candidate $second_value)
+    END
+END_GROUP
+
+# Hidden Pair: two values occur in exactly the same two cells of an unit.
+
+GROUP hidden_pairs
+    RULE eliminate_other_values_from_first_hidden_pair_cell
+    WHEN
+        ($first unit $unit)
+        ($first index $first_index)
+        ($first candidate $first_value)
+        ($first candidate $second_value)
+        $first_value < $second_value
+        ($second unit $unit)
+        ($second index $second_index)
+        $first_index < $second_index
+        ($second candidate $first_value)
+        ($second candidate $second_value)
+        NOT EXISTS
+            ($other unit $unit)
+            $other != $first
+            $other != $second
+            ($other candidate $first_value)
+        END_EXISTS
+        NOT EXISTS
+            ($other unit $unit)
+            $other != $first
+            $other != $second
+            ($other candidate $second_value)
+        END_EXISTS
+        ($first candidate $discard)
+        $discard != $first_value
+        $discard != $second_value
+    THEN
+        REMOVE ($first candidate $discard)
+    END
+
+    RULE eliminate_other_values_from_second_hidden_pair_cell
+    WHEN
+        ($first unit $unit)
+        ($first index $first_index)
+        ($first candidate $first_value)
+        ($first candidate $second_value)
+        $first_value < $second_value
+        ($second unit $unit)
+        ($second index $second_index)
+        $first_index < $second_index
+        ($second candidate $first_value)
+        ($second candidate $second_value)
+        NOT EXISTS
+            ($other unit $unit)
+            $other != $first
+            $other != $second
+            ($other candidate $first_value)
+        END_EXISTS
+        NOT EXISTS
+            ($other unit $unit)
+            $other != $first
+            $other != $second
+            ($other candidate $second_value)
+        END_EXISTS
+        ($second candidate $discard)
+        $discard != $first_value
+        $discard != $second_value
+    THEN
+        REMOVE ($second candidate $discard)
+    END
+END_GROUP

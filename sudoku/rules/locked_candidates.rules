@@ -1,0 +1,83 @@
+# Pointing: all candidates for a value in a box lie on the same row/column.
+
+GROUP locked_candidates_single_line
+    RULE eliminate_box_locked_value_from_row
+    WHEN
+        ($anchor candidate $value)
+        ($anchor box $box)
+        ($anchor row $line)
+        NOT EXISTS
+            ($other box $box)
+            ($other candidate $value)
+            ($other row $other_line)
+            $other_line != $line
+        END_EXISTS
+        ($target row $line)
+        ($target box $other_box)
+        $other_box != $box
+        ($target candidate $value)
+    THEN
+        REMOVE ($target candidate $value)
+    END
+
+    RULE eliminate_box_locked_value_from_column
+    WHEN
+        ($anchor candidate $value)
+        ($anchor box $box)
+        ($anchor column $line)
+        NOT EXISTS
+            ($other box $box)
+            ($other candidate $value)
+            ($other column $other_line)
+            $other_line != $line
+        END_EXISTS
+        ($target column $line)
+        ($target box $other_box)
+        $other_box != $box
+        ($target candidate $value)
+    THEN
+        REMOVE ($target candidate $value)
+    END
+END_GROUP
+
+# Claiming: all candidates for a value in a row/column lie in the same box.
+
+GROUP locked_candidates_multiple_lines
+    RULE eliminate_row_locked_value_from_box
+    WHEN
+        ($anchor candidate $value)
+        ($anchor row $line)
+        ($anchor box $box)
+        NOT EXISTS
+            ($other row $line)
+            ($other candidate $value)
+            ($other box $other_box)
+            $other_box != $box
+        END_EXISTS
+        ($target box $box)
+        ($target row $other_line)
+        $other_line != $line
+        ($target candidate $value)
+    THEN
+        REMOVE ($target candidate $value)
+    END
+
+    RULE eliminate_column_locked_value_from_box
+    WHEN
+        ($anchor candidate $value)
+        ($anchor column $line)
+        ($anchor box $box)
+        NOT EXISTS
+            ($other column $line)
+            ($other candidate $value)
+            ($other box $other_box)
+            $other_box != $box
+        END_EXISTS
+        ($target box $box)
+        ($target column $other_line)
+        $other_line != $line
+        ($target candidate $value)
+    THEN
+        REMOVE ($target candidate $value)
+    END
+END_GROUP

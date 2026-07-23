@@ -25,6 +25,14 @@ class NaiveFactStore:
         self._facts[fact] = None
         return True
 
+    def remove(self, fact: Fact) -> bool:
+        """Remove *fact* and report whether it was present."""
+
+        if fact not in self._facts:
+            return False
+        del self._facts[fact]
+        return True
+
     def __contains__(self, fact: object) -> bool:
         return fact in self._facts
 

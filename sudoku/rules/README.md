@@ -6,14 +6,7 @@ Le fichier [`catalog.yaml`](catalog.yaml) constitue son inventaire normatif :
 il définit l’ordre des groupes, les noms de règles prévus, le niveau CLIPS
 visé et les capacités génériques requises.
 
-## Statut
-
-La base est actuellement spécifiée mais non exécutable. Aucun fichier portant
-l’extension `.rules` ne sera ajouté avant que sa syntaxe soit réellement
-acceptée par le parseur Snarky. Cela évite qu’un exemple incomplet soit pris
-pour une base fonctionnelle.
-
-Les premiers fichiers exécutables seront introduits dans cet ordre :
+## Fichiers exécutables
 
 ```text
 topology.rules
@@ -23,7 +16,7 @@ pairs.rules
 validation.rules
 ```
 
-Chaque fichier contiendra des blocs `GROUP ... END_GROUP` lus par
+Chaque fichier contient des blocs `GROUP ... END_GROUP` lus par
 `parse_rule_groups`.
 
 ## Conventions

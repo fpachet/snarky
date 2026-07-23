@@ -1,0 +1,17 @@
+# A cell is solved when it has exactly one remaining candidate.
+
+GROUP derive_solved_cells
+    RULE mark_single_candidate_cell
+    WHEN
+        ($cell candidate $value)
+        NOT EXISTS
+            ($cell candidate $other)
+            $other != $value
+        END_EXISTS
+        NOT EXISTS
+            ($cell solved $known)
+        END_EXISTS
+    THEN
+        ADD ($cell solved $value)
+    END
+END_GROUP

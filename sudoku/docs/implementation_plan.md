@@ -1,5 +1,19 @@
 # Plan d’implémentation du Sudoku « humain »
 
+## État d’avancement
+
+Les phases 0 à 7 sont réalisées pour le périmètre p1–p6 :
+
+- fixtures natives vérifiées contre les sources CLIPS ;
+- mémoire mutable, journal, réfraction et index après retrait ;
+- `EXISTS`/`NOT EXISTS` corrélés ;
+- singles, candidats verrouillés et paires ;
+- orchestrateur générique et explications rejouables ;
+- solutions et familles de techniques identiques aux oracles.
+
+La phase 8 reste ouverte pour les tests génératifs 4×4 et les optimisations
+supplémentaires. Les niveaux p7 à p18 restent le palier avancé.
+
 ## Objectif
 
 Le but n’est pas d’ajouter un solveur Sudoku spécialisé à côté de Snarky, mais
@@ -73,11 +87,11 @@ résolue ou qu’aucune technique ne s’applique.
 | Comparaisons `==`, `!=`, `<`, etc. | Disponible | Suffisant |
 | Groupes et sessions persistantes | Disponible | Suffisant |
 | Modes saturation/pas-à-pas/jusqu’à un but | Disponible | Suffisant |
-| Suppression d’un fait | Absente | Critique |
-| Prémisse existentielle négative corrélée | Absente | Critique |
-| Réfaction et index compatibles avec les suppressions | Absents | Critique |
-| Trace des suppressions et décisions | Absente | Critique pour expliquer |
-| Ordonnancement des techniques | Partiel via `RuleGroup` | Petit orchestrateur requis |
+| Suppression d’un fait | Disponible | Critique |
+| Prémisse existentielle négative corrélée | Disponible | Critique |
+| Réfaction et index compatibles avec les suppressions | Disponibles | Critique |
+| Trace des suppressions et décisions | Disponible | Critique pour expliquer |
+| Ordonnancement des techniques | Disponible via `TechniquePlan` | Requis |
 | Agrégats ou cardinalités | Absents | Utiles, mais non indispensables à p1–p6 |
 | Salience CLIPS | Absente | Non nécessaire avec les groupes |
 | `deftemplate` CLIPS | Absent | Non nécessaire |
@@ -153,7 +167,7 @@ que toutes les unités sont valides, elle renvoie `SOLVED`.
 
 ### Phase 0 — Figer les oracles et le modèle natif
 
-1. Créer `tests/rulebases/sudoku/`.
+1. Créer le sous-projet autonome `sudoku/`, avec ses fixtures et ses tests.
 2. Transcrire les indices et solutions attendues de p1 à p6 dans un format
    natif compact, avec un lien explicite vers chaque fichier CLIPS source.
 3. Écrire un chargeur qui produit les faits `row`, `column`, `box` et

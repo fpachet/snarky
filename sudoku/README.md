@@ -11,21 +11,20 @@ notion générale de progrès.
 
 ## État actuel
 
-Les fondations génériques nécessaires au pilotage sont disponibles :
+La base native est exécutable et résout les six niveaux essentiels p1 à p6.
+Elle utilise :
 
 - `RuleGroup` pour nommer une famille de règles ;
 - `InferenceSession` pour partager faits, réfraction et provenance ;
 - les modes `SATURATE`, `ONE_CYCLE`, `FIRST_CHANGE` et `UNTIL` ;
-- `FactExists` pour arrêter un groupe lorsqu’un motif apparaît.
-
-La base Sudoku native est cependant encore **non exécutable**. Deux capacités
-générales du moteur manquent :
-
-1. retirer un fait de la mémoire de travail tout en conservant son histoire ;
-2. exprimer un `NOT EXISTS` corrélé à des variables déjà liées.
+- `FactExists` pour arrêter un groupe lorsqu’un motif apparaît ;
+- `REMOVE` et le journal d’`InferenceEvent` pour les éliminations ;
+- `NOT EXISTS` corrélé pour reconnaître singles, verrouillages et paires ;
+- `TechniquePlan` pour essayer les techniques par difficulté croissante et
+  recommencer au début après chaque groupe efficace.
 
 Le [plan d’implémentation](docs/implementation_plan.md) décrit leur sémantique,
-les tests requis et l’ordre des jalons.
+les jalons réalisés et les extensions avancées restantes.
 
 ## Périmètre essentiel
 
@@ -52,27 +51,35 @@ unique — constitueront des paliers ultérieurs.
 ```text
 sudoku/
 ├── README.md
+├── __init__.py
+├── domain.py
+├── rulebase.py
+├── solver.py
 ├── docs/
 │   └── implementation_plan.md
 ├── fixtures/
-│   └── README.md
+│   ├── README.md
+│   └── grid3x3-p1.yaml … grid3x3-p6.yaml
 ├── rules/
 │   ├── README.md
-│   └── catalog.yaml
+│   ├── catalog.yaml
+│   └── *.rules
 └── tests/
-    └── test_project_structure.py
+    └── test_*.py
 ```
 
 - [`rules/catalog.yaml`](rules/catalog.yaml) inventorie les groupes et règles
   de la base essentielle, ainsi que les fonctionnalités dont ils dépendent ;
 - [`rules/README.md`](rules/README.md) fixe la convention de représentation et
-  la future organisation des fichiers exécutables ;
+  l’organisation des fichiers exécutables ;
 - [`fixtures/README.md`](fixtures/README.md) décrit les oracles p1 à p6 à
-  transcrire dans un format natif ;
+  présent transcrits dans un format natif ;
 - [`docs/implementation_plan.md`](docs/implementation_plan.md) contient le
   chemin critique, les décisions sémantiques et les critères d’acceptation ;
-- [`tests/test_project_structure.py`](tests/test_project_structure.py) vérifie
-  l’intégrité de cette organisation et la présence des oracles CLIPS p1 à p6.
+- [`domain.py`](domain.py) charge et valide les grilles, [`rulebase.py`](rulebase.py)
+  charge les groupes et [`solver.py`](solver.py) les orchestre ;
+- [`tests`](tests) vérifie l’organisation, les oracles, les solutions, les
+  techniques nécessaires et le rejeu des événements.
 
 ## Corpus de référence
 
@@ -88,7 +95,7 @@ Cette séparation est intentionnelle :
 La comparaison porte sur les résultats et les techniques nécessaires, pas sur
 une reproduction de la salience ou de l’agenda CLIPS.
 
-## Modèle de faits prévu
+## Modèle de faits
 
 Une case et ses candidats sont représentés avec les triplets ordinaires de
 Snarky :
@@ -108,13 +115,21 @@ mutation, l’orchestrateur repart du premier groupe. L’exécution se termine
 avec l’un des états génériques `SOLVED`, `STUCK`, `INCONSISTENT` ou
 `LIMIT_REACHED`.
 
+## Exécution
+
+Depuis la racine du dépôt :
+
+```sh
+uv run python -c \
+  'from sudoku import solve_level; print(solve_level(6).techniques_used)'
+```
+
+La grille finale est comparée à l’oracle CLIPS et la suite complète
+d’événements peut être rejouée indépendamment du moteur.
+
 ## Prochain jalon
 
-Le premier jalon visible est la résolution de p1 par le groupe
-`naked_singles`. Il dépend des phases 0 à 4 du plan :
-
-1. fixtures et validateur indépendant ;
-2. action `REMOVE` et journal de mutations ;
-3. réfraction et index compatibles avec les retraits ;
-4. prémisse `NOT EXISTS` corrélée ;
-5. règles de singles et validation de la grille.
+Le prochain palier commence à p7 avec X-Wing. Il servira à décider, sur
+mesures, si Snarky doit recevoir des agrégats `COUNT`/`COLLECT` ou une
+abstraction générale d’ensembles finis avant les techniques de coloriage et
+de chaînes.

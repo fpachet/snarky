@@ -1,0 +1,33 @@
+# Naked Single: a solved value is impossible in every peer cell.
+
+GROUP naked_singles
+    RULE eliminate_single_value_from_peers
+    WHEN
+        ($cell solved $value)
+        ($cell unit $unit)
+        ($peer unit $unit)
+        $peer != $cell
+        ($peer candidate $value)
+    THEN
+        REMOVE ($peer candidate $value)
+    END
+END_GROUP
+
+# Hidden Single: a value present in only one cell of an unit must occupy it.
+
+GROUP hidden_singles
+    RULE keep_unique_value_in_unit
+    WHEN
+        ($cell candidate $value)
+        ($cell unit $unit)
+        NOT EXISTS
+            ($other unit $unit)
+            $other != $cell
+            ($other candidate $value)
+        END_EXISTS
+        ($cell candidate $discard)
+        $discard != $value
+    THEN
+        REMOVE ($cell candidate $discard)
+    END
+END_GROUP

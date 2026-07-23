@@ -49,3 +49,6 @@ class InstantiationStrategy(Protocol):
         facts: tuple[Fact, ...],
         delta: tuple[Fact, ...] | None = None,
     ) -> tuple[Activation, ...]: ...
+
+    def invalidate(self) -> None:
+        """Discard persistent indexes after a non-append-only mutation."""

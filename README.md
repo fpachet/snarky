@@ -53,6 +53,12 @@ avec `+`, `-`, `*`, `/`, précédence et parenthèses, puis transmet la liaison
 calculée aux actions suivantes. Il ne s’agit pas encore d’un solveur de
 contraintes arithmétiques.
 
+La mémoire de travail accepte maintenant `REMOVE`, avec un journal
+chronologique des ajouts et retraits. Les prémisses corrélées `EXISTS` et
+`NOT EXISTS` permettent de raisonner sur la présence ou l’absence d’une
+configuration sans confondre cette absence avec le statut explicite
+`INEXISTANT`.
+
 Le contenu actuel comprend :
 
 - [l’atlas web de l’Éthique III](https://fpachet.github.io/snarky/), une
@@ -88,9 +94,13 @@ Le contenu actuel comprend :
   sémantique des liaisons arithmétiques séquentielles `LET` ;
 - [`docs/rule_groups.md`](docs/rule_groups.md), les sessions persistantes, la
   syntaxe des groupes de règles et leurs différents modes d’appel ;
+- [`docs/mutations_and_negation.md`](docs/mutations_and_negation.md), la
+  suppression de faits, le journal de mutations et les blocs corrélés
+  `EXISTS`/`NOT EXISTS` ;
 - [`sudoku`](sudoku/README.md), le sous-projet autonome qui organise la base
-  de règles, les futurs jeux de test et le plan incrémental pour résoudre et
-  expliquer les niveaux essentiels de l’exemple Sudoku CLIPS ;
+  de règles, les fixtures natives, le solveur orchestré et le plan incrémental
+  pour résoudre et expliquer les niveaux essentiels de l’exemple Sudoku
+  CLIPS ;
 - [`docs/optimization_plan.md`](docs/optimization_plan.md), le plan mesurable
   pour faire évoluer le moteur naïf vers des stratégies indexées, semi-naïves
   et centrées sur les contraintes ;
@@ -102,7 +112,7 @@ La base Fibonacci explicite utilise `LET $somme := $gauche + $droite` et ne
 reçoit qu’un fait racine : les sommes et les rangs des fils ne sont plus
 préchargés sous forme de tables.
 
-Les mises à jour et suppressions de faits, la création de symboles frais et le
+Les modifications partielles de faits, la création de symboles frais et le
 raisonnement par contraintes restent à implémenter. L’évaluation semi-naïve
 est le mode par défaut de `ForwardEngine`.
 
@@ -213,14 +223,16 @@ Le répertoire [`sudoku`](sudoku/README.md) isole le cas d’étude Sudoku du c�
 du moteur et du corpus CLIPS original. Il contient :
 
 - le [catalogue de la base de règles](sudoku/rules/catalog.yaml) p1 à p6 ;
-- les conventions de représentation et l’état d’exécutabilité ;
-- la spécification des futures fixtures natives ;
+- les règles natives et leur chargeur ;
+- les fixtures natives vérifiées contre les sources CLIPS ;
+- l’orchestrateur et le rendu des explications ;
 - le [plan d’implémentation](sudoku/docs/implementation_plan.md), avec un
   critère d’acceptation pour chaque étape.
 
-La base est pour l’instant spécifiée mais non exécutable : les groupes et les
-sessions sont disponibles, tandis que `REMOVE` et `NOT EXISTS` corrélé restent
-à implémenter. Cette limite est affichée explicitement dans le sous-projet.
+La base native est exécutable : les six grilles p1 à p6 sont résolues avec les
+familles de techniques annoncées par le corpus CLIPS, sans recherche
+exhaustive ni solveur externe. Chaque retrait de candidat est conservé dans
+une trace rejouable.
 
 ## Plan de développement
 
@@ -240,20 +252,23 @@ sessions sont disponibles, tandis que `REMOVE` et `NOT EXISTS` corrélé restent
    moteur naïf.~~
 9. ~~Ajouter des groupes de règles nommés, une mémoire de travail persistante
    entre leurs appels et plusieurs modes de contrôle du chaînage avant.~~
-10. Poursuivre les optimisations mesurées : activations paresseuses,
+10. ~~Ajouter les suppressions, un journal de mutations et les prémisses
+    corrélées `EXISTS`/`NOT EXISTS`, puis résoudre les niveaux Sudoku p1 à
+    p6 par techniques progressives.~~
+11. Poursuivre les optimisations mesurées : activations paresseuses,
    planification générale des jointures, sélection des règles candidates et
    optimisation des substitutions guidée par profilage.
-11. ~~Reproduire les démonstrations Spinoza P19, P21, P22 et P33, importer la
+12. ~~Reproduire les démonstrations Spinoza P19, P21, P22 et P33, importer la
     structure textuelle complète de l'Éthique III, puis rendre exécutables les
     59 propositions, les 48 définitions finales et la définition générale dans
     le modèle systématique.~~
-12. Ajouter une couche optionnelle de raisonnement par contraintes pour
+13. Ajouter une couche optionnelle de raisonnement par contraintes pour
    exprimer et résoudre des problèmes de satisfaction (CSP, SAT et variantes),
    notamment au moyen d’un adaptateur vers OR-Tools. Le moteur d’inférence
    devra pouvoir produire des contraintes, appeler le solveur, puis réinjecter
    les solutions et contradictions obtenues comme faits assortis de leur
    provenance.
-13. Exécuter les benchmarks externes adaptés, puis ajouter des cas de test
+14. Exécuter les benchmarks externes adaptés, puis ajouter des cas de test
     dédiés au couplage entre règles et contraintes.
 
 La cible est Python 3.12 ou ultérieur, avec `pytest`, `ruff`, `mypy` et des

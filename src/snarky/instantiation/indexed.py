@@ -7,7 +7,13 @@ from collections.abc import Sequence
 
 from ..facts import Fact
 from ..matching import PatternMatcher
-from ..premises import ComparisonPremise, FactPremise
+from ..premises import (
+    ComparisonPremise,
+    ExistsPremise,
+    FactPremise,
+    NotExistsPremise,
+    Premise,
+)
 from ..rules import Rule
 from ..substitutions import EMPTY_SUBSTITUTION, Substitution
 from ..terms import Term, Triple, is_ground
@@ -37,6 +43,11 @@ class IndexedInstantiationStrategy:
         activations = self._join(rule, index)
         self.metrics.activations_produced += len(activations)
         return tuple(activations)
+
+    def invalidate(self) -> None:
+        """Discard indexes invalidated by a fact removal."""
+
+        self._indexes.clear()
 
     def _index_for(
         self,
@@ -99,6 +110,26 @@ class IndexedInstantiationStrategy:
                     output,
                 )
             return
+        if isinstance(premise, (ExistsPremise, NotExistsPremise)):
+            witness = self._first_witness(
+                premise.premises,
+                index,
+                substitution,
+            )
+            succeeds = witness is not None
+            if isinstance(premise, NotExistsPremise):
+                succeeds = not succeeds
+                witness = ()
+            if succeeds:
+                self._extend(
+                    rule,
+                    index,
+                    premise_index + 1,
+                    substitution,
+                    (*supports, *(witness or ())),
+                    output,
+                )
+            return
         if not isinstance(premise, FactPremise):
             raise TypeError(f"unsupported premise: {premise!r}")
         candidates: Sequence[Fact] = index.candidates(premise, substitution)
@@ -116,6 +147,80 @@ class IndexedInstantiationStrategy:
                     output,
                 )
 
+    def _first_witness(
+        self,
+        premises: tuple[Premise, ...],
+        index: FactIndex,
+        substitution: Substitution,
+    ) -> tuple[Fact, ...] | None:
+        return self._first_witness_from(
+            premises,
+            index,
+            premise_index=0,
+            substitution=substitution,
+            supports=(),
+        )
+
+    def _first_witness_from(
+        self,
+        premises: tuple[Premise, ...],
+        index: FactIndex,
+        premise_index: int,
+        substitution: Substitution,
+        supports: tuple[Fact, ...],
+    ) -> tuple[Fact, ...] | None:
+        if premise_index == len(premises):
+            return supports
+        premise = premises[premise_index]
+        if isinstance(premise, ComparisonPremise):
+            if not premise.evaluate(substitution):
+                return None
+            return self._first_witness_from(
+                premises,
+                index,
+                premise_index + 1,
+                substitution,
+                supports,
+            )
+        if isinstance(premise, (ExistsPremise, NotExistsPremise)):
+            nested = self._first_witness(
+                premise.premises,
+                index,
+                substitution,
+            )
+            succeeds = nested is not None
+            if isinstance(premise, NotExistsPremise):
+                succeeds = not succeeds
+                nested = ()
+            if not succeeds:
+                return None
+            return self._first_witness_from(
+                premises,
+                index,
+                premise_index + 1,
+                substitution,
+                (*supports, *(nested or ())),
+            )
+        if not isinstance(premise, FactPremise):
+            raise TypeError(f"unsupported premise: {premise!r}")
+        candidates = index.candidates(premise, substitution)
+        self.metrics.candidate_facts += len(candidates)
+        for fact in candidates:
+            self.metrics.match_attempts += 1
+            matched = premise.match(fact, substitution, self.matcher)
+            if matched is None:
+                continue
+            witness = self._first_witness_from(
+                premises,
+                index,
+                premise_index + 1,
+                matched,
+                (*supports, fact),
+            )
+            if witness is not None:
+                return witness
+        return None
+
 
 class SemiNaiveInstantiationStrategy(IndexedInstantiationStrategy):
     """Enumerate only joins containing a fact new to the current rule."""
@@ -127,7 +232,11 @@ class SemiNaiveInstantiationStrategy(IndexedInstantiationStrategy):
         delta: tuple[Fact, ...] | None = None,
     ) -> tuple[Activation, ...]:
         index = self._index_for(rule, facts, delta)
-        if delta is None:
+        has_existential = any(
+            isinstance(premise, (ExistsPremise, NotExistsPremise))
+            for premise in rule.premises
+        )
+        if delta is None or (delta and has_existential):
             activations = self._join(rule, index)
         elif not delta:
             activations = []
