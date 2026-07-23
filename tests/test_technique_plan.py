@@ -74,3 +74,73 @@ def test_plan_reports_stuck_after_one_ineffective_pass() -> None:
     assert result.status is TechniquePlanStatus.STUCK
     assert result.attempted_groups == ("unavailable",)
     assert result.effective_steps == ()
+
+
+def test_plan_runs_maintenance_and_reports_inconsistency_first() -> None:
+    (maintenance,) = parse_rule_groups(
+        """
+        GROUP validate
+            RULE reject_bad_state
+            WHEN
+                bad
+            THEN
+                ADD inconsistent
+            END
+        END_GROUP
+        """
+    )
+    (technique,) = parse_rule_groups(
+        """
+        GROUP technique
+            RULE would_solve
+            WHEN
+                seed
+            THEN
+                ADD solved
+            END
+        END_GROUP
+        """
+    )
+    session = ForwardEngine(()).create_session(
+        (_fact("seed"), _fact("bad"))
+    )
+
+    result = TechniquePlan(
+        (technique,),
+        maintenance=(maintenance,),
+    ).solve(
+        session,
+        solved=FactExists(when(parse_term("solved"))),
+        inconsistent=FactExists(when(parse_term("inconsistent"))),
+    )
+
+    assert result.status is TechniquePlanStatus.INCONSISTENT
+    assert result.attempted_groups == ()
+    assert len(result.maintenance_runs) == 1
+
+
+def test_plan_reports_its_effective_step_limit() -> None:
+    (technique,) = parse_rule_groups(
+        """
+        GROUP advance
+            RULE make_progress
+            WHEN
+                seed
+            THEN
+                ADD progress
+            END
+        END_GROUP
+        """
+    )
+    session = ForwardEngine(()).create_session((_fact("seed"),))
+
+    result = TechniquePlan(
+        (technique,),
+        max_effective_steps=1,
+    ).solve(
+        session,
+        solved=FactExists(when(parse_term("never_solved"))),
+    )
+
+    assert result.status is TechniquePlanStatus.LIMIT_REACHED
+    assert len(result.effective_steps) == 1

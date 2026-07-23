@@ -97,6 +97,46 @@ Ne jamais présenter une extension moderne comme une caractéristique historique
 
 ---
 
+## État d’implémentation — juillet 2026
+
+Ce document reste la spécification détaillée et la feuille de route de
+Snarky. Les formulations au futur décrivent la cible complète ; le présent
+encadré fixe l’état effectivement livré.
+
+Sont disponibles et testés :
+
+- termes et triplets récursifs immuables, variables dans toutes les positions
+  et statuts explicites ;
+- matching orienté, unification séparée, comparaisons et actions `LET` ;
+- chaînage avant déterministe, réfraction, limites et provenance ;
+- stratégies naïve, indexée et semi-naïve interchangeables ;
+- groupes de règles nommés, sessions persistantes et modes `SATURATE`,
+  `ONE_CYCLE`, `FIRST_CHANGE` et `UNTIL` ;
+- mémoire de travail mutable avec `REMOVE` et journal chronologique
+  d’`InferenceEvent` ;
+- prémisses corrélées `EXISTS` et `NOT EXISTS`, avec portée locale des
+  variables ;
+- plans génériques de techniques avec les états `SOLVED`, `STUCK`,
+  `INCONSISTENT` et `LIMIT_REACHED` ;
+- cas d’étude Spinoza complet et base Sudoku native p1–p6 résolue sans
+  recherche exhaustive.
+
+Restent notamment différés : symboles frais, mise à jour partielle d’un fait,
+TMS complet, contraintes générales, stratégie centrée sur les variables de
+BOOJUM et techniques Sudoku avancées p7–p18.
+
+Les décisions opérationnelles exactes sont précisées dans
+[`semantics.md`](semantics.md), [`rule_groups.md`](rule_groups.md) et
+[`mutations_and_negation.md`](mutations_and_negation.md). Le cas d’acceptation
+Sudoku et ses prochains paliers sont détaillés dans
+[`../sudoku/docs/implementation_plan.md`](../sudoku/docs/implementation_plan.md).
+
+Toutes les capacités ajoutées pour le contrôle moderne, la mutation et
+l’orchestration sont des `MODERN_EXTENSION`, sauf attribution historique
+explicite contraire.
+
+---
+
 ## 1. Livrable initial : rapport de reconstruction
 
 Avant de coder le moteur complet, produire :
@@ -274,16 +314,51 @@ P ' INEXISTANT
 
 Ne pas confondre ces trois notions.
 
-### 2.5 Actions
+La négation par absence actuellement implémentée utilise des blocs corrélés :
 
-Supporter :
+```text
+NOT EXISTS
+    ($cell candidate $other)
+    $other != $value
+END_EXISTS
+```
+
+`EXISTS` et `NOT EXISTS` portent sur une conjonction locale. Les variables
+déjà liées sont visibles dans le bloc ; celles introduites dans le bloc ne
+s’échappent pas.
+
+### 2.5 Groupes et plans d’exécution
+
+Une base peut séparer ses familles de règles :
+
+```text
+GROUP preparation
+    ...
+END_GROUP
+
+GROUP resolution
+    ...
+END_GROUP
+```
+
+Une `InferenceSession` conserve faits, réfraction, index, provenance et
+journal entre les appels. `TechniquePlan` fournit un ordonnancement générique :
+il essaie les groupes du plus simple au plus complexe et repart du premier
+après chaque mutation effective.
+
+### 2.6 Actions
+
+Capacités disponibles :
 
 - ajout d’un fait ;
 - liaison arithmétique locale et déterministe pour les actions suivantes ;
-- mise à jour d’un statut ;
 - suppression contrôlée d’un fait ;
+- ajout de plusieurs conséquents.
+
+Capacités encore différées :
+
+- mise à jour partielle ou fonctionnelle d’un statut ;
 - création d’un symbole frais ;
-- ajout de plusieurs conséquents ;
 - arrêt ou signalement éventuel ;
 - appel ultérieur à une fonction externe, via une interface isolée.
 
@@ -353,12 +428,11 @@ La version initiale du chaînage avant utilisera le matching orienté, sauf just
 
 ---
 
-## 4. Architecture logicielle souhaitée
+## 4. Architecture logicielle
 
 ```text
 src/snarky/
     terms.py
-    variables.py
     facts.py
     substitutions.py
     matching.py
@@ -367,41 +441,34 @@ src/snarky/
     actions.py
     rules.py
     parser.py
-    compiler.py
+    plans.py
 
     stores/
-        base.py
         naive.py
-        indexed.py
 
     instantiation/
         base.py
         naive_join.py
-        premise_centered.py
-        variable_centered.py
-        propagation.py
-        arc_consistency.py
+        indexed.py
 
     engine/
-        agenda.py
-        conflict_resolution.py
         forward.py
-        recursion.py
+        events.py
         provenance.py
 
-    explanation/
-        proof.py
-        render_text.py
-        render_graphviz.py
-
-    serialization/
-        json_format.py
-        yaml_format.py
-
-    cli.py
+sudoku/
+    domain.py
+    rulebase.py
+    solver.py
+    fixtures/
+    rules/
+    tests/
 ```
 
-Éviter les dépendances lourdes dans le cœur du moteur.
+Cette arborescence est l’architecture actuelle. Les composants de compilation,
+propagation par contraintes, explication spécialisée, sérialisation et CLI ne
+seront ajoutés que lorsqu’un besoin validé le justifiera. Le cœur doit
+continuer d’éviter les dépendances lourdes.
 
 Cible :
 
@@ -639,7 +706,7 @@ LowestProofDepth
 Empêcher qu’un même couple :
 
 ```text
-(règle, substitution)
+(groupe, règle, substitution)
 ```
 
 se déclenche indéfiniment sans changement pertinent.
@@ -649,6 +716,29 @@ Créer :
 ```python
 ActivationKey
 ```
+
+Après une suppression, les activations dont un fait support a disparu
+redeviennent éligibles. Après un ajout, une activation fondée sur
+`NOT EXISTS` est réévaluée. Les index append-only sont invalidés puis
+reconstruits, ce qui privilégie actuellement la correction avant
+l’optimisation.
+
+### 8.4 Groupes, sessions et modes de contrôle
+
+`RuleGroup` est l’unité de contrôle explicite. `InferenceSession.run_group`
+propose :
+
+- `SATURATE` : point fixe du groupe ;
+- `ONE_CYCLE` : un cycle complet ;
+- `FIRST_CHANGE` : retour après la première mutation effective ;
+- `UNTIL` : exécution jusqu’à satisfaction d’une condition déclarative.
+
+`ForwardEngine.run` reste l’API compatible : il crée une session neuve et
+sature un groupe implicite `default`.
+
+`TechniquePlan` orchestre plusieurs groupes sans connaître le domaine. Il
+sépare groupes de maintenance et techniques, mémorise les groupes essayés et
+efficaces, puis renvoie un statut terminal explicite.
 
 ---
 
@@ -697,6 +787,24 @@ Derivation(
 
 Un fait peut avoir plusieurs dérivations.
 
+Chaque ajout ou retrait effectif produit aussi un `InferenceEvent` contenant :
+
+```python
+InferenceEvent(
+    sequence,
+    kind,
+    fact,
+    rule_name,
+    rule_group,
+    substitution,
+    premises,
+    cycle,
+)
+```
+
+La provenance explique les faits dérivés ; le journal explique l’évolution
+chronologique, y compris les faits ensuite retirés.
+
 Le système doit pouvoir :
 
 - produire une preuve minimale ;
@@ -738,6 +846,25 @@ rule = Rule(
 )
 ```
 
+API de contrôle :
+
+```python
+from snarky import (
+    FactExists,
+    ForwardEngine,
+    GroupExecutionMode,
+    TechniquePlan,
+    parse_rule_groups,
+)
+
+groups = parse_rule_groups(rule_text)
+session = ForwardEngine(()).create_session(initial_facts)
+session.run_group(groups[0], mode=GroupExecutionMode.SATURATE)
+
+plan = TechniquePlan(tuple(groups))
+result = plan.solve(session, solved=FactExists(goal_premise))
+```
+
 ### 11.2 DSL textuel
 
 ```text
@@ -763,6 +890,23 @@ END
 ```
 
 Le parser doit produire un AST et ne jamais utiliser `eval`.
+
+Extensions DSL disponibles :
+
+```text
+GROUP consume
+    RULE consume_pending
+    WHEN
+        ($item state pending)
+        NOT EXISTS
+            ($item blocked VRAI)
+        END_EXISTS
+    THEN
+        REMOVE ($item state pending)
+        ADD ($item state done)
+    END
+END_GROUP
+```
 
 ---
 
@@ -816,9 +960,9 @@ Tester séparément :
 - `FAUX` ;
 - `INEXISTANT` ;
 - absence ;
-- négation par défaut.
+- négation corrélée `NOT EXISTS`.
 
-### 12.7 Création d’objet
+### 12.7 Création d’objet — test différé
 
 ```text
 SI x imagine (y est existant)
@@ -851,16 +995,48 @@ ET x imagine (y affecte_de_joie x)
 
 Le moteur doit produire la conclusion et une trace en deux étapes.
 
+### 12.10 Mutations et négation corrélée
+
+Tester :
+
+- ajout et retrait dans une même activation ;
+- retrait absent comme non-changement ;
+- ordre exact du journal ;
+- invalidation d’index après retrait ;
+- expiration et rééligibilité de la réfraction ;
+- `EXISTS` et `NOT EXISTS` corrélés et imbriqués ;
+- portée des variables locales ;
+- équivalence naïve, indexée et semi-naïve.
+
+### 12.11 Groupes et plans
+
+Tester :
+
+- persistance des faits, de la provenance et de la réfraction entre groupes ;
+- quatre modes d’exécution ;
+- retour à la technique la plus simple après progrès ;
+- arrêts `SOLVED`, `STUCK`, `INCONSISTENT` et `LIMIT_REACHED`.
+
+### 12.12 Sudoku p1–p6
+
+Pour chaque grille :
+
+- vérifier la fixture contre la source CLIPS et sa somme SHA-256 ;
+- comparer exactement la solution finale ;
+- vérifier la famille de techniques attendue ;
+- vérifier que désactiver la dernière technique requise produit `STUCK` ;
+- rejouer le journal indépendamment du moteur.
+
 ---
 
 ## 13. Tests différentiels
 
-Pour tout petit programme :
+Pour tout petit programme du noyau actuellement supporté :
 
 1. exécuter le matcher naïf ;
-2. exécuter la stratégie centrée sur les variables ;
-3. exécuter la stratégie avec propagation ;
-4. comparer les activations et les faits produits.
+2. exécuter la stratégie indexée exhaustive ;
+3. exécuter la stratégie semi-naïve ;
+4. comparer les activations, événements et faits produits.
 
 Utiliser Hypothesis :
 
@@ -869,6 +1045,9 @@ test_optimized_strategy_equals_naive_strategy()
 ```
 
 La stratégie naïve constitue l’oracle sémantique.
+
+La future stratégie centrée sur les variables et la propagation devront être
+ajoutées à ce même protocole différentiel lorsqu’elles seront implémentées.
 
 ---
 
@@ -891,10 +1070,11 @@ Comparer :
 
 1. scan naïf ;
 2. indexation simple ;
-3. ordre fixe ;
-4. ordre dynamique MRV ;
-5. propagation centrée sur les variables ;
-6. consistance d’arcs.
+3. évaluation semi-naïve ;
+4. ordre fixe et réordonnancement borné par les barrières de comparaison.
+
+Les variantes MRV, propagation centrée sur les variables et consistance d’arcs
+restent des cibles futures.
 
 Mesurer :
 
@@ -928,109 +1108,93 @@ Prévoir des interfaces, sans les implémenter initialement, pour :
 
 Le cœur initial doit rester déterministe et symbolique.
 
+Le Sudoku avancé sert de banc d’essai pour décider ces ajouts à partir de
+besoins observés :
+
+- p7 et motifs de type X-Wing peuvent motiver `COUNT`, `COLLECT` ou des
+  ensembles finis ;
+- coloriage et chaînes peuvent motiver graphes temporaires et symboles frais ;
+- hypothèses et chaînes forcées peuvent motiver des contextes isolés et du
+  retour arrière.
+
 ---
 
 ## 16. Plan de développement
 
-### Phase 0 — Recherche
+### Réalisé
 
-- récupérer les sources ;
-- produire `historical_reconstruction.md` ;
-- identifier les ambiguïtés ;
-- proposer les décisions sémantiques.
+1. Sémantique opérationnelle minimale documentée.
+2. Termes, substitutions, matching, unification séparée et DSL sûr.
+3. Moteur naïf, réfraction, provenance et limites.
+4. Stratégies indexée et semi-naïve avec métriques et benchmarks Fibonacci.
+5. Actions arithmétiques `LET`.
+6. Groupes nommés, sessions persistantes et modes de contrôle.
+7. Mémoire mutable, événements, `EXISTS` et `NOT EXISTS` corrélés.
+8. `TechniquePlan` et cas d’acceptation Sudoku p1–p6.
+9. Cas Spinoza systématique exécutable et atlas de preuves.
 
-### Phase 1 — Modèle de données
+### Travail documentaire historique encore ouvert
 
-- termes ;
-- triplets ;
-- variables ;
-- faits ;
-- substitutions ;
-- sérialisation.
+1. Produire `docs/historical_reconstruction.md`.
+2. Produire `docs/open_questions.md`.
+3. Consolider la traçabilité précise entre sources historiques, décisions
+   inférées et extensions modernes.
 
-### Phase 2 — Matching naïf
+### Prochain palier — robustesse du moteur mutable
 
-- matching récursif ;
-- prémisses ;
-- règles ;
-- actions ;
-- chaînage avant simple.
+1. Ajouter des tests génératifs sur de petites bases mutables et des Sudoku
+   4×4.
+2. Comparer naïf, indexé et semi-naïf sur les mêmes séquences d’ajouts et
+   retraits.
+3. Mesurer reconstructions d’index, activations, matching et mémoire sur
+   p1–p6.
+4. Sélectionner les règles à réveiller selon les signatures des mutations.
+5. Enrichir les explications groupées par activation.
 
-### Phase 3 — Provenance
+### Palier Sudoku avancé
 
-- dérivations ;
-- traces ;
-- preuves minimales.
+1. Implémenter p7 comme prochain oracle fonctionnel.
+2. Mesurer si les règles exigent réellement `COUNT`, `COLLECT` ou des
+   combinaisons finies.
+3. Introduire uniquement les abstractions générales justifiées par plusieurs
+   domaines.
+4. Aborder ensuite triples, Swordfish, coloriage, chaînes et rectangle unique
+   par paliers indépendants.
 
-### Phase 4 — Stockage indexé
+### Palier contraintes et contrôle avancé
 
-- signatures ;
-- index ;
-- sélection des faits ;
-- sélection des règles.
-
-### Phase 5 — Instanciation centrée sur les variables
-
-- domaines ;
-- projections ;
-- MRV ;
-- propagation ;
-- backtracking.
-
-### Phase 6 — Variables particulières
-
-- variables libres ;
-- variables prioritaires ;
-- négation sûre.
-
-### Phase 7 — Récursivité
-
-- refraction ;
-- auto-récursivité ;
-- diagnostics ;
-- limites.
-
-### Phase 8 — DSL
-
-- grammaire ;
-- parser ;
-- erreurs ;
-- pretty-printer.
-
-### Phase 9 — Benchmarks
-
-- générateurs ;
-- comparaisons ;
-- rapport reproductible.
-
-### Phase 10 — Préparation de Spinoza
-
-- test minimal ;
-- objets propositionnels ;
-- création fraîche ;
-- preuves riches.
+1. Définir une interface générique de solveur de contraintes.
+2. Ajouter un adaptateur optionnel vers OR-Tools.
+3. Étudier contextes isolés, hypothèses et retour arrière.
+4. Reprendre la stratégie centrée sur les variables de BOOJUM avec des
+   benchmarks différentiels.
 
 ---
 
 ## 17. Critères d’acceptation
 
-Le projet est utilisable lorsque :
+Le jalon courant du moteur est accepté lorsque :
 
 1. les objets récursifs sont supportés ;
 2. les variables peuvent apparaître partout ;
 3. les règles d’ordres 0, 1 et 2 sont exécutables ;
 4. le matcher naïf est testé ;
-5. une stratégie centrée sur les variables donne les mêmes résultats ;
-6. l’indexation évite des scans inutiles ;
+5. les stratégies indexée et semi-naïve donnent les mêmes résultats ;
+6. l’indexation évite des scans inutiles sur les benchmarks couverts ;
 7. le chaînage atteint un point fixe sur les exemples finis ;
 8. les déclenchements répétés inutiles sont évités ;
 9. chaque fait inféré possède une provenance ;
 10. le moteur produit une preuve lisible ;
 11. `FAUX`, `INEXISTANT` et absence sont distingués ;
 12. les relations variables fonctionnent ;
-13. les symboles frais sont contrôlés ;
-14. le test minimal Spinoza réussit ;
-15. toutes les décisions non établies par les sources sont documentées.
+13. les groupes partagent une session persistante sous quatre modes ;
+14. les mutations et la négation corrélée sont journalisées et testées ;
+15. Spinoza et Sudoku p1–p6 réussissent leurs tests d’intégration ;
+16. toutes les décisions non établies par les sources sont documentées.
+
+Les symboles frais, la stratégie centrée sur les variables et les contraintes
+générales ont leurs propres critères d’acceptation lorsqu’ils entreront dans
+le périmètre ; ils ne bloquent pas le jalon courant.
 
 ---
 
@@ -1051,11 +1215,9 @@ Le projet est utilisable lorsque :
 
 ---
 
-## 19. Première tâche à exécuter
+## 19. Séquence de démarrage initialement prescrite
 
-Ne pas commencer immédiatement par coder toutes les fonctionnalités.
-
-Commencer par :
+La première séquence de travail était :
 
 1. créer la structure du dépôt ;
 2. télécharger ou référencer les sources historiques ;
@@ -1074,6 +1236,11 @@ Commencer par :
    - le matching récursif ;
 8. ajouter des tests ;
 9. présenter un bilan avant de poursuivre vers le moteur complet.
+
+La structure, la sémantique minimale, le noyau et ses tests sont réalisés.
+Les rapports dédiés `historical_reconstruction.md` et `open_questions.md`
+restent toutefois à produire ; cette dette documentaire est reprise dans le
+plan ci-dessus.
 
 Dans `open_questions.md`, inclure notamment :
 

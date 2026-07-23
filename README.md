@@ -59,6 +59,11 @@ chronologique des ajouts et retraits. Les prémisses corrélées `EXISTS` et
 configuration sans confondre cette absence avec le statut explicite
 `INEXISTANT`.
 
+`TechniquePlan` fournit une orchestration générique de groupes ordonnés :
+après chaque changement, il repart du groupe le plus simple et distingue les
+terminaisons `SOLVED`, `STUCK`, `INCONSISTENT` et `LIMIT_REACHED`. Le projet
+Sudoku valide conjointement ces capacités sur six niveaux progressifs.
+
 Le contenu actuel comprend :
 
 - [l’atlas web de l’Éthique III](https://fpachet.github.io/snarky/), une
@@ -170,6 +175,12 @@ result = ForwardEngine(
 `IndexedInstantiationStrategy` reste disponible pour mesurer séparément le
 bénéfice de l'indexation exhaustive.
 
+Pour les sessions persistantes, les mutations, la négation et les plans de
+groupes, voir respectivement
+[`docs/rule_groups.md`](docs/rule_groups.md),
+[`docs/mutations_and_negation.md`](docs/mutations_and_negation.md) et la
+[spécification détaillée](docs/prompt_codex_moteur_snarky.md).
+
 Le benchmark Fibonacci explicite mesure un passage de 7,142 s à 0,053 s pour
 `F(10)` et de 27,914 s à 3,338 s pour `F(17)` sur la machine de développement.
 La commande reproductible et les
@@ -255,9 +266,8 @@ une trace rejouable.
 10. ~~Ajouter les suppressions, un journal de mutations et les prémisses
     corrélées `EXISTS`/`NOT EXISTS`, puis résoudre les niveaux Sudoku p1 à
     p6 par techniques progressives.~~
-11. Poursuivre les optimisations mesurées : activations paresseuses,
-   planification générale des jointures, sélection des règles candidates et
-   optimisation des substitutions guidée par profilage.
+11. Renforcer le moteur mutable par des tests génératifs 4×4, des tests
+    différentiels sur les retraits et des mesures de reconstruction d’index.
 12. ~~Reproduire les démonstrations Spinoza P19, P21, P22 et P33, importer la
     structure textuelle complète de l'Éthique III, puis rendre exécutables les
     59 propositions, les 48 définitions finales et la définition générale dans
@@ -270,6 +280,12 @@ une trace rejouable.
    provenance.
 14. Exécuter les benchmarks externes adaptés, puis ajouter des cas de test
     dédiés au couplage entre règles et contraintes.
+15. Aborder le Sudoku avancé à partir de p7, en n’ajoutant `COUNT`, `COLLECT`,
+    ensembles finis, symboles frais ou hypothèses que lorsque plusieurs cas
+    d’usage en justifient la généralité.
+16. Poursuivre les optimisations mesurées : activations paresseuses,
+    planification générale des jointures, sélection des règles candidates et
+    optimisation des substitutions guidée par profilage.
 
 La cible est Python 3.12 ou ultérieur, avec `pytest`, `ruff`, `mypy` et des
 tests différentiels. L’ajout de tests génératifs fondés sur Hypothesis reste

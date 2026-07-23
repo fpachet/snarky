@@ -58,8 +58,11 @@ une erreur d'exécution explicite. Voir [`arithmetic_actions.md`](arithmetic_act
 
 Les prémisses `EXISTS` et `NOT EXISTS` contiennent une conjonction locale
 corrélée. Elles voient les variables déjà liées, mais leurs variables locales
-ne s’échappent pas. Les comparaisons doivent utiliser des variables liées.
-L’absence testée par `NOT EXISTS` reste distincte du statut `INEXISTANT`.
+ne s’échappent pas. Dans un bloc existentiel, les comparaisons doivent utiliser
+des variables déjà liées. Au niveau principal, une comparaison prématurée
+conserve le comportement historique : elle échoue à l’instanciation sans
+chercher une liaison dans une prémisse ultérieure. L’absence testée par
+`NOT EXISTS` reste distincte du statut `INEXISTANT`.
 
 Les modifications partielles, créations de symboles frais et hypothèses avec
 retour arrière restent différées. Voir
@@ -129,6 +132,12 @@ compatible : il crée une session neuve et sature un groupe implicite nommé
 
 La syntaxe et des exemples complets figurent dans
 [`rule_groups.md`](rule_groups.md).
+
+`TechniquePlan` ajoute une orchestration générique au-dessus des groupes. Il
+exécute d’abord les groupes de maintenance, essaie les techniques dans l’ordre,
+repart de la première après chaque mutation et renvoie `SOLVED`, `STUCK`,
+`INCONSISTENT` ou `LIMIT_REACHED`. Il ne contient aucune connaissance du
+domaine Sudoku.
 
 ## Provenance
 

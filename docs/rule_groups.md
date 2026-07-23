@@ -116,10 +116,14 @@ déclaratifs du moteur, comme `FactExists`.
 
 ## Portée actuelle
 
-Les groupes organisent et pilotent le chaînage avant monotone existant. Ils ne
-constituent pas encore un langage de plans SHAL complet : il n’existe pas
-encore de DSL pour enchaîner conditionnellement des groupes, gérer un échec,
-faire du retour arrière ou appeler un solveur de contraintes.
+Les groupes organisent et pilotent le chaînage avant. `TechniquePlan` fournit
+désormais un premier plan générique : groupes ordonnés, groupes de maintenance,
+retour au premier groupe après progrès et états `SOLVED`, `STUCK`,
+`INCONSISTENT` ou `LIMIT_REACHED`.
+
+Ce composant ne constitue pas encore un langage de plans SHAL complet : il
+n’existe pas de DSL pour enchaîner conditionnellement des groupes, gérer un
+échec, faire du retour arrière ou appeler un solveur de contraintes.
 
 Cette séparation est intentionnelle. Les stratégies de résolution peuvent
 d’abord rester de petits orchestrateurs Python appelant des groupes de règles
