@@ -19,7 +19,7 @@ from ..premises import ExistsPremise, FactPremise, NotExistsPremise, Premise
 from ..rules import Rule, RuleGroup
 from ..stores.naive import NaiveFactStore
 from ..substitutions import EMPTY_SUBSTITUTION, Substitution
-from ..terms import Term
+from ..terms import Term, Variable
 from .events import FactMutationKind, InferenceEvent
 from .provenance import Derivation, Provenance
 
@@ -418,7 +418,7 @@ class InferenceSession:
     ) -> None:
         """Expire fired negative activations invalidated by fact additions."""
 
-        oracle = IndexedInstantiationStrategy()
+        oracle: IndexedInstantiationStrategy | None = None
         facts = self._store.facts
         matcher = PatternMatcher()
         for group in self._groups.values():
@@ -431,7 +431,13 @@ class InferenceSession:
                         and key.rule_name == rule.name
                     )
                 }
-                negative_dependencies = _negative_fact_premises(rule.premises)
+                simple_dependencies, complex_dependencies = (
+                    _negative_dependency_plan(rule.premises)
+                )
+                negative_dependencies = (
+                    *simple_dependencies,
+                    *complex_dependencies,
+                )
                 if (
                     not fired_for_rule
                     or not negative_dependencies
@@ -447,6 +453,38 @@ class InferenceSession:
                     )
                 ):
                     continue
+
+                directly_expired = {
+                    key
+                    for key in fired_for_rule
+                    if any(
+                        premise.match(
+                            fact,
+                            _substitution_from_key(key),
+                            matcher,
+                        )
+                        is not None
+                        for premise in simple_dependencies
+                        for fact in added
+                    )
+                }
+                self._expire_activation_keys(directly_expired)
+                remaining = fired_for_rule - directly_expired
+                complex_change = any(
+                    premise.match(
+                        fact,
+                        EMPTY_SUBSTITUTION,
+                        matcher,
+                    )
+                    is not None
+                    for premise in complex_dependencies
+                    for fact in added
+                )
+                if not remaining or not complex_change:
+                    continue
+
+                if oracle is None:
+                    oracle = IndexedInstantiationStrategy()
                 active: set[ActivationKey] = set()
                 for activation in oracle.instantiate(rule, facts):
                     active.add(
@@ -456,10 +494,15 @@ class InferenceSession:
                             activation.substitution.key,
                         )
                     )
-                expired = fired_for_rule - active
-                self._fired.difference_update(expired)
-                for key in expired:
-                    self._fired_supports.pop(key, None)
+                self._expire_activation_keys(remaining - active)
+
+    def _expire_activation_keys(
+        self,
+        expired: set[ActivationKey],
+    ) -> None:
+        self._fired.difference_update(expired)
+        for key in expired:
+            self._fired_supports.pop(key, None)
 
     def _group_result(
         self,
@@ -559,3 +602,41 @@ def _negative_fact_premises(
                 )
             )
     return tuple(dependencies)
+
+
+@cache
+def _negative_dependency_plan(
+    premises: tuple[Premise, ...],
+) -> tuple[tuple[FactPremise, ...], tuple[FactPremise, ...]]:
+    """Split directly watchable top-level blockers from complex negatives."""
+
+    simple: list[FactPremise] = []
+    complex_dependencies: list[FactPremise] = []
+    for premise in premises:
+        if isinstance(premise, ExistsPremise):
+            complex_dependencies.extend(
+                _negative_fact_premises(premise.premises)
+            )
+            continue
+        if not isinstance(premise, NotExistsPremise):
+            continue
+        if (
+            len(premise.premises) == 1
+            and isinstance(premise.premises[0], FactPremise)
+        ):
+            simple.append(premise.premises[0])
+        else:
+            complex_dependencies.extend(
+                _negative_fact_premises(
+                    premise.premises,
+                    inside_negative=True,
+                )
+            )
+    return tuple(simple), tuple(complex_dependencies)
+
+
+def _substitution_from_key(key: ActivationKey) -> Substitution:
+    return Substitution(
+        (Variable(name), term)
+        for name, term in key.substitution
+    )

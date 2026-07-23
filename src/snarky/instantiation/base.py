@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
+from functools import cache
 from typing import Protocol
 
 from ..facts import Fact
@@ -82,20 +83,27 @@ def witness_cache_key(
 ) -> WitnessCacheKey:
     """Project a substitution onto variables visible in an existential block."""
 
-    variables = _variables_in_premises(premises)
     correlated = tuple(
-        sorted(
-            (
-                (variable.name, substitution.apply(variable))
-                for variable in variables
-                if variable in substitution
-            ),
-            key=lambda item: item[0],
-        )
+        (variable.name, substitution.apply(variable))
+        for variable in _ordered_variables_in_premises(premises)
+        if variable in substitution
     )
     return premises, correlated
 
 
+@cache
+def _ordered_variables_in_premises(
+    premises: tuple[Premise, ...],
+) -> tuple[Variable, ...]:
+    return tuple(
+        sorted(
+            _variables_in_premises(premises),
+            key=lambda variable: variable.name,
+        )
+    )
+
+
+@cache
 def _variables_in_premises(
     premises: tuple[Premise, ...],
 ) -> frozenset[Variable]:

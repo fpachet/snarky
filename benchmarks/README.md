@@ -4,6 +4,29 @@ Les benchmarks sont des programmes reproductibles séparés des tests de
 correction. Ils produisent du JSON afin de pouvoir comparer plusieurs
 versions du moteur.
 
+## Sudoku déclaratif
+
+Le benchmark Sudoku mesure les niveaux p1, p5 et p6 cinq fois avec la stratégie
+indexée exhaustive utilisée par le solveur :
+
+```sh
+uv run python -m benchmarks.sudoku_rules --levels 1 5 6 --repeat 5
+```
+
+Mesure du 23 juillet 2026 sur macOS ARM64 avec Python 3.13.11, après ajout des
+index composés, du matching ground groupé, du cache existentiel persistant par
+snapshot et des bloqueurs négatifs directs :
+
+| Niveau | Médiane | Matchings | Médiane précédente | Matchings précédents |
+|---|---:|---:|---:|---:|
+| p1 | 0,523 s | 69 793 | 1,700 s | 238 298 |
+| p5 | 1,504 s | 217 880 | 3,670 s | 854 741 |
+| p6 | 1,462 s | 210 908 | 3,570 s | 816 785 |
+
+Le gain vaut ×3,25 sur p1 et ×2,44 sur p5/p6. Le nombre de matchings baisse de
+71 à 75 %. Les résultats synthétiques sont conservés dans
+[`results/sudoku_matching_optimizations_2026-07-23.csv`](results/sudoku_matching_optimizations_2026-07-23.csv).
+
 ## Fibonacci explicite
 
 La commande suivante calcule trois fois `F(10)` avec l'oracle naïf, la stratégie

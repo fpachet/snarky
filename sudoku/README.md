@@ -127,6 +127,15 @@ uv run python -c \
 La grille finale est comparée à l’oracle CLIPS et la suite complète
 d’événements peut être rejouée indépendamment du moteur.
 
+Le benchmark de performance reproductible est lancé depuis la racine avec :
+
+```sh
+uv run python -m benchmarks.sudoku_rules --levels 1 5 6 --repeat 5
+```
+
+La baseline mesurée et les compteurs algorithmiques sont documentés dans
+[`../benchmarks/README.md`](../benchmarks/README.md).
+
 ## Prochain jalon
 
 Le prochain palier commence à p7 avec X-Wing. Il servira à décider, sur

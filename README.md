@@ -191,8 +191,14 @@ groupes, voir respectivement
 
 Le benchmark Fibonacci explicite mesure un passage de 7,142 s à 0,053 s pour
 `F(10)` et de 27,914 s à 3,338 s pour `F(17)` sur la machine de développement.
-La commande reproductible et les
-compteurs sont décrits dans [`benchmarks/README.md`](benchmarks/README.md).
+Le benchmark Sudoku mesure désormais p1 à 0,523 s, p5 à 1,504 s et p6 à
+1,462 s en médiane ; les index composés et les bloqueurs négatifs ciblés
+réduisent de 71 à 75 % les matchings de la baseline précédente. Les commandes
+reproductibles et les compteurs sont décrits dans
+[`benchmarks/README.md`](benchmarks/README.md).
+
+La suite complète compte 273 tests et s’exécute en 29,51 s sur cette même
+machine, contre 46,88 s avant cette passe d’optimisation.
 
 ## Base de debug initiale
 
@@ -291,9 +297,11 @@ une trace rejouable.
 15. Aborder le Sudoku avancé à partir de p7, en n’ajoutant `COUNT`, `COLLECT`,
     ensembles finis, symboles frais ou hypothèses que lorsque plusieurs cas
     d’usage en justifient la généralité.
-16. Poursuivre les optimisations mesurées : activations paresseuses,
-    planification générale des jointures, sélection des règles candidates et
-    optimisation des substitutions guidée par profilage.
+16. ~~Optimiser, à partir du profil Sudoku, les index composés, le matching
+    ground, les substitutions, les caches existentiels et l’invalidation
+    directe des bloqueurs négatifs simples.~~ Poursuivre avec les activations
+    paresseuses, la planification générale des jointures et la sélection des
+    règles positives candidates.
 
 La cible est Python 3.12 ou ultérieur, avec `pytest`, `ruff`, `mypy` et des
 tests différentiels. L’ajout de tests génératifs fondés sur Hypothesis reste

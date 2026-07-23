@@ -108,3 +108,33 @@ def test_semi_naive_preserves_textual_comparison_barriers() -> None:
 
     assert exhaustive.instantiate(rule, all_facts, delta) == ()
     assert semi_naive.instantiate(rule, all_facts, delta) == ()
+
+
+def test_compound_indexes_intersect_two_bound_triple_positions() -> None:
+    rule = parse_rules(
+        """
+        RULE find_exact_relation
+        WHEN
+            (target relation $value)
+        THEN
+            ADD (result value $value)
+        END
+        """
+    )[0]
+    facts = (
+        Fact(parse_term("(target relation answer)")),
+        *tuple(
+            Fact(parse_term(f"(target other value{index})"))
+            for index in range(40)
+        ),
+        *tuple(
+            Fact(parse_term(f"(node{index} relation value{index})"))
+            for index in range(40)
+        ),
+    )
+    strategy = IndexedInstantiationStrategy()
+
+    activations = strategy.instantiate(rule, facts)
+
+    assert len(activations) == 1
+    assert strategy.metrics.match_attempts == 1

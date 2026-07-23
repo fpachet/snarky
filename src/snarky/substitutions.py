@@ -75,18 +75,50 @@ class Substitution(Mapping[Variable, Term]):
             if self.apply(variable) != self.apply(term):
                 raise ValueError(f"conflicting binding for ${variable.name}")
             return self
-        return Substitution((*self._bindings, (variable, term)))
+        return self.extend(((variable, term),))
+
+    def extend(
+        self,
+        bindings: Iterable[tuple[Variable, Term]],
+    ) -> Substitution:
+        """Return one substitution containing a batch of new bindings."""
+
+        lookup = self._lookup.copy()
+        ordered = list(self._bindings)
+        changed = False
+        for variable, term in bindings:
+            if not isinstance(variable, Variable):
+                raise TypeError("substitution keys must be Variable instances")
+            previous = lookup.get(variable)
+            if previous is not None:
+                if previous != term:
+                    raise ValueError(f"conflicting binding for ${variable.name}")
+                continue
+            lookup[variable] = term
+            ordered.append((variable, term))
+            changed = True
+        if not changed:
+            return self
+        substitution = object.__new__(Substitution)
+        substitution._bindings = tuple(ordered)
+        substitution._lookup = lookup
+        return substitution
 
     def apply(self, term: Term) -> Term:
         """Apply this substitution recursively to *term*."""
 
-        return self._apply(term, frozenset())
+        if not isinstance(term, (Variable, Triple)):
+            return term
+        return self._apply(term, set())
 
-    def _apply(self, term: Term, seen: frozenset[Variable]) -> Term:
-        if isinstance(term, Variable) and term in self:
+    def _apply(self, term: Term, seen: set[Variable]) -> Term:
+        if isinstance(term, Variable) and term in self._lookup:
             if term in seen:
                 raise ValueError(f"cyclic substitution through ${term.name}")
-            return self._apply(self[term], seen | {term})
+            seen.add(term)
+            resolved = self._apply(self._lookup[term], seen)
+            seen.remove(term)
+            return resolved
         if isinstance(term, Triple):
             return Triple(
                 self._apply(term.subject, seen),

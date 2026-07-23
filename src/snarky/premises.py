@@ -24,10 +24,13 @@ class FactPremise:
         substitution: Substitution,
         matcher: PatternMatcher,
     ) -> Substitution | None:
-        matched_entity = matcher.match(self.entity, fact.entity, substitution)
-        if matched_entity is None:
-            return None
-        return matcher.match(self.status, fact.status, matched_entity)
+        return matcher.match_ground_pair(
+            self.entity,
+            fact.entity,
+            self.status,
+            fact.status,
+            substitution,
+        )
 
 
 class ComparisonOperator(StrEnum):

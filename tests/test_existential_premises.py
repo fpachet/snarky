@@ -230,6 +230,76 @@ def test_repeated_existential_queries_are_cached_per_instantiation() -> None:
     assert strategy.metrics.witness_cache_hits > 0
 
 
+def test_existential_witness_cache_survives_an_unchanged_snapshot() -> None:
+    rule = parse_rules(SINGLE_RULE)[0]
+    facts = (_fact("(r1c1 candidate 5)"),)
+    strategy = IndexedInstantiationStrategy()
+
+    first = strategy.instantiate(rule, facts)
+    misses_after_first = strategy.metrics.witness_cache_misses
+    second = strategy.instantiate(rule, facts, ())
+
+    assert second == first
+    assert strategy.metrics.witness_cache_misses == misses_after_first
+    assert strategy.metrics.witness_cache_hits > 0
+
+
+def test_simple_negative_blocker_expires_only_correlated_activation() -> None:
+    derive, block, clear = parse_rule_groups(
+        """
+        GROUP derive
+            RULE derive_available
+            WHEN
+                ($item seed yes)
+                NOT EXISTS
+                    ($item blocker yes)
+                END_EXISTS
+            THEN
+                ADD ($item available yes)
+            END
+        END_GROUP
+
+        GROUP block
+            RULE add_blocker
+            WHEN
+                ($item block_requested yes)
+            THEN
+                ADD ($item blocker yes)
+            END
+        END_GROUP
+
+        GROUP clear
+            RULE clear_blocker
+            WHEN
+                ($item blocker yes)
+            THEN
+                REMOVE ($item blocker yes)
+                REMOVE ($item available yes)
+            END
+        END_GROUP
+        """
+    )
+    session = ForwardEngine(()).create_session(
+        (
+            _fact("(a seed yes)"),
+            _fact("(b seed yes)"),
+            _fact("(a block_requested yes)"),
+        )
+    )
+
+    first = session.run_group(derive)
+    session.run_group(block)
+    session.run_group(clear)
+    reenabled = session.run_group(derive)
+
+    assert set(first.added_facts) == {
+        _fact("(a available yes)"),
+        _fact("(b available yes)"),
+    }
+    assert reenabled.added_facts == (_fact("(a available yes)"),)
+    assert reenabled.fired_activation_count == 1
+
+
 def test_parser_rejects_malformed_or_unsafe_existential_blocks() -> None:
     with pytest.raises(ParseError, match="missing END_EXISTS"):
         parse_rules(

@@ -25,11 +25,12 @@ Les optimisations doivent préserver les propriétés suivantes :
 |---|---|---|
 | 0 — Mesures | Partielle | Benchmarks Fibonacci et Sudoku p1–p6, durées pytest et compteurs d'instanciation disponibles |
 | 1 — Activations paresseuses | À faire | Les stratégies matérialisent encore leurs activations dans un tuple |
-| 2 — Indexation | Terminée | Index exact partagé, ajouts incrémentaux et retraits appliqués en lot |
+| 2 — Indexation | Terminée | Index exact partagé, index composés sur deux positions, ajouts incrémentaux et retraits en lot |
 | 3 — Semi-naïf | Terminée | Une activation n'est produite que si sa jointure contient un fait nouveau |
 | 4 — Planification | Première tranche terminée | Choix MRV dans les variantes delta, sans franchir les comparaisons |
-| 5 — Substitutions et négation | Première tranche terminée | Recherche O(1), témoins existentiels locaux et réveil négatif ciblé |
-| 6 à 9 | À faire | À prioriser par profilage sur Fibonacci, Sudoku et Spinoza |
+| 5 — Substitutions et négation | Deuxième tranche terminée | Extension groupée, matching ground compilé, témoins par snapshot et bloqueurs simples directs |
+| 6 — Sélection des règles | Première tranche terminée | Les dépendances négatives filtrent les réveils ; l’index positif général reste à faire |
+| 7 à 9 | À faire | À prioriser par profilage sur Fibonacci, Sudoku et Spinoza |
 
 L'extension fonctionnelle `LET` est terminée : Fibonacci utilise désormais
 l'arithmétique native du moteur et ne dépend plus de tables de sommes et de
@@ -40,30 +41,42 @@ reste disponible explicitement avec `strategy=NaiveInstantiationStrategy()` et
 sert d'oracle de correction. Les tests différentiels vérifient l'égalité des
 faits, des dérivations, des cycles et des activations.
 
-Le profil Sudoku a conduit à quatre optimisations générales :
+Deux passes de profilage Sudoku ont conduit aux optimisations générales
+suivantes :
 
 - table de recherche O(1) dans les substitutions immuables, tout en conservant
   leur tuple ordonné pour le rendu déterministe ;
-- matcher récursif qui ne reconstruit plus le pattern substitué à chaque
-  niveau ;
-- cache de témoins `EXISTS`/`NOT EXISTS` limité à un snapshot ;
+- extension groupée des substitutions et matcher ground utilisant un cadre
+  mutable temporaire par fait candidat ;
+- résolution paresseuse des seules positions variables lors du choix d’un
+  bucket ;
+- index composés `(sujet, relation)`, `(relation, objet)` et `(sujet, objet)` ;
+- cache de témoins `EXISTS`/`NOT EXISTS` conservé tant que le snapshot ne
+  change pas ;
 - réfraction négative filtrée par les prémisses susceptibles de matcher un
-  fait ajouté.
+  fait ajouté, avec expiration directe des bloqueurs simples corrélés ;
+- cache des variables visibles dans les blocs existentiels.
 
-Sur la machine de développement, après ces changements et les caches de tests :
+Sur la machine de développement, les médianes Sudoku après la seconde passe
+sont :
 
-| Mesure | Avant | Après |
-|---|---:|---:|
-| résolution p1 | 2,32 s | 1,70 s |
-| résolution p5 | 5,95 s | 3,67 s |
-| résolution p6 | 5,58 s | 3,57 s |
-| suite pytest complète | 76,50 s | 46,88 s |
-| suite sans marqueur `slow` | — | 16,56 s |
+| Mesure | Baseline initiale | Passe précédente | État actuel |
+|---|---:|---:|---:|
+| résolution p1 | 2,32 s | 1,70 s | 0,523 s |
+| résolution p5 | 5,95 s | 3,67 s | 1,504 s |
+| résolution p6 | 5,58 s | 3,57 s | 1,462 s |
+| suite pytest complète | 76,50 s | 46,88 s | 29,51 s |
+| suite sans `slow` | — | 16,56 s | 15,43 s |
+
+Les tentatives de matching passent respectivement de 238 298 à 69 793 sur p1,
+de 854 741 à 217 880 sur p5 et de 816 785 à 210 908 sur p6. La baisse vaut
+71 à 75 %, pour un gain temporel de ×2,44 à ×3,25 par rapport à la passe
+précédente. La suite complète de 273 tests gagne encore 37 %. Le protocole
+exécutable est `python -m benchmarks.sudoku_rules`.
 
 Ces mesures sont des baselines locales, pas des garanties multi-machines.
-La suite complète conserve les scénarios `STUCK`; les caches ne réutilisent
-que des résultats déterministes et immuables au sein d’un même processus de
-test.
+Les caches ne réutilisent que des résultats déterministes tant que la mémoire
+de travail reste inchangée.
 
 La stratégie `SemiNaiveInstantiationStrategy` combine les index persistants,
 un delta propre à chaque règle et une planification locale des jointures. Sur
@@ -232,12 +245,13 @@ Le stockage retournera le plus petit ensemble candidat connu, puis le matcher
 structurel vérifiera les candidats.
 
 `IndexedInstantiationStrategy` maintient désormais un index persistant partagé
-sur l’entité, le statut, le sujet, la relation et l’objet. Les suffixes de faits
-nouveaux l’étendent une seule fois, même lorsque plusieurs règles les voient.
-Les retraits sont accumulés puis appliqués en lot avant le prochain matching.
-Le plus petit bucket compatible avec la substitution courante est proposé au
-matcher. L’ordre textuel des prémisses et l’ordre d’insertion des candidats
-sont préservés.
+sur l’entité, le statut, le sujet, la relation et l’objet, ainsi que sur les
+trois paires de positions top-level. Les suffixes de faits nouveaux l’étendent
+une seule fois, même lorsque plusieurs règles les voient. Les retraits sont
+accumulés puis appliqués en lot avant le prochain matching. Le plus petit
+bucket compatible avec la substitution courante est proposé au matcher.
+L’ordre textuel des prémisses et l’ordre d’insertion des candidats sont
+préservés.
 
 Les index plus profonds, portant sur des chemins dans les triplets imbriqués,
 ne seront ajoutés qu’après mesure de leur utilité.
@@ -306,6 +320,13 @@ et de comparer plusieurs heuristiques.
 
 ## Phase 5 — Substitutions et matching
 
+**État : deuxième tranche terminée.** Les substitutions conservent une table
+O(1) et leur ordre public immuable, mais une extension de matching construit
+ses liaisons dans un dictionnaire temporaire puis les fige en une opération.
+Le matching d’un fait ground traite entité et statut dans ce même cadre. Le
+choix d’index ne substitue plus les constantes, et les recherches
+existentielles sont réutilisées jusqu’à la prochaine mutation du snapshot.
+
 Optimiser seulement après profilage les opérations de bas niveau :
 
 - accès moyen en temps constant aux variables liées ;
@@ -319,6 +340,13 @@ Le modèle public `Variable` doit rester lisible. Une représentation compilée
 interne pourra être introduite sans modifier l’API.
 
 ## Phase 6 — Sélection des règles candidates
+
+**État : première tranche terminée pour la négation.** Les ajouts sont filtrés
+par les signatures des prémisses négatives. Lorsqu’un `NOT EXISTS` top-level
+ne contient qu’une prémisse factuelle, le nouveau fait est testé directement
+contre chaque substitution déclenchée et seules les clés réellement bloquées
+sont expirées. Les négations composées utilisent encore l’oracle indexé
+exhaustif. L’index général des règles positives reste à implémenter.
 
 Créer un `RuleCandidateIndex` reliant les signatures de faits aux prémisses de
 règles susceptibles de les accepter.

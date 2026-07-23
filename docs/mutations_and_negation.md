@@ -58,6 +58,11 @@ La réfraction est liée à l’activation continûment valide :
 - retirer un fait support expire les activations qui en dépendaient ;
 - ajouter un fait ne réévalue que les activations négatives dont une prémisse
   peut matcher sa signature ;
+- un bloc `NOT EXISTS` réduit à une prémisse factuelle installe implicitement
+  un bloqueur corrélé : le fait ajouté expire directement les seules
+  substitutions qu’il bloque, sans réinstancier la règle entière ;
+- les blocs négatifs composés conservent une réévaluation exhaustive indexée,
+  utilisée comme chemin de repli sémantiquement sûr ;
 - une activation ayant cessé d’exister peut donc redevenir éligible plus
   tard.
 
@@ -91,6 +96,9 @@ comparaison prématurée échoue simplement lors de l’instanciation.
 `EXISTS` conserve les faits de son premier témoin déterministe dans les
 supports de provenance. `NOT EXISTS` ne crée aucune liaison et ne confond pas
 l’absence avec le statut explicite `INEXISTANT`.
+
+Les résultats de recherche de témoin sont mémorisés pour un snapshot exact de
+la mémoire de travail. Tout ajout ou retrait effectif invalide ce cache.
 
 Les constructeurs Python équivalents sont `exists(...)` et
 `not_exists(...)`.

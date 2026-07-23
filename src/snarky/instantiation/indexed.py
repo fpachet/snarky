@@ -4,6 +4,7 @@ from __future__ import annotations
 
 from collections import defaultdict
 from collections.abc import Sequence
+from typing import TypeVar
 
 from ..facts import Fact
 from ..matching import PatternMatcher
@@ -16,13 +17,15 @@ from ..premises import (
 )
 from ..rules import Rule
 from ..substitutions import EMPTY_SUBSTITUTION, Substitution
-from ..terms import Term, Triple, is_ground
+from ..terms import Term, Triple, Variable, is_ground
 from .base import (
     Activation,
     InstantiationMetrics,
     WitnessCache,
     witness_cache_key,
 )
+
+IndexKeyT = TypeVar("IndexKeyT")
 
 
 class IndexedInstantiationStrategy:
@@ -38,6 +41,7 @@ class IndexedInstantiationStrategy:
         self.metrics = InstantiationMetrics()
         self._index: FactIndex | None = None
         self._pending_removed: set[Fact] = set()
+        self._witness_cache: WitnessCache = {}
 
     def instantiate(
         self,
@@ -58,8 +62,10 @@ class IndexedInstantiationStrategy:
         if not removed:
             self._index = None
             self._pending_removed.clear()
+            self._witness_cache.clear()
             return
         self._pending_removed.update(removed)
+        self._witness_cache.clear()
 
     def _index_for(
         self,
@@ -73,32 +79,42 @@ class IndexedInstantiationStrategy:
             index = FactIndex(facts)
             self._index = index
             self._pending_removed.clear()
+            self._witness_cache.clear()
             self.metrics.index_builds += 1
             self.metrics.indexed_facts += len(facts)
             return index
         if self._pending_removed:
             removed = frozenset(self._pending_removed)
-            self.metrics.index_removals += index.remove(removed)
+            removal_count = index.remove(removed)
+            self.metrics.index_removals += removal_count
+            if removal_count:
+                self._witness_cache.clear()
             self._pending_removed.clear()
 
         if delta is None:
             indexed = tuple(index.facts)
             if facts[: len(indexed)] == indexed:
-                self.metrics.indexed_facts += index.extend(
-                    facts[len(indexed) :]
-                )
+                added = index.extend(facts[len(indexed) :])
+                self.metrics.indexed_facts += added
+                if added:
+                    self._witness_cache.clear()
             elif indexed != facts:
                 index = FactIndex(facts)
                 self._index = index
+                self._witness_cache.clear()
                 self.metrics.index_builds += 1
                 self.metrics.indexed_facts += len(facts)
             return index
 
         if delta:
-            self.metrics.indexed_facts += index.extend(delta)
+            added = index.extend(delta)
+            self.metrics.indexed_facts += added
+            if added:
+                self._witness_cache.clear()
         if tuple(index.facts) != facts:
             index = FactIndex(facts)
             self._index = index
+            self._witness_cache.clear()
             self.metrics.index_builds += 1
             self.metrics.indexed_facts += len(facts)
         return index
@@ -109,7 +125,6 @@ class IndexedInstantiationStrategy:
         index: FactIndex,
     ) -> list[Activation]:
         activations: list[Activation] = []
-        witness_cache: WitnessCache = {}
         self._extend(
             rule,
             index,
@@ -117,7 +132,7 @@ class IndexedInstantiationStrategy:
             substitution=EMPTY_SUBSTITUTION,
             supports=(),
             output=activations,
-            witness_cache=witness_cache,
+            witness_cache=self._witness_cache,
         )
         return activations
 
@@ -475,6 +490,15 @@ class FactIndex:
         self.by_subject: defaultdict[Term, list[Fact]] = defaultdict(list)
         self.by_relation: defaultdict[Term, list[Fact]] = defaultdict(list)
         self.by_object: defaultdict[Term, list[Fact]] = defaultdict(list)
+        self.by_subject_relation: defaultdict[
+            tuple[Term, Term], list[Fact]
+        ] = defaultdict(list)
+        self.by_relation_object: defaultdict[
+            tuple[Term, Term], list[Fact]
+        ] = defaultdict(list)
+        self.by_subject_object: defaultdict[
+            tuple[Term, Term], list[Fact]
+        ] = defaultdict(list)
         self.extend(facts)
 
     def extend(self, facts: Sequence[Fact]) -> int:
@@ -490,6 +514,15 @@ class FactIndex:
                 self.by_subject[fact.entity.subject].append(fact)
                 self.by_relation[fact.entity.relation].append(fact)
                 self.by_object[fact.entity.object].append(fact)
+                self.by_subject_relation[
+                    (fact.entity.subject, fact.entity.relation)
+                ].append(fact)
+                self.by_relation_object[
+                    (fact.entity.relation, fact.entity.object)
+                ].append(fact)
+                self.by_subject_object[
+                    (fact.entity.subject, fact.entity.object)
+                ].append(fact)
             added += 1
         return added
 
@@ -518,14 +551,29 @@ class FactIndex:
                     fact.entity.object,
                     fact,
                 )
+                self._remove_from_bucket(
+                    self.by_subject_relation,
+                    (fact.entity.subject, fact.entity.relation),
+                    fact,
+                )
+                self._remove_from_bucket(
+                    self.by_relation_object,
+                    (fact.entity.relation, fact.entity.object),
+                    fact,
+                )
+                self._remove_from_bucket(
+                    self.by_subject_object,
+                    (fact.entity.subject, fact.entity.object),
+                    fact,
+                )
         self.facts[:] = [fact for fact in self.facts if fact not in present]
         self.ranks = {fact: rank for rank, fact in enumerate(self.facts)}
         return len(present)
 
     @staticmethod
     def _remove_from_bucket(
-        buckets: defaultdict[Term, list[Fact]],
-        key: Term,
+        buckets: defaultdict[IndexKeyT, list[Fact]],
+        key: IndexKeyT,
         fact: Fact,
     ) -> None:
         bucket = buckets[key]
@@ -538,22 +586,72 @@ class FactIndex:
         premise: FactPremise,
         substitution: Substitution,
     ) -> Sequence[Fact]:
-        entity = substitution.apply(premise.entity)
-        status = substitution.apply(premise.status)
         buckets: list[Sequence[Fact]] = []
 
-        if is_ground(entity):
-            buckets.append(self.by_entity.get(entity, ()))
-        if is_ground(status):
+        status, status_ground = _resolved_index_term(
+            premise.status,
+            substitution,
+        )
+        if status_ground:
             buckets.append(self.by_status.get(status, ()))
-        if isinstance(entity, Triple):
-            for part, part_index in (
-                (entity.subject, self.by_subject),
-                (entity.relation, self.by_relation),
-                (entity.object, self.by_object),
-            ):
-                if is_ground(part):
-                    buckets.append(part_index.get(part, ()))
+
+        entity_pattern = premise.entity
+        if not isinstance(entity_pattern, Triple):
+            entity, entity_ground = _resolved_index_term(
+                entity_pattern,
+                substitution,
+            )
+            if entity_ground:
+                buckets.append(self.by_entity.get(entity, ()))
+            return min(buckets, key=len) if buckets else self.facts
+
+        subject, subject_ground = _resolved_index_term(
+            entity_pattern.subject,
+            substitution,
+        )
+        relation, relation_ground = _resolved_index_term(
+            entity_pattern.relation,
+            substitution,
+        )
+        object_, object_ground = _resolved_index_term(
+            entity_pattern.object,
+            substitution,
+        )
+        if subject_ground and relation_ground and object_ground:
+            buckets.append(
+                self.by_entity.get(
+                    Triple(subject, relation, object_),
+                    (),
+                )
+            )
+        for part, ground, part_index in (
+            (subject, subject_ground, self.by_subject),
+            (relation, relation_ground, self.by_relation),
+            (object_, object_ground, self.by_object),
+        ):
+            if ground:
+                buckets.append(part_index.get(part, ()))
+        if subject_ground and relation_ground:
+            buckets.append(
+                self.by_subject_relation.get(
+                    (subject, relation),
+                    (),
+                )
+            )
+        if relation_ground and object_ground:
+            buckets.append(
+                self.by_relation_object.get(
+                    (relation, object_),
+                    (),
+                )
+            )
+        if subject_ground and object_ground:
+            buckets.append(
+                self.by_subject_object.get(
+                    (subject, object_),
+                    (),
+                )
+            )
 
         return min(buckets, key=len) if buckets else self.facts
 
@@ -585,3 +683,20 @@ class FactIndex:
 
     def __len__(self) -> int:
         return len(self.facts)
+
+
+def _resolved_index_term(
+    term: Term,
+    substitution: Substitution,
+) -> tuple[Term, bool]:
+    """Resolve only terms that can acquire a value from the substitution."""
+
+    if isinstance(term, Variable):
+        if term not in substitution:
+            return term, False
+        resolved = substitution.apply(term)
+        return resolved, is_ground(resolved)
+    if isinstance(term, Triple):
+        resolved = substitution.apply(term)
+        return resolved, is_ground(resolved)
+    return term, True

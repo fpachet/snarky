@@ -644,6 +644,12 @@ Index possibles :
 - chemin dans un triplet imbriqué ;
 - combinaison de positions.
 
+L’implémentation actuelle maintient les index top-level simples et les trois
+combinaisons de deux positions : `(sujet, relation)`, `(relation, objet)` et
+`(sujet, objet)`. Elle choisit le plus petit bucket disponible après résolution
+des seules positions variables. Les chemins imbriqués et les index adaptatifs
+restent des extensions futures.
+
 ### 7.2 Index adaptatifs
 
 Ne pas construire tous les index possibles.
@@ -719,9 +725,13 @@ ActivationKey
 
 Après une suppression, les activations dont un fait support a disparu
 redeviennent éligibles. Après un ajout, une activation fondée sur
-`NOT EXISTS` est réévaluée. Les index append-only sont invalidés puis
-reconstruits, ce qui privilégie actuellement la correction avant
-l’optimisation.
+`NOT EXISTS` peut cesser d’être éligible. Les retraits sont appliqués en lot
+aux index persistants. Un bloc négatif top-level composé d’une seule prémisse
+factuelle est surveillé directement par substitution : le fait ajouté expire
+uniquement les clés qu’il bloque. Une négation composée conserve une
+réinstanciation indexée exhaustive comme chemin de repli. Les caches de
+témoins existentiels sont valides pour un snapshot exact et vidés à toute
+mutation.
 
 ### 8.4 Groupes, sessions et modes de contrôle
 
@@ -1027,6 +1037,10 @@ Pour chaque grille :
 - vérifier que désactiver la dernière technique requise produit `STUCK` ;
 - rejouer le journal indépendamment du moteur.
 
+Le benchmark `python -m benchmarks.sudoku_rules` mesure séparément le temps,
+les candidats proposés, les matchings, les cycles et les accès au cache de
+témoins. La baseline du 23 juillet 2026 couvre p1, p5 et p6 sur cinq passages.
+
 ---
 
 ## 13. Tests différentiels
@@ -1146,9 +1160,10 @@ besoins observés :
    4×4.
 2. Comparer naïf, indexé et semi-naïf sur les mêmes séquences d’ajouts et
    retraits.
-3. Mesurer reconstructions d’index, activations, matching et mémoire sur
-   p1–p6.
-4. Sélectionner les règles à réveiller selon les signatures des mutations.
+3. ~~Mesurer reconstructions d’index, activations et matching sur p1–p6.~~
+   Compléter par une mesure de mémoire.
+4. ~~Filtrer les réveils négatifs et surveiller directement les bloqueurs
+   simples.~~ Généraliser la sélection aux règles positives.
 5. Enrichir les explications groupées par activation.
 
 ### Palier Sudoku avancé
