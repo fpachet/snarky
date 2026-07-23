@@ -23,14 +23,15 @@ Les optimisations doivent préserver les propriétés suivantes :
 
 | Phase | État | Résultat ou prochaine étape |
 |---|---|---|
-| 0 — Mesures | Partielle | Benchmarks Fibonacci et Sudoku p1–p6, durées pytest et compteurs d'instanciation disponibles |
+| 0 — Mesures | Terminée pour le socle | Benchmarks Fibonacci et Sudoku p1–p6, durées pytest et compteurs d'instanciation disponibles |
 | 1 — Activations paresseuses | À faire | Les stratégies matérialisent encore leurs activations dans un tuple |
 | 2 — Indexation | Terminée | Index exact partagé, index composés sur deux positions, ajouts incrémentaux et retraits en lot |
-| 3 — Semi-naïf | Terminée | Une activation n'est produite que si sa jointure contient un fait nouveau |
-| 4 — Planification | Première tranche terminée | Choix MRV dans les variantes delta, sans franchir les comparaisons |
-| 5 — Substitutions et négation | Deuxième tranche terminée | Extension groupée, matching ground compilé, témoins par snapshot et bloqueurs simples directs |
+| 3 — Deltas | Terminée | Deltas nets par règle pour ajouts, suppressions et réinsertions |
+| 4 — Plans et jointures | Terminée pour le socle | Prémisses compilées, MRV delta et mémoires partielles bornées avec repli |
+| 5 — Substitutions et négation | Terminée | Cadre mutable, watchers indexés, compteurs simples et requêtes corrélées persistantes |
 | 6 — Sélection des règles | Première tranche terminée | Les dépendances négatives filtrent les réveils ; l’index positif général reste à faire |
-| 7 à 9 | À faire | À prioriser par profilage sur Fibonacci, Sudoku et Spinoza |
+| 7 — Agrégats | Terminée pour `COUNT`/`UNIQUE` | DSL, API Python, oracle naïf, compteurs et réfraction |
+| 8 à 10 | À faire | Provenance configurable, stratégie centrée variables et contraintes |
 
 L'extension fonctionnelle `LET` est terminée : Fibonacci utilise désormais
 l'arithmétique native du moteur et ne dépend plus de tables de sommes et de
@@ -41,7 +42,7 @@ reste disponible explicitement avec `strategy=NaiveInstantiationStrategy()` et
 sert d'oracle de correction. Les tests différentiels vérifient l'égalité des
 faits, des dérivations, des cycles et des activations.
 
-Deux passes de profilage Sudoku ont conduit aux optimisations générales
+Trois passes de profilage Sudoku ont conduit aux optimisations générales
 suivantes :
 
 - table de recherche O(1) dans les substitutions immuables, tout en conservant
@@ -51,28 +52,42 @@ suivantes :
 - résolution paresseuse des seules positions variables lors du choix d’un
   bucket ;
 - index composés `(sujet, relation)`, `(relation, objet)` et `(sujet, objet)` ;
-- cache de témoins `EXISTS`/`NOT EXISTS` conservé tant que le snapshot ne
-  change pas ;
+- mémoire de témoins `EXISTS`/`NOT EXISTS` maintenue sélectivement entre les
+  snapshots ;
 - réfraction négative filtrée par les prémisses susceptibles de matcher un
   fait ajouté, avec expiration directe des bloqueurs simples corrélés ;
 - cache des variables visibles dans les blocs existentiels.
+- compilation immuable des patterns, résolveurs de positions et blocs de
+  prémisses ;
+- `BindingFrame` mutable avec trail et rollback pendant toute une jointure,
+  figé uniquement pour une activation observable ;
+- `FactDelta` net et révisionné, incluant ajouts, suppressions et
+  réinsertions ;
+- watchers de requêtes indexés par signature résolue, au lieu d’un balayage
+  global à chaque mutation ;
+- compteurs exacts incrémentaux pour les requêtes factuelles simples ;
+- mémoires de préfixes de jointure, activées uniquement sous un budget
+  cardinal et abandonnées au profit du chemin exhaustif lorsqu’elles seraient
+  trop grandes ;
+- prémisses corrélées `COUNT` et `UNIQUE`, utilisées dans la base Sudoku.
 
 Sur la machine de développement, les médianes Sudoku après la seconde passe
 sont :
 
 | Mesure | Baseline initiale | Passe précédente | État actuel |
 |---|---:|---:|---:|
-| résolution p1 | 2,32 s | 1,70 s | 0,523 s |
-| résolution p5 | 5,95 s | 3,67 s | 1,504 s |
-| résolution p6 | 5,58 s | 3,57 s | 1,462 s |
-| suite pytest complète | 76,50 s | 46,88 s | 29,51 s |
-| suite sans `slow` | — | 16,56 s | 15,43 s |
+| résolution p1 | 2,32 s | 1,70 s | 0,323 s |
+| résolution p5 | 5,95 s | 3,67 s | 0,720 s |
+| résolution p6 | 5,58 s | 3,57 s | 0,639 s |
+| suite pytest complète | 76,50 s | 46,88 s | 26,05 s |
+| suite sans `slow` | — | 16,56 s | 16,79 s |
 
-Les tentatives de matching passent respectivement de 238 298 à 69 793 sur p1,
-de 854 741 à 217 880 sur p5 et de 816 785 à 210 908 sur p6. La baisse vaut
-71 à 75 %, pour un gain temporel de ×2,44 à ×3,25 par rapport à la passe
-précédente. La suite complète de 273 tests gagne encore 37 %. Le protocole
-exécutable est `python -m benchmarks.sudoku_rules`.
+Sur la dernière séquence seule, les tentatives de matching passent de 69 793
+à 47 051 sur p1, de 217 880 à 125 298 sur p5 et de 210 908 à 106 449 sur p6.
+La baisse supplémentaire vaut 33 à 50 %, pour un gain temporel de ×1,62 à
+×2,29. Depuis la baseline initiale, le gain total vaut ×7,18 à ×8,74. La
+suite complète compte désormais 281 tests. Le protocole exécutable est
+`python -m benchmarks.sudoku_rules`.
 
 Ces mesures sont des baselines locales, pas des garanties multi-machines.
 Les caches ne réutilisent que des résultats déterministes tant que la mémoire
@@ -263,11 +278,11 @@ Ce critère est satisfait sur Fibonacci `F(10)` : l'index exhaustif persistant
 conserve 8 963 candidats, mais les constructions d'index passent de 51 à 3 et
 le temps de 0,245 s à 0,167 s.
 
-## Phase 3 — Évaluation semi-naïve
+## Phase 3 — Évaluation semi-naïve et deltas mutables
 
-**État : terminée pour les règles positives actuelles.** Le benchmark `F(10)`
-produit maintenant exactement 163 activations pour 163 déclenchements, contre
-1 782 activations avant cette phase.
+**État : terminée pour le socle actuel.** Le benchmark `F(10)` produit
+exactement 163 activations pour 163 déclenchements, contre 1 782 activations
+avant cette phase.
 
 Le point fixe doit distinguer :
 
@@ -294,12 +309,26 @@ Ces cas sont couverts par les tests différentiels, y compris les deltas pouvant
 satisfaire plusieurs prémisses, la récursivité mutuelle et les comparaisons
 utilisées comme barrières textuelles.
 
+Pour une session mutable, le moteur transmet maintenant un `FactDelta` propre
+à chaque règle. Il réduit le journal depuis la précédente évaluation en deux
+ensembles nets, `added` et `removed`, accompagnés d’une révision globale. Une
+suppression suivie d’une réinsertion est représentée dans les deux ensembles
+afin de préserver l’ordre d’insertion. Les index, compteurs et mémoires
+partielles consomment ce même delta.
+
 ## Phase 4 — Planification des jointures
 
-**État : première tranche terminée dans la stratégie semi-naïve.** Chaque
-variante commence par sa prémisse delta, puis choisit dans le bloc courant la
-prémisse ayant le moins de candidats. Une comparaison ferme le bloc et empêche
-tout réordonnancement qui modifierait la sémantique textuelle.
+**État : socle compilé terminé.** Chaque règle possède un `CompiledRule`
+réutilisable contenant ses patterns, résolveurs d’index et blocs corrélés.
+Une variante semi-naïve commence par sa prémisse delta, puis choisit dans le
+bloc courant la prémisse ayant le moins de candidats. Une comparaison ferme le
+bloc et empêche tout réordonnancement qui modifierait la sémantique textuelle.
+
+Pour les règles positives suffisamment sélectives, la stratégie conserve les
+préfixes de jointure et les met à jour avec les deux composantes de
+`FactDelta`. Une estimation conservative et une limite configurable de 2 048
+états empêchent toute explosion mémoire ; au-delà, le moteur reprend
+automatiquement la jointure compilée exhaustive.
 
 Ne plus imposer systématiquement l’ordre textuel des prémisses.
 
@@ -320,12 +349,18 @@ et de comparer plusieurs heuristiques.
 
 ## Phase 5 — Substitutions et matching
 
-**État : deuxième tranche terminée.** Les substitutions conservent une table
-O(1) et leur ordre public immuable, mais une extension de matching construit
-ses liaisons dans un dictionnaire temporaire puis les fige en une opération.
-Le matching d’un fait ground traite entité et statut dans ce même cadre. Le
-choix d’index ne substitue plus les constantes, et les recherches
-existentielles sont réutilisées jusqu’à la prochaine mutation du snapshot.
+**État : terminée pour le socle actuel.** Les substitutions publiques
+conservent une table O(1) et leur ordre immuable. L’instanciation compilée
+utilise cependant un `BindingFrame` mutable unique, muni d’un trail : chaque
+branche pose un checkpoint puis annule uniquement ses nouvelles liaisons. Le
+cadre n’est figé en `Substitution` qu’à la production d’une activation ou d’un
+état partiel mémorisé.
+
+Les recherches existentielles traversent les snapshots. Des watchers indexés
+par entité ou combinaison de positions ne réévaluent que les corrélations
+compatibles avec le fait muté. Les blocs composés d’une seule prémisse
+factuelle maintiennent directement leur cardinalité et leur premier témoin.
+Les blocs complexes conservent un chemin de recalcul compilé sûr.
 
 Optimiser seulement après profilage les opérations de bas niveau :
 
@@ -355,7 +390,28 @@ Lorsqu’un fait est ajouté, le moteur ne doit réveiller que les règles dont 
 moins une prémisse peut matcher ce fait. Les règles contenant une relation
 variable ou un pattern très général conserveront un chemin de repli correct.
 
-## Phase 7 — Provenance configurable
+## Phase 7 — Agrégats corrélés
+
+**État : terminée pour `COUNT` et `UNIQUE`.** Les deux prémisses partagent la
+portée locale de `EXISTS` et utilisent la mémoire de requêtes :
+
+```text
+COUNT == 2
+    ($cell candidate $value)
+END_COUNT
+
+UNIQUE
+    ($cell selected $value)
+END_UNIQUE
+```
+
+`COUNT` accepte les six comparateurs numériques contre un entier positif ou
+nul. `UNIQUE` est la forme exacte-un. Les variables locales ne s’échappent
+pas. L’oracle naïf énumère toutes les solutions locales ; la stratégie indexée
+réutilise les compteurs et supports mémorisés. Ajouts et retraits mettent à
+jour la réfraction comme pour les négations corrélées.
+
+## Phase 8 — Provenance configurable
 
 Proposer plusieurs politiques :
 
@@ -368,7 +424,7 @@ La provenance complète restera le comportement de référence. Les politiques
 réduites devront être choisies explicitement et ne devront jamais produire une
 preuve incorrecte.
 
-## Phase 8 — Instanciation centrée sur les variables
+## Phase 9 — Instanciation centrée sur les variables
 
 Implémenter ensuite l’approche inspirée de BOOJUM :
 
@@ -391,7 +447,7 @@ ChoiceHeuristic
 Elle devra produire les mêmes activations que les stratégies naïve et
 semi-naïve sur les programmes de test.
 
-## Phase 9 — Raisonnement par contraintes
+## Phase 10 — Raisonnement par contraintes
 
 Le couplage avec OR-Tools ou d’autres solveurs interviendra après stabilisation
 du moteur symbolique indexé.
@@ -468,10 +524,13 @@ facile à comprendre et à vérifier.
    requis, ou borner explicitement leur matérialisation ;
 3. partager éventuellement un index global entre les règles si le profilage
    montre que les trois index persistants restent significatifs ;
-4. compiler des plans de jointure réutilisables au lieu de recalculer toutes
-   les estimations MRV pendant le backtracking ;
-5. ajouter une sélection des règles candidates réveillées par chaque delta ;
-6. étendre les benchmarks aux fermetures transitives et jointures en étoile.
+4. ajouter une sélection générale des règles positives candidates réveillées
+   par chaque delta ;
+5. mesurer la mémoire des préfixes de jointure et ajuster leur budget par
+   charge ;
+6. étendre les benchmarks aux fermetures transitives et jointures en étoile ;
+7. étudier `COLLECT` au-dessus de la mémoire d’agrégats uniquement lorsqu’un
+   cas p7+ le justifie.
 
 Le critère de sortie sera un nouveau gain mesuré sur la baseline semi-naïve,
 avec identité complète des faits, dérivations, cycles et profondeurs. Les

@@ -4,10 +4,9 @@ GROUP derive_solved_cells
     RULE mark_single_candidate_cell
     WHEN
         ($cell candidate $value)
-        NOT EXISTS
-            ($cell candidate $other)
-            $other != $value
-        END_EXISTS
+        UNIQUE
+            ($cell candidate $only)
+        END_UNIQUE
         NOT EXISTS
             ($cell solved $known)
         END_EXISTS

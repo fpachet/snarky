@@ -64,6 +64,22 @@ conserve le comportement historique : elle échoue à l’instanciation sans
 chercher une liaison dans une prémisse ultérieure. L’absence testée par
 `NOT EXISTS` reste distincte du statut `INEXISTANT`.
 
+`COUNT` et `UNIQUE` utilisent la même portée corrélée. `COUNT` compare le
+nombre de substitutions locales satisfaisantes à un entier avec `==`, `!=`,
+`<`, `<=`, `>` ou `>=`. `UNIQUE` exige exactement une solution locale. Les
+faits participant aux solutions acceptées deviennent des supports de
+provenance, mais aucune variable locale ne s’échappe :
+
+```text
+COUNT == 2
+    ($cell candidate $value)
+END_COUNT
+
+UNIQUE
+    ($item selected $choice)
+END_UNIQUE
+```
+
 Les modifications partielles, créations de symboles frais et hypothèses avec
 retour arrière restent différées. Voir
 [`mutations_and_negation.md`](mutations_and_negation.md).
@@ -74,19 +90,25 @@ La stratégie naïve examine les prémisses dans leur ordre et joint les faits p
 backtracking. Une instanciation complète contient la substitution obtenue et
 les faits ayant satisfait les prémisses.
 
-La stratégie indexée maintient un index exact partagé par les règles évaluées
-sur la même mémoire. Elle l’étend avec les faits ajoutés et applique les
-retraits en lot avant l’instanciation suivante, sans reconstruire les
-compartiments inchangés.
-La stratégie semi-naïve ajoute un delta propre à chaque règle : après sa
-première évaluation exhaustive, elle ne produit que les jointures contenant au
-moins un fait de ce delta. Si plusieurs prémisses peuvent recevoir un fait
-nouveau, les variantes sont partitionnées puis dédupliquées.
+La stratégie indexée compile les règles en patterns et résolveurs d’index,
+puis maintient un index exact partagé. Elle l’étend avec les faits ajoutés et
+applique les retraits en lot avant l’instanciation suivante, sans reconstruire
+les compartiments inchangés. Pendant le backtracking, un cadre mutable pose et
+annule ses liaisons ; une substitution immuable n’est construite qu’à une
+frontière observable.
 
-Pendant une instanciation, les premiers témoins de `EXISTS` et `NOT EXISTS`
-sont mémorisés selon la prémisse et la projection des variables corrélées. Le
-cache est jeté à la fin de l’appel : il ne traverse donc jamais une mutation
-de la mémoire.
+Chaque règle reçoit un `FactDelta` net et révisionné contenant `added` et
+`removed`. La stratégie semi-naïve ne produit que les jointures contenant au
+moins un fait ajouté. Les mémoires indexées filtrent leurs supports supprimés
+et mettent à jour les compteurs corrélés avec les deux composantes du delta.
+Si plusieurs prémisses peuvent recevoir un fait nouveau, les variantes sont
+partitionnées puis dédupliquées.
+
+Les témoins et cardinalités sont mémorisés selon le bloc et la projection des
+variables corrélées. Des watchers choisissent, à partir de la signature d’un
+fait muté, les seules entrées potentiellement affectées. Les requêtes
+factuelles simples mettent leur compteur à jour directement ; les requêtes
+complexes sont invalidées puis recalculées paresseusement.
 
 `ForwardEngine` sélectionne cette stratégie semi-naïve par défaut. La stratégie
 exhaustive de référence reste accessible explicitement avec
@@ -99,6 +121,11 @@ candidats. Les comparaisons forment des barrières textuelles qui ne sont jamais
 franchies par cette réorganisation. Les faits prémisses sont finalement remis
 dans leur ordre textuel et les activations dans l'ordre d'insertion naïf. Cette
 discipline préserve les faits, les dérivations, les cycles et la provenance.
+
+Les règles positives de cardinalité estimée modérée conservent en plus leurs
+préfixes de jointure. Une limite configurable borne cette mémoire ; si
+l’estimation ou le nombre réel d’états dépasse la limite, la stratégie revient
+automatiquement à la jointure compilée exhaustive.
 
 Dans une session persistante, une activation est identifiée par
 `(groupe, règle, substitution des prémisses)`. Les liaisons locales calculées

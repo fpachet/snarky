@@ -59,6 +59,24 @@ def measure(level: int, repeat: int) -> dict[str, Any]:
                 "candidate_facts": strategy.metrics.candidate_facts,
                 "witness_cache_hits": strategy.metrics.witness_cache_hits,
                 "witness_cache_misses": strategy.metrics.witness_cache_misses,
+                "witness_cache_invalidations": (
+                    strategy.metrics.witness_cache_invalidations
+                ),
+                "query_counter_updates": (
+                    strategy.metrics.query_counter_updates
+                ),
+                "activation_cache_hits": (
+                    strategy.metrics.activation_cache_hits
+                ),
+                "partial_join_builds": (
+                    strategy.metrics.partial_join_builds
+                ),
+                "partial_join_updates": (
+                    strategy.metrics.partial_join_updates
+                ),
+                "partial_join_bypasses": (
+                    strategy.metrics.partial_join_bypasses
+                ),
                 "cycles": result.inference.cycles,
                 "fired_activations": result.inference.fired_activation_count,
             }

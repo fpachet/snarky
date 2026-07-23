@@ -7,7 +7,7 @@ from enum import StrEnum
 
 from .facts import Fact
 from .matching import PatternMatcher
-from .substitutions import Substitution
+from .substitutions import Substitution, TermBindings
 from .terms import Number, Status, Term, Variable, is_ground, variables_in
 
 
@@ -50,7 +50,7 @@ class ComparisonPremise:
     operator: ComparisonOperator
     right: Term
 
-    def evaluate(self, substitution: Substitution) -> bool:
+    def evaluate(self, substitution: TermBindings) -> bool:
         left = substitution.apply(self.left)
         right = substitution.apply(self.right)
         if not is_ground(left) or not is_ground(right):
@@ -98,8 +98,58 @@ class NotExistsPremise:
         object.__setattr__(self, "premises", premises)
 
 
+@dataclass(frozen=True, slots=True)
+class CountPremise:
+    """Compare the number of local satisfying substitutions to an integer."""
+
+    premises: tuple[Premise, ...]
+    operator: ComparisonOperator
+    expected: int
+
+    def __post_init__(self) -> None:
+        premises = tuple(self.premises)
+        if not premises:
+            raise ValueError("COUNT requires at least one premise")
+        if self.expected < 0:
+            raise ValueError("COUNT expected value must be non-negative")
+        object.__setattr__(self, "premises", premises)
+
+    def accepts(self, count: int) -> bool:
+        if self.operator is ComparisonOperator.EQ:
+            return count == self.expected
+        if self.operator is ComparisonOperator.NE:
+            return count != self.expected
+        if self.operator is ComparisonOperator.LT:
+            return count < self.expected
+        if self.operator is ComparisonOperator.LE:
+            return count <= self.expected
+        if self.operator is ComparisonOperator.GT:
+            return count > self.expected
+        if self.operator is ComparisonOperator.GE:
+            return count >= self.expected
+        raise ValueError(f"unsupported comparison operator: {self.operator}")
+
+
+@dataclass(frozen=True, slots=True)
+class UniquePremise:
+    """Succeed when a local conjunction has exactly one solution."""
+
+    premises: tuple[Premise, ...]
+
+    def __post_init__(self) -> None:
+        premises = tuple(self.premises)
+        if not premises:
+            raise ValueError("UNIQUE requires at least one premise")
+        object.__setattr__(self, "premises", premises)
+
+
 type Premise = (
-    FactPremise | ComparisonPremise | ExistsPremise | NotExistsPremise
+    FactPremise
+    | ComparisonPremise
+    | ExistsPremise
+    | NotExistsPremise
+    | CountPremise
+    | UniquePremise
 )
 
 
@@ -132,7 +182,15 @@ def validate_premise_bindings(
                 )
                 raise ValueError(f"comparison uses unbound variables: {names}")
             continue
-        if isinstance(premise, (ExistsPremise, NotExistsPremise)):
+        if isinstance(
+            premise,
+            (
+                ExistsPremise,
+                NotExistsPremise,
+                CountPremise,
+                UniquePremise,
+            ),
+        ):
             nested_bound = validate_premise_bindings(
                 premise.premises,
                 frozenset(bound),
@@ -154,6 +212,22 @@ def not_exists(*premises: Premise) -> NotExistsPremise:
     """Construct a correlated negative existential premise."""
 
     return NotExistsPremise(tuple(premises))
+
+
+def count(
+    expected: int,
+    *premises: Premise,
+    operator: ComparisonOperator = ComparisonOperator.EQ,
+) -> CountPremise:
+    """Construct a correlated cardinality premise."""
+
+    return CountPremise(tuple(premises), operator, expected)
+
+
+def unique(*premises: Premise) -> UniquePremise:
+    """Construct a correlated exact-one premise."""
+
+    return UniquePremise(tuple(premises))
 
 
 def _ordered_value(term: Term) -> int | float:

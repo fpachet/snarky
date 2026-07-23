@@ -48,10 +48,12 @@ effective, ajout ou retrait.
 
 ## Réfaction et index
 
-Une suppression est enregistrée dans l’index partagé puis appliquée en lot
-avant l’instanciation suivante. Une désynchronisation non incrémentale provoque
-toujours une reconstruction sûre. Les stratégies naïve, indexée et semi-naïve
-conservent ainsi les mêmes résultats observables.
+Une suppression est enregistrée dans un `FactDelta` propre à chaque règle et
+appliquée en lot à l’index partagé avant l’instanciation suivante. Le delta
+contient aussi les ajouts nets et une révision du journal. Une
+désynchronisation non incrémentale provoque toujours une reconstruction sûre.
+Les stratégies naïve, indexée et semi-naïve conservent ainsi les mêmes
+résultats observables.
 
 La réfraction est liée à l’activation continûment valide :
 
@@ -97,11 +99,33 @@ comparaison prématurée échoue simplement lors de l’instanciation.
 supports de provenance. `NOT EXISTS` ne crée aucune liaison et ne confond pas
 l’absence avec le statut explicite `INEXISTANT`.
 
-Les résultats de recherche de témoin sont mémorisés pour un snapshot exact de
-la mémoire de travail. Tout ajout ou retrait effectif invalide ce cache.
+Les résultats de recherche de témoin traversent les snapshots. Chaque requête
+corrélée installe des watchers sur sa signature la plus sélective et sur ses
+supports. Une mutation ne visite donc que les requêtes compatibles. Les blocs
+réduits à un fait maintiennent directement leur compteur et leur premier
+témoin ; les blocs complexes sont invalidés puis recalculés paresseusement.
 
 Les constructeurs Python équivalents sont `exists(...)` et
 `not_exists(...)`.
+
+## `COUNT` et `UNIQUE`
+
+Les agrégats corrélés reposent sur les mêmes compteurs et règles de portée :
+
+```text
+COUNT >= 2
+    ($cell candidate $value)
+END_COUNT
+
+UNIQUE
+    ($cell selected $value)
+END_UNIQUE
+```
+
+`COUNT` compare une cardinalité locale à un entier positif ou nul. `UNIQUE`
+est équivalent à `COUNT == 1`. Les variables locales ne sont pas exportées.
+Les constructeurs Python sont `count(expected, ..., operator=...)` et
+`unique(...)`.
 
 ## Limites
 

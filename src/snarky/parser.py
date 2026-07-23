@@ -16,10 +16,12 @@ from .expressions import (
 from .premises import (
     ComparisonOperator,
     ComparisonPremise,
+    CountPremise,
     ExistsPremise,
     FactPremise,
     NotExistsPremise,
     Premise,
+    UniquePremise,
 )
 from .rules import Rule, RuleGroup
 from .terms import Atom, Number, Status, Term, Triple, Variable
@@ -173,10 +175,56 @@ def _parse_premise_block(
                 raise ParseError(str(error)) from error
             premises.append(premise)
             continue
-        if keyword == "END_EXISTS":
-            raise ParseError(f"unexpected END_EXISTS before {terminator}")
-        if terminator == "END_EXISTS" and keyword in {"THEN", "END"}:
-            raise ParseError("existential block is missing END_EXISTS")
+        if keyword.startswith("COUNT "):
+            parts = keyword.split()
+            if (
+                len(parts) != 3
+                or parts[1] not in _COMPARISONS
+                or not parts[2].isdigit()
+            ):
+                raise ParseError(
+                    "COUNT header must be `COUNT <operator> <integer>`"
+                )
+            nested, position = _parse_premise_block(
+                lines,
+                position + 1,
+                "END_COUNT",
+            )
+            if position >= len(lines) or lines[position] != "END_COUNT":
+                raise ParseError("COUNT block is missing END_COUNT")
+            position += 1
+            try:
+                premises.append(
+                    CountPremise(
+                        tuple(nested),
+                        _COMPARISONS[parts[1]],
+                        int(parts[2]),
+                    )
+                )
+            except ValueError as error:
+                raise ParseError(str(error)) from error
+            continue
+        if keyword == "UNIQUE":
+            nested, position = _parse_premise_block(
+                lines,
+                position + 1,
+                "END_UNIQUE",
+            )
+            if position >= len(lines) or lines[position] != "END_UNIQUE":
+                raise ParseError("UNIQUE block is missing END_UNIQUE")
+            position += 1
+            try:
+                premises.append(UniquePremise(tuple(nested)))
+            except ValueError as error:
+                raise ParseError(str(error)) from error
+            continue
+        if keyword in {"END_EXISTS", "END_COUNT", "END_UNIQUE"}:
+            raise ParseError(f"unexpected {keyword} before {terminator}")
+        if (
+            terminator in {"END_EXISTS", "END_COUNT", "END_UNIQUE"}
+            and keyword in {"THEN", "END"}
+        ):
+            raise ParseError(f"block is missing {terminator}")
         premises.append(_parse_premise(keyword))
         position += 1
     return premises, position

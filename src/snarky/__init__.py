@@ -26,6 +26,7 @@ from .expressions import (
 )
 from .facts import Fact
 from .instantiation import (
+    FactDelta,
     IndexedInstantiationStrategy,
     InstantiationMetrics,
     InstantiationStrategy,
@@ -44,11 +45,15 @@ from .plans import TechniquePlan, TechniquePlanResult, TechniquePlanStatus
 from .premises import (
     ComparisonOperator,
     ComparisonPremise,
+    CountPremise,
     ExistsPremise,
     FactPremise,
     NotExistsPremise,
+    UniquePremise,
+    count,
     exists,
     not_exists,
+    unique,
 )
 from .rules import Rule, RuleGroup, when
 from .substitutions import EMPTY_SUBSTITUTION, Substitution
@@ -76,8 +81,10 @@ __all__ = [
     "BinaryArithmeticOperator",
     "ComparisonOperator",
     "ComparisonPremise",
+    "CountPremise",
     "EngineLimits",
     "Fact",
+    "FactDelta",
     "FactExists",
     "FactMutationKind",
     "FactPremise",
@@ -116,8 +123,10 @@ __all__ = [
     "UnaryArithmeticExpression",
     "UnaryArithmeticOperator",
     "Unifier",
+    "UniquePremise",
     "Variable",
     "add",
+    "count",
     "evaluate_arithmetic",
     "exists",
     "is_ground",
@@ -128,6 +137,7 @@ __all__ = [
     "parse_rules",
     "parse_term",
     "remove",
+    "unique",
     "render_term",
     "variables_in",
     "when",

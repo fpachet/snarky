@@ -13,18 +13,19 @@ indexée exhaustive utilisée par le solveur :
 uv run python -m benchmarks.sudoku_rules --levels 1 5 6 --repeat 5
 ```
 
-Mesure du 23 juillet 2026 sur macOS ARM64 avec Python 3.13.11, après ajout des
-index composés, du matching ground groupé, du cache existentiel persistant par
-snapshot et des bloqueurs négatifs directs :
+Mesure du 23 juillet 2026 sur macOS ARM64 avec Python 3.13.11, après la
+séquence complète : plans compilés, cadre mutable, deltas de suppression,
+watchers et compteurs négatifs, mémoires de jointure bornées et agrégats :
 
-| Niveau | Médiane | Matchings | Médiane précédente | Matchings précédents |
+| Niveau | Médiane | Matchings | Avant cette séquence | Matchings précédents |
 |---|---:|---:|---:|---:|
-| p1 | 0,523 s | 69 793 | 1,700 s | 238 298 |
-| p5 | 1,504 s | 217 880 | 3,670 s | 854 741 |
-| p6 | 1,462 s | 210 908 | 3,570 s | 816 785 |
+| p1 | 0,323 s | 47 051 | 0,523 s | 69 793 |
+| p5 | 0,720 s | 125 298 | 1,504 s | 217 880 |
+| p6 | 0,639 s | 106 449 | 1,462 s | 210 908 |
 
-Le gain vaut ×3,25 sur p1 et ×2,44 sur p5/p6. Le nombre de matchings baisse de
-71 à 75 %. Les résultats synthétiques sont conservés dans
+Cette passe ajoute un gain ×1,62 à ×2,29 et réduit encore les matchings de
+33 à 50 %. Depuis la baseline initiale, le gain total vaut ×7,18 sur p1,
+×8,26 sur p5 et ×8,74 sur p6. Les résultats synthétiques sont conservés dans
 [`results/sudoku_matching_optimizations_2026-07-23.csv`](results/sudoku_matching_optimizations_2026-07-23.csv).
 
 ## Fibonacci explicite

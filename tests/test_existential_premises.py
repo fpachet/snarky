@@ -241,7 +241,7 @@ def test_existential_witness_cache_survives_an_unchanged_snapshot() -> None:
 
     assert second == first
     assert strategy.metrics.witness_cache_misses == misses_after_first
-    assert strategy.metrics.witness_cache_hits > 0
+    assert strategy.metrics.activation_cache_hits == 1
 
 
 def test_simple_negative_blocker_expires_only_correlated_activation() -> None:

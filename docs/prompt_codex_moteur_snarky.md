@@ -116,6 +116,9 @@ Sont disponibles et testés :
   d’`InferenceEvent` ;
 - prémisses corrélées `EXISTS` et `NOT EXISTS`, avec portée locale des
   variables ;
+- agrégats corrélés `COUNT` et `UNIQUE` ;
+- règles compilées, cadre mutable interne, deltas nets de suppression,
+  watchers, compteurs et mémoires de jointures partielles bornées ;
 - plans génériques de techniques avec les états `SOLVED`, `STUCK`,
   `INCONSISTENT` et `LIMIT_REACHED` ;
 - cas d’étude Spinoza complet et base Sudoku native p1–p6 résolue sans
@@ -327,7 +330,25 @@ END_EXISTS
 déjà liées sont visibles dans le bloc ; celles introduites dans le bloc ne
 s’échappent pas.
 
-### 2.5 Groupes et plans d’exécution
+### 2.5 Agrégats corrélés
+
+`COUNT` compare le nombre de solutions locales et `UNIQUE` exige exactement
+une solution :
+
+```text
+COUNT == 2
+    ($cell candidate $value)
+END_COUNT
+
+UNIQUE
+    ($item selected $choice)
+END_UNIQUE
+```
+
+Ils suivent les mêmes règles de corrélation et de portée locale que les blocs
+existentiels.
+
+### 2.6 Groupes et plans d’exécution
 
 Une base peut séparer ses familles de règles :
 
@@ -346,7 +367,7 @@ journal entre les appels. `TechniquePlan` fournit un ordonnancement générique 
 il essaie les groupes du plus simple au plus complexe et repart du premier
 après chaque mutation effective.
 
-### 2.6 Actions
+### 2.7 Actions
 
 Capacités disponibles :
 
@@ -647,8 +668,9 @@ Index possibles :
 L’implémentation actuelle maintient les index top-level simples et les trois
 combinaisons de deux positions : `(sujet, relation)`, `(relation, objet)` et
 `(sujet, objet)`. Elle choisit le plus petit bucket disponible après résolution
-des seules positions variables. Les chemins imbriqués et les index adaptatifs
-restent des extensions futures.
+des seules positions variables. Les prémisses sont compilées en arbres de
+matching et résolveurs d’index réutilisables. Les chemins imbriqués et les
+index adaptatifs restent des extensions futures.
 
 ### 7.2 Index adaptatifs
 
@@ -725,13 +747,12 @@ ActivationKey
 
 Après une suppression, les activations dont un fait support a disparu
 redeviennent éligibles. Après un ajout, une activation fondée sur
-`NOT EXISTS` peut cesser d’être éligible. Les retraits sont appliqués en lot
-aux index persistants. Un bloc négatif top-level composé d’une seule prémisse
-factuelle est surveillé directement par substitution : le fait ajouté expire
-uniquement les clés qu’il bloque. Une négation composée conserve une
-réinstanciation indexée exhaustive comme chemin de repli. Les caches de
-témoins existentiels sont valides pour un snapshot exact et vidés à toute
-mutation.
+`NOT EXISTS`, `COUNT` ou `UNIQUE` peut cesser d’être éligible. Chaque règle
+reçoit un `FactDelta` révisionné avec ajouts et retraits nets. Les watchers de
+requêtes sont indexés par leur signature résolue et ne visitent que les
+corrélations compatibles. Les blocs factuels simples mettent à jour leur
+compteur et leur premier témoin directement ; les blocs composés conservent un
+recalcul compilé paresseux comme chemin de repli.
 
 ### 8.4 Groupes, sessions et modes de contrôle
 
@@ -1125,8 +1146,8 @@ Le cœur initial doit rester déterministe et symbolique.
 Le Sudoku avancé sert de banc d’essai pour décider ces ajouts à partir de
 besoins observés :
 
-- p7 et motifs de type X-Wing peuvent motiver `COUNT`, `COLLECT` ou des
-  ensembles finis ;
+- p7 et motifs de type X-Wing utiliseront d’abord `COUNT`/`UNIQUE` et peuvent
+  encore motiver `COLLECT` ou des ensembles finis ;
 - coloriage et chaînes peuvent motiver graphes temporaires et symboles frais ;
 - hypothèses et chaînes forcées peuvent motiver des contextes isolés et du
   retour arrière.
@@ -1146,6 +1167,9 @@ besoins observés :
 7. Mémoire mutable, événements, `EXISTS` et `NOT EXISTS` corrélés.
 8. `TechniquePlan` et cas d’acceptation Sudoku p1–p6.
 9. Cas Spinoza systématique exécutable et atlas de preuves.
+10. Plans compilés, cadre mutable, deltas de suppression, compteurs,
+    watchers et mémoires partielles bornées.
+11. Agrégats corrélés `COUNT` et `UNIQUE`, avec oracle différentiel.
 
 ### Travail documentaire historique encore ouvert
 
@@ -1169,10 +1193,10 @@ besoins observés :
 ### Palier Sudoku avancé
 
 1. Implémenter p7 comme prochain oracle fonctionnel.
-2. Mesurer si les règles exigent réellement `COUNT`, `COLLECT` ou des
-   combinaisons finies.
-3. Introduire uniquement les abstractions générales justifiées par plusieurs
-   domaines.
+2. Utiliser d’abord `COUNT` et `UNIQUE`, désormais disponibles, puis mesurer
+   si `COLLECT` ou des combinaisons finies sont réellement nécessaires.
+3. Introduire uniquement les abstractions supplémentaires justifiées par
+   plusieurs domaines.
 4. Aborder ensuite triples, Swordfish, coloriage, chaînes et rectangle unique
    par paliers indépendants.
 

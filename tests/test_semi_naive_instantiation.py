@@ -1,5 +1,6 @@
 from snarky import (
     Fact,
+    FactDelta,
     ForwardEngine,
     IndexedInstantiationStrategy,
     SemiNaiveInstantiationStrategy,
@@ -138,3 +139,42 @@ def test_compound_indexes_intersect_two_bound_triple_positions() -> None:
 
     assert len(activations) == 1
     assert strategy.metrics.match_attempts == 1
+
+
+def test_bounded_partial_join_memory_updates_from_both_delta_kinds() -> None:
+    rule = parse_rules(
+        """
+        RULE combine
+        WHEN
+            ($item left $left)
+            ($item right $right)
+        THEN
+            ADD ($left paired_with $right)
+        END
+        """
+    )[0]
+    left = Fact(parse_term("(node left a)"))
+    first_right = Fact(parse_term("(node right b1)"))
+    second_right = Fact(parse_term("(node right b2)"))
+    strategy = IndexedInstantiationStrategy(partial_join_limit=100)
+
+    initial = (left, first_right)
+    first = strategy.instantiate(rule, initial)
+    with_addition = strategy.instantiate(
+        rule,
+        (*initial, second_right),
+        FactDelta(added=(second_right,), revision=1),
+    )
+    strategy.invalidate(frozenset((first_right,)))
+    after_removal = strategy.instantiate(
+        rule,
+        (left, second_right),
+        FactDelta(removed=frozenset((first_right,)), revision=2),
+    )
+
+    assert len(first) == 1
+    assert len(with_addition) == 2
+    assert len(after_removal) == 1
+    assert after_removal[0].premise_facts == (left, second_right)
+    assert strategy.metrics.partial_join_builds == 1
+    assert strategy.metrics.partial_join_updates == 2

@@ -10,12 +10,20 @@ from typing import Protocol
 from ..actions import AddFact, Let, RemoveFact
 from ..facts import Fact
 from ..instantiation import (
+    FactDelta,
     IndexedInstantiationStrategy,
     InstantiationStrategy,
     SemiNaiveInstantiationStrategy,
 )
 from ..matching import PatternMatcher
-from ..premises import ExistsPremise, FactPremise, NotExistsPremise, Premise
+from ..premises import (
+    CountPremise,
+    ExistsPremise,
+    FactPremise,
+    NotExistsPremise,
+    Premise,
+    UniquePremise,
+)
 from ..rules import Rule, RuleGroup
 from ..stores.naive import NaiveFactStore
 from ..substitutions import EMPTY_SUBSTITUTION, Substitution
@@ -156,7 +164,7 @@ class InferenceSession:
         self._fired_activation_total = 0
         self._derivations: list[Derivation] = []
         self._events: list[InferenceEvent] = []
-        self._previous_fact_counts: dict[tuple[str, str], int] = {}
+        self._previous_event_counts: dict[tuple[str, str], int] = {}
         self._groups: dict[str, RuleGroup] = {}
         self._cycles = 0
 
@@ -234,13 +242,17 @@ class InferenceSession:
             for rule in group.rules:
                 facts_snapshot = self._store.facts
                 state_key = (group.name, rule.name)
-                previous_count = self._previous_fact_counts.get(state_key)
+                previous_count = self._previous_event_counts.get(state_key)
                 delta = (
                     None
                     if previous_count is None
-                    else facts_snapshot[previous_count:]
+                    else _fact_delta(
+                        tuple(self._events[previous_count:]),
+                        facts_snapshot,
+                        revision=len(self._events),
+                    )
                 )
-                self._previous_fact_counts[state_key] = len(facts_snapshot)
+                self._previous_event_counts[state_key] = len(self._events)
                 for activation in self.strategy.instantiate(
                     rule,
                     facts_snapshot,
@@ -388,7 +400,6 @@ class InferenceSession:
             )
 
         if removed:
-            self._previous_fact_counts.clear()
             absent_after_activation = frozenset(
                 fact for fact in removed if fact not in self._store
             )
@@ -601,6 +612,14 @@ def _negative_fact_premises(
                     inside_negative=inside_negative,
                 )
             )
+            continue
+        if isinstance(premise, (CountPremise, UniquePremise)):
+            dependencies.extend(
+                _negative_fact_premises(
+                    premise.premises,
+                    inside_negative=True,
+                )
+            )
     return tuple(dependencies)
 
 
@@ -616,6 +635,14 @@ def _negative_dependency_plan(
         if isinstance(premise, ExistsPremise):
             complex_dependencies.extend(
                 _negative_fact_premises(premise.premises)
+            )
+            continue
+        if isinstance(premise, (CountPremise, UniquePremise)):
+            complex_dependencies.extend(
+                _negative_fact_premises(
+                    premise.premises,
+                    inside_negative=True,
+                )
             )
             continue
         if not isinstance(premise, NotExistsPremise):
@@ -639,4 +666,49 @@ def _substitution_from_key(key: ActivationKey) -> Substitution:
     return Substitution(
         (Variable(name), term)
         for name, term in key.substitution
+    )
+
+
+def _fact_delta(
+    events: tuple[InferenceEvent, ...],
+    current_facts: tuple[Fact, ...],
+    *,
+    revision: int,
+) -> FactDelta:
+    """Reduce a mutation journal slice to its net per-rule fact delta."""
+
+    initial_presence: dict[Fact, bool] = {}
+    final_presence: dict[Fact, bool] = {}
+    removed_then_added: set[Fact] = set()
+    for event in events:
+        if event.fact not in initial_presence:
+            initial_presence[event.fact] = (
+                event.kind is FactMutationKind.REMOVE
+            )
+        elif (
+            event.kind is FactMutationKind.ADD
+            and initial_presence[event.fact]
+            and not final_presence[event.fact]
+        ):
+            removed_then_added.add(event.fact)
+        final_presence[event.fact] = event.kind is FactMutationKind.ADD
+    added_set = {
+        fact
+        for fact, present in final_presence.items()
+        if present and (
+            not initial_presence[fact] or fact in removed_then_added
+        )
+    }
+    removed = frozenset(
+        fact
+        for fact, present in final_presence.items()
+        if (
+            (not present and initial_presence[fact])
+            or fact in removed_then_added
+        )
+    )
+    return FactDelta(
+        added=tuple(fact for fact in current_facts if fact in added_set),
+        removed=removed,
+        revision=revision,
     )

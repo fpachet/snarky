@@ -2,9 +2,9 @@ GROUP validate_state
     RULE detect_cell_without_candidate
     WHEN
         ($cell row $row)
-        NOT EXISTS
+        COUNT == 0
             ($cell candidate $value)
-        END_EXISTS
+        END_COUNT
         NOT EXISTS
             (sudoku state inconsistent)
         END_EXISTS

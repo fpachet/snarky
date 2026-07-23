@@ -20,6 +20,8 @@ Elle utilise :
 - `FactExists` pour arrêter un groupe lorsqu’un motif apparaît ;
 - `REMOVE` et le journal d’`InferenceEvent` pour les éliminations ;
 - `NOT EXISTS` corrélé pour reconnaître singles, verrouillages et paires ;
+- `COUNT` et `UNIQUE` corrélés, adossés aux compteurs incrémentaux, pour les
+  cardinalités de candidats, la validation et les paires ;
 - `TechniquePlan` pour essayer les techniques par difficulté croissante et
   recommencer au début après chaque groupe efficace.
 
@@ -138,7 +140,7 @@ La baseline mesurée et les compteurs algorithmiques sont documentés dans
 
 ## Prochain jalon
 
-Le prochain palier commence à p7 avec X-Wing. Il servira à décider, sur
-mesures, si Snarky doit recevoir des agrégats `COUNT`/`COLLECT` ou une
-abstraction générale d’ensembles finis avant les techniques de coloriage et
-de chaînes.
+Le prochain palier commence à p7 avec X-Wing. `COUNT` et `UNIQUE` sont
+désormais disponibles ; p7 servira à décider, sur mesures, si `COLLECT` ou une
+abstraction générale d’ensembles finis est réellement nécessaire avant les
+techniques de coloriage et de chaînes.

@@ -191,14 +191,15 @@ groupes, voir respectivement
 
 Le benchmark Fibonacci explicite mesure un passage de 7,142 s à 0,053 s pour
 `F(10)` et de 27,914 s à 3,338 s pour `F(17)` sur la machine de développement.
-Le benchmark Sudoku mesure désormais p1 à 0,523 s, p5 à 1,504 s et p6 à
-1,462 s en médiane ; les index composés et les bloqueurs négatifs ciblés
-réduisent de 71 à 75 % les matchings de la baseline précédente. Les commandes
-reproductibles et les compteurs sont décrits dans
+Le benchmark Sudoku mesure désormais p1 à 0,323 s, p5 à 0,720 s et p6 à
+0,639 s en médiane. Les plans compilés, deltas de suppression, compteurs
+négatifs et mémoires incrémentales réduisent encore de 33 à 50 % les matchings
+de la passe précédente. Les commandes reproductibles et les compteurs sont
+décrits dans
 [`benchmarks/README.md`](benchmarks/README.md).
 
-La suite complète compte 273 tests et s’exécute en 29,51 s sur cette même
-machine, contre 46,88 s avant cette passe d’optimisation.
+La suite complète compte 281 tests et s’exécute en 26,05 s sur cette même
+machine, contre 46,88 s avant les deux dernières passes d’optimisation.
 
 ## Base de debug initiale
 
@@ -294,14 +295,14 @@ une trace rejouable.
    provenance.
 14. Exécuter les benchmarks externes adaptés, puis ajouter des cas de test
     dédiés au couplage entre règles et contraintes.
-15. Aborder le Sudoku avancé à partir de p7, en n’ajoutant `COUNT`, `COLLECT`,
+15. Aborder le Sudoku avancé à partir de p7. ~~Ajouter les agrégats généraux
+    `COUNT` et `UNIQUE` sur les compteurs incrémentaux.~~ N’ajouter `COLLECT`,
     ensembles finis, symboles frais ou hypothèses que lorsque plusieurs cas
     d’usage en justifient la généralité.
-16. ~~Optimiser, à partir du profil Sudoku, les index composés, le matching
-    ground, les substitutions, les caches existentiels et l’invalidation
-    directe des bloqueurs négatifs simples.~~ Poursuivre avec les activations
-    paresseuses, la planification générale des jointures et la sélection des
-    règles positives candidates.
+16. ~~Compiler les prémisses, utiliser un cadre mutable interne, propager les
+    deltas de suppression, maintenir les compteurs négatifs et conserver les
+    jointures partielles sous budget.~~ Poursuivre avec les activations
+    paresseuses et la sélection générale des règles positives candidates.
 
 La cible est Python 3.12 ou ultérieur, avec `pytest`, `ruff`, `mypy` et des
 tests différentiels. L’ajout de tests génératifs fondés sur Hypothesis reste

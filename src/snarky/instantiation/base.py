@@ -9,10 +9,12 @@ from typing import Protocol
 from ..facts import Fact
 from ..premises import (
     ComparisonPremise,
+    CountPremise,
     ExistsPremise,
     FactPremise,
     NotExistsPremise,
     Premise,
+    UniquePremise,
 )
 from ..rules import Rule
 from ..substitutions import Substitution
@@ -27,6 +29,19 @@ class Activation:
     premise_facts: tuple[Fact, ...]
 
 
+@dataclass(frozen=True, slots=True)
+class FactDelta:
+    """Net working-memory changes since one rule's previous evaluation."""
+
+    added: tuple[Fact, ...] = ()
+    removed: frozenset[Fact] = frozenset()
+    revision: int = 0
+
+    @property
+    def changed(self) -> bool:
+        return bool(self.added or self.removed)
+
+
 @dataclass(slots=True)
 class InstantiationMetrics:
     """Cumulative counters collected by one strategy instance."""
@@ -39,6 +54,13 @@ class InstantiationMetrics:
     index_removals: int = 0
     witness_cache_hits: int = 0
     witness_cache_misses: int = 0
+    activation_cache_hits: int = 0
+    activation_cache_filtered: int = 0
+    witness_cache_invalidations: int = 0
+    query_counter_updates: int = 0
+    partial_join_builds: int = 0
+    partial_join_updates: int = 0
+    partial_join_bypasses: int = 0
 
     def reset(self) -> None:
         """Reset all counters before another measured run."""
@@ -51,6 +73,13 @@ class InstantiationMetrics:
         self.index_removals = 0
         self.witness_cache_hits = 0
         self.witness_cache_misses = 0
+        self.activation_cache_hits = 0
+        self.activation_cache_filtered = 0
+        self.witness_cache_invalidations = 0
+        self.query_counter_updates = 0
+        self.partial_join_builds = 0
+        self.partial_join_updates = 0
+        self.partial_join_bypasses = 0
 
 
 class InstantiationStrategy(Protocol):
@@ -62,7 +91,7 @@ class InstantiationStrategy(Protocol):
         self,
         rule: Rule,
         facts: tuple[Fact, ...],
-        delta: tuple[Fact, ...] | None = None,
+        delta: FactDelta | tuple[Fact, ...] | None = None,
     ) -> tuple[Activation, ...]: ...
 
     def invalidate(self, removed: frozenset[Fact] = frozenset()) -> None:
@@ -115,7 +144,15 @@ def _variables_in_premises(
         elif isinstance(premise, ComparisonPremise):
             variables.update(variables_in(premise.left))
             variables.update(variables_in(premise.right))
-        elif isinstance(premise, (ExistsPremise, NotExistsPremise)):
+        elif isinstance(
+            premise,
+            (
+                ExistsPremise,
+                NotExistsPremise,
+                CountPremise,
+                UniquePremise,
+            ),
+        ):
             variables.update(_variables_in_premises(premise.premises))
         else:
             raise TypeError(f"unsupported premise: {premise!r}")

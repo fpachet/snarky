@@ -205,8 +205,9 @@ des non-opérations, de la provenance et des modes de `RuleGroup`.
 
 ### Phase 2 — Réfaction et instanciation après mutation
 
-Les index actuels ne savent que s’étendre. La première version mutable doit
-privilégier la correction :
+La première version mutable privilégiait la correction et reconstruisait
+après retrait. Cette phase est désormais dépassée par l’infrastructure
+incrémentale :
 
 1. invalider et reconstruire l’index d’une règle après un retrait pertinent ;
 2. recalculer exhaustivement les activations dans l’oracle naïf ;
@@ -216,9 +217,9 @@ privilégier la correction :
 5. couvrir les sessions qui alternent plusieurs groupes ;
 6. ajouter des tests différentiels entre stratégies naïve et indexée.
 
-Une optimisation incrémentale des suppressions viendra seulement après les
-mesures Sudoku. Pour p1–p6, reconstruire un index sur quelques centaines de
-faits reste acceptable.
+Les suppressions sont maintenant transmises dans `FactDelta`, appliquées aux
+index en lot et propagées aux compteurs, watchers et mémoires de jointure.
+La reconstruction exhaustive reste le repli sûr en cas de désynchronisation.
 
 Critère de sortie : les stratégies produisent exactement les mêmes mutations
 et le même journal sur des séquences contenant ajouts, retraits et
@@ -323,11 +324,11 @@ Chaque technique doit exister sous forme de règles déclaratives séparées pou
 les lignes, colonnes et boîtes. Les alternatives simples peuvent être
 exprimées par plusieurs règles plutôt que par un opérateur `OR` prématuré.
 
-Après les paires, mesurer la verbosité et le coût. Un agrégat général
-`COUNT`/`COLLECT` ne sera ajouté que si les règles ou les performances montrent
-un besoin réel. Cela évite une fonctionnalité conçue uniquement autour du
-Sudoku tout en laissant une voie claire vers les triples et les motifs
-avancés.
+Après les paires, la mesure a justifié les agrégats généraux `COUNT` et
+`UNIQUE`. Ils sont maintenant implémentés au-dessus des compteurs corrélés et
+utilisés par la topologie, la validation et les règles de paires. `COLLECT`
+reste différé jusqu’à ce qu’un cas avancé exige réellement de matérialiser un
+ensemble.
 
 Critère de sortie : p1 à p6 sont toutes résolues, et désactiver le dernier
 groupe requis laisse chaque grille correspondante dans l’état `STUCK`.
@@ -356,8 +357,10 @@ chaque retrait est justifié par des faits présents juste avant l’étape.
 2. Comparer naïf et indexé sur les mêmes grilles et journaux.
 3. Mesurer activations, tentatives de matching, reconstructions d’index et
    mémoire maximale.
-4. Ajouter un index de règles candidates réveillées par un ajout ou retrait.
-5. Fixer des baselines reproductibles pour p1 à p6.
+4. ~~Propager un delta net d’ajouts et retraits, indexer les watchers négatifs
+   et conserver les jointures partielles sous budget.~~
+5. ~~Fixer des baselines reproductibles pour p1 à p6.~~
+6. Ajouter l’index général des règles positives candidates.
 
 Critère de sortie : aucun écart sémantique entre stratégies et absence de
 régression mesurable non expliquée.
@@ -366,8 +369,8 @@ régression mesurable non expliquée.
 
 Les niveaux p7 à p18 doivent être abordés comme de nouveaux paliers :
 
-- X-Wing, triples et Swordfish peuvent motiver `COUNT`, `COLLECT`, ensembles
-  ordonnés ou combinaisons finies ;
+- X-Wing, triples et Swordfish utiliseront d’abord `COUNT`/`UNIQUE` et peuvent
+  encore motiver `COLLECT`, ensembles ordonnés ou combinaisons finies ;
 - coloriage et chaînes demandent des identités temporaires, des graphes de
   dépendance et éventuellement des symboles frais ;
 - chaînes forcées et hypothèses demandent des contextes isolés, du retour

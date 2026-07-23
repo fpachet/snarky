@@ -6,15 +6,18 @@ from ..facts import Fact
 from ..matching import PatternMatcher
 from ..premises import (
     ComparisonPremise,
+    CountPremise,
     ExistsPremise,
     FactPremise,
     NotExistsPremise,
     Premise,
+    UniquePremise,
 )
 from ..rules import Rule
 from ..substitutions import EMPTY_SUBSTITUTION, Substitution
 from .base import (
     Activation,
+    FactDelta,
     InstantiationMetrics,
     WitnessCache,
     witness_cache_key,
@@ -32,7 +35,7 @@ class NaiveInstantiationStrategy:
         self,
         rule: Rule,
         facts: tuple[Fact, ...],
-        delta: tuple[Fact, ...] | None = None,
+        delta: FactDelta | tuple[Fact, ...] | None = None,
     ) -> tuple[Activation, ...]:
         del delta
         activations: list[Activation] = []
@@ -98,6 +101,24 @@ class NaiveInstantiationStrategy:
                     premise_index + 1,
                     substitution,
                     (*supports, *(witness or ())),
+                    output,
+                    witness_cache,
+                )
+            return
+        if isinstance(premise, (CountPremise, UniquePremise)):
+            witnesses = self._all_witnesses(
+                premise.premises,
+                facts,
+                substitution,
+                witness_cache,
+            )
+            if _aggregate_accepts(premise, len(witnesses)):
+                self._extend(
+                    rule,
+                    facts,
+                    premise_index + 1,
+                    substitution,
+                    (*supports, *_aggregate_supports(witnesses)),
                     output,
                     witness_cache,
                 )
@@ -186,6 +207,23 @@ class NaiveInstantiationStrategy:
                 (*supports, *(nested or ())),
                 witness_cache,
             )
+        if isinstance(premise, (CountPremise, UniquePremise)):
+            witnesses = self._all_witnesses(
+                premise.premises,
+                facts,
+                substitution,
+                witness_cache,
+            )
+            if not _aggregate_accepts(premise, len(witnesses)):
+                return None
+            return self._first_witness_from(
+                premises,
+                facts,
+                premise_index + 1,
+                substitution,
+                (*supports, *_aggregate_supports(witnesses)),
+                witness_cache,
+            )
         if not isinstance(premise, FactPremise):
             raise TypeError(f"unsupported premise: {premise!r}")
         for fact in facts:
@@ -205,3 +243,126 @@ class NaiveInstantiationStrategy:
             if witness is not None:
                 return witness
         return None
+
+    def _all_witnesses(
+        self,
+        premises: tuple[Premise, ...],
+        facts: tuple[Fact, ...],
+        substitution: Substitution,
+        witness_cache: WitnessCache,
+    ) -> tuple[tuple[Fact, ...], ...]:
+        output: list[tuple[Fact, ...]] = []
+        self._collect_witnesses_from(
+            premises,
+            facts,
+            premise_index=0,
+            substitution=substitution,
+            supports=(),
+            witness_cache=witness_cache,
+            output=output,
+        )
+        return tuple(output)
+
+    def _collect_witnesses_from(
+        self,
+        premises: tuple[Premise, ...],
+        facts: tuple[Fact, ...],
+        premise_index: int,
+        substitution: Substitution,
+        supports: tuple[Fact, ...],
+        witness_cache: WitnessCache,
+        output: list[tuple[Fact, ...]],
+    ) -> None:
+        if premise_index == len(premises):
+            output.append(supports)
+            return
+        premise = premises[premise_index]
+        if isinstance(premise, ComparisonPremise):
+            if premise.evaluate(substitution):
+                self._collect_witnesses_from(
+                    premises,
+                    facts,
+                    premise_index + 1,
+                    substitution,
+                    supports,
+                    witness_cache,
+                    output,
+                )
+            return
+        if isinstance(premise, (ExistsPremise, NotExistsPremise)):
+            nested = self._first_witness(
+                premise.premises,
+                facts,
+                substitution,
+                witness_cache,
+            )
+            succeeds = nested is not None
+            if isinstance(premise, NotExistsPremise):
+                succeeds = not succeeds
+                nested = ()
+            if succeeds:
+                self._collect_witnesses_from(
+                    premises,
+                    facts,
+                    premise_index + 1,
+                    substitution,
+                    (*supports, *(nested or ())),
+                    witness_cache,
+                    output,
+                )
+            return
+        if isinstance(premise, (CountPremise, UniquePremise)):
+            witnesses = self._all_witnesses(
+                premise.premises,
+                facts,
+                substitution,
+                witness_cache,
+            )
+            if _aggregate_accepts(premise, len(witnesses)):
+                self._collect_witnesses_from(
+                    premises,
+                    facts,
+                    premise_index + 1,
+                    substitution,
+                    (*supports, *_aggregate_supports(witnesses)),
+                    witness_cache,
+                    output,
+                )
+            return
+        if not isinstance(premise, FactPremise):
+            raise TypeError(f"unsupported premise: {premise!r}")
+        for fact in facts:
+            self.metrics.candidate_facts += 1
+            self.metrics.match_attempts += 1
+            matched = premise.match(fact, substitution, self.matcher)
+            if matched is not None:
+                self._collect_witnesses_from(
+                    premises,
+                    facts,
+                    premise_index + 1,
+                    matched,
+                    (*supports, fact),
+                    witness_cache,
+                    output,
+                )
+
+
+def _aggregate_accepts(
+    premise: CountPremise | UniquePremise,
+    count: int,
+) -> bool:
+    if isinstance(premise, UniquePremise):
+        return count == 1
+    return premise.accepts(count)
+
+
+def _aggregate_supports(
+    witnesses: tuple[tuple[Fact, ...], ...],
+) -> tuple[Fact, ...]:
+    return tuple(
+        dict.fromkeys(
+            fact
+            for witness in witnesses
+            for fact in witness
+        )
+    )

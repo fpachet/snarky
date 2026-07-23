@@ -3,8 +3,17 @@
 from __future__ import annotations
 
 from collections.abc import Iterable, Iterator, Mapping
+from typing import Protocol
 
 from .terms import Term, Triple, Variable
+
+
+class TermBindings(Protocol):
+    """Minimal substitution interface consumed while evaluating premises."""
+
+    def __contains__(self, key: object) -> bool: ...
+
+    def apply(self, term: Term) -> Term: ...
 
 
 class Substitution(Mapping[Variable, Term]):
@@ -129,3 +138,73 @@ class Substitution(Mapping[Variable, Term]):
 
 
 EMPTY_SUBSTITUTION = Substitution()
+
+
+class BindingFrame:
+    """Mutable backtracking frame used only inside compiled instantiation.
+
+    Public results are frozen into :class:`Substitution`; the trail makes
+    branch rollback constant in the number of bindings introduced by that
+    branch.
+    """
+
+    __slots__ = ("_bindings", "_trail")
+
+    def __init__(
+        self,
+        bindings: Iterable[tuple[Variable, Term]] = (),
+    ) -> None:
+        self._bindings: dict[Variable, Term] = {}
+        self._trail: list[Variable] = []
+        for variable, term in bindings:
+            if not self.bind_ground(variable, term):
+                raise ValueError(f"conflicting binding for ${variable.name}")
+
+    def __contains__(self, key: object) -> bool:
+        return key in self._bindings
+
+    def checkpoint(self) -> int:
+        return len(self._trail)
+
+    def rollback(self, checkpoint: int) -> None:
+        while len(self._trail) > checkpoint:
+            variable = self._trail.pop()
+            del self._bindings[variable]
+
+    def bind_ground(self, variable: Variable, term: Term) -> bool:
+        existing = self._bindings.get(variable)
+        if existing is not None:
+            return existing == term
+        self._bindings[variable] = term
+        self._trail.append(variable)
+        return True
+
+    def value(self, variable: Variable) -> Term | None:
+        return self._bindings.get(variable)
+
+    def apply(self, term: Term) -> Term:
+        if isinstance(term, Variable):
+            return self._bindings.get(term, term)
+        if isinstance(term, Triple):
+            return Triple(
+                self.apply(term.subject),
+                self.apply(term.relation),
+                self.apply(term.object),
+            )
+        return term
+
+    def freeze(self) -> Substitution:
+        return Substitution(
+            (variable, self._bindings[variable])
+            for variable in self._trail
+        )
+
+    def projected_key(
+        self,
+        variables: tuple[Variable, ...],
+    ) -> tuple[tuple[str, Term], ...]:
+        return tuple(
+            (variable.name, self._bindings[variable])
+            for variable in variables
+            if variable in self._bindings
+        )

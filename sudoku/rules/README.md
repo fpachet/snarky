@@ -27,6 +27,9 @@ Chaque fichier contient des blocs `GROUP ... END_GROUP` lus par
 - une suppression de candidat doit produire un événement explicatif ;
 - une règle de technique ne doit ni imprimer ni piloter le groupe suivant ;
 - les variantes ligne, colonne et boîte restent des règles distinctes ;
+- `COUNT` exprime une cardinalité locale et `UNIQUE` sa forme exacte-un ;
+- les règles de topologie, validation et paires utilisent ces agrégats
+  généraux lorsque cela remplace une négation énumérative ;
 - les règles sont ordonnées de manière déterministe dans chaque groupe.
 
 La salience CLIPS n’est pas traduite. Sa fonction est remplacée par l’ordre
