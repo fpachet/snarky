@@ -1,0 +1,75 @@
+schema_version: 1
+status: planned_non_executable
+scope: clips_grid3x3_p1_to_p6
+required_engine_features:
+  available:
+    - rule_groups
+    - persistent_inference_sessions
+    - comparisons
+    - provenance
+  missing:
+    - remove_fact
+    - mutation_events
+    - mutation_aware_refraction
+    - correlated_not_exists
+
+groups:
+  - name: derive_solved_cells
+    purpose: Materialize cells that currently have exactly one candidate.
+    rules:
+      - mark_single_candidate_cell
+
+  - name: naked_singles
+    clips_rank: 1
+    first_required_by: grid3x3-p1
+    rules:
+      - eliminate_single_value_from_row_peers
+      - eliminate_single_value_from_column_peers
+      - eliminate_single_value_from_box_peers
+
+  - name: hidden_singles
+    clips_rank: 2
+    first_required_by: grid3x3-p2
+    rules:
+      - keep_unique_value_in_row
+      - keep_unique_value_in_column
+      - keep_unique_value_in_box
+
+  - name: locked_candidates_single_line
+    clips_rank: 3
+    first_required_by: grid3x3-p3
+    rules:
+      - eliminate_box_locked_value_from_row
+      - eliminate_box_locked_value_from_column
+
+  - name: locked_candidates_multiple_lines
+    clips_rank: 4
+    first_required_by: grid3x3-p4
+    rules:
+      - eliminate_row_locked_value_from_box
+      - eliminate_column_locked_value_from_box
+
+  - name: naked_pairs
+    clips_rank: 5
+    first_required_by: grid3x3-p5
+    rules:
+      - eliminate_naked_pair_values_from_row
+      - eliminate_naked_pair_values_from_column
+      - eliminate_naked_pair_values_from_box
+
+  - name: hidden_pairs
+    clips_rank: 6
+    first_required_by: grid3x3-p6
+    rules:
+      - eliminate_other_values_from_hidden_pair_in_row
+      - eliminate_other_values_from_hidden_pair_in_column
+      - eliminate_other_values_from_hidden_pair_in_box
+
+  - name: validate_state
+    purpose: Detect solved, stuck, and inconsistent states.
+    rules:
+      - detect_cell_without_candidate
+      - detect_duplicate_solved_value_in_row
+      - detect_duplicate_solved_value_in_column
+      - detect_duplicate_solved_value_in_box
+      - detect_solved_grid

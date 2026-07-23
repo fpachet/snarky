@@ -56,7 +56,10 @@ résolution de contraintes. Une division par zéro ou un opérande invalide est
 une erreur d'exécution explicite. Voir [`arithmetic_actions.md`](arithmetic_actions.md).
 
 Les mises à jour, suppressions, négations par défaut et créations de symboles
-frais restent différées.
+frais restent différées. Leur sémantique envisagée pour le premier cas d’étude
+est détaillée dans le
+[plan Sudoku](../sudoku/docs/implementation_plan.md), sans être présentée comme
+déjà disponible.
 
 ## Instanciation et point fixe
 
@@ -83,20 +86,48 @@ franchies par cette réorganisation. Les faits prémisses sont finalement remis
 dans leur ordre textuel et les activations dans l'ordre d'insertion naïf. Cette
 discipline préserve les faits, les dérivations, les cycles et la provenance.
 
-Une activation est identifiée par `(règle, substitution des prémisses)`. Les
-liaisons locales calculées par `LET` sont déterministes et ne changent pas son
-identité. La réfraction
+Dans une session persistante, une activation est identifiée par
+`(groupe, règle, substitution des prémisses)`. Les liaisons locales calculées
+par `LET` sont déterministes et ne changent pas son identité. La réfraction
 empêche son second déclenchement. Les actions de toutes les nouvelles
 activations sont appliquées jusqu’à ce qu’un cycle n’ajoute plus aucun fait.
 Sur une base initiale finie et des règles monotones sans création de termes, ce
 processus termine. Des limites explicites de cycles et de faits protègent les
 exécutions futures qui étendront ce périmètre.
 
+## Groupes de règles et sessions persistantes
+
+Un `RuleGroup` est un ensemble nommé de règles dont les noms sont uniques. Une
+`InferenceSession` conserve la mémoire de travail, les deltas semi-naïfs, la
+réfraction et la provenance entre plusieurs appels de groupes.
+
+Quatre modes sont disponibles :
+
+- `SATURATE`, jusqu’au point fixe ;
+- `ONE_CYCLE`, pour un balayage ordonné des règles ;
+- `FIRST_CHANGE`, jusqu’à la première activation ajoutant un fait ;
+- `UNTIL`, jusqu’à une condition déclarative ou au point fixe.
+
+Une règle située plus loin dans un groupe voit les faits ajoutés plus tôt
+pendant le même cycle. `FIRST_CHANGE` et `UNTIL` ne coupent jamais une
+activation entre deux actions. `FactExists` fournit la première condition
+d’arrêt déclarative en testant un motif de fait avant l’exécution, puis après
+chaque activation complète.
+
+Un nom de groupe désigne une définition stable pendant une session. Réutiliser
+le groupe conserve sa réfraction ; présenter une autre définition sous le
+même nom est une erreur. `ForwardEngine(rules).run(facts)` reste le raccourci
+compatible : il crée une session neuve et sature un groupe implicite nommé
+`default`.
+
+La syntaxe et des exemples complets figurent dans
+[`rule_groups.md`](rule_groups.md).
+
 ## Provenance
 
 Chaque fait initial a une profondeur de preuve nulle. Chaque fait dérivé
-enregistre la règle, la substitution, les faits prémisses, le cycle et une
-profondeur égale à `1 + max(profondeur des prémisses)`. Plusieurs dérivations
-peuvent être conservées pour un même fait ; `proof_depth` renvoie la profondeur
-minimale connue. Pour un fait produit après `LET`, la substitution enregistrée
-inclut les liaisons arithmétiques locales.
+enregistre le groupe, la règle, la substitution, les faits prémisses, le cycle
+et une profondeur égale à `1 + max(profondeur des prémisses)`. Plusieurs
+dérivations peuvent être conservées pour un même fait ; `proof_depth` renvoie
+la profondeur minimale connue. Pour un fait produit après `LET`, la
+substitution enregistrée inclut les liaisons arithmétiques locales.

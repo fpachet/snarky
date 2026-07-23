@@ -1,7 +1,18 @@
 """Public API of the Snarky inference engine."""
 
 from .actions import Action, AddFact, Let, add, let
-from .engine import EngineLimits, ForwardEngine, InferenceLimitError, RunResult
+from .engine import (
+    EngineLimits,
+    FactExists,
+    ForwardEngine,
+    GroupExecutionMode,
+    GroupRunResult,
+    GroupStopReason,
+    InferenceLimitError,
+    InferenceSession,
+    RunResult,
+    StopCondition,
+)
 from .expressions import (
     ArithmeticEvaluationError,
     BinaryArithmeticExpression,
@@ -20,9 +31,15 @@ from .instantiation import (
     SemiNaiveInstantiationStrategy,
 )
 from .matching import PatternMatcher
-from .parser import ParseError, parse_arithmetic_expression, parse_rules, parse_term
+from .parser import (
+    ParseError,
+    parse_arithmetic_expression,
+    parse_rule_groups,
+    parse_rules,
+    parse_term,
+)
 from .premises import ComparisonOperator, ComparisonPremise, FactPremise
-from .rules import Rule, when
+from .rules import Rule, RuleGroup, when
 from .substitutions import EMPTY_SUBSTITUTION, Substitution
 from .terms import (
     Atom,
@@ -50,9 +67,14 @@ __all__ = [
     "ComparisonPremise",
     "EngineLimits",
     "Fact",
+    "FactExists",
     "FactPremise",
     "ForwardEngine",
+    "GroupExecutionMode",
+    "GroupRunResult",
+    "GroupStopReason",
     "InferenceLimitError",
+    "InferenceSession",
     "IndexedInstantiationStrategy",
     "InstantiationMetrics",
     "InstantiationStrategy",
@@ -64,9 +86,11 @@ __all__ = [
     "PatternMatcher",
     "Proposition",
     "Rule",
+    "RuleGroup",
     "RunResult",
     "SemiNaiveInstantiationStrategy",
     "Status",
+    "StopCondition",
     "Substitution",
     "Term",
     "Triple",
@@ -79,6 +103,7 @@ __all__ = [
     "is_ground",
     "let",
     "parse_arithmetic_expression",
+    "parse_rule_groups",
     "parse_rules",
     "parse_term",
     "render_term",

@@ -33,6 +33,23 @@ class Rule:
         object.__setattr__(self, "metadata", MappingProxyType(dict(self.metadata)))
 
 
+@dataclass(frozen=True, slots=True)
+class RuleGroup:
+    """A named set of rules that can be executed as one control unit."""
+
+    name: str
+    rules: tuple[Rule, ...]
+
+    def __post_init__(self) -> None:
+        if not self.name:
+            raise ValueError("a rule group name cannot be empty")
+        rules = tuple(self.rules)
+        names = [rule.name for rule in rules]
+        if len(set(names)) != len(names):
+            raise ValueError(f"rule group {self.name!r} contains duplicate rule names")
+        object.__setattr__(self, "rules", rules)
+
+
 def when(entity: Term, status: Term = Status.VRAI) -> FactPremise:
     """Public convenience constructor for a positive fact premise."""
 

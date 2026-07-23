@@ -17,6 +17,7 @@ class Derivation:
     premises: tuple[Fact, ...]
     cycle: int
     proof_depth: int
+    rule_group: str = "default"
 
 
 class Provenance:
@@ -39,6 +40,7 @@ class Provenance:
         substitution: Substitution,
         premises: tuple[Fact, ...],
         cycle: int,
+        rule_group: str = "default",
     ) -> Derivation:
         depth = 1 + max((self.depth(premise) for premise in premises), default=0)
         derivation = Derivation(
@@ -48,6 +50,7 @@ class Provenance:
             premises,
             cycle,
             depth,
+            rule_group,
         )
         if derivation not in self._derivations[fact]:
             self._derivations[fact].append(derivation)

@@ -14,7 +14,7 @@ from .expressions import (
     UnaryArithmeticOperator,
 )
 from .premises import ComparisonOperator, ComparisonPremise, FactPremise, Premise
-from .rules import Rule
+from .rules import Rule, RuleGroup
 from .terms import Atom, Number, Status, Term, Triple, Variable
 
 
@@ -64,11 +64,48 @@ def parse_term(text: str) -> Term:
 def parse_rules(text: str) -> tuple[Rule, ...]:
     """Parse one or more ``RULE ... END`` definitions."""
 
-    lines = [
+    return _parse_rule_lines(_normalized_lines(text))
+
+
+def parse_rule_groups(text: str) -> tuple[RuleGroup, ...]:
+    """Parse named ``GROUP ... END_GROUP`` blocks containing rules."""
+
+    lines = _normalized_lines(text)
+    groups: list[RuleGroup] = []
+    position = 0
+    while position < len(lines):
+        header = lines[position].split(maxsplit=1)
+        if len(header) != 2 or header[0] != "GROUP":
+            raise ParseError(f"expected GROUP header, got {lines[position]!r}")
+        name = header[1]
+        position += 1
+        body: list[str] = []
+        while position < len(lines) and lines[position] != "END_GROUP":
+            if lines[position].startswith("GROUP "):
+                raise ParseError(f"group {name!r} contains a nested GROUP")
+            body.append(lines[position])
+            position += 1
+        if position >= len(lines):
+            raise ParseError(f"group {name!r} is missing END_GROUP")
+        position += 1
+        if any(group.name == name for group in groups):
+            raise ParseError(f"duplicate group name {name!r}")
+        try:
+            groups.append(RuleGroup(name, _parse_rule_lines(tuple(body))))
+        except ValueError as error:
+            raise ParseError(str(error)) from error
+    return tuple(groups)
+
+
+def _normalized_lines(text: str) -> tuple[str, ...]:
+    return tuple(
         line.strip()
         for line in text.splitlines()
         if line.strip() and not line.lstrip().startswith("#")
-    ]
+    )
+
+
+def _parse_rule_lines(lines: tuple[str, ...]) -> tuple[Rule, ...]:
     rules: list[Rule] = []
     position = 0
     while position < len(lines):

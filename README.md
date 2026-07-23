@@ -41,7 +41,10 @@ comparaisons de performance. Le cœur prend en charge
 les termes et triplets récursifs immuables, les variables dans toutes les
 positions, le matching orienté, l’unification bidirectionnelle séparée, les
 statuts explicites, le chaînage avant jusqu’au point fixe, la réfraction et la
-provenance avec profondeur de preuve.
+provenance avec profondeur de preuve. Des groupes de règles nommés peuvent
+désormais être appelés successivement dans une même session persistante, en
+saturation, pour un cycle, jusqu’au premier changement ou jusqu’à un motif de
+fait.
 
 Le DSL sait également exécuter des actions arithmétiques séquentielles `LET`
 dans la conclusion des règles. Cette fonctionnalité est une
@@ -83,6 +86,11 @@ Le contenu actuel comprend :
   de référence ;
 - [`docs/arithmetic_actions.md`](docs/arithmetic_actions.md), la syntaxe et la
   sémantique des liaisons arithmétiques séquentielles `LET` ;
+- [`docs/rule_groups.md`](docs/rule_groups.md), les sessions persistantes, la
+  syntaxe des groupes de règles et leurs différents modes d’appel ;
+- [`sudoku`](sudoku/README.md), le sous-projet autonome qui organise la base
+  de règles, les futurs jeux de test et le plan incrémental pour résoudre et
+  expliquer les niveaux essentiels de l’exemple Sudoku CLIPS ;
 - [`docs/optimization_plan.md`](docs/optimization_plan.md), le plan mesurable
   pour faire évoluer le moteur naïf vers des stratégies indexées, semi-naïves
   et centrées sur les contraintes ;
@@ -199,6 +207,21 @@ Pour reconstruire la sélection dans un dépôt propre :
 Le script vérifie les révisions et les sommes SHA-256, et refuse d’écraser un
 répertoire existant.
 
+## Projet Sudoku
+
+Le répertoire [`sudoku`](sudoku/README.md) isole le cas d’étude Sudoku du cœur
+du moteur et du corpus CLIPS original. Il contient :
+
+- le [catalogue de la base de règles](sudoku/rules/catalog.yaml) p1 à p6 ;
+- les conventions de représentation et l’état d’exécutabilité ;
+- la spécification des futures fixtures natives ;
+- le [plan d’implémentation](sudoku/docs/implementation_plan.md), avec un
+  critère d’acceptation pour chaque étape.
+
+La base est pour l’instant spécifiée mais non exécutable : les groupes et les
+sessions sont disponibles, tandis que `REMOVE` et `NOT EXISTS` corrélé restent
+à implémenter. Cette limite est affichée explicitement dans le sous-projet.
+
 ## Plan de développement
 
 1. Produire la reconstruction historique et documenter les questions
@@ -215,20 +238,22 @@ répertoire existant.
 8. ~~Ajouter des index persistants par règle et une évaluation semi-naïve
    pilotée par les faits nouveaux, avec ordre et provenance identiques au
    moteur naïf.~~
-9. Poursuivre les optimisations mesurées : activations paresseuses,
+9. ~~Ajouter des groupes de règles nommés, une mémoire de travail persistante
+   entre leurs appels et plusieurs modes de contrôle du chaînage avant.~~
+10. Poursuivre les optimisations mesurées : activations paresseuses,
    planification générale des jointures, sélection des règles candidates et
    optimisation des substitutions guidée par profilage.
-10. ~~Reproduire les démonstrations Spinoza P19, P21, P22 et P33, importer la
+11. ~~Reproduire les démonstrations Spinoza P19, P21, P22 et P33, importer la
     structure textuelle complète de l'Éthique III, puis rendre exécutables les
     59 propositions, les 48 définitions finales et la définition générale dans
     le modèle systématique.~~
-11. Ajouter une couche optionnelle de raisonnement par contraintes pour
+12. Ajouter une couche optionnelle de raisonnement par contraintes pour
    exprimer et résoudre des problèmes de satisfaction (CSP, SAT et variantes),
    notamment au moyen d’un adaptateur vers OR-Tools. Le moteur d’inférence
    devra pouvoir produire des contraintes, appeler le solveur, puis réinjecter
    les solutions et contradictions obtenues comme faits assortis de leur
    provenance.
-12. Exécuter les benchmarks externes adaptés, puis ajouter des cas de test
+13. Exécuter les benchmarks externes adaptés, puis ajouter des cas de test
     dédiés au couplage entre règles et contraintes.
 
 La cible est Python 3.12 ou ultérieur, avec `pytest`, `ruff`, `mypy` et des
