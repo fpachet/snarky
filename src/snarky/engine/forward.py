@@ -4,6 +4,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 from enum import StrEnum
+from functools import cache
 from typing import Protocol
 
 from ..actions import AddFact, Let, RemoveFact
@@ -388,13 +389,17 @@ class InferenceSession:
 
         if removed:
             self._previous_fact_counts.clear()
-            self.strategy.invalidate()
             absent_after_activation = frozenset(
                 fact for fact in removed if fact not in self._store
             )
+            if absent_after_activation:
+                self.strategy.invalidate(absent_after_activation)
             self._expire_removed_supports(absent_after_activation)
-        if any(fact in self._store for fact in added):
-            self._reconcile_negative_refraction()
+        present_additions = tuple(
+            fact for fact in added if fact in self._store
+        )
+        if present_additions:
+            self._reconcile_negative_refraction(present_additions)
         return _ActivationOutcome(tuple(added), tuple(removed))
 
     def _expire_removed_supports(self, removed: frozenset[Fact]) -> None:
@@ -407,11 +412,15 @@ class InferenceSession:
         for key in expired:
             self._fired_supports.pop(key, None)
 
-    def _reconcile_negative_refraction(self) -> None:
+    def _reconcile_negative_refraction(
+        self,
+        added: tuple[Fact, ...],
+    ) -> None:
         """Expire fired negative activations invalidated by fact additions."""
 
         oracle = IndexedInstantiationStrategy()
         facts = self._store.facts
+        matcher = PatternMatcher()
         for group in self._groups.values():
             for rule in group.rules:
                 fired_for_rule = {
@@ -422,7 +431,21 @@ class InferenceSession:
                         and key.rule_name == rule.name
                     )
                 }
-                if not fired_for_rule or not _contains_negative(rule.premises):
+                negative_dependencies = _negative_fact_premises(rule.premises)
+                if (
+                    not fired_for_rule
+                    or not negative_dependencies
+                    or not any(
+                        premise.match(
+                            fact,
+                            EMPTY_SUBSTITUTION,
+                            matcher,
+                        )
+                        is not None
+                        for premise in negative_dependencies
+                        for fact in added
+                    )
+                ):
                     continue
                 active: set[ActivationKey] = set()
                 for activation in oracle.instantiate(rule, facts):
@@ -508,12 +531,31 @@ class ForwardEngine:
         return session.snapshot()
 
 
-def _contains_negative(premises: tuple[Premise, ...]) -> bool:
+@cache
+def _negative_fact_premises(
+    premises: tuple[Premise, ...],
+    *,
+    inside_negative: bool = False,
+) -> tuple[FactPremise, ...]:
+    dependencies: list[FactPremise] = []
     for premise in premises:
+        if isinstance(premise, FactPremise):
+            if inside_negative:
+                dependencies.append(premise)
+            continue
         if isinstance(premise, NotExistsPremise):
-            return True
-        if isinstance(premise, ExistsPremise) and _contains_negative(
-            premise.premises
-        ):
-            return True
-    return False
+            dependencies.extend(
+                _negative_fact_premises(
+                    premise.premises,
+                    inside_negative=True,
+                )
+            )
+            continue
+        if isinstance(premise, ExistsPremise):
+            dependencies.extend(
+                _negative_fact_premises(
+                    premise.premises,
+                    inside_negative=inside_negative,
+                )
+            )
+    return tuple(dependencies)

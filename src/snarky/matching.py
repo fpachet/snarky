@@ -15,8 +15,13 @@ class PatternMatcher:
         candidate: Term,
         substitution: Substitution = EMPTY_SUBSTITUTION,
     ) -> Substitution | None:
-        pattern = substitution.apply(pattern)
         if isinstance(pattern, Variable):
+            if pattern in substitution:
+                return self.match(
+                    substitution.apply(pattern),
+                    candidate,
+                    substitution,
+                )
             return substitution.bind(pattern, candidate)
         if isinstance(pattern, Triple):
             if not isinstance(candidate, Triple):

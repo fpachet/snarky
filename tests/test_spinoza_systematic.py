@@ -1,14 +1,42 @@
+from functools import cache
 from pathlib import Path
 
+import pytest
 import yaml
 
-from snarky import Fact, ForwardEngine, Status, parse_rules, parse_term
+from snarky import Fact, ForwardEngine, Rule, Status, parse_rules, parse_term
 from snarky.serialization import load_facts
-from snarky.spinoza import load_historical_rules, run_case
+from snarky.spinoza import (
+    CaseResult,
+    load_historical_rules,
+)
+from snarky.spinoza import (
+    run_case as execute_case,
+)
 
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
 SPINOZA_ROOT = PROJECT_ROOT / "spinoza"
 SYSTEMATIC_ROOT = SPINOZA_ROOT / "systematic"
+
+
+@cache
+def _cached_systematic_case(
+    theorem_id: str,
+    case_id: str,
+) -> CaseResult:
+    return execute_case(SYSTEMATIC_ROOT, theorem_id, case_id)
+
+
+def run_case(
+    root: Path,
+    theorem_id: str,
+    case_id: str,
+    *,
+    rules: tuple[Rule, ...] | None = None,
+) -> CaseResult:
+    if root == SYSTEMATIC_ROOT and rules is None:
+        return _cached_systematic_case(theorem_id, case_id)
+    return execute_case(root, theorem_id, case_id, rules=rules)
 
 
 def test_e3p01_derives_activity_and_passivity_through_definitions() -> None:
@@ -1139,6 +1167,7 @@ def test_e3p59_closes_active_affects_and_preserves_scholium_branches() -> None:
     assert satiety.proof_depths == (1, 1, 2, 2)
 
 
+@pytest.mark.slow
 def test_each_systematic_manifest_since_e3p04_has_passing_counter_cases() -> None:
     for proposition in range(4, 60):
         theorem_id = f"E3P{proposition:02d}"
@@ -1159,6 +1188,7 @@ def test_each_systematic_manifest_since_e3p04_has_passing_counter_cases() -> Non
             assert result.forbidden_violations == ()
 
 
+@pytest.mark.slow
 def test_manifest_expected_depths_match_executable_provenance() -> None:
     for theorem_path in sorted((SYSTEMATIC_ROOT / "theorems").glob("E3P*.yaml")):
         manifest = yaml.safe_load(theorem_path.read_text(encoding="utf-8"))

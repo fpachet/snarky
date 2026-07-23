@@ -130,6 +130,14 @@ python -m pip install -e '.[dev]'
 pytest
 ```
 
+Pour une boucle locale rapide, les grands balayages d’intégration peuvent être
+écartés avec `pytest -m "not slow"`. Si `pytest-xdist` est installé
+séparément, la suite complète peut exploiter plusieurs cœurs avec
+`pytest -n auto`.
+
+Le plan et les baselines de performance, notamment pour Fibonacci et Sudoku,
+sont consignés dans [`docs/optimization_plan.md`](docs/optimization_plan.md).
+
 Exemple minimal avec l’API Python :
 
 ```python

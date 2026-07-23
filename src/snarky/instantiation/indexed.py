@@ -17,21 +17,27 @@ from ..premises import (
 from ..rules import Rule
 from ..substitutions import EMPTY_SUBSTITUTION, Substitution
 from ..terms import Term, Triple, is_ground
-from .base import Activation, InstantiationMetrics
+from .base import (
+    Activation,
+    InstantiationMetrics,
+    WitnessCache,
+    witness_cache_key,
+)
 
 
 class IndexedInstantiationStrategy:
     """Use persistent exact indexes while preserving exhaustive joins.
 
-    One index is retained per rule and extended only with facts added since
-    that rule's previous evaluation. Premises and candidates keep their naïve
-    insertion order, so this strategy changes work but not observable results.
+    One index is shared by the rules evaluated over the same working-memory
+    snapshot. Premises and candidates keep their naïve insertion order, so
+    this strategy changes work but not observable results.
     """
 
     def __init__(self, matcher: PatternMatcher | None = None) -> None:
         self.matcher = matcher or PatternMatcher()
         self.metrics = InstantiationMetrics()
-        self._indexes: dict[int, FactIndex] = {}
+        self._index: FactIndex | None = None
+        self._pending_removed: set[Fact] = set()
 
     def instantiate(
         self,
@@ -44,10 +50,16 @@ class IndexedInstantiationStrategy:
         self.metrics.activations_produced += len(activations)
         return tuple(activations)
 
-    def invalidate(self) -> None:
-        """Discard indexes invalidated by a fact removal."""
+    def invalidate(self, removed: frozenset[Fact] = frozenset()) -> None:
+        """Apply removals to the shared index, or discard it if unspecified."""
 
-        self._indexes.clear()
+        if self._index is None:
+            return
+        if not removed:
+            self._index = None
+            self._pending_removed.clear()
+            return
+        self._pending_removed.update(removed)
 
     def _index_for(
         self,
@@ -55,19 +67,40 @@ class IndexedInstantiationStrategy:
         facts: tuple[Fact, ...],
         delta: tuple[Fact, ...] | None,
     ) -> FactIndex:
-        key = id(rule)
-        if delta is None or key not in self._indexes:
+        del rule
+        index = self._index
+        if index is None:
             index = FactIndex(facts)
-            self._indexes[key] = index
+            self._index = index
+            self._pending_removed.clear()
             self.metrics.index_builds += 1
             self.metrics.indexed_facts += len(facts)
             return index
+        if self._pending_removed:
+            removed = frozenset(self._pending_removed)
+            self.metrics.index_removals += index.remove(removed)
+            self._pending_removed.clear()
 
-        index = self._indexes[key]
-        index.extend(delta)
-        self.metrics.indexed_facts += len(delta)
-        if len(index) != len(facts):
-            raise RuntimeError("incremental fact index is out of sync")
+        if delta is None:
+            indexed = tuple(index.facts)
+            if facts[: len(indexed)] == indexed:
+                self.metrics.indexed_facts += index.extend(
+                    facts[len(indexed) :]
+                )
+            elif indexed != facts:
+                index = FactIndex(facts)
+                self._index = index
+                self.metrics.index_builds += 1
+                self.metrics.indexed_facts += len(facts)
+            return index
+
+        if delta:
+            self.metrics.indexed_facts += index.extend(delta)
+        if tuple(index.facts) != facts:
+            index = FactIndex(facts)
+            self._index = index
+            self.metrics.index_builds += 1
+            self.metrics.indexed_facts += len(facts)
         return index
 
     def _join(
@@ -76,6 +109,7 @@ class IndexedInstantiationStrategy:
         index: FactIndex,
     ) -> list[Activation]:
         activations: list[Activation] = []
+        witness_cache: WitnessCache = {}
         self._extend(
             rule,
             index,
@@ -83,6 +117,7 @@ class IndexedInstantiationStrategy:
             substitution=EMPTY_SUBSTITUTION,
             supports=(),
             output=activations,
+            witness_cache=witness_cache,
         )
         return activations
 
@@ -94,6 +129,7 @@ class IndexedInstantiationStrategy:
         substitution: Substitution,
         supports: tuple[Fact, ...],
         output: list[Activation],
+        witness_cache: WitnessCache,
     ) -> None:
         if premise_index == len(rule.premises):
             output.append(Activation(substitution, supports))
@@ -108,6 +144,7 @@ class IndexedInstantiationStrategy:
                     substitution,
                     supports,
                     output,
+                    witness_cache,
                 )
             return
         if isinstance(premise, (ExistsPremise, NotExistsPremise)):
@@ -115,6 +152,7 @@ class IndexedInstantiationStrategy:
                 premise.premises,
                 index,
                 substitution,
+                witness_cache,
             )
             succeeds = witness is not None
             if isinstance(premise, NotExistsPremise):
@@ -128,6 +166,7 @@ class IndexedInstantiationStrategy:
                     substitution,
                     (*supports, *(witness or ())),
                     output,
+                    witness_cache,
                 )
             return
         if not isinstance(premise, FactPremise):
@@ -145,6 +184,7 @@ class IndexedInstantiationStrategy:
                     matched,
                     (*supports, fact),
                     output,
+                    witness_cache,
                 )
 
     def _first_witness(
@@ -152,14 +192,23 @@ class IndexedInstantiationStrategy:
         premises: tuple[Premise, ...],
         index: FactIndex,
         substitution: Substitution,
+        witness_cache: WitnessCache,
     ) -> tuple[Fact, ...] | None:
-        return self._first_witness_from(
+        key = witness_cache_key(premises, substitution)
+        if key in witness_cache:
+            self.metrics.witness_cache_hits += 1
+            return witness_cache[key]
+        self.metrics.witness_cache_misses += 1
+        witness = self._first_witness_from(
             premises,
             index,
             premise_index=0,
             substitution=substitution,
             supports=(),
+            witness_cache=witness_cache,
         )
+        witness_cache[key] = witness
+        return witness
 
     def _first_witness_from(
         self,
@@ -168,6 +217,7 @@ class IndexedInstantiationStrategy:
         premise_index: int,
         substitution: Substitution,
         supports: tuple[Fact, ...],
+        witness_cache: WitnessCache,
     ) -> tuple[Fact, ...] | None:
         if premise_index == len(premises):
             return supports
@@ -181,12 +231,14 @@ class IndexedInstantiationStrategy:
                 premise_index + 1,
                 substitution,
                 supports,
+                witness_cache,
             )
         if isinstance(premise, (ExistsPremise, NotExistsPremise)):
             nested = self._first_witness(
                 premise.premises,
                 index,
                 substitution,
+                witness_cache,
             )
             succeeds = nested is not None
             if isinstance(premise, NotExistsPremise):
@@ -200,6 +252,7 @@ class IndexedInstantiationStrategy:
                 premise_index + 1,
                 substitution,
                 (*supports, *(nested or ())),
+                witness_cache,
             )
         if not isinstance(premise, FactPremise):
             raise TypeError(f"unsupported premise: {premise!r}")
@@ -216,6 +269,7 @@ class IndexedInstantiationStrategy:
                 premise_index + 1,
                 matched,
                 (*supports, fact),
+                witness_cache,
             )
             if witness is not None:
                 return witness
@@ -423,7 +477,8 @@ class FactIndex:
         self.by_object: defaultdict[Term, list[Fact]] = defaultdict(list)
         self.extend(facts)
 
-    def extend(self, facts: Sequence[Fact]) -> None:
+    def extend(self, facts: Sequence[Fact]) -> int:
+        added = 0
         for fact in facts:
             if fact in self.ranks:
                 continue
@@ -435,6 +490,48 @@ class FactIndex:
                 self.by_subject[fact.entity.subject].append(fact)
                 self.by_relation[fact.entity.relation].append(fact)
                 self.by_object[fact.entity.object].append(fact)
+            added += 1
+        return added
+
+    def remove(self, facts: frozenset[Fact]) -> int:
+        """Remove facts while preserving the insertion order of survivors."""
+
+        present = facts.intersection(self.ranks)
+        if not present:
+            return 0
+        for fact in present:
+            self._remove_from_bucket(self.by_entity, fact.entity, fact)
+            self._remove_from_bucket(self.by_status, fact.status, fact)
+            if isinstance(fact.entity, Triple):
+                self._remove_from_bucket(
+                    self.by_subject,
+                    fact.entity.subject,
+                    fact,
+                )
+                self._remove_from_bucket(
+                    self.by_relation,
+                    fact.entity.relation,
+                    fact,
+                )
+                self._remove_from_bucket(
+                    self.by_object,
+                    fact.entity.object,
+                    fact,
+                )
+        self.facts[:] = [fact for fact in self.facts if fact not in present]
+        self.ranks = {fact: rank for rank, fact in enumerate(self.facts)}
+        return len(present)
+
+    @staticmethod
+    def _remove_from_bucket(
+        buckets: defaultdict[Term, list[Fact]],
+        key: Term,
+        fact: Fact,
+    ) -> None:
+        bucket = buckets[key]
+        bucket.remove(fact)
+        if not bucket:
+            del buckets[key]
 
     def candidates(
         self,

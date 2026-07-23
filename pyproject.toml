@@ -25,6 +25,9 @@ packages = ["src/snarky"]
 addopts = "-q"
 pythonpath = ["src", "."]
 testpaths = ["tests", "sudoku/tests"]
+markers = [
+    "slow: integration tests that execute many complete inference cases",
+]
 
 [tool.ruff]
 line-length = 88

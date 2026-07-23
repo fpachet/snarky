@@ -48,15 +48,16 @@ effective, ajout ou retrait.
 
 ## Réfaction et index
 
-Une suppression invalide les index append-only ; la version de référence les
-reconstruit avant l’instanciation suivante. Les stratégies naïve, indexée et
-semi-naïve conservent ainsi les mêmes résultats observables.
+Une suppression est enregistrée dans l’index partagé puis appliquée en lot
+avant l’instanciation suivante. Une désynchronisation non incrémentale provoque
+toujours une reconstruction sûre. Les stratégies naïve, indexée et semi-naïve
+conservent ainsi les mêmes résultats observables.
 
 La réfraction est liée à l’activation continûment valide :
 
 - retirer un fait support expire les activations qui en dépendaient ;
-- ajouter un fait réévalue les activations négatives qui pourraient devenir
-  fausses ;
+- ajouter un fait ne réévalue que les activations négatives dont une prémisse
+  peut matcher sa signature ;
 - une activation ayant cessé d’exister peut donc redevenir éligible plus
   tard.
 

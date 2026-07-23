@@ -1,7 +1,16 @@
+from functools import cache
+
 import pytest
 
 from snarky import Fact, TechniquePlanStatus, parse_term
-from sudoku import initial_facts, replay_events, solve_level
+from sudoku import (
+    SudokuSolveResult,
+    initial_facts,
+    replay_events,
+    solve_level,
+)
+
+pytestmark = pytest.mark.slow
 
 PREVIOUS_TECHNIQUE = {
     2: "naked_singles",
@@ -12,11 +21,16 @@ PREVIOUS_TECHNIQUE = {
 }
 
 
+@cache
+def _solved_level(level: int) -> SudokuSolveResult:
+    return solve_level(level)
+
+
 @pytest.mark.parametrize("level", range(1, 7))
 def test_p1_to_p6_are_solved_with_exactly_the_expected_techniques(
     level: int,
 ) -> None:
-    result = solve_level(level)
+    result = _solved_level(level)
 
     assert result.status is TechniquePlanStatus.SOLVED
     assert result.grid == result.puzzle.solution
@@ -51,7 +65,7 @@ def test_disabling_the_required_last_technique_leaves_the_grid_stuck(
 
 
 def test_event_trace_contains_every_candidate_elimination() -> None:
-    result = solve_level(1)
+    result = _solved_level(1)
     removed_candidates = [
         event
         for event in result.inference.events

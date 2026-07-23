@@ -14,7 +14,7 @@ class Substitution(Mapping[Variable, Term]):
     rendering. Variable equality, rather than names alone, defines identity.
     """
 
-    __slots__ = ("_bindings",)
+    __slots__ = ("_bindings", "_lookup")
 
     def __init__(
         self,
@@ -29,12 +29,15 @@ class Substitution(Mapping[Variable, Term]):
                 raise ValueError(f"conflicting binding for ${variable.name}")
             unique[variable] = term
         self._bindings = tuple(unique.items())
+        self._lookup = unique
 
     def __getitem__(self, key: Variable) -> Term:
-        for variable, term in self._bindings:
-            if variable == key:
-                return term
-        raise KeyError(key)
+        return self._lookup[key]
+
+    def __contains__(self, key: object) -> bool:
+        """Use the immutable lookup table instead of Mapping's linear scan."""
+
+        return key in self._lookup
 
     def __iter__(self) -> Iterator[Variable]:
         return (variable for variable, _ in self._bindings)

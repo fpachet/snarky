@@ -131,7 +131,7 @@ def test_refraction_expires_when_an_activation_ceases_to_match() -> None:
     assert _fact("target") not in session.facts
 
 
-def test_indexed_strategy_rebuilds_after_removal() -> None:
+def test_indexed_strategy_updates_its_shared_index_after_removal() -> None:
     group = parse_rule_groups(
         """
         GROUP consume
@@ -145,9 +145,10 @@ def test_indexed_strategy_rebuilds_after_removal() -> None:
         END_GROUP
         """
     )[0]
+    strategy = IndexedInstantiationStrategy()
     session = ForwardEngine(
         (),
-        strategy=IndexedInstantiationStrategy(),
+        strategy=strategy,
     ).create_session(
         (
             _fact("(a state pending)"),
@@ -162,3 +163,5 @@ def test_indexed_strategy_rebuilds_after_removal() -> None:
         _fact("(b state done)"),
     }
     assert result.mutation_count == 4
+    assert strategy.metrics.index_builds == 1
+    assert strategy.metrics.index_removals == 2

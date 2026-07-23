@@ -74,14 +74,19 @@ La stratégie naïve examine les prémisses dans leur ordre et joint les faits p
 backtracking. Une instanciation complète contient la substitution obtenue et
 les faits ayant satisfait les prémisses.
 
-La stratégie indexée maintient un index exact persistant pour chaque règle et
-l'étend uniquement avec les faits ajoutés depuis son évaluation précédente.
-Une suppression invalide les index append-only, qui sont reconstruits avant
-l’instanciation suivante.
+La stratégie indexée maintient un index exact partagé par les règles évaluées
+sur la même mémoire. Elle l’étend avec les faits ajoutés et applique les
+retraits en lot avant l’instanciation suivante, sans reconstruire les
+compartiments inchangés.
 La stratégie semi-naïve ajoute un delta propre à chaque règle : après sa
 première évaluation exhaustive, elle ne produit que les jointures contenant au
 moins un fait de ce delta. Si plusieurs prémisses peuvent recevoir un fait
 nouveau, les variantes sont partitionnées puis dédupliquées.
+
+Pendant une instanciation, les premiers témoins de `EXISTS` et `NOT EXISTS`
+sont mémorisés selon la prémisse et la projection des variables corrélées. Le
+cache est jeté à la fin de l’appel : il ne traverse donc jamais une mutation
+de la mémoire.
 
 `ForwardEngine` sélectionne cette stratégie semi-naïve par défaut. La stratégie
 exhaustive de référence reste accessible explicitement avec

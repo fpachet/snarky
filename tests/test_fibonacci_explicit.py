@@ -84,7 +84,7 @@ def test_semi_naive_fibonacci_preserves_full_derivations() -> None:
     assert semi_naive.cycles == naive_result.cycles
     assert semi_naive.fired_activation_count == naive_result.fired_activation_count
     assert strategy.metrics.activations_produced == semi_naive.fired_activation_count
-    assert strategy.metrics.index_builds == len(rules)
+    assert strategy.metrics.index_builds == 1
 
 
 def _has_relation(fact: Fact, relation: str) -> bool:

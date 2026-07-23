@@ -19,16 +19,17 @@ Les optimisations doivent préserver les propriétés suivantes :
 - provenance vérifiable ;
 - point fixe identique à celui du moteur naïf.
 
-## État au 22 juillet 2026
+## État au 23 juillet 2026
 
 | Phase | État | Résultat ou prochaine étape |
 |---|---|---|
-| 0 — Mesures | Partielle | Benchmark Fibonacci reproductible et compteurs d'instanciation disponibles ; autres scénarios et mémoire à ajouter |
+| 0 — Mesures | Partielle | Benchmarks Fibonacci et Sudoku p1–p6, durées pytest et compteurs d'instanciation disponibles |
 | 1 — Activations paresseuses | À faire | Les stratégies matérialisent encore leurs activations dans un tuple |
-| 2 — Indexation | Terminée | Index exacts persistants par règle, étendus uniquement avec le delta |
+| 2 — Indexation | Terminée | Index exact partagé, ajouts incrémentaux et retraits appliqués en lot |
 | 3 — Semi-naïf | Terminée | Une activation n'est produite que si sa jointure contient un fait nouveau |
 | 4 — Planification | Première tranche terminée | Choix MRV dans les variantes delta, sans franchir les comparaisons |
-| 5 à 9 | À faire | À prioriser par profilage sur la nouvelle baseline jusqu'à `F(21)` |
+| 5 — Substitutions et négation | Première tranche terminée | Recherche O(1), témoins existentiels locaux et réveil négatif ciblé |
+| 6 à 9 | À faire | À prioriser par profilage sur Fibonacci, Sudoku et Spinoza |
 
 L'extension fonctionnelle `LET` est terminée : Fibonacci utilise désormais
 l'arithmétique native du moteur et ne dépend plus de tables de sommes et de
@@ -38,6 +39,31 @@ La stratégie semi-naïve est le comportement par défaut. La stratégie naïve
 reste disponible explicitement avec `strategy=NaiveInstantiationStrategy()` et
 sert d'oracle de correction. Les tests différentiels vérifient l'égalité des
 faits, des dérivations, des cycles et des activations.
+
+Le profil Sudoku a conduit à quatre optimisations générales :
+
+- table de recherche O(1) dans les substitutions immuables, tout en conservant
+  leur tuple ordonné pour le rendu déterministe ;
+- matcher récursif qui ne reconstruit plus le pattern substitué à chaque
+  niveau ;
+- cache de témoins `EXISTS`/`NOT EXISTS` limité à un snapshot ;
+- réfraction négative filtrée par les prémisses susceptibles de matcher un
+  fait ajouté.
+
+Sur la machine de développement, après ces changements et les caches de tests :
+
+| Mesure | Avant | Après |
+|---|---:|---:|
+| résolution p1 | 2,32 s | 1,70 s |
+| résolution p5 | 5,95 s | 3,67 s |
+| résolution p6 | 5,58 s | 3,57 s |
+| suite pytest complète | 76,50 s | 46,88 s |
+| suite sans marqueur `slow` | — | 16,56 s |
+
+Ces mesures sont des baselines locales, pas des garanties multi-machines.
+La suite complète conserve les scénarios `STUCK`; les caches ne réutilisent
+que des résultats déterministes et immuables au sein d’un même processus de
+test.
 
 La stratégie `SemiNaiveInstantiationStrategy` combine les index persistants,
 un delta propre à chaque règle et une planification locale des jointures. Sur
@@ -205,10 +231,11 @@ Le compilateur de règles produira une `PatternSignature` pour chaque prémisse.
 Le stockage retournera le plus petit ensemble candidat connu, puis le matcher
 structurel vérifiera les candidats.
 
-`IndexedInstantiationStrategy` maintient désormais un index persistant par
-règle sur l’entité, le statut, le sujet, la relation et l’objet. À chaque
-évaluation, seul le suffixe de faits nouveau pour cette règle étend l'index. Le
-plus petit bucket compatible avec la substitution courante est proposé au
+`IndexedInstantiationStrategy` maintient désormais un index persistant partagé
+sur l’entité, le statut, le sujet, la relation et l’objet. Les suffixes de faits
+nouveaux l’étendent une seule fois, même lorsque plusieurs règles les voient.
+Les retraits sont accumulés puis appliqués en lot avant le prochain matching.
+Le plus petit bucket compatible avec la substitution courante est proposé au
 matcher. L’ordre textuel des prémisses et l’ordre d’insertion des candidats
 sont préservés.
 

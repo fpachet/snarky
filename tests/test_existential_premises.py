@@ -134,6 +134,102 @@ def test_not_exists_becomes_true_after_a_correlated_witness_is_removed() -> None
     assert after.added_facts == (_fact("(r1c1 solved 5)"),)
 
 
+def test_negative_refraction_tracks_only_relevant_additions() -> None:
+    derive, add_irrelevant, add_blocker, clear_blocker = parse_rule_groups(
+        """
+        GROUP derive
+            RULE derive_available
+            WHEN
+                seed
+                NOT EXISTS
+                    blocker
+                END_EXISTS
+            THEN
+                ADD available
+            END
+        END_GROUP
+
+        GROUP add_irrelevant
+            RULE add_noise
+            WHEN
+                request_noise
+            THEN
+                ADD noise
+            END
+        END_GROUP
+
+        GROUP add_blocker
+            RULE block
+            WHEN
+                request_blocker
+            THEN
+                ADD blocker
+            END
+        END_GROUP
+
+        GROUP clear_blocker
+            RULE unblock
+            WHEN
+                blocker
+            THEN
+                REMOVE blocker
+                REMOVE available
+            END
+        END_GROUP
+        """
+    )
+    session = ForwardEngine(()).create_session(
+        (
+            _fact("seed"),
+            _fact("request_noise"),
+            _fact("request_blocker"),
+        )
+    )
+
+    first = session.run_group(derive)
+    session.run_group(add_irrelevant)
+    unchanged = session.run_group(derive)
+    session.run_group(add_blocker)
+    session.run_group(clear_blocker)
+    reenabled = session.run_group(derive)
+
+    assert first.added_facts == (_fact("available"),)
+    assert unchanged.fired_activation_count == 0
+    assert reenabled.added_facts == (_fact("available"),)
+
+
+def test_repeated_existential_queries_are_cached_per_instantiation() -> None:
+    rules = parse_rules(
+        """
+        RULE reuse_witness
+        WHEN
+            ($item group $group)
+            ($item tag $tag)
+            EXISTS
+                ($peer group $group)
+                $peer != $item
+            END_EXISTS
+        THEN
+            ADD ($item witnessed $tag)
+        END
+        """
+    )
+    strategy = IndexedInstantiationStrategy()
+
+    result = ForwardEngine(rules, strategy=strategy).run(
+        (
+            _fact("(a group g)"),
+            _fact("(a tag first)"),
+            _fact("(a tag second)"),
+            _fact("(b group g)"),
+        )
+    )
+
+    assert _fact("(a witnessed first)") in result.facts
+    assert _fact("(a witnessed second)") in result.facts
+    assert strategy.metrics.witness_cache_hits > 0
+
+
 def test_parser_rejects_malformed_or_unsafe_existential_blocks() -> None:
     with pytest.raises(ParseError, match="missing END_EXISTS"):
         parse_rules(
