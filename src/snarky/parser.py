@@ -5,7 +5,8 @@ from __future__ import annotations
 import re
 from dataclasses import dataclass
 
-from .actions import Action, AddFact, Fresh, Let, RemoveFact
+from .actions import Action, AddFact, ForEach, Fresh, Let, RemoveFact
+from .computed import ComputedPredicate, ComputedPremise, PredicateRegistry
 from .expressions import (
     BinaryArithmeticExpression,
     BinaryArithmeticOperator,
@@ -14,7 +15,9 @@ from .expressions import (
     UnaryArithmeticOperator,
 )
 from .premises import (
+    BindPremise,
     CollectPremise,
+    CombinationsPremise,
     ComparisonOperator,
     ComparisonPremise,
     CountPremise,
@@ -23,9 +26,19 @@ from .premises import (
     NotExistsPremise,
     Premise,
     UniquePremise,
+    focus,
 )
 from .rules import Rule, RuleGroup
-from .terms import Atom, FiniteSet, Number, Status, Term, Triple, Variable
+from .terms import (
+    Atom,
+    FiniteSequence,
+    FiniteSet,
+    Number,
+    Status,
+    Term,
+    Triple,
+    Variable,
+)
 
 
 class ParseError(ValueError):
@@ -57,12 +70,38 @@ _FRESH_RE = re.compile(
     r"FRESH\s+(?P<variable>\$[^\s()'<>!=:+*/%-]+)"
     r"(?:\s+PREFIX\s+(?P<prefix>[^\s()\[\]'<>!=]+))?\Z"
 )
+_FOR_EACH_RE = re.compile(
+    r"FOR EACH\s+(?P<variable>\$[^\s()'<>!=:+*/%-]+)"
+    r"\s+IN\s+(?P<collection>.+)\Z"
+)
 _DIVISIBLE_RE = re.compile(
     r"DIVISIBLE\s+(?P<left>.+?)\s+BY\s+(?P<right>.+)\Z"
 )
 _COLLECT_RE = re.compile(
     r"COLLECT\s+(?P<target>\$[^\s()'<>!=:+*/%-]+)"
     r"\s*:=\s*(?P<projection>.+)\Z"
+)
+_BIND_RE = re.compile(
+    r"BIND\s+(?P<target>\$[^\s()'<>!=:+*/%-]+)"
+    r"\s*:=\s*(?P<value>.+)\Z"
+)
+_WINDOW_RE = re.compile(
+    r"WINDOW\s+(?P<target>\$[^\s()'<>!=:+*/%-]+)"
+    r"\s*:=\s*(?P<sequence>SEQ\[.*\])"
+    r"\s+VIA\s+(?P<relation>.+)\Z"
+)
+_COMBINATIONS_RE = re.compile(
+    r"COMBINATIONS\s+(?P<target>\$[^\s()'<>!=:+*/%-]+)"
+    r"\s+SIZE\s+(?P<size>\d+)\s+FROM\s+(?P<source>.+)\Z"
+)
+_COMPUTE_RE = re.compile(
+    r"COMPUTE\s+(?P<target>\$[^\s()'<>!=:+*/%-]+)"
+    r"\s*:=\s*(?P<name>[A-Za-z_][A-Za-z0-9_]*)"
+    r"\s+ARGS\s+(?P<arguments>SEQ\[.*\])\Z"
+)
+_CHECK_RE = re.compile(
+    r"CHECK\s+(?P<name>[A-Za-z_][A-Za-z0-9_]*)"
+    r"\s+ARGS\s+(?P<arguments>SEQ\[.*\])\Z"
 )
 _ARITH_TOKEN_RE = re.compile(
     r"\s*(?:"
@@ -83,13 +122,21 @@ def parse_term(text: str) -> Term:
     return term
 
 
-def parse_rules(text: str) -> tuple[Rule, ...]:
+def parse_rules(
+    text: str,
+    *,
+    predicates: PredicateRegistry | None = None,
+) -> tuple[Rule, ...]:
     """Parse one or more ``RULE ... END`` definitions."""
 
-    return _parse_rule_lines(_normalized_lines(text))
+    return _parse_rule_lines(_normalized_lines(text), predicates)
 
 
-def parse_rule_groups(text: str) -> tuple[RuleGroup, ...]:
+def parse_rule_groups(
+    text: str,
+    *,
+    predicates: PredicateRegistry | None = None,
+) -> tuple[RuleGroup, ...]:
     """Parse named ``GROUP ... END_GROUP`` blocks containing rules."""
 
     lines = _normalized_lines(text)
@@ -113,7 +160,12 @@ def parse_rule_groups(text: str) -> tuple[RuleGroup, ...]:
         if any(group.name == name for group in groups):
             raise ParseError(f"duplicate group name {name!r}")
         try:
-            groups.append(RuleGroup(name, _parse_rule_lines(tuple(body))))
+            groups.append(
+                RuleGroup(
+                    name,
+                    _parse_rule_lines(tuple(body), predicates),
+                )
+            )
         except ValueError as error:
             raise ParseError(str(error)) from error
     return tuple(groups)
@@ -127,7 +179,10 @@ def _normalized_lines(text: str) -> tuple[str, ...]:
     )
 
 
-def _parse_rule_lines(lines: tuple[str, ...]) -> tuple[Rule, ...]:
+def _parse_rule_lines(
+    lines: tuple[str, ...],
+    predicates: PredicateRegistry | None,
+) -> tuple[Rule, ...]:
     rules: list[Rule] = []
     position = 0
     while position < len(lines):
@@ -140,15 +195,17 @@ def _parse_rule_lines(lines: tuple[str, ...]) -> tuple[Rule, ...]:
             raise ParseError(f"rule {name!r} is missing WHEN")
         position += 1
 
-        premises, position = _parse_premise_block(lines, position, "THEN")
+        premises, position = _parse_premise_block(
+            lines,
+            position,
+            "THEN",
+            predicates,
+        )
         if position >= len(lines) or lines[position] != "THEN":
             raise ParseError(f"rule {name!r} is missing THEN")
         position += 1
 
-        actions: list[Action] = []
-        while position < len(lines) and lines[position] != "END":
-            actions.append(_parse_action(lines[position]))
-            position += 1
+        actions, position = _parse_action_block(lines, position, "END")
         if position >= len(lines):
             raise ParseError(f"rule {name!r} is missing END")
         position += 1
@@ -161,19 +218,65 @@ def _parse_rule_lines(lines: tuple[str, ...]) -> tuple[Rule, ...]:
     return tuple(rules)
 
 
+def _parse_action_block(
+    lines: tuple[str, ...],
+    position: int,
+    terminator: str,
+) -> tuple[list[Action], int]:
+    actions: list[Action] = []
+    while position < len(lines) and lines[position] != terminator:
+        line = lines[position]
+        if line.startswith("FOR EACH "):
+            match = _FOR_EACH_RE.fullmatch(line)
+            if match is None:
+                raise ParseError(
+                    "FOR EACH must be `FOR EACH $item IN collection`"
+                )
+            nested, position = _parse_action_block(
+                lines,
+                position + 1,
+                "END_FOR_EACH",
+            )
+            if position >= len(lines):
+                raise ParseError("FOR EACH block is missing END_FOR_EACH")
+            try:
+                actions.append(
+                    ForEach(
+                        Variable(match.group("variable")[1:]),
+                        parse_term(match.group("collection")),
+                        tuple(nested),
+                    )
+                )
+            except ValueError as error:
+                raise ParseError(str(error)) from error
+            position += 1
+            continue
+        if line == "END_FOR_EACH":
+            raise ParseError(f"unexpected END_FOR_EACH before {terminator}")
+        actions.append(_parse_action(line))
+        position += 1
+    return actions, position
+
+
 def _parse_premise_block(
     lines: tuple[str, ...],
     position: int,
     terminator: str,
+    predicates: PredicateRegistry | None,
 ) -> tuple[list[Premise], int]:
     premises: list[Premise] = []
     while position < len(lines) and lines[position] != terminator:
         keyword = lines[position]
+        if keyword.startswith("WINDOW "):
+            premises.extend(_parse_window(keyword))
+            position += 1
+            continue
         if keyword in {"EXISTS", "NOT EXISTS"}:
             nested, position = _parse_premise_block(
                 lines,
                 position + 1,
                 "END_EXISTS",
+                predicates,
             )
             if position >= len(lines) or lines[position] != "END_EXISTS":
                 raise ParseError(f"{keyword} block is missing END_EXISTS")
@@ -202,6 +305,7 @@ def _parse_premise_block(
                 lines,
                 position + 1,
                 "END_COUNT",
+                predicates,
             )
             if position >= len(lines) or lines[position] != "END_COUNT":
                 raise ParseError("COUNT block is missing END_COUNT")
@@ -222,6 +326,7 @@ def _parse_premise_block(
                 lines,
                 position + 1,
                 "END_UNIQUE",
+                predicates,
             )
             if position >= len(lines) or lines[position] != "END_UNIQUE":
                 raise ParseError("UNIQUE block is missing END_UNIQUE")
@@ -241,6 +346,7 @@ def _parse_premise_block(
                 lines,
                 position + 1,
                 "END_COLLECT",
+                predicates,
             )
             if position >= len(lines) or lines[position] != "END_COLLECT":
                 raise ParseError("COLLECT block is missing END_COLLECT")
@@ -269,12 +375,56 @@ def _parse_premise_block(
             and keyword in {"THEN", "END"}
         ):
             raise ParseError(f"block is missing {terminator}")
-        premises.append(_parse_premise(keyword))
+        premises.append(_parse_premise(keyword, predicates))
         position += 1
     return premises, position
 
 
-def _parse_premise(text: str) -> Premise:
+def _parse_premise(
+    text: str,
+    predicates: PredicateRegistry | None = None,
+) -> Premise:
+    if text.startswith("FOCUS "):
+        premise = _parse_premise(
+            text.removeprefix("FOCUS ").strip(),
+            predicates,
+        )
+        if not isinstance(premise, FactPremise):
+            raise ParseError("FOCUS requires a factual premise")
+        return focus(premise)
+    bind_match = _BIND_RE.fullmatch(text)
+    if bind_match is not None:
+        return BindPremise(
+            Variable(bind_match.group("target")[1:]),
+            parse_term(bind_match.group("value")),
+        )
+    combinations_match = _COMBINATIONS_RE.fullmatch(text)
+    if combinations_match is not None:
+        return CombinationsPremise(
+            Variable(combinations_match.group("target")[1:]),
+            parse_term(combinations_match.group("source")),
+            int(combinations_match.group("size")),
+        )
+    compute_match = _COMPUTE_RE.fullmatch(text)
+    if compute_match is not None:
+        predicate, arguments = _parse_computed_call(
+            compute_match.group("name"),
+            compute_match.group("arguments"),
+            predicates,
+        )
+        return ComputedPremise(
+            predicate,
+            arguments,
+            Variable(compute_match.group("target")[1:]),
+        )
+    check_match = _CHECK_RE.fullmatch(text)
+    if check_match is not None:
+        predicate, arguments = _parse_computed_call(
+            check_match.group("name"),
+            check_match.group("arguments"),
+            predicates,
+        )
+        return ComputedPremise(predicate, arguments)
     divisible = _DIVISIBLE_RE.fullmatch(text)
     if divisible is not None:
         return ComparisonPremise(
@@ -292,6 +442,54 @@ def _parse_premise(text: str) -> Premise:
     if operator == "'":
         return FactPremise(left, right)
     return ComparisonPremise(left, _COMPARISONS[operator], right)
+
+
+def _parse_computed_call(
+    name: str,
+    arguments_text: str,
+    predicates: PredicateRegistry | None,
+) -> tuple[ComputedPredicate, tuple[Term, ...]]:
+    if predicates is None:
+        raise ParseError(
+            f"computed predicate {name!r} requires a PredicateRegistry"
+        )
+    try:
+        predicate = predicates.resolve(name)
+    except KeyError as error:
+        raise ParseError(str(error)) from error
+    arguments = parse_term(arguments_text)
+    if not isinstance(arguments, FiniteSequence):
+        raise ParseError("computed predicate ARGS must be a SEQ[...]")
+    return predicate, arguments.elements
+
+
+def _parse_window(text: str) -> tuple[Premise, ...]:
+    match = _WINDOW_RE.fullmatch(text)
+    if match is None:
+        raise ParseError(
+            "WINDOW must be `WINDOW $target := SEQ[...] VIA relation`"
+        )
+    sequence = parse_term(match.group("sequence"))
+    if not isinstance(sequence, FiniteSequence):
+        raise ParseError("WINDOW requires an ordered SEQ[...] template")
+    if len(sequence.elements) < 2:
+        raise ParseError("WINDOW requires at least two sequence elements")
+    relation = parse_term(match.group("relation"))
+    links = tuple(
+        FactPremise(Triple(left, relation, right))
+        for left, right in zip(
+            sequence.elements,
+            sequence.elements[1:],
+            strict=False,
+        )
+    )
+    return (
+        *links,
+        BindPremise(
+            Variable(match.group("target")[1:]),
+            sequence,
+        ),
+    )
 
 
 def parse_arithmetic_expression(text: str) -> NumericExpression:
@@ -462,6 +660,20 @@ def _parse_term_tokens(tokens: tuple[_Token, ...], position: int) -> tuple[Term,
         if position >= len(tokens):
             raise ParseError("unclosed finite set")
         return FiniteSet(tuple(elements)), position + 1
+    if (
+        token.kind == "ATOM"
+        and token.value == "SEQ"
+        and position + 1 < len(tokens)
+        and tokens[position + 1].kind == "LBRACKET"
+    ):
+        elements = []
+        position += 2
+        while position < len(tokens) and tokens[position].kind != "RBRACKET":
+            element, position = _parse_term_tokens(tokens, position)
+            elements.append(element)
+        if position >= len(tokens):
+            raise ParseError("unclosed finite sequence")
+        return FiniteSequence(tuple(elements)), position + 1
     if token.kind == "VARIABLE":
         return Variable(token.value[1:]), position + 1
     if token.kind == "NUMBER":

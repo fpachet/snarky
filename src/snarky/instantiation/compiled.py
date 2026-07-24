@@ -6,8 +6,11 @@ from dataclasses import dataclass
 from functools import cache
 from typing import Protocol
 
+from ..computed import ComputedPremise
 from ..premises import (
+    BindPremise,
     CollectPremise,
+    CombinationsPremise,
     ComparisonPremise,
     CountPremise,
     ExistsPremise,
@@ -18,7 +21,14 @@ from ..premises import (
 )
 from ..rules import Rule
 from ..substitutions import BindingFrame, TermBindings
-from ..terms import Term, Triple, Variable, is_ground, variables_in
+from ..terms import (
+    FiniteSequence,
+    Term,
+    Triple,
+    Variable,
+    is_ground,
+    variables_in,
+)
 
 
 class PatternNode(Protocol):
@@ -57,6 +67,25 @@ class TripleNode:
         )
 
 
+@dataclass(frozen=True, slots=True)
+class SequenceNode:
+    elements: tuple[PatternNode, ...]
+
+    def match(self, candidate: Term, frame: BindingFrame) -> bool:
+        return (
+            isinstance(candidate, FiniteSequence)
+            and len(candidate.elements) == len(self.elements)
+            and all(
+                pattern.match(value, frame)
+                for pattern, value in zip(
+                    self.elements,
+                    candidate.elements,
+                    strict=True,
+                )
+            )
+        )
+
+
 class ValueResolver(Protocol):
     def resolve(self, bindings: TermBindings) -> Term | None: ...
 
@@ -82,7 +111,7 @@ class VariableResolver:
 
 @dataclass(frozen=True, slots=True)
 class StructuredResolver:
-    term: Triple
+    term: Triple | FiniteSequence
 
     def resolve(self, bindings: TermBindings) -> Term | None:
         resolved = bindings.apply(self.term)
@@ -118,6 +147,16 @@ class CompiledComparisonPremise:
 
 
 @dataclass(frozen=True, slots=True)
+class CompiledBindPremise:
+    source: BindPremise | ComputedPremise
+
+
+@dataclass(frozen=True, slots=True)
+class CompiledCombinationsPremise:
+    source: CombinationsPremise
+
+
+@dataclass(frozen=True, slots=True)
 class CompiledExistentialPremise:
     source: ExistsPremise | NotExistsPremise
     block: CompiledBlock
@@ -139,6 +178,8 @@ class CompiledCollectPremise:
 type CompiledPremise = (
     CompiledFactPremise
     | CompiledComparisonPremise
+    | CompiledBindPremise
+    | CompiledCombinationsPremise
     | CompiledExistentialPremise
     | CompiledAggregatePremise
     | CompiledCollectPremise
@@ -176,6 +217,20 @@ def compile_block(premises: tuple[Premise, ...]) -> CompiledBlock:
             variables.update(variables_in(premise.left))
             variables.update(variables_in(premise.right))
             compiled.append(CompiledComparisonPremise(premise))
+        elif isinstance(premise, (BindPremise, ComputedPremise)):
+            if isinstance(premise, BindPremise):
+                variables.add(premise.target)
+                variables.update(variables_in(premise.value))
+            else:
+                if premise.target is not None:
+                    variables.add(premise.target)
+                for argument in premise.arguments:
+                    variables.update(variables_in(argument))
+            compiled.append(CompiledBindPremise(premise))
+        elif isinstance(premise, CombinationsPremise):
+            variables.add(premise.target)
+            variables.update(variables_in(premise.source))
+            compiled.append(CompiledCombinationsPremise(premise))
         elif isinstance(premise, (ExistsPremise, NotExistsPremise)):
             nested = compile_block(premise.premises)
             variables.update(nested.correlated_variables)
@@ -294,12 +349,16 @@ def _compile_pattern(term: Term) -> PatternNode:
             _compile_pattern(term.relation),
             _compile_pattern(term.object),
         )
+    if isinstance(term, FiniteSequence):
+        return SequenceNode(
+            tuple(_compile_pattern(element) for element in term.elements)
+        )
     return ConstantNode(term)
 
 
 def _compile_resolver(term: Term) -> ValueResolver:
     if isinstance(term, Variable):
         return VariableResolver(term)
-    if isinstance(term, Triple):
+    if isinstance(term, (Triple, FiniteSequence)):
         return StructuredResolver(term)
     return ConstantResolver(term)

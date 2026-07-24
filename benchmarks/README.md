@@ -4,6 +4,29 @@ Les benchmarks sont des programmes reproductibles séparés des tests de
 correction. Ils produisent du JSON afin de pouvoir comparer plusieurs
 versions du moteur.
 
+## Agenda MEA incrémental
+
+Le benchmark construit 200 règles indépendantes, initialise une activation par
+règle, puis ajoute un fait qui ne peut concerner que la première. Il compare
+une construction froide du conflit et la mise à jour d'une session chaude :
+
+```sh
+uv run python -m benchmarks.agenda_incremental --rules 200 --repeat 20
+```
+
+Mesure du 24 juillet 2026 sur macOS ARM64 avec Python 3.13.11 :
+
+| Mise à jour | Médiane | Règles recalculées | Règles réutilisées |
+|---|---:|---:|---:|
+| Construction froide | 2,206 ms | 200 | 0 |
+| Delta ciblé | 0,572 ms | 1 | 199 |
+
+Le gain temporel est ×3,86 et la réduction algorithmique du recalcul vaut
+×200. MEA parcourt encore tous les candidats pour les comparer : le benchmark
+isole donc le gain de matching, pas une modification de sa politique.
+Les données sont conservées dans
+[`results/agenda_incremental_2026-07-24.csv`](results/agenda_incremental_2026-07-24.csv).
+
 ## Sudoku déclaratif
 
 Le benchmark Sudoku mesure par défaut les niveaux p1, p6 et p7 cinq fois avec

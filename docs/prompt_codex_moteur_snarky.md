@@ -130,18 +130,22 @@ Sont disponibles et testés :
   `INCONSISTENT` et `LIMIT_REACHED` ;
 - cas d’étude Spinoza complet et base Sudoku native p1–p7 résolue sans
   recherche exhaustive ;
+- Hanoï dérécursivé par quatre règles et recherche des quatre reines par
+  génération directe ou placements partiels, sans contrôleur métier ni
+  solveur externe ;
 - reformulation du singe et des bananes avec buts dynamiques, parcours MEA et
   trace complète de l’agenda.
 
-Restent notamment différés : mise à jour partielle d’un fait, séquences
-ordonnées, recherche automatique, TMS complet, contraintes générales,
-stratégie centrée sur les variables de BOOJUM et techniques Sudoku avancées
-p8–p18.
+Restent notamment différés : mise à jour partielle d’un fait, ATMS complet,
+adaptateur de contraintes externe, stratégie centrée sur les variables de
+BOOJUM, méta-règles réflexives et techniques Sudoku avancées p8–p18. Les
+séquences, la recherche explicite, un backend CSP/SAT fini et un TMS positif
+optionnel sont désormais réalisés.
 
 Les décisions opérationnelles exactes sont précisées dans
 [`semantics.md`](semantics.md), [`rule_groups.md`](rule_groups.md),
 [`conflict_resolution.md`](conflict_resolution.md) et
-[`mutations_and_negation.md`](mutations_and_negation.md). Le cas d’acceptation
+[`advanced_problem_solving.md`](advanced_problem_solving.md). Le cas d’acceptation
 Sudoku et ses prochains paliers sont détaillés dans
 [`../sudoku/docs/implementation_plan.md`](../sudoku/docs/implementation_plan.md).
 
@@ -822,15 +826,15 @@ au-dessus.
 ### 8.5 Ensemble de conflit et MEA
 
 Une `ConflictResolutionStrategy` optionnelle peut remplacer le balayage
-complet par une sélection d’agenda suivie d’une reconstruction du conflit.
-`MEAConflictStrategy` privilégie le `timeTag` du premier fait support, puis un
-vecteur LEX, la spécificité et l’ordre source. Le choix est observable dans un
-`AgendaSelection`.
+complet par une sélection d’agenda. `MEAConflictStrategy` privilégie le
+`timeTag` du support marqué `FOCUS`, ou le premier support par compatibilité,
+puis un vecteur LEX, la spécificité et l’ordre source. Le choix est observable
+dans un `AgendaSelection`.
 
-Dans une base à buts, `($goal status active)` doit être la première prémisse :
-un sous-but récemment ajouté passe alors devant son parent. Cette première
-version est une stratégie publique du moteur, pas encore une méta-base
-réflexive.
+Dans une base à buts, `FOCUS ($goal status active)` nomme la fraîcheur locale :
+un sous-but récemment ajouté passe alors devant son parent. Un index de
+dépendances et une mémoire par règle maintiennent le conflit
+incrémentalement. Cette stratégie publique n’est pas une méta-base réflexive.
 
 ---
 
@@ -1229,12 +1233,15 @@ suivantes sont maintenant disponibles :
 - ensembles finis et `COLLECT` pour matérialiser une projection ;
 - `FRESH` pour nommer déterministement les objets construits ;
 - `InferenceSession.fork()` pour isoler une continuation ;
-- `MEAConflictStrategy` pour sélectionner les sous-buts par fraîcheur locale.
+- `MEAConflictStrategy` et `FOCUS` pour sélectionner les sous-buts ;
+- séquences, fenêtres, combinaisons et itération d'actions ;
+- groupes paramétrés et appels récursifs bornés ;
+- recherche explicite, prédicats enregistrés, CSP/SAT fini et TMS positif.
 
-Elles ne fournissent toujours ni séquence ordonnée native, ni méta-règles
-réflexives, ni recherche automatique. En particulier, un fork n’est pas un
-« contexte hypothétique » tant qu’un orchestrateur n’y ajoute pas explicitement
-une hypothèse.
+Elles ne fournissent toujours ni méta-règles réflexives, ni ATMS. En
+particulier, un fork n’est pas un « contexte hypothétique » tant que
+`HypothesisSearch` ou un autre orchestrateur n’y ajoute pas explicitement une
+hypothèse.
 
 ---
 
@@ -1265,6 +1272,13 @@ une hypothèse.
     stratégie de recherche implicite.
 18. Ensemble de conflit explicite, stratégie MEA, traces d’agenda et
     reformulation du singe et des bananes par sous-buts dynamiques.
+19. Focus MEA explicite, index positif de règles et agenda incrémental.
+20. Séquences ordonnées, fenêtres, combinaisons et boucles `FOR EACH`.
+21. Groupes paramétrés et procédures récursives bornées.
+22. Prédicats calculés sur registre et hiérarchie de types explicable.
+23. Recherche d’hypothèses explicite au-dessus de `fork()`.
+24. Interface CSP/SAT, backend fini et réinjection des solutions.
+25. Maintenance de vérité positive optionnelle avec cascade.
 
 ### Travail documentaire historique encore ouvert
 
@@ -1281,8 +1295,9 @@ une hypothèse.
    retraits.
 3. ~~Mesurer reconstructions d’index, activations et matching sur p1–p6.~~
    Compléter par une mesure de mémoire.
-4. ~~Filtrer les réveils négatifs et surveiller directement les bloqueurs
-   simples.~~ Généraliser la sélection aux règles positives.
+4. ~~Filtrer les réveils négatifs, surveiller les bloqueurs simples et
+   généraliser la sélection aux règles positives avec un agenda
+   incrémental.~~
 5. Enrichir les explications groupées par activation.
 
 ### Palier Sudoku avancé
@@ -1297,10 +1312,11 @@ une hypothèse.
 
 ### Palier contraintes et contrôle avancé
 
-1. Définir une interface générique de solveur de contraintes.
+1. ~~Définir une interface générique et un backend fini de solveur de
+   contraintes.~~
 2. Ajouter un adaptateur optionnel vers OR-Tools.
-3. Construire, si un cas le demande, une stratégie explicite d’hypothèses et
-   de recherche au-dessus des sessions isolées.
+3. ~~Construire une stratégie explicite d’hypothèses et de recherche au-dessus
+   des sessions isolées.~~ Ajouter coûts ou heuristiques avec un oracle concret.
 4. Reprendre la stratégie centrée sur les variables de BOOJUM avec des
    benchmarks différentiels.
 5. Étudier séparément les méta-règles réflexives capables d’inspecter et de
@@ -1329,13 +1345,18 @@ Le jalon courant du moteur est accepté lorsque :
 15. Spinoza et Sudoku p1–p7 réussissent leurs tests d’intégration ;
 16. `%`, `DIVISIBLE`, `COLLECT`, `FRESH` et `fork()` ont une sémantique
     déterministe testée ;
-17. MEA traite les sous-buts du singe avant leurs parents et journalise chacun
-    de ses choix ;
-18. toutes les décisions non établies par les sources sont documentées.
+17. MEA traite les sous-buts du singe avant leurs parents, respecte `FOCUS`,
+    maintient son agenda incrémental et journalise ses choix ;
+18. séquences, fenêtres, combinaisons et `FOR EACH` sont testés sur les trois
+    stratégies ;
+19. groupes paramétrés, recherche explicite, prédicats enregistrés, CSP/SAT et
+    TMS positif sont optionnels, bornés et testés ;
+20. Hanoï et les quatre reines sont résolus par leurs seules règles, avec
+    ordre des mouvements et ensembles de solutions vérifiés ;
+21. toutes les décisions non établies par les sources sont documentées.
 
-La stratégie centrée sur les variables, la recherche automatique et les
-contraintes générales ont leurs propres critères d’acceptation lorsqu’elles
-entreront dans le périmètre ; elles ne bloquent pas le jalon courant.
+La stratégie centrée sur les variables, l’adaptateur OR-Tools et l’ATMS ont
+leurs propres critères d’acceptation futurs ; ils ne bloquent pas le jalon.
 
 ---
 
@@ -1402,3 +1423,95 @@ Dans `open_questions.md`, inclure notamment :
 - récursivité négative.
 
 Ne prendre aucune décision silencieuse sur ces questions.
+
+---
+
+## 20. Spécification des extensions avancées réalisées
+
+### 20.1 Termes séquentiels
+
+`FiniteSequence(elements)` est immuable, hashable, ordonné et conserve les
+doublons. Matching, substitution, plans compilés et cadre mutable le
+parcourent récursivement. Sa syntaxe canonique est `SEQ[...]`.
+
+`WINDOW cible := SEQ[...] VIA relation` est un macro de parsing : il produit
+les prémisses factuelles adjacentes, puis un `BindPremise` vers la séquence
+ground. `CombinationsPremise` produit une activation par combinaison de taille
+fixe. `ForEach` possède une substitution locale par élément ; ses actions
+restent dans la transaction de l’activation englobante.
+
+### 20.2 Focus et agenda
+
+`FactPremise.focused` est vrai pour au plus une prémisse factuelle de premier
+niveau. `_activation_focus_fact` retrouve son support effectif. Sans focus, le
+premier support reste utilisé.
+
+Une `_AgendaMemory` conserve les activations par règle et la révision du
+journal. `_RuleDependencyIndex` associe les constantes factuelles à des règles
+et garde une classe wildcard. Après mutation, seules les lignes candidates
+reçoivent le `FactDelta`. Les résultats delta-only de la stratégie semi-naïve
+sont fusionnés avec les activations positives retenues ; les requêtes
+non-monotones sont remplacées par leur recalcul complet.
+
+### 20.3 Groupes paramétrés
+
+`RuleGroupTemplate.instantiate()` applique une substitution de construction à
+toutes les prémisses, actions et expressions arithmétiques. Les paramètres ne
+peuvent pas être des variables de liaison locales. `RecursiveGroupProcedure`
+exécute les appels produits par une fonction publique, selon DFS ou BFS, et
+lève une erreur lorsque `max_calls` est atteint.
+
+### 20.4 Fonctions calculées
+
+`PredicateRegistry` est la seule résolution de noms autorisée.
+`ComputedPremise.resolve()` reçoit l’interface minimale `TermBindings`.
+Un guard retourne exclusivement `bool`; une liaison retourne exclusivement un
+`Term` ground. Le DSL transmet ses arguments comme une séquence explicite.
+
+### 20.5 Recherche
+
+`InferenceSession.assume()` ajoute des prémisses de profondeur zéro dans une
+branche et journalise leur origine. `HypothesisSearch` sature ses groupes avant
+les tests de contradiction et de but, déduplique les états par ensemble de
+faits et ne modifie jamais la racine.
+
+### 20.6 Contraintes
+
+`ConstraintSolver` reçoit un `ConstraintProblem` fini et renvoie des
+`ConstraintSolution`. Le backend de référence ordonne les variables par taille
+de domaine, conserve l’ordre initial comme second critère et coupe une branche
+dès qu’une contrainte entièrement liée échoue. La traduction SAT utilise les
+atomes `true` et `false`.
+
+### 20.7 Maintenance de vérité
+
+Lorsque `truth_maintenance=True`, `retract()` calcule la fermeture minimale
+des faits initiaux, hypothèses actives et dérivations dont tous les supports
+sont déjà dans la fermeture. Tout autre fait présent est retiré et journalisé.
+Cette définition élimine les cycles auto-supportés. Elle ne modélise pas les
+environnements d’un ATMS ni les dépendances négatives comme justifications.
+
+### 20.8 Dérécursivation et génération combinatoire déclaratives
+
+Les procédures de groupes et les solveurs de contraintes ne doivent pas
+absorber une connaissance métier exprimable par les règles ordinaires.
+
+Hanoï réifie chaque appel récursif comme un sujet possédant `disks`, `from`,
+`to`, `via`, `first_child`, `second_child` et `state`. `FRESH` crée les
+sous-problèmes, `LET` calcule `n - 1`, et les faits `state done`
+synchronisent l'appel suivant et le retour au père. La saturation d'un groupe
+de quatre règles produit ainsi le plan complet dans l'ordre causal.
+
+Les quatre reines possèdent deux oracles déclaratifs. La traduction fixe lie
+une case par colonne et place les comparaisons sitôt chaque nouvelle case
+connue. La traduction générique réifie les placements partiels, utilise
+`NOT EXISTS` sur la relation dérivée `attacks`, puis copie chaque branche sûre
+avec `COLLECT`, un identifiant structurel `($parent chooses $cell)` et
+`FOR EACH`. Cette identité rend la génération idempotente même après une
+réévaluation conservatrice d'agrégat. Toutes les branches coexistent dans la
+mémoire de travail ; il n'existe aucun backtracking implicite.
+
+Ces deux bases constituent des critères architecturaux : l'interface CSP/SAT
+et `RecursiveGroupProcedure` restent disponibles comme mécanismes généraux,
+mais ne sont pas nécessaires à ces résolutions et ne doivent pas en devenir
+les implémentations principales.

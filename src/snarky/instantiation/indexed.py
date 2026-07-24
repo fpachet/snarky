@@ -7,10 +7,13 @@ from collections.abc import Iterable, Sequence
 from dataclasses import dataclass
 from typing import TypeVar
 
+from ..computed import ComputedPremise
 from ..facts import Fact
 from ..matching import PatternMatcher
 from ..premises import (
+    BindPremise,
     CollectPremise,
+    CombinationsPremise,
     ComparisonPremise,
     CountPremise,
     ExistsPremise,
@@ -37,8 +40,10 @@ from .base import (
 )
 from .compiled import (
     CompiledAggregatePremise,
+    CompiledBindPremise,
     CompiledBlock,
     CompiledCollectPremise,
+    CompiledCombinationsPremise,
     CompiledComparisonPremise,
     CompiledExistentialPremise,
     CompiledFactPremise,
@@ -51,6 +56,25 @@ from .compiled import (
 
 IndexKeyT = TypeVar("IndexKeyT")
 type WatchToken = tuple[str, object]
+
+
+def _apply_compiled_binding(
+    premise: BindPremise | ComputedPremise,
+    frame: BindingFrame,
+) -> bool:
+    if isinstance(premise, BindPremise):
+        bound_value = frame.apply(premise.value)
+        return is_ground(bound_value) and frame.bind_ground(
+            premise.target,
+            bound_value,
+        )
+    accepted, computed_value = premise.resolve(frame)
+    if not accepted:
+        return False
+    if premise.target is None:
+        return True
+    assert computed_value is not None
+    return frame.bind_ground(premise.target, computed_value)
 
 
 @dataclass(frozen=True, slots=True)
@@ -778,6 +802,33 @@ class IndexedInstantiationStrategy:
                     output,
                 )
             return
+        if isinstance(premise, CompiledBindPremise):
+            checkpoint = frame.checkpoint()
+            if _apply_compiled_binding(premise.source, frame):
+                self._extend_compiled(
+                    block,
+                    index,
+                    premise_index + 1,
+                    frame,
+                    supports,
+                    output,
+                )
+            frame.rollback(checkpoint)
+            return
+        if isinstance(premise, CompiledCombinationsPremise):
+            for value in premise.source.values(frame):
+                checkpoint = frame.checkpoint()
+                if frame.bind_ground(premise.source.target, value):
+                    self._extend_compiled(
+                        block,
+                        index,
+                        premise_index + 1,
+                        frame,
+                        supports,
+                        output,
+                    )
+                frame.rollback(checkpoint)
+            return
         if isinstance(premise, CompiledCollectPremise):
             collection, collection_supports = self._collect_compiled_values(
                 premise,
@@ -929,6 +980,37 @@ class IndexedInstantiationStrategy:
                 frame,
                 supports,
             )
+        if isinstance(premise, CompiledBindPremise):
+            checkpoint = frame.checkpoint()
+            if not _apply_compiled_binding(premise.source, frame):
+                frame.rollback(checkpoint)
+                return None
+            witness = self._first_compiled_witness_from(
+                block,
+                index,
+                premise_index + 1,
+                frame,
+                supports,
+            )
+            frame.rollback(checkpoint)
+            return witness
+        if isinstance(premise, CompiledCombinationsPremise):
+            for value in premise.source.values(frame):
+                checkpoint = frame.checkpoint()
+                if frame.bind_ground(premise.source.target, value):
+                    witness = self._first_compiled_witness_from(
+                        block,
+                        index,
+                        premise_index + 1,
+                        frame,
+                        supports,
+                    )
+                    frame.rollback(checkpoint)
+                    if witness is not None:
+                        return witness
+                else:
+                    frame.rollback(checkpoint)
+            return None
         if isinstance(premise, CompiledCollectPremise):
             collection, collection_supports = self._collect_compiled_values(
                 premise,
@@ -1106,6 +1188,33 @@ class IndexedInstantiationStrategy:
                     output,
                 )
             return
+        if isinstance(premise, CompiledBindPremise):
+            checkpoint = frame.checkpoint()
+            if _apply_compiled_binding(premise.source, frame):
+                self._collect_compiled_witnesses_from(
+                    block,
+                    index,
+                    premise_index + 1,
+                    frame,
+                    supports,
+                    output,
+                )
+            frame.rollback(checkpoint)
+            return
+        if isinstance(premise, CompiledCombinationsPremise):
+            for value in premise.source.values(frame):
+                checkpoint = frame.checkpoint()
+                if frame.bind_ground(premise.source.target, value):
+                    self._collect_compiled_witnesses_from(
+                        block,
+                        index,
+                        premise_index + 1,
+                        frame,
+                        supports,
+                        output,
+                    )
+                frame.rollback(checkpoint)
+            return
         if isinstance(premise, CompiledCollectPremise):
             collection, collection_supports = self._collect_compiled_values(
                 premise,
@@ -1248,6 +1357,35 @@ class IndexedInstantiationStrategy:
                     output,
                 )
             return
+        if isinstance(premise, CompiledBindPremise):
+            checkpoint = frame.checkpoint()
+            if _apply_compiled_binding(premise.source, frame):
+                self._collect_compiled_projection_from(
+                    block,
+                    projection,
+                    index,
+                    premise_index + 1,
+                    frame,
+                    supports,
+                    output,
+                )
+            frame.rollback(checkpoint)
+            return
+        if isinstance(premise, CompiledCombinationsPremise):
+            for value in premise.source.values(frame):
+                checkpoint = frame.checkpoint()
+                if frame.bind_ground(premise.source.target, value):
+                    self._collect_compiled_projection_from(
+                        block,
+                        projection,
+                        index,
+                        premise_index + 1,
+                        frame,
+                        supports,
+                        output,
+                    )
+                frame.rollback(checkpoint)
+            return
         if isinstance(premise, CompiledCollectPremise):
             collection, collection_supports = self._collect_compiled_values(
                 premise,
@@ -1361,6 +1499,35 @@ class IndexedInstantiationStrategy:
                     witness_cache,
                 )
             return
+        if isinstance(premise, (BindPremise, ComputedPremise)):
+            bound = premise.apply(substitution)
+            if bound is not None:
+                self._extend(
+                    rule,
+                    index,
+                    premise_index + 1,
+                    bound,
+                    supports,
+                    output,
+                    witness_cache,
+                )
+            return
+        if isinstance(premise, CombinationsPremise):
+            for value in premise.values(substitution):
+                try:
+                    bound = substitution.bind(premise.target, value)
+                except ValueError:
+                    continue
+                self._extend(
+                    rule,
+                    index,
+                    premise_index + 1,
+                    bound,
+                    supports,
+                    output,
+                    witness_cache,
+                )
+            return
         if isinstance(premise, (ExistsPremise, NotExistsPremise)):
             witness = self._first_witness(
                 premise.premises,
@@ -1447,6 +1614,35 @@ class IndexedInstantiationStrategy:
                 supports,
                 witness_cache,
             )
+        if isinstance(premise, (BindPremise, ComputedPremise)):
+            bound = premise.apply(substitution)
+            if bound is None:
+                return None
+            return self._first_witness_from(
+                premises,
+                index,
+                premise_index + 1,
+                bound,
+                supports,
+                witness_cache,
+            )
+        if isinstance(premise, CombinationsPremise):
+            for value in premise.values(substitution):
+                try:
+                    bound = substitution.bind(premise.target, value)
+                except ValueError:
+                    continue
+                witness = self._first_witness_from(
+                    premises,
+                    index,
+                    premise_index + 1,
+                    bound,
+                    supports,
+                    witness_cache,
+                )
+                if witness is not None:
+                    return witness
+            return None
         if isinstance(premise, (ExistsPremise, NotExistsPremise)):
             nested = self._first_witness(
                 premise.premises,
@@ -1597,31 +1793,47 @@ class SemiNaiveInstantiationStrategy(IndexedInstantiationStrategy):
             return
 
         if not remaining:
-            comparison_index = premise_groups[group_index][1]
-            if comparison_index is not None:
-                comparison = rule.premises[comparison_index]
-                if not isinstance(comparison, ComparisonPremise):
-                    raise TypeError(f"expected comparison, got: {comparison!r}")
-                if not comparison.evaluate(substitution):
-                    return
             next_group = group_index + 1
             next_remaining = (
                 premise_groups[next_group][0]
                 if next_group < len(premise_groups)
                 else ()
             )
-            self._extend_delta_variant(
-                rule,
-                index,
-                premise_groups,
-                next_group,
-                next_remaining,
-                anchor,
-                delta_start,
-                substitution,
-                supports,
-                output,
-            )
+            barrier_index = premise_groups[group_index][1]
+            substitutions: tuple[Substitution, ...] = (substitution,)
+            if barrier_index is not None:
+                barrier = rule.premises[barrier_index]
+                if isinstance(barrier, ComparisonPremise):
+                    substitutions = (
+                        (substitution,)
+                        if barrier.evaluate(substitution)
+                        else ()
+                    )
+                elif isinstance(barrier, (BindPremise, ComputedPremise)):
+                    bound = barrier.apply(substitution)
+                    substitutions = () if bound is None else (bound,)
+                elif isinstance(barrier, CombinationsPremise):
+                    substitutions = tuple(
+                        substitution.bind(barrier.target, value)
+                        for value in barrier.values(substitution)
+                    )
+                else:
+                    raise TypeError(
+                        f"unsupported delta barrier: {barrier!r}"
+                    )
+            for next_substitution in substitutions:
+                self._extend_delta_variant(
+                    rule,
+                    index,
+                    premise_groups,
+                    next_group,
+                    next_remaining,
+                    anchor,
+                    delta_start,
+                    next_substitution,
+                    supports,
+                    output,
+                )
             return
 
         choices: list[tuple[int, int, Sequence[Fact], FactPremise]] = []
@@ -1683,7 +1895,15 @@ class SemiNaiveInstantiationStrategy(IndexedInstantiationStrategy):
         for position, premise in enumerate(rule.premises):
             if isinstance(premise, FactPremise):
                 facts.append(position)
-            elif isinstance(premise, ComparisonPremise):
+            elif isinstance(
+                premise,
+                (
+                    ComparisonPremise,
+                    BindPremise,
+                    CombinationsPremise,
+                    ComputedPremise,
+                ),
+            ):
                 groups.append((tuple(facts), position))
                 facts = []
             else:

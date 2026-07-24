@@ -4,7 +4,14 @@ import pytest
 import yaml
 
 from rulebases.runner import RULEBASE_ROOT, render_trace, run_scenario
-from snarky import Fact, ForwardEngine, parse_rule_groups, parse_term
+from snarky import (
+    Atom,
+    Fact,
+    ForwardEngine,
+    Triple,
+    parse_rule_groups,
+    parse_term,
+)
 
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
 CATALOG_PATH = PROJECT_ROOT / "rulebases" / "catalog.yaml"
@@ -47,6 +54,93 @@ def test_catalog_covers_every_documented_scenario() -> None:
         assert (root / "scenario.yaml").is_file()
         assert (root / "initial_facts.yaml").is_file()
         assert (root / "expected_facts.yaml").is_file()
+
+
+def test_hanoi_is_solved_by_rules_in_recursive_execution_order() -> None:
+    result = run_scenario("thesis/hanoi").result
+    moves = tuple(
+        entity.object
+        for event in result.events
+        if isinstance((entity := event.fact.entity), Triple)
+        and entity.relation == Atom("move")
+    )
+
+    assert moves == tuple(
+        parse_term(text)
+        for text in (
+            "SEQ[a c]",
+            "SEQ[a b]",
+            "SEQ[c b]",
+            "SEQ[a c]",
+            "SEQ[b a]",
+            "SEQ[b c]",
+            "SEQ[a c]",
+        )
+    )
+    assert Fact(parse_term("(hanoi-root state done)")) in result.facts
+
+
+def test_direct_and_incremental_queen_rules_find_the_same_two_solutions() -> None:
+    result = run_scenario("thesis/four_queens").result
+
+    def solutions(method: str) -> frozenset[object]:
+        return frozenset(
+            entity.subject
+            for fact in result.facts
+            if isinstance((entity := fact.entity), Triple)
+            and entity.relation == Atom("queens_solution")
+            and entity.object == Atom(method)
+        )
+
+    expected = frozenset(
+        (
+            parse_term(
+                "SEQ[(2 cell 1) (4 cell 2) (1 cell 3) (3 cell 4)]"
+            ),
+            parse_term(
+                "SEQ[(3 cell 1) (1 cell 2) (4 cell 3) (2 cell 4)]"
+            ),
+        )
+    )
+
+    assert solutions("direct") == expected
+    assert solutions("incremental") == expected
+
+
+def test_incremental_queen_rules_are_not_specialized_to_four() -> None:
+    rules_path = RULEBASE_ROOT / "thesis/four_queens/rules.rules"
+    groups = {
+        group.name: group
+        for group in parse_rule_groups(rules_path.read_text(encoding="utf-8"))
+    }
+    session = ForwardEngine(()).create_session(
+        tuple(
+            Fact(parse_term(text))
+            for text in (
+                "(board size 1)",
+                "(row conflict_axis true)",
+                "(column conflict_axis true)",
+                "(diagonal_up conflict_axis true)",
+                "(diagonal_down conflict_axis true)",
+            )
+        )
+    )
+    for name in ("build_board", "derive_attacks", "solve_n_queens"):
+        session.run_group(groups[name])
+
+    solution_candidates = {
+        entity.subject
+        for fact in session.facts
+        if isinstance((entity := fact.entity), Triple)
+        and entity.relation == Atom("state")
+        and entity.object == Atom("solution")
+    }
+
+    assert len(solution_candidates) == 1
+    (candidate,) = solution_candidates
+    assert Fact(
+        Triple(candidate, Atom("contains"), parse_term("(1 cell 1)"))
+    ) in session.facts
 
 
 @pytest.mark.parametrize(

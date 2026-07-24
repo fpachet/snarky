@@ -4,11 +4,22 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 from enum import StrEnum
+from itertools import combinations
 
+from .computed import ComputedPremise
 from .facts import Fact
 from .matching import PatternMatcher
-from .substitutions import Substitution, TermBindings
-from .terms import Number, Status, Term, Variable, is_ground, variables_in
+from .substitutions import BindingFrame, Substitution, TermBindings
+from .terms import (
+    FiniteSequence,
+    FiniteSet,
+    Number,
+    Status,
+    Term,
+    Variable,
+    is_ground,
+    variables_in,
+)
 
 
 @dataclass(frozen=True, slots=True)
@@ -17,6 +28,7 @@ class FactPremise:
 
     entity: Term
     status: Term = Status.VRAI
+    focused: bool = False
 
     def match(
         self,
@@ -77,6 +89,50 @@ class ComparisonPremise:
         if self.operator is ComparisonOperator.GE:
             return left_value >= right_value
         raise ValueError(f"unsupported comparison operator: {self.operator}")
+
+
+@dataclass(frozen=True, slots=True)
+class BindPremise:
+    """Bind one variable to an already-ground structured term."""
+
+    target: Variable
+    value: Term
+
+    def apply(self, substitution: Substitution) -> Substitution | None:
+        resolved = substitution.apply(self.value)
+        if not is_ground(resolved):
+            return None
+        try:
+            return substitution.bind(self.target, resolved)
+        except ValueError:
+            return None
+
+
+@dataclass(frozen=True, slots=True)
+class CombinationsPremise:
+    """Enumerate fixed-size ordered views of a finite collection."""
+
+    target: Variable
+    source: Term
+    size: int
+
+    def __post_init__(self) -> None:
+        if self.size < 1:
+            raise ValueError("COMBINATIONS size must be positive")
+
+    def values(
+        self,
+        substitution: Substitution | BindingFrame,
+    ) -> tuple[FiniteSequence, ...]:
+        source = substitution.apply(self.source)
+        if not isinstance(source, (FiniteSet, FiniteSequence)):
+            raise TypeError(
+                "COMBINATIONS source must be a finite set or sequence"
+            )
+        return tuple(
+            FiniteSequence(tuple(elements))
+            for elements in combinations(source.elements, self.size)
+        )
 
 
 @dataclass(frozen=True, slots=True)
@@ -168,6 +224,9 @@ class CollectPremise:
 type Premise = (
     FactPremise
     | ComparisonPremise
+    | BindPremise
+    | CombinationsPremise
+    | ComputedPremise
     | ExistsPremise
     | NotExistsPremise
     | CountPremise
@@ -204,6 +263,62 @@ def validate_premise_bindings(
                     for variable in sorted(missing, key=lambda item: item.name)
                 )
                 raise ValueError(f"comparison uses unbound variables: {names}")
+            continue
+        if isinstance(premise, BindPremise):
+            if premise.target in bound:
+                raise ValueError(
+                    f"BIND target ${premise.target.name} is already bound"
+                )
+            missing = variables_in(premise.value) - bound
+            if missing:
+                names = ", ".join(
+                    f"${variable.name}"
+                    for variable in sorted(missing, key=lambda item: item.name)
+                )
+                raise ValueError(f"BIND uses unbound variables: {names}")
+            bound.add(premise.target)
+            continue
+        if isinstance(premise, CombinationsPremise):
+            if premise.target in bound:
+                raise ValueError(
+                    "COMBINATIONS target "
+                    f"${premise.target.name} is already bound"
+                )
+            missing = variables_in(premise.source) - bound
+            if missing:
+                names = ", ".join(
+                    f"${variable.name}"
+                    for variable in sorted(missing, key=lambda item: item.name)
+                )
+                raise ValueError(
+                    f"COMBINATIONS uses unbound variables: {names}"
+                )
+            bound.add(premise.target)
+            continue
+        if isinstance(premise, ComputedPremise):
+            computed_missing = {
+                variable
+                for argument in premise.arguments
+                for variable in variables_in(argument)
+            } - bound
+            if computed_missing:
+                names = ", ".join(
+                    f"${variable.name}"
+                    for variable in sorted(
+                        computed_missing,
+                        key=lambda item: item.name,
+                    )
+                )
+                raise ValueError(
+                    f"computed predicate uses unbound variables: {names}"
+                )
+            if premise.target is not None:
+                if premise.target in bound:
+                    raise ValueError(
+                        "computed predicate target "
+                        f"${premise.target.name} is already bound"
+                    )
+                bound.add(premise.target)
             continue
         if isinstance(premise, CollectPremise):
             if premise.target in bound:
@@ -291,6 +406,30 @@ def divisible(left: Term, right: Term) -> ComparisonPremise:
     """Construct an integer divisibility premise."""
 
     return ComparisonPremise(left, ComparisonOperator.DIVISIBLE, right)
+
+
+def bind(target: Variable, value: Term) -> BindPremise:
+    """Bind *target* to an already-instantiated structured value."""
+
+    return BindPremise(target, value)
+
+
+def combinations_of(
+    target: Variable,
+    source: Term,
+    size: int,
+) -> CombinationsPremise:
+    """Enumerate all fixed-size combinations of a finite collection."""
+
+    return CombinationsPremise(target, source, size)
+
+
+def focus(premise: FactPremise) -> FactPremise:
+    """Mark one factual premise as the local conflict-resolution focus."""
+
+    if premise.focused:
+        return premise
+    return FactPremise(premise.entity, premise.status, focused=True)
 
 
 def _ordered_value(term: Term) -> int | float:

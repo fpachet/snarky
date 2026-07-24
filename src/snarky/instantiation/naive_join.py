@@ -2,10 +2,13 @@
 
 from __future__ import annotations
 
+from ..computed import ComputedPremise
 from ..facts import Fact
 from ..matching import PatternMatcher
 from ..premises import (
+    BindPremise,
     CollectPremise,
+    CombinationsPremise,
     ComparisonPremise,
     CountPremise,
     ExistsPremise,
@@ -80,6 +83,31 @@ class NaiveInstantiationStrategy:
                     facts,
                     premise_index + 1,
                     substitution,
+                    supports,
+                    output,
+                    witness_cache,
+                )
+            return
+        if isinstance(premise, (BindPremise, ComputedPremise)):
+            bound = premise.apply(substitution)
+            if bound is not None:
+                self._extend(
+                    rule,
+                    facts,
+                    premise_index + 1,
+                    bound,
+                    supports,
+                    output,
+                    witness_cache,
+                )
+            return
+        if isinstance(premise, CombinationsPremise):
+            for value in premise.values(substitution):
+                self._extend(
+                    rule,
+                    facts,
+                    premise_index + 1,
+                    substitution.bind(premise.target, value),
                     supports,
                     output,
                     witness_cache,
@@ -205,6 +233,31 @@ class NaiveInstantiationStrategy:
                 supports,
                 witness_cache,
             )
+        if isinstance(premise, (BindPremise, ComputedPremise)):
+            bound = premise.apply(substitution)
+            if bound is None:
+                return None
+            return self._first_witness_from(
+                premises,
+                facts,
+                premise_index + 1,
+                bound,
+                supports,
+                witness_cache,
+            )
+        if isinstance(premise, CombinationsPremise):
+            for value in premise.values(substitution):
+                witness = self._first_witness_from(
+                    premises,
+                    facts,
+                    premise_index + 1,
+                    substitution.bind(premise.target, value),
+                    supports,
+                    witness_cache,
+                )
+                if witness is not None:
+                    return witness
+            return None
         if isinstance(premise, CollectPremise):
             collection, collection_supports = self._collect_values(
                 premise,
@@ -318,6 +371,31 @@ class NaiveInstantiationStrategy:
                     facts,
                     premise_index + 1,
                     substitution,
+                    supports,
+                    witness_cache,
+                    output,
+                )
+            return
+        if isinstance(premise, (BindPremise, ComputedPremise)):
+            bound = premise.apply(substitution)
+            if bound is not None:
+                self._collect_witnesses_from(
+                    premises,
+                    facts,
+                    premise_index + 1,
+                    bound,
+                    supports,
+                    witness_cache,
+                    output,
+                )
+            return
+        if isinstance(premise, CombinationsPremise):
+            for value in premise.values(substitution):
+                self._collect_witnesses_from(
+                    premises,
+                    facts,
+                    premise_index + 1,
+                    substitution.bind(premise.target, value),
                     supports,
                     witness_cache,
                     output,
@@ -451,6 +529,33 @@ class NaiveInstantiationStrategy:
                     facts,
                     premise_index + 1,
                     substitution,
+                    supports,
+                    witness_cache,
+                    output,
+                )
+            return
+        if isinstance(premise, (BindPremise, ComputedPremise)):
+            bound = premise.apply(substitution)
+            if bound is not None:
+                self._collect_projected_from(
+                    premises,
+                    projection,
+                    facts,
+                    premise_index + 1,
+                    bound,
+                    supports,
+                    witness_cache,
+                    output,
+                )
+            return
+        if isinstance(premise, CombinationsPremise):
+            for value in premise.values(substitution):
+                self._collect_projected_from(
+                    premises,
+                    projection,
+                    facts,
+                    premise_index + 1,
+                    substitution.bind(premise.target, value),
                     supports,
                     witness_cache,
                     output,

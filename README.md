@@ -62,16 +62,29 @@ configuration sans confondre cette absence avec le statut explicite
 `INEXISTANT`.
 
 Les ensembles finis immuables et la prémisse corrélée `COLLECT` permettent de
-matérialiser les valeurs produites par une sous-requête. Une session peut aussi
-être copiée avec `fork()` pour explorer une continuation isolée. Ce mécanisme
-ne choisit aucune hypothèse et n’implémente pas à lui seul une recherche avec
-retour arrière.
+matérialiser les valeurs produites par une sous-requête. Les séquences
+ordonnées `SEQ[...]`, `WINDOW`, `COMBINATIONS` et `FOR EACH` couvrent maintenant
+les fenêtres, les choix de taille fixe et l'itération d'actions.
 
-Une stratégie de conflit optionnelle `MEAConflictStrategy` permet maintenant
-de sélectionner une activation à la fois selon la fraîcheur locale de son
-premier fait support, puis selon un ordre LEX déterministe. La reformulation
+Une session peut être copiée avec `fork()`. `HypothesisSearch` construit
+explicitement une recherche BFS ou DFS au-dessus de cette primitive, sans
+ajouter de retour arrière caché au chaînage avant. Une interface CSP/SAT et un
+solveur fini de référence fournissent également un premier couplage règles–
+contraintes.
+
+Une stratégie de conflit optionnelle `MEAConflictStrategy` permet de
+sélectionner une activation à la fois selon la fraîcheur locale d'une prémisse
+`FOCUS`, ou du premier fait support par compatibilité, puis selon un ordre LEX
+déterministe. Son agenda mémorise les activations par règle et utilise un index
+de dépendances pour ne rematcher que les règles touchées. La reformulation
 NéOpus du singe et des bananes l’utilise pour traiter chaque sous-but avant son
 but parent, sans backtracking.
+
+Les groupes peuvent être spécialisés avec `RuleGroupTemplate` et pilotés par
+des appels récursifs bornés. Les fonctions externes doivent être enregistrées
+comme `ComputedPredicate`; la hiérarchie de types réutilisable reste exprimée
+par des règles ordinaires. Une maintenance de vérité positive est disponible
+sur option et ne modifie pas le comportement par défaut.
 
 `TechniquePlan` fournit une orchestration générique de groupes ordonnés :
 après chaque changement, il repart du groupe le plus simple et distingue les
@@ -106,7 +119,9 @@ Le contenu actuel comprend :
   native destinée au debug du moteur ;
 - [`rulebases`](rulebases/README.md), le catalogue unifié des exemples
   exécutables : Fibonacci, factorielle et huit reformulations issues de la
-  thèse NéOpus, avec scénarios, oracles et besoins futurs documentés ;
+  thèse NéOpus, notamment Hanoï dérécursivé et les quatre reines engendrées
+  entièrement par règles, avec scénarios, oracles et besoins futurs
+  documentés ;
 - [`docs/semantics.md`](docs/semantics.md), les décisions sémantiques du moteur
   de référence ;
 - [`docs/arithmetic_actions.md`](docs/arithmetic_actions.md), la syntaxe et la
@@ -117,6 +132,8 @@ Le contenu actuel comprend :
   syntaxe des groupes de règles et leurs différents modes d’appel ;
 - [`docs/conflict_resolution.md`](docs/conflict_resolution.md), l’ensemble de
   conflit, les `timeTag`, la stratégie MEA et les traces d’agenda ;
+- [`docs/advanced_problem_solving.md`](docs/advanced_problem_solving.md), les
+  séquences, groupes paramétrés, prédicats sûrs, hypothèses, CSP/SAT et TMS ;
 - [`docs/mutations_and_negation.md`](docs/mutations_and_negation.md), la
   suppression de faits, le journal de mutations et les blocs corrélés
   `EXISTS`/`NOT EXISTS` ;
@@ -137,10 +154,10 @@ La base Fibonacci explicite utilise `LET $somme := $gauche + $droite` et ne
 reçoit qu’un fait racine : les sommes et les rangs des fils ne sont plus
 préchargés sous forme de tables.
 
-Les modifications partielles de faits, les séquences ordonnées, la recherche
-automatique par hypothèses et le raisonnement par contraintes restent à
-implémenter. L’évaluation semi-naïve est le mode par défaut de
-`ForwardEngine`.
+Les modifications partielles de faits et un ATMS complet restent à
+implémenter. L’adaptateur vers un solveur externe tel qu’OR-Tools reste
+optionnel et futur ; le backend fini portable valide déjà l’interface.
+L’évaluation semi-naïve demeure le mode par défaut de `ForwardEngine`.
 
 ## Démarrage rapide
 
@@ -227,7 +244,12 @@ structurels précalculés des termes et faits immuables ajoutent un gain de 24 �
 sont décrits dans
 [`benchmarks/README.md`](benchmarks/README.md).
 
-La suite complète compte 314 tests et s’exécute en environ 7,9 s sur cette même
+Sur le micro-benchmark d'agenda à 200 règles indépendantes, une mutation ciblée
+ne recalcule qu'une règle et en réutilise 199. La médiane passe de 2,206 ms
+pour une construction froide à 0,572 ms pour la mise à jour incrémentale,
+soit ×3,86.
+
+La suite complète compte 335 tests et s’exécute en environ 9,0 s sur cette même
 machine, contre 26,05 s avant la mise en cache du catalogue de provenance
 Spinoza et 76,50 s avant les optimisations.
 
@@ -317,12 +339,11 @@ une trace rejouable.
     structure textuelle complète de l'Éthique III, puis rendre exécutables les
     59 propositions, les 48 définitions finales et la définition générale dans
     le modèle systématique.~~
-13. Ajouter une couche optionnelle de raisonnement par contraintes pour
+13. ~~Ajouter une couche optionnelle de raisonnement par contraintes pour
    exprimer et résoudre des problèmes de satisfaction (CSP, SAT et variantes),
-   notamment au moyen d’un adaptateur vers OR-Tools. Le moteur d’inférence
-   devra pouvoir produire des contraintes, appeler le solveur, puis réinjecter
-   les solutions et contradictions obtenues comme faits assortis de leur
-   provenance.
+   avec une interface générique, un backend fini de référence et une
+   réinjection des solutions comme faits.~~ Ajouter si nécessaire un
+   adaptateur OR-Tools optionnel.
 14. Exécuter les benchmarks externes adaptés, puis ajouter des cas de test
     dédiés au couplage entre règles et contraintes.
 15. ~~Implémenter p7/X-Wing avec `COUNT` et `UNIQUE`.~~ Aborder le Sudoku
@@ -331,14 +352,19 @@ une trace rejouable.
     automatique que lorsqu’un cas d’usage en précise la stratégie.
 16. ~~Compiler les prémisses, utiliser un cadre mutable interne, propager les
     deltas de suppression, maintenir les compteurs négatifs et conserver les
-    jointures partielles sous budget.~~ Poursuivre avec les activations
-    paresseuses et la sélection générale des règles positives candidates.
+    jointures partielles sous budget. Ajouter un index de dépendances positives
+    et un agenda incrémental.~~ Mesurer les prochaines optimisations sur les
+    conflits réellement dominants.
 17. ~~Structurer un catalogue public de bases avec un exécuteur commun,
     des oracles et des README par problème.~~ Les exemples de la thèse ont
     motivé la divisibilité entière, le modulo, `FRESH`, `COLLECT` et les
     continuations isolées. ~~Ajouter ensuite une stratégie de conflit MEA et
-    reformuler le singe et les bananes avec des sous-buts dynamiques.~~
-    Poursuivre avec les séquences.
+    reformuler le singe et les bananes avec des sous-buts dynamiques. Ajouter
+    `FOCUS`, les séquences, fenêtres, combinaisons et `FOR EACH`.~~
+18. ~~Ajouter groupes paramétrés, récursion bornée, prédicats calculés sur
+    registre, hiérarchie explicable, recherche par hypothèses, interface
+    CSP/SAT et TMS positif optionnel.~~ Évaluer ces primitives sur les
+    prochaines bases concrètes avant d'élargir leur DSL.
 
 La cible est Python 3.12 ou ultérieur, avec `pytest`, `ruff`, `mypy` et des
 tests différentiels. L’ajout de tests génératifs fondés sur Hypothesis reste

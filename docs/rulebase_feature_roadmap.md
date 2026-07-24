@@ -9,136 +9,140 @@ abstraite de fonctionnalités. Le catalogue correspondant se trouve dans
 Snarky exprime aujourd'hui :
 
 - Fibonacci et factorielle explicites ;
-- transitivité d'objets égalité ;
+- transitivité d'objets égalité et hiérarchies de types ;
 - date du lendemain avec calcul interne des années bissextiles ;
 - un réseau de Petri borné déterministe ;
 - une classification géométrique avec objets intermédiaires frais ;
 - l'instance déterministe et la reformulation à sous-buts MEA du singe et des
   bananes ;
 - intervalles, accords et progression harmonique inspirés de MusES ;
-- la validation des quatre reines ;
-- Hanoï borné à deux disques ;
+- recherche des quatre reines par une règle combinatoire fidèle à NéOpus et
+  par construction incrémentale de placements partiels ;
+- Hanoï de taille arbitraire dérécursivé en quatre règles, avec sous-problèmes
+  et synchronisation représentés par des faits ;
+- groupes paramétrés, appels récursifs bornés et résolution de petits CSP/SAT
+  comme infrastructures optionnelles indépendantes ;
 - Sudoku p1 à p7, y compris X-Wing.
 
-Ces bases couvrent récursion, jointures, agrégats, négation, mutations,
-groupes, séquencement, classification, explication et point fixe.
+Ces bases et leurs tests avancés couvrent récursion, jointures, agrégats,
+négation, mutations, groupes, séquences, hypothèses, contraintes,
+classification, explication et point fixe.
 
 ## Extensions réalisées
 
 ### P1 — Arithmétique entière
 
 `LET` accepte `%` sur deux entiers et les prémisses acceptent
-`DIVISIBLE valeur BY diviseur`. Les nombres flottants et le zéro sont rejetés
-explicitement.
-
-La date du lendemain calcule maintenant les années bissextiles ; MusES calcule
-ses intervalles modulo 12.
+`DIVISIBLE valeur BY diviseur`. La date du lendemain calcule les années
+bissextiles ; MusES calcule ses intervalles modulo 12.
 
 ### P2 — Symboles frais
 
-L'action `FRESH $x PREFIX frame` lie un nouvel atome pour la suite de
-l'activation. Les noms sont déterministes, évitent tous les atomes déjà
-réservés et sont enregistrés dans la substitution de provenance.
+`FRESH $x PREFIX frame` lie un atome déterministe sans collision et l'enregistre
+dans la substitution de provenance. Géométrie et Hanoï l'utilisent. L'arbre
+des reines emploie plutôt une identité structurelle fondée sur le chemin des
+choix, afin qu'une réévaluation reste idempotente.
 
-La géométrie l'utilise pour ses diagonales et Hanoï pour ses mouvements.
+### P3 — Collections, séquences et itération
 
-### P3 — Collections finies et `COLLECT`
+`FiniteSet` et `COLLECT` matérialisent les valeurs distinctes d'une requête
+corrélée. `FiniteSequence` conserve ordre et doublons sous la forme
+`SEQ[...]`. `WINDOW` reconnaît une fenêtre bornée sur une relation,
+`COMBINATIONS` énumère les sous-séquences de taille fixe et `FOR EACH` applique
+un bloc d'actions.
 
-`FiniteSet` est un terme immuable, dédupliqué et sérialisable dans le DSL sous
-la forme `[a b c]`. Une prémisse corrélée :
+Les multiensembles restent distincts : ils demanderont une sémantique de
+quantités avant d'être ajoutés.
 
-```text
-COLLECT $ensemble := $projection
-    ...
-END_COLLECT
-```
+### P4 — Contextes isolés et recherche explicite
 
-lie l'ensemble des projections satisfaisant le bloc. Les variables locales ne
-s'échappent pas, les supports participent à la provenance et les changements
-de faits réactivent correctement la règle.
+`InferenceSession.fork()` produit une continuation indépendante.
+`HypothesisSearch` orchestre au-dessus de cette primitive un parcours BFS ou
+DFS, la détection des états visités, des conditions de but et contradiction,
+une limite et un chemin d'hypothèses observable.
 
-La sémantique actuelle est celle d'un ensemble non ordonné. Restent à étudier,
-si un cas les exige :
+Il n'existe ni `commit`, ni retour arrière implicite. Le singe et les bananes
+NéOpus utilise des sous-buts MEA et ne dépend pas de cette recherche.
 
-- collection ordonnée ;
-- multiensembles ;
-- combinaisons de taille fixée ;
-- itération d'actions sur une collection.
+### P5 — Prédicats calculés et hiérarchie de types
 
-MusES matérialise maintenant ses ensembles de notes avec `COLLECT`.
+`ComputedPredicate` et `PredicateRegistry` forment une liste blanche de
+fonctions pures. Le DSL `CHECK`/`COMPUTE ... ARGS SEQ[...]` n'effectue aucune
+résolution dynamique et impose des arguments ground.
 
-### P4 — Contextes isolés, sans recherche automatique
+`type_hierarchy_group()` fournit séparément la clôture `subtype` et la
+propagation `instance_of` sous forme de règles ordinaires, donc avec
+provenance.
 
-`InferenceSession.fork()` produit une continuation indépendante qui hérite des
-faits, de la provenance, de la réfraction et des compteurs de symboles frais.
-Les mutations de la branche n'affectent jamais la session parente. Il n'existe
-ni `commit`, ni choix automatique, ni retour arrière implicite.
+### P6 — Focus MEA et agenda incrémental
 
-Cette primitive sert à simuler explicitement une alternative. Elle ne fait pas
-partie de la reproduction du singe et des bananes : cet exemple NéOpus utilise
-des sous-buts et la stratégie MEA. La thèse décrit séparément un retour arrière
-« objet », non générique et non intégré au système de base
-([thèse, p. 227](https://www.francoispachet.fr/wp-content/uploads/2021/01/pachet-92b.pdf#page=227)).
+`FOCUS` désigne le support dont le `timeTag` guide MEA ; le premier support
+reste le repli compatible. `inspect_agenda()` expose les candidats et
+`AgendaSelection` journalise les choix.
+
+Un index conservatif des dépendances positives et une mémoire d'activations
+par règle évitent de rematcher les règles non touchées. `AgendaMetrics` rend
+reconstructions, recalculs et réutilisations mesurables.
+
+### P7 — Groupes paramétrés et récursion bornée
+
+`RuleGroupTemplate` spécialise des paramètres de construction.
+`RecursiveGroupProcedure` exécute des `GroupCall` produits dynamiquement, en
+DFS ou BFS, avec une limite explicite. La récursion reste dans la couche de
+contrôle et ne coupe jamais une activation.
+
+Hanoï montre toutefois qu'un problème récursif n'exige pas nécessairement ce
+contrôle : lorsque les appels, leurs dépendances et leur terminaison peuvent
+être réifiés, quatre règles de chaînage avant suffisent. La connaissance
+spécifique du domaine reste alors entièrement déclarative.
+
+### P8 — CSP et SAT
+
+`ConstraintSolver` définit une interface indépendante. Le backend fini de
+référence résout `ConstraintProblem`; `SatProblem` traduit une CNF vers ce
+format. `ConstraintSolution.as_facts()` réinjecte les affectations. Un backend
+OR-Tools pourra être ajouté sans rendre sa dépendance obligatoire.
+
+Les quatre reines n'utilisent volontairement pas cette interface. Elles
+servent d'oracle démontrant que le matcher et des placements partiels réifiés
+peuvent engendrer et filtrer les combinaisons uniquement par règles. Le
+solveur CSP reste un backend pour les problèmes où ce découplage est choisi,
+pas un remplacement implicite de la formulation déclarative.
+
+### P9 — Maintenance de vérité positive
+
+Le mode `truth_maintenance=True` rétracte après `retract()` les conclusions
+hors de la fermeture des justifications positives groundées. Il élimine les
+cycles sans support externe et reste désactivé par défaut.
+
+Il ne s'agit pas d'un ATMS : environnements alternatifs, nogoods et
+justifications négatives complètes restent séparés.
 
 ## Extensions encore proposées
 
-### P5 — Séquences
+- multiensembles et quantités pour des réseaux de Petri généraux ;
+- adaptateur OR-Tools derrière `ConstraintSolver` ;
+- coûts et heuristiques pour `HypothesisSearch` ;
+- langage déclaratif unifié de procédures de groupes ;
+- ATMS et provenance complète des prémisses négatives ;
+- réflexion sur les règles et méta-règles NéOpus ;
+- modifications partielles de faits ;
+- Sudoku p8 et niveaux suivants, seulement à partir d'oracles précis.
 
-Introduire une abstraction minimale de relation d'ordre ou de fenêtre, plutôt
-qu'un type musical spécialisé. Les faits `next` suffisent pour les motifs
-courts ; les besoins nouveaux sont les chemins bornés, fenêtres, débuts/fins et
-groupes reconnus.
+## Ordre recommandé actualisé
 
-Cas demandeurs : MusES, analyse de traces, texte et workflows.
+1. ~~Arithmétique entière et divisibilité.~~
+2. ~~Symboles frais.~~
+3. ~~Ensembles, `COLLECT` et continuations isolées.~~
+4. ~~Stratégie MEA et singe à sous-buts.~~
+5. ~~Séquences, fenêtres, combinaisons et itération.~~
+6. ~~Groupes paramétrés, prédicats sûrs et hiérarchie.~~
+7. ~~Recherche explicite, CSP/SAT et TMS positif optionnel.~~
+8. Mesurer ces primitives sur des bases plus grandes et implémenter Sudoku p8.
+9. Ne retenir les extensions restantes qu'avec une base et un oracle
+   reproductibles.
 
-### P6 — Recherche optionnelle
-
-Les contextes isolés sont disponibles. Un module distinct pourrait un jour
-piloter plusieurs branches :
-
-- choix déterministe et alternatives ;
-- détection d'états déjà visités ;
-- coût ou heuristique ;
-- justification d'une solution et d'un échec.
-
-Cas demandeurs : quatre reines génératif, Sudoku bloqué et certaines chaînes
-forcées. Le singe et les bananes historique n'en dépend pas. Un adaptateur de
-solveur de contraintes pourra partager la même interface sans remplacer les
-techniques humaines.
-
-### P7 — Prédicats calculés et hiérarchie de types
-
-Permettre des prédicats purs enregistrés explicitement, avec types d'arguments
-et déterminisme vérifiable. Ajouter séparément une petite relation `subtype`
-dont la clôture reste visible dans la provenance.
-
-Cas demandeurs : géométrie calculée, unités et dimensions, ontologies de
-domaine. Le moteur ne doit jamais exécuter arbitrairement une fonction Python
-référencée par du texte.
-
-### P8 — Stratégie d’agenda MEA réalisée, réflexion différée
-
-`ConflictResolutionStrategy` rend la politique publique et
-`MEAConflictStrategy` sélectionne une activation selon la fraîcheur locale du
-premier support, puis LEX, spécificité et ordre source. Les choix sont
-journalisés dans des `AgendaSelection`.
-
-La base `monkey_bananas/neopus_mea` crée et satisfait six buts en profondeur,
-sans plan préchargé ni backtracking. Reste à plus long terme l’exposition de
-l’agenda et des règles comme données manipulables par les méta-règles NéOpus.
-
-## Ordre recommandé
-
-1. ~~`%`/`DIVISIBLE`.~~
-2. ~~Symboles frais déterministes.~~
-3. ~~Ensembles finis, `COLLECT` et contextes isolés.~~
-4. Implémenter p8 Sudoku avec les primitives disponibles.
-5. Ajouter combinaisons ou séquences seulement à partir d'un oracle concret.
-6. ~~Ajouter une stratégie MEA publique et la valider sur les sous-buts du
-   singe et des bananes.~~
-7. Garder recherche, prédicats calculés et réflexion comme modules séparés.
-
-Les primitives de langage n’ont pas changé le modèle d’exécution fondamental.
-MEA ajoute un mode d’agenda explicite, tandis que la recherche et la réflexion
-restent des sous-systèmes distincts. Le balayage déterministe actuel demeure
-l’oracle par défaut.
+Les primitives n'ont pas changé le modèle d'exécution fondamental. MEA ajoute
+un agenda explicite ; recherche, contraintes et TMS restent des sous-systèmes
+optionnels. Le balayage déterministe et la stratégie naïve demeurent les
+oracles par défaut.

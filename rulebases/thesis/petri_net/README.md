@@ -20,15 +20,15 @@ franchissement modifie atomiquement deux compteurs et l'état de contrôle.
 uv run python -m rulebases.runner thesis/petri_net
 ```
 
-## Limite et extensions proposées
+## Limite restante
 
-Le noyau fourni est déterministe et chaque transition possède une entrée et
-une sortie. Un interpréteur général de réseaux décrits uniquement par des arcs
-demanderait :
+`COLLECT`, `COMBINATIONS` et `FOR EACH` permettent maintenant de construire la
+collection finie des arcs d'une transition et d'appliquer des actions à chacun.
+Le noyau fourni reste volontairement déterministe et explicite.
 
-- une action ou un agrégat capable de construire la collection finie des arcs
-  à mettre à jour ;
-- éventuellement une sémantique de multiensemble, distincte des faits uniques.
+Un interpréteur général doit encore choisir une sémantique de multiensemble
+pour plusieurs jetons identiques. Cette notion ne se confond pas avec
+`FiniteSet` ni avec les faits uniques de la mémoire.
 
 `ConflictResolutionStrategy` fournit maintenant le point d’extension nécessaire
 pour choisir entre plusieurs transitions activables ; chaque réseau doit encore

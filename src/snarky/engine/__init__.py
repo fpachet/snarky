@@ -2,6 +2,7 @@
 
 from .conflict import (
     AgendaCandidate,
+    AgendaMetrics,
     AgendaSelection,
     ConflictResolutionStrategy,
     MEAConflictStrategy,
@@ -23,6 +24,7 @@ from .provenance import Derivation, Provenance
 
 __all__ = [
     "AgendaCandidate",
+    "AgendaMetrics",
     "AgendaSelection",
     "ConflictResolutionStrategy",
     "Derivation",

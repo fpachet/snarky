@@ -11,6 +11,15 @@ from ..rules import Rule
 from ..substitutions import Substitution
 
 
+@dataclass(slots=True)
+class AgendaMetrics:
+    """Counters for incremental conflict-set maintenance."""
+
+    rebuilds: int = 0
+    rule_recomputations: int = 0
+    rule_reuses: int = 0
+
+
 @dataclass(frozen=True, slots=True)
 class AgendaCandidate:
     """One unfired activation enriched with deterministic agenda metadata."""
@@ -44,12 +53,11 @@ class ConflictResolutionStrategy(Protocol):
 
 @dataclass(frozen=True, slots=True)
 class MEAConflictStrategy:
-    """OPS-style means-ends analysis using first-support local freshness.
+    """OPS-style means-ends analysis using explicit or default local focus.
 
-    The first supporting fact is the primary focus. Rule authors therefore put
-    the goal or other locally fresh control object in the first factual
-    premise. Remaining ties use a LEX-like vector, rule specificity and source
-    order.
+    A ``FOCUS`` premise is primary. Without one, the first supporting fact
+    remains the backward-compatible default. Remaining ties use a LEX-like
+    vector, rule specificity and source order.
     """
 
     name: str = "mea"

@@ -133,7 +133,34 @@ class FiniteSet(_PreHashed):
         return FiniteSet, (self.elements,)
 
 
-type Term = Atom | Number | Variable | Status | Triple | FiniteSet
+@dataclass(frozen=True, slots=True)
+class FiniteSequence(_PreHashed):
+    """An immutable ordered finite sequence that preserves duplicates."""
+
+    elements: tuple[Term, ...]
+
+    def __post_init__(self) -> None:
+        object.__setattr__(self, "elements", tuple(self.elements))
+        object.__setattr__(self, "_hash", hash(self.elements))
+
+    def __hash__(self) -> int:
+        return self._hash
+
+    def __reduce__(
+        self,
+    ) -> tuple[type[FiniteSequence], tuple[tuple[Term, ...]]]:
+        return FiniteSequence, (self.elements,)
+
+
+type Term = (
+    Atom
+    | Number
+    | Variable
+    | Status
+    | Triple
+    | FiniteSet
+    | FiniteSequence
+)
 type Proposition = Triple
 
 
@@ -144,7 +171,7 @@ def is_ground(term: Term) -> bool:
         return False
     if isinstance(term, Triple):
         return all(is_ground(part) for part in _triple_parts(term))
-    if isinstance(term, FiniteSet):
+    if isinstance(term, (FiniteSet, FiniteSequence)):
         return all(is_ground(element) for element in term.elements)
     return True
 
@@ -159,11 +186,11 @@ def variables_in(term: Term) -> frozenset[Variable]:
         for part in _triple_parts(term):
             variables.update(variables_in(part))
         return frozenset(variables)
-    if isinstance(term, FiniteSet):
-        set_variables: set[Variable] = set()
+    if isinstance(term, (FiniteSet, FiniteSequence)):
+        collection_variables: set[Variable] = set()
         for element in term.elements:
-            set_variables.update(variables_in(element))
-        return frozenset(set_variables)
+            collection_variables.update(variables_in(element))
+        return frozenset(collection_variables)
     return frozenset()
 
 
@@ -183,6 +210,10 @@ def render_term(term: Term) -> str:
         return f"({subject} {relation} {object_})"
     if isinstance(term, FiniteSet):
         return f"[{' '.join(render_term(element) for element in term.elements)}]"
+    if isinstance(term, FiniteSequence):
+        return (
+            f"SEQ[{' '.join(render_term(element) for element in term.elements)}]"
+        )
     raise TypeError(f"unsupported term: {term!r}")
 
 

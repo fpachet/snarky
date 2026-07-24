@@ -5,7 +5,7 @@ from __future__ import annotations
 from collections.abc import Iterable, Iterator, Mapping
 from typing import Protocol
 
-from .terms import FiniteSet, Term, Triple, Variable
+from .terms import FiniteSequence, FiniteSet, Term, Triple, Variable
 
 
 class TermBindings(Protocol):
@@ -116,7 +116,10 @@ class Substitution(Mapping[Variable, Term]):
     def apply(self, term: Term) -> Term:
         """Apply this substitution recursively to *term*."""
 
-        if not isinstance(term, (Variable, Triple, FiniteSet)):
+        if not isinstance(
+            term,
+            (Variable, Triple, FiniteSet, FiniteSequence),
+        ):
             return term
         return self._apply(term, set())
 
@@ -136,6 +139,10 @@ class Substitution(Mapping[Variable, Term]):
             )
         if isinstance(term, FiniteSet):
             return FiniteSet(
+                tuple(self._apply(element, seen) for element in term.elements)
+            )
+        if isinstance(term, FiniteSequence):
+            return FiniteSequence(
                 tuple(self._apply(element, seen) for element in term.elements)
             )
         return term
@@ -197,6 +204,10 @@ class BindingFrame:
             )
         if isinstance(term, FiniteSet):
             return FiniteSet(
+                tuple(self.apply(element) for element in term.elements)
+            )
+        if isinstance(term, FiniteSequence):
+            return FiniteSequence(
                 tuple(self.apply(element) for element in term.elements)
             )
         return term

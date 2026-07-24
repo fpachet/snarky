@@ -33,6 +33,20 @@ susceptible de changer l'ensemble invalide la réfraction de l'ancienne
 activation. La première implémentation recalcule la projection ; elle ne
 maintient pas encore un index incrémental propre aux éléments collectés.
 
+## Séquences, combinaisons et itération
+
+`FiniteSequence` est la collection ordonnée complémentaire :
+
+```text
+SEQ[c e g]
+SEQ[a a b]
+```
+
+Son égalité dépend de l'ordre et des doublons. `WINDOW` reconnaît une chaîne
+sur une relation, `COMBINATIONS` énumère les choix de taille fixe et
+`FOR EACH` exécute des actions avec une liaison locale par élément. Voir
+[`advanced_problem_solving.md`](advanced_problem_solving.md).
+
 ## Symboles frais
 
 L'action :
@@ -66,10 +80,10 @@ La branche hérite des faits, événements, preuves, règles enregistrées,
 réfraction, cycles et compteurs de symboles frais. Ses mutations n'affectent
 pas la session parente.
 
-Ce mécanisme ne choisit aucune règle, ne parcourt aucun arbre et ne revient
-pas automatiquement en arrière. Il fournit seulement la primitive d'isolation
-sur laquelle un planificateur ou un solveur pourrait être construit
-ultérieurement.
+Ce mécanisme seul ne choisit aucune règle, ne parcourt aucun arbre et ne
+revient pas automatiquement en arrière. `HypothesisSearch` fournit désormais
+un orchestrateur BFS/DFS explicite au-dessus de cette isolation ; sa politique
+n'est jamais cachée dans `fork()`.
 
 Dans la reconstruction NéOpus, il ne faut pas l'assimiler au contrôle du singe
 et des bananes, qui utilise désormais des sous-buts et

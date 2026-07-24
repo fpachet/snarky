@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 from .substitutions import EMPTY_SUBSTITUTION, Substitution
-from .terms import FiniteSet, Term, Triple, Variable
+from .terms import FiniteSequence, FiniteSet, Term, Triple, Variable
 
 
 class PatternMatcher:
@@ -106,6 +106,24 @@ class PatternMatcher:
             )
         if isinstance(pattern, FiniteSet):
             return pattern == candidate
+        if isinstance(pattern, FiniteSequence):
+            if not isinstance(candidate, FiniteSequence):
+                return False
+            if len(pattern.elements) != len(candidate.elements):
+                return False
+            return all(
+                self._match_ground(
+                    pattern_element,
+                    candidate_element,
+                    substitution,
+                    pending,
+                )
+                for pattern_element, candidate_element in zip(
+                    pattern.elements,
+                    candidate.elements,
+                    strict=True,
+                )
+            )
         return pattern == candidate
 
     def _match_general(
@@ -142,4 +160,25 @@ class PatternMatcher:
             return current
         if isinstance(pattern, FiniteSet):
             return substitution if pattern == candidate else None
+        if isinstance(pattern, FiniteSequence):
+            if (
+                not isinstance(candidate, FiniteSequence)
+                or len(pattern.elements) != len(candidate.elements)
+            ):
+                return None
+            current = substitution
+            for pattern_element, candidate_element in zip(
+                pattern.elements,
+                candidate.elements,
+                strict=True,
+            ):
+                matched = self._match_general(
+                    pattern_element,
+                    candidate_element,
+                    current,
+                )
+                if matched is None:
+                    return None
+                current = matched
+            return current
         return substitution if pattern == candidate else None

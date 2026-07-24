@@ -8,9 +8,10 @@ from enum import StrEnum
 from functools import cache
 from typing import Protocol
 
-from ..actions import AddFact, Fresh, Let, RemoveFact
+from ..actions import Action, AddFact, ForEach, Fresh, Let, RemoveFact
 from ..facts import Fact
 from ..instantiation import (
+    Activation,
     FactDelta,
     IndexedInstantiationStrategy,
     InstantiationStrategy,
@@ -29,9 +30,18 @@ from ..premises import (
 from ..rules import Rule, RuleGroup
 from ..stores.naive import NaiveFactStore
 from ..substitutions import EMPTY_SUBSTITUTION, Substitution
-from ..terms import Atom, FiniteSet, Term, Triple, Variable
+from ..terms import (
+    Atom,
+    FiniteSequence,
+    FiniteSet,
+    Term,
+    Triple,
+    Variable,
+    is_ground,
+)
 from .conflict import (
     AgendaCandidate,
+    AgendaMetrics,
     AgendaSelection,
     ConflictResolutionStrategy,
 )
@@ -158,6 +168,29 @@ class _NegativeRefractionPlan:
     complex_dependencies: tuple[FactPremise, ...]
 
 
+@dataclass(frozen=True, slots=True)
+class _AgendaMemory:
+    group: RuleGroup
+    activations: tuple[tuple[Activation, ...], ...]
+    revision: int
+    dependencies: _RuleDependencyIndex
+
+
+@dataclass(frozen=True, slots=True)
+class _RuleDependencyIndex:
+    by_token: dict[tuple[str, Term], frozenset[int]]
+    wildcard: frozenset[int]
+
+    def affected(self, events: tuple[InferenceEvent, ...]) -> frozenset[int]:
+        if not events:
+            return frozenset()
+        affected = set(self.wildcard)
+        for event in events:
+            for token in _dependency_tokens_for_fact(event.fact):
+                affected.update(self.by_token.get(token, ()))
+        return frozenset(affected)
+
+
 class InferenceSession:
     """Persistent working memory shared by successive rule-group invocations."""
 
@@ -167,6 +200,8 @@ class InferenceSession:
         strategy: InstantiationStrategy | None = None,
         limits: EngineLimits | None = None,
         conflict_strategy: ConflictResolutionStrategy | None = None,
+        *,
+        truth_maintenance: bool = False,
     ) -> None:
         self.strategy = (
             strategy
@@ -175,16 +210,21 @@ class InferenceSession:
         )
         self.limits = limits or EngineLimits()
         self.conflict_strategy = conflict_strategy
+        self.truth_maintenance = truth_maintenance
         self._store = NaiveFactStore(initial_facts)
         self._provenance = Provenance(self._store.facts)
         self._initial_facts = frozenset(self._store.facts)
+        self._assumed_facts: set[Fact] = set()
         self._fired: set[ActivationKey] = set()
         self._fired_supports: dict[ActivationKey, tuple[Fact, ...]] = {}
         self._fired_activation_total = 0
         self._derivations: list[Derivation] = []
         self._events: list[InferenceEvent] = []
         self._agenda_selections: list[AgendaSelection] = []
+        self.agenda_metrics = AgendaMetrics()
+        self._agenda_memories: dict[str, _AgendaMemory] = {}
         self._previous_event_counts: dict[tuple[str, str], int] = {}
+        self._force_full_evaluation: set[tuple[str, str]] = set()
         self._groups: dict[str, RuleGroup] = {}
         self._negative_refraction_plans: list[_NegativeRefractionPlan] = []
         self._cycles = 0
@@ -226,6 +266,70 @@ class InferenceSession:
         """Return cumulative conflict-set choices for agenda-driven sessions."""
 
         return tuple(self._agenda_selections)
+
+    def inspect_agenda(
+        self,
+        group: RuleGroup,
+    ) -> tuple[AgendaCandidate, ...]:
+        """Return the current unfired conflict set without selecting from it."""
+
+        return self._agenda_candidates(group)
+
+    def assume(self, *facts: Fact, label: str = "hypothesis") -> tuple[Fact, ...]:
+        """Assert branch-local depth-zero facts for explicit search clients."""
+
+        added: list[Fact] = []
+        for fact in facts:
+            self._provenance.assume(fact)
+            self._assumed_facts.add(fact)
+            if not self._store.add(fact):
+                continue
+            self._reserve_fact_atoms(fact)
+            self._next_time_tag += 1
+            self._fact_time_tags[fact] = self._next_time_tag
+            added.append(fact)
+            self._events.append(
+                InferenceEvent(
+                    sequence=len(self._events) + 1,
+                    kind=FactMutationKind.ADD,
+                    fact=fact,
+                    rule_name=f"<{label}>",
+                    rule_group="<assumptions>",
+                    substitution=EMPTY_SUBSTITUTION,
+                    premises=(),
+                    cycle=self._cycles,
+                )
+            )
+        if len(self._store) > self.limits.max_facts:
+            raise InferenceLimitError(
+                f"maximum fact count ({self.limits.max_facts}) exceeded"
+            )
+        if added and self._negative_refraction_plans:
+            self._reconcile_negative_refraction(tuple(added))
+        return tuple(added)
+
+    def retract(
+        self,
+        *facts: Fact,
+        label: str = "external",
+    ) -> tuple[Fact, ...]:
+        """Retract facts and optionally cascade unsupported conclusions."""
+
+        removed: list[Fact] = []
+        for fact in facts:
+            self._assumed_facts.discard(fact)
+            if not self._store.remove(fact):
+                continue
+            self._fact_time_tags.pop(fact, None)
+            removed.append(fact)
+            self._record_external_removal(fact, label)
+        if self.truth_maintenance and removed:
+            removed.extend(self._cascade_unsupported())
+        absent = frozenset(removed)
+        if absent:
+            self.strategy.invalidate(absent)
+            self._expire_removed_supports(absent)
+        return tuple(removed)
 
     def snapshot(self) -> RunResult:
         """Return the cumulative state using the historical result shape."""
@@ -269,16 +373,21 @@ class InferenceSession:
                 if self.conflict_strategy is not None
                 else None
             ),
+            truth_maintenance=self.truth_maintenance,
         )
         branch._provenance = deepcopy(self._provenance)
         branch._initial_facts = self._initial_facts
+        branch._assumed_facts = self._assumed_facts.copy()
         branch._fired = self._fired.copy()
         branch._fired_supports = self._fired_supports.copy()
         branch._fired_activation_total = self._fired_activation_total
         branch._derivations = self._derivations.copy()
         branch._events = self._events.copy()
         branch._agenda_selections = self._agenda_selections.copy()
+        branch.agenda_metrics = deepcopy(self.agenda_metrics)
+        branch._agenda_memories = self._agenda_memories.copy()
         branch._previous_event_counts = self._previous_event_counts.copy()
+        branch._force_full_evaluation = self._force_full_evaluation.copy()
         branch._groups = self._groups.copy()
         branch._negative_refraction_plans = (
             self._negative_refraction_plans.copy()
@@ -349,13 +458,17 @@ class InferenceSession:
                 previous_count = self._previous_event_counts.get(state_key)
                 delta = (
                     None
-                    if previous_count is None
+                    if (
+                        previous_count is None
+                        or state_key in self._force_full_evaluation
+                    )
                     else _fact_delta(
                         tuple(self._events[previous_count:]),
                         facts_snapshot,
                         revision=len(self._events),
                     )
                 )
+                self._force_full_evaluation.discard(state_key)
                 self._previous_event_counts[state_key] = len(self._events)
                 for activation in self.strategy.instantiate(
                     rule,
@@ -550,14 +663,70 @@ class InferenceSession:
         """Build the complete current set of unfired activations."""
 
         facts_snapshot = self._store.facts
+        memory = self._agenda_memories.get(group.name)
+        if memory is not None and memory.group != group:
+            raise ValueError(
+                f"agenda group {group.name!r} has a different definition"
+            )
+        if memory is None:
+            dependencies = _build_rule_dependency_index(group)
+            activation_rows = tuple(
+                self.strategy.instantiate(rule, facts_snapshot, None)
+                for rule in group.rules
+            )
+            self.agenda_metrics.rebuilds += 1
+            self.agenda_metrics.rule_recomputations += len(group.rules)
+        else:
+            changed_events = tuple(self._events[memory.revision :])
+            dirty = memory.dependencies.affected(changed_events)
+            activation_rows_list = list(memory.activations)
+            if dirty:
+                delta = _fact_delta(
+                    changed_events,
+                    facts_snapshot,
+                    revision=len(self._events),
+                )
+                for rule_index in dirty:
+                    rule = group.rules[rule_index]
+                    state_key = (group.name, rule.name)
+                    force_full = (
+                        not delta.changed
+                        or state_key in self._force_full_evaluation
+                    )
+                    refreshed = self.strategy.instantiate(
+                        rule,
+                        facts_snapshot,
+                        None if force_full else delta,
+                    )
+                    self._force_full_evaluation.discard(state_key)
+                    activation_rows_list[rule_index] = (
+                        refreshed
+                        if force_full
+                        else _merge_agenda_activations(
+                            rule,
+                            activation_rows_list[rule_index],
+                            refreshed,
+                            delta,
+                            self.strategy,
+                            self._store,
+                        )
+                    )
+                self.agenda_metrics.rule_recomputations += len(dirty)
+            self.agenda_metrics.rule_reuses += len(group.rules) - len(dirty)
+            activation_rows = tuple(activation_rows_list)
+            dependencies = memory.dependencies
+        self._agenda_memories[group.name] = _AgendaMemory(
+            group,
+            activation_rows,
+            len(self._events),
+            dependencies,
+        )
         candidates: list[AgendaCandidate] = []
         candidate_order = 0
-        for rule_order, rule in enumerate(group.rules):
-            for activation in self.strategy.instantiate(
-                rule,
-                facts_snapshot,
-                None,
-            ):
+        for rule_order, (rule, activations) in enumerate(
+            zip(group.rules, activation_rows, strict=True)
+        ):
+            for activation in activations:
                 if any(
                     fact not in self._store
                     for fact in activation.premise_facts
@@ -574,11 +743,7 @@ class InferenceSession:
                     self._fact_time_tags.get(fact, 0)
                     for fact in activation.premise_facts
                 )
-                focus_fact = (
-                    activation.premise_facts[0]
-                    if activation.premise_facts
-                    else None
-                )
+                focus_fact = _activation_focus_fact(rule, activation)
                 candidates.append(
                     AgendaCandidate(
                         rule=rule,
@@ -586,7 +751,11 @@ class InferenceSession:
                         rule_order=rule_order,
                         candidate_order=candidate_order,
                         focus_fact=focus_fact,
-                        focus_time_tag=time_tags[0] if time_tags else 0,
+                        focus_time_tag=(
+                            self._fact_time_tags.get(focus_fact, 0)
+                            if focus_fact is not None
+                            else 0
+                        ),
                         lexicographic_time_tags=tuple(
                             sorted(time_tags, reverse=True)
                         ),
@@ -602,34 +771,12 @@ class InferenceSession:
         substitution: Substitution,
         premise_facts: tuple[Fact, ...],
     ) -> _ActivationOutcome:
-        action_substitution = substitution
-        staged: list[tuple[FactMutationKind, Fact]] = []
-        for action in rule.actions:
-            if isinstance(action, Let):
-                action_substitution = action.apply(action_substitution)
-                continue
-            if isinstance(action, Fresh):
-                value = self._next_fresh_atom(action.prefix)
-                action_substitution = action.apply(action_substitution, value)
-                continue
-            if isinstance(action, AddFact):
-                fact = action.instantiate(action_substitution)
-                self._reserve_fact_atoms(fact)
-                staged.append((FactMutationKind.ADD, fact))
-                continue
-            if isinstance(action, RemoveFact):
-                staged.append(
-                    (
-                        FactMutationKind.REMOVE,
-                        action.instantiate(action_substitution),
-                    )
-                )
-                continue
-            raise TypeError(f"unsupported action: {action!r}")
+        staged: list[tuple[FactMutationKind, Fact, Substitution]] = []
+        self._stage_actions(rule.actions, substitution, staged)
 
         added: list[Fact] = []
         removed: list[Fact] = []
-        for kind, fact in staged:
+        for kind, fact, action_substitution in staged:
             if kind is FactMutationKind.ADD:
                 derivation = self._provenance.record(
                     fact,
@@ -650,6 +797,7 @@ class InferenceSession:
                         f"maximum fact count ({self.limits.max_facts}) exceeded"
                     )
             elif self._store.remove(fact):
+                self._assumed_facts.discard(fact)
                 self._fact_time_tags.pop(fact, None)
                 removed.append(fact)
             else:
@@ -667,6 +815,8 @@ class InferenceSession:
                 )
             )
 
+        if self.truth_maintenance and removed:
+            removed.extend(self._cascade_unsupported())
         if removed:
             absent_after_activation = frozenset(
                 fact for fact in removed if fact not in self._store
@@ -680,6 +830,101 @@ class InferenceSession:
         if present_additions and self._negative_refraction_plans:
             self._reconcile_negative_refraction(present_additions)
         return _ActivationOutcome(tuple(added), tuple(removed))
+
+    def _cascade_unsupported(self) -> list[Fact]:
+        """Retract facts outside the grounded positive justification closure."""
+
+        current = frozenset(self._store.facts)
+        supported = {
+            fact
+            for fact in current
+            if fact in self._initial_facts or fact in self._assumed_facts
+        }
+        changed = True
+        while changed:
+            changed = False
+            for fact in current - supported:
+                if any(
+                    all(premise in supported for premise in derivation.premises)
+                    for derivation in self._provenance.derivations(fact)
+                ):
+                    supported.add(fact)
+                    changed = True
+        cascaded: list[Fact] = []
+        for fact in self._store.facts:
+            if fact in supported or not self._store.remove(fact):
+                continue
+            self._fact_time_tags.pop(fact, None)
+            cascaded.append(fact)
+            self._record_external_removal(fact, "tms")
+        return cascaded
+
+    def _record_external_removal(self, fact: Fact, label: str) -> None:
+        self._events.append(
+            InferenceEvent(
+                sequence=len(self._events) + 1,
+                kind=FactMutationKind.REMOVE,
+                fact=fact,
+                rule_name=f"<{label}>",
+                rule_group="<truth-maintenance>",
+                substitution=EMPTY_SUBSTITUTION,
+                premises=(),
+                cycle=self._cycles,
+            )
+        )
+
+    def _stage_actions(
+        self,
+        actions: tuple[Action, ...],
+        substitution: Substitution,
+        staged: list[tuple[FactMutationKind, Fact, Substitution]],
+    ) -> Substitution:
+        action_substitution = substitution
+        for action in actions:
+            if isinstance(action, Let):
+                action_substitution = action.apply(action_substitution)
+                continue
+            if isinstance(action, Fresh):
+                value = self._next_fresh_atom(action.prefix)
+                action_substitution = action.apply(action_substitution, value)
+                continue
+            if isinstance(action, AddFact):
+                fact = action.instantiate(action_substitution)
+                self._reserve_fact_atoms(fact)
+                staged.append(
+                    (FactMutationKind.ADD, fact, action_substitution)
+                )
+                continue
+            if isinstance(action, RemoveFact):
+                staged.append(
+                    (
+                        FactMutationKind.REMOVE,
+                        action.instantiate(action_substitution),
+                        action_substitution,
+                    )
+                )
+                continue
+            if isinstance(action, ForEach):
+                collection = action_substitution.apply(action.collection)
+                if not isinstance(collection, (FiniteSet, FiniteSequence)):
+                    raise TypeError(
+                        "FOR EACH collection must be a ground finite "
+                        "set or sequence"
+                    )
+                if action.variable in action_substitution:
+                    raise ValueError(
+                        f"FOR EACH variable ${action.variable.name} "
+                        "is already bound"
+                    )
+                for element in collection.elements:
+                    self._stage_actions(
+                        action.actions,
+                        action_substitution.bind(action.variable, element),
+                        staged,
+                    )
+                continue
+            raise TypeError(f"unsupported action: {action!r}")
+        return action_substitution
 
     def _next_fresh_atom(self, prefix: str) -> Atom:
         counter = self._fresh_counters.get(prefix, 0)
@@ -729,6 +974,7 @@ class InferenceSession:
         facts = self._store.facts
         matcher = PatternMatcher()
         for plan in self._negative_refraction_plans:
+            fired_count_before = len(self._fired)
             fired_for_rule = {
                 key
                 for key in self._fired
@@ -783,6 +1029,10 @@ class InferenceSession:
                 for fact in added
             )
             if not remaining or not complex_change:
+                if len(self._fired) != fired_count_before:
+                    self._force_full_evaluation.add(
+                        (plan.group_name, plan.rule.name)
+                    )
                 continue
 
             if oracle is None:
@@ -797,6 +1047,10 @@ class InferenceSession:
                     )
                 )
             self._expire_activation_keys(remaining - active)
+            if len(self._fired) != fired_count_before:
+                self._force_full_evaluation.add(
+                    (plan.group_name, plan.rule.name)
+                )
 
     def _expire_activation_keys(
         self,
@@ -857,6 +1111,8 @@ class ForwardEngine:
         strategy: InstantiationStrategy | None = None,
         limits: EngineLimits | None = None,
         conflict_strategy: ConflictResolutionStrategy | None = None,
+        *,
+        truth_maintenance: bool = False,
     ) -> None:
         self.rules = tuple(rules)
         self.default_group = RuleGroup("default", self.rules)
@@ -867,6 +1123,7 @@ class ForwardEngine:
         )
         self.limits = limits or EngineLimits()
         self.conflict_strategy = conflict_strategy
+        self.truth_maintenance = truth_maintenance
 
     def create_session(
         self,
@@ -879,12 +1136,142 @@ class ForwardEngine:
             self.strategy,
             self.limits,
             self.conflict_strategy,
+            truth_maintenance=self.truth_maintenance,
         )
 
     def run(self, initial_facts: tuple[Fact, ...]) -> RunResult:
         session = self.create_session(initial_facts)
         session.run_group(self.default_group)
         return session.snapshot()
+
+
+def _build_rule_dependency_index(
+    group: RuleGroup,
+) -> _RuleDependencyIndex:
+    by_token: dict[tuple[str, Term], set[int]] = {}
+    wildcard: set[int] = set()
+    for rule_index, rule in enumerate(group.rules):
+        fact_premises = _all_fact_premises(rule.premises)
+        if not fact_premises:
+            wildcard.add(rule_index)
+            continue
+        for premise in fact_premises:
+            tokens = _dependency_tokens_for_premise(premise)
+            if not tokens:
+                wildcard.add(rule_index)
+                break
+            for token in tokens:
+                by_token.setdefault(token, set()).add(rule_index)
+    return _RuleDependencyIndex(
+        {
+            token: frozenset(rule_indices)
+            for token, rule_indices in by_token.items()
+        },
+        frozenset(wildcard),
+    )
+
+
+def _merge_agenda_activations(
+    rule: Rule,
+    previous: tuple[Activation, ...],
+    refreshed: tuple[Activation, ...],
+    delta: FactDelta,
+    strategy: InstantiationStrategy,
+    store: NaiveFactStore,
+) -> tuple[Activation, ...]:
+    """Adapt delta-only semi-naïve results to a materialized agenda row."""
+
+    has_non_monotonic_query = any(
+        isinstance(
+            premise,
+            (
+                ExistsPremise,
+                NotExistsPremise,
+                CountPremise,
+                UniquePremise,
+                CollectPremise,
+            ),
+        )
+        for premise in rule.premises
+    )
+    if (
+        not isinstance(strategy, SemiNaiveInstantiationStrategy)
+        or delta.removed
+        or has_non_monotonic_query
+    ):
+        return refreshed
+    retained = (
+        activation
+        for activation in previous
+        if all(fact in store for fact in activation.premise_facts)
+    )
+    unique: dict[
+        tuple[tuple[tuple[str, Term], ...], tuple[Fact, ...]],
+        Activation,
+    ] = {}
+    for activation in (*retained, *refreshed):
+        unique.setdefault(
+            (activation.substitution.key, activation.premise_facts),
+            activation,
+        )
+    return tuple(unique.values())
+
+
+def _all_fact_premises(
+    premises: tuple[Premise, ...],
+) -> tuple[FactPremise, ...]:
+    facts: list[FactPremise] = []
+    for premise in premises:
+        if isinstance(premise, FactPremise):
+            facts.append(premise)
+        elif isinstance(
+            premise,
+            (
+                ExistsPremise,
+                NotExistsPremise,
+                CountPremise,
+                UniquePremise,
+                CollectPremise,
+            ),
+        ):
+            facts.extend(_all_fact_premises(premise.premises))
+    return tuple(facts)
+
+
+def _dependency_tokens_for_premise(
+    premise: FactPremise,
+) -> frozenset[tuple[str, Term]]:
+    if is_ground(premise.entity):
+        return frozenset((("entity", premise.entity),))
+    if isinstance(premise.entity, Triple):
+        for name, value in (
+            ("relation", premise.entity.relation),
+            ("subject", premise.entity.subject),
+            ("object", premise.entity.object),
+        ):
+            if is_ground(value):
+                return frozenset(((name, value),))
+    if is_ground(premise.status):
+        return frozenset((("status", premise.status),))
+    return frozenset()
+
+
+def _dependency_tokens_for_fact(
+    fact: Fact,
+) -> frozenset[tuple[str, Term]]:
+    tokens = {
+        ("entity", fact.entity),
+        ("status", fact.status),
+    }
+    if isinstance(fact.entity, Triple):
+        tokens.update(
+            (
+                ("subject", fact.entity.subject),
+                ("relation", fact.entity.relation),
+                ("object", fact.entity.object),
+            )
+        )
+    return frozenset(tokens)
 
 
 @cache
@@ -971,6 +1358,33 @@ def _substitution_from_key(key: ActivationKey) -> Substitution:
     )
 
 
+def _activation_focus_fact(
+    rule: Rule,
+    activation: Activation,
+) -> Fact | None:
+    focused = next(
+        (
+            premise
+            for premise in rule.premises
+            if isinstance(premise, FactPremise) and premise.focused
+        ),
+        None,
+    )
+    if focused is not None:
+        matcher = PatternMatcher()
+        for fact in activation.premise_facts:
+            if (
+                focused.match(
+                    fact,
+                    activation.substitution,
+                    matcher,
+                )
+                is not None
+            ):
+                return fact
+    return activation.premise_facts[0] if activation.premise_facts else None
+
+
 def _atom_names_in(term: Term) -> tuple[str, ...]:
     if isinstance(term, Atom):
         return (term.name,)
@@ -981,6 +1395,12 @@ def _atom_names_in(term: Term) -> tuple[str, ...]:
             *_atom_names_in(term.object),
         )
     if isinstance(term, FiniteSet):
+        return tuple(
+            name
+            for element in term.elements
+            for name in _atom_names_in(element)
+        )
+    if isinstance(term, FiniteSequence):
         return tuple(
             name
             for element in term.elements

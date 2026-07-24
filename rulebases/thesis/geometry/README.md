@@ -20,7 +20,7 @@ donnent enfin un carré.
 uv run python -m rulebases.runner thesis/geometry
 ```
 
-## Extensions proposées
+## Prédicats calculés et types
 
 Le noyau suppose fournis les prédicats `opposite_sides_parallel`,
 `all_angles_right`, etc. Une reconstruction géométrique complète demanderait :
@@ -29,7 +29,10 @@ Le noyau suppose fournis les prédicats `opposite_sides_parallel`,
 - une hiérarchie de types déclarative, pour éviter de réécrire toutes les
   propagations `is-a`.
 
-`FRESH` couvre désormais le nommage des diagonales, intersections et autres
-constructions intermédiaires. Les prédicats calculés et la hiérarchie
-déclarative restent à concevoir. Ils seraient également utiles au diagnostic,
-à la CAO et à l'analyse de graphes.
+`FRESH` couvre le nommage des constructions. `computed_example.py` montre
+maintenant comment enregistrer explicitement un prédicat pur et l'appeler avec
+`CHECK`, sans exposer une fonction Python arbitraire au texte.
+`type_hierarchy_group()` fournit la clôture `subtype` et la propagation
+`instance_of` avec provenance. Le scénario historique conserve ses règles de
+classification détaillées car elles expliquent mieux les conditions
+géométriques qu'une simple taxonomie.

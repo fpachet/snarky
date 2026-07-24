@@ -6,8 +6,9 @@ séparation.
 
 Le premier groupe calcule les intervalles modulo 12 à partir de hauteurs MIDI.
 Le deuxième matérialise avec `COLLECT` l'ensemble des notes et reconnaît une
-triade majeure ou mineure. Le dernier reconnaît une progression `ii–V–I` dans
-trois accords liés par `next`.
+triade majeure ou mineure. Le dernier utilise `WINDOW` pour lier la séquence
+ordonnée `SEQ[chord_1 chord_2 chord_3]`, puis reconnaît une progression
+`ii–V–I`.
 
 ## Intérêt
 
@@ -23,10 +24,10 @@ uv run python -m rulebases.runner thesis/muses
 ## Extensions utilisées et besoin restant
 
 Les hauteurs ne sont plus normalisées manuellement : `%` calcule les
-intervalles modulo 12, et `COLLECT` produit les ensembles finis de notes.
-Une version musicale plus complète demanderait encore un type natif de
-séquence avec fenêtres de motifs. `FRESH` pourrait nommer les accords si ceux-ci
-étaient découverts plutôt que fournis ; le scénario actuel n’en a pas besoin.
+intervalles modulo 12, `COLLECT` produit les ensembles finis de notes et
+`FiniteSequence`/`WINDOW` représentent les fenêtres de motifs sans type
+musical ad hoc. `FRESH` pourrait nommer les accords s'ils étaient découverts
+plutôt que fournis ; le scénario actuel n’en a pas besoin.
 
-Ces opérateurs seraient généraux et serviraient aussi à l'analyse de textes,
-de traces et de séries temporelles symboliques.
+Les besoins encore ouverts sont musicaux plutôt que structurels : fenêtres de
+longueur variable, métrique temporelle et gestion d'événements simultanés.

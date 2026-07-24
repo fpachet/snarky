@@ -6,9 +6,12 @@ from dataclasses import dataclass
 from functools import cache
 from typing import Protocol
 
+from ..computed import ComputedPremise
 from ..facts import Fact
 from ..premises import (
+    BindPremise,
     CollectPremise,
+    CombinationsPremise,
     ComparisonPremise,
     CountPremise,
     ExistsPremise,
@@ -145,6 +148,17 @@ def _variables_in_premises(
         elif isinstance(premise, ComparisonPremise):
             variables.update(variables_in(premise.left))
             variables.update(variables_in(premise.right))
+        elif isinstance(premise, BindPremise):
+            variables.add(premise.target)
+            variables.update(variables_in(premise.value))
+        elif isinstance(premise, ComputedPremise):
+            if premise.target is not None:
+                variables.add(premise.target)
+            for argument in premise.arguments:
+                variables.update(variables_in(argument))
+        elif isinstance(premise, CombinationsPremise):
+            variables.add(premise.target)
+            variables.update(variables_in(premise.source))
         elif isinstance(premise, CollectPremise):
             variables.add(premise.target)
             variables.update(variables_in(premise.projection))

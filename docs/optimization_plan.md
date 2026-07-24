@@ -24,14 +24,14 @@ Les optimisations doivent préserver les propriétés suivantes :
 | Phase | État | Résultat ou prochaine étape |
 |---|---|---|
 | 0 — Mesures | Terminée pour le socle | Benchmarks Fibonacci et Sudoku p1–p6, acceptation Sudoku p1–p7, durées pytest et compteurs d'instanciation disponibles |
-| 1 — Activations paresseuses | À faire | Les stratégies matérialisent encore leurs activations dans un tuple |
+| 1 — Activations paresseuses | Différée | MEA exige le conflit complet ; ne pas complexifier les autres chemins sans profil dominant |
 | 2 — Indexation | Terminée | Index exact partagé, index composés sur deux positions, ajouts incrémentaux et retraits en lot |
 | 3 — Deltas | Terminée | Deltas nets par règle pour ajouts, suppressions et réinsertions |
 | 4 — Plans et jointures | Terminée pour le socle | Prémisses compilées, MRV delta et mémoires partielles bornées avec repli |
 | 5 — Substitutions et négation | Terminée | Cadre mutable, hashes précalculés, watchers indexés, compteurs simples et requêtes corrélées persistantes |
-| 6 — Sélection des règles | Deux tranches terminées | Plans négatifs compilés et stratégie MEA publique ; index positif et agenda incrémental restent à faire |
+| 6 — Sélection des règles | Terminée | Plans négatifs, index positif conservatif, focus MEA et agenda incrémental mesurable |
 | 7 — Agrégats | Terminée pour `COUNT`/`UNIQUE` ; socle `COLLECT` livré | DSL, API Python, oracle naïf et réfraction ; projection `COLLECT` encore recalculée |
-| 8 à 10 | À faire | Provenance configurable, stratégie centrée variables et contraintes |
+| 8 à 10 | Partielles | Backend CSP/SAT fini livré ; provenance configurable, stratégie centrée variables et backend externe restent à faire |
 
 L'extension fonctionnelle `LET` est terminée : Fibonacci utilise désormais
 l'arithmétique native du moteur et ne dépend plus de tables de sommes et de
@@ -429,25 +429,26 @@ interne pourra être introduite sans modifier l’API.
 
 ## Phase 6 — Sélection des règles candidates
 
-**État : filtrage négatif et agenda MEA explicite terminés.** Les ajouts sont
+**État : terminée.** Les ajouts sont
 filtrés par les signatures des prémisses négatives. Lorsqu’un `NOT EXISTS`
 top-level ne contient qu’une prémisse factuelle, le nouveau fait est testé
 directement contre chaque substitution déclenchée et seules les clés réellement
 bloquées sont expirées. Les négations composées utilisent encore l’oracle
-indexé exhaustif. L’index général des règles positives reste à implémenter.
+indexé exhaustif.
 
-Créer un `RuleCandidateIndex` reliant les signatures de faits aux prémisses de
-règles susceptibles de les accepter.
+`_RuleDependencyIndex` relie une signature factuelle discriminante à chaque
+règle et conserve un repli wildcard pour les patterns généraux. L'agenda garde
+les activations par règle ; après mutation, seules les lignes candidates
+reçoivent le delta. `AgendaMetrics` expose le travail effectué.
 
-Lorsqu’un fait est ajouté, le moteur ne doit réveiller que les règles dont au
-moins une prémisse peut matcher ce fait. Les règles contenant une relation
-variable ou un pattern très général conserveront un chemin de repli correct.
+Sur 200 règles indépendantes, l'ajout ciblé recalcule 1 règle et en réutilise
+199. La médiane passe de 2,206 ms pour une construction froide à 0,572 ms pour
+la mise à jour, soit ×3,86. Voir
+[`../benchmarks/results/agenda_incremental_2026-07-24.csv`](../benchmarks/results/agenda_incremental_2026-07-24.csv).
 
-La stratégie optionnelle MEA construit aujourd’hui l’ensemble complet des
-activations avant chaque choix. Cette reconstruction est volontairement simple
-et correcte pour servir d’oracle sur la base du singe et des bananes. Elle
-devra être profilée séparément : un agenda incrémental ne sera introduit que si
-des bases plus larges montrent que ce coût domine.
+Les activations restent matérialisées parce que MEA doit comparer le conflit
+complet. Une API réellement paresseuse ne sera introduite que si un profil
+montre un gain hors des chemins exigeant un tri ou un choix global.
 
 ## Phase 7 — Agrégats corrélés
 
@@ -589,19 +590,18 @@ facile à comprendre et à vérifier.
 
 1. profiler `F(20)` et `F(21)` après suppression du coût de réfraction
    négative, pour départager substitutions, jointures, tri et provenance ;
-2. produire les activations paresseusement lorsque leur tri global n'est pas
-   requis, ou borner explicitement leur matérialisation ;
+2. profiler les activations hors agenda avant de décider d'une API paresseuse ;
 3. partager éventuellement un index global entre les règles si le profilage
    montre que les trois index persistants restent significatifs ;
-4. ajouter une sélection générale des règles positives candidates réveillées
-   par chaque delta ;
+4. ~~ajouter une sélection générale des règles positives candidates
+   réveillées par chaque delta ;~~
 5. mesurer la mémoire des préfixes de jointure et ajuster leur budget par
    charge ;
 6. étendre les benchmarks aux fermetures transitives et jointures en étoile ;
 7. profiler `COLLECT` sur MusES et les prochains cas p8+, puis maintenir ses
    valeurs projetées incrémentalement seulement si ce coût devient mesurable.
-8. profiler la reconstruction du conflit MEA avant de concevoir un agenda
-   incrémental partagé avec l’index positif des règles.
+8. ~~profiler et rendre incrémental le conflit MEA avec l’index positif des
+   règles.~~ Étendre la mesure au singe et à de futures bases MEA plus larges.
 
 Le critère de sortie sera un nouveau gain mesuré sur la baseline semi-naïve,
 avec identité complète des faits, dérivations, cycles et profondeurs. Les

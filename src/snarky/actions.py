@@ -69,7 +69,22 @@ class Fresh:
         return substitution.bind(self.variable, value)
 
 
-Action = AddFact | RemoveFact | Let | Fresh
+@dataclass(frozen=True, slots=True)
+class ForEach:
+    """Apply nested actions once per member of a finite collection."""
+
+    variable: Variable
+    collection: Term
+    actions: tuple[Action, ...]
+
+    def __post_init__(self) -> None:
+        actions = tuple(self.actions)
+        if not actions:
+            raise ValueError("FOR EACH requires at least one nested action")
+        object.__setattr__(self, "actions", actions)
+
+
+type Action = AddFact | RemoveFact | Let | Fresh | ForEach
 
 
 def add(entity: Term, status: Term = Status.VRAI) -> AddFact:
@@ -94,3 +109,13 @@ def fresh(variable: Variable, prefix: str = "fresh") -> Fresh:
     """Public convenience constructor for a deterministic fresh atom."""
 
     return Fresh(variable, prefix)
+
+
+def for_each(
+    variable: Variable,
+    collection: Term,
+    *actions: Action,
+) -> ForEach:
+    """Construct a finite collection action loop."""
+
+    return ForEach(variable, collection, tuple(actions))

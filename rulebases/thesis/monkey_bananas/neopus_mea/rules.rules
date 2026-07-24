@@ -1,7 +1,7 @@
 GROUP solve_goals
     RULE generate_move_climbable_below_ceiling_object
     WHEN
-        ($goal status active)
+        FOCUS ($goal status active)
         ($goal goal_type holds)
         ($goal object $object)
         ($object weight light)
@@ -23,7 +23,7 @@ GROUP solve_goals
 
     RULE generate_get_down_before_transport
     WHEN
-        ($goal status active)
+        FOCUS ($goal status active)
         ($goal goal_type at)
         ($goal subject $object)
         ($goal destination $destination)
@@ -45,7 +45,7 @@ GROUP solve_goals
 
     RULE generate_hold_object_before_transport
     WHEN
-        ($goal status active)
+        FOCUS ($goal status active)
         ($goal goal_type at)
         ($goal subject $object)
         ($goal destination $destination)
@@ -68,7 +68,7 @@ GROUP solve_goals
 
     RULE generate_reach_floor_object
     WHEN
-        ($goal status active)
+        FOCUS ($goal status active)
         ($goal goal_type holds)
         ($goal object $object)
         ($object on floor)
@@ -89,7 +89,7 @@ GROUP solve_goals
 
     RULE generate_climb_below_ceiling_object
     WHEN
-        ($goal status active)
+        FOCUS ($goal status active)
         ($goal goal_type holds)
         ($goal object $object)
         ($object on ceiling)
@@ -110,7 +110,7 @@ GROUP solve_goals
 
     RULE generate_reach_climbable
     WHEN
-        ($goal status active)
+        FOCUS ($goal status active)
         ($goal goal_type on)
         ($goal subject monkey)
         ($goal support $support)
@@ -132,7 +132,7 @@ GROUP solve_goals
 
     RULE generate_empty_hands_before_climbing
     WHEN
-        ($goal status active)
+        FOCUS ($goal status active)
         ($goal goal_type on)
         ($goal subject monkey)
         ($goal support $support)
@@ -154,7 +154,7 @@ GROUP solve_goals
 
     RULE satisfy_at_already_there
     WHEN
-        ($goal status active)
+        FOCUS ($goal status active)
         ($goal goal_type at)
         ($goal subject $subject)
         ($goal destination $destination)
@@ -167,7 +167,7 @@ GROUP solve_goals
 
     RULE satisfy_at_monkey_by_walking
     WHEN
-        ($goal status active)
+        FOCUS ($goal status active)
         ($goal goal_type at)
         ($goal subject monkey)
         ($goal destination $destination)
@@ -184,7 +184,7 @@ GROUP solve_goals
 
     RULE satisfy_at_object_by_carrying
     WHEN
-        ($goal status active)
+        FOCUS ($goal status active)
         ($goal goal_type at)
         ($goal subject $object)
         ($goal destination $destination)
@@ -206,7 +206,7 @@ GROUP solve_goals
 
     RULE satisfy_holds_already_held
     WHEN
-        ($goal status active)
+        FOCUS ($goal status active)
         ($goal goal_type holds)
         ($goal object $object)
         (monkey holds $object)
@@ -218,7 +218,7 @@ GROUP solve_goals
 
     RULE satisfy_holds_nothing_already
     WHEN
-        ($goal status active)
+        FOCUS ($goal status active)
         ($goal goal_type holds)
         ($goal object nothing)
         (monkey holds nothing)
@@ -230,7 +230,7 @@ GROUP solve_goals
 
     RULE satisfy_holds_nothing_by_dropping
     WHEN
-        ($goal status active)
+        FOCUS ($goal status active)
         ($goal goal_type holds)
         ($goal object nothing)
         (monkey holds $object)
@@ -246,7 +246,7 @@ GROUP solve_goals
 
     RULE satisfy_holds_floor_object_by_picking_up
     WHEN
-        ($goal status active)
+        FOCUS ($goal status active)
         ($goal goal_type holds)
         ($goal object $object)
         ($object on floor)
@@ -264,7 +264,7 @@ GROUP solve_goals
 
     RULE satisfy_holds_ceiling_object
     WHEN
-        ($goal status active)
+        FOCUS ($goal status active)
         ($goal goal_type holds)
         ($goal object $object)
         ($object on ceiling)
@@ -284,7 +284,7 @@ GROUP solve_goals
 
     RULE satisfy_on_already_on_support
     WHEN
-        ($goal status active)
+        FOCUS ($goal status active)
         ($goal goal_type on)
         ($goal subject $subject)
         ($goal support $support)
@@ -297,7 +297,7 @@ GROUP solve_goals
 
     RULE satisfy_on_floor_by_getting_down
     WHEN
-        ($goal status active)
+        FOCUS ($goal status active)
         ($goal goal_type on)
         ($goal subject monkey)
         ($goal support floor)
@@ -313,7 +313,7 @@ GROUP solve_goals
 
     RULE satisfy_on_climbable_by_climbing
     WHEN
-        ($goal status active)
+        FOCUS ($goal status active)
         ($goal goal_type on)
         ($goal subject monkey)
         ($goal support $support)

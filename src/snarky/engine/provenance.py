@@ -33,6 +33,11 @@ class Provenance:
         except KeyError as error:
             raise KeyError(f"no proof depth is known for {fact!r}") from error
 
+    def assume(self, fact: Fact) -> None:
+        """Register an externally asserted fact as a depth-zero premise."""
+
+        self._depths.setdefault(fact, 0)
+
     def record(
         self,
         fact: Fact,

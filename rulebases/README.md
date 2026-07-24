@@ -21,6 +21,13 @@ Une base exécutable contient normalement :
 - `expected_facts.yaml`, un oracle minimal ;
 - `scenario.yaml`, l'ordre d'appel des groupes.
 
+Une base peut aussi fournir un compagnon Python lorsqu'elle illustre une
+interface qui ne peut pas être déclarée dans le DSL, comme le registre de
+prédicats calculés de la géométrie. La connaissance métier reste néanmoins
+dans les règles dès que le langage le permet. Les quatre reines engendrent
+leurs combinaisons par saturation et Hanoï dérécursive entièrement ses appels
+au moyen de faits de sous-problèmes.
+
 Un scénario peut aussi déclarer `conflict_strategy: mea`. L’option `--trace`
 affiche alors chaque sélection de l’agenda, sa fraîcheur et ses mutations :
 

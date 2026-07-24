@@ -51,8 +51,7 @@ END_GROUP
 GROUP analyze_progressions
     RULE recognize_two_five_one
     WHEN
-        ($first next $second)
-        ($second next $third)
+        WINDOW $progression := SEQ[$first $second $third] VIA next
         ($first root $two)
         ($first quality minor)
         ($second root $five)
@@ -62,6 +61,6 @@ GROUP analyze_progressions
         ($two descends_fifth_to $five)
         ($five descends_fifth_to $one)
     THEN
-        ADD (($first $second $third) analysis two_five_one)
+        ADD ($progression analysis two_five_one)
     END
 END_GROUP

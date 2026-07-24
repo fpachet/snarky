@@ -12,10 +12,10 @@ sémantique et celle de Snarky.
 | [`petri_net`](petri_net/README.md) | réseau borné déterministe | mutations atomiques | [p. 110](https://www.francoispachet.fr/wp-content/uploads/2021/01/pachet-92b.pdf#page=110) |
 | [`geometry`](geometry/README.md) | classification symbolique | taxonomie et explications | [p. 117](https://www.francoispachet.fr/wp-content/uploads/2021/01/pachet-92b.pdf#page=117) |
 | [`monkey_bananas`](monkey_bananas/README.md) | version simple et reformulation à sous-buts MEA | planification et contrôle de conflit | [p. 190](https://www.francoispachet.fr/wp-content/uploads/2021/01/pachet-92b.pdf#page=190) |
-| [`muses`](muses/README.md) | reconnaissance harmonique symbolique | séquences et regroupements | [p. 250](https://www.francoispachet.fr/wp-content/uploads/2021/01/pachet-92b.pdf#page=250) |
-| [`four_queens`](four_queens/README.md) | validation d'une disposition | contraintes combinatoires | chapitre V.1.1 |
-| [`hanoi`](hanoi/README.md) | instance à deux disques | contrôle récursif séquentiel | chapitre V.1.2 |
+| [`muses`](muses/README.md) | reconnaissance harmonique avec fenêtre `SEQ` | séquences et regroupements | [p. 250](https://www.francoispachet.fr/wp-content/uploads/2021/01/pachet-92b.pdf#page=250) |
+| [`four_queens`](four_queens/README.md) | génération directe et incrémentale entièrement par règles | contraintes combinatoires | [p. 89](https://www.francoispachet.fr/wp-content/uploads/2021/01/pachet-92b.pdf#page=89) |
+| [`hanoi`](hanoi/README.md) | dérécursivation complète en quatre règles | contrôle récursif séquentiel | [p. 95](https://www.francoispachet.fr/wp-content/uploads/2021/01/pachet-92b.pdf#page=95) |
 
-Chaque README indique les extensions qui seraient nécessaires pour passer du
-noyau exécutable à une reproduction plus générale. Ces besoins sont synthétisés
-dans [`../../docs/rulebase_feature_roadmap.md`](../../docs/rulebase_feature_roadmap.md).
+Chaque README distingue le noyau fidèle, les extensions modernes utilisées et
+les limites encore réelles. La synthèse se trouve dans
+[`../../docs/rulebase_feature_roadmap.md`](../../docs/rulebase_feature_roadmap.md).

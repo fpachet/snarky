@@ -24,7 +24,7 @@ uv run python -m rulebases.runner \
 La trace montre, pour chaque choix :
 
 - la règle sélectionnée dans l’ensemble de conflit ;
-- le but actif utilisé comme première prémisse ;
+- le but actif marqué `FOCUS` ;
 - son `timeTag` de fraîcheur ;
 - les faits ajoutés et retirés par l’activation.
 
@@ -36,9 +36,9 @@ trace indente automatiquement les sélections selon cette profondeur.
 
 Le but parent reste actif pendant qu’un sous-but est résolu. Plusieurs règles
 peuvent donc être simultanément applicables. `MEAConflictStrategy` privilégie
-le fait filtré par la première prémisse ; toutes les règles de résolution
-placent ainsi `($goal status active)` en tête. Un sous-but nouvellement créé
-possède un `timeTag` supérieur à celui de son parent et passe devant lui.
+le fait filtré par la prémisse `FOCUS` ; toutes les règles de résolution
+marquent ainsi `($goal status active)`. Un sous-but nouvellement créé possède
+un `timeTag` supérieur à celui de son parent et passe devant lui.
 
 Après ce critère principal, les égalités sont départagées par un vecteur de
 fraîcheur de type LEX, la spécificité de la règle, puis l’ordre source.

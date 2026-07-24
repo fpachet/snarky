@@ -3,5 +3,9 @@ kind: groups
 rules: rules.rules
 facts: initial_facts.yaml
 expected_facts: expected_facts.yaml
-group_order: [detect_attacks, validate_board]
-max_rounds: 4
+group_order:
+  - build_board
+  - derive_attacks
+  - solve_four_queens_direct
+  - solve_n_queens
+max_rounds: 2

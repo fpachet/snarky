@@ -1,28 +1,180 @@
-GROUP detect_attacks
-    RULE detect_shared_attack_axis
+GROUP build_board
+    # Engendrer declarativement les indices 1..n a partir de la seule taille.
+    RULE seed_first_index
     WHEN
-        ($axis conflict_axis true)
-        ($first at $first_cell)
-        ($second at $second_cell)
-        $first != $second
-        ($first_cell $axis $coordinate)
-        ($second_cell $axis $coordinate)
+        (board size $n)
+        $n >= 1
     THEN
-        ADD (board conflict ($first $axis $second))
+        ADD (board index 1)
+    END
+
+    RULE generate_next_index
+    WHEN
+        (board size $n)
+        (board index $index)
+        $index < $n
+    THEN
+        LET $next := $index + 1
+        ADD (board index $next)
+    END
+
+    # Le produit cartesien des deux premisses index engendre les n*n cases.
+    # Les diagonales sont calculees une fois et deviennent ensuite des faits.
+    RULE generate_cell
+    WHEN
+        (board index $row)
+        (board index $column)
+    THEN
+        LET $diagonal_up := $row + $column
+        LET $diagonal_down := $row - $column
+        ADD (($row cell $column) kind cell)
+        ADD (($row cell $column) row $row)
+        ADD (($row cell $column) column $column)
+        ADD (($row cell $column) diagonal_up $diagonal_up)
+        ADD (($row cell $column) diagonal_down $diagonal_down)
     END
 END_GROUP
 
-GROUP validate_board
-    RULE accept_conflict_free_board
+GROUP derive_attacks
+    # Une attaque est une relation explicable, derivee d'un axe partage.
+    # La relation variable couvre ligne, colonne et les deux diagonales.
+    RULE derive_cell_attack
+    WHEN
+        ($axis conflict_axis true)
+        ($first kind cell)
+        ($second kind cell)
+        $first != $second
+        ($first $axis $coordinate)
+        ($second $axis $coordinate)
+    THEN
+        ADD ($first attacks $second)
+    END
+END_GROUP
+
+GROUP solve_four_queens_direct
+    # Reformulation fidele de la deuxieme version NeOpus. Chaque nouvelle
+    # colonne est liee puis comparee immediatement aux precedentes, afin de
+    # couper les jointures incompatibles le plus tot possible.
+    RULE find_four_queens
     WHEN
         (board size 4)
-        COUNT == 4
-            ($queen at $cell)
-        END_COUNT
+
+        ($c1 column 1)
+        ($c1 row $r1)
+        ($c1 diagonal_up $u1)
+        ($c1 diagonal_down $d1)
+
+        ($c2 column 2)
+        ($c2 row $r2)
+        ($c2 diagonal_up $u2)
+        ($c2 diagonal_down $d2)
+        $r1 != $r2
+        $u1 != $u2
+        $d1 != $d2
+
+        ($c3 column 3)
+        ($c3 row $r3)
+        ($c3 diagonal_up $u3)
+        ($c3 diagonal_down $d3)
+        $r1 != $r3
+        $u1 != $u3
+        $d1 != $d3
+        $r2 != $r3
+        $u2 != $u3
+        $d2 != $d3
+
+        ($c4 column 4)
+        ($c4 row $r4)
+        ($c4 diagonal_up $u4)
+        ($c4 diagonal_down $d4)
+        $r1 != $r4
+        $u1 != $u4
+        $d1 != $d4
+        $r2 != $r4
+        $u2 != $u4
+        $d2 != $d4
+        $r3 != $r4
+        $u3 != $u4
+        $d3 != $d4
+    THEN
+        ADD (SEQ[$c1 $c2 $c3 $c4] queens_solution direct)
+    END
+END_GROUP
+
+GROUP solve_n_queens
+    # La racine deterministe initialise l'arbre monotone des placements.
+    RULE start_search
+    WHEN
+        (board size $n)
+    THEN
+        ADD (queens-root kind queens_candidate)
+        ADD (queens-root state partial)
+        ADD (queens-root next_column 1)
+    END
+
+    # Chaque activation represente un choix encore compatible. Toutes les
+    # branches coexistent dans la memoire de travail : aucun backtracking ni
+    # solveur externe n'est cache dans l'execution.
+    RULE extend_partial_placement
+    WHEN
+        (board size $n)
+        ($candidate kind queens_candidate)
+        ($candidate state partial)
+        ($candidate next_column $column)
+        $column <= $n
+        ($cell kind cell)
+        ($cell column $column)
+
+        COLLECT $placed := $placed_cell
+            ($candidate contains $placed_cell)
+        END_COLLECT
+
         NOT EXISTS
-            (board conflict $conflict)
+            ($candidate contains $attacker)
+            ($attacker attacks $cell)
         END_EXISTS
     THEN
-        ADD (board state solved)
+        LET $next := $column + 1
+        ADD (($candidate chooses $cell) kind queens_candidate)
+        ADD (($candidate chooses $cell) state partial)
+        ADD (($candidate chooses $cell) parent $candidate)
+        ADD (($candidate chooses $cell) next_column $next)
+        ADD (($candidate chooses $cell) contains $cell)
+        FOR EACH $member IN $placed
+            ADD (($candidate chooses $cell) contains $member)
+        END_FOR_EACH
+    END
+
+    RULE recognize_complete_placement
+    WHEN
+        (board size $n)
+        ($candidate kind queens_candidate)
+        ($candidate state partial)
+        ($candidate next_column $next)
+        $next > $n
+        NOT EXISTS
+            ($candidate state solution)
+        END_EXISTS
+    THEN
+        ADD ($candidate state solution)
+    END
+
+    # L'arbre precedent est generique. Cette derniere regle ne fait que
+    # materialiser l'oracle ordonne du scenario n=4 pour comparer ses
+    # resultats a la formulation historique directe.
+    RULE materialize_four_queen_solution
+    WHEN
+        (board size 4)
+        ($candidate state solution)
+        ($candidate contains $c1)
+        ($c1 column 1)
+        ($candidate contains $c2)
+        ($c2 column 2)
+        ($candidate contains $c3)
+        ($c3 column 3)
+        ($candidate contains $c4)
+        ($c4 column 4)
+    THEN
+        ADD (SEQ[$c1 $c2 $c3 $c4] queens_solution incremental)
     END
 END_GROUP

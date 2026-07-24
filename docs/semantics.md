@@ -49,8 +49,8 @@ La forme `entity ' status` matche simultanément l’entité et le statut du fai
 le statut peut être une variable. Les comparaisons sont évaluées après
 substitution et nécessitent des opérandes ground.
 
-Le moteur supporte `ADD`, `REMOVE`, la liaison arithmétique locale `LET` et la
-création de symbole `FRESH`.
+Le moteur supporte `ADD`, `REMOVE`, la liaison arithmétique locale `LET`, la
+création de symbole `FRESH` et l'itération d'actions `FOR EACH`.
 Les actions sont instanciées avant mutation, puis appliquées dans leur ordre
 textuel. `LET` évalue une expression numérique déterministe, enrichit la
 substitution de l'activation et ne crée aucun fait. Les actions suivantes
@@ -104,16 +104,24 @@ COLLECT $notes := $note
 END_COLLECT
 ```
 
+`FiniteSequence` représente une collection ordonnée avec doublons sous la
+forme `SEQ[...]`. `BIND` lie un terme structuré déjà ground, `WINDOW` développe
+une chaîne de prémisses sur une relation et `COMBINATIONS` énumère les
+sous-séquences de taille fixe. Contrairement à `COLLECT`, ces deux dernières
+constructions peuvent produire plusieurs activations.
+
+Les prémisses calculées n'appellent que des `ComputedPredicate` présents dans
+un `PredicateRegistry`. `CHECK` exige un booléen ; `COMPUTE` exige un terme
+ground et lie une cible locale. Aucun code textuel n'est évalué.
+
 Une `InferenceSession` peut être copiée avec `fork()`. La copie possède sa
 propre mémoire de travail, sa réfraction, sa provenance, ses compteurs et ses
-générateurs `FRESH`. Elle sert à exécuter une continuation isolée ; elle ne
-formule pas d’hypothèse, ne choisit pas de branche et ne constitue donc pas un
-backtracking automatique.
+générateurs `FRESH`. `HypothesisSearch` peut orchestrer explicitement plusieurs
+copies, mais `fork()` seul ne formule ni hypothèse ni politique de choix.
 
-Les modifications partielles, les séquences ordonnées, la recherche
-automatique et les contraintes générales restent différées. Voir
+Les modifications partielles et un ATMS complet restent différés. Voir
 [`collections_fresh_and_contexts.md`](collections_fresh_and_contexts.md) et
-[`mutations_and_negation.md`](mutations_and_negation.md).
+[`advanced_problem_solving.md`](advanced_problem_solving.md).
 
 ## Instanciation et point fixe
 
@@ -184,16 +192,20 @@ La résolution de conflit est optionnelle. Sans stratégie explicite, le moteur
 conserve le balayage déterministe des règles et activations dans leur ordre
 source.
 
-Avec `MEAConflictStrategy`, l’ensemble complet des activations est reconstruit
-avant chaque déclenchement et une seule activation est choisie. Le critère
-principal est le `timeTag` du premier fait support, suivi d’un vecteur LEX des
-supports, de la spécificité et de l’ordre source. Chaque choix est conservé
+Avec `MEAConflictStrategy`, l’ensemble complet des activations est maintenu et
+une seule activation est choisie. Le critère principal est le `timeTag` du fait
+support marqué `FOCUS`, ou du premier support par compatibilité, suivi d’un
+vecteur LEX, de la spécificité et de l’ordre source. Chaque choix est conservé
 dans un `AgendaSelection`.
+
+Un index de dépendances factuelles et une mémoire par règle évitent de
+réinstancier les règles non concernées par le delta. La stratégie voit malgré
+tout tous les candidats au moment du choix.
 
 Un fait initial reçoit un `timeTag` suivant son insertion. Un ajout effectif
 reçoit le prochain numéro ; un retrait supprime le numéro et une réinsertion
-est fraîche. Placer `($goal status active)` en première prémisse donne ainsi
-aux buts une fraîcheur locale : un sous-but nouveau passe devant son parent.
+est fraîche. Marquer `FOCUS ($goal status active)` donne ainsi aux buts une
+fraîcheur locale : un sous-but nouveau passe devant son parent.
 
 Ce mode reste du chaînage avant sans hypothèses ni retour arrière. Voir
 [`conflict_resolution.md`](conflict_resolution.md).
@@ -234,6 +246,28 @@ exécute d’abord les groupes de maintenance, essaie les techniques dans l’or
 repart de la première après chaque mutation et renvoie `SOLVED`, `STUCK`,
 `INCONSISTENT` ou `LIMIT_REACHED`. Il ne contient aucune connaissance du
 domaine Sudoku.
+
+`RuleGroupTemplate` spécialise des paramètres ground avant l'enregistrement du
+groupe. `RecursiveGroupProcedure` enchaîne des `GroupCall` selon une expansion
+DFS ou BFS bornée. Les appels sont une couche de contrôle Python observable ;
+ils ne se produisent jamais au milieu d'une activation.
+
+## Recherche, contraintes et maintenance de vérité
+
+`HypothesisSearch` explore des branches isolées, sature les groupes choisis et
+teste des objets `StopCondition` de but et de contradiction. Sa stratégie,
+ses hypothèses et sa limite de nœuds sont explicites.
+
+`ConstraintSolver` est un protocole indépendant du moteur. Le backend fini de
+référence résout `ConstraintProblem`; la couche SAT traduit une CNF vers ce
+format. Les solutions peuvent être converties en faits `assigned`, mais le
+solveur ne modifie jamais implicitement une session.
+
+Avec `truth_maintenance=True`, `retract()` calcule la plus petite fermeture des
+justifications positives depuis les faits initiaux et hypothétiques encore
+présents, puis retire le reste. Ce mode optionnel élimine les cycles sans
+support externe. Il ne maintient ni environnements alternatifs ni nogoods et
+n'est donc pas un ATMS.
 
 ## Provenance
 

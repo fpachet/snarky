@@ -86,9 +86,10 @@ règle située plus loin dans le groupe voit les faits ajoutés par les règles
 précédentes pendant le même cycle.
 
 Une `ConflictResolutionStrategy` explicite remplace ce balayage par un agenda :
-le moteur recalcule toutes les activations, en sélectionne une, l’exécute puis
-reconstruit le conflit. Avec `MEAConflictStrategy`, le premier fait support
-porte la fraîcheur locale ; `ONE_CYCLE` signifie alors une seule sélection.
+le moteur maintient les activations, en sélectionne une, l’exécute puis
+réévalue les règles touchées. Avec `MEAConflictStrategy`, la prémisse `FOCUS`
+porte la fraîcheur locale, avec repli compatible sur le premier support ;
+`ONE_CYCLE` signifie alors une seule sélection.
 Les détails et la trace observable figurent dans
 [`conflict_resolution.md`](conflict_resolution.md).
 
@@ -121,6 +122,28 @@ utilisée. Cette ouverture sert à expérimenter de nouveaux contrôles ; les
 conditions générales et réutilisables ont vocation à devenir des objets
 déclaratifs du moteur, comme `FactExists`.
 
+## Paramètres et appels récursifs bornés
+
+L'API Python permet de spécialiser un groupe avant son appel :
+
+```python
+from snarky import Atom, RuleGroupTemplate, Variable
+
+relation = Variable("relation")
+template = RuleGroupTemplate("closure", (relation,), rules)
+parent_closure = template.instantiate(Atom("parent"))
+session.run_group(parent_closure)
+```
+
+Les paramètres remplacent des variables de construction. Ils ne peuvent pas
+être les cibles locales de `LET`, `FRESH`, `BIND`, `COLLECT`, `COMBINATIONS`,
+`FOR EACH` ou `COMPUTE`.
+
+`GroupCall` et `RecursiveGroupProcedure` rendent les appels dynamiques
+inspectables. Une fonction `expand(call, result, session)` retourne les appels
+enfants ; le parcours est DFS ou BFS et `max_calls` le borne. La récursion
+reste extérieure aux actions afin de préserver leur atomicité.
+
 ## Portée actuelle
 
 Les groupes organisent et pilotent le chaînage avant. `TechniquePlan` fournit
@@ -128,16 +151,13 @@ désormais un premier plan générique : groupes ordonnés, groupes de maintenan
 retour au premier groupe après progrès et états `SOLVED`, `STUCK`,
 `INCONSISTENT` ou `LIMIT_REACHED`.
 
-Ce composant ne constitue pas encore un langage de plans SHAL complet : il
-n’existe pas de DSL pour enchaîner conditionnellement des groupes, gérer un
-échec, faire du retour arrière ou appeler un solveur de contraintes.
+Ce composant ne constitue pas un langage de plans SHAL complet : les
+conditions, l'expansion récursive, la recherche et l'appel d'un solveur sont
+des objets Python typés, pas encore un DSL unique.
 
-`InferenceSession.fork()` permet néanmoins de copier une session et d’exécuter
-une continuation isolée. La copie conserve faits, réfraction, provenance et
-compteurs, mais elle ne choisit aucune hypothèse et ne revient pas
-automatiquement à la session source. Une recherche éventuelle serait donc un
-orchestrateur explicite au-dessus de cette primitive, et non un mode caché des
-groupes de règles.
+`HypothesisSearch` orchestre maintenant des copies de session, mais ne revient
+jamais implicitement à la session source. La politique BFS/DFS, les
+hypothèses, les contradictions et les limites restent explicites.
 
 Cette séparation est intentionnelle. Les stratégies de résolution peuvent
 d’abord rester de petits orchestrateurs Python appelant des groupes de règles
