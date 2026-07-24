@@ -19,7 +19,7 @@ Les optimisations doivent préserver les propriétés suivantes :
 - provenance vérifiable ;
 - point fixe identique à celui du moteur naïf.
 
-## État au 23 juillet 2026
+## État au 24 juillet 2026
 
 | Phase | État | Résultat ou prochaine étape |
 |---|---|---|
