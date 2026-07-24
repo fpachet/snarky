@@ -6,8 +6,9 @@ from dataclasses import dataclass
 
 from .expressions import NumericExpression, evaluate_arithmetic
 from .facts import Fact
+from .premises import Premise
 from .substitutions import Substitution
-from .terms import Atom, Status, Term, Variable
+from .terms import Atom, Number, Status, Term, Variable
 
 
 @dataclass(frozen=True, slots=True)
@@ -84,7 +85,35 @@ class ForEach:
         object.__setattr__(self, "actions", actions)
 
 
-type Action = AddFact | RemoveFact | Let | Fresh | ForEach
+@dataclass(frozen=True, slots=True)
+class Choice:
+    """Instantiate one fact by selecting a correlated source solution."""
+
+    entity: Term
+    premises: tuple[Premise, ...]
+    status: Term = Status.VRAI
+    weight: Term = Number(1)
+
+    def __post_init__(self) -> None:
+        premises = tuple(self.premises)
+        if not premises:
+            raise ValueError("CHOICE requires at least one FROM premise")
+        object.__setattr__(self, "premises", premises)
+
+    def instantiate(self, substitution: Substitution) -> Fact:
+        return Fact(
+            entity=substitution.apply(self.entity),
+            status=substitution.apply(self.status),
+        )
+
+    def resolved_weight(self, substitution: Substitution) -> float:
+        resolved = substitution.apply(self.weight)
+        if not isinstance(resolved, Number):
+            raise TypeError("CHOICE WEIGHT must resolve to a Number")
+        return float(resolved.value)
+
+
+type Action = AddFact | RemoveFact | Let | Fresh | ForEach | Choice
 
 
 def add(entity: Term, status: Term = Status.VRAI) -> AddFact:
@@ -119,3 +148,19 @@ def for_each(
     """Construct a finite collection action loop."""
 
     return ForEach(variable, collection, tuple(actions))
+
+
+def choose(
+    entity: Term,
+    *premises: Premise,
+    status: Term = Status.VRAI,
+    weight: Term | None = None,
+) -> Choice:
+    """Construct a declarative fact-instantiation choice."""
+
+    return Choice(
+        entity,
+        tuple(premises),
+        status,
+        weight if weight is not None else Number(1),
+    )

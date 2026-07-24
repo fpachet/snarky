@@ -106,6 +106,48 @@ def test_exists_uses_witness_facts_without_exporting_local_bindings() -> None:
     assert _fact("(b row 1)") in derivation.premises
 
 
+def test_compact_existentials_and_explicit_negative_terminator() -> None:
+    compact = parse_rules(
+        """
+        RULE compact
+        WHEN
+            (cell kind cell)
+            EXISTS (cell candidate 1)
+            NOT EXISTS (cell rejected 1)
+        THEN
+            ADD compact_ok
+        END
+        """
+    )[0]
+    block = parse_rules(
+        """
+        RULE negative_block
+        WHEN
+            (cell kind cell)
+            NOT EXISTS
+                (cell candidate $value)
+                $value != 1
+            END_NOT_EXISTS
+        THEN
+            ADD block_ok
+        END
+        """
+    )[0]
+
+    assert isinstance(compact.premises[1], ExistsPremise)
+    assert isinstance(compact.premises[2], NotExistsPremise)
+    assert isinstance(block.premises[1], NotExistsPremise)
+
+    result = ForwardEngine((compact, block)).run(
+        (
+            _fact("(cell kind cell)"),
+            _fact("(cell candidate 1)"),
+        )
+    )
+    assert _fact("compact_ok") in result.facts
+    assert _fact("block_ok") in result.facts
+
+
 def test_not_exists_becomes_true_after_a_correlated_witness_is_removed() -> None:
     derive = parse_rule_groups(f"GROUP derive\n{SINGLE_RULE}\nEND_GROUP")[0]
     eliminate = parse_rule_groups(

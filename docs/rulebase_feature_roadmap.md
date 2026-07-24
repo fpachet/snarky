@@ -154,7 +154,6 @@ justifications négatives complètes restent séparés.
 
 - prémisses de collection `MEMBER` et `SIZE`, validées d'abord par les naked
   triples de Sudoku ;
-- syntaxe DSL optionnelle produisant directement des `ChoicePoint` ;
 - affinement et généralisation de `AdaptiveInstantiationStrategy`, désormais
   validée sur des jointures favorables, neutres, défavorables et acycliques ;
 - multiensembles et quantités pour des réseaux de Petri généraux ;
@@ -185,9 +184,10 @@ justifications négatives complètes restent séparés.
     actives dans la jointure.~~
 12. ~~Rendre la jointure filtrée semi-naïve et fournir l'état réversible
     observable.~~
-13. ~~Produire des choix déclaratifs à partir des domaines non singletons,
-    puis les connecter à des branches isolées.~~ Raccorder maintenant les
-    branches au trail réversible sans changer leur sémantique.
+13. ~~Produire des choix déclaratifs avec `CHOICE ... FROM`, permettre leur
+    séquencement dans une règle et les connecter à des branches isolées.~~
+    Raccorder maintenant les branches au trail réversible sans changer leur
+    sémantique.
 14. Ajouter `MEMBER` et `SIZE`, puis implémenter les naked triples de Sudoku p8
     avec `COMBINATIONS`.
 15. Mesurer une éventuelle consistance généralisée de `ALL_DIFFERENT`.

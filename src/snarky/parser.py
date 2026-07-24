@@ -5,7 +5,15 @@ from __future__ import annotations
 import re
 from dataclasses import dataclass
 
-from .actions import Action, AddFact, ForEach, Fresh, Let, RemoveFact
+from .actions import (
+    Action,
+    AddFact,
+    Choice,
+    ForEach,
+    Fresh,
+    Let,
+    RemoveFact,
+)
 from .computed import ComputedPredicate, ComputedPremise, PredicateRegistry
 from .expressions import (
     BinaryArithmeticExpression,
@@ -218,7 +226,12 @@ def _parse_rule_lines(
             raise ParseError(f"rule {name!r} is missing THEN")
         position += 1
 
-        actions, position = _parse_action_block(lines, position, "END")
+        actions, position = _parse_action_block(
+            lines,
+            position,
+            "END",
+            predicates,
+        )
         if position >= len(lines):
             raise ParseError(f"rule {name!r} is missing END")
         position += 1
@@ -235,6 +248,7 @@ def _parse_action_block(
     lines: tuple[str, ...],
     position: int,
     terminator: str,
+    predicates: PredicateRegistry | None,
 ) -> tuple[list[Action], int]:
     actions: list[Action] = []
     while position < len(lines) and lines[position] != terminator:
@@ -249,6 +263,7 @@ def _parse_action_block(
                 lines,
                 position + 1,
                 "END_FOR_EACH",
+                predicates,
             )
             if position >= len(lines):
                 raise ParseError("FOR EACH block is missing END_FOR_EACH")
@@ -264,35 +279,104 @@ def _parse_action_block(
                 raise ParseError(str(error)) from error
             position += 1
             continue
-        if line == "END_FOR_EACH":
-            raise ParseError(f"unexpected END_FOR_EACH before {terminator}")
+        if line.startswith("CHOICE "):
+            choice, position = _parse_choice_block(
+                lines,
+                position,
+                predicates,
+            )
+            actions.append(choice)
+            continue
+        if line in {"END_FOR_EACH", "END_CHOICE"}:
+            raise ParseError(f"unexpected {line} before {terminator}")
         actions.append(_parse_action(line))
         position += 1
     return actions, position
 
 
+def _parse_choice_block(
+    lines: tuple[str, ...],
+    position: int,
+    predicates: PredicateRegistry | None,
+) -> tuple[Choice, int]:
+    header = lines[position].removeprefix("CHOICE ").strip()
+    target_text, separator, weight_text = header.rpartition(" WEIGHT ")
+    if not separator:
+        target_text = header
+        weight_text = "1"
+    if not target_text:
+        raise ParseError("CHOICE requires a target fact")
+    entity, status = _parse_fact_template(target_text, "CHOICE")
+    if position + 1 >= len(lines) or lines[position + 1] != "FROM":
+        raise ParseError("CHOICE target must be followed by FROM")
+    premises, end = _parse_premise_block(
+        lines,
+        position + 2,
+        "END_CHOICE",
+        predicates,
+    )
+    if end >= len(lines) or lines[end] != "END_CHOICE":
+        raise ParseError("CHOICE block is missing END_CHOICE")
+    try:
+        return (
+            Choice(
+                entity,
+                tuple(premises),
+                status,
+                parse_term(weight_text),
+            ),
+            end + 1,
+        )
+    except ValueError as error:
+        raise ParseError(str(error)) from error
+
+
 def _parse_premise_block(
     lines: tuple[str, ...],
     position: int,
-    terminator: str,
+    terminator: str | tuple[str, ...],
     predicates: PredicateRegistry | None,
 ) -> tuple[list[Premise], int]:
+    terminators = (
+        (terminator,) if isinstance(terminator, str) else terminator
+    )
     premises: list[Premise] = []
-    while position < len(lines) and lines[position] != terminator:
+    while position < len(lines) and lines[position] not in terminators:
         keyword = lines[position]
         if keyword.startswith("WINDOW "):
             premises.extend(_parse_window(keyword))
             position += 1
             continue
+        compact_existential = _parse_compact_existential(
+            keyword,
+            predicates,
+        )
+        if compact_existential is not None:
+            premises.append(compact_existential)
+            position += 1
+            continue
         if keyword in {"EXISTS", "NOT EXISTS"}:
+            nested_terminators = (
+                ("END_EXISTS", "END_NOT_EXISTS")
+                if keyword == "NOT EXISTS"
+                else ("END_EXISTS",)
+            )
             nested, position = _parse_premise_block(
                 lines,
                 position + 1,
-                "END_EXISTS",
+                nested_terminators,
                 predicates,
             )
-            if position >= len(lines) or lines[position] != "END_EXISTS":
-                raise ParseError(f"{keyword} block is missing END_EXISTS")
+            if (
+                position >= len(lines)
+                or lines[position] not in nested_terminators
+            ):
+                expected = (
+                    "END_NOT_EXISTS"
+                    if keyword == "NOT EXISTS"
+                    else "END_EXISTS"
+                )
+                raise ParseError(f"{keyword} block is missing {expected}")
             position += 1
             try:
                 premise = (
@@ -377,20 +461,58 @@ def _parse_premise_block(
             continue
         if keyword in {
             "END_EXISTS",
+            "END_NOT_EXISTS",
             "END_COUNT",
             "END_UNIQUE",
             "END_COLLECT",
+            "END_CHOICE",
         }:
-            raise ParseError(f"unexpected {keyword} before {terminator}")
+            raise ParseError(
+                f"unexpected {keyword} before {' or '.join(terminators)}"
+            )
         if (
-            terminator
-            in {"END_EXISTS", "END_COUNT", "END_UNIQUE", "END_COLLECT"}
+            any(
+                item
+                in {
+                    "END_EXISTS",
+                    "END_NOT_EXISTS",
+                    "END_COUNT",
+                    "END_UNIQUE",
+                    "END_COLLECT",
+                    "END_CHOICE",
+                }
+                for item in terminators
+            )
             and keyword in {"THEN", "END"}
         ):
-            raise ParseError(f"block is missing {terminator}")
+            raise ParseError(
+                f"block is missing {' or '.join(terminators)}"
+            )
         premises.append(_parse_premise(keyword, predicates))
         position += 1
     return premises, position
+
+
+def _parse_compact_existential(
+    text: str,
+    predicates: PredicateRegistry | None,
+) -> Premise | None:
+    for keyword, premise_type in (
+        ("NOT EXISTS ", NotExistsPremise),
+        ("EXISTS ", ExistsPremise),
+    ):
+        if not text.startswith(keyword):
+            continue
+        nested_text = text.removeprefix(keyword).strip()
+        if not nested_text:
+            return None
+        try:
+            return premise_type(
+                (_parse_premise(nested_text, predicates),)
+            )
+        except ValueError as error:
+            raise ParseError(str(error)) from error
+    return None
 
 
 def _parse_premise(
@@ -569,11 +691,22 @@ def _parse_action(text: str) -> Action:
     keyword, separator, body = text.partition(" ")
     if keyword not in {"ADD", "REMOVE"} or not separator or not body.strip():
         raise ParseError(f"unsupported action {text!r}")
-    tokens = _tokenize(body)
+    entity, status = _parse_fact_template(body, keyword)
+    return (
+        AddFact(entity, status)
+        if keyword == "ADD"
+        else RemoveFact(entity, status)
+    )
+
+
+def _parse_fact_template(
+    text: str,
+    keyword: str,
+) -> tuple[Term, Term]:
+    tokens = _tokenize(text)
     split = _top_level_operator(tokens)
     if split is None:
-        entity = _parse_all(tokens)
-        return AddFact(entity) if keyword == "ADD" else RemoveFact(entity)
+        return _parse_all(tokens), Status.VRAI
     index, operator = split
     if operator != "'":
         raise ParseError(
@@ -581,11 +714,7 @@ def _parse_action(text: str) -> Action:
         )
     entity = _parse_all(tokens[:index])
     status = _parse_all(tokens[index + 1 :])
-    return (
-        AddFact(entity, status)
-        if keyword == "ADD"
-        else RemoveFact(entity, status)
-    )
+    return entity, status
 
 
 def _tokenize_arithmetic(text: str) -> tuple[_Token, ...]:

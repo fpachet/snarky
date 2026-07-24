@@ -358,12 +358,47 @@ La négation par absence actuellement implémentée utilise des blocs corrélés
 NOT EXISTS
     ($cell candidate $other)
     $other != $value
-END_EXISTS
+END_NOT_EXISTS
 ```
 
 `EXISTS` et `NOT EXISTS` portent sur une conjonction locale. Les variables
 déjà liées sont visibles dans le bloc ; celles introduites dans le bloc ne
 s’échappent pas.
+
+La forme compacte `NOT EXISTS ($cell solved $value)` couvre une seule
+prémisse sans terminateur. `END_EXISTS` après un bloc négatif reste accepté
+comme syntaxe historique.
+
+### 2.4.1 Choix d'instanciation d'un fait
+
+`CHOICE` est une action de génération contrôlée. Elle n'instancie pas une
+règle : le `WHEN` a déjà établi son contexte. Elle instancie le fait cible à
+partir des solutions d'une sous-requête corrélée :
+
+```text
+CHOICE ($object value $value) WEIGHT $weight
+FROM
+    ($object candidate $value)
+    ($object choice_weight SEQ[$value $weight])
+END_CHOICE
+```
+
+Chaque solution de `FROM` devient une alternative. L'alternative sélectionnée
+affirme le fait cible comme hypothèse nommée dans une branche isolée. `WEIGHT`
+est facultatif, vaut `1` par défaut, doit se résoudre en nombre fini positif
+ou nul et n'affecte pas la faisabilité.
+
+Plusieurs `CHOICE` dans une règle sont évalués séquentiellement. Les variables
+locales choisies restent liées pour les blocs suivants. Les actions
+déterministes placées après le dernier choix forment une continuation exécutée
+quand tous les faits cibles existent dans la branche. Le premier incrément
+refuse `CHOICE` dans `FOR EACH` et les actions déterministes placées avant ou
+entre deux choix.
+
+Le chaînage avant ordinaire ne déclenche jamais cette recherche.
+`RuleChoiceProvider` sépare les règles concernées, produit les `ChoicePoint`
+et remet leurs éventuelles continuations déterministes dans les groupes
+saturés par `SessionChoiceSearch`.
 
 ### 2.5 Agrégats corrélés
 

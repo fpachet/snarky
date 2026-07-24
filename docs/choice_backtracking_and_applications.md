@@ -41,7 +41,8 @@ dans le langage.
 
 Le premier palier comporte :
 
-1. `ChoicePoint` et `ChoiceAlternative` pour les choix finis ;
+1. `CHOICE ... FROM`, `ChoicePoint` et `ChoiceAlternative` pour instancier des
+   faits parmi des choix finis ;
 2. MRV, ordre par poids et échantillonnage pondéré reproductible ;
 3. parcours DFS, BFS et best-first ;
 4. saturation des groupes après chaque décision ;
@@ -68,8 +69,9 @@ seconde explore différents états du problème.
 
 Le projet [`csp_solver`](../csp_solver/README.md) est maintenant exécutable.
 Les variables, domaines, relations binaires et choix sont des faits ou
-constructions Snarky. Il vérifie que le langage sait exprimer propagation,
-choix,
+constructions Snarky. La règle `choose_csp_value` produit elle-même ses
+alternatives, sans générateur de points métier en Python. Il vérifie que le
+langage sait exprimer propagation, choix,
 contradiction et backtracking sans dépendre du backend
 `BacktrackingConstraintSolver` déjà fourni comme oracle Python. Les quatre
 reines donnent exactement leurs deux solutions.

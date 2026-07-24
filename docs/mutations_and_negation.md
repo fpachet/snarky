@@ -88,15 +88,26 @@ WHEN
     NOT EXISTS
         ($cell candidate $other)
         $other != $value
-    END_EXISTS
+    END_NOT_EXISTS
 THEN
     ADD ($cell solved $value)
 END
 ```
 
+Une sous-requête réduite à un fait possède une forme compacte :
+
+```text
+EXISTS ($cell selected $value)
+NOT EXISTS ($cell rejected $value)
+```
+
+Elle ne demande aucun terminateur. Une conjonction conserve la forme bloc :
+`EXISTS ... END_EXISTS` ou `NOT EXISTS ... END_NOT_EXISTS`. L'ancien
+`END_EXISTS` après `NOT EXISTS` reste accepté pour les bases existantes.
+
 Les variables liées avant le bloc sont visibles à l’intérieur. Les variables
 introduites dans le bloc sont locales et ne peuvent pas être utilisées après
-`END_EXISTS`. Dans un bloc existentiel, une comparaison utilisant une variable
+sa fermeture. Dans un bloc existentiel, une comparaison utilisant une variable
 qui n’a pas encore été liée est rejetée au parsing ou à la construction de la
 règle. Au niveau principal, le comportement historique est conservé : une
 comparaison prématurée échoue simplement lors de l’instanciation.

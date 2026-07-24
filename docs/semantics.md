@@ -77,6 +77,11 @@ conserve le comportement historique : elle échoue à l’instanciation sans
 chercher une liaison dans une prémisse ultérieure. L’absence testée par
 `NOT EXISTS` reste distincte du statut `INEXISTANT`.
 
+Une seule prémisse s'écrit directement, par exemple
+`NOT EXISTS ($cell solved $value)`. Une conjonction utilise
+`EXISTS ... END_EXISTS` ou `NOT EXISTS ... END_NOT_EXISTS`. L'ancien
+`END_EXISTS` négatif reste un alias rétrocompatible.
+
 `COUNT` et `UNIQUE` utilisent la même portée corrélée. `COUNT` compare le
 nombre de substitutions locales satisfaisantes à un entier avec `==`, `!=`,
 `<`, `<=`, `>` ou `>=`. `UNIQUE` exige exactement une solution locale. Les
@@ -125,6 +130,22 @@ forks isolés. Après saturation des groupes, un prédicat de contradiction
 rejette la branche et un prédicat de but accepte une solution. MRV, poids,
 graine, ordre de parcours et limites sont explicites. Les poids ordonnent les
 branches mais ne changent jamais leur faisabilité.
+
+Une action déclarative :
+
+```text
+CHOICE ($object value $value) WEIGHT $weight
+FROM
+    ($object candidate $value)
+    ($object choice_weight SEQ[$value $weight])
+END_CHOICE
+```
+
+transforme chaque solution de `FROM` en instanciation possible du fait cible.
+Plusieurs `CHOICE` d'une règle sont séquentiels et lient leurs variables pour
+la suite. Les actions ordinaires placées après le dernier choix constituent
+une continuation déclenchée quand tous les faits choisis existent.
+`RuleChoiceProvider` extrait ces règles du chaînage avant ordinaire.
 
 Les modifications partielles et un ATMS complet restent différés. Voir
 [`collections_fresh_and_contexts.md`](collections_fresh_and_contexts.md) et

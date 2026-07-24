@@ -4,6 +4,60 @@ Le chaînage avant de Snarky reste déterministe et ne crée aucune recherche
 implicite. La recherche est une couche publique distincte qui pilote des
 sessions, des groupes de règles et des faits d'hypothèse.
 
+## Instruction `CHOICE`
+
+`CHOICE` instancie un fait ou un objet ; il ne choisit pas une instanciation
+de règle :
+
+```text
+RULE assign_queen
+WHEN
+    (n_queens variable $queen)
+    NOT EXISTS ($queen value $known)
+THEN
+    CHOICE ($queen decision $row) WEIGHT $weight
+    FROM
+        ($queen candidate $row)
+        ($queen choice_weight SEQ[$row $weight])
+    END_CHOICE
+END
+```
+
+Le `WHEN` lie ici `$queen`. La sous-requête corrélée `FROM` lie `$row` et
+`$weight`. Chaque solution distincte de cette sous-requête fournit une
+alternative qui affirme exactement un fait cible dans sa branche.
+
+`WEIGHT` est optionnel et vaut `1` par défaut. Il doit être ground et
+numérique après la sous-requête. Les variables locales deviennent disponibles
+pour les `CHOICE` suivants de la règle.
+
+Plusieurs choix sont séquentiels :
+
+```text
+CHOICE ($object first $x)
+FROM
+    ($source first_candidate $x)
+END_CHOICE
+
+CHOICE ($object second $y)
+FROM
+    ($source second_candidate $y)
+    $y != $x
+END_CHOICE
+
+ADD ($object state complete)
+```
+
+Après le choix de `$x`, son fait cible est présent dans la branche. Le second
+choix retrouve cette liaison, énumère les `$y` compatibles, puis les actions
+terminales s'exécutent après le dernier choix.
+
+`RuleChoiceProvider` sépare automatiquement les règles de choix des groupes
+de propagation ordinaires et les expose à `SessionChoiceSearch`. Un groupe
+appelé directement par le chaînage avant ne lance donc jamais une recherche
+implicite. `CHOICE` dans `FOR EACH` et une action déterministe placée avant ou
+entre deux choix restent volontairement refusés dans ce premier incrément.
+
 ## Objets publics
 
 `ChoicePoint` nomme une variable de décision et contient des
@@ -17,7 +71,7 @@ sessions, des groupes de règles et des faits d'hypothèse.
 `SessionChoiceSearch` reçoit :
 
 1. les groupes à saturer après chaque décision ;
-2. une fonction produisant les points encore ouverts depuis les faits ;
+2. un producteur de points, normalement `RuleChoiceProvider` ;
 3. un prédicat de but ;
 4. un prédicat optionnel de contradiction ;
 5. une politique, un ordre de parcours et des limites.

@@ -21,14 +21,25 @@ from .solver import (
 PROBLEM = Atom("four_queens")
 
 
-def four_queens_facts() -> BinaryCSP:
-    variables = tuple(Atom(f"queen_{column}") for column in range(1, 5))
-    rows = tuple(Number(row) for row in range(1, 5))
+def n_queens_problem(size: int) -> Atom:
+    if size < 1:
+        raise ValueError("the board size must be positive")
+    return PROBLEM if size == 4 else Atom(f"{size}_queens")
+
+
+def n_queens_facts(size: int) -> BinaryCSP:
+    """Build the declarative finite CSP for an arbitrary board size."""
+
+    problem = n_queens_problem(size)
+    variables = tuple(
+        Atom(f"queen_{column}") for column in range(1, size + 1)
+    )
+    rows = tuple(Number(row) for row in range(1, size + 1))
     facts: list[Fact] = [
-        Fact(Triple(PROBLEM, KIND, CSP_PROBLEM)),
+        Fact(Triple(problem, KIND, CSP_PROBLEM)),
     ]
     for variable in variables:
-        facts.append(Fact(Triple(PROBLEM, VARIABLE, variable)))
+        facts.append(Fact(Triple(problem, VARIABLE, variable)))
         facts.append(Fact(Triple(variable, KIND, CSP_VARIABLE)))
         facts.extend(
             Fact(Triple(variable, CANDIDATE, row)) for row in rows
@@ -58,17 +69,29 @@ def four_queens_facts() -> BinaryCSP:
                 allowed,
             )
         )
-    return BinaryCSP(PROBLEM, tuple(facts), {})
+    return BinaryCSP(problem, tuple(facts), {})
+
+
+def four_queens_facts() -> BinaryCSP:
+    return n_queens_facts(4)
+
+
+def solve_n_queens(
+    size: int,
+    *,
+    max_solutions: int = 1,
+) -> ChoiceSearchResult:
+    return solve_binary_csp(
+        n_queens_facts(size),
+        max_solutions=max_solutions,
+    )
 
 
 def solve_four_queens(
     *,
     max_solutions: int = 2,
 ) -> ChoiceSearchResult:
-    return solve_binary_csp(
-        four_queens_facts(),
-        max_solutions=max_solutions,
-    )
+    return solve_n_queens(4, max_solutions=max_solutions)
 
 
 def main() -> None:

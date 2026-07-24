@@ -7,9 +7,11 @@
 - propagation jusqu'au point fixe par règles ;
 - choix MRV ;
 - poids optionnels par alternative ;
+- instruction déclarative `CHOICE ... FROM` ;
+- plusieurs choix séquentiels dans une règle ;
 - branches isolées et retour arrière ;
 - énumération de plusieurs solutions ;
-- quatre reines comme oracle.
+- constructeur générique `n` reines et quatre reines comme oracle.
 
 ## Paliers suivants
 

@@ -9,8 +9,6 @@ from pathlib import Path
 
 from snarky import (
     Atom,
-    ChoiceAlternative,
-    ChoicePoint,
     ChoicePolicy,
     ChoiceSearchResult,
     ChoiceSolution,
@@ -18,15 +16,15 @@ from snarky import (
     Fact,
     FiniteSequence,
     ForwardEngine,
-    InferenceSession,
     MRVChoicePolicy,
+    Number,
+    RuleChoiceProvider,
     RuleGroup,
     SemiNaiveInstantiationStrategy,
     SessionChoiceSearch,
     Term,
     Triple,
     parse_rule_groups,
-    render_term,
 )
 
 KIND = Atom("kind")
@@ -45,6 +43,7 @@ LEFT = Atom("left")
 RIGHT = Atom("right")
 ALLOWS = Atom("allows")
 SEARCH = Atom("search")
+CHOICE_WEIGHT = Atom("choice_weight")
 
 
 @dataclass(frozen=True, slots=True)
@@ -103,62 +102,44 @@ def solve_binary_csp(
 ) -> ChoiceSearchResult:
     """Propagate and search a fact-encoded CSP without a Python solver."""
 
-    groups = (*_csp_groups(), *model.groups)
-    session = ForwardEngine(()).create_session(model.facts)
+    provider = RuleChoiceProvider((*_csp_groups(), *model.groups))
+    weighted_facts = tuple(
+        Fact(
+            Triple(
+                fact.entity.subject,
+                CHOICE_WEIGHT,
+                FiniteSequence(
+                    (
+                        fact.entity.object,
+                        Number(
+                            model.weights.get(
+                                (
+                                    fact.entity.subject,
+                                    fact.entity.object,
+                                ),
+                                1.0,
+                            )
+                        ),
+                    )
+                ),
+            )
+        )
+        for fact in model.facts
+        if isinstance(fact.entity, Triple)
+        and fact.entity.relation == CANDIDATE
+    )
+    session = ForwardEngine(()).create_session(
+        (*model.facts, *weighted_facts)
+    )
     solved_fact = Fact(Triple(model.problem, STATE, SOLVED))
     contradiction_fact = Fact(
         Triple(model.problem, STATE, CONTRADICTION)
     )
     invalid_choice_fact = Fact(Triple(SEARCH, STATE, CONTRADICTION))
 
-    def choices(current: InferenceSession) -> tuple[ChoicePoint, ...]:
-        facts = current.facts
-        variables = tuple(
-            fact.entity.object
-            for fact in facts
-            if isinstance(fact.entity, Triple)
-            and fact.entity.subject == model.problem
-            and fact.entity.relation == VARIABLE
-        )
-        assigned = {
-            fact.entity.subject
-            for fact in facts
-            if isinstance(fact.entity, Triple)
-            and fact.entity.relation == VALUE
-        }
-        candidates: dict[Term, list[Term]] = {
-            variable: [] for variable in variables if variable not in assigned
-        }
-        for fact in facts:
-            entity = fact.entity
-            if (
-                isinstance(entity, Triple)
-                and entity.relation == CANDIDATE
-                and entity.subject in candidates
-            ):
-                candidates[entity.subject].append(entity.object)
-        return tuple(
-            ChoicePoint(
-                f"assign:{render_term(variable)}",
-                tuple(
-                    ChoiceAlternative(
-                        render_term(value),
-                        (Fact(Triple(variable, DECISION, value)),),
-                        value,
-                        model.weights.get((variable, value), 1.0),
-                        {"variable": variable},
-                    )
-                    for value in values
-                ),
-                variable,
-            )
-            for variable, values in candidates.items()
-            if values
-        )
-
     search = SessionChoiceSearch(
-        groups,
-        choices,
+        provider.propagation_groups,
+        provider,
         lambda current: solved_fact in current.facts,
         lambda current: (
             contradiction_fact in current.facts

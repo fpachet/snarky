@@ -469,14 +469,21 @@ propagation binaire étudiée. Une file AC-3 spécialisée n'est donc pas ajout�
 
 ## 4. Recherche et backtracking explicites
 
-La propagation peut atteindre un point fixe sans résoudre le problème. Le
-premier pilote accepte maintenant un `ChoicePoint` réifié par son adaptateur :
+La propagation peut atteindre un point fixe sans résoudre le problème. Les
+règles produisent maintenant directement les points de choix :
 
 ```text
-(choice-1 kind choice)
-(choice-1 variable r3c7)
-(choice-1 alternative 2)
-(choice-1 alternative 8)
+RULE choose_value
+WHEN
+    (problem variable $variable)
+    NOT EXISTS ($variable value $known)
+THEN
+    CHOICE ($variable decision $value) WEIGHT $weight
+    FROM
+        ($variable candidate $value)
+        ($variable choice_weight SEQ[$value $weight])
+    END_CHOICE
+END
 ```
 
 `SessionChoiceSearch` :
@@ -495,9 +502,10 @@ contradiction. Le contrôleur ne connaît que le protocole général.
 Ce modèle ne revient pas en arrière en annulant des mutations. Chaque branche
 est une session isolée possédant ses hypothèses, événements, contradictions
 et preuves. Le pilote fournit DFS, BFS, best-first, MRV, poids, limites et
-traces. Le solveur CSP pédagogique adapte directement ses domaines factuels ;
-une syntaxe DSL produisant des `ChoicePoint` sans adaptateur Python reste une
-extension possible.
+traces. `RuleChoiceProvider` traduit la règle sans connaissance métier et le
+solveur CSP pédagogique n'a plus de générateur Python de `ChoicePoint`.
+Plusieurs `CHOICE` successifs peuvent construire progressivement un objet ;
+leurs variables sont liées dans l'ordre.
 
 ## 5. Solveur CSP externe
 

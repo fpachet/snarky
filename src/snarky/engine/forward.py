@@ -8,7 +8,15 @@ from enum import StrEnum
 from functools import cache
 from typing import Protocol
 
-from ..actions import Action, AddFact, ForEach, Fresh, Let, RemoveFact
+from ..actions import (
+    Action,
+    AddFact,
+    Choice,
+    ForEach,
+    Fresh,
+    Let,
+    RemoveFact,
+)
 from ..facts import Fact
 from ..instantiation import (
     Activation,
@@ -923,6 +931,11 @@ class InferenceSession:
                         staged,
                     )
                 continue
+            if isinstance(action, Choice):
+                raise RuntimeError(
+                    "CHOICE actions require RuleChoiceProvider and "
+                    "SessionChoiceSearch"
+                )
             raise TypeError(f"unsupported action: {action!r}")
         return action_substitution
 

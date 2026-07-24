@@ -1,4 +1,19 @@
 GROUP apply_csp_choices
+    # Chaque variable non affectee expose un point de choix declaratif.
+    # Les instanciations de FROM deviennent les alternatives du fait decision.
+    RULE choose_csp_value
+    WHEN
+        ($problem kind csp_problem)
+        ($problem variable $variable)
+        NOT EXISTS ($variable value $assigned)
+    THEN
+        CHOICE ($variable decision $chosen) WEIGHT $weight
+        FROM
+            ($variable candidate $chosen)
+            ($variable choice_weight SEQ[$chosen $weight])
+        END_CHOICE
+    END
+
     # Une decision de branche réduit le domaine factuel à une seule valeur.
     # Les groupes génériques de propagation binaire font ensuite le reste.
     RULE restrict_chosen_domain

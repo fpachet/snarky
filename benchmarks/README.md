@@ -17,8 +17,8 @@ Mesure du 24 juillet 2026 sur macOS ARM64 avec Python 3.13.11 :
 
 | Projet | Médiane | Nœuds explorés | Branches en échec | Solutions |
 |---|---:|---:|---:|---:|
-| quatre reines | 18,62 ms | 4 | 1 | 2 |
-| harmoniseur SATB, 2 positions | 1,356 s | 13 | 0 | 3 |
+| quatre reines | 20,77 ms | 4 | 1 | 2 |
+| harmoniseur SATB, 2 positions | 1,415 s | 13 | 0 | 3 |
 
 Le solveur des reines propage trois affectations après la première décision.
 L'harmoniseur utilise 15 voicings sur la première position et 9 sur la
@@ -30,6 +30,12 @@ caches. Lors de la mise au point du jalon, les trois solutions de
 l'harmoniseur à deux positions sont passées d'environ 3,5 s à 1,36 s. Cette
 mesure motive l'étape suivante : raccorder le pilote au trail réversible afin
 d'éviter aussi la copie de la mémoire de travail et de la provenance.
+
+Le passage du générateur Python à la règle déclarative `CHOICE ... FROM`
+ajoute la recherche corrélée des alternatives : par rapport au jalon précédent,
+quatre reines passe de 18,62 à 20,77 ms et l'harmoniseur de 1,356 à 1,415 s.
+Le coût observé est respectivement de 11,5 % et 4,4 %, sans changement du
+nombre de nœuds ni des solutions.
 
 Le résultat JSON est conservé dans
 [`results/choice_search_2026-07-24.json`](results/choice_search_2026-07-24.json).

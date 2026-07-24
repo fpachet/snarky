@@ -30,6 +30,14 @@ de solution. Ce découpage donne un oracle exécutable, mais le plan prévoit de
 déplacer progressivement le vocabulaire musical et les éliminations dans des
 groupes de règles.
 
+La sélection d'un voicing n'est plus construite par une boucle Python :
+la règle CSP générique `choose_csp_value` utilise maintenant
+`CHOICE ... FROM ... END_CHOICE`. Le fichier musical
+[`rules.rules`](rules.rules) ne contient toutefois encore que l'exposition du
+voicing choisi et la reconnaissance du résultat. Il ne constitue donc pas
+encore une base d'harmonisation substantielle. Le prochain travail portera
+précisément sur la migration des contraintes musicales vers des règles.
+
 Les relations entre deux positions appliquent :
 
 - intervalle mélodique maximal et triton interdit ;

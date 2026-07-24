@@ -104,6 +104,29 @@ est désormais complété par une première recherche explicite
 alternative, sature les groupes de règles, puis conserve la branche, la
 rejette sur contradiction ou la poursuit jusqu'au but.
 
+Le DSL peut maintenant produire ces choix en instanciant directement un
+fait :
+
+```text
+RULE assign_queen
+WHEN
+    (n_queens variable $queen)
+    NOT EXISTS ($queen value $known)
+THEN
+    CHOICE ($queen decision $row) WEIGHT $weight
+    FROM
+        ($queen candidate $row)
+        ($queen choice_weight SEQ[$row $weight])
+    END_CHOICE
+END
+```
+
+Le `WHEN` établit le contexte de l'objet. La sous-requête `FROM` énumère les
+instanciations possibles du fait cible. Plusieurs `CHOICE` dans la même règle
+sont séquentiels : les variables choisies par le premier sont visibles dans
+le suivant. Les actions déterministes placées après le dernier choix reprennent
+quand tous les faits cibles existent dans la branche.
+
 Le premier jalon fournit :
 
 - sélection MRV et ordre déterministe par poids ;
@@ -112,6 +135,16 @@ Le premier jalon fournit :
 - limites en nœuds et en solutions ;
 - traces `choice`, `decision`, `contradiction`, `backtrack`, `solution` ;
 - conservation de la session parente, de la provenance et de la réfraction.
+
+Les formes existentielles simples s'écrivent sans terminateur :
+
+```text
+EXISTS ($item selected $value)
+NOT EXISTS ($item rejected $value)
+```
+
+Les conjonctions utilisent toujours un bloc. `NOT EXISTS` se ferme désormais
+par `END_NOT_EXISTS`; l'ancien `END_EXISTS` reste accepté pour compatibilité.
 
 Un poids nul reste une possibilité faisable examinée après les poids positifs.
 Les poids orientent la recherche et sont cumulés en log-espace ; ils ne

@@ -18,6 +18,10 @@ espacements et règles mélodiques avant la construction différée des voicings
 Déplacer simultanément la génération et l'élimination des candidats musicaux
 du compilateur Python vers des groupes de règles explicables.
 
+Ce jalon peut désormais utiliser plusieurs `CHOICE` séquentiels dans une même
+règle pour instancier soprano, alto, ténor et basse, tout en laissant les
+règles de propagation éliminer les valeurs incompatibles entre les décisions.
+
 ## Jalon 3 — profil dur `ROY_1998`
 
 Ajouter degrés, renversements, vocabulaire, doublures, sensible, cadence,
