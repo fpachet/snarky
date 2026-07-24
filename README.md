@@ -191,14 +191,14 @@ groupes, voir respectivement
 
 Le benchmark Fibonacci explicite mesure un passage de 7,142 s à 0,053 s pour
 `F(10)` et de 27,914 s à 3,338 s pour `F(17)` sur la machine de développement.
-Le benchmark Sudoku mesure désormais p1 à 0,323 s, p5 à 0,720 s et p6 à
-0,639 s en médiane. Les plans compilés, deltas de suppression, compteurs
-négatifs et mémoires incrémentales réduisent encore de 33 à 50 % les matchings
-de la passe précédente. Les commandes reproductibles et les compteurs sont
-décrits dans
+Le benchmark Sudoku mesure désormais p1 à 0,247 s, p5 à 0,535 s et p6 à
+0,468 s en médiane. Après la réduction algorithmique des matchings, les hashes
+structurels précalculés des termes et faits immuables ajoutent un gain de 24 à
+27 % sans modifier leur nombre. Les commandes reproductibles et les compteurs
+sont décrits dans
 [`benchmarks/README.md`](benchmarks/README.md).
 
-La suite complète compte 282 tests et s’exécute en 7,69 s sur cette même
+La suite complète compte 283 tests et s’exécute en environ 6,8 s sur cette même
 machine, contre 26,05 s avant la mise en cache du catalogue de provenance
 Spinoza et 76,50 s avant les optimisations.
 

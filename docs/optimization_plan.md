@@ -28,7 +28,7 @@ Les optimisations doivent préserver les propriétés suivantes :
 | 2 — Indexation | Terminée | Index exact partagé, index composés sur deux positions, ajouts incrémentaux et retraits en lot |
 | 3 — Deltas | Terminée | Deltas nets par règle pour ajouts, suppressions et réinsertions |
 | 4 — Plans et jointures | Terminée pour le socle | Prémisses compilées, MRV delta et mémoires partielles bornées avec repli |
-| 5 — Substitutions et négation | Terminée | Cadre mutable, watchers indexés, compteurs simples et requêtes corrélées persistantes |
+| 5 — Substitutions et négation | Terminée | Cadre mutable, hashes précalculés, watchers indexés, compteurs simples et requêtes corrélées persistantes |
 | 6 — Sélection des règles | Première tranche terminée | Les dépendances négatives filtrent les réveils ; l’index positif général reste à faire |
 | 7 — Agrégats | Terminée pour `COUNT`/`UNIQUE` | DSL, API Python, oracle naïf, compteurs et réfraction |
 | 8 à 10 | À faire | Provenance configurable, stratégie centrée variables et contraintes |
@@ -72,24 +72,34 @@ suivantes :
 - prémisses corrélées `COUNT` et `UNIQUE`, utilisées dans la base Sudoku.
 - catalogue de provenance Spinoza validé une seule fois par version de
   fichier, au lieu d’un parsing YAML pour chacun des 199 cas.
+- hashes structurels de `Atom`, `Number`, `Variable`, `Triple` et `Fact`
+  calculés une fois puis conservés dans un slot privé.
 
 Sur la machine de développement, les médianes Sudoku après la seconde passe
 sont :
 
 | Mesure | Baseline initiale | Passe précédente | État actuel |
 |---|---:|---:|---:|
-| résolution p1 | 2,32 s | 1,70 s | 0,323 s |
-| résolution p5 | 5,95 s | 3,67 s | 0,720 s |
-| résolution p6 | 5,58 s | 3,57 s | 0,639 s |
-| suite pytest complète | 76,50 s | 26,05 s | 7,69 s |
-| suite sans `slow` | — | 16,79 s | 2,36 s |
+| résolution p1 | 2,32 s | 0,325 s | 0,247 s |
+| résolution p5 | 5,95 s | 0,728 s | 0,535 s |
+| résolution p6 | 5,58 s | 0,639 s | 0,468 s |
+| suite pytest complète | 76,50 s | 8,38 s | environ 6,8 s |
+| suite sans `slow` | — | 2,36 s | 2,39 s |
 
 Sur la dernière séquence seule, les tentatives de matching passent de 69 793
 à 47 051 sur p1, de 217 880 à 125 298 sur p5 et de 210 908 à 106 449 sur p6.
 La baisse supplémentaire vaut 33 à 50 %, pour un gain temporel de ×1,62 à
 ×2,29. Depuis la baseline initiale, le gain total vaut ×7,18 à ×8,74. La
-suite complète compte désormais 282 tests. Le protocole exécutable est
+suite complète compte désormais 283 tests. Le protocole exécutable est
 `python -m benchmarks.sudoku_rules`.
+
+La passe de hachage précalculé ne change aucun compteur logique. Elle réduit
+encore les médianes Sudoku de 24 à 27 % et porte le gain total depuis la
+baseline initiale à ×9,38–×11,94. Sur le snapshot exact précédant cette passe,
+`F(15)` semi-naïf prenait 6,084 s ; il prend désormais 0,953 s, soit ×6,39.
+La suite complète passe d’une mesure contrôlée de 8,38 s à environ 6,8 s,
+soit près de 19 %. Le surcoût retenu après p5 est d’environ 46,6 Ko, à raison
+de huit octets par objet concerné encore vivant.
 
 Ces mesures sont des baselines locales, pas des garanties multi-machines.
 Les caches ne réutilisent que des résultats déterministes tant que la mémoire
@@ -371,10 +381,14 @@ compatibles avec le fait muté. Les blocs composés d’une seule prémisse
 factuelle maintiennent directement leur cardinalité et leur premier témoin.
 Les blocs complexes conservent un chemin de recalcul compilé sûr.
 
+Les termes et faits immuables conservent leur hash structurel dans un slot
+privé. La formule reste exactement celle des dataclasses antérieures, et le
+cache est reconstruit par le constructeur après désérialisation. Il n’apparaît
+ni dans l’égalité, ni dans le `repr`, ni dans les champs publics de dataclass.
+
 Optimiser seulement après profilage les opérations de bas niveau :
 
 - accès moyen en temps constant aux variables liées ;
-- cache du hachage immuable ;
 - application structurelle évitant de reconstruire un triplet inchangé ;
 - représentation compacte des variables compilées par identifiant entier ;
 - partage structurel des substitutions parentes ;

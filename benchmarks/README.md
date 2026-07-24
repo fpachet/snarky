@@ -28,6 +28,29 @@ Cette passe ajoute un gain ×1,62 à ×2,29 et réduit encore les matchings de
 ×8,26 sur p5 et ×8,74 sur p6. Les résultats synthétiques sont conservés dans
 [`results/sudoku_matching_optimizations_2026-07-23.csv`](results/sudoku_matching_optimizations_2026-07-23.csv).
 
+### Hashes structurels précalculés
+
+Mesure du 24 juillet 2026, sur la même machine et avec sept passages par
+niveau. `Atom`, `Number`, `Variable`, `Triple` et `Fact` conservent désormais
+leur hash structurel calculé une seule fois à la construction :
+
+| Niveau | Avant le cache | Après le cache | Gain | Matchings |
+|---|---:|---:|---:|---:|
+| p1 | 0,325 s | 0,247 s | ×1,32 | 47 051 |
+| p5 | 0,728 s | 0,535 s | ×1,36 | 125 298 |
+| p6 | 0,639 s | 0,468 s | ×1,37 | 106 449 |
+
+La baisse temporelle vaut 24 à 27 % sans aucun changement du travail logique.
+Depuis la baseline Sudoku initiale, le gain total atteint ×9,38 sur p1,
+×11,11 sur p5 et ×11,94 sur p6. Après p5, les slots de hash des objets encore
+vivants représentent environ 46,6 Ko supplémentaires.
+
+Le même changement est plus sensible sur Fibonacci, qui manipule beaucoup de
+faits récursifs : `F(15)` semi-naïf passe de 6,084 s à 0,953 s en médiane,
+soit un gain ×6,39, avec les mêmes 15 867 tentatives de matching. Les mesures
+A/B sont conservées dans
+[`results/hash_cache_optimizations_2026-07-24.csv`](results/hash_cache_optimizations_2026-07-24.csv).
+
 ## Fibonacci explicite
 
 La commande suivante calcule trois fois `F(10)` avec l'oracle naïf, la stratégie

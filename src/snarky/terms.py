@@ -6,8 +6,16 @@ from dataclasses import dataclass
 from enum import StrEnum
 
 
+class _PreHashed:
+    """Private slot shared by immutable values with a structural hash."""
+
+    __slots__ = ("_hash",)
+
+    _hash: int
+
+
 @dataclass(frozen=True, slots=True)
-class Atom:
+class Atom(_PreHashed):
     """An atomic symbolic value."""
 
     name: str
@@ -15,17 +23,35 @@ class Atom:
     def __post_init__(self) -> None:
         if not self.name:
             raise ValueError("an atom name cannot be empty")
+        object.__setattr__(self, "_hash", hash((self.name,)))
+
+    def __hash__(self) -> int:
+        return self._hash
+
+    def __reduce__(self) -> tuple[type[Atom], tuple[str]]:
+        return Atom, (self.name,)
 
 
 @dataclass(frozen=True, slots=True)
-class Number:
+class Number(_PreHashed):
     """A numeric term kept distinct from symbolic atoms."""
 
     value: int | float
 
+    def __post_init__(self) -> None:
+        object.__setattr__(self, "_hash", hash((self.value,)))
+
+    def __hash__(self) -> int:
+        return self._hash
+
+    def __reduce__(
+        self,
+    ) -> tuple[type[Number], tuple[int | float]]:
+        return Number, (self.value,)
+
 
 @dataclass(frozen=True, slots=True)
-class Variable:
+class Variable(_PreHashed):
     """A rule variable, named without its external ``$`` prefix."""
 
     name: str
@@ -35,6 +61,13 @@ class Variable:
             raise ValueError("a variable name cannot be empty")
         if self.name.startswith("$"):
             raise ValueError("Variable.name must not contain the '$' prefix")
+        object.__setattr__(self, "_hash", hash((self.name,)))
+
+    def __hash__(self) -> int:
+        return self._hash
+
+    def __reduce__(self) -> tuple[type[Variable], tuple[str]]:
+        return Variable, (self.name,)
 
 
 class Status(StrEnum):
@@ -53,12 +86,27 @@ class Status(StrEnum):
 
 
 @dataclass(frozen=True, slots=True)
-class Triple:
+class Triple(_PreHashed):
     """A recursive three-place proposition."""
 
     subject: Term
     relation: Term
     object: Term
+
+    def __post_init__(self) -> None:
+        object.__setattr__(
+            self,
+            "_hash",
+            hash((self.subject, self.relation, self.object)),
+        )
+
+    def __hash__(self) -> int:
+        return self._hash
+
+    def __reduce__(
+        self,
+    ) -> tuple[type[Triple], tuple[Term, Term, Term]]:
+        return Triple, (self.subject, self.relation, self.object)
 
 
 type Term = Atom | Number | Variable | Status | Triple

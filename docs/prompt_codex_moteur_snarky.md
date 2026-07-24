@@ -119,6 +119,7 @@ Sont disponibles et testés :
 - agrégats corrélés `COUNT` et `UNIQUE` ;
 - règles compilées, cadre mutable interne, deltas nets de suppression,
   watchers, compteurs et mémoires de jointures partielles bornées ;
+- hashes structurels précalculés des termes et faits immuables ;
 - plans génériques de techniques avec les états `SOLVED`, `STUCK`,
   `INCONSISTENT` et `LIMIT_REACHED` ;
 - cas d’étude Spinoza complet et base Sudoku native p1–p6 résolue sans
@@ -1170,6 +1171,8 @@ besoins observés :
 10. Plans compilés, cadre mutable, deltas de suppression, compteurs,
     watchers et mémoires partielles bornées.
 11. Agrégats corrélés `COUNT` et `UNIQUE`, avec oracle différentiel.
+12. Hashes structurels précalculés, exclus de l’égalité et reconstruits après
+    désérialisation.
 
 ### Travail documentaire historique encore ouvert
 

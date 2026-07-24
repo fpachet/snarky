@@ -13,6 +13,11 @@ leur tour des termes. Une proposition est donc un triplet, éventuellement
 imbriqué dans un autre triplet. Tous les termes sont immuables, hachables et
 comparés structurellement.
 
+Le hash structurel d’un terme ou d’un fait immuable est calculé une fois à sa
+construction puis conservé dans un slot privé. Ce cache ne participe ni à
+l’égalité, ni au rendu, ni aux champs publics de dataclass ; une
+désérialisation le reconstruit à partir des composantes structurelles.
+
 Les faits stockés sont ground : ils ne contiennent aucune variable. Un fait est
 le couple `(entity, status)`. Le stockage de référence est multistatut : deux
 faits ayant la même entité et des statuts différents peuvent coexister.

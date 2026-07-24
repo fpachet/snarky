@@ -1,5 +1,10 @@
+import pickle
+from dataclasses import fields
+
 from snarky import (
     Atom,
+    Fact,
+    Number,
     PatternMatcher,
     Status,
     Substitution,
@@ -20,6 +25,31 @@ def test_recursive_terms_are_hashable_and_ground() -> None:
     assert is_ground(proposition)
     assert {proposition: "known"}[proposition] == "known"
     assert not is_ground(Triple(Variable("x"), Atom("sait"), proposition))
+
+
+def test_terms_and_facts_preserve_their_structural_hashes() -> None:
+    atom = Atom("alice")
+    number = Number(42)
+    variable = Variable("person")
+    proposition = Triple(Atom("alice"), Atom("age"), Atom("adult"))
+    fact = Fact(proposition, Status.VRAI)
+
+    assert hash(atom) == hash((atom.name,))
+    assert hash(number) == hash((number.value,))
+    assert hash(variable) == hash((variable.name,))
+    assert hash(proposition) == hash(
+        (proposition.subject, proposition.relation, proposition.object)
+    )
+    assert hash(fact) == hash((fact.entity, fact.status))
+    assert {fact: "known"}[
+        Fact(Triple(Atom("alice"), Atom("age"), Atom("adult")))
+    ] == "known"
+
+    for value in (atom, number, variable, proposition, fact):
+        assert "_hash" not in {field.name for field in fields(value)}
+        restored = pickle.loads(pickle.dumps(value))
+        assert restored == value
+        assert hash(restored) == hash(value)
 
 
 def test_substitution_applies_recursively() -> None:
