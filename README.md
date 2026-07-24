@@ -92,10 +92,36 @@ les matchings de 9 à 22,5 % par rapport aux Compact-Tables initiales :
 
 `DomainStore` et `PropagationState` exposent également les réductions,
 contradictions, checkpoints et rollbacks des domaines et masques. Ce socle
-prépare le prochain palier MRV/choice/backtracking ; il ne déclenche encore
-aucune recherche implicite. Voir
+est désormais complété par une première recherche explicite
+`SessionChoiceSearch`. Voir
 [`docs/reversible_propagation.md`](docs/reversible_propagation.md) et
 [`benchmarks/README.md`](benchmarks/README.md).
+
+## Choix pondérés et backtracking explicite
+
+`ChoicePoint` représente un ensemble fini d'alternatives factuelles.
+`SessionChoiceSearch` sélectionne un point, crée une session isolée par
+alternative, sature les groupes de règles, puis conserve la branche, la
+rejette sur contradiction ou la poursuit jusqu'au but.
+
+Le premier jalon fournit :
+
+- sélection MRV et ordre déterministe par poids ;
+- ordre probabiliste reproductible avec une graine ;
+- parcours profondeur, largeur ou meilleur poids d'abord ;
+- limites en nœuds et en solutions ;
+- traces `choice`, `decision`, `contradiction`, `backtrack`, `solution` ;
+- conservation de la session parente, de la provenance et de la réfraction.
+
+Un poids nul reste une possibilité faisable examinée après les poids positifs.
+Les poids orientent la recherche et sont cumulés en log-espace ; ils ne
+modifient jamais les contraintes dures.
+
+Le premier mécanisme restaure un état en abandonnant une branche isolée. Le
+trail de `PropagationState` n'est pas encore branché directement sur la
+mémoire de travail : cette intégration évitera à terme la copie des faits et
+de la provenance. La sémantique complète est décrite dans
+[`docs/choice_search.md`](docs/choice_search.md).
 
 ## État actuel
 
@@ -130,8 +156,9 @@ avec `+`, `-`, `*`, `/`, `%`, précédence et parenthèses, puis transmet les
 liaisons calculées aux actions suivantes. La prémisse `DIVISIBLE` couvre les
 tests de divisibilité entière. Une prémisse déclarative telle que
 `CONSTRAINT $x + $y == $z` réutilise le même AST et filtre les domaines
-numériques dans les trois directions. Ce noyau reste un filtre fini sûr, pas
-encore un solveur CSP complet avec choix et backtracking.
+numériques dans les trois directions. Le filtrage peut maintenant être suivi
+d'un choix explicite et d'un backtracking piloté ; il ne déclenche toujours
+aucune recherche implicite pendant l'instanciation d'une règle.
 
 Les contraintes globales utilisent la même infrastructure :
 
@@ -155,8 +182,8 @@ nouvelles activations.
 
 `DomainStore` et `PropagationState` exposent les réductions, contradictions,
 checkpoints et rollbacks des domaines et masques actifs. Le trail local est
-donc livré ; il ne déclenche encore aucun choix ni aucune branche
-automatiquement.
+livré. Le pilote de choix utilise actuellement des forks de sessions ; son
+couplage direct au trail reste une optimisation ultérieure.
 
 La mémoire de travail accepte maintenant `REMOVE`, avec un journal
 chronologique des ajouts et retraits. Les prémisses corrélées `EXISTS` et
@@ -226,6 +253,13 @@ Le contenu actuel comprend :
   reformulations issues de la thèse NéOpus,
   notamment Hanoï dérécursivé et les quatre reines engendrées entièrement par
   règles ;
+- [`csp_solver`](csp_solver/README.md), un solveur CSP binaire pédagogique :
+  variables, domaines, relations extensionnelles, propagation et
+  contradictions sont des faits et règles Snarky ; les quatre reines en sont
+  le premier oracle ;
+- [`harmonizer`](harmonizer/README.md), le premier incrément de l'harmoniseur
+  SATB : contraintes dures, propagation binaire, choix pondérés par des
+  marginales et recherche best-first ;
 - [`docs/semantics.md`](docs/semantics.md), les décisions sémantiques du moteur
   de référence ;
 - [`docs/arithmetic_actions.md`](docs/arithmetic_actions.md), la syntaxe et la
@@ -249,8 +283,9 @@ Le contenu actuel comprend :
   observable, le trail de domaines et masques, la jointure delta et leurs
   benchmarks ;
 - [`docs/choice_backtracking_and_applications.md`](docs/choice_backtracking_and_applications.md),
-  le cap architectural allant du moteur efficace au futur langage de choix,
-  puis au solveur CSP pédagogique et à l'harmoniseur à quatre voix ;
+  le cap architectural et l'état des deux applications de référence ;
+- [`docs/choice_search.md`](docs/choice_search.md), l'API, la sémantique et
+  les limites du premier pilote de choix/backtracking ;
 - [`docs/mutations_and_negation.md`](docs/mutations_and_negation.md), la
   suppression de faits, le journal de mutations et les blocs corrélés
   `EXISTS`/`NOT EXISTS` ;
@@ -274,12 +309,12 @@ préchargés sous forme de tables.
 Les modifications partielles de faits et un ATMS complet restent à
 implémenter. L’adaptateur vers un solveur externe tel qu’OR-Tools reste
 optionnel et futur ; le backend fini portable valide déjà l’interface.
-Le choix MRV et le pilote de backtracking local restent le prochain grand
-palier. Ils réutiliseront le trail, les domaines et propagateurs actuels, sans
-transformer Snarky en appel opaque à un solveur. Un solveur CSP écrit en Snarky et un
-harmoniseur à quatre voix dans le style de Bach serviront ensuite
-d'applications d'intégration. L’évaluation semi-naïve demeure le mode par
-défaut de `ForwardEngine`.
+Le choix MRV et le premier pilote de backtracking sont maintenant livrés,
+ainsi que leurs deux applications d'intégration. Les prochains paliers
+brancheront la recherche sur le trail réversible, enrichiront le protocole
+déclaratif de choix et étendront progressivement l'harmoniseur vers le profil
+`ROY_1998`. L’évaluation semi-naïve demeure le mode par défaut de
+`ForwardEngine`.
 
 ## Démarrage rapide
 
@@ -495,8 +530,8 @@ une trace rejouable.
     dédiés au couplage entre règles et contraintes.
 15. ~~Implémenter p7/X-Wing avec `COUNT` et `UNIQUE`.~~ Aborder le Sudoku
     avancé à partir de p8. Les ensembles finis, `COLLECT`, `FRESH` et les
-    continuations isolées sont désormais disponibles ; n’ajouter une recherche
-    automatique que lorsqu’un cas d’usage en précise la stratégie.
+    continuations isolées sont désormais disponibles ; la recherche explicite
+    reste indépendante des techniques humaines déterministes.
 16. ~~Compiler les prémisses, utiliser un cadre mutable interne, propager les
     deltas de suppression, maintenir les compteurs négatifs et conserver les
     jointures partielles sous budget. Ajouter un index de dépendances positives
@@ -514,6 +549,10 @@ une trace rejouable.
     registre, hiérarchie explicable, recherche par hypothèses, interface
     CSP/SAT et TMS positif optionnel.~~ Évaluer ces primitives sur les
     prochaines bases concrètes avant d'élargir leur DSL.
+19. ~~Ajouter `ChoicePoint`, MRV, choix pondérés, branches isolées,
+    backtracking et traces ; valider ce langage sur un solveur CSP des quatre
+    reines et un premier harmoniseur SATB.~~ Raccorder ensuite le pilote au
+    trail réversible et étendre progressivement le profil `ROY_1998`.
 
 La cible est Python 3.12 ou ultérieur, avec `pytest`, `ruff`, `mypy` et des
 tests différentiels. L’ajout de tests génératifs fondés sur Hypothesis reste

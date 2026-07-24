@@ -92,10 +92,11 @@ les mesures A/B.
 
 ## Limite architecturale
 
-Cette couche est un noyau de propagation, pas encore un solveur CSP.
-`DomainStore` et `PropagationState` fournissent déjà réductions,
-contradictions et rollback local. Le futur langage de `choice` et son pilote
-de backtracking utiliseront cet état et les mêmes propagateurs, comme décrit
+Cette couche reste un noyau de propagation distinct du pilote de recherche.
+`DomainStore` et `PropagationState` fournissent réductions, contradictions et
+rollback local. Le premier langage de `choice` et son pilote de backtracking
+sont livrés au-dessus de sessions isolées ; leur raccordement direct à cet
+état réversible reste l'étape d'optimisation suivante, comme décrit
 dans [`reversible_propagation.md`](reversible_propagation.md) et
 [`choice_backtracking_and_applications.md`](choice_backtracking_and_applications.md).
 

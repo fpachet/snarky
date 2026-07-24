@@ -191,8 +191,8 @@ Le noyau
 complément qu'une arc-consistance binaire peut être réalisée entièrement par
 des règles Snarky.
 
-Le passage futur de ce noyau au langage de choix, puis au solveur CSP
-pédagogique et à l'harmoniseur à quatre voix, est détaillé dans
+Le premier passage de ce noyau au langage de choix, au solveur CSP
+pédagogique et à l'harmoniseur à quatre voix est maintenant livré et détaillé dans
 [`choice_backtracking_and_applications.md`](choice_backtracking_and_applications.md).
 
 ## Maintenance de vérité optionnelle

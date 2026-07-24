@@ -119,9 +119,16 @@ propre mémoire de travail, sa réfraction, sa provenance, ses compteurs et ses
 générateurs `FRESH`. `HypothesisSearch` peut orchestrer explicitement plusieurs
 copies, mais `fork()` seul ne formule ni hypothèse ni politique de choix.
 
+`SessionChoiceSearch` ajoute cette politique sans modifier le chaînage avant.
+Un `ChoicePoint` contient des alternatives qui affirment des faits dans des
+forks isolés. Après saturation des groupes, un prédicat de contradiction
+rejette la branche et un prédicat de but accepte une solution. MRV, poids,
+graine, ordre de parcours et limites sont explicites. Les poids ordonnent les
+branches mais ne changent jamais leur faisabilité.
+
 Les modifications partielles et un ATMS complet restent différés. Voir
 [`collections_fresh_and_contexts.md`](collections_fresh_and_contexts.md) et
-[`advanced_problem_solving.md`](advanced_problem_solving.md).
+[`choice_search.md`](choice_search.md).
 
 ## Instanciation et point fixe
 

@@ -138,8 +138,8 @@ maintenant semi-naïve elle aussi.
 
 Les définitions de tables sont séparées de l'état mutable. `DomainStore` et
 `PropagationState` fournissent réductions motivées, contradictions,
-checkpoints et rollback des domaines et masques. Le choix MRV et le pilote de
-backtracking local restent différés.
+checkpoints et rollback des domaines et masques. Le choix MRV et le premier
+pilote de backtracking local sont livrés au-dessus de forks de sessions.
 
 ### P9 — Maintenance de vérité positive
 
@@ -154,12 +154,12 @@ justifications négatives complètes restent séparés.
 
 - prémisses de collection `MEMBER` et `SIZE`, validées d'abord par les naked
   triples de Sudoku ;
-- protocole factuel `choice` reliant les règles à `HypothesisSearch` ;
+- syntaxe DSL optionnelle produisant directement des `ChoicePoint` ;
 - affinement et généralisation de `AdaptiveInstantiationStrategy`, désormais
   validée sur des jointures favorables, neutres, défavorables et acycliques ;
 - multiensembles et quantités pour des réseaux de Petri généraux ;
 - adaptateur OR-Tools derrière `ConstraintSolver` ;
-- coûts et heuristiques pour `HypothesisSearch` ;
+- apprentissage de nogoods et heuristiques d'impact pour la recherche ;
 - langage déclaratif unifié de procédures de groupes ;
 - ATMS et provenance complète des prémisses négatives ;
 - réflexion sur les règles et méta-règles NéOpus ;
@@ -185,8 +185,9 @@ justifications négatives complètes restent séparés.
     actives dans la jointure.~~
 12. ~~Rendre la jointure filtrée semi-naïve et fournir l'état réversible
     observable.~~
-13. Produire des choix déclaratifs à partir des domaines non singletons, puis
-   les connecter à des branches isolées.
+13. ~~Produire des choix déclaratifs à partir des domaines non singletons,
+    puis les connecter à des branches isolées.~~ Raccorder maintenant les
+    branches au trail réversible sans changer leur sémantique.
 14. Ajouter `MEMBER` et `SIZE`, puis implémenter les naked triples de Sudoku p8
     avec `COMBINATIONS`.
 15. Mesurer une éventuelle consistance généralisée de `ALL_DIFFERENT`.

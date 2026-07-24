@@ -1,0 +1,23 @@
+GROUP apply_csp_choices
+    # Une decision de branche réduit le domaine factuel à une seule valeur.
+    # Les groupes génériques de propagation binaire font ensuite le reste.
+    RULE restrict_chosen_domain
+    WHEN
+        ($variable decision $chosen)
+        ($variable candidate $other)
+        $other != $chosen
+    THEN
+        REMOVE ($variable candidate $other)
+    END
+
+    RULE reject_missing_choice_value
+    WHEN
+        ($variable decision $chosen)
+        NOT EXISTS
+            ($variable candidate $chosen)
+        END_EXISTS
+    THEN
+        ADD (search state contradiction)
+        ADD (search invalid_choice $variable)
+    END
+END_GROUP

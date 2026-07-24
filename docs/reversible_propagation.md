@@ -107,17 +107,19 @@ python -m benchmarks.propagation_trail --repeat 7
 Les mesures sont conservées dans
 [`../benchmarks/results/pre_backtracking_2026-07-24.csv`](../benchmarks/results/pre_backtracking_2026-07-24.csv).
 
-## Palier suivant
+## Recherche livrée et palier suivant
 
-Les prochaines primitives peuvent maintenant rester petites et
-incrémentales :
+`SessionChoiceSearch` livre maintenant MRV, alternatives pondérées, branches
+isolées, contradiction, backtracking et traces. Le solveur CSP pédagogique et
+l'harmoniseur à quatre voix en sont les premiers tests d'intégration.
 
-1. choisir une variable non singleton avec MRV ;
-2. poser une décision dans un `PropagationState` ;
-3. relancer la file de propagateurs à partir des seules variables modifiées ;
-4. convertir une contradiction structurée en échec de branche ;
-5. rollback puis essayer l'alternative suivante ;
-6. exposer une trace `decision → propagation → contradiction/backtrack`.
+Il utilise encore `InferenceSession.fork()` : l'échec restaure correctement
+l'état en abandonnant la branche, mais la session est copiée. Le palier suivant
+sera une optimisation compatible :
 
-Le solveur CSP pédagogique et l'harmoniseur à quatre voix resteront les tests
-d'intégration ; le noyau ne contiendra aucune connaissance Sudoku ou musicale.
+1. poser un checkpoint de `PropagationState` avant la décision ;
+2. restreindre directement le domaine choisi ;
+3. réveiller seulement les propagateurs incidents ;
+4. convertir la contradiction structurée en échec de branche ;
+5. rollback des domaines, masques, deltas et faits associés ;
+6. conserver les mêmes événements observables.

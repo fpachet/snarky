@@ -2,9 +2,8 @@
 
 Snarky n'a pas pour objectif immédiat de devenir un solveur CSP spécialisé.
 Le projet construit d'abord un langage de règles efficace, déclaratif,
-incrémental et explicable. Les domaines et propagateurs livrés maintenant
-préparent le mécanisme générique de choix et de retour arrière ; ils ne le
-remplacent pas.
+incrémental et explicable. Les domaines, propagateurs et le premier pilote
+générique de choix et de retour arrière sont maintenant livrés.
 
 ## Étagement architectural
 
@@ -22,14 +21,16 @@ choice + hypothèse + pilote de backtracking
 applications écrites en Snarky
 ```
 
-Le futur mécanisme de recherche devra donc réutiliser :
+Le mécanisme de recherche réutilise déjà :
 
-- les domaines finis déjà construits pendant l'instanciation ;
-- la file d'incidence des propagateurs ;
-- les comparaisons, `CONSTRAINT`, `NVALUE` et `ALL_DIFFERENT` ;
-- les deltas d'ajout et de suppression ;
 - les groupes de règles et leurs modes d'exécution ;
-- la réfraction, la provenance et les traces.
+- la réfraction et la provenance héritées par les forks ;
+- les contradictions et buts représentés par des faits ;
+- une trace explicite des choix, décisions, échecs et solutions.
+
+Le raccordement direct à la file de propagateurs, à ses domaines et à son
+trail reste l'optimisation suivante. La version initiale abandonne des sessions
+isolées et recopie donc davantage d'état.
 
 Il ne devra pas cacher une recherche métier dans une fonction Python. Python
 restera la couche d'orchestration et de stockage du trail ; les choix
@@ -38,24 +39,21 @@ dans le langage.
 
 ## Palier `choice` et backtracking
 
-Le trail local, les checkpoints et les contradictions structurées sont
-maintenant livrés. Le prochain grand palier comporte donc :
+Le premier palier comporte :
 
-1. une prémisse ou un fait déclaratif produisant un ensemble fini de choix ;
-2. une heuristique publique, MRV en premier lieu ;
-3. ~~un trail local enregistrant l'ancienne valeur des domaines et des
-   masques ;~~
-4. une propagation jusqu'au point fixe après chaque choix ;
-5. ~~une contradiction observable ;~~
-6. un pilote de retour arrière qui restaure le trail sans recopier toute la
-   session ;
-7. une trace distinguant décision, propagation et échec.
+1. `ChoicePoint` et `ChoiceAlternative` pour les choix finis ;
+2. MRV, ordre par poids et échantillonnage pondéré reproductible ;
+3. parcours DFS, BFS et best-first ;
+4. saturation des groupes après chaque décision ;
+5. branches isolées et détection de contradiction ;
+6. limites en nœuds et solutions ;
+7. traces distinguant décision, propagation logique, échec et backtrack.
 
 Les Compact-Tables et `PropagationState` fournissent la représentation et le
 trail :
-un choix réduira des domaines et des masques de lignes actives ; un
-backtrack pourra restaurer leurs anciennes valeurs sans recopier les faits ni
-reconstruire les tables de la règle.
+Dans le palier suivant, un choix réduira directement les domaines et masques
+actifs ; un backtrack restaurera leurs anciennes valeurs sans recopier les
+faits ni reconstruire les tables de la règle.
 
 Le détail de cette couche, ses garanties et ses mesures est dans
 [`reversible_propagation.md`](reversible_propagation.md).
@@ -68,28 +66,29 @@ seconde explore différents états du problème.
 
 ### Solveur de contraintes écrit en Snarky
 
-Un petit solveur CSP constituera un exercice d'intégration. Les variables,
-domaines, contraintes et choix seront des faits ou constructions Snarky. Il
-servira à vérifier que le langage suffit à exprimer propagation, choix,
+Le projet [`csp_solver`](../csp_solver/README.md) est maintenant exécutable.
+Les variables, domaines, relations binaires et choix sont des faits ou
+constructions Snarky. Il vérifie que le langage sait exprimer propagation,
+choix,
 contradiction et backtracking sans dépendre du backend
-`BacktrackingConstraintSolver` déjà fourni comme oracle Python.
+`BacktrackingConstraintSolver` déjà fourni comme oracle Python. Les quatre
+reines donnent exactement leurs deux solutions.
 
 ### Harmoniseur à quatre voix dans le style de Bach
 
-L'harmoniseur sera le cas d'étude complet. Il pourra combiner :
+Le projet [`harmonizer`](../harmonizer/README.md) livre un premier noyau
+exécutable à deux positions. Il combine déjà :
 
-- génération des notes et accords candidats ;
-- contraintes de tessiture, mouvement et doublure ;
-- `ALL_DIFFERENT`, `NVALUE` et contraintes arithmétiques ;
-- règles d'ordre 2 sur les relations harmoniques ;
-- groupes de règles par famille stylistique ;
-- choix progressifs et retour arrière ;
-- explications indiquant les règles musicales ayant éliminé ou choisi chaque
-  possibilité.
+- voicings SATB finis et soprano imposé ;
+- contraintes de tessiture, espacement, mouvement et doublure ;
+- relations binaires de conduite des voix ;
+- choix progressifs, poids marginaux et recherche best-first ;
+- exposition des notes choisies par des règles.
 
-Cette application ne doit pas être codée comme un solveur monolithique. Son
-intérêt est précisément d'utiliser toute la panoplie de Snarky et de montrer
-la coopération entre connaissances symboliques, propagation et recherche.
+Le profil `ROY_1998`, les variables de notes séparées, les préférences
+lexicographiques et le catalogue complet de règles restent planifiés. Le
+compilateur de candidats Python du premier jalon sera progressivement remplacé
+par des connaissances Snarky déclaratives.
 
 ## Critère de décision
 

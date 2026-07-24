@@ -4,6 +4,36 @@ Les benchmarks sont des programmes reproductibles séparés des tests de
 correction. Ils produisent du JSON afin de pouvoir comparer plusieurs
 versions du moteur.
 
+## Choix, backtracking et applications
+
+`choice_search` mesure les deux premiers projets qui utilisent
+`SessionChoiceSearch` :
+
+```sh
+PYTHONPATH=src python -m benchmarks.choice_search --repeat 5
+```
+
+Mesure du 24 juillet 2026 sur macOS ARM64 avec Python 3.13.11 :
+
+| Projet | Médiane | Nœuds explorés | Branches en échec | Solutions |
+|---|---:|---:|---:|---:|
+| quatre reines | 18,62 ms | 4 | 1 | 2 |
+| harmoniseur SATB, 2 positions | 1,356 s | 13 | 0 | 3 |
+
+Le solveur des reines propage trois affectations après la première décision.
+L'harmoniseur utilise 15 voicings sur la première position et 9 sur la
+seconde ; son coût est encore dominé par la saturation des relations
+extensionnelles dans chaque fork.
+
+La création d'un matcher semi-naïf vierge par branche évite de recopier ses
+caches. Lors de la mise au point du jalon, les trois solutions de
+l'harmoniseur à deux positions sont passées d'environ 3,5 s à 1,36 s. Cette
+mesure motive l'étape suivante : raccorder le pilote au trail réversible afin
+d'éviter aussi la copie de la mémoire de travail et de la provenance.
+
+Le résultat JSON est conservé dans
+[`results/choice_search_2026-07-24.json`](results/choice_search_2026-07-24.json).
+
 ## Filtrage des domaines avant instanciation
 
 `constraint_instantiation` propose quatre scénarios : triangle favorable,

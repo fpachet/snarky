@@ -469,8 +469,8 @@ propagation binaire étudiée. Une file AC-3 spécialisée n'est donc pas ajout�
 
 ## 4. Recherche et backtracking explicites
 
-La propagation peut atteindre un point fixe sans résoudre le problème. Les
-règles devraient alors produire un choix réifié :
+La propagation peut atteindre un point fixe sans résoudre le problème. Le
+premier pilote accepte maintenant un `ChoicePoint` réifié par son adaptateur :
 
 ```text
 (choice-1 kind choice)
@@ -479,7 +479,7 @@ règles devraient alors produire un choix réifié :
 (choice-1 alternative 8)
 ```
 
-Un orchestrateur générique :
+`SessionChoiceSearch` :
 
 1. sature les groupes de propagation ;
 2. teste les motifs `solved` et `contradiction` ;
@@ -494,9 +494,10 @@ contradiction. Le contrôleur ne connaît que le protocole général.
 
 Ce modèle ne revient pas en arrière en annulant des mutations. Chaque branche
 est une session isolée possédant ses hypothèses, événements, contradictions
-et preuves. `HypothesisSearch` fournit déjà le parcours BFS/DFS et les limites,
-mais son générateur Python doit être remplacé ou complété par cet adaptateur
-de choix factuels.
+et preuves. Le pilote fournit DFS, BFS, best-first, MRV, poids, limites et
+traces. Le solveur CSP pédagogique adapte directement ses domaines factuels ;
+une syntaxe DSL produisant des `ChoicePoint` sans adaptateur Python reste une
+extension possible.
 
 ## 5. Solveur CSP externe
 

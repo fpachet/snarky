@@ -149,11 +149,12 @@ Sont disponibles et testés :
   trace complète de l’agenda.
 
 Restent notamment différés : mise à jour partielle d’un fait, ATMS complet,
-adaptateur de contraintes externe, stratégie BOOJUM complète avec choix MRV
-et backtracking local, méta-règles réflexives et techniques Sudoku avancées
+adaptateur de contraintes externe, raccordement du choix/backtracking au trail
+local, stratégie BOOJUM complète, méta-règles réflexives et techniques Sudoku avancées
 p8–p18. Les
-séquences, la recherche explicite, un backend CSP/SAT fini et un TMS positif
-optionnel sont désormais réalisés.
+séquences, la recherche explicite, le choix MRV pondéré, le backtracking par
+branches isolées, un backend CSP/SAT fini et un TMS positif optionnel sont
+désormais réalisés.
 
 Les décisions opérationnelles exactes sont précisées dans
 [`semantics.md`](semantics.md), [`rule_groups.md`](rule_groups.md),
@@ -164,8 +165,8 @@ Sudoku et ses prochains paliers sont détaillés dans
 Les options d'intégration futures entre matching, propagation, recherche et
 solveurs sont comparées dans
 [`constraints_propagation_and_search.md`](constraints_propagation_and_search.md).
-Le cap allant de ce noyau efficace au futur langage de choix, puis au solveur
-CSP pédagogique et à l'harmoniseur à quatre voix, est fixé dans
+Le cap et le premier jalon livré — langage de choix, solveur CSP pédagogique
+et harmoniseur à quatre voix — sont fixés dans
 [`choice_backtracking_and_applications.md`](choice_backtracking_and_applications.md).
 
 Toutes les capacités ajoutées pour le contrôle moderne, la mutation et
@@ -1388,14 +1389,17 @@ hypothèse.
    `ALL_DIFFERENT` et Hall borné.~~
 4. ~~Séparer l'état mutable des tables, propager le delta jusqu'à la jointure
    et fournir checkpoints, rollback et contradictions structurées.~~
-5. Produire des faits `choice` à partir des domaines non singletons et
-   spécifier leur branchement et leur backtracking explicites.
+5. ~~Produire des faits `choice` à partir des domaines non singletons et
+   spécifier leur branchement et leur backtracking explicites.~~ Raccorder
+   ensuite les branches au trail réversible.
 6. Ajouter un adaptateur optionnel vers OR-Tools.
 7. ~~Construire une stratégie explicite d’hypothèses et de recherche au-dessus
-   des sessions isolées.~~ Ajouter coûts ou heuristiques avec un oracle concret.
+   des sessions isolées.~~ Les coûts, poids, MRV et oracles quatre
+   reines/harmoniseur sont maintenant livrés ; étudier ensuite nogoods et
+   heuristiques d'impact.
 8. ~~Livrer le premier filtrage centré sur les variables de BOOJUM avec un
-   benchmark différentiel et le trail local.~~ Ajouter ensuite la sélection
-   MRV et le pilote de branches.
+   benchmark différentiel, le trail local, la sélection MRV et le pilote de
+   branches.~~ Intégrer le trail au pilote.
 9. Étudier séparément les méta-règles réflexives capables d’inspecter et de
    transformer l’agenda.
 

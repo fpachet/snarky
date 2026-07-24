@@ -1,0 +1,21 @@
+GROUP interpret_harmonization
+    # Les choix portent d'abord sur un voicing complet. Les règles locales
+    # réexposent ses quatre notes sous forme de faits explicables.
+    RULE expose_selected_voicing
+    WHEN
+        ($position kind harmonic_position)
+        ($position value SEQ[$soprano $alto $tenor $bass])
+    THEN
+        ADD ($position soprano $soprano)
+        ADD ($position alto $alto)
+        ADD ($position tenor $tenor)
+        ADD ($position bass $bass)
+    END
+
+    RULE recognize_harmonization
+    WHEN
+        (roy_harmonization state solved)
+    THEN
+        ADD (roy_harmonization result harmonized)
+    END
+END_GROUP

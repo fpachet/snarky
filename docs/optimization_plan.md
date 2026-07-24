@@ -650,10 +650,10 @@ InstantiationState
 ChoiceHeuristic
 ```
 
-Le choix MRV et le pilote de backtracking restent volontairement le palier
-suivant ; leur état réversible est maintenant prêt. Le cap
-complet, jusqu'au solveur CSP pédagogique et à l'harmoniseur à quatre voix,
-est décrit dans
+Le choix MRV, le pilote de backtracking, le solveur CSP pédagogique et le
+premier harmoniseur à quatre voix sont maintenant livrés. Le pilote abandonne
+des forks de sessions ; son raccordement au trail réversible constitue le
+prochain palier de performance. Le cap complet est décrit dans
 [`choice_backtracking_and_applications.md`](choice_backtracking_and_applications.md).
 
 La première version possède déjà des tests différentiels ciblés, y compris
