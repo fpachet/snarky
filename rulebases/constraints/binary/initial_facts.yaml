@@ -1,0 +1,95 @@
+schema_version: 1
+facts:
+  # Relation d'inegalite sur deux couleurs.
+  - {entity: "(different-two-colors kind binary_relation)", status: "VRAI"}
+  - {entity: "(different-two-colors allows SEQ[red blue])", status: "VRAI"}
+  - {entity: "(different-two-colors allows SEQ[blue red])", status: "VRAI"}
+
+  # Probleme 1 : chaine bicolore.
+  - {entity: "(two-color-chain kind csp_problem)", status: "VRAI"}
+  - {entity: "(two-color-chain variable chain-a)", status: "VRAI"}
+  - {entity: "(two-color-chain variable chain-b)", status: "VRAI"}
+  - {entity: "(two-color-chain variable chain-c)", status: "VRAI"}
+  - {entity: "(two-color-chain variable chain-d)", status: "VRAI"}
+  - {entity: "(chain-a kind csp_variable)", status: "VRAI"}
+  - {entity: "(chain-b kind csp_variable)", status: "VRAI"}
+  - {entity: "(chain-c kind csp_variable)", status: "VRAI"}
+  - {entity: "(chain-d kind csp_variable)", status: "VRAI"}
+  - {entity: "(chain-a candidate red)", status: "VRAI"}
+  - {entity: "(chain-b candidate red)", status: "VRAI"}
+  - {entity: "(chain-b candidate blue)", status: "VRAI"}
+  - {entity: "(chain-c candidate red)", status: "VRAI"}
+  - {entity: "(chain-c candidate blue)", status: "VRAI"}
+  - {entity: "(chain-d candidate red)", status: "VRAI"}
+  - {entity: "(chain-d candidate blue)", status: "VRAI"}
+
+  - {entity: "(chain-ab kind binary_constraint)", status: "VRAI"}
+  - {entity: "(chain-ab problem two-color-chain)", status: "VRAI"}
+  - {entity: "(chain-ab relation different-two-colors)", status: "VRAI"}
+  - {entity: "(chain-ab left chain-a)", status: "VRAI"}
+  - {entity: "(chain-ab right chain-b)", status: "VRAI"}
+  - {entity: "(chain-bc kind binary_constraint)", status: "VRAI"}
+  - {entity: "(chain-bc problem two-color-chain)", status: "VRAI"}
+  - {entity: "(chain-bc relation different-two-colors)", status: "VRAI"}
+  - {entity: "(chain-bc left chain-b)", status: "VRAI"}
+  - {entity: "(chain-bc right chain-c)", status: "VRAI"}
+  - {entity: "(chain-cd kind binary_constraint)", status: "VRAI"}
+  - {entity: "(chain-cd problem two-color-chain)", status: "VRAI"}
+  - {entity: "(chain-cd relation different-two-colors)", status: "VRAI"}
+  - {entity: "(chain-cd left chain-c)", status: "VRAI"}
+  - {entity: "(chain-cd right chain-d)", status: "VRAI"}
+
+  # Relation d'inegalite sur trois couleurs.
+  - {entity: "(different-three-colors kind binary_relation)", status: "VRAI"}
+  - {entity: "(different-three-colors allows SEQ[red green])", status: "VRAI"}
+  - {entity: "(different-three-colors allows SEQ[red blue])", status: "VRAI"}
+  - {entity: "(different-three-colors allows SEQ[green red])", status: "VRAI"}
+  - {entity: "(different-three-colors allows SEQ[green blue])", status: "VRAI"}
+  - {entity: "(different-three-colors allows SEQ[blue red])", status: "VRAI"}
+  - {entity: "(different-three-colors allows SEQ[blue green])", status: "VRAI"}
+
+  # Probleme 2 : triangle non resolu par la seule propagation.
+  - {entity: "(three-color-triangle kind csp_problem)", status: "VRAI"}
+  - {entity: "(three-color-triangle variable triangle-a)", status: "VRAI"}
+  - {entity: "(three-color-triangle variable triangle-b)", status: "VRAI"}
+  - {entity: "(three-color-triangle variable triangle-c)", status: "VRAI"}
+  - {entity: "(triangle-a kind csp_variable)", status: "VRAI"}
+  - {entity: "(triangle-b kind csp_variable)", status: "VRAI"}
+  - {entity: "(triangle-c kind csp_variable)", status: "VRAI"}
+  - {entity: "(triangle-a candidate red)", status: "VRAI"}
+  - {entity: "(triangle-b candidate red)", status: "VRAI"}
+  - {entity: "(triangle-b candidate green)", status: "VRAI"}
+  - {entity: "(triangle-b candidate blue)", status: "VRAI"}
+  - {entity: "(triangle-c candidate red)", status: "VRAI"}
+  - {entity: "(triangle-c candidate green)", status: "VRAI"}
+  - {entity: "(triangle-c candidate blue)", status: "VRAI"}
+
+  - {entity: "(triangle-ab kind binary_constraint)", status: "VRAI"}
+  - {entity: "(triangle-ab problem three-color-triangle)", status: "VRAI"}
+  - {entity: "(triangle-ab relation different-three-colors)", status: "VRAI"}
+  - {entity: "(triangle-ab left triangle-a)", status: "VRAI"}
+  - {entity: "(triangle-ab right triangle-b)", status: "VRAI"}
+  - {entity: "(triangle-bc kind binary_constraint)", status: "VRAI"}
+  - {entity: "(triangle-bc problem three-color-triangle)", status: "VRAI"}
+  - {entity: "(triangle-bc relation different-three-colors)", status: "VRAI"}
+  - {entity: "(triangle-bc left triangle-b)", status: "VRAI"}
+  - {entity: "(triangle-bc right triangle-c)", status: "VRAI"}
+  - {entity: "(triangle-ca kind binary_constraint)", status: "VRAI"}
+  - {entity: "(triangle-ca problem three-color-triangle)", status: "VRAI"}
+  - {entity: "(triangle-ca relation different-three-colors)", status: "VRAI"}
+  - {entity: "(triangle-ca left triangle-c)", status: "VRAI"}
+  - {entity: "(triangle-ca right triangle-a)", status: "VRAI"}
+
+  # Probleme 3 : deux singletons incompatibles produisent des domaines vides.
+  - {entity: "(impossible-pair kind csp_problem)", status: "VRAI"}
+  - {entity: "(impossible-pair variable impossible-left)", status: "VRAI"}
+  - {entity: "(impossible-pair variable impossible-right)", status: "VRAI"}
+  - {entity: "(impossible-left kind csp_variable)", status: "VRAI"}
+  - {entity: "(impossible-right kind csp_variable)", status: "VRAI"}
+  - {entity: "(impossible-left candidate red)", status: "VRAI"}
+  - {entity: "(impossible-right candidate red)", status: "VRAI"}
+  - {entity: "(impossible-constraint kind binary_constraint)", status: "VRAI"}
+  - {entity: "(impossible-constraint problem impossible-pair)", status: "VRAI"}
+  - {entity: "(impossible-constraint relation different-two-colors)", status: "VRAI"}
+  - {entity: "(impossible-constraint left impossible-left)", status: "VRAI"}
+  - {entity: "(impossible-constraint right impossible-right)", status: "VRAI"}

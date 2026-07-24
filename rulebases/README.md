@@ -7,6 +7,7 @@ grands projets du dépôt.
 ```text
 rulebases/
 ├── small/                  exemples minimaux et pédagogiques
+├── constraints/            propagation CSP écrite en règles Snarky
 ├── thesis/                 reformulations de la thèse NéOpus
 ├── projects/               index vers Sudoku et Spinoza
 ├── catalog.yaml            inventaire, maturité et besoins du moteur
@@ -50,6 +51,11 @@ servent de tutoriels ou de micro-benchmarks. Les exemples de
 NéOpus de François Pachet. Certaines sont des noyaux exécutables délibérément
 bornés : leur README distingue toujours ce qui est effectivement reproduit de
 ce qui demanderait une extension générale du moteur.
+
+[`constraints`](constraints/README.md) réifie variables, domaines,
+contraintes et tables de compatibilité sous forme de faits. Son premier noyau
+implémente l'arc-consistance binaire uniquement avec `NOT EXISTS`, `REMOVE`
+et la saturation de groupes.
 
 Sudoku et Spinoza restent à la racine du dépôt parce qu'ils possèdent leur
 propre corpus, leurs outils et leurs tests. [`projects`](projects/README.md)

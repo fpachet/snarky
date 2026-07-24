@@ -20,6 +20,8 @@ Snarky exprime aujourd'hui :
   par construction incrémentale de placements partiels ;
 - Hanoï de taille arbitraire dérécursivé en quatre règles, avec sous-problèmes
   et synchronisation représentés par des faits ;
+- arc-consistance de contraintes binaires tabulaires, domaines singletons et
+  contradictions exprimés par des groupes de règles réutilisables ;
 - groupes paramétrés, appels récursifs bornés et résolution de petits CSP/SAT
   comme infrastructures optionnelles indépendantes ;
 - Sudoku p1 à p7, y compris X-Wing.
@@ -120,6 +122,11 @@ justifications négatives complètes restent séparés.
 
 ## Extensions encore proposées
 
+- prémisses de collection `MEMBER` et `SIZE`, validées d'abord par les naked
+  triples de Sudoku ;
+- protocole factuel `choice` reliant les règles à `HypothesisSearch` ;
+- expérimentation d'une stratégie d'instanciation CSP sur un benchmark de
+  jointures fortement contraintes ;
 - multiensembles et quantités pour des réseaux de Petri généraux ;
 - adaptateur OR-Tools derrière `ConstraintSolver` ;
 - coûts et heuristiques pour `HypothesisSearch` ;
@@ -138,9 +145,18 @@ justifications négatives complètes restent séparés.
 5. ~~Séquences, fenêtres, combinaisons et itération.~~
 6. ~~Groupes paramétrés, prédicats sûrs et hiérarchie.~~
 7. ~~Recherche explicite, CSP/SAT et TMS positif optionnel.~~
-8. Mesurer ces primitives sur des bases plus grandes et implémenter Sudoku p8.
-9. Ne retenir les extensions restantes qu'avec une base et un oracle
+8. ~~Réifier domaines et contraintes binaires et propager l'arc-consistance
+   par règles.~~
+9. Produire des choix déclaratifs à partir des domaines non singletons, puis
+   les connecter à des branches isolées.
+10. Ajouter `MEMBER` et `SIZE`, puis implémenter les naked triples de Sudoku p8
+    avec `COMBINATIONS`.
+11. Mesurer une éventuelle instanciation CSP sur une base fortement contrainte.
+12. Ne retenir les extensions restantes qu'avec une base et un oracle
    reproductibles.
+
+La comparaison détaillée de ces voies se trouve dans
+[`constraints_propagation_and_search.md`](constraints_propagation_and_search.md).
 
 Les primitives n'ont pas changé le modèle d'exécution fondamental. MEA ajoute
 un agenda explicite ; recherche, contraintes et TMS restent des sous-systèmes

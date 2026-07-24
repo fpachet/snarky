@@ -1,0 +1,12 @@
+RULE generate_compatible_pairs
+WHEN
+    ($workshop candidates $candidates)
+    COMBINATIONS $pair SIZE 2 FROM $candidates
+    ($pair compatible true)
+THEN
+    ADD ($pair kind working_pair)
+    ADD ($pair workshop $workshop)
+    FOR EACH $member IN $pair
+        ADD ($pair member $member)
+    END_FOR_EACH
+END

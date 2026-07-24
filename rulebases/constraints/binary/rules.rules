@@ -1,0 +1,94 @@
+GROUP propagate_binary_constraints
+    # Retirer une valeur gauche lorsqu'aucune valeur droite encore candidate
+    # ne forme avec elle un couple autorise par la relation.
+    RULE revise_left_domain
+    WHEN
+        ($constraint kind binary_constraint)
+        ($constraint relation $relation)
+        ($constraint left $left)
+        ($constraint right $right)
+        ($left candidate $left_value)
+        NOT EXISTS
+            ($right candidate $right_value)
+            ($relation allows SEQ[$left_value $right_value])
+        END_EXISTS
+    THEN
+        REMOVE ($left candidate $left_value)
+    END
+
+    # Regle symetrique pour le domaine droit.
+    RULE revise_right_domain
+    WHEN
+        ($constraint kind binary_constraint)
+        ($constraint relation $relation)
+        ($constraint left $left)
+        ($constraint right $right)
+        ($right candidate $right_value)
+        NOT EXISTS
+            ($left candidate $left_value)
+            ($relation allows SEQ[$left_value $right_value])
+        END_EXISTS
+    THEN
+        REMOVE ($right candidate $right_value)
+    END
+END_GROUP
+
+GROUP classify_csp_domains
+    # Une affectation derivee doit disparaitre si une propagation ulterieure
+    # retire son unique valeur.
+    RULE retract_invalid_singleton
+    WHEN
+        ($variable value $value)
+        NOT EXISTS
+            ($variable candidate $value)
+        END_EXISTS
+    THEN
+        REMOVE ($variable value $value)
+    END
+
+    RULE assign_singleton
+    WHEN
+        ($variable kind csp_variable)
+        ($variable candidate $value)
+        NOT EXISTS
+            ($variable candidate $other)
+            $other != $value
+        END_EXISTS
+        NOT EXISTS
+            ($variable value $known)
+        END_EXISTS
+    THEN
+        ADD ($variable value $value)
+    END
+END_GROUP
+
+GROUP classify_csp_problems
+    RULE detect_empty_domain
+    WHEN
+        ($problem kind csp_problem)
+        ($problem variable $variable)
+        NOT EXISTS
+            ($variable candidate $value)
+        END_EXISTS
+    THEN
+        ADD ($problem state contradiction)
+        ADD ($problem empty_domain $variable)
+    END
+
+    RULE recognize_solved_problem
+    WHEN
+        ($problem kind csp_problem)
+        ($problem variable $some_variable)
+        NOT EXISTS
+            ($problem variable $variable)
+            NOT EXISTS
+                ($variable value $value)
+            END_EXISTS
+        END_EXISTS
+        NOT EXISTS
+            ($problem state contradiction)
+        END_EXISTS
+    THEN
+        ADD ($problem state solved)
+    END
+END_GROUP

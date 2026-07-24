@@ -133,6 +133,8 @@ Sont disponibles et testés :
 - Hanoï dérécursivé par quatre règles et recherche des quatre reines par
   génération directe ou placements partiels, sans contrôleur métier ni
   solveur externe ;
+- arc-consistance binaire tabulaire et classification de domaines exprimées
+  par des groupes de règles ordinaires dans `rulebases/constraints` ;
 - reformulation du singe et des bananes avec buts dynamiques, parcours MEA et
   trace complète de l’agenda.
 
@@ -148,6 +150,9 @@ Les décisions opérationnelles exactes sont précisées dans
 [`advanced_problem_solving.md`](advanced_problem_solving.md). Le cas d’acceptation
 Sudoku et ses prochains paliers sont détaillés dans
 [`../sudoku/docs/implementation_plan.md`](../sudoku/docs/implementation_plan.md).
+Les options d'intégration futures entre matching, propagation, recherche et
+solveurs sont comparées dans
+[`constraints_propagation_and_search.md`](constraints_propagation_and_search.md).
 
 Toutes les capacités ajoutées pour le contrôle moderne, la mutation et
 l’orchestration sont des `MODERN_EXTENSION`, sauf attribution historique

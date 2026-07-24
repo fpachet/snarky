@@ -118,10 +118,10 @@ Le contenu actuel comprend :
 - [`tests/rulebases/debug`](tests/rulebases/debug/README.md), une petite base
   native destinée au debug du moteur ;
 - [`rulebases`](rulebases/README.md), le catalogue unifié des exemples
-  exécutables : Fibonacci, factorielle et huit reformulations issues de la
-  thèse NéOpus, notamment Hanoï dérécursivé et les quatre reines engendrées
-  entièrement par règles, avec scénarios, oracles et besoins futurs
-  documentés ;
+  exécutables : exemples pédagogiques, propagation de contraintes binaires
+  écrite en règles et huit reformulations issues de la thèse NéOpus,
+  notamment Hanoï dérécursivé et les quatre reines engendrées entièrement par
+  règles ;
 - [`docs/semantics.md`](docs/semantics.md), les décisions sémantiques du moteur
   de référence ;
 - [`docs/arithmetic_actions.md`](docs/arithmetic_actions.md), la syntaxe et la
@@ -134,6 +134,10 @@ Le contenu actuel comprend :
   conflit, les `timeTag`, la stratégie MEA et les traces d’agenda ;
 - [`docs/advanced_problem_solving.md`](docs/advanced_problem_solving.md), les
   séquences, groupes paramétrés, prédicats sûrs, hypothèses, CSP/SAT et TMS ;
+- [`docs/constraints_propagation_and_search.md`](docs/constraints_propagation_and_search.md),
+  les architectures possibles pour combiner instanciation par contraintes,
+  clauses combinatoires, propagation, choix explicites, solveurs externes et
+  ATMS ;
 - [`docs/mutations_and_negation.md`](docs/mutations_and_negation.md), la
   suppression de faits, le journal de mutations et les blocs corrélés
   `EXISTS`/`NOT EXISTS` ;
@@ -249,7 +253,7 @@ ne recalcule qu'une règle et en réutilise 199. La médiane passe de 2,206 ms
 pour une construction froide à 0,572 ms pour la mise à jour incrémentale,
 soit ×3,86.
 
-La suite complète compte 335 tests et s’exécute en environ 9,0 s sur cette même
+La suite complète compte 341 tests et s’exécute en environ 9,1 s sur cette même
 machine, contre 26,05 s avant la mise en cache du catalogue de provenance
 Spinoza et 76,50 s avant les optimisations.
 

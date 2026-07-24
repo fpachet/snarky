@@ -4,6 +4,43 @@ Les benchmarks sont des programmes reproductibles séparés des tests de
 correction. Ils produisent du JSON afin de pouvoir comparer plusieurs
 versions du moteur.
 
+## Propagation de contraintes déclarative
+
+Le benchmark exécute les trois problèmes de
+[`constraints/binary`](../rulebases/constraints/binary/README.md) : une
+chaîne résolue, un triangle réduit à un point fixe incomplet et une paire
+contradictoire. Les règles produisent dans chaque cas 84 faits, 18
+activations et huit cycles cumulés :
+
+```sh
+uv run python -m benchmarks.constraint_propagation \
+    --repeat 7 --batch-size 10
+```
+
+Mesure du 24 juillet 2026 sur macOS ARM64 avec Python 3.13.11 :
+
+| Stratégie | Médiane | Gain sur le naïf |
+|---|---:|---:|
+| Naïve | 43,822 ms | référence |
+| Indexée | 3,400 ms | ×12,89 |
+| Semi-naïve | 3,300 ms | ×13,28 |
+
+L'indexation élimine donc déjà l'essentiel du coût sur cet exemple. L'écart
+de 3 % entre indexé et semi-naïf n'est pas significatif à cette échelle : le
+cas est court et son temps est dominé par les coûts fixes de session,
+d'indexation et de groupes.
+
+Ce résultat démontre que la formulation déclarative est utilisable pour une
+petite propagation, mais pas encore qu'elle passe à l'échelle. Les tables
+binaires contiennent jusqu'à `d²` couples pour un domaine de taille `d`, et
+chaque suppression peut réveiller les recherches de support corrélées des
+deux règles. Le prochain benchmark pertinent devra générer des familles de
+taille croissante et mesurer séparément retraits, recherches de support et
+mémoire, puis les comparer à AC-3.
+
+Les mesures sont conservées dans
+[`results/constraint_propagation_2026-07-24.csv`](results/constraint_propagation_2026-07-24.csv).
+
 ## Agenda MEA incrémental
 
 Le benchmark construit 200 règles indépendantes, initialise une activation par

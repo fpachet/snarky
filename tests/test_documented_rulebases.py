@@ -7,6 +7,7 @@ from rulebases.runner import RULEBASE_ROOT, render_trace, run_scenario
 from snarky import (
     Atom,
     Fact,
+    FiniteSequence,
     ForwardEngine,
     Triple,
     parse_rule_groups,
@@ -20,6 +21,8 @@ CATALOG_PATH = PROJECT_ROOT / "rulebases" / "catalog.yaml"
 SCENARIOS = (
     "small/fibonacci_explicit",
     "small/factorial_explicit",
+    "small/combinations_foreach",
+    "constraints/binary",
     "thesis/equality_transitivity",
     "thesis/tomorrow_date",
     "thesis/petri_net",
@@ -65,19 +68,43 @@ def test_hanoi_is_solved_by_rules_in_recursive_execution_order() -> None:
         and entity.relation == Atom("move")
     )
 
-    assert moves == tuple(
-        parse_term(text)
-        for text in (
-            "SEQ[a c]",
-            "SEQ[a b]",
-            "SEQ[c b]",
-            "SEQ[a c]",
-            "SEQ[b a]",
-            "SEQ[b c]",
-            "SEQ[a c]",
-        )
-    )
+    towers = {
+        "a": [5, 4, 3, 2, 1],
+        "b": [],
+        "c": [],
+    }
+    assert len(moves) == 2**5 - 1
+    for move in moves:
+        assert isinstance(move, FiniteSequence)
+        source, target = move.elements
+        assert isinstance(source, Atom)
+        assert isinstance(target, Atom)
+        assert towers[source.name]
+        disk = towers[source.name].pop()
+        assert not towers[target.name] or towers[target.name][-1] > disk
+        towers[target.name].append(disk)
+
+    assert towers == {
+        "a": [],
+        "b": [],
+        "c": [5, 4, 3, 2, 1],
+    }
+    assert result.fired_activation_count == 61
     assert Fact(parse_term("(hanoi-root state done)")) in result.facts
+
+
+def test_combinations_are_filtered_before_for_each_actions() -> None:
+    result = run_scenario("small/combinations_foreach").result
+
+    assert Fact(
+        parse_term("(SEQ[alice bob] kind working_pair)")
+    ) in result.facts
+    assert Fact(
+        parse_term("(SEQ[bob chloe] kind working_pair)")
+    ) in result.facts
+    assert Fact(
+        parse_term("(SEQ[alice chloe] kind working_pair)")
+    ) not in result.facts
 
 
 def test_direct_and_incremental_queen_rules_find_the_same_two_solutions() -> None:

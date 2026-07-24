@@ -130,6 +130,18 @@ quadruplets par jointure, tandis qu'une seconde formulation construit par
 chaînage avant un arbre de placements partiels et le filtre au moyen de
 relations `attacks`. Aucun solveur n'intervient dans cet exemple.
 
+Les différentes architectures possibles — CSP comme stratégie
+d'instanciation, clauses combinatoires, contraintes réifiées, choix produits
+par les règles, solveur externe et ATMS — sont comparées dans
+[`constraints_propagation_and_search.md`](constraints_propagation_and_search.md).
+Le petit scénario
+[`combinations_foreach`](../rulebases/small/combinations_foreach/README.md)
+montre déjà la génération et le filtrage de binômes avec le DSL actuel.
+Le noyau
+[`constraints/binary`](../rulebases/constraints/binary/README.md) montre en
+complément qu'une arc-consistance binaire peut être réalisée entièrement par
+des règles Snarky.
+
 ## Maintenance de vérité optionnelle
 
 `InferenceSession(..., truth_maintenance=True)` active la rétraction en

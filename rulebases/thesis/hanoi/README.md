@@ -6,7 +6,7 @@ possédant un nombre de disques, trois tours, deux sous-problèmes et un état d
 terminaison. La présente reformulation suit directement cette construction :
 la connaissance récursive ne se trouve dans aucun contrôleur Python.
 
-Le scénario demande de déplacer trois disques de `a` vers `c` en utilisant
+Le scénario demande de déplacer cinq disques de `a` vers `c` en utilisant
 `b`. Le groupe `solve_hanoi` contient quatre règles :
 
 1. `solve_one_disk` produit le mouvement terminal ;
@@ -23,23 +23,15 @@ d'équivalent procédural.
 
 ## Résultat
 
-Pour trois disques, la trace contient les sept mouvements classiques :
-
-```text
-a -> c
-a -> b
-c -> b
-a -> c
-b -> a
-b -> c
-a -> c
-```
+Pour cinq disques, la trace contient les 31 mouvements classiques, depuis le
+premier déplacement effectué sur la configuration initiale jusqu'au dernier
+déplacement qui complète la tour `c`.
 
 ```sh
 uv run python -m rulebases.runner thesis/hanoi --trace
 ```
 
-Changer le fait `(hanoi-root disks 3)` suffit à demander une autre taille.
+Changer le fait `(hanoi-root disks 5)` suffit à demander une autre taille.
 La saturation crée alors explicitement l'arbre des sous-problèmes et produit
 `2^n - 1` mouvements.
 
@@ -48,6 +40,12 @@ d'exécution. La mémoire de travail demeure un ensemble de faits : elle
 conserve chaque occurrence grâce à l'identifiant propre de son
 sous-problème, mais ne prétend pas transformer l'ensemble final en liste
 chronologique.
+
+Le test d'intégration ne vérifie pas seulement le nombre de mouvements : il
+rejoue chronologiquement la trace sur trois piles initialisées avec les cinq
+disques, refuse de poser un disque sur un disque plus petit et vérifie
+finalement que `c` contient `[5, 4, 3, 2, 1]`. La trace constitue donc bien un
+plan exécutable complet depuis l'état initial.
 
 ## Intérêt
 
