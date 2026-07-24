@@ -93,6 +93,13 @@ class InstantiationMetrics:
     domain_projection_updates: int = 0
     domain_state_reuses: int = 0
     domain_component_resets: int = 0
+    domain_bitset_builds: int = 0
+    domain_bitset_updates: int = 0
+    domain_bitset_resets: int = 0
+    domain_bitset_intersections: int = 0
+    domain_bitset_value_events: int = 0
+    domain_bitset_support_checks: int = 0
+    domain_compact_join_rows: int = 0
     domain_values_removed: int = 0
     domain_candidates_removed: int = 0
 
@@ -141,6 +148,13 @@ class InstantiationMetrics:
         self.domain_projection_updates = 0
         self.domain_state_reuses = 0
         self.domain_component_resets = 0
+        self.domain_bitset_builds = 0
+        self.domain_bitset_updates = 0
+        self.domain_bitset_resets = 0
+        self.domain_bitset_intersections = 0
+        self.domain_bitset_value_events = 0
+        self.domain_bitset_support_checks = 0
+        self.domain_compact_join_rows = 0
         self.domain_values_removed = 0
         self.domain_candidates_removed = 0
 

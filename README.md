@@ -79,6 +79,13 @@ ALL_DIFFERENT SEQ[$x $y $z]
 taille trois. L'interface publique `DomainPropagator` permet d'ajouter d'autres
 propagateurs sans modifier les matchers.
 
+Les tables extensionnelles du filtre utilisent des masques de bits persistants
+par couple `(variable, valeur)`. Une suppression de valeur désactive seulement
+les lignes qu'elle supportait, puis la jointure lie directement les lignes
+actives déjà validées, sans refaire le matching structurel. Cette
+représentation prépare aussi un futur trail réversible pour `choice` et le
+backtracking.
+
 La mémoire de travail accepte maintenant `REMOVE`, avec un journal
 chronologique des ajouts et retraits. Les prémisses corrélées `EXISTS` et
 `NOT EXISTS` permettent de raisonner sur la présence ou l’absence d’une
@@ -293,12 +300,17 @@ structurels précalculés des termes et faits immuables ajoutent un gain de 24 �
 sont décrits dans
 [`benchmarks/README.md`](benchmarks/README.md).
 
+Sur le chemin de filtrage forcé, les Compact-Tables suppriment ensuite tous
+les rescans de lignes et évitent le second matching structurel. Les médianes
+A/B passent de 0,377 à 0,287 s sur p1, de 0,656 à 0,576 s sur p6 et de 0,926
+à 0,804 s sur p7, soit des gains ×1,14 à ×1,31.
+
 Sur le micro-benchmark d'agenda à 200 règles indépendantes, une mutation ciblée
 ne recalcule qu'une règle et en réutilise 199. La médiane passe de 2,206 ms
 pour une construction froide à 0,572 ms pour la mise à jour incrémentale,
 soit ×3,86.
 
-La suite complète compte désormais 368 tests et s’exécute en moins de dix
+La suite complète compte désormais 369 tests et s’exécute en moins de dix
 secondes sur cette même machine, contre 26,05 s avant la mise en cache du
 catalogue de provenance
 Spinoza et 76,50 s avant les optimisations.

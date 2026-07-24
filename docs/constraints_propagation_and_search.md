@@ -122,24 +122,49 @@ Les tables extensionales sont persistantes par règle :
   s'élargir ;
 - un delta sans ligne pertinente réutilise le résultat filtré.
 
-Cette solution reste correcte en présence d'élargissements de domaines, mais
-ce n'est pas AC-4 ou AC-6 : un propagateur réveillé rescane encore sa table. Une
-mesure sur Sudoku p6 sépare désormais `domain_input_rows` (20 562 lignes à
-lire au moins une fois) de `domain_rows_examined` (21 701 avec la file).
-Les relectures résiduelles ne représentent donc que 5,5 % des examens. Les
-compteurs de supports par valeur et les résidus sont différés tant qu'un
-profil réel ne montre pas que cette fraction domine le temps.
+Cette solution reste correcte en présence d'élargissements de domaines. Les
+tables n'utilisent cependant plus le scan historique : chaque ligne possède
+un slot, chaque `(variable, valeur)` le masque de ses lignes supports et la
+table un masque actif. Une valeur retirée produit un événement local qui
+désactive son masque. La vérification d'un support devient une intersection
+de grands entiers Python.
 
 Les métriques distinguent le coût préparatoire
 (`domain_match_attempts`, tables, révisions et valeurs retirées) des
-`match_attempts` du matcher final.
+`match_attempts` du matcher final. `domain_bitset_value_events`,
+`domain_bitset_support_checks`, `domain_bitset_intersections` et
+`domain_compact_join_rows` décrivent le nouveau chemin.
 
 Les métriques `domain_projection_rows_examined`,
 `domain_projection_updates`, `domain_state_reuses` et
 `domain_component_resets` isolent le coût de construction. Sur Sudoku p1,
 p6 et p7, les projections relues baissent de 93,7 à 95,9 %, mais le temps
-total seulement de 1 à 2 %. Cela repousse les bitsets et les compteurs AC-4
-tant qu'un nouveau profil ne les justifie pas.
+total seulement de 1 à 2 %. Ce résultat a écarté les bitsets pour la
+construction des domaines, mais pas pour les révisions et la jointure, qui
+constituaient le coût suivant.
+
+### Compact-Tables et jointure directe
+
+Après construction, les prémisses factuelles ne sont plus matchées une seconde
+fois. La jointure intersecte le masque actif avec les masques des variables
+déjà liées, parcourt seulement les slots restants et copie leurs liaisons
+prévalidées dans le `BindingFrame`.
+
+Sur sept répétitions :
+
+| Scénario | Scan | Bitset seul | Bitset + jointure | Gain total |
+|---|---:|---:|---:|---:|
+| Sudoku p1 | 0,377 s | 0,358 s | 0,287 s | ×1,31 |
+| Sudoku p6 | 0,656 s | 0,640 s | 0,576 s | ×1,14 |
+| Sudoku p7 | 0,926 s | 0,907 s | 0,804 s | ×1,15 |
+| `NVALUE`, taille 200 | 2,302 ms | 2,062 ms | 2,061 ms | ×1,12 |
+| quatre reines | 117,44 ms | 116,78 ms | 104,06 ms | ×1,13 |
+
+Le filtre bitset supprime tous les rescans — 15 467, 18 187 et 21 588 lignes
+sur les trois Sudoku — mais son gain isolé reste modeste. La jointure directe
+apporte la majeure partie de l'accélération en supprimant les recherches
+d'index et le matching structurel redondants. Les données sont dans
+[`../benchmarks/results/compact_tables_2026-07-24.csv`](../benchmarks/results/compact_tables_2026-07-24.csv).
 
 ### Intérêt attendu
 
@@ -221,8 +246,8 @@ et conserve 6,41 ms sans construire les domaines.
 3. ~~maintenir les projections et domaines entre les cycles ;~~
 4. ~~ajouter une interface de propagateur global, `NVALUE` et
    `ALL_DIFFERENT` avec Hall borné ;~~
-5. mémoriser des supports résiduels seulement si le balayage
-   des tables par les propagateurs domine ;
+5. ~~mémoriser les supports par valeur en Compact-Tables et les réutiliser
+   dans la jointure ;~~
 6. généraliser les index de chemins aux triples imbriqués d'ordre 2 ;
 7. mesurer une consistance généralisée de `ALL_DIFFERENT` par matching
    biparti seulement sur un cas probant ;

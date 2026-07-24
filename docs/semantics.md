@@ -196,8 +196,11 @@ combinatoire utilise automatiquement `SemiNaiveInstantiationStrategy`.
 
 Le point fixe utilise une file de propagateurs tabulaires. Une réduction de
 domaine ne réveille que les prémisses et comparaisons incidentes à la
-variable concernée. `use_propagation_queue=False` conserve uniquement un mode
-diagnostique de balayage complet pour les benchmarks A/B.
+variable concernée. Dans une table, chaque ligne possède un slot stable et
+chaque `(variable, valeur)` un masque de supports. Les valeurs supprimées sont
+appliquées au masque actif comme événements fins, sans rescanner les lignes.
+`use_propagation_queue=False` conserve uniquement un mode diagnostique de
+balayage des contraintes.
 
 `AdaptiveInstantiationStrategy` applique en plus une garde stable par règle :
 volume minimal de lignes, graphe cyclique, rapport de sélectivité entre
@@ -226,13 +229,20 @@ ALL_DIFFERENT SEQ[$x $y $z]
 sont compilées comme des comparaisons sur le nombre de valeurs distinctes.
 `NVALUE` maintient des bornes sûres ; `ALL_DIFFERENT` applique les singletons
 et les ensembles de Hall de taille au plus trois. Ces propagateurs ne créent
-ni faits ni décisions. Le matcher ground vérifie encore la contrainte sur
-chaque activation conservée.
+ni faits ni décisions. Le matcher ground vérifie encore la contrainte globale
+sur chaque activation conservée.
+
+Les lignes factuelles, déjà validées lors de la construction de table, ne sont
+pas rematchées pendant la jointure. Les liaisons courantes sélectionnent les
+slots par intersection de masques, puis leurs liaisons sont injectées dans le
+`BindingFrame`. `use_compact_tables=False` et `use_compact_join=False`
+réactivent les anciens chemins à des fins de benchmark.
 
 Les métriques `domain_input_rows` et `domain_rows_examined` distinguent le
-passage initial nécessaire des relectures causées par le point fixe. Sur
-Sudoku p6, la file ne relit que 1 139 lignes au-delà de 20 562 lectures
-initiales ; des supports AC-4/AC-6 ne sont donc pas maintenus à ce stade.
+volume logique des anciens examens physiques. Avec les Compact-Tables,
+`domain_rows_examined` tombe à zéro ; `domain_bitset_value_events`,
+`domain_bitset_support_checks`, `domain_bitset_intersections` et
+`domain_compact_join_rows` décrivent le travail restant.
 `domain_projection_rows_examined`, `domain_projection_updates`,
 `domain_state_reuses` et `domain_component_resets` mesurent séparément la
 construction incrémentale des domaines.

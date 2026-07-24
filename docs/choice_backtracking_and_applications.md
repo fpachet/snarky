@@ -46,6 +46,11 @@ Le prochain grand palier, après stabilisation des propagateurs, comportera :
 6. un retour arrière qui restaure le trail sans recopier toute la session ;
 7. une trace distinguant décision, propagation et échec.
 
+Les Compact-Tables fournissent déjà la représentation adaptée à ce trail :
+un choix réduira des domaines et des masques de lignes actives ; un
+backtrack pourra restaurer leurs anciennes valeurs sans recopier les faits ni
+reconstruire les tables de la règle.
+
 La recherche locale d'instanciation et les hypothèses métier devront rester
 deux notions séparées. La première trouve une substitution d'une règle ; la
 seconde explore différents états du problème.

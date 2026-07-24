@@ -69,16 +69,18 @@ uv run python -m benchmarks.arithmetic_constraints \
 
 | Stratégie | Médiane | Matchings finaux | Travail de contrainte |
 |---|---:|---:|---:|
-| indexée | 339,20 ms | 160 400 | — |
-| domaines, produit cartésien | 80,69 ms | 6 | 40 001 combinaisons |
-| domaines, propagateur spécialisé | 2,06 ms | 6 | 201 vérifications |
-| adaptative | 2,04 ms | 6 | 201 vérifications |
+| indexée | 346,36 ms | 160 400 | — |
+| domaines, produit cartésien | 82,42 ms | 6 | 40 001 combinaisons |
+| spécialisé, tables scannées | 2,292 ms | 6 | 801 lignes |
+| spécialisé, bitsets | 2,025 ms | 6 | 398 retraits |
+| spécialisé, jointure compacte | 2,010 ms | 6 | 398 retraits |
+| adaptative | 2,049 ms | 6 | 398 retraits |
 
 Le propagateur choisit entre les paires `(left, right)`, `(left, total)` et
 `(right, total)`. Comme `total` est singleton, il effectue un parcours
 linéaire au lieu d'énumérer le produit des trois domaines. L'état persistant
-évite aussi la seconde propagation identique. Le gain vaut ×39,2 entre filtre
-générique et spécialisé, et ×166,3 entre indexé et adaptatif.
+évite aussi la seconde propagation identique. Le gain vaut environ ×41 entre
+filtre générique et spécialisé, et ×169 entre indexé et adaptatif.
 
 Les résultats sont conservés dans
 [`results/arithmetic_constraints_2026-07-24.csv`](results/arithmetic_constraints_2026-07-24.csv).
@@ -93,11 +95,11 @@ uv run python -m benchmarks.global_constraints --size 200 --repeat 7
 
 | Scénario | Indexée | Domaines reconstruits | Domaines persistants | Adaptative |
 |---|---:|---:|---:|---:|
-| `NVALUE`, N = 1 | 406,58 ms | 2,85 ms | 2,12 ms | 2,10 ms |
-| `ALL_DIFFERENT`, Hall triple | 65,54 ms | 68,28 ms | 67,70 ms | 43,54 ms |
+| `NVALUE`, N = 1 | 414,61 ms | 2,47 ms | 2,06 ms | 2,13 ms |
+| `ALL_DIFFERENT`, Hall triple | 67,36 ms | 68,33 ms | 69,39 ms | 44,88 ms |
 
 Sur `NVALUE`, le filtre ramène 160 402 tentatives de matching à 8 et
-l'adaptatif gagne ×193,9. La persistance réduit les 1 206 lignes projetées
+l'adaptatif gagne ×194,7. La persistance réduit les 1 206 lignes projetées
 par les deux passages à 402 et ne propage qu'une fois.
 
 Le scénario `ALL_DIFFERENT` doit réellement produire 1 182 solutions. Son
@@ -180,9 +182,45 @@ ajouts, retraits et comparaisons :
 La file supprime toujours 94,5 % des relectures de lignes : seulement 1 139
 examens sur 21 701 ne correspondent pas au passage initial obligatoire.
 Depuis que les comparaisons n'énumèrent plus leur produit cartésien, ce gain
-structurel ne représente toutefois qu'environ 1 % du temps. Des compteurs de
-supports AC-4/AC-6 ajouteraient donc plus de complexité qu'ils ne peuvent
-actuellement en économiser.
+structurel ne représente toutefois qu'environ 1 % du temps. Le profil suivant
+a donc traité ensemble les supports et le travail redondant de la jointure.
+
+### Compact-Tables et jointure directe
+
+`compact_tables` compare trois chemins sur le même filtre :
+
+```sh
+uv run python -m benchmarks.compact_tables \
+    --levels 1 6 7 --repeat 7
+```
+
+- `scanned` : ancien scan des lignes puis matcher compilé ;
+- `bitset-filter` : supports `(variable, valeur)` et lignes actives en
+  bitsets, mais ancienne jointure ;
+- `compact` : mêmes bitsets, consommés directement par la jointure.
+
+| Problème | Scan | Bitset seul | Compact complet | Gain |
+|---|---:|---:|---:|---:|
+| Sudoku p1 | 0,377 s | 0,358 s | 0,287 s | ×1,31 |
+| Sudoku p6 | 0,656 s | 0,640 s | 0,576 s | ×1,14 |
+| Sudoku p7 | 0,926 s | 0,907 s | 0,804 s | ×1,15 |
+| arithmétique, taille 200 | 2,292 ms | 2,025 ms | 2,010 ms | ×1,14 |
+| `NVALUE`, taille 200 | 2,302 ms | 2,062 ms | 2,061 ms | ×1,12 |
+| `ALL_DIFFERENT`, taille 200 | 69,928 ms | 68,929 ms | 69,388 ms | ×1,01 |
+| quatre reines adaptatif | 117,44 ms | 116,78 ms | 104,06 ms | ×1,13 |
+
+Les rescans passent de 15 467, 18 187 et 21 588 lignes à zéro sur les trois
+Sudoku. Le filtre traite seulement 346, 483 et 361 événements de retrait de
+valeur. Le bitset seul apporte 2 à 5 % ; la majeure partie du gain vient de
+la jointure directe, qui ne recherche ni ne rematche des lignes déjà
+validées. `ALL_DIFFERENT` reste neutre parce qu'il doit produire 1 182
+solutions : l'énumération réelle domine.
+
+Les masques sont mis à jour avec `FactDelta`. Les compteurs de benchmark sont
+`domain_bitset_value_events`, `domain_bitset_support_checks`,
+`domain_bitset_intersections` et `domain_compact_join_rows`.
+Les données A/B sont conservées dans
+[`results/compact_tables_2026-07-24.csv`](results/compact_tables_2026-07-24.csv).
 
 ## Suite transversale des bases documentées
 
@@ -190,7 +228,7 @@ actuellement en économiser.
 semi-naïve et adaptative :
 
 ```sh
-uv run python -m benchmarks.rulebase_suite --repeat 9
+uv run python -m benchmarks.rulebase_suite --repeat 7
 ```
 
 Les scénarios incluent les contraintes globales, factorielle,
@@ -203,11 +241,11 @@ valeurs. Sur les deux cas les plus longs :
 
 | Base | Semi-naïve | Adaptative | Écart |
 |---|---:|---:|---:|
-| quatre reines | 161,49 ms | 116,73 ms | −27,7 % |
-| Hanoï, 5 disques | 37,19 ms | 39,07 ms | +5,1 % |
+| quatre reines | 160,46 ms | 104,06 ms | −35,1 % |
+| Hanoï, 5 disques | 38,12 ms | 38,34 ms | +0,6 % |
 
 Quatre reines constitue ainsi le premier gain sur une base métier existante :
-l'adaptatif est ×1,38 plus rapide que le semi-naïf sans modifier les règles.
+l'adaptatif est ×1,54 plus rapide que le semi-naïf sans modifier les règles.
 Hanoï, Fibonacci et les petits scénarios ne déclenchent aucun filtre ; leurs
 écarts restent du bruit ou le faible coût du sélecteur. Les résultats complets
 sont dans

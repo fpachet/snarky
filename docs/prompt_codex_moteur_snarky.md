@@ -113,8 +113,9 @@ Sont disponibles et testés :
 - stratégies naïve, indexée et semi-naïve interchangeables ;
 - première stratégie d'instanciation par domaines : tables positives
   incrémentales, projections maintenues par compteurs, point fixe par file de
-  propagateurs, relations d'ordre 2, sélection adaptative et repli
-  automatique sur le matcher semi-naïf ;
+  propagateurs, Compact-Tables bitset, jointure directe des lignes actives,
+  relations d'ordre 2, sélection adaptative et repli automatique sur le
+  matcher semi-naïf ;
 - groupes de règles nommés, sessions persistantes et modes `SATURATE`,
   `ONE_CYCLE`, `FIRST_CHANGE` et `UNTIL` ;
 - mémoire de travail mutable avec `REMOVE` et journal chronologique
@@ -623,6 +624,8 @@ Le premier palier de l’idée centrale présentée dans BOOJUM est livré :
 - ~~maintenir leurs projections et points fixes entre les cycles ;~~
 - ~~ouvrir un protocole de propagateurs globaux avec `NVALUE` et
   `ALL_DIFFERENT` ;~~
+- ~~maintenir les supports par valeur en bitsets et réutiliser les lignes
+  actives dans la jointure ;~~
 - choisir dynamiquement la variable la plus contrainte ;
 - propager le choix sur les prémisses concernées ;
 - poursuivre jusqu’à une substitution complète.
@@ -1240,8 +1243,9 @@ Comparer :
 4. ordre fixe et réordonnancement borné par les barrières de comparaison ;
 5. filtrage forcé par domaines ;
 6. file de propagateurs et sélection adaptative ;
-7. comparaisons spécialisées et prémisses arithmétiques relationnelles.
-8. domaines persistants, `NVALUE`, `ALL_DIFFERENT` et ensembles de Hall.
+7. comparaisons spécialisées et prémisses arithmétiques relationnelles ;
+8. domaines persistants, `NVALUE`, `ALL_DIFFERENT` et ensembles de Hall ;
+9. Compact-Tables, événements de retrait de valeur et jointure directe.
 
 Le premier filtrage centré sur les variables et ses contraintes globales est
 mesuré séparément. Les variantes MRV, le trail de recherche local et la

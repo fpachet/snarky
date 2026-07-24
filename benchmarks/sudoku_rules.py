@@ -32,6 +32,19 @@ def _rebuilt_domain_strategy() -> InstantiationStrategy:
     )
 
 
+def _scanned_table_strategy() -> InstantiationStrategy:
+    return ConstraintInstantiationStrategy(
+        use_compact_tables=False,
+        use_compact_join=False,
+    )
+
+
+def _bitset_filter_strategy() -> InstantiationStrategy:
+    return ConstraintInstantiationStrategy(
+        use_compact_join=False,
+    )
+
+
 _PRIMARY_STRATEGIES = {
     "indexed": IndexedInstantiationStrategy,
     "semi-naive": SemiNaiveInstantiationStrategy,
@@ -45,10 +58,16 @@ _DOMAIN_STATE_STRATEGIES = {
     "domain-rebuilt": _rebuilt_domain_strategy,
     "domain-incremental": ConstraintInstantiationStrategy,
 }
+_COMPACT_TABLE_STRATEGIES = {
+    "domain-scanned": _scanned_table_strategy,
+    "domain-bitset-filter": _bitset_filter_strategy,
+    "domain-compact": ConstraintInstantiationStrategy,
+}
 _STRATEGIES = (
     _PRIMARY_STRATEGIES
     | _COMPARISON_STRATEGIES
     | _DOMAIN_STATE_STRATEGIES
+    | _COMPACT_TABLE_STRATEGIES
 )
 
 
@@ -58,7 +77,13 @@ def main() -> None:
     parser.add_argument("--repeat", type=int, default=5)
     parser.add_argument(
         "--strategy",
-        choices=(*_STRATEGIES, "all", "comparisons", "domain-state"),
+        choices=(
+            *_STRATEGIES,
+            "all",
+            "comparisons",
+            "domain-state",
+            "compact-tables",
+        ),
         default="all",
     )
     arguments = parser.parse_args()
@@ -74,6 +99,8 @@ def main() -> None:
         strategy_names = tuple(_COMPARISON_STRATEGIES)
     elif arguments.strategy == "domain-state":
         strategy_names = tuple(_DOMAIN_STATE_STRATEGIES)
+    elif arguments.strategy == "compact-tables":
+        strategy_names = tuple(_COMPACT_TABLE_STRATEGIES)
     else:
         strategy_names = (arguments.strategy,)
     results = [
@@ -193,6 +220,27 @@ def measure(
                 ),
                 "domain_global_value_checks": (
                     strategy.metrics.domain_global_value_checks
+                ),
+                "domain_bitset_builds": (
+                    strategy.metrics.domain_bitset_builds
+                ),
+                "domain_bitset_updates": (
+                    strategy.metrics.domain_bitset_updates
+                ),
+                "domain_bitset_resets": (
+                    strategy.metrics.domain_bitset_resets
+                ),
+                "domain_bitset_intersections": (
+                    strategy.metrics.domain_bitset_intersections
+                ),
+                "domain_bitset_value_events": (
+                    strategy.metrics.domain_bitset_value_events
+                ),
+                "domain_bitset_support_checks": (
+                    strategy.metrics.domain_bitset_support_checks
+                ),
+                "domain_compact_join_rows": (
+                    strategy.metrics.domain_compact_join_rows
                 ),
             }
         )

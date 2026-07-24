@@ -1,9 +1,9 @@
-"""Safe finite-domain filtering before ordinary indexed matching."""
+"""Safe finite-domain filtering with compact extensional-table joins."""
 
 from __future__ import annotations
 
 from collections import deque
-from collections.abc import Mapping, MutableMapping, Sequence
+from collections.abc import Iterator, Mapping, MutableMapping, Sequence
 from dataclasses import dataclass
 from functools import cache
 from itertools import combinations, product
@@ -78,6 +78,114 @@ class _DomainRow:
         )
 
 
+@dataclass(slots=True)
+class _CompactTable:
+    """Extensional rows plus bitset supports for each variable value."""
+
+    rows: dict[Fact, _DomainRow]
+    slots: list[_DomainRow | None]
+    slot_by_fact: dict[Fact, int]
+    support_masks: dict[Variable, dict[Term, int]]
+    present_mask: int
+    active_mask: int
+    applied_domains: dict[Variable, frozenset[Term]]
+
+    @classmethod
+    def build(
+        cls,
+        rows: Mapping[Fact, _DomainRow],
+        variables: Sequence[Variable],
+    ) -> _CompactTable:
+        table = cls(
+            {},
+            [],
+            {},
+            {variable: {} for variable in variables},
+            0,
+            0,
+            {},
+        )
+        for row in rows.values():
+            table.add(row)
+        return table
+
+    def __len__(self) -> int:
+        return len(self.rows)
+
+    def add(self, row: _DomainRow) -> bool:
+        if row.fact in self.rows:
+            return False
+        slot = len(self.slots)
+        self.slots.append(row)
+        bit = 1 << slot
+        self.rows[row.fact] = row
+        self.slot_by_fact[row.fact] = slot
+        self.present_mask |= bit
+        self.active_mask |= bit
+        for variable, value in row.bindings:
+            masks = self.support_masks[variable]
+            masks[value] = masks.get(value, 0) | bit
+        return True
+
+    def remove(self, fact: Fact) -> _DomainRow | None:
+        row = self.rows.pop(fact, None)
+        if row is None:
+            return None
+        slot = self.slot_by_fact.pop(fact)
+        bit = 1 << slot
+        self.slots[slot] = None
+        self.present_mask &= ~bit
+        self.active_mask &= ~bit
+        for variable, value in row.bindings:
+            masks = self.support_masks[variable]
+            remaining = masks[value] & ~bit
+            if remaining:
+                masks[value] = remaining
+            else:
+                del masks[value]
+        return row
+
+    def reset(self) -> None:
+        self.active_mask = self.present_mask
+        self.applied_domains.clear()
+
+    def facts(self, mask: int | None = None) -> tuple[Fact, ...]:
+        selected = self.active_mask if mask is None else mask
+        facts: list[Fact] = []
+        while selected:
+            bit = selected & -selected
+            row = self.slots[bit.bit_length() - 1]
+            if row is not None:
+                facts.append(row.fact)
+            selected ^= bit
+        return tuple(facts)
+
+    def rows_for_mask(self, mask: int) -> Iterator[_DomainRow]:
+        while mask:
+            bit = mask & -mask
+            row = self.slots[bit.bit_length() - 1]
+            if row is not None:
+                yield row
+            mask ^= bit
+
+    def mask_for_frame(
+        self,
+        variables: Sequence[Variable],
+        frame: BindingFrame,
+    ) -> tuple[int, int]:
+        mask = self.active_mask
+        intersections = 0
+        for variable in variables:
+            value = frame.value(variable)
+            if value is None:
+                continue
+            mask &= self.support_masks[variable].get(value, 0)
+            intersections += 1
+            if not mask:
+                break
+        return mask, intersections
+
+
 def _add_row_projection(
     row: _DomainRow,
     counts: MutableMapping[Variable, dict[Term, int]],
@@ -107,7 +215,7 @@ def _remove_row_projection(
 
 @dataclass(slots=True)
 class _DomainMemory:
-    tables: dict[int, dict[Fact, _DomainRow]]
+    tables: dict[int, _CompactTable]
     value_counts: dict[Variable, dict[Term, int]]
     base_domains: dict[Variable, set[Term]]
     filtered_domains: dict[Variable, frozenset[Term]] | None = None
@@ -832,7 +940,7 @@ def _revise_all_different(
 
 
 class ConstraintInstantiationStrategy(SemiNaiveInstantiationStrategy):
-    """Filter positive-rule domains, then finish with indexed matching.
+    """Filter positive-rule domains, then join the surviving table rows.
 
     Unsupported rules fall back to :class:`SemiNaiveInstantiationStrategy`.
     Extensional tables and projected value counts are retained per rule and
@@ -851,6 +959,8 @@ class ConstraintInstantiationStrategy(SemiNaiveInstantiationStrategy):
         use_propagation_queue: bool = True,
         use_specialized_comparisons: bool = True,
         use_incremental_domains: bool = True,
+        use_compact_tables: bool = True,
+        use_compact_join: bool = True,
         maximum_hall_size: int = 3,
         propagators: Sequence[DomainPropagator] = (),
     ) -> None:
@@ -875,6 +985,8 @@ class ConstraintInstantiationStrategy(SemiNaiveInstantiationStrategy):
         self.use_propagation_queue = use_propagation_queue
         self.use_specialized_comparisons = use_specialized_comparisons
         self.use_incremental_domains = use_incremental_domains
+        self.use_compact_tables = use_compact_tables
+        self.use_compact_join = use_compact_join
         self.propagators = (
             *tuple(propagators),
             _NValuePropagator(maximum_hall_size),
@@ -966,6 +1078,8 @@ class ConstraintInstantiationStrategy(SemiNaiveInstantiationStrategy):
         activations = self._join_filtered(
             rule,
             index,
+            plan,
+            memory,
             filtered.candidates,
             filtered.candidate_sets,
         )
@@ -1019,14 +1133,17 @@ class ConstraintInstantiationStrategy(SemiNaiveInstantiationStrategy):
         memory = self._domain_memories.get(rule)
         if memory is None or delta is None:
             tables = {
-                table.position: self._build_table(table, index)
+                table.position: _CompactTable.build(
+                    self._build_table(table, index),
+                    table.variables,
+                )
                 for table in plan.tables
             }
             value_counts: dict[Variable, dict[Term, int]] = {
                 variable: {} for variable in plan.variables
             }
-            for rows in tables.values():
-                for row in rows.values():
+            for table_memory in tables.values():
+                for row in table_memory.rows.values():
                     _add_row_projection(row, value_counts)
             memory = _DomainMemory(
                 tables,
@@ -1038,9 +1155,11 @@ class ConstraintInstantiationStrategy(SemiNaiveInstantiationStrategy):
             )
             self._domain_memories[rule] = memory
             self.metrics.domain_table_rebuilds += 1
-            row_count = sum(len(rows) for rows in tables.values())
+            row_count = sum(len(table) for table in tables.values())
             self.metrics.domain_rows += row_count
             self.metrics.domain_projection_rows_examined += row_count
+            if self.use_compact_tables:
+                self.metrics.domain_bitset_builds += len(tables)
             return memory
 
         if not delta.changed:
@@ -1048,9 +1167,9 @@ class ConstraintInstantiationStrategy(SemiNaiveInstantiationStrategy):
         changed = False
         added_variables: set[Variable] = set()
         for table in plan.tables:
-            rows = memory.tables[table.position]
+            table_memory = memory.tables[table.position]
             for fact in delta.removed:
-                removed_row = rows.pop(fact, None)
+                removed_row = table_memory.remove(fact)
                 if removed_row is None:
                     continue
                 _remove_row_projection(
@@ -1060,10 +1179,11 @@ class ConstraintInstantiationStrategy(SemiNaiveInstantiationStrategy):
                 )
                 changed = True
                 self.metrics.domain_projection_updates += 1
+                if self.use_compact_tables:
+                    self.metrics.domain_bitset_updates += 1
             for fact in delta.added:
                 added_row = self._match_row(table, fact)
-                if added_row is not None and fact not in rows:
-                    rows[fact] = added_row
+                if added_row is not None and table_memory.add(added_row):
                     _add_row_projection(
                         added_row,
                         memory.value_counts,
@@ -1072,6 +1192,8 @@ class ConstraintInstantiationStrategy(SemiNaiveInstantiationStrategy):
                     added_variables.update(table.variables)
                     self.metrics.domain_rows += 1
                     self.metrics.domain_projection_updates += 1
+                    if self.use_compact_tables:
+                        self.metrics.domain_bitset_updates += 1
                     changed = True
         if changed:
             self.metrics.domain_table_updates += 1
@@ -1131,13 +1253,16 @@ class ConstraintInstantiationStrategy(SemiNaiveInstantiationStrategy):
                 variable: set[Term]() for variable in plan.variables
             }
             for table in plan.tables:
-                rows = memory.tables[table.position].values()
+                rows = memory.tables[table.position].rows.values()
                 self.metrics.domain_projection_rows_examined += len(
                     memory.tables[table.position]
                 )
                 for row in rows:
                     for variable, value in row.bindings:
                         domains[variable].add(value)
+            if self.use_compact_tables:
+                for table_memory in memory.tables.values():
+                    table_memory.reset()
         initial_size = sum(len(domain) for domain in domains.values())
         if any(not domain for domain in domains.values()):
             return self._remember_filtering_result(
@@ -1164,10 +1289,16 @@ class ConstraintInstantiationStrategy(SemiNaiveInstantiationStrategy):
         retained_count = 0
         total_count = 0
         for table in plan.tables:
-            rows = memory.tables[table.position].values()
-            total_count += len(memory.tables[table.position])
-            active_facts = tuple(
-                row.fact for row in rows if row.compatible(domains)
+            table_memory = memory.tables[table.position]
+            total_count += len(table_memory)
+            active_facts = (
+                table_memory.facts()
+                if self.use_compact_tables
+                else tuple(
+                    row.fact
+                    for row in table_memory.rows.values()
+                    if row.compatible(domains)
+                )
             )
             retained_count += len(active_facts)
             candidates[table.position] = active_facts
@@ -1189,6 +1320,9 @@ class ConstraintInstantiationStrategy(SemiNaiveInstantiationStrategy):
     ) -> dict[Variable, set[Term]]:
         previous = memory.filtered_domains
         if previous is None:
+            if self.use_compact_tables:
+                for table_memory in memory.tables.values():
+                    table_memory.reset()
             return {
                 variable: set(memory.base_domains[variable])
                 for variable in plan.variables
@@ -1204,6 +1338,14 @@ class ConstraintInstantiationStrategy(SemiNaiveInstantiationStrategy):
                     for variable in memory.additions
                 }
             )
+            if self.use_compact_tables:
+                for table in plan.tables:
+                    if any(
+                        variable in affected
+                        for variable in table.variables
+                    ):
+                        memory.tables[table.position].reset()
+                        self.metrics.domain_bitset_resets += 1
         return {
             variable: (
                 set(memory.base_domains[variable])
@@ -1323,7 +1465,13 @@ class ConstraintInstantiationStrategy(SemiNaiveInstantiationStrategy):
         memory: _DomainMemory,
         domains: dict[Variable, set[Term]],
     ) -> tuple[bool, set[Variable]]:
-        rows = memory.tables[table.position].values()
+        if self.use_compact_tables:
+            return self._revise_compact_table(
+                table,
+                memory.tables[table.position],
+                domains,
+            )
+        rows = memory.tables[table.position].rows.values()
         self.metrics.domain_rows_examined += len(
             memory.tables[table.position]
         )
@@ -1336,6 +1484,48 @@ class ConstraintInstantiationStrategy(SemiNaiveInstantiationStrategy):
             reduced = domains[variable] & supported
             if reduced != domains[variable]:
                 domains[variable] = reduced
+                self.metrics.domain_revisions += 1
+                changed.add(variable)
+        return True, changed
+
+    def _revise_compact_table(
+        self,
+        table: _TablePlan,
+        table_memory: _CompactTable,
+        domains: dict[Variable, set[Term]],
+    ) -> tuple[bool, set[Variable]]:
+        active = table_memory.active_mask
+        for variable in table.variables:
+            support_masks = table_memory.support_masks[variable]
+            previous = table_memory.applied_domains.get(variable)
+            removed_values = (
+                support_masks.keys() - domains[variable]
+                if previous is None
+                else (previous - domains[variable]) & support_masks.keys()
+            )
+            for value in removed_values:
+                active &= ~support_masks[value]
+                self.metrics.domain_bitset_value_events += 1
+                self.metrics.domain_bitset_intersections += 1
+                if not active:
+                    table_memory.active_mask = 0
+                    return False, set()
+            table_memory.applied_domains[variable] = frozenset(
+                domains[variable]
+            )
+        table_memory.active_mask = active
+
+        changed: set[Variable] = set()
+        for variable in table.variables:
+            support_masks = table_memory.support_masks[variable]
+            supported: set[Term] = set()
+            for value in domains[variable]:
+                self.metrics.domain_bitset_support_checks += 1
+                self.metrics.domain_bitset_intersections += 1
+                if active & support_masks.get(value, 0):
+                    supported.add(value)
+            if supported != domains[variable]:
+                domains[variable] = supported
                 self.metrics.domain_revisions += 1
                 changed.add(variable)
         return True, changed
@@ -1405,10 +1595,13 @@ class ConstraintInstantiationStrategy(SemiNaiveInstantiationStrategy):
         self,
         rule: Rule,
         index: FactIndex,
+        plan: _DomainPlan,
+        memory: _DomainMemory,
         filtered_candidates: Mapping[int, tuple[Fact, ...]],
         filtered_candidate_sets: Mapping[int, frozenset[Fact]],
     ) -> list[Activation]:
         block = compile_rule(rule).block
+        table_plans = {table.position: table for table in plan.tables}
         output: list[Activation] = []
         frame = BindingFrame()
 
@@ -1423,6 +1616,29 @@ class ConstraintInstantiationStrategy(SemiNaiveInstantiationStrategy):
                 return
             if not isinstance(premise, CompiledFactPremise):
                 raise AssertionError("domain plan accepted an unsupported premise")
+            if self.use_compact_tables and self.use_compact_join:
+                table_plan = table_plans[position]
+                table_memory = memory.tables[position]
+                mask, intersections = table_memory.mask_for_frame(
+                    table_plan.variables,
+                    frame,
+                )
+                self.metrics.domain_bitset_intersections += intersections
+                self.metrics.candidate_facts += mask.bit_count()
+                for row in table_memory.rows_for_mask(mask):
+                    self.metrics.match_attempts += 1
+                    self.metrics.domain_compact_join_rows += 1
+                    checkpoint = frame.checkpoint()
+                    for variable, value in row.bindings:
+                        if not frame.bind_ground(variable, value):
+                            raise AssertionError(
+                                "compact row mask admitted conflicting binding"
+                            )
+                    supports.append(row.fact)
+                    extend(position + 1, supports)
+                    supports.pop()
+                    frame.rollback(checkpoint)
+                return
             indexed = index.candidates_compiled(premise, frame)
             filtered = filtered_candidates[position]
             candidates: Sequence[Fact] = (
@@ -1614,6 +1830,8 @@ class AdaptiveInstantiationStrategy(ConstraintInstantiationStrategy):
         minimum_domain_rows: int = 128,
         minimum_bucket_ratio: float = 8.0,
         minimum_candidate_reduction: float = 0.10,
+        use_compact_tables: bool = True,
+        use_compact_join: bool = True,
         maximum_hall_size: int = 3,
         propagators: Sequence[DomainPropagator] = (),
     ) -> None:
@@ -1623,6 +1841,8 @@ class AdaptiveInstantiationStrategy(ConstraintInstantiationStrategy):
             minimum_domain_rows=minimum_domain_rows,
             minimum_bucket_ratio=minimum_bucket_ratio,
             minimum_candidate_reduction=minimum_candidate_reduction,
+            use_compact_tables=use_compact_tables,
+            use_compact_join=use_compact_join,
             maximum_hall_size=maximum_hall_size,
             propagators=propagators,
         )

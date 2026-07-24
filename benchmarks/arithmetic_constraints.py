@@ -37,6 +37,8 @@ _RULE = parse_rules(
 _STRATEGY_NAMES = (
     "indexed",
     "domain-generic",
+    "domain-scanned",
+    "domain-bitset-filter",
     "domain-filtered",
     "adaptive",
 )
@@ -100,6 +102,15 @@ def measure(
         "domain_projection_updates": metrics.domain_projection_updates,
         "domain_state_reuses": metrics.domain_state_reuses,
         "domain_component_resets": metrics.domain_component_resets,
+        "domain_rows_examined": metrics.domain_rows_examined,
+        "domain_bitset_intersections": (
+            metrics.domain_bitset_intersections
+        ),
+        "domain_bitset_value_events": metrics.domain_bitset_value_events,
+        "domain_bitset_support_checks": (
+            metrics.domain_bitset_support_checks
+        ),
+        "domain_compact_join_rows": metrics.domain_compact_join_rows,
     }
 
 
@@ -113,6 +124,15 @@ def _make_strategy(
         return ConstraintInstantiationStrategy(
             comparison_product_limit=size * size,
             use_specialized_comparisons=False,
+        )
+    if strategy_name == "domain-scanned":
+        return ConstraintInstantiationStrategy(
+            use_compact_tables=False,
+            use_compact_join=False,
+        )
+    if strategy_name == "domain-bitset-filter":
+        return ConstraintInstantiationStrategy(
+            use_compact_join=False,
         )
     if strategy_name == "domain-filtered":
         return ConstraintInstantiationStrategy()

@@ -537,8 +537,8 @@ simultanément propagation, énumération et retour arrière :
    réinitialiser seulement les composantes élargies ;~~
 9. ~~ouvrir une interface `DomainPropagator` et ajouter `NVALUE` ainsi que
    `ALL_DIFFERENT` avec ensembles de Hall bornés ;~~
-10. conserver des supports par ligne et valeur si un profil montre que les
-   rescans résiduels dominent ;
+10. ~~conserver des supports par ligne et valeur sous forme de Compact-Tables
+    bitset et les réutiliser dans la jointure ;~~
 11. choisir la variable la plus contrainte ;
 12. backtracker localement uniquement lorsque la propagation ne suffit pas.
 
@@ -574,10 +574,10 @@ Les comparaisons simples utilisent maintenant des propagateurs en O(n) :
 intersection pour `==`, singleton pour `!=`, bornes pour les ordres et
 supports pour `DIVISIBLE`. `CONSTRAINT $x + $y == $z` étend les opérandes de
 comparaison à l'AST arithmétique de `LET`. Sur deux domaines de 200 valeurs et
-une somme fixée à 2, la médiane passe de 339,20 ms pour la jointure indexée et
-80,69 ms pour le filtre cartésien à 2,04 ms en adaptatif. Les matchings
+une somme fixée à 2, la médiane passe de 346,36 ms pour la jointure indexée et
+82,42 ms pour le filtre cartésien à 2,05 ms en adaptatif. Les matchings
 finaux passent de 160 400 à 6 ; la persistance évite la seconde propagation
-identique.
+identique. Le gain total est ×169.
 
 Sur Sudoku, les compteurs ramènent les projections relues de 15 920 à 998
 pour p1, de 21 595 à 1 033 pour p6 et de 24 533 à 1 005 pour p7, soit une
@@ -585,12 +585,36 @@ réduction de 93,7 à 95,9 %. Le gain temporel reste de 1 à 2 % : la projection
 des domaines n'est donc plus le goulot dominant et une représentation bitset
 spécifique n'est pas prioritaire.
 
+Le palier suivant vise un autre coût : les révisions de tables et le second
+matching structurel. Chaque ligne possède désormais un slot stable, chaque
+couple `(variable, valeur)` un masque de supports, et chaque table un masque
+de lignes actives. Les suppressions sont propagées comme événements de valeur
+par opérations bitset. La jointure
+intersecte ces mêmes masques avec les liaisons courantes puis injecte
+directement les liaisons déjà validées dans le `BindingFrame`.
+
+Sur sept répétitions, le remplacement complet du scan et du second matching
+donne :
+
+| Scénario | Tables scannées | Compact-Table | Gain |
+|---|---:|---:|---:|
+| Sudoku p1 | 0,377 s | 0,287 s | ×1,31 |
+| Sudoku p6 | 0,656 s | 0,576 s | ×1,14 |
+| Sudoku p7 | 0,926 s | 0,804 s | ×1,15 |
+| arithmétique, taille 200 | 2,292 ms | 2,010 ms | ×1,14 |
+| quatre reines | 117,44 ms | 104,06 ms | ×1,13 |
+
+Les 15 467 à 21 588 examens de lignes des trois Sudoku tombent à zéro. Le
+filtrage bitset seul apporte 2 à 5 % ; le reste du gain vient principalement
+de la réutilisation des lignes actives par la jointure. C'est cette seconde
+partie qui rend l'optimisation substantielle.
+
 `DomainPropagator` constitue maintenant l'extension publique commune.
 `NVALUE` filtre des bornes sûres et traite exactement les cas serrés `N = 1`
 et `N = nombre de variables`. `ALL_DIFFERENT` propage les singletons et les
 ensembles de Hall de taille au plus trois. Sur le scénario `NVALUE` à deux
-domaines de 200 valeurs, l'adaptatif passe de 406,58 à 2,10 ms, soit ×193,9.
-Le benchmark `ALL_DIFFERENT` passe de 65,54 à 43,54 ms, soit ×1,51.
+domaines de 200 valeurs, l'adaptatif passe de 414,61 à 2,13 ms, soit ×194,7.
+Le benchmark `ALL_DIFFERENT` passe de 67,36 à 44,88 ms, soit ×1,50.
 
 La stratégie complète pourra être représentée explicitement par :
 

@@ -81,6 +81,13 @@ Les modes `use_incremental_domains=False` et
 `use_specialized_comparisons=False` existent uniquement pour les benchmarks
 A/B.
 
+Chaque table maintient aussi un masque de lignes présentes et un masque de
+supports pour chaque `(variable, valeur)`. Les retraits de valeurs deviennent
+des événements bitset locaux ; aucune ligne Python n'est rescannée. Les lignes
+actives alimentent directement la jointure, qui n'a plus à rematcher leur
+structure. `use_compact_tables=False` et `use_compact_join=False` conservent
+les deux anciens chemins uniquement pour les mesures A/B.
+
 ## Limite architecturale
 
 Cette couche est un noyau de propagation, pas encore un solveur CSP. Le futur

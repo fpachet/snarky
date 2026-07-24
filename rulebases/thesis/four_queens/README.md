@@ -43,8 +43,14 @@ n'est cachée dans Python.
 Les inégalités de lignes et de diagonales sont désormais aussi reconnues par
 le filtre adaptatif comme des contraintes de domaines. Sans changer cette
 formulation fidèle, leur propagation spécialisée fait passer le benchmark
-semi-naïf de 161,49 ms à 116,73 ms, soit un gain ×1,38. Les projections
-persistantes ne lisent que 423 lignes et réutilisent deux états filtrés.
+semi-naïf de 161,49 ms à 116,73 ms avant Compact-Table, soit un gain ×1,38.
+Les projections persistantes ne lisent que 423 lignes et réutilisent deux
+états filtrés.
+
+Les Compact-Tables conservent désormais les supports sous forme de bitsets et
+réutilisent les lignes actives dans la jointure. À stratégie adaptative
+identique, la médiane passe encore de 117,44 à 104,06 ms, soit ×1,13, sans
+modifier les 195 activations ni les 17 cycles.
 
 ## Formulation générique par placements partiels
 

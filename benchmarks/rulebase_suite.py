@@ -38,6 +38,27 @@ _STRATEGIES = {
 }
 
 
+def _adaptive_scanned() -> InstantiationStrategy:
+    return AdaptiveInstantiationStrategy(
+        use_compact_tables=False,
+        use_compact_join=False,
+    )
+
+
+def _adaptive_bitset_filter() -> InstantiationStrategy:
+    return AdaptiveInstantiationStrategy(
+        use_compact_join=False,
+    )
+
+
+_COMPACT_TABLE_STRATEGIES = {
+    "adaptive-scanned": _adaptive_scanned,
+    "adaptive-bitset-filter": _adaptive_bitset_filter,
+    "adaptive-compact": AdaptiveInstantiationStrategy,
+}
+_ALL_STRATEGIES = _STRATEGIES | _COMPACT_TABLE_STRATEGIES
+
+
 def measure(
     scenario: str,
     strategy_name: str,
@@ -47,7 +68,7 @@ def measure(
     final_strategy: InstantiationStrategy | None = None
     final_result = None
     for _ in range(repeat):
-        strategy: InstantiationStrategy = _STRATEGIES[strategy_name]()
+        strategy: InstantiationStrategy = _ALL_STRATEGIES[strategy_name]()
         started = time.perf_counter()
         result = run_scenario(scenario, strategy=strategy)
         samples.append(time.perf_counter() - started)
@@ -90,6 +111,14 @@ def measure(
         "domain_projection_updates": metrics.domain_projection_updates,
         "domain_state_reuses": metrics.domain_state_reuses,
         "domain_component_resets": metrics.domain_component_resets,
+        "domain_bitset_intersections": (
+            metrics.domain_bitset_intersections
+        ),
+        "domain_bitset_value_events": metrics.domain_bitset_value_events,
+        "domain_bitset_support_checks": (
+            metrics.domain_bitset_support_checks
+        ),
+        "domain_compact_join_rows": metrics.domain_compact_join_rows,
     }
 
 
@@ -98,7 +127,7 @@ def main() -> None:
     parser.add_argument("--repeat", type=int, default=7)
     parser.add_argument(
         "--strategy",
-        choices=(*_STRATEGIES, "all"),
+        choices=(*_ALL_STRATEGIES, "all", "compact-tables"),
         default="all",
     )
     parser.add_argument(
@@ -109,11 +138,12 @@ def main() -> None:
     arguments = parser.parse_args()
     if arguments.repeat < 1:
         parser.error("--repeat must be positive")
-    strategy_names = (
-        tuple(_STRATEGIES)
-        if arguments.strategy == "all"
-        else (arguments.strategy,)
-    )
+    if arguments.strategy == "all":
+        strategy_names = tuple(_STRATEGIES)
+    elif arguments.strategy == "compact-tables":
+        strategy_names = tuple(_COMPACT_TABLE_STRATEGIES)
+    else:
+        strategy_names = (arguments.strategy,)
     scenarios = arguments.scenarios or SCENARIOS
     results = [
         {

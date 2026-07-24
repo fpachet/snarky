@@ -61,9 +61,24 @@ def _rebuilt_domains() -> InstantiationStrategy:
     )
 
 
+def _scanned_tables() -> InstantiationStrategy:
+    return ConstraintInstantiationStrategy(
+        use_compact_tables=False,
+        use_compact_join=False,
+    )
+
+
+def _bitset_filter() -> InstantiationStrategy:
+    return ConstraintInstantiationStrategy(
+        use_compact_join=False,
+    )
+
+
 _STRATEGIES: dict[str, StrategyFactory] = {
     "indexed": IndexedInstantiationStrategy,
     "domain-rebuilt": _rebuilt_domains,
+    "domain-scanned": _scanned_tables,
+    "domain-bitset-filter": _bitset_filter,
     "domain-incremental": ConstraintInstantiationStrategy,
     "adaptive": AdaptiveInstantiationStrategy,
 }
@@ -138,6 +153,15 @@ def measure(
         ),
         "domain_projection_updates": metrics.domain_projection_updates,
         "domain_state_reuses": metrics.domain_state_reuses,
+        "domain_rows_examined": metrics.domain_rows_examined,
+        "domain_bitset_intersections": (
+            metrics.domain_bitset_intersections
+        ),
+        "domain_bitset_value_events": metrics.domain_bitset_value_events,
+        "domain_bitset_support_checks": (
+            metrics.domain_bitset_support_checks
+        ),
+        "domain_compact_join_rows": metrics.domain_compact_join_rows,
     }
 
 

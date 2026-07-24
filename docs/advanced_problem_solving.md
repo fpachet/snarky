@@ -133,12 +133,13 @@ relations `attacks`. Aucun solveur n'intervient dans cet exemple.
 Il faut distinguer ce backend de `ConstraintInstantiationStrategy`. Cette
 dernière ne résout pas un problème métier et ne réinjecte aucune solution :
 elle traite temporairement les variables d'une règle positive comme des
-domaines, élimine les valeurs sans support, puis laisse le matcher indexé
-produire exactement les activations ordinaires. Elle conserve ses tables par
-règle, maintient leurs projections par compteurs, les met à jour avec
-`FactDelta` et propage par une file d'incidence. Une suppression poursuit le
-point fixe précédent ; un ajout réinitialise seulement la composante connexe
-touchée.
+domaines et élimine les valeurs sans support. Elle conserve ses tables par
+règle, maintient leurs projections par compteurs et leurs supports par
+Compact-Tables bitset, les met à jour avec `FactDelta` et propage par une file
+d'incidence. Une suppression poursuit le point fixe précédent ; un ajout
+réinitialise seulement la composante connexe touchée. La jointure consomme
+directement les lignes actives et leurs liaisons prévalidées, sans refaire le
+matching structurel.
 `AdaptiveInstantiationStrategy` l'active seulement lorsque la structure et la
 sélectivité semblent rentables. Elle ne crée ni hypothèse, ni branche de
 session, ni provenance externe.

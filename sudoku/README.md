@@ -154,6 +154,13 @@ encore que 1 à 2 % du temps total : les prochaines optimisations doivent donc
 viser la révision des tables et la jointure, pas une représentation Sudoku
 spécialisée.
 
+Cette optimisation générale est maintenant réalisée par Compact-Tables. En
+filtrage forcé, les scans de 15 467, 18 187 et 21 588 lignes disparaissent
+sur p1, p6 et p7. La jointure consomme directement leurs lignes actives. Les
+médianes A/B passent respectivement de 0,377 à 0,287 s, de 0,656 à 0,576 s
+et de 0,926 à 0,804 s, soit des gains ×1,31, ×1,14 et ×1,15. Le nombre
+d'activations et la trace humaine restent inchangés.
+
 `ALL_DIFFERENT` et ses ensembles de Hall bornés sont disponibles dans le
 moteur, mais les règles p1–p7 restent inchangées : leurs techniques humaines
 explicites continuent de produire la trace métier. La contrainte globale sert

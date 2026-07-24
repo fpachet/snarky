@@ -687,13 +687,61 @@ def test_domain_tables_follow_addition_and_removal_deltas() -> None:
         final_facts,
         FactDelta(removed=removed, revision=2),
     )
+    restored_facts = (*final_facts, first[1])
+    restored = strategy.instantiate(
+        rule,
+        restored_facts,
+        FactDelta(added=(first[1],), revision=3),
+    )
 
     oracle = IndexedInstantiationStrategy()
     assert initial == oracle.instantiate(rule, first)
     assert expanded == oracle.instantiate(rule, expanded_facts)
     assert reduced == oracle.instantiate(rule, final_facts)
+    assert restored == oracle.instantiate(rule, restored_facts)
     assert strategy.metrics.domain_table_rebuilds == 1
-    assert strategy.metrics.domain_table_updates == 2
+    assert strategy.metrics.domain_table_updates == 3
+    assert strategy.metrics.domain_bitset_updates == 5
+    assert strategy.metrics.domain_rows_examined == 0
+
+
+def test_compact_tables_replace_row_scans_and_preserve_join_results() -> None:
+    (rule,) = parse_rules(
+        """
+        RULE compact_triangle
+        WHEN
+            ($x p $y)
+            ($x q $z)
+            ($y r $z)
+        THEN
+            ADD ($x solution $y)
+        END
+        """
+    )
+    size = 20
+    facts = (
+        *(
+            _fact(f"(x{x_index} p y{y_index})")
+            for x_index in range(size)
+            for y_index in range(size)
+        ),
+        *(_fact(f"(x{index} q z{index})") for index in range(size)),
+        *(_fact(f"(y{index} r z{index})") for index in range(size)),
+    )
+    scanned = ConstraintInstantiationStrategy(
+        use_compact_tables=False,
+        use_compact_join=False,
+    )
+    compact = ConstraintInstantiationStrategy()
+
+    expected = scanned.instantiate(rule, facts)
+    actual = compact.instantiate(rule, facts)
+
+    assert actual == expected
+    assert compact.metrics.domain_rows_examined == 0
+    assert scanned.metrics.domain_rows_examined > 0
+    assert compact.metrics.domain_bitset_intersections > 0
+    assert compact.metrics.domain_compact_join_rows > 0
 
 
 def test_forward_engine_can_use_domain_filter_without_semantic_changes() -> None:

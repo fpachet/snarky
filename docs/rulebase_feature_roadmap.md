@@ -128,11 +128,12 @@ pas un remplacement implicite de la formulation déclarative.
 
 `ConstraintInstantiationStrategy` livre le premier étage historique inspiré
 de BOOJUM : tables de prémisses positives, domaines de variables, point fixe
-par file de propagateurs et candidats filtrés remis au matcher actuel. Les
-tables et projections suivent les deltas par compteurs. Une suppression
-poursuit le point fixe précédent ; un ajout ne réinitialise que la composante
-touchée. Un sélecteur adaptatif protège les chaînes et jointures sans
-réduction. Le choix MRV et le backtracking local restent différés.
+par file de propagateurs et Compact-Tables bitset. Les tables, projections et
+masques de supports suivent les deltas ; leurs lignes actives alimentent
+directement la jointure. Une suppression poursuit le point fixe précédent ;
+un ajout ne réinitialise que la composante touchée. Un sélecteur adaptatif
+protège les chaînes et jointures sans réduction. Le choix MRV et le
+backtracking local restent différés.
 
 ### P9 — Maintenance de vérité positive
 
@@ -174,12 +175,14 @@ justifications négatives complètes restent séparés.
    chemins, témoins résiduels et ordre existentiel adaptatif.~~
 10. ~~Maintenir les domaines incrémentaux et ajouter `NVALUE`,
     `ALL_DIFFERENT` et les ensembles de Hall bornés.~~
-11. Produire des choix déclaratifs à partir des domaines non singletons, puis
+11. ~~Maintenir les supports en Compact-Tables bitset et réutiliser les lignes
+    actives dans la jointure.~~
+12. Produire des choix déclaratifs à partir des domaines non singletons, puis
    les connecter à des branches isolées.
-12. Ajouter `MEMBER` et `SIZE`, puis implémenter les naked triples de Sudoku p8
+13. Ajouter `MEMBER` et `SIZE`, puis implémenter les naked triples de Sudoku p8
     avec `COMBINATIONS`.
-13. Mesurer une éventuelle consistance généralisée de `ALL_DIFFERENT`.
-14. Ne retenir les extensions restantes qu'avec une base et un oracle
+14. Mesurer une éventuelle consistance généralisée de `ALL_DIFFERENT`.
+15. Ne retenir les extensions restantes qu'avec une base et un oracle
     reproductibles.
 
 La comparaison détaillée de ces voies se trouve dans
