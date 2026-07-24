@@ -4,6 +4,7 @@ from pathlib import Path
 import pytest
 import yaml
 
+import snarky.spinoza as spinoza_runner
 from snarky import Fact, ForwardEngine, Rule, Status, parse_rules, parse_term
 from snarky.serialization import load_facts
 from snarky.spinoza import (
@@ -133,6 +134,89 @@ END
     assert violation.forbidden_violations == (
         Fact(parse_term("(cause0 detruit chose0)")),
     )
+
+
+def test_rule_catalog_cache_is_reused_until_the_file_changes(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    root = tmp_path / "model"
+    (root / "theorems").mkdir(parents=True)
+    (root / "rules").mkdir()
+    (root / "rules" / "model.rules").write_text(
+        """\
+RULE derive_result
+WHEN
+    (signal est present)
+THEN
+    ADD result
+END
+""",
+        encoding="utf-8",
+    )
+    (root / "rules" / "catalog.yaml").write_text(
+        """\
+catalog_marker: true
+rules:
+  - ids: [derive_result]
+    origin: test
+""",
+        encoding="utf-8",
+    )
+    (root / "theorems" / "TEST.yaml").write_text(
+        """\
+schema_version: 1
+id: TEST
+rule_files: [rules/model.rules]
+rule_catalog: rules/catalog.yaml
+forbidden_rules: []
+cases:
+  - id: first
+    initial_facts: ["(signal est present)"]
+    goals: [result]
+  - id: second
+    initial_facts: ["(signal est present)"]
+    goals: [result]
+  - id: third
+    initial_facts: ["(signal est present)"]
+    goals: [result]
+""",
+        encoding="utf-8",
+    )
+    original_safe_load = spinoza_runner.yaml.safe_load
+    catalog_parse_count = 0
+
+    def track_catalog_load(source: object) -> object:
+        nonlocal catalog_parse_count
+        if isinstance(source, str) and "catalog_marker: true" in source:
+            catalog_parse_count += 1
+        return original_safe_load(source)
+
+    monkeypatch.setattr(spinoza_runner.yaml, "safe_load", track_catalog_load)
+
+    first = execute_case(root, "TEST", "first")
+    second = execute_case(root, "TEST", "second")
+
+    assert first.proved
+    assert second.proved
+    assert first.rule_origins == ("test",)
+    assert second.rule_origins == ("test",)
+    assert catalog_parse_count == 1
+
+    (root / "rules" / "catalog.yaml").write_text(
+        """\
+catalog_marker: true
+rules:
+  - ids: [derive_result]
+    origin: updated-test-origin
+""",
+        encoding="utf-8",
+    )
+    third = execute_case(root, "TEST", "third")
+
+    assert third.proved
+    assert third.rule_origins == ("updated-test-origin",)
+    assert catalog_parse_count == 2
 
 
 def test_definitions_e3d1_and_e3d3_are_executable_ontological_rules() -> None:

@@ -70,6 +70,8 @@ suivantes :
   cardinal et abandonnées au profit du chemin exhaustif lorsqu’elles seraient
   trop grandes ;
 - prémisses corrélées `COUNT` et `UNIQUE`, utilisées dans la base Sudoku.
+- catalogue de provenance Spinoza validé une seule fois par version de
+  fichier, au lieu d’un parsing YAML pour chacun des 199 cas.
 
 Sur la machine de développement, les médianes Sudoku après la seconde passe
 sont :
@@ -79,19 +81,26 @@ sont :
 | résolution p1 | 2,32 s | 1,70 s | 0,323 s |
 | résolution p5 | 5,95 s | 3,67 s | 0,720 s |
 | résolution p6 | 5,58 s | 3,57 s | 0,639 s |
-| suite pytest complète | 76,50 s | 46,88 s | 26,05 s |
-| suite sans `slow` | — | 16,56 s | 16,79 s |
+| suite pytest complète | 76,50 s | 26,05 s | 7,69 s |
+| suite sans `slow` | — | 16,79 s | 2,36 s |
 
 Sur la dernière séquence seule, les tentatives de matching passent de 69 793
 à 47 051 sur p1, de 217 880 à 125 298 sur p5 et de 210 908 à 106 449 sur p6.
 La baisse supplémentaire vaut 33 à 50 %, pour un gain temporel de ×1,62 à
 ×2,29. Depuis la baseline initiale, le gain total vaut ×7,18 à ×8,74. La
-suite complète compte désormais 281 tests. Le protocole exécutable est
+suite complète compte désormais 282 tests. Le protocole exécutable est
 `python -m benchmarks.sudoku_rules`.
 
 Ces mesures sont des baselines locales, pas des garanties multi-machines.
 Les caches ne réutilisent que des résultats déterministes tant que la mémoire
 de travail reste inchangée.
+
+La baisse de la suite complète de 26,05 s à 7,69 s ne vient pas du moteur de
+matching : le chargeur Spinoza reparsait auparavant le même catalogue YAML de
+58 Ko pour chaque cas. Le catalogue validé est désormais partagé sous forme
+immuable et sa clé inclut la date de modification nanoseconde et la taille du
+fichier. Une modification sur disque déclenche donc automatiquement un nouveau
+parsing.
 
 La stratégie `SemiNaiveInstantiationStrategy` combine les index persistants,
 un delta propre à chaque règle et une planification locale des jointures. Sur

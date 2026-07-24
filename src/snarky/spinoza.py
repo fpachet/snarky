@@ -2,8 +2,11 @@
 
 from __future__ import annotations
 
+from collections.abc import Mapping
 from dataclasses import dataclass
+from functools import cache
 from pathlib import Path
+from types import MappingProxyType
 from typing import Any
 
 import yaml
@@ -83,27 +86,13 @@ def _load_rule_origins(
     root: Path,
     payload: dict[str, Any],
     active_rules: tuple[Rule, ...],
-) -> dict[str, str]:
+) -> Mapping[str, str]:
     catalog_path = payload.get("rule_catalog")
     if catalog_path is None:
         return {}
     if not isinstance(catalog_path, str):
         raise ValueError("rule_catalog must be a relative path")
-    loaded: Any = yaml.safe_load((root / catalog_path).read_text(encoding="utf-8"))
-    if not isinstance(loaded, dict) or not isinstance(loaded.get("rules"), list):
-        raise ValueError("rule_catalog must contain a rules list")
-    origins: dict[str, str] = {}
-    for entry in loaded["rules"]:
-        if not isinstance(entry, dict):
-            raise ValueError("each rule catalog entry must be a mapping")
-        identifiers = entry.get("ids")
-        origin = entry.get("origin")
-        if not isinstance(identifiers, list) or not isinstance(origin, str):
-            raise ValueError("each catalog entry needs ids and origin")
-        for identifier in identifiers:
-            if not isinstance(identifier, str) or identifier in origins:
-                raise ValueError(f"invalid or duplicate catalog id: {identifier!r}")
-            origins[identifier] = origin
+    origins = _load_rule_catalog((root / catalog_path).resolve())
     missing = {rule.name for rule in active_rules} - origins.keys()
     if missing:
         raise ValueError(f"rules missing from catalog: {sorted(missing)!r}")
@@ -121,6 +110,45 @@ def _load_rule_origins(
         if disallowed:
             raise ValueError(f"disallowed rule origins: {disallowed!r}")
     return origins
+
+
+def _load_rule_catalog(path: Path) -> Mapping[str, str]:
+    """Return one validated catalog, reparsing it only after a file change."""
+
+    metadata = path.stat()
+    return _parse_rule_catalog(
+        path,
+        modified_ns=metadata.st_mtime_ns,
+        size=metadata.st_size,
+    )
+
+
+@cache
+def _parse_rule_catalog(
+    path: Path,
+    *,
+    modified_ns: int,
+    size: int,
+) -> Mapping[str, str]:
+    """Parse one immutable catalog version identified by its metadata."""
+
+    del modified_ns, size
+    loaded: Any = yaml.safe_load(path.read_text(encoding="utf-8"))
+    if not isinstance(loaded, dict) or not isinstance(loaded.get("rules"), list):
+        raise ValueError("rule_catalog must contain a rules list")
+    origins: dict[str, str] = {}
+    for entry in loaded["rules"]:
+        if not isinstance(entry, dict):
+            raise ValueError("each rule catalog entry must be a mapping")
+        identifiers = entry.get("ids")
+        origin = entry.get("origin")
+        if not isinstance(identifiers, list) or not isinstance(origin, str):
+            raise ValueError("each catalog entry needs ids and origin")
+        for identifier in identifiers:
+            if not isinstance(identifier, str) or identifier in origins:
+                raise ValueError(f"invalid or duplicate catalog id: {identifier!r}")
+            origins[identifier] = origin
+    return MappingProxyType(origins)
 
 
 def run_case(

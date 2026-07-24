@@ -83,6 +83,11 @@ assert result.proved
 assert result.proof_depths == (3,)
 ```
 
+Le chargeur partage la représentation immuable d’un même catalogue de
+provenance entre les cas. La clé de cache inclut les métadonnées du fichier :
+une modification du catalogue provoque automatiquement sa relecture et sa
+validation.
+
 ## Régénération du corpus
 
 Après avoir enregistré localement le HTML de la page Wikisource référencée

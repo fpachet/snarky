@@ -198,8 +198,9 @@ de la passe précédente. Les commandes reproductibles et les compteurs sont
 décrits dans
 [`benchmarks/README.md`](benchmarks/README.md).
 
-La suite complète compte 281 tests et s’exécute en 26,05 s sur cette même
-machine, contre 46,88 s avant les deux dernières passes d’optimisation.
+La suite complète compte 282 tests et s’exécute en 7,69 s sur cette même
+machine, contre 26,05 s avant la mise en cache du catalogue de provenance
+Spinoza et 76,50 s avant les optimisations.
 
 ## Base de debug initiale
 
