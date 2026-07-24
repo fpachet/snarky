@@ -95,6 +95,14 @@ class _OrderedFactSet(Sequence[Fact]):
         self._snapshot = None
         return True
 
+    def clone(self) -> _OrderedFactSet:
+        """Return an isolated container sharing its immutable fact objects."""
+
+        clone = _OrderedFactSet()
+        clone._members = self._members.copy()
+        clone._snapshot = self._snapshot
+        return clone
+
     def __contains__(self, item: object) -> bool:
         return item in self._members
 
@@ -370,6 +378,31 @@ class IndexedInstantiationStrategy:
             return
         self._pending_removed.update(removed)
         self._invalidate_query_memories((), removed)
+
+    def fork_for_branch(self) -> IndexedInstantiationStrategy:
+        """Return a clean strategy seeded from the current immutable index."""
+
+        branch = IndexedInstantiationStrategy(
+            self.matcher,
+            partial_join_limit=self.partial_join_limit,
+        )
+        if self._index is not None:
+            branch._index = self._index.clone(metrics=branch.metrics)
+        return branch
+
+    def query_view(self) -> IndexedInstantiationStrategy:
+        """Return a clean query strategy sharing the current fact index.
+
+        The view is intended for read-only queries over the same fact
+        snapshot. Query-local witnesses and rule memories remain isolated.
+        """
+
+        view = IndexedInstantiationStrategy(
+            self.matcher,
+            partial_join_limit=self.partial_join_limit,
+        )
+        view._index = self._index
+        return view
 
     @staticmethod
     def _is_positive_compiled_rule(rule: Rule) -> bool:
@@ -2134,6 +2167,17 @@ class IndexedInstantiationStrategy:
 class SemiNaiveInstantiationStrategy(IndexedInstantiationStrategy):
     """Enumerate only joins containing a fact new to the current rule."""
 
+    def fork_for_branch(self) -> SemiNaiveInstantiationStrategy:
+        """Return a clean semi-naïve strategy seeded from the current index."""
+
+        branch = SemiNaiveInstantiationStrategy(
+            self.matcher,
+            partial_join_limit=self.partial_join_limit,
+        )
+        if self._index is not None:
+            branch._index = self._index.clone(metrics=branch.metrics)
+        return branch
+
     def instantiate(
         self,
         rule: Rule,
@@ -2474,6 +2518,48 @@ class FactIndex:
             ]
         return len(present)
 
+    def clone(
+        self,
+        *,
+        metrics: InstantiationMetrics | None = None,
+    ) -> FactIndex:
+        """Clone mutable buckets while sharing immutable facts and terms."""
+
+        clone = object.__new__(FactIndex)
+        clone.metrics = metrics
+        clone.facts = (
+            self.facts.clone()
+            if isinstance(self.facts, _OrderedFactSet)
+            else self.facts.copy()
+        )
+        clone.ranks = self.ranks.copy()
+        clone._next_rank = self._next_rank
+        clone.by_entity = _clone_list_buckets(self.by_entity)
+        clone.by_status = _clone_list_buckets(self.by_status)
+        clone.by_subject = _clone_list_buckets(self.by_subject)
+        clone.by_relation = _clone_list_buckets(self.by_relation)
+        clone.by_object = _clone_list_buckets(self.by_object)
+        clone.by_subject_relation = _clone_list_buckets(
+            self.by_subject_relation
+        )
+        clone.by_relation_object = _clone_list_buckets(
+            self.by_relation_object
+        )
+        clone.by_subject_object = _clone_list_buckets(
+            self.by_subject_object
+        )
+        clone.by_structure = {
+            signature: defaultdict(
+                _OrderedFactSet,
+                {
+                    key: bucket.clone()
+                    for key, bucket in buckets.items()
+                },
+            )
+            for signature, buckets in self.by_structure.items()
+        }
+        return clone
+
     @staticmethod
     def _remove_from_bucket(
         buckets: defaultdict[IndexKeyT, list[Fact]],
@@ -2656,6 +2742,15 @@ class FactIndex:
 
     def __len__(self) -> int:
         return len(self.facts)
+
+
+def _clone_list_buckets[KeyT](
+    buckets: defaultdict[KeyT, list[Fact]],
+) -> defaultdict[KeyT, list[Fact]]:
+    return defaultdict(
+        list,
+        {key: facts.copy() for key, facts in buckets.items()},
+    )
 
 
 def _normalize_delta(

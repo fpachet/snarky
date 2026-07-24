@@ -100,6 +100,7 @@ def solve_binary_csp(
     traversal: ChoiceTraversal = ChoiceTraversal.DEPTH_FIRST,
     seed: int = 0,
     reversible_depth_first: bool = True,
+    lazy_frontier: bool = True,
 ) -> ChoiceSearchResult:
     """Propagate and search a fact-encoded CSP without a Python solver."""
 
@@ -153,6 +154,7 @@ def solve_binary_csp(
         seed=seed,
         branch_strategy_factory=SemiNaiveInstantiationStrategy,
         reversible_depth_first=reversible_depth_first,
+        lazy_frontier=lazy_frontier,
     )
     return search.solve(session)
 

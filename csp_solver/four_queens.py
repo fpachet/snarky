@@ -2,9 +2,19 @@
 
 from __future__ import annotations
 
+from functools import cache
 from itertools import combinations
+from pathlib import Path
 
-from snarky import Atom, ChoiceSearchResult, Fact, Number, Triple
+from snarky import (
+    Atom,
+    ChoiceSearchResult,
+    Fact,
+    Number,
+    RuleGroup,
+    Triple,
+    parse_rule_groups,
+)
 
 from .solver import (
     CANDIDATE,
@@ -19,6 +29,8 @@ from .solver import (
 )
 
 PROBLEM = Atom("four_queens")
+QUEEN = Atom("queen")
+COLUMN = Atom("column")
 
 
 def n_queens_problem(size: int) -> Atom:
@@ -76,6 +88,42 @@ def four_queens_facts() -> BinaryCSP:
     return n_queens_facts(4)
 
 
+def n_queens_intensional_facts(size: int) -> BinaryCSP:
+    """Build N queens without materialized binary allowed-pair tables."""
+
+    problem = n_queens_problem(size)
+    rows = tuple(Number(row) for row in range(1, size + 1))
+    facts: list[Fact] = [Fact(Triple(problem, KIND, CSP_PROBLEM))]
+    for column in range(1, size + 1):
+        variable = Atom(f"queen_{column}")
+        facts.extend(
+            (
+                Fact(Triple(problem, VARIABLE, variable)),
+                Fact(Triple(variable, KIND, CSP_VARIABLE)),
+                Fact(Triple(variable, KIND, QUEEN)),
+                Fact(Triple(variable, COLUMN, Number(column))),
+                *(
+                    Fact(Triple(variable, CANDIDATE, row))
+                    for row in rows
+                ),
+            )
+        )
+    return BinaryCSP(
+        problem,
+        tuple(facts),
+        {},
+        _n_queens_intensional_groups(),
+    )
+
+
+@cache
+def _n_queens_intensional_groups() -> tuple[RuleGroup, ...]:
+    rules_path = (
+        Path(__file__).resolve().parent / "n_queens_intensional.rules"
+    )
+    return parse_rule_groups(rules_path.read_text())
+
+
 def solve_n_queens(
     size: int,
     *,
@@ -86,6 +134,17 @@ def solve_n_queens(
         n_queens_facts(size),
         max_solutions=max_solutions,
         reversible_depth_first=reversible_depth_first,
+    )
+
+
+def solve_n_queens_intensional(
+    size: int,
+    *,
+    max_solutions: int = 1,
+) -> ChoiceSearchResult:
+    return solve_binary_csp(
+        n_queens_intensional_facts(size),
+        max_solutions=max_solutions,
     )
 
 

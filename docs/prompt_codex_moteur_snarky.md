@@ -120,7 +120,8 @@ Sont disponibles et testés :
   partageables, `DomainStore`, contradictions structurées, checkpoints et
   rollback des domaines et masques actifs ;
 - checkpoint complet d'`InferenceSession` et DFS de choix sur trail
-  réversible, avec forks conservés pour BFS et best-first ;
+  réversible, avec branches différées et forks rapides pour BFS et
+  best-first ;
 - groupes de règles nommés, sessions persistantes et modes `SATURATE`,
   `ONE_CYCLE`, `FIRST_CHANGE` et `UNTIL` ;
 - mémoire de travail mutable avec `REMOVE` et journal chronologique
@@ -401,6 +402,14 @@ Le chaînage avant ordinaire ne déclenche jamais cette recherche.
 `RuleChoiceProvider` sépare les règles concernées, produit les `ChoicePoint`
 et remet leurs éventuelles continuations déterministes dans les groupes
 saturés par `SessionChoiceSearch`.
+
+L'exécution parallèle de plusieurs alternatives est une politique future, pas
+une extension du DSL. Des alternatives simultanées ne partageraient jamais le
+trail mutable : un coordinateur créerait un fork par processus, chaque
+processus poursuivant ensuite en DFS réversible local. Le mode par défaut
+devrait publier solutions et traces dans l'ordre séquentiel de référence. La
+spécification exploratoire et les critères préalables sont dans
+[`parallel_choice_search.md`](parallel_choice_search.md).
 
 ### 2.5 Agrégats corrélés
 

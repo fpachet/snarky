@@ -103,8 +103,8 @@ est désormais complété par une première recherche explicite
 `SessionChoiceSearch` sélectionne un point, pose un checkpoint réversible,
 sature les groupes de règles, puis conserve la solution, restaure la branche
 sur contradiction ou poursuit jusqu'au but. Le DFS ne copie plus une session
-par alternative ; BFS et best-first conservent des forks pour leurs frontières
-simultanées.
+par alternative. BFS et best-first placent des branches différées dans leur
+frontière et ne créent leur session qu'au moment de l'exploration.
 
 Le DSL peut maintenant produire ces choix en instanciant directement un
 fait :
@@ -159,6 +159,12 @@ Le DFS restaure maintenant ses branches sœurs par un trail complet de
 alternative. Le trail local de `PropagationState` reste distinct et sert aux
 domaines internes des propagateurs. La sémantique complète est décrite dans
 [`docs/choice_search.md`](docs/choice_search.md).
+
+La recherche partage aussi l'index factuel entre le matcher et le producteur
+de choix, clone un index présemé pour les branches, met en cache les snapshots
+de faits et maintient les deltas sans rescanner toute la mémoire. Best-first
+utilise un tas stable, BFS une file double. Ces changements ne modifient ni les
+solutions, ni les poids, ni les compteurs logiques.
 
 ## État actuel
 
@@ -220,8 +226,8 @@ nouvelles activations.
 `DomainStore` et `PropagationState` exposent les réductions, contradictions,
 checkpoints et rollbacks des domaines et masques actifs. Le trail local est
 livré. `InferenceSession` expose aussi un checkpoint complet, utilisé par le
-DFS de choix ; BFS et best-first gardent des forks pour conserver plusieurs
-états vivants.
+DFS de choix ; BFS et best-first gardent plusieurs descripteurs différés et
+ne créent leur fork rapide qu'à l'exploration.
 
 La mémoire de travail accepte maintenant `REMOVE`, avec un journal
 chronologique des ajouts et retraits. Les prémisses corrélées `EXISTS` et
@@ -324,6 +330,12 @@ Le contenu actuel comprend :
   le cap architectural et l'état des deux applications de référence ;
 - [`docs/choice_search.md`](docs/choice_search.md), l'API, la sémantique et
   les limites du premier pilote de choix/backtracking ;
+- [`docs/parallel_choice_search.md`](docs/parallel_choice_search.md), la piste
+  différée d'un fork par processus suivi d'un DFS local sur trail, avec
+  déterminisme, granularité et benchmarks requis ;
+- [`docs/choice_search_optimization_plan.md`](docs/choice_search_optimization_plan.md),
+  le plan profilé désormais exécuté, ses décisions et ses gains avant
+  l'extension du CSP et de l'harmoniseur ;
 - [`docs/mutations_and_negation.md`](docs/mutations_and_negation.md), la
   suppression de faits, le journal de mutations et les blocs corrélés
   `EXISTS`/`NOT EXISTS` ;
@@ -461,18 +473,23 @@ trail mesure ×27,84 face à la copie complète d'un état de 1 000 domaines
 lorsqu'une branche n'en touche que trois.
 
 Le DFS de choix matérialise maintenant les frères à la demande puis restaure
-la session en place. Sur N reines, N=14 passe de 16,035 s avec forks avides à
-4,749 s avec trail, soit ×3,38 (`-70,4 %`) à 20 nœuds et 8 échecs inchangés.
-La seule substitution du trail aux forks paresseux vaut ×1,25 ; le reste vient
-de la paresse et du clone spécialisé de provenance. Ce dernier profite aussi
-au best-first de l'harmoniseur, qui passe de 1,415 s à 257,78 ms.
+la session en place. Sur N reines extensionnel, N=14 passe de 16,035 s avec
+forks avides à 2,675 s avec le noyau actuel, soit ×5,99 (`-83,3 %`) à
+20 nœuds et 8 échecs inchangés. La formulation intensionnelle réduit ensuite
+15 513 faits à 253 et atteint 1,145 s : gain cumulé ×14,0 (`-92,9 %`).
+
+Sur l'harmoniseur court, le noyau optimisé ramène la formulation extensionnelle
+de 257,78 à 99,31 ms. Les règles de transition intensionales réduisent
+401 faits à 32 et atteignent 37,60 ms, soit ×6,86 (`-85,4 %`) depuis cette
+baseline. Sur quatre positions, la reformulation passe de 2,573 s et
+1 171 faits à 562,00 ms et 64 faits, soit ×4,58.
 
 Sur le micro-benchmark d'agenda à 200 règles indépendantes, une mutation ciblée
 ne recalcule qu'une règle et en réutilise 199. La médiane passe de 2,206 ms
 pour une construction froide à 0,572 ms pour la mise à jour incrémentale,
 soit ×3,86.
 
-La suite complète compte désormais 389 tests et s’exécute en moins de onze
+La suite complète compte désormais 395 tests et s’exécute en moins de onze
 secondes sur cette même machine, contre 26,05 s avant la mise en cache du
 catalogue de provenance
 Spinoza et 76,50 s avant les optimisations.

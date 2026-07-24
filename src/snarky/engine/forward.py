@@ -413,21 +413,18 @@ class InferenceSession:
         not an automatic search or backtracking policy.
         """
 
-        branch = InferenceSession(
-            self.facts,
-            strategy=(
-                strategy
-                if strategy is not None
-                else deepcopy(self.strategy)
-            ),
-            limits=self.limits,
-            conflict_strategy=(
-                deepcopy(self.conflict_strategy)
-                if self.conflict_strategy is not None
-                else None
-            ),
-            truth_maintenance=self.truth_maintenance,
+        branch = object.__new__(InferenceSession)
+        branch.strategy = (
+            strategy if strategy is not None else deepcopy(self.strategy)
         )
+        branch.limits = self.limits
+        branch.conflict_strategy = (
+            deepcopy(self.conflict_strategy)
+            if self.conflict_strategy is not None
+            else None
+        )
+        branch.truth_maintenance = self.truth_maintenance
+        branch._store = self._store.clone()
         branch._provenance = self._provenance.clone()
         branch._initial_facts = self._initial_facts
         branch._assumed_facts = self._assumed_facts.copy()
@@ -450,6 +447,9 @@ class InferenceSession:
         branch._fact_time_tags = self._fact_time_tags.copy()
         branch._next_time_tag = self._next_time_tag
         branch._reserved_atom_names = self._reserved_atom_names.copy()
+        branch._time_tag_trail = []
+        branch._checkpoint_tokens = []
+        branch._next_checkpoint_token = 0
         return branch
 
     def checkpoint(self) -> SessionCheckpoint:
@@ -497,8 +497,17 @@ class InferenceSession:
             conflict_strategy=deepcopy(self.conflict_strategy),
         )
 
-    def rollback(self, checkpoint: SessionCheckpoint) -> None:
-        """Restore *checkpoint* without closing its reusable scope."""
+    def rollback(
+        self,
+        checkpoint: SessionCheckpoint,
+        *,
+        invalidate_strategy: bool = True,
+    ) -> None:
+        """Restore *checkpoint* without closing its reusable scope.
+
+        Search orchestrators that replace the complete strategy immediately
+        may disable invalidation to preserve a detached branch template.
+        """
 
         self._validate_checkpoint(checkpoint)
         self._store.rollback(checkpoint.store)
@@ -535,7 +544,8 @@ class InferenceSession:
         self._next_time_tag = checkpoint.next_time_tag
         self._reserved_atom_names = set(checkpoint.reserved_atom_names)
         self.conflict_strategy = deepcopy(checkpoint.conflict_strategy)
-        self.strategy.invalidate()
+        if invalidate_strategy:
+            self.strategy.invalidate()
 
     def release(self, checkpoint: SessionCheckpoint) -> None:
         """Close the active checkpoint, retaining the current state."""
@@ -1596,10 +1606,12 @@ def _fact_delta(
 ) -> FactDelta:
     """Reduce a mutation journal slice to its net per-rule fact delta."""
 
+    del current_facts
     initial_presence: dict[Fact, bool] = {}
     final_presence: dict[Fact, bool] = {}
     removed_then_added: set[Fact] = set()
-    for event in events:
+    last_add_order: dict[Fact, int] = {}
+    for order, event in enumerate(events):
         if event.fact not in initial_presence:
             initial_presence[event.fact] = (
                 event.kind is FactMutationKind.REMOVE
@@ -1610,7 +1622,10 @@ def _fact_delta(
             and not final_presence[event.fact]
         ):
             removed_then_added.add(event.fact)
-        final_presence[event.fact] = event.kind is FactMutationKind.ADD
+        added = event.kind is FactMutationKind.ADD
+        final_presence[event.fact] = added
+        if added:
+            last_add_order[event.fact] = order
     added_set = {
         fact
         for fact, present in final_presence.items()
@@ -1627,7 +1642,12 @@ def _fact_delta(
         )
     )
     return FactDelta(
-        added=tuple(fact for fact in current_facts if fact in added_set),
+        added=tuple(
+            sorted(
+                added_set,
+                key=last_add_order.__getitem__,
+            )
+        ),
         removed=removed,
         revision=revision,
     )

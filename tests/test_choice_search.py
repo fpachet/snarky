@@ -6,8 +6,10 @@ from snarky import (
     ChoiceEventKind,
     ChoicePoint,
     ChoiceSearchStatus,
+    ChoiceTraversal,
     Fact,
     ForwardEngine,
+    InferenceSession,
     MRVChoicePolicy,
     SessionChoiceSearch,
     Triple,
@@ -105,4 +107,58 @@ def test_weighted_random_policy_is_seed_reproducible() -> None:
 
     assert tuple(item.name for item in first) == tuple(
         item.name for item in second
+    )
+
+
+@pytest.mark.parametrize(
+    "traversal",
+    (ChoiceTraversal.BREADTH_FIRST, ChoiceTraversal.BEST_FIRST),
+)
+def test_lazy_and_eager_frontiers_are_equivalent(
+    traversal: ChoiceTraversal,
+) -> None:
+    values = tuple(
+        ChoiceAlternative(
+            name,
+            (Fact(Triple(Atom("x"), Atom("value"), Atom(name))),),
+            weight=weight,
+        )
+        for name, weight in (("a", 1.0), ("b", 2.0), ("c", 3.0))
+    )
+
+    def choices(current: InferenceSession) -> tuple[ChoicePoint, ...]:
+        facts = current.facts
+        return (
+            ()
+            if any(alternative.facts[0] in facts for alternative in values)
+            else (ChoicePoint("x", values),)
+        )
+
+    parent = ForwardEngine(()).create_session((Fact(Atom("start")),))
+    results = tuple(
+        SessionChoiceSearch(
+            (),
+            choices,
+            lambda current: any(
+                alternative.facts[0] in current.facts
+                for alternative in values
+            ),
+            traversal=traversal,
+            max_solutions=3,
+            lazy_frontier=lazy,
+        ).solve(parent)
+        for lazy in (False, True)
+    )
+
+    eager, lazy = results
+    assert lazy.status is eager.status
+    assert lazy.explored_nodes == eager.explored_nodes
+    assert lazy.failed_branches == eager.failed_branches
+    assert lazy.events == eager.events
+    assert tuple(
+        (solution.decisions, solution.log_weight, solution.session.facts)
+        for solution in lazy.solutions
+    ) == tuple(
+        (solution.decisions, solution.log_weight, solution.session.facts)
+        for solution in eager.solutions
     )

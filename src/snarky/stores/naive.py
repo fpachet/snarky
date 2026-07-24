@@ -40,6 +40,9 @@ class NaiveFactStore:
         "_facts",
         "_head",
         "_next_checkpoint_token",
+        "_revision",
+        "_snapshot",
+        "_snapshot_revision",
         "_tail",
         "_trail",
     )
@@ -51,6 +54,9 @@ class NaiveFactStore:
         self._trail: list[_FactMutation] = []
         self._checkpoints: list[int] = []
         self._next_checkpoint_token = 0
+        self._revision = 0
+        self._snapshot: tuple[Fact, ...] = ()
+        self._snapshot_revision = 0
         for fact in facts:
             self.add(fact)
 
@@ -66,6 +72,7 @@ class NaiveFactStore:
             self._tail.next = node
         self._tail = node
         self._facts[fact] = node
+        self._invalidate_snapshot()
         if self._checkpoints:
             self._trail.append(_FactMutation(True, node, node.previous, None))
         return True
@@ -83,6 +90,7 @@ class NaiveFactStore:
                 _FactMutation(False, node, previous, next_node)
             )
         self._unlink(node)
+        self._invalidate_snapshot()
         return True
 
     def checkpoint(self) -> FactStoreCheckpoint:
@@ -93,11 +101,22 @@ class NaiveFactStore:
         self._checkpoints.append(token)
         return FactStoreCheckpoint(id(self), token, len(self._trail))
 
+    def clone(self) -> NaiveFactStore:
+        """Return an isolated store with the same visible insertion order."""
+
+        snapshot = self.facts
+        clone = NaiveFactStore(snapshot)
+        clone._snapshot = snapshot
+        clone._snapshot_revision = clone._revision
+        return clone
+
     def rollback(self, checkpoint: FactStoreCheckpoint) -> None:
         """Undo mutations since *checkpoint* while keeping it reusable."""
 
         self._validate_checkpoint(checkpoint)
+        changed = False
         while len(self._trail) > checkpoint.trail_size:
+            changed = True
             mutation = self._trail.pop()
             if mutation.added:
                 self._facts.pop(mutation.node.fact, None)
@@ -109,6 +128,8 @@ class NaiveFactStore:
                     mutation.next,
                 )
                 self._facts[mutation.node.fact] = mutation.node
+        if changed:
+            self._invalidate_snapshot()
 
     def release(self, checkpoint: FactStoreCheckpoint) -> None:
         """Close *checkpoint* after its state is no longer needed."""
@@ -140,6 +161,9 @@ class NaiveFactStore:
             next_node.previous = previous
         node.previous = None
         node.next = None
+
+    def _invalidate_snapshot(self) -> None:
+        self._revision += 1
 
     def _relink(
         self,
@@ -174,4 +198,7 @@ class NaiveFactStore:
     def facts(self) -> tuple[Fact, ...]:
         """Return a stable snapshot suitable for backtracking."""
 
-        return tuple(self)
+        if self._snapshot_revision != self._revision:
+            self._snapshot = tuple(self)
+            self._snapshot_revision = self._revision
+        return self._snapshot

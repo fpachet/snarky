@@ -19,7 +19,7 @@ Les optimisations doivent préserver les propriétés suivantes :
 - provenance vérifiable ;
 - point fixe identique à celui du moteur naïf.
 
-## État au 24 juillet 2026
+## État au 25 juillet 2026
 
 | Phase | État | Résultat ou prochaine étape |
 |---|---|---|
@@ -653,10 +653,28 @@ ChoiceHeuristic
 Le choix MRV, le pilote de backtracking, le solveur CSP pédagogique et le
 premier harmoniseur à quatre voix sont maintenant livrés. Le DFS matérialise
 les alternatives à la demande et restaure ses branches sœurs par un trail
-complet d'`InferenceSession`. BFS et best-first conservent des forks pour leurs
-frontières multiples, avec un clone spécialisé de la provenance. Le cap
-complet est décrit dans
+complet d'`InferenceSession`. BFS et best-first conservent des descripteurs
+différés dans leurs frontières multiples et ne créent un fork rapide qu'au
+retrait. Le cap complet est décrit dans
 [`choice_backtracking_and_applications.md`](choice_backtracking_and_applications.md).
+
+L'exploration parallèle de plusieurs alternatives est documentée mais
+différée. Elle utiliserait un fork par processus au point de partage, puis le
+trail DFS local dans chaque sous-arbre. Avant toute implémentation, il faudra
+mesurer le coût de transfert des sessions et fixer l'ordre déterministe des
+résultats. Voir [`parallel_choice_search.md`](parallel_choice_search.md).
+
+La tranche séquentielle issue des profils N-reines et harmoniseur est détaillée
+dans
+[`choice_search_optimization_plan.md`](choice_search_optimization_plan.md) :
+frontières paresseuses, fork spécialisé, snapshots de faits, matcher
+réversible, choix incrémentaux, deltas directs et formulations intensives.
+
+Cette tranche est terminée. À formulation inchangée, N-reines N=14 passe de
+4,749 à 2,675 s (`-43,7 %`) et l'harmoniseur court de 257,78 à 99,31 ms
+(`-61,5 %`). Les règles intensionales portent respectivement ces temps à
+1,145 s et 37,60 ms. Le nombre d'index complets de N=14 passe de 31 à 1.
+Les solutions, nœuds et échecs restent identiques.
 
 La première version possède déjà des tests différentiels ciblés, y compris
 variables en position relation et deltas d'ajout/suppression. Trente petits

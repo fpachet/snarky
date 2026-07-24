@@ -139,8 +139,9 @@ maintenant semi-naïve elle aussi.
 Les définitions de tables sont séparées de l'état mutable. `DomainStore` et
 `PropagationState` fournissent réductions motivées, contradictions,
 checkpoints et rollback des domaines et masques. Le choix MRV et le pilote de
-backtracking DFS sont raccordés à un checkpoint complet de session ; les
-forks restent utilisés par BFS et best-first.
+backtracking DFS sont raccordés à un checkpoint complet de session ; BFS et
+best-first utilisent des descripteurs différés et ne créent leur fork rapide
+qu'à l'exploration.
 
 ### P9 — Maintenance de vérité positive
 
@@ -186,14 +187,20 @@ justifications négatives complètes restent séparés.
 12. ~~Rendre la jointure filtrée semi-naïve et fournir l'état réversible
     observable.~~
 13. ~~Produire des choix déclaratifs avec `CHOICE ... FROM`, permettre leur
-    séquencement dans une règle et les connecter à des branches isolées.~~
-    Raccorder maintenant les branches au trail réversible sans changer leur
-    sémantique.
-14. Ajouter `MEMBER` et `SIZE`, puis implémenter les naked triples de Sudoku p8
+    séquencement dans une règle, les connecter à des branches isolées et
+    raccorder le DFS au trail réversible sans changer sa sémantique.~~
+14. ~~Optimiser les frontières, forks, snapshots, index de branche, requêtes
+    de choix et deltas ; conserver des formulations extensionnelles et
+    intensionales de N-reines et de l'harmoniseur.~~
+15. Ajouter `MEMBER` et `SIZE`, puis implémenter les naked triples de Sudoku p8
     avec `COMBINATIONS`.
-15. Mesurer une éventuelle consistance généralisée de `ALL_DIFFERENT`.
-16. Ne retenir les extensions restantes qu'avec une base et un oracle
+16. Mesurer une éventuelle consistance généralisée de `ALL_DIFFERENT`.
+17. Ne retenir les extensions restantes qu'avec une base et un oracle
     reproductibles.
+
+L'exploration parallèle des alternatives reste une piste postérieure, décrite
+dans [`parallel_choice_search.md`](parallel_choice_search.md). Elle ne devra
+être envisagée qu'avec des sous-arbres assez coûteux et sans changement du DSL.
 
 La comparaison détaillée de ces voies se trouve dans
 [`constraints_propagation_and_search.md`](constraints_propagation_and_search.md).

@@ -134,12 +134,12 @@ temporels et les générateurs `FRESH` font partie de l'état restauré.
 `SessionChoiceSearch` ajoute cette politique sans modifier le chaînage avant.
 Un `ChoicePoint` contient des alternatives qui affirment des faits dans des
 branches explicites. En DFS, une copie racine isole l'appelant puis un
-checkpoint restaure chaque branche sœur en place. BFS et best-first utilisent
-des forks, puisqu'ils gardent plusieurs états vivants. Après saturation des
-groupes, un prédicat de contradiction rejette la branche et un prédicat de but
-accepte une solution. MRV, poids, graine, ordre de parcours et limites sont
-explicites. Les poids ordonnent les branches mais ne changent jamais leur
-faisabilité.
+checkpoint restaure chaque branche sœur en place. BFS et best-first gardent
+plusieurs descripteurs vivants, mais le fork et l'affirmation correspondants
+sont différés jusqu'au retrait de la frontière. Après saturation des groupes,
+un prédicat de contradiction rejette la branche et un prédicat de but accepte
+une solution. MRV, poids, graine, ordre de parcours et limites sont explicites.
+Les poids ordonnent les branches mais ne changent jamais leur faisabilité.
 
 Une action déclarative :
 

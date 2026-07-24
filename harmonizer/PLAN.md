@@ -7,8 +7,10 @@
 - contraintes verticales essentielles ;
 - trois relations de transition ;
 - choix pondérés et best-first ;
-- exposition des notes choisies par règles Snarky.
-- benchmark reproductible et tests de contraintes verticales.
+- exposition des notes choisies par règles Snarky ;
+- transitions intensionales révisées dans les deux directions ;
+- formulation extensionnelle conservée comme oracle ;
+- benchmark reproductible à deux et quatre positions.
 
 ## Jalon 2 — variables de notes
 

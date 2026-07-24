@@ -54,6 +54,26 @@ def test_checkpoint_restores_fact_order_provenance_and_fresh_names() -> None:
     session.release(checkpoint)
 
 
+def test_fact_snapshots_are_cached_and_invalidated_by_rollback() -> None:
+    session = InferenceSession((_fact("a"), _fact("b")))
+    initial = session.facts
+
+    assert session.facts is initial
+    checkpoint = session.checkpoint()
+    session.assume(_fact("c"))
+    branch = session.facts
+    assert branch is session.facts
+    assert branch is not initial
+
+    session.rollback(checkpoint)
+
+    restored = session.facts
+    assert restored == initial
+    assert restored is session.facts
+    assert restored is not branch
+    session.release(checkpoint)
+
+
 def test_checkpoint_restores_negative_refraction_state() -> None:
     (negative,) = parse_rule_groups(
         """

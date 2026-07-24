@@ -1,0 +1,26 @@
+GROUP propagate_harmonic_transitions
+    # Arc-consistance sans matérialiser tous les couples de voicings autorisés.
+    RULE revise_successor_voicing
+    WHEN
+        ($left successor $right)
+        ($right candidate $target)
+        NOT EXISTS
+            ($left candidate $source)
+            CHECK legal_harmonic_transition ARGS SEQ[$source $target]
+        END_NOT_EXISTS
+    THEN
+        REMOVE ($right candidate $target)
+    END
+
+    RULE revise_predecessor_voicing
+    WHEN
+        ($left successor $right)
+        ($left candidate $source)
+        NOT EXISTS
+            ($right candidate $target)
+            CHECK legal_harmonic_transition ARGS SEQ[$source $target]
+        END_NOT_EXISTS
+    THEN
+        REMOVE ($left candidate $source)
+    END
+END_GROUP

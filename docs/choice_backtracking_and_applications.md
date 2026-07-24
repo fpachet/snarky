@@ -31,8 +31,9 @@ Le mécanisme de recherche réutilise :
 Le DFS utilise maintenant un trail de session : les alternatives sont créées
 paresseusement, la mémoire de travail et la provenance sont annulées en place,
 et une copie n'est conservée que pour une solution. BFS et best-first gardent
-des forks, indispensables à leurs frontières multiples, mais la provenance y
-est clonée sans `deepcopy` des faits immuables.
+des descripteurs différés dans leurs frontières multiples. Le fork rapide,
+dont la provenance partage les faits immuables au lieu d'utiliser `deepcopy`,
+n'est créé qu'au retrait.
 
 Il ne devra pas cacher une recherche métier dans une fonction Python. Python
 restera la couche d'orchestration et de stockage du trail ; les choix
@@ -54,9 +55,15 @@ Le premier palier comporte :
 
 `InferenceSession.checkpoint()` complète le trail local des Compact-Tables et
 de `PropagationState`. Il restaure faits, provenance, réfraction, journaux et
-tags temporels. Le matcher est actuellement invalidé ou recréé au rollback ;
-sa restauration incrémentale constitue une optimisation ultérieure, distincte
-de la sémantique du backtracking.
+tags temporels. Après rollback, le matcher repart d'un index présemé ; ses
+mémoires de jointure et de négation sont recréées pour isoler strictement les
+branches.
+
+Une autre extension possible consiste à confier quelques alternatives
+coûteuses à des processus isolés. Chaque processus recevrait un fork au point
+de partage puis utiliserait le DFS réversible dans son sous-arbre. Cette
+politique reste différée et ne modifierait ni `CHOICE` ni les règles. Voir
+[`parallel_choice_search.md`](parallel_choice_search.md).
 
 Le détail de cette couche, ses garanties et ses mesures est dans
 [`reversible_propagation.md`](reversible_propagation.md).
@@ -76,7 +83,9 @@ alternatives, sans générateur de points métier en Python. Il vérifie que le
 langage sait exprimer propagation, choix,
 contradiction et backtracking sans dépendre du backend
 `BacktrackingConstraintSolver` déjà fourni comme oracle Python. Les quatre
-reines donnent exactement leurs deux solutions.
+reines donnent exactement leurs deux solutions. Une seconde formulation
+N-reines remplace les tables de couples autorisés par une règle
+d'arc-consistance et des comparaisons arithmétiques.
 
 ### Harmoniseur à quatre voix dans le style de Bach
 
@@ -85,7 +94,8 @@ exécutable à deux positions. Il combine déjà :
 
 - voicings SATB finis et soprano imposé ;
 - contraintes de tessiture, espacement, mouvement et doublure ;
-- relations binaires de conduite des voix ;
+- règles intensionales de conduite des voix, révisées dans les deux
+  directions ;
 - choix progressifs, poids marginaux et recherche best-first ;
 - exposition des notes choisies par des règles.
 
@@ -93,6 +103,10 @@ Le profil `ROY_1998`, les variables de notes séparées, les préférences
 lexicographiques et le catalogue complet de règles restent planifiés. Le
 compilateur de candidats Python du premier jalon sera progressivement remplacé
 par des connaissances Snarky déclaratives.
+
+Les optimisations de recherche et les reformulations A/B sont terminées et
+mesurées dans
+[`choice_search_optimization_plan.md`](choice_search_optimization_plan.md).
 
 ## Critère de décision
 

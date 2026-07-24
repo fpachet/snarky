@@ -11,13 +11,14 @@
 - plusieurs choix séquentiels dans une règle ;
 - branches isolées et retour arrière ;
 - énumération de plusieurs solutions ;
-- constructeur générique `n` reines et quatre reines comme oracle.
+- constructeur générique `n` reines et quatre reines comme oracle ;
+- formulation N-reines intensionnelle par recherche de supports arithmétiques ;
+- benchmark A/B extensionnel/intensionnel jusqu'à N=14.
 
 ## Paliers suivants
 
-1. exposer directement le trail de `PropagationState` au pilote de recherche ;
-2. ajouter des contraintes n-aires et globales déclarées comme objets ;
-3. comparer systématiquement avec `BacktrackingConstraintSolver` ;
-4. ajouter coloration, Sudoku miniature et problèmes aléatoires ;
-5. apprendre éventuellement des nogoods ;
-6. benchmarker DFS, MRV, best-first et choix pondéré.
+1. ajouter des contraintes n-aires et globales déclarées comme objets ;
+2. comparer systématiquement avec `BacktrackingConstraintSolver` ;
+3. ajouter coloration, Sudoku miniature et problèmes aléatoires ;
+4. apprendre éventuellement des nogoods ;
+5. benchmarker DFS, MRV, best-first et choix pondéré.

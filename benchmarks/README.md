@@ -13,30 +13,48 @@ versions du moteur.
 PYTHONPATH=src python -m benchmarks.choice_search --repeat 5
 ```
 
-Mesure du 25 juillet 2026 sur macOS ARM64 avec Python 3.13.11 :
+Mesure finale du 25 juillet 2026 sur macOS ARM64 avec Python 3.13.11 :
 
 | Projet | Médiane | Nœuds explorés | Branches en échec | Solutions |
 |---|---:|---:|---:|---:|
-| quatre reines | 17,60 ms | 4 | 1 | 2 |
-| harmoniseur SATB, 2 positions | 257,78 ms | 13 | 0 | 3 |
+| quatre reines | 15,43 ms | 4 | 1 | 2 |
+| harmoniseur SATB, 2 positions | 37,31 ms | 13 | 0 | 3 |
+| harmoniseur SATB, 4 positions | 549,50 ms | 124 | 0 | 3 |
 
 Le solveur des reines propage trois affectations après la première décision.
 L'harmoniseur utilise 15 voicings sur la première position et 9 sur la
 seconde.
 
-Le DFS utilise maintenant un trail de session. L'harmoniseur parcourt en
-best-first et garde donc des forks, mais leur provenance est clonée sans
-`deepcopy` récursif des milliers de faits et termes immuables. À nombre de
-nœuds identique, sa médiane passe de 1,415 s à 257,78 ms, soit ×5,49
-(`-81,8 %`). Les quatre reines passent de 20,77 à 17,60 ms (`-15,2 %`).
+Le DFS utilise un trail de session. Les frontières BFS et best-first stockent
+des alternatives différées et ne créent une session qu'au moment de les
+explorer. Le fork initialise directement le magasin et la provenance clonés ;
+les snapshots de faits sont mis en cache ; les branches repartent d'un index
+présemé ; `RuleChoiceProvider` partage une vue de cet index et les deltas
+nets ne rescannent plus tous les faits. Best-first utilise un tas stable et
+BFS une `deque`.
 
 Le passage du générateur Python à la règle déclarative `CHOICE ... FROM`
 reste inclus dans ces mesures.
 
 Le résultat JSON courant est conservé dans
-[`results/choice_search_2026-07-25.json`](results/choice_search_2026-07-25.json) ;
-la mesure précédente reste disponible dans
+[`results/choice_search_optimized_2026-07-25.json`](results/choice_search_optimized_2026-07-25.json) ;
+les mesures précédentes restent disponibles dans
+[`results/choice_search_2026-07-25.json`](results/choice_search_2026-07-25.json)
+et
 [`results/choice_search_2026-07-24.json`](results/choice_search_2026-07-24.json).
+
+### Décomposition des gains
+
+Sur la phrase extensionnelle de deux positions, les paliers successifs
+passent de 259,20 à 139,92 ms avec la frontière paresseuse, puis 114,16 ms
+avec le fork rapide et 108,78 ms avec les snapshots. Après partage d'index,
+vue de requête et delta direct, la mesure finale extensionnelle vaut
+99,31 ms. Face à la baseline publiée de 257,78 ms, le gain propre au noyau
+vaut ×2,60 (`-61,5 %`).
+
+La formulation intensionnelle réduit ensuite 401 faits à 32 et atteint
+37,60 ms : ×2,64 supplémentaire, ou ×6,86 (`-85,4 %`) depuis la baseline.
+Les 13 nœuds et l'ordre des solutions restent identiques.
 
 ## Trail de choix sur N reines
 
@@ -49,10 +67,10 @@ PYTHONPATH=.:src python benchmarks/choice_trail.py --repeat 3
 
 | Taille | Forks paresseux | Trail | Gain propre au trail | Nœuds / échecs |
 |---:|---:|---:|---:|---:|
-| 8 | 626,70 ms | 592,86 ms | ×1,06 (`-5,4 %`) | 16 / 10 |
-| 10 | 2,098 s | 1,883 s | ×1,11 (`-10,2 %`) | 27 / 16 |
-| 12 | 4,092 s | 3,539 s | ×1,16 (`-13,5 %`) | 27 / 13 |
-| 14 | 5,935 s | 4,749 s | ×1,25 (`-20,0 %`) | 20 / 8 |
+| 8 | 516,74 ms | 440,12 ms | ×1,17 (`-14,8 %`) | 16 / 10 |
+| 10 | 1,568 s | 1,206 s | ×1,30 (`-23,1 %`) | 27 / 16 |
+| 12 | 2,867 s | 2,031 s | ×1,41 (`-29,2 %`) | 27 / 13 |
+| 14 | 4,125 s | 2,748 s | ×1,50 (`-33,4 %`) | 20 / 8 |
 
 Le gain augmente avec la taille de la mémoire de travail. Il ne vient pas
 d'une meilleure heuristique : nœuds, échecs et profondeur de solution sont
@@ -74,7 +92,35 @@ tous les frères, 8,985 s avec frères paresseux, 5,935 s avec les forks
 paresseux et la provenance spécialisée, puis 4,749 s avec rollback en place.
 
 Les résultats reproductibles des deux modes courants sont dans
-[`results/choice_trail_2026-07-25.json`](results/choice_trail_2026-07-25.json).
+[`results/choice_trail_optimized_2026-07-25.json`](results/choice_trail_optimized_2026-07-25.json).
+
+## Formulations extensionnelles et intensionales
+
+`choice_formulations` mesure séparément l'effet du modèle, sur le même moteur
+optimisé :
+
+```sh
+PYTHONPATH=.:src python benchmarks/choice_formulations.py --repeat 3
+```
+
+| Cas | Extensionnel | Intensionnel | Faits ext. → int. | Gain |
+|---|---:|---:|---:|---:|
+| N-reines N=14 | 2,675 s | 1,145 s | 15 513 → 253 | ×2,34 (`-57,2 %`) |
+| harmonie, 2 positions | 99,31 ms | 37,60 ms | 401 → 32 | ×2,64 (`-62,1 %`) |
+| harmonie, 4 positions | 2,573 s | 562,00 ms | 1 171 → 64 | ×4,58 (`-78,2 %`) |
+
+Les solutions et compteurs de recherche sont identiques. Les reines
+intensionnelles utilisent une règle de recherche de supports avec trois
+comparaisons arithmétiques. L'harmoniseur utilise deux règles de révision
+dirigée et un prédicat musical pur enregistré. Aucun des deux chemins
+intensionnels n'appelle un solveur Python.
+
+Depuis le début de cette tranche, N=14 passe de 4,749 à 1,145 s : ×4,15
+(`-75,9 %`). Depuis les forks avides initiaux à 16,035 s, le gain cumulé vaut
+×14,0 (`-92,9 %`), tout en conservant 20 nœuds et 8 échecs.
+
+Les données brutes sont dans
+[`results/choice_formulations_2026-07-25.json`](results/choice_formulations_2026-07-25.json).
 
 ## Filtrage des domaines avant instanciation
 

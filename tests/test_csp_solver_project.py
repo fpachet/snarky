@@ -1,8 +1,10 @@
 from csp_solver.four_queens import (
     PROBLEM,
     n_queens_facts,
+    n_queens_intensional_facts,
     solve_four_queens,
     solve_n_queens,
+    solve_n_queens_intensional,
 )
 from csp_solver.solver import assignment_from_solution
 from snarky import Atom, ChoiceSearchStatus
@@ -41,6 +43,24 @@ def test_reversible_and_forked_dfs_have_identical_search_semantics() -> None:
     assert tuple(event.kind for event in reversible.events) == tuple(
         event.kind for event in forked.events
     )
+
+
+def test_intensional_queens_matches_extensional_oracle() -> None:
+    extensional = solve_n_queens(4, max_solutions=2)
+    intensional = solve_n_queens_intensional(4, max_solutions=2)
+
+    assert intensional.status is extensional.status
+    assert intensional.explored_nodes == extensional.explored_nodes
+    assert intensional.failed_branches == extensional.failed_branches
+    assert tuple(
+        assignment_from_solution(solution, PROBLEM)
+        for solution in intensional.solutions
+    ) == tuple(
+        assignment_from_solution(solution, PROBLEM)
+        for solution in extensional.solutions
+    )
+    assert len(n_queens_intensional_facts(14).facts) == 253
+    assert len(n_queens_facts(14).facts) == 15_513
 
 
 def test_n_queens_builder_handles_trivial_and_impossible_sizes() -> None:

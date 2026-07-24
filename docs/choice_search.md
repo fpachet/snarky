@@ -106,14 +106,22 @@ La session fournie au solveur n'est jamais modifiée. Une branche hérite de la
 réfraction, des faits, de la provenance et de l'historique. En profondeur,
 une copie racine l'isole d'abord de l'appelant, puis les branches sœurs
 réutilisent cette session avec `checkpoint()`, `rollback()` et `release()`.
-Seule une solution conservée est recopiée. Un matcher semi-naïf vierge est
-installé après chaque rollback afin qu'aucun cache de la branche abandonnée
-ne survive.
+Seule une solution conservée est recopiée. Après rollback, la branche repart
+d'un clone présemé de l'index exact du parent. Les mémoires de jointure,
+watchers et témoins restent neuves afin qu'aucun cache de la branche
+abandonnée ne survive.
 
-Les parcours largeur et meilleur poids gardent des forks : plusieurs états
-de la frontière doivent y rester vivants simultanément. Ils bénéficient
-néanmoins d'une copie spécialisée de la provenance qui partage les faits et
-termes immuables au lieu de les recopier profondément.
+Les parcours largeur et meilleur poids gardent plusieurs états logiques dans
+leur frontière, mais ne créent plus immédiatement leur session. Un
+descripteur contient le parent et l'alternative ; le fork rapide et
+l'assertion ne sont exécutés qu'au retrait. BFS utilise une `deque` et
+best-first un tas stable, avec le rang d'insertion pour départager les scores
+égaux. Le mode avide reste disponible pour les tests différentiels avec
+`lazy_frontier=False`.
+
+`RuleChoiceProvider` interroge une vue du matcher courant qui partage son
+`FactIndex`, tout en conservant des mémoires de requête indépendantes. Le
+producteur de choix ne reconstruit donc plus l'index complet de la session.
 
 La trace distingue `choice`, `decision`, `contradiction`, `backtrack`,
 `solution`, `dead_end` et `limit`. Les limites techniques ne sont pas
@@ -144,6 +152,23 @@ Le trail local de `PropagationState` reste utile à l'intérieur d'un
 propagateur. Une intégration future pourra éviter aussi la reconstruction du
 matcher après rollback ; elle n'est plus nécessaire pour supprimer les copies
 de sessions entre branches sœurs.
+
+## Parallélisme différé
+
+Plusieurs alternatives ne peuvent pas partager simultanément la session
+mutable du DFS. Une exécution parallèle future utiliserait un fork isolé par
+travailleur, puis le trail local pour explorer chaque sous-arbre. L'ordre des
+solutions resterait déterminé par le coordinateur, indépendamment de l'ordre
+d'arrivée des processus.
+
+Cette piste, ses contraintes de déterminisme, de granularité, de transfert de
+mémoire et son plan de benchmark sont documentés dans
+[`parallel_choice_search.md`](parallel_choice_search.md). Elle n'est pas
+implémentée.
+
+Les optimisations séquentielles réalisées auparavant sont ordonnées et
+mesurées dans
+[`choice_search_optimization_plan.md`](choice_search_optimization_plan.md).
 
 ## Applications de validation
 

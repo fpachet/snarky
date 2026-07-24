@@ -2,7 +2,7 @@
 
 Ce projet est le cas d'intégration de la génération hybride de Snarky :
 
-- règles locales et relations extensionnelles ;
+- règles locales et contraintes de transition intensionales ;
 - propagation de domaines ;
 - recherche avec `ChoicePoint` ;
 - poids issus de probabilités marginales ;
@@ -55,10 +55,37 @@ PYTHONPATH=src python -m harmonizer.solver
 
 Le moteur cherche les solutions par best-first. Les contraintes dures
 déterminent la faisabilité ; les poids ne changent pas l'ensemble des
-solutions. Best-first conserve plusieurs forks simultanés et n'utilise donc
-pas le trail DFS. Le clone spécialisé de provenance ramène néanmoins la
-médiane des trois premières solutions de 1,415 s à 257,78 ms sur la baseline
-du 25 juillet 2026, sans changer les 13 nœuds explorés.
+solutions. Best-first conserve plusieurs états simultanés et n'utilise donc
+pas le trail DFS. Sa frontière est néanmoins paresseuse : une alternative ne
+crée sa session que lorsqu'elle est retirée du tas stable.
+
+## Transitions intensionales
+
+Le mode par défaut ne matérialise plus tous les couples de voicings autorisés.
+[`intensional_transition.rules`](intensional_transition.rules) révise chaque
+paire de positions successives dans les deux directions. Un candidat est
+retiré s'il n'existe plus de voicing compatible chez son voisin.
+
+La compatibilité musicale est exposée comme un `ComputedPredicate` pur et
+enregistré explicitement. Les règles restent responsables du point fixe, des
+supports, des retraits et de la trace ; Python ne pilote ni la recherche ni
+les décisions. `intensional_transitions=False` conserve la table extensionnelle
+comme oracle.
+
+| Phrase | Extensionnel | Intensionnel | Faits ext. → int. | Gain |
+|---|---:|---:|---:|---:|
+| 2 positions | 99,31 ms | 37,60 ms | 401 → 32 | ×2,64 |
+| 4 positions | 2,573 s | 562,00 ms | 1 171 → 64 | ×4,58 |
+
+Les trois premières solutions, leur ordre et les compteurs de nœuds sont
+identiques. Depuis la baseline de 257,78 ms antérieure à cette tranche,
+l'harmoniseur court atteint 37,60 ms, soit ×6,86 (`-85,4 %`).
+
+Le benchmark comparatif s'exécute avec :
+
+```sh
+PYTHONPATH=.:src python benchmarks/choice_formulations.py --repeat 3
+```
 
 ## Limites explicites
 

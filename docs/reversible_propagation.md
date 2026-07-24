@@ -121,7 +121,9 @@ Le DFS utilise maintenant un checkpoint complet d'`InferenceSession` :
 4. restaurer faits, provenance, réfraction, journaux et tags temporels ;
 5. conserver une copie uniquement pour chaque solution retournée.
 
-Les parcours largeur et meilleur poids d'abord conservent des forks, car leur
-frontière contient plusieurs états simultanés. La restauration incrémentale
-des caches du matcher, au lieu de leur invalidation après rollback, reste une
-optimisation possible.
+Les parcours largeur et meilleur poids d'abord conservent plusieurs états
+logiques, mais leur frontière est paresseuse : le fork rapide n'est créé qu'au
+retrait du descripteur. Les branches DFS repartent d'un clone présemé de
+l'index du matcher après rollback. Les mémoires de jointure et de négation
+restent volontairement neuves ; le profil N=14 ne construit plus qu'un index
+complet, contre 31 avant cette tranche.

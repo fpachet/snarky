@@ -24,9 +24,11 @@ from snarky import (
     Atom,
     ChoiceSearchResult,
     ChoiceTraversal,
+    ComputedPredicate,
     Fact,
     FiniteSequence,
     Number,
+    PredicateRegistry,
     RuleGroup,
     Term,
     Triple,
@@ -62,6 +64,8 @@ class Harmonization:
 
 def build_harmonizer_model(
     melody: tuple[int, ...] = (67, 72),
+    *,
+    intensional_transitions: bool = True,
 ) -> HarmonizerModel:
     """Build the finite hard-constraint model for one C-major phrase."""
 
@@ -98,6 +102,9 @@ def build_harmonizer_model(
     for index in range(len(positions) - 1):
         left = positions[index]
         right = positions[index + 1]
+        if intensional_transitions:
+            facts.append(Fact(Triple(left, Atom("successor"), right)))
+            continue
         pairs = tuple(product(voicings[index], voicings[index + 1]))
         for rule_id, predicate in (
             ("R-MELODY", _melodic_transition),
@@ -128,7 +135,7 @@ def build_harmonizer_model(
             PROBLEM,
             tuple(facts),
             weights,
-            _harmonizer_groups(),
+            _harmonizer_groups(intensional_transitions),
         ),
         positions,
         voicings,
@@ -139,8 +146,12 @@ def harmonize(
     melody: tuple[int, ...] = (67, 72),
     *,
     max_solutions: int = 3,
+    intensional_transitions: bool = True,
 ) -> tuple[Harmonization, ...]:
-    model = build_harmonizer_model(melody)
+    model = build_harmonizer_model(
+        melody,
+        intensional_transitions=intensional_transitions,
+    )
     result = solve_binary_csp(
         model.csp,
         max_solutions=max_solutions,
@@ -289,10 +300,44 @@ def _term_voicing(term: Term) -> PitchVoicing:
     return values[0], values[1], values[2], values[3]
 
 
+def _legal_harmonic_transition(arguments: tuple[Term, ...]) -> bool:
+    if len(arguments) != 2:
+        raise ValueError("legal_harmonic_transition expects two voicings")
+    source = _term_voicing(arguments[0])
+    target = _term_voicing(arguments[1])
+    return (
+        _melodic_transition(source, target)
+        and _no_parallel_perfect_intervals(source, target)
+        and _global_motion(source, target)
+    )
+
+
 @cache
-def _harmonizer_groups() -> tuple[RuleGroup, ...]:
+def _harmonizer_groups(
+    intensional_transitions: bool = True,
+) -> tuple[RuleGroup, ...]:
     path = Path(__file__).with_name("rules.rules")
-    return parse_rule_groups(path.read_text())
+    groups = parse_rule_groups(path.read_text())
+    if not intensional_transitions:
+        return groups
+    registry = PredicateRegistry(
+        (
+            ComputedPredicate(
+                "legal_harmonic_transition",
+                _legal_harmonic_transition,
+            ),
+        )
+    )
+    intensional_path = Path(__file__).with_name(
+        "intensional_transition.rules"
+    )
+    return (
+        *groups,
+        *parse_rule_groups(
+            intensional_path.read_text(),
+            predicates=registry,
+        ),
+    )
 
 
 def main() -> None:

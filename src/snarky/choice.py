@@ -2,13 +2,16 @@
 
 from __future__ import annotations
 
+import heapq
 import math
 import random
+from collections import deque
 from collections.abc import Callable, Mapping, Sequence
+from copy import deepcopy
 from dataclasses import dataclass, field
 from enum import StrEnum
 from types import MappingProxyType
-from typing import Protocol
+from typing import Protocol, cast
 
 from .actions import Action, AddFact, Choice, ForEach
 from .engine import InferenceSession, SessionCheckpoint, StopCondition
@@ -17,6 +20,7 @@ from .instantiation import (
     Activation,
     IndexedInstantiationStrategy,
     InstantiationStrategy,
+    SemiNaiveInstantiationStrategy,
 )
 from .premises import BindPremise, FactPremise, Premise
 from .rules import Rule, RuleGroup
@@ -310,7 +314,7 @@ class RuleChoiceProvider:
         session: InferenceSession,
     ) -> tuple[ChoicePoint, ...]:
         facts = session.facts
-        query_strategy = IndexedInstantiationStrategy()
+        query_strategy = _choice_query_strategy(session)
         points: dict[str, ChoicePoint] = {}
         for group_name, rule, actions in self.choice_rules:
             outer_activations = query_strategy.instantiate(
@@ -355,6 +359,19 @@ class RuleChoiceProvider:
                     if not contexts:
                         break
         return tuple(points.values())
+
+
+def _choice_query_strategy(
+    session: InferenceSession,
+) -> IndexedInstantiationStrategy:
+    strategy = session.strategy
+    if type(strategy) in (
+        IndexedInstantiationStrategy,
+        SemiNaiveInstantiationStrategy,
+    ):
+        indexed = cast(IndexedInstantiationStrategy, strategy)
+        return indexed.query_view()
+    return IndexedInstantiationStrategy()
 
 
 def _contains_nested_choice(action: ForEach) -> bool:
@@ -523,10 +540,37 @@ class _ChoiceFrame:
 
 
 @dataclass(frozen=True, slots=True)
+class _DeferredBranch:
+    """A frontier entry whose isolated session is materialized on demand."""
+
+    parent: _SearchNode
+    point: ChoicePoint
+    alternative: ChoiceAlternative
+    insertion_order: int
+
+    @property
+    def decisions(self) -> tuple[ChoiceDecision, ...]:
+        decision = ChoiceDecision(
+            self.point.name,
+            self.alternative.name,
+            self.alternative.value,
+            self.alternative.weight,
+        )
+        return (*self.parent.decisions, decision)
+
+    @property
+    def log_weight(self) -> float:
+        return self.parent.log_weight + _log_weight(
+            self.alternative.weight
+        )
+
+
+@dataclass(frozen=True, slots=True)
 class _TrailChoiceFrame:
     parent: _SearchNode
     point: ChoicePoint
     checkpoint: SessionCheckpoint
+    strategy_template: InstantiationStrategy
 
 
 @dataclass(frozen=True, slots=True)
@@ -538,6 +582,67 @@ class _TrailAlternative:
 @dataclass(frozen=True, slots=True)
 class _TrailRelease:
     frame: _TrailChoiceFrame
+
+
+type _PendingItem = (
+    _SearchNode
+    | _ChoiceFrame
+    | _DeferredBranch
+    | _TrailAlternative
+    | _TrailRelease
+)
+
+
+class _SearchFrontier:
+    """Traversal-specific pending storage with a stable best-first heap."""
+
+    def __init__(self, traversal: ChoiceTraversal) -> None:
+        self.traversal = traversal
+        self._items: list[_PendingItem] = []
+        self._queue: deque[_PendingItem] = deque()
+        self._heap: list[tuple[float, int, _PendingItem]] = []
+
+    def push(self, item: _PendingItem) -> None:
+        if self.traversal is ChoiceTraversal.BEST_FIRST:
+            if isinstance(item, (_DeferredBranch, _SearchNode)):
+                log_weight = item.log_weight
+                insertion_order = item.insertion_order
+            else:
+                raise AssertionError("DFS frames cannot enter best-first")
+            heapq.heappush(
+                self._heap,
+                (-log_weight, insertion_order, item),
+            )
+            return
+        if self.traversal is ChoiceTraversal.BREADTH_FIRST:
+            self._queue.append(item)
+            return
+        self._items.append(item)
+
+    def extend(self, items: Sequence[_PendingItem]) -> None:
+        for item in items:
+            self.push(item)
+
+    def pop(self) -> _PendingItem:
+        if self.traversal is ChoiceTraversal.BEST_FIRST:
+            return heapq.heappop(self._heap)[2]
+        if self.traversal is ChoiceTraversal.BREADTH_FIRST:
+            return self._queue.popleft()
+        return self._items.pop()
+
+    def first(self) -> _PendingItem:
+        if self.traversal is ChoiceTraversal.BEST_FIRST:
+            return self._heap[0][2]
+        if self.traversal is ChoiceTraversal.BREADTH_FIRST:
+            return self._queue[0]
+        return self._items[0]
+
+    def __bool__(self) -> bool:
+        if self.traversal is ChoiceTraversal.BEST_FIRST:
+            return bool(self._heap)
+        if self.traversal is ChoiceTraversal.BREADTH_FIRST:
+            return bool(self._queue)
+        return bool(self._items)
 
 
 @dataclass(frozen=True, slots=True)
@@ -556,6 +661,7 @@ class SessionChoiceSearch:
     seed: int = 0
     branch_strategy_factory: StrategyFactory | None = None
     reversible_depth_first: bool = True
+    lazy_frontier: bool = True
 
     def __post_init__(self) -> None:
         object.__setattr__(self, "groups", tuple(self.groups))
@@ -569,14 +675,14 @@ class SessionChoiceSearch:
     def solve(self, session: InferenceSession) -> ChoiceSearchResult:
         random_source = random.Random(self.seed)
         root = _SearchNode(self._fork(session), (), 0.0, 0)
-        pending: list[
-            _SearchNode
-            | _ChoiceFrame
-            | _TrailAlternative
-            | _TrailRelease
-        ] = [root]
+        pending = _SearchFrontier(self.traversal)
+        pending.push(root)
         open_checkpoints: list[
-            tuple[InferenceSession, SessionCheckpoint]
+            tuple[
+                InferenceSession,
+                SessionCheckpoint,
+                InstantiationStrategy,
+            ]
         ] = []
         best_seen: dict[frozenset[Fact], float] = {}
         solutions: list[ChoiceSolution] = []
@@ -611,17 +717,27 @@ class SessionChoiceSearch:
                 and explored < self.max_nodes
                 and len(solutions) < self.max_solutions
             ):
-                item = self._pop(pending)
+                item = pending.pop()
                 if isinstance(item, _TrailRelease):
                     trail_session = item.frame.parent.session
-                    trail_session.rollback(item.frame.checkpoint)
+                    trail_session.rollback(
+                        item.frame.checkpoint,
+                        invalidate_strategy=False,
+                    )
+                    trail_session.strategy = item.frame.strategy_template
                     trail_session.release(item.frame.checkpoint)
-                    released_session, released_checkpoint = (
+                    (
+                        released_session,
+                        released_checkpoint,
+                        released_strategy,
+                    ) = (
                         open_checkpoints.pop()
                     )
                     if (
                         released_session is not trail_session
                         or released_checkpoint != item.frame.checkpoint
+                        or released_strategy
+                        is not item.frame.strategy_template
                     ):
                         raise AssertionError(
                             "reversible choice checkpoints are not nested"
@@ -631,9 +747,13 @@ class SessionChoiceSearch:
                     frame = item.frame
                     alternative = item.alternative
                     branch = frame.parent.session
-                    branch.rollback(frame.checkpoint)
-                    if self.branch_strategy_factory is not None:
-                        branch.strategy = self.branch_strategy_factory()
+                    branch.rollback(
+                        frame.checkpoint,
+                        invalidate_strategy=False,
+                    )
+                    branch.strategy = self._reversible_branch_strategy(
+                        frame.strategy_template
+                    )
                     branch.assume(
                         *alternative.facts,
                         label=(
@@ -647,7 +767,7 @@ class SessionChoiceSearch:
                         alternative.value,
                         alternative.weight,
                     )
-                    pending.append(
+                    pending.push(
                         _SearchNode(
                             branch,
                             (*frame.parent.decisions, decision),
@@ -664,7 +784,7 @@ class SessionChoiceSearch:
                     alternative = item.alternatives[item.next_index]
                     next_index = item.next_index + 1
                     if next_index < len(item.alternatives):
-                        pending.append(
+                        pending.push(
                             _ChoiceFrame(
                                 item.parent,
                                 item.point,
@@ -685,7 +805,7 @@ class SessionChoiceSearch:
                         alternative.value,
                         alternative.weight,
                     )
-                    pending.append(
+                    pending.push(
                         _SearchNode(
                             branch,
                             (*item.parent.decisions, decision),
@@ -698,7 +818,25 @@ class SessionChoiceSearch:
                     )
                     next_order += 1
                     continue
-                node = item
+                if isinstance(item, _DeferredBranch):
+                    branch = self._fork(item.parent.session)
+                    branch.assume(
+                        *item.alternative.facts,
+                        label=(
+                            f"choice:{item.point.name}/"
+                            f"{item.alternative.name}"
+                        ),
+                    )
+                    node = _SearchNode(
+                        branch,
+                        item.decisions,
+                        item.log_weight,
+                        item.insertion_order,
+                        item.point.name,
+                        item.alternative.name,
+                    )
+                else:
+                    node = item
                 if node.incoming_alternative:
                     record(
                         ChoiceEventKind.DECISION,
@@ -779,18 +917,39 @@ class SessionChoiceSearch:
                         node,
                         point,
                         checkpoint,
+                        node.session.strategy,
                     )
-                    open_checkpoints.append((node.session, checkpoint))
-                    pending.append(_TrailRelease(frame))
+                    open_checkpoints.append(
+                        (
+                            node.session,
+                            checkpoint,
+                            frame.strategy_template,
+                        )
+                    )
+                    pending.push(_TrailRelease(frame))
                     pending.extend(
-                        _TrailAlternative(frame, alternative)
-                        for alternative in reversed(ordered)
+                        tuple(
+                            _TrailAlternative(frame, alternative)
+                            for alternative in reversed(ordered)
+                        )
                     )
                     continue
                 if self.traversal is ChoiceTraversal.DEPTH_FIRST:
-                    pending.append(
+                    pending.push(
                         _ChoiceFrame(node, point, tuple(ordered))
                     )
+                    continue
+                if self.lazy_frontier:
+                    for alternative in ordered:
+                        pending.push(
+                            _DeferredBranch(
+                                node,
+                                point,
+                                alternative,
+                                next_order,
+                            )
+                        )
+                        next_order += 1
                     continue
                 children: list[_SearchNode] = []
                 for alternative in ordered:
@@ -820,8 +979,16 @@ class SessionChoiceSearch:
                     children.append(child)
                 pending.extend(children)
         finally:
-            for trail_session, checkpoint in reversed(open_checkpoints):
-                trail_session.rollback(checkpoint)
+            for (
+                trail_session,
+                checkpoint,
+                strategy_template,
+            ) in reversed(open_checkpoints):
+                trail_session.rollback(
+                    checkpoint,
+                    invalidate_strategy=False,
+                )
+                trail_session.strategy = strategy_template
                 trail_session.release(checkpoint)
 
         limit_reached = bool(pending) and (
@@ -831,7 +998,7 @@ class SessionChoiceSearch:
         if limit_reached:
             record(
                 ChoiceEventKind.LIMIT,
-                self._pending_node(pending[0]),
+                self._pending_node(pending.first()),
                 detail=f"maximum node count {self.max_nodes} reached",
             )
         status = (
@@ -852,49 +1019,37 @@ class SessionChoiceSearch:
         )
 
     def _fork(self, session: InferenceSession) -> InferenceSession:
-        if self.branch_strategy_factory is None:
-            return session.fork()
-        return session.fork(strategy=self.branch_strategy_factory())
+        if self.branch_strategy_factory is not None:
+            return session.fork(strategy=self.branch_strategy_factory())
+        strategy = session.strategy
+        if type(strategy) in (
+            IndexedInstantiationStrategy,
+            SemiNaiveInstantiationStrategy,
+        ):
+            indexed = cast(IndexedInstantiationStrategy, strategy)
+            return session.fork(strategy=indexed.fork_for_branch())
+        return session.fork()
 
-    def _pop(
+    def _reversible_branch_strategy(
         self,
-        pending: list[
-            _SearchNode
-            | _ChoiceFrame
-            | _TrailAlternative
-            | _TrailRelease
-        ],
-    ) -> (
-        _SearchNode
-        | _ChoiceFrame
-        | _TrailAlternative
-        | _TrailRelease
-    ):
-        if self.traversal is ChoiceTraversal.DEPTH_FIRST:
-            return pending.pop()
-        nodes = [
-            item
-            for item in pending
-            if isinstance(item, _SearchNode)
-        ]
-        if len(nodes) != len(pending):
-            raise AssertionError("lazy choice frames are DFS-only")
-        if self.traversal is ChoiceTraversal.BREADTH_FIRST:
-            return pending.pop(0)
-        best_index = max(
-            range(len(pending)),
-            key=lambda index: (
-                self._pending_node(pending[index]).log_weight,
-                -self._pending_node(pending[index]).insertion_order,
-            ),
-        )
-        return pending.pop(best_index)
+        template: InstantiationStrategy,
+    ) -> InstantiationStrategy:
+        if type(template) in (
+            IndexedInstantiationStrategy,
+            SemiNaiveInstantiationStrategy,
+        ):
+            indexed = cast(IndexedInstantiationStrategy, template)
+            return indexed.fork_for_branch()
+        if self.branch_strategy_factory is not None:
+            return self.branch_strategy_factory()
+        return deepcopy(template)
 
     @staticmethod
     def _pending_node(
         item: (
             _SearchNode
             | _ChoiceFrame
+            | _DeferredBranch
             | _TrailAlternative
             | _TrailRelease
         ),
@@ -903,6 +1058,15 @@ class SessionChoiceSearch:
             return item.parent
         if isinstance(item, (_TrailAlternative, _TrailRelease)):
             return item.frame.parent
+        if isinstance(item, _DeferredBranch):
+            return _SearchNode(
+                item.parent.session,
+                item.decisions,
+                item.log_weight,
+                item.insertion_order,
+                item.point.name,
+                item.alternative.name,
+            )
         return item
 
     @property

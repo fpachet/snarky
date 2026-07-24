@@ -1,0 +1,21 @@
+GROUP propagate_n_queens_intensional
+    # Une valeur de ligne reste candidate seulement si chaque autre colonne
+    # possède encore au moins une ligne qui ne partage ni ligne ni diagonale.
+    RULE revise_queen_candidate
+    WHEN
+        ($queen kind queen)
+        ($queen column $column)
+        ($queen candidate $row)
+        ($other kind queen)
+        ($other column $other_column)
+        $queen != $other
+        NOT EXISTS
+            ($other candidate $other_row)
+            $other_row != $row
+            CONSTRAINT $other_row - $other_column != $row - $column
+            CONSTRAINT $other_row + $other_column != $row + $column
+        END_NOT_EXISTS
+    THEN
+        REMOVE ($queen candidate $row)
+    END
+END_GROUP

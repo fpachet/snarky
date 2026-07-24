@@ -43,6 +43,9 @@ def _measure(
 
 def run(repeat: int) -> dict[str, Any]:
     harmonizer_model = build_harmonizer_model()
+    harmonizer_four_position_model = build_harmonizer_model(
+        (67, 72, 67, 72)
+    )
 
     def queens() -> tuple[int, int, int]:
         result = solve_four_queens()
@@ -64,6 +67,18 @@ def run(repeat: int) -> dict[str, Any]:
             len(result.solutions),
         )
 
+    def harmony_four_positions() -> tuple[int, int, int]:
+        result = solve_binary_csp(
+            harmonizer_four_position_model.csp,
+            max_solutions=3,
+            traversal=ChoiceTraversal.BEST_FIRST,
+        )
+        return (
+            result.explored_nodes,
+            result.failed_branches,
+            len(result.solutions),
+        )
+
     return {
         "benchmark": "choice_search",
         "python": platform.python_version(),
@@ -71,6 +86,10 @@ def run(repeat: int) -> dict[str, Any]:
         "repeat": repeat,
         "four_queens": _measure(queens, repeat),
         "harmonizer_two_positions": _measure(harmony, repeat),
+        "harmonizer_four_positions": _measure(
+            harmony_four_positions,
+            repeat,
+        ),
     }
 
 

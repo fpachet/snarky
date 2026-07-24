@@ -56,3 +56,45 @@ deux solutions.
 
 Le paramètre `reversible_depth_first=False` réactive le DFS à forks paresseux
 pour les tests différentiels et les benchmarks. Le trail est le défaut.
+
+## Deux formulations de N-reines
+
+`solve_n_queens(size)` conserve la formulation extensionnelle historique :
+elle matérialise les couples de lignes compatibles pour chaque paire de
+colonnes. Elle est utile comme oracle du CSP binaire générique, mais sa base
+croît approximativement en O(n⁴).
+
+`solve_n_queens_intensional(size)` construit seulement les candidats de chaque
+reine et charge
+[`n_queens_intensional.rules`](n_queens_intensional.rules). Une règle retire
+un candidat quand une autre colonne n'a plus aucun support satisfaisant les
+trois contraintes :
+
+```text
+row != other_row
+row - column != other_row - other_column
+row + column != other_row + other_column
+```
+
+La résolution reste entièrement pilotée par Snarky : `NOT EXISTS` effectue la
+recherche de support, `REMOVE` filtre les domaines jusqu'au point fixe, puis
+`CHOICE` et le trail explorent les valeurs restantes. Aucun solveur Python
+métier n'est appelé.
+
+Sur N=14, les deux versions trouvent la même première solution avec 20 nœuds
+et 8 branches en échec :
+
+| Formulation | Faits initiaux | Médiane |
+|---|---:|---:|
+| extensionnelle | 15 513 | 2,675 s |
+| intensionnelle | 253 | 1,145 s |
+
+La reformulation vaut ×2,34 (`-57,2 %`). En incluant les optimisations du
+moteur depuis la baseline extensionnelle de 4,749 s, le gain total vaut
+×4,15 (`-75,9 %`).
+
+Le benchmark A/B est reproductible avec :
+
+```sh
+PYTHONPATH=.:src python benchmarks/choice_formulations.py --repeat 3
+```
