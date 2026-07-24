@@ -5,6 +5,7 @@ import pytest
 from snarky import (
     Atom,
     ComparisonPremise,
+    DistinctCountExpression,
     FactPremise,
     ParseError,
     Status,
@@ -52,3 +53,38 @@ def test_parser_rejects_malformed_or_unsupported_input() -> None:
         parse_rules("RULE broken\nWHEN\n(x r y)\nTHEN\nLET $z = 1 + 2\nEND")
     with pytest.raises(ParseError):
         parse_rules("RULE broken\nWHEN\n(x r y)\nTHEN\nLET $z := 1 +\nEND")
+    with pytest.raises(ParseError, match="arithmetic constraint"):
+        parse_rules(
+            "RULE broken\n"
+            "WHEN\n"
+            "(x value $x)\n"
+            "CONSTRAINT $x + 1\n"
+            "THEN\n"
+            "ADD (result state bad)\n"
+            "END"
+        )
+
+
+def test_parser_supports_global_constraints() -> None:
+    rules = parse_rules(
+        """
+        RULE global_constraints
+        WHEN
+            (x value $x)
+            (y value $y)
+            (z value $z)
+            (distinct_count value $count)
+            ALL_DIFFERENT SEQ[$x $y $z]
+            NVALUE $count OF SEQ[$x $y $z]
+        THEN
+            ADD (result state accepted)
+        END
+        """
+    )
+
+    all_different = rules[0].premises[-2]
+    nvalue = rules[0].premises[-1]
+    assert isinstance(all_different, ComparisonPremise)
+    assert isinstance(all_different.left, DistinctCountExpression)
+    assert isinstance(nvalue, ComparisonPremise)
+    assert isinstance(nvalue.left, DistinctCountExpression)

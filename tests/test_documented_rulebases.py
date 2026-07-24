@@ -23,6 +23,7 @@ SCENARIOS = (
     "small/factorial_explicit",
     "small/combinations_foreach",
     "constraints/binary",
+    "constraints/global",
     "thesis/equality_transitivity",
     "thesis/tomorrow_date",
     "thesis/petri_net",

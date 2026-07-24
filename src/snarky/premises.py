@@ -7,6 +7,14 @@ from enum import StrEnum
 from itertools import combinations
 
 from .computed import ComputedPremise
+from .expressions import (
+    BinaryArithmeticExpression,
+    DistinctCountExpression,
+    NumericExpression,
+    UnaryArithmeticExpression,
+    evaluate_arithmetic,
+    variables_in_arithmetic,
+)
 from .facts import Fact
 from .matching import PatternMatcher
 from .substitutions import BindingFrame, Substitution, TermBindings
@@ -55,17 +63,25 @@ class ComparisonOperator(StrEnum):
     DIVISIBLE = "DIVISIBLE_BY"
 
 
+type ComparisonOperand = (
+    Term
+    | BinaryArithmeticExpression
+    | UnaryArithmeticExpression
+    | DistinctCountExpression
+)
+
+
 @dataclass(frozen=True, slots=True)
 class ComparisonPremise:
     """A comparison evaluated after applying the current substitution."""
 
-    left: Term
+    left: ComparisonOperand
     operator: ComparisonOperator
-    right: Term
+    right: ComparisonOperand
 
     def evaluate(self, substitution: TermBindings) -> bool:
-        left = substitution.apply(self.left)
-        right = substitution.apply(self.right)
+        left = _evaluate_comparison_operand(self.left, substitution)
+        right = _evaluate_comparison_operand(self.right, substitution)
         if not is_ground(left) or not is_ground(right):
             return False
         if self.operator is ComparisonOperator.EQ:
@@ -252,7 +268,9 @@ def validate_premise_bindings(
             local_to_existential.difference_update(introduced)
             continue
         if isinstance(premise, ComparisonPremise):
-            required = variables_in(premise.left) | variables_in(premise.right)
+            required = variables_in_comparison_operand(
+                premise.left
+            ) | variables_in_comparison_operand(premise.right)
             missing = required - bound
             if missing and (
                 require_bound_comparisons
@@ -408,6 +426,32 @@ def divisible(left: Term, right: Term) -> ComparisonPremise:
     return ComparisonPremise(left, ComparisonOperator.DIVISIBLE, right)
 
 
+def arithmetic_constraint(
+    left: NumericExpression,
+    operator: ComparisonOperator,
+    right: NumericExpression,
+) -> ComparisonPremise:
+    """Construct a declarative numeric relation between expressions."""
+
+    return ComparisonPremise(left, operator, right)
+
+
+def nvalue(count: Number | Variable, *values: Term) -> ComparisonPremise:
+    """Constrain *count* to the number of distinct resolved values."""
+
+    return ComparisonPremise(
+        DistinctCountExpression(tuple(values)),
+        ComparisonOperator.EQ,
+        count,
+    )
+
+
+def all_different(*values: Term) -> ComparisonPremise:
+    """Require every resolved value to be distinct."""
+
+    return nvalue(Number(len(values)), *values)
+
+
 def bind(target: Variable, value: Term) -> BindPremise:
     """Bind *target* to an already-instantiated structured value."""
 
@@ -442,3 +486,36 @@ def _integer_value(term: Term) -> int:
     if isinstance(term, Number) and isinstance(term.value, int):
         return term.value
     raise TypeError("DIVISIBLE currently requires integer Number operands")
+
+
+def variables_in_comparison_operand(
+    operand: ComparisonOperand,
+) -> frozenset[Variable]:
+    """Return variables occurring in a term or arithmetic expression."""
+
+    if isinstance(
+        operand,
+        (
+            BinaryArithmeticExpression,
+            UnaryArithmeticExpression,
+            DistinctCountExpression,
+        ),
+    ):
+        return variables_in_arithmetic(operand)
+    return variables_in(operand)
+
+
+def _evaluate_comparison_operand(
+    operand: ComparisonOperand,
+    substitution: TermBindings,
+) -> Term:
+    if isinstance(
+        operand,
+        (
+            BinaryArithmeticExpression,
+            UnaryArithmeticExpression,
+            DistinctCountExpression,
+        ),
+    ):
+        return evaluate_arithmetic(operand, substitution)
+    return substitution.apply(operand)

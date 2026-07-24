@@ -16,6 +16,7 @@ from .engine import (
 )
 from .expressions import (
     BinaryArithmeticExpression,
+    DistinctCountExpression,
     NumericExpression,
     UnaryArithmeticExpression,
 )
@@ -188,9 +189,9 @@ def _specialize_premise(
         )
     if isinstance(premise, ComparisonPremise):
         return ComparisonPremise(
-            substitution.apply(premise.left),
+            _specialize_comparison_operand(premise.left, substitution),
             premise.operator,
-            substitution.apply(premise.right),
+            _specialize_comparison_operand(premise.right, substitution),
         )
     if isinstance(premise, BindPremise):
         _require_local_binder(premise.target, parameters, "BIND")
@@ -301,7 +302,40 @@ def _specialize_expression(
             expression.operator,
             _specialize_expression(expression.right, substitution),
         )
+    if isinstance(expression, DistinctCountExpression):
+        return DistinctCountExpression(
+            tuple(
+                substitution.apply(value)
+                for value in expression.values
+            )
+        )
     raise TypeError(f"unsupported expression: {expression!r}")
+
+
+def _specialize_comparison_operand(
+    operand: (
+        Term
+        | BinaryArithmeticExpression
+        | UnaryArithmeticExpression
+        | DistinctCountExpression
+    ),
+    substitution: Substitution,
+) -> (
+    Term
+    | BinaryArithmeticExpression
+    | UnaryArithmeticExpression
+    | DistinctCountExpression
+):
+    if isinstance(
+        operand,
+        (
+            BinaryArithmeticExpression,
+            UnaryArithmeticExpression,
+            DistinctCountExpression,
+        ),
+    ):
+        return _specialize_expression(operand, substitution)
+    return substitution.apply(operand)
 
 
 def _require_local_binder(

@@ -139,6 +139,26 @@ uv run python -m benchmarks.sudoku_rules --levels 1 6 7 --repeat 5
 La baseline mesurée et les compteurs algorithmiques sont documentés dans
 [`../benchmarks/README.md`](../benchmarks/README.md).
 
+Les comparaisons `!=`, `<`, `<=`, `>` et `>=` disposent désormais de
+propagateurs de domaines spécialisés. Sur p1, la stratégie adaptative passe
+de 0,395 s en semi-naïf à 0,355 s. En filtrage forcé, la spécialisation gagne
+entre 6 et 17 % sur p1, p6 et p7 par rapport à l'ancien produit cartésien.
+Sur p6 et p7, la construction des tables n'est pas encore amortie : le
+matcher indexé reste donc le défaut, tandis que ces niveaux servent de profils
+pour le prochain travail sur la sélection adaptative.
+
+Les projections de domaines sont maintenant persistantes et maintenues par
+compteurs. Elles ne relisent plus que 998, 1 033 et 1 005 lignes sur p1, p6 et
+p7, au lieu de 15 920, 21 595 et 24 533. Cette réduction de 94 à 96 % ne gagne
+encore que 1 à 2 % du temps total : les prochaines optimisations doivent donc
+viser la révision des tables et la jointure, pas une représentation Sudoku
+spécialisée.
+
+`ALL_DIFFERENT` et ses ensembles de Hall bornés sont disponibles dans le
+moteur, mais les règles p1–p7 restent inchangées : leurs techniques humaines
+explicites continuent de produire la trace métier. La contrainte globale sert
+d'abord à l'instanciation et aux futurs niveaux ou mécanismes de choix.
+
 ## Prochain jalon
 
 Le prochain palier commence à p8 avec les triples. X-Wing a confirmé que les

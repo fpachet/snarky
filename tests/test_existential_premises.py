@@ -3,6 +3,7 @@ import pytest
 from snarky import (
     ExistsPremise,
     Fact,
+    FactDelta,
     ForwardEngine,
     IndexedInstantiationStrategy,
     NaiveInstantiationStrategy,
@@ -273,6 +274,58 @@ def test_existential_witness_cache_survives_an_unchanged_snapshot() -> None:
     assert second == first
     assert strategy.metrics.witness_cache_misses == misses_after_first
     assert strategy.metrics.activation_cache_hits == 1
+
+
+def test_composite_existential_promotes_a_residual_witness() -> None:
+    rule = parse_rules(
+        """
+        RULE derive_supported
+        WHEN
+            (query seed yes)
+            EXISTS
+                (domain candidate $value)
+                (relation allows SEQ[key $value])
+            END_EXISTS
+        THEN
+            ADD (query supported yes)
+        END
+        """
+    )[0]
+    seed = _fact("(query seed yes)")
+    first_candidate = _fact("(domain candidate a)")
+    second_candidate = _fact("(domain candidate b)")
+    first_pair = _fact("(relation allows SEQ[key a])")
+    second_pair = _fact("(relation allows SEQ[key b])")
+    distractors = tuple(
+        _fact(f"(noise-{index} irrelevant value)")
+        for index in range(124)
+    )
+    initial = (
+        seed,
+        first_candidate,
+        second_candidate,
+        first_pair,
+        second_pair,
+        *distractors,
+    )
+    strategy = IndexedInstantiationStrategy()
+
+    first = strategy.instantiate(rule, initial)
+    strategy.invalidate(frozenset((first_candidate,)))
+    remaining = tuple(fact for fact in initial if fact != first_candidate)
+    second = strategy.instantiate(
+        rule,
+        remaining,
+        FactDelta(
+            removed=frozenset((first_candidate,)),
+            revision=1,
+        ),
+    )
+
+    assert len(first) == 1
+    assert len(second) == 1
+    assert second_candidate in second[0].premise_facts
+    assert strategy.metrics.residual_witness_promotions == 1
 
 
 def test_simple_negative_blocker_expires_only_correlated_activation() -> None:

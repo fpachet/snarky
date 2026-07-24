@@ -291,7 +291,7 @@ l’effet du streaming.
 
 ## Phase 2 — Stockage indexé
 
-**État : terminée pour les index top-level prévus.**
+**État : terminée pour les index top-level et structurels adaptatifs prévus.**
 
 Implémenter `IndexedFactStore` en conservant le stockage naïf pour référence.
 
@@ -317,8 +317,18 @@ bucket compatible avec la substitution courante est proposé au matcher.
 L’ordre textuel des prémisses et l’ordre d’insertion des candidats sont
 préservés.
 
-Les index plus profonds, portant sur des chemins dans les triplets imbriqués,
-ne seront ajoutés qu’après mesure de leur utilité.
+Les mesures de propagation binaire ont depuis justifié des index plus
+profonds. `FactIndex` aplatit à la demande les chemins résolus d'une
+`FiniteSequence` imbriquée et construit une signature composée uniquement
+lorsque le meilleur bucket top-level dépasse huit faits. Deux signatures
+suffisent à la relation `SEQ[left right]`; les ajouts et retraits les
+maintiennent ensuite incrémentalement.
+
+Les rangs d'insertion sont stables après les retraits. Une mémoire initiale
+d'au moins 1 500 faits emploie un ensemble ordonné pour sa séquence active ;
+les mémoires plus petites conservent une liste. Cette décision adaptative
+évite de faire payer aux petites bases le coût d'une structure optimisée pour
+des milliers de suppressions.
 
 Critère de validation : le nombre de faits proposés au matcher doit diminuer
 sans modifier les activations produites.
@@ -367,7 +377,7 @@ partielles consomment ce même delta.
 
 ## Phase 4 — Planification des jointures
 
-**État : socle compilé terminé.** Chaque règle possède un `CompiledRule`
+**État : socle compilé et ordre existentiel adaptatif terminés.** Chaque règle possède un `CompiledRule`
 réutilisable contenant ses patterns, résolveurs d’index et blocs corrélés.
 Une variante semi-naïve commence par sa prémisse delta, puis choisit dans le
 bloc courant la prémisse ayant le moins de candidats. Une comparaison ferme le
@@ -396,6 +406,13 @@ candidats, puis favoriser celle qui partage le plus de variables déjà liées.
 Le plan choisi doit être inspectable afin d’expliquer une mauvaise performance
 et de comparer plusieurs heuristiques.
 
+Les blocs existentiels composés uniquement de faits utilisent maintenant le
+plus petit bucket lorsqu'au moins un pattern structuré partiellement lié est
+indexable et que la mémoire dépasse 128 faits. La généralisation immédiate à
+tous les blocs a été rejetée par mesure : sur les longues conjonctions, les
+estimations répétées coûtaient davantage que les matchings évités. L'ordre
+adaptatif reste donc gardé et les supports sont remis dans l'ordre textuel.
+
 ## Phase 5 — Substitutions et matching
 
 **État : terminée pour le socle actuel.** Les substitutions publiques
@@ -406,10 +423,16 @@ cadre n’est figé en `Substitution` qu’à la production d’une activation o
 état partiel mémorisé.
 
 Les recherches existentielles traversent les snapshots. Des watchers indexés
-par entité ou combinaison de positions ne réévaluent que les corrélations
-compatibles avec le fait muté. Les blocs composés d’une seule prémisse
-factuelle maintiennent directement leur cardinalité et leur premier témoin.
-Les blocs complexes conservent un chemin de recalcul compilé sûr.
+par entité, combinaison de positions ou signature de chemin ne réévaluent que
+les corrélations compatibles avec le fait muté. Les blocs composés d’une seule
+prémisse factuelle maintiennent directement leur cardinalité et leur premier
+témoin. Les blocs factuels structurés conservent au plus deux témoins
+résiduels : la disparition du premier promeut le second sans rematching. Les
+autres blocs complexes conservent un chemin de recalcul compilé sûr.
+
+Sur 64 retraits de supports dans un domaine clairsemé de 1 024 valeurs, ce
+cache borné réduit les invalidations de 64 à 32, les matchings de 2 275 à
+1 253 et le temps de 60,578 à 56,991 ms.
 
 Les termes et faits immuables conservent leur hash structurel dans un slot
 privé. La formule reste exactement celle des dataclasses antérieures, et le
@@ -496,15 +519,80 @@ preuve incorrecte.
 
 ## Phase 9 — Instanciation centrée sur les variables
 
-Implémenter ensuite l’approche inspirée de BOOJUM :
+**État : premier palier hybride livré.**
 
-1. construire un domaine candidat pour chaque variable ;
-2. projeter les faits candidats sur les positions correspondantes ;
-3. propager les réductions de domaines ;
-4. choisir la variable la plus contrainte ;
-5. backtracker uniquement lorsqu’une propagation ne suffit pas.
+L’approche historique de BOOJUM est découpée afin de ne pas introduire
+simultanément propagation, énumération et retour arrière :
 
-Cette stratégie sera représentée explicitement par :
+1. ~~construire un domaine candidat pour chaque variable ;~~
+2. ~~projeter les faits candidats sur les positions correspondantes ;~~
+3. ~~propager sûrement les réductions des règles positives ;~~
+4. ~~passer les tables filtrées au matcher compilé existant ;~~
+5. ~~choisir automatiquement entre filtrage et repli semi-naïf selon le coût
+   estimé ;~~
+6. ~~réviser seulement les propagateurs voisins par une file d'incidence ;~~
+7. ~~compiler les comparaisons et égalités arithmétiques en propagateurs
+   spécialisés ;~~
+8. ~~maintenir par compteurs les projections `(variable, valeur)` et
+   réinitialiser seulement les composantes élargies ;~~
+9. ~~ouvrir une interface `DomainPropagator` et ajouter `NVALUE` ainsi que
+   `ALL_DIFFERENT` avec ensembles de Hall bornés ;~~
+10. conserver des supports par ligne et valeur si un profil montre que les
+   rescans résiduels dominent ;
+11. choisir la variable la plus contrainte ;
+12. backtracker localement uniquement lorsque la propagation ne suffit pas.
+
+`ConstraintInstantiationStrategy` conserve aujourd'hui ses tables par règle,
+les met à jour depuis `FactDelta` et maintient les domaines de base par
+compteurs. Une suppression poursuit la réduction depuis le point fixe
+précédent ; un ajout réinitialise uniquement la composante connexe touchée
+afin de restaurer les valeurs redevenues possibles. Un delta sans ligne
+pertinente réutilise directement le résultat filtré. Les prémisses non prises
+en charge retombent sur `SemiNaiveInstantiationStrategy`. Aucun contexte
+d'inférence n'est copié.
+`AdaptiveInstantiationStrategy` sélectionne les graphes cycliques de volume
+et de sélectivité suffisants, ainsi que les comparaisons dotées d'un
+propagateur rapide, puis mémorise la décision par règle.
+
+La matrice de benchmarks donne :
+
+| Scénario | Indexée | Filtrage | Adaptative | Décision |
+|---|---:|---:|---:|---|
+| dense sélectif, taille 40 | 189,52 ms | 17,23 ms | 17,23 ms | filtrer |
+| neutre, taille 200 | 2,987 ms | 5,035 ms | 2,826 ms | repli |
+| dense sans réduction, taille 20 | 52,03 ms | 58,24 ms | 52,17 ms | repli |
+| chaîne, taille 40 | 6,741 ms | 8,706 ms | 6,413 ms | repli |
+
+Sur la chaîne, la file réduit les révisions de 1 722 à 122 et les lignes
+examinées de 67 242 à 4 802 par rapport aux balayages complets. Ces compteurs
+indiquent que les prochains gains éventuels devront viser le coût interne
+d'une révision de table. Le profil Sudoku p6 précise cependant que la file
+ne relit que 1 139 lignes au-delà des 20 562 lectures initiales obligatoires,
+soit 5,5 %. Un mécanisme AC-4/AC-6 n'est donc pas prioritaire à ce stade.
+
+Les comparaisons simples utilisent maintenant des propagateurs en O(n) :
+intersection pour `==`, singleton pour `!=`, bornes pour les ordres et
+supports pour `DIVISIBLE`. `CONSTRAINT $x + $y == $z` étend les opérandes de
+comparaison à l'AST arithmétique de `LET`. Sur deux domaines de 200 valeurs et
+une somme fixée à 2, la médiane passe de 339,20 ms pour la jointure indexée et
+80,69 ms pour le filtre cartésien à 2,04 ms en adaptatif. Les matchings
+finaux passent de 160 400 à 6 ; la persistance évite la seconde propagation
+identique.
+
+Sur Sudoku, les compteurs ramènent les projections relues de 15 920 à 998
+pour p1, de 21 595 à 1 033 pour p6 et de 24 533 à 1 005 pour p7, soit une
+réduction de 93,7 à 95,9 %. Le gain temporel reste de 1 à 2 % : la projection
+des domaines n'est donc plus le goulot dominant et une représentation bitset
+spécifique n'est pas prioritaire.
+
+`DomainPropagator` constitue maintenant l'extension publique commune.
+`NVALUE` filtre des bornes sûres et traite exactement les cas serrés `N = 1`
+et `N = nombre de variables`. `ALL_DIFFERENT` propage les singletons et les
+ensembles de Hall de taille au plus trois. Sur le scénario `NVALUE` à deux
+domaines de 200 valeurs, l'adaptatif passe de 406,58 à 2,10 ms, soit ×193,9.
+Le benchmark `ALL_DIFFERENT` passe de 65,54 à 43,54 ms, soit ×1,51.
+
+La stratégie complète pourra être représentée explicitement par :
 
 ```text
 VariableDomain
@@ -514,8 +602,15 @@ InstantiationState
 ChoiceHeuristic
 ```
 
-Elle devra produire les mêmes activations que les stratégies naïve et
-semi-naïve sur les programmes de test.
+Le choix et le backtracking restent volontairement le palier suivant. Le cap
+complet, jusqu'au solveur CSP pédagogique et à l'harmoniseur à quatre voix,
+est décrit dans
+[`choice_backtracking_and_applications.md`](choice_backtracking_and_applications.md).
+
+La première version possède déjà des tests différentiels ciblés, y compris
+variables en position relation et deltas d'ajout/suppression. Trente petits
+programmes positifs générés, avec et sans différence, sont aussi comparés au
+matcher naïf avant chaque validation.
 
 ## Phase 10 — Raisonnement par contraintes
 

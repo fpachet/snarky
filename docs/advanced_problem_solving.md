@@ -130,6 +130,46 @@ quadruplets par jointure, tandis qu'une seconde formulation construit par
 chaînage avant un arbre de placements partiels et le filtre au moyen de
 relations `attacks`. Aucun solveur n'intervient dans cet exemple.
 
+Il faut distinguer ce backend de `ConstraintInstantiationStrategy`. Cette
+dernière ne résout pas un problème métier et ne réinjecte aucune solution :
+elle traite temporairement les variables d'une règle positive comme des
+domaines, élimine les valeurs sans support, puis laisse le matcher indexé
+produire exactement les activations ordinaires. Elle conserve ses tables par
+règle, maintient leurs projections par compteurs, les met à jour avec
+`FactDelta` et propage par une file d'incidence. Une suppression poursuit le
+point fixe précédent ; un ajout réinitialise seulement la composante connexe
+touchée.
+`AdaptiveInstantiationStrategy` l'active seulement lorsque la structure et la
+sélectivité semblent rentables. Elle ne crée ni hypothèse, ni branche de
+session, ni provenance externe.
+
+Les comparaisons de ce filtre ne sont plus nécessairement des tests tardifs.
+`==`, `!=`, les quatre ordres et `DIVISIBLE` possèdent des propagateurs
+spécialisés. La prémisse relationnelle :
+
+```text
+CONSTRAINT $left + $right == $total
+```
+
+réutilise l'AST arithmétique sûr de `LET`, mais peut réduire les trois
+domaines. Addition et soustraction choisissent la paire de domaines la moins
+coûteuse et déduisent le troisième opérande ; multiplication, division et
+modulo évitent déjà le produit cubique. Le matcher ground reste l'oracle final,
+donc ce filtrage peut être incomplet sans modifier les solutions.
+
+Le même protocole public `DomainPropagator` couvre maintenant :
+
+```text
+NVALUE $count OF SEQ[$x $y $z]
+ALL_DIFFERENT SEQ[$x $y $z]
+```
+
+`NVALUE` filtre la cardinalité distincte par bornes sûres.
+`ALL_DIFFERENT` traite les singletons et les ensembles de Hall de taille deux
+ou trois. La base
+[`constraints/global`](../rulebases/constraints/global/README.md) fournit les
+oracles exécutables correspondants.
+
 Les différentes architectures possibles — CSP comme stratégie
 d'instanciation, clauses combinatoires, contraintes réifiées, choix produits
 par les règles, solveur externe et ATMS — sont comparées dans
@@ -141,6 +181,10 @@ Le noyau
 [`constraints/binary`](../rulebases/constraints/binary/README.md) montre en
 complément qu'une arc-consistance binaire peut être réalisée entièrement par
 des règles Snarky.
+
+Le passage futur de ce noyau au langage de choix, puis au solveur CSP
+pédagogique et à l'harmoniseur à quatre voix, est détaillé dans
+[`choice_backtracking_and_applications.md`](choice_backtracking_and_applications.md).
 
 ## Maintenance de vérité optionnelle
 

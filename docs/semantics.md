@@ -141,6 +141,19 @@ les compartiments inchangés. Pendant le backtracking, un cadre mutable pose et
 annule ses liaisons ; une substitution immuable n’est construite qu’à une
 frontière observable.
 
+Les rangs d'insertion de l'index sont monotones et ne sont plus renumérotés
+après un retrait. Les petites mémoires conservent une liste active compacte ;
+à partir de 1 500 faits initiaux, un ensemble ordonné rend ajout,
+appartenance et retrait directs. Les buckets top-level restent des listes, plus
+rapides à parcourir.
+
+Si l'objet d'un triplet est une structure partiellement résolue, par exemple
+`SEQ[$left $right]`, le matcher peut construire paresseusement un index
+composé sur les chemins déjà liés. Un index n'est demandé que si le meilleur
+bucket top-level contient plus de huit faits. Ses chemins et ses clés ne
+dépendent que du pattern compilé et de la substitution, jamais du vocabulaire
+du domaine.
+
 Chaque règle reçoit un `FactDelta` net et révisionné contenant `added` et
 `removed`. La stratégie semi-naïve ne produit que les jointures contenant au
 moins un fait ajouté. Les mémoires indexées filtrent leurs supports supprimés
@@ -152,12 +165,82 @@ Les témoins et cardinalités sont mémorisés selon le bloc et la projection de
 variables corrélées. Des watchers choisissent, à partir de la signature d’un
 fait muté, les seules entrées potentiellement affectées. Les requêtes
 factuelles simples mettent leur compteur à jour directement ; les requêtes
-complexes sont invalidées puis recalculées paresseusement.
+complexes sont invalidées puis recalculées paresseusement. Les signatures des
+watchers incluent les mêmes chemins structurés que les index.
+
+Au-delà de 128 faits, un bloc existentiel factuel structuré conserve au plus
+deux témoins. Si le support principal disparaît mais que l'autre reste valide,
+ce témoin résiduel est promu sans recalcul de la requête. La borne de deux
+évite de transformer ce cache en mémoire RETE complète.
 
 `ForwardEngine` sélectionne cette stratégie semi-naïve par défaut. La stratégie
 exhaustive de référence reste accessible explicitement avec
 `strategy=NaiveInstantiationStrategy()` pour le diagnostic et les tests
 différentiels.
+
+`ConstraintInstantiationStrategy` est une stratégie expérimentale explicite.
+Pour une règle constituée uniquement de prémisses factuelles positives et de
+comparaisons liées par ces faits, elle construit une table par prémisse,
+réduit les domaines de `Term` jusqu'au point fixe, puis exécute le matching
+compilé sur les faits encore compatibles. Le filtre est monotone pendant un
+examen et sûr : toute valeur éliminée est sans support dans au moins une
+prémisse, mais des valeurs globalement incompatibles peuvent subsister.
+
+Les tables sont mises à jour avec les ajouts et suppressions de `FactDelta`.
+Les projections de valeurs sont maintenues par compteurs. Une suppression
+continue depuis les domaines filtrés précédents ; un ajout réinitialise la
+seule composante connexe susceptible de s'élargir. Si le delta ne modifie
+aucune table de la règle, domaines et candidats sont réutilisés. Une règle
+comportant une négation, un agrégat, une liaison ou une construction
+combinatoire utilise automatiquement `SemiNaiveInstantiationStrategy`.
+
+Le point fixe utilise une file de propagateurs tabulaires. Une réduction de
+domaine ne réveille que les prémisses et comparaisons incidentes à la
+variable concernée. `use_propagation_queue=False` conserve uniquement un mode
+diagnostique de balayage complet pour les benchmarks A/B.
+
+`AdaptiveInstantiationStrategy` applique en plus une garde stable par règle :
+volume minimal de lignes, graphe cyclique, rapport de sélectivité entre
+buckets puis réduction réellement observée. Une règle refusée utilise le
+matcher semi-naïf. Cette politique ne modifie jamais l'ensemble des
+activations. Les formes spécialisées peuvent maintenant être sélectionnées
+automatiquement. `==` intersecte les domaines, `!=` propage les singletons,
+les ordres numériques propagent leurs bornes et `DIVISIBLE` conserve les
+couples possédant un support. Les autres formes gardent le produit cartésien
+borné comme repli explicite.
+
+Les opérandes d'une `ComparisonPremise` peuvent être des termes ou des
+expressions numériques. La syntaxe
+`CONSTRAINT $x + $y == $z` construit le même AST sûr que `LET`, mais sa
+sémantique est relationnelle : les trois domaines peuvent être réduits. Les
+égalités arithmétiques binaires sont propagées exactement ; l'évaluation
+ground du matcher reste l'oracle sémantique.
+
+`DomainPropagator` est le protocole public de spécialisation. Les syntaxes :
+
+```text
+NVALUE $count OF SEQ[$x $y $z]
+ALL_DIFFERENT SEQ[$x $y $z]
+```
+
+sont compilées comme des comparaisons sur le nombre de valeurs distinctes.
+`NVALUE` maintient des bornes sûres ; `ALL_DIFFERENT` applique les singletons
+et les ensembles de Hall de taille au plus trois. Ces propagateurs ne créent
+ni faits ni décisions. Le matcher ground vérifie encore la contrainte sur
+chaque activation conservée.
+
+Les métriques `domain_input_rows` et `domain_rows_examined` distinguent le
+passage initial nécessaire des relectures causées par le point fixe. Sur
+Sudoku p6, la file ne relit que 1 139 lignes au-delà de 20 562 lectures
+initiales ; des supports AC-4/AC-6 ne sont donc pas maintenus à ce stade.
+`domain_projection_rows_examined`, `domain_projection_updates`,
+`domain_state_reuses` et `domain_component_resets` mesurent séparément la
+construction incrémentale des domaines.
+
+Ce mécanisme ne crée aucune branche de session. L'énumération finale réutilise
+le `BindingFrame` local et son rollback de liaisons ; elle ne modifie ni la
+mémoire de travail, ni la réfraction, ni la provenance. Choix MRV et recherche
+locale complète restent séparés de la recherche métier par `fork()`.
 
 Pour réduire les jointures intermédiaires, une variante semi-naïve commence par
 sa prémisse delta et choisit ensuite la prémisse factuelle ayant le moins de
@@ -165,6 +248,12 @@ candidats. Les comparaisons forment des barrières textuelles qui ne sont jamais
 franchies par cette réorganisation. Les faits prémisses sont finalement remis
 dans leur ordre textuel et les activations dans l'ordre d'insertion naïf. Cette
 discipline préserve les faits, les dérivations, les cycles et la provenance.
+
+Le même choix du plus petit bucket s'applique aux courtes conjonctions
+factuelles des requêtes existentielles structurées. Il n'est pas généralisé
+aveuglément aux grands blocs : les mesures montrent que recalculer leur
+sélectivité à chaque liaison peut coûter plus cher que conserver leur plan
+compilé.
 
 Les règles positives de cardinalité estimée modérée conservent en plus leurs
 préfixes de jointure. Une limite configurable borne cette mémoire ; si

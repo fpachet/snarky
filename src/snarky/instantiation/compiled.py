@@ -18,6 +18,7 @@ from ..premises import (
     NotExistsPremise,
     Premise,
     UniquePremise,
+    variables_in_comparison_operand,
 )
 from ..rules import Rule
 from ..substitutions import BindingFrame, TermBindings
@@ -214,8 +215,8 @@ def compile_block(premises: tuple[Premise, ...]) -> CompiledBlock:
             variables.update(variables_in(premise.status))
             compiled.append(compile_fact_premise(premise))
         elif isinstance(premise, ComparisonPremise):
-            variables.update(variables_in(premise.left))
-            variables.update(variables_in(premise.right))
+            variables.update(variables_in_comparison_operand(premise.left))
+            variables.update(variables_in_comparison_operand(premise.right))
             compiled.append(CompiledComparisonPremise(premise))
         elif isinstance(premise, (BindPremise, ComputedPremise)):
             if isinstance(premise, BindPremise):

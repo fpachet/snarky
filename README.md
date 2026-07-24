@@ -36,8 +36,18 @@ BOOJUM. Chaque fonctionnalité devra être qualifiée comme `HISTORICAL`,
 ## État actuel
 
 Le dépôt contient un moteur Python semi-naïf par défaut, une stratégie naïve
-servant de référence sémantique et une stratégie indexée exhaustive pour les
-comparaisons de performance. Le cœur prend en charge
+servant de référence sémantique, une stratégie indexée exhaustive et une
+première `ConstraintInstantiationStrategy`. Cette dernière conserve des
+tables positives et des compteurs de projection par règle, maintient les
+domaines entre les cycles, filtre jusqu'au point fixe, puis laisse le matcher
+compilé produire les activations. Les suppressions réduisent l'état existant ;
+un ajout ne réinitialise que la composante de contraintes concernée. Une
+`AdaptiveInstantiationStrategy` réserve ce travail aux graphes cycliques,
+assez grands et assez sélectifs ; les autres formes retombent automatiquement
+sur la stratégie semi-naïve. Les égalités, différences, ordres et divisibilités
+simples possèdent désormais des propagateurs spécialisés ; le mode adaptatif
+peut donc les sélectionner sans énumérer leur produit cartésien. Le cœur prend
+en charge
 les termes et triplets récursifs immuables, les variables dans toutes les
 positions, le matching orienté, l’unification bidirectionnelle séparée, les
 statuts explicites, le chaînage avant jusqu’au point fixe, la réfraction et la
@@ -52,8 +62,22 @@ règles. Cette fonctionnalité est une
 `MODERN_EXTENSION` : elle évalue de manière sûre des expressions numériques
 avec `+`, `-`, `*`, `/`, `%`, précédence et parenthèses, puis transmet les
 liaisons calculées aux actions suivantes. La prémisse `DIVISIBLE` couvre les
-tests de divisibilité entière. Il ne s’agit pas encore d’un solveur de
-contraintes arithmétiques.
+tests de divisibilité entière. Une prémisse déclarative telle que
+`CONSTRAINT $x + $y == $z` réutilise le même AST et filtre les domaines
+numériques dans les trois directions. Ce noyau reste un filtre fini sûr, pas
+encore un solveur CSP complet avec choix et backtracking.
+
+Les contraintes globales utilisent la même infrastructure :
+
+```text
+NVALUE $count OF SEQ[$x $y $z]
+ALL_DIFFERENT SEQ[$x $y $z]
+```
+
+`NVALUE` propage des bornes sûres sur le nombre de valeurs distinctes.
+`ALL_DIFFERENT` propage les singletons et les ensembles de Hall jusqu'à la
+taille trois. L'interface publique `DomainPropagator` permet d'ajouter d'autres
+propagateurs sans modifier les matchers.
 
 La mémoire de travail accepte maintenant `REMOVE`, avec un journal
 chronologique des ajouts et retraits. Les prémisses corrélées `EXISTS` et
@@ -119,13 +143,17 @@ Le contenu actuel comprend :
   native destinée au debug du moteur ;
 - [`rulebases`](rulebases/README.md), le catalogue unifié des exemples
   exécutables : exemples pédagogiques, propagation de contraintes binaires
-  écrite en règles et huit reformulations issues de la thèse NéOpus,
+  écrite en règles, contraintes globales `NVALUE`/`ALL_DIFFERENT` et huit
+  reformulations issues de la thèse NéOpus,
   notamment Hanoï dérécursivé et les quatre reines engendrées entièrement par
   règles ;
 - [`docs/semantics.md`](docs/semantics.md), les décisions sémantiques du moteur
   de référence ;
 - [`docs/arithmetic_actions.md`](docs/arithmetic_actions.md), la syntaxe et la
   sémantique des liaisons arithmétiques séquentielles `LET` ;
+- [`docs/global_constraints.md`](docs/global_constraints.md), la sémantique
+  de `NVALUE`, `ALL_DIFFERENT`, des ensembles de Hall et de
+  `DomainPropagator` ;
 - [`docs/collections_fresh_and_contexts.md`](docs/collections_fresh_and_contexts.md),
   les ensembles finis, `COLLECT`, `FRESH` et les continuations isolées ;
 - [`docs/rule_groups.md`](docs/rule_groups.md), les sessions persistantes, la
@@ -138,6 +166,9 @@ Le contenu actuel comprend :
   les architectures possibles pour combiner instanciation par contraintes,
   clauses combinatoires, propagation, choix explicites, solveurs externes et
   ATMS ;
+- [`docs/choice_backtracking_and_applications.md`](docs/choice_backtracking_and_applications.md),
+  le cap architectural allant du moteur efficace au futur langage de choix,
+  puis au solveur CSP pédagogique et à l'harmoniseur à quatre voix ;
 - [`docs/mutations_and_negation.md`](docs/mutations_and_negation.md), la
   suppression de faits, le journal de mutations et les blocs corrélés
   `EXISTS`/`NOT EXISTS` ;
@@ -161,7 +192,12 @@ préchargés sous forme de tables.
 Les modifications partielles de faits et un ATMS complet restent à
 implémenter. L’adaptateur vers un solveur externe tel qu’OR-Tools reste
 optionnel et futur ; le backend fini portable valide déjà l’interface.
-L’évaluation semi-naïve demeure le mode par défaut de `ForwardEngine`.
+Le choix MRV et le backtracking local restent le prochain grand palier. Ils
+devront réutiliser les domaines et propagateurs actuels, sans transformer
+Snarky en appel opaque à un solveur. Un solveur CSP écrit en Snarky et un
+harmoniseur à quatre voix dans le style de Bach serviront ensuite
+d'applications d'intégration. L’évaluation semi-naïve demeure le mode par
+défaut de `ForwardEngine`.
 
 ## Démarrage rapide
 
@@ -225,6 +261,15 @@ result = ForwardEngine(
 `IndexedInstantiationStrategy` reste disponible pour mesurer séparément le
 bénéfice de l'indexation exhaustive.
 
+Les contraintes binaires ont depuis motivé des optimisations générales :
+rangs d'index stables, stockage de retrait adaptatif, index paresseux sur les
+chemins de termes structurés, ordre sélectif des sous-jointures existentielles
+et deux témoins résiduels par corrélation. Sur une chaîne de 64 variables à
+64 valeurs, elles ramènent le matching de 560 196 à 310 212 tentatives et le
+temps de 2,566 s à 1,684 s, soit un gain ×1,52. Les résultats A/B et les
+gardes de non-régression Sudoku/Fibonacci se trouvent dans
+[`benchmarks/README.md`](benchmarks/README.md).
+
 Pour les sessions persistantes, les mutations, la négation et les plans de
 groupes, voir respectivement
 [`docs/rule_groups.md`](docs/rule_groups.md),
@@ -253,8 +298,9 @@ ne recalcule qu'une règle et en réutilise 199. La médiane passe de 2,206 ms
 pour une construction froide à 0,572 ms pour la mise à jour incrémentale,
 soit ×3,86.
 
-La suite complète compte 341 tests et s’exécute en environ 9,1 s sur cette même
-machine, contre 26,05 s avant la mise en cache du catalogue de provenance
+La suite complète compte désormais 368 tests et s’exécute en moins de dix
+secondes sur cette même machine, contre 26,05 s avant la mise en cache du
+catalogue de provenance
 Spinoza et 76,50 s avant les optimisations.
 
 ## Base de debug initiale
@@ -357,8 +403,10 @@ une trace rejouable.
 16. ~~Compiler les prémisses, utiliser un cadre mutable interne, propager les
     deltas de suppression, maintenir les compteurs négatifs et conserver les
     jointures partielles sous budget. Ajouter un index de dépendances positives
-    et un agenda incrémental.~~ Mesurer les prochaines optimisations sur les
-    conflits réellement dominants.
+    et un agenda incrémental. Ajouter des index de chemins adaptatifs, des
+    retraits à rangs stables, des témoins résiduels et un ordre existentiel
+    sélectif.~~ Mesurer les prochaines optimisations sur les conflits réellement
+    dominants.
 17. ~~Structurer un catalogue public de bases avec un exécuteur commun,
     des oracles et des README par problème.~~ Les exemples de la thèse ont
     motivé la divisibilité entière, le modulo, `FRESH`, `COLLECT` et les

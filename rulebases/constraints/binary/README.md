@@ -72,18 +72,27 @@ des faits, deux règles de propagation et des règles de classification.
 ## Efficacité actuelle
 
 Sur les trois scénarios réunis, la stratégie semi-naïve atteint le point fixe
-en huit cycles cumulés, 18 activations et environ 3,30 ms sur la machine de
-référence. Elle est ×13,28 plus rapide que l'oracle naïf (43,82 ms) et
-légèrement plus rapide que l'indexation exhaustive (3,40 ms).
+en huit cycles cumulés, 18 activations et environ 3,59 ms sur la machine de
+référence. Elle est ×12,32 plus rapide que l'oracle naïf (44,19 ms) et
+légèrement plus rapide que l'indexation exhaustive (3,72 ms).
 
-Cette mesure est un test de coût minimal, pas encore un résultat de passage à
-l'échelle. La table d'une relation peut contenir `d²` couples et les
-prémisses `NOT EXISTS` recherchent un support compatible après les retraits.
-Il faudra donc mesurer des chaînes, graphes et domaines de taille croissante
-avant de décider si le moteur général suffit ou s'il faut une file de
-propagation et des supports résiduels spécialisés.
+Cette mesure est un test de coût minimal. Le benchmark paramétrique complète
+désormais ce résultat : sur une chaîne de 64 variables et des domaines de 64
+valeurs, le temps passe de 2,566 s à 1,684 s et les matchings de 560 196 à
+310 212. Le gain vaut ×1,52 et la baisse de matching 44,6 %.
+
+Le moteur construit à la demande deux index sur les chemins partiellement liés
+de `SEQ[left right]`, commence la recherche existentielle par le plus petit
+bucket, conserve au plus deux supports alternatifs et utilise une
+représentation de retrait adaptée aux grandes mémoires. Ces mécanismes sont
+généraux : ils ne connaissent ni `candidate`, ni `allows`, ni la notion de
+CSP.
 
 Le protocole reproductible et les résultats détaillés se trouvent dans
 [`benchmarks/constraint_propagation.py`](../../../benchmarks/constraint_propagation.py)
+,
+[`benchmarks/constraint_scaling.py`](../../../benchmarks/constraint_scaling.py)
 et
-[`benchmarks/results/constraint_propagation_2026-07-24.csv`](../../../benchmarks/results/constraint_propagation_2026-07-24.csv).
+[`benchmarks/constraint_support_churn.py`](../../../benchmarks/constraint_support_churn.py).
+Les mesures A/B sont conservées dans
+[`benchmarks/results/constraint_indexing_optimizations_2026-07-24.csv`](../../../benchmarks/results/constraint_indexing_optimizations_2026-07-24.csv).

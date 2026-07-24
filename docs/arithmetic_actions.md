@@ -77,7 +77,7 @@ END
 
 Avec `(objet valeur 5)`, la règle ajoute `(objet resultat 11)`.
 
-## Limite fonctionnelle
+## Contraintes arithmétiques déclaratives
 
 `LET` est un évaluateur déterministe, pas un solveur de contraintes. Tous les
 opérandes doivent être connus au moment de l'action. Par exemple :
@@ -86,6 +86,33 @@ opérandes doivent être connus au moment de l'action. Par exemple :
 LET $z := $x + $y
 ```
 
-calcule `$z` lorsque `$x` et `$y` sont liés. En revanche, résoudre
-`$x + $y == 10` avec deux inconnues relève du futur raisonnement par
-contraintes.
+calcule `$z` lorsque `$x` et `$y` sont liés. La forme relationnelle s'écrit
+maintenant dans la partie gauche :
+
+```text
+WHEN
+    (left candidate $x)
+    (right candidate $y)
+    (total candidate $z)
+    CONSTRAINT $x + $y == $z
+THEN
+    ADD (SEQ[$x $y] sums_to $z)
+END
+```
+
+`CONSTRAINT` accepte les expressions de `LET` de chaque côté de `==`, `!=`,
+`<`, `<=`, `>` et `>=`. Toutes les variables doivent recevoir un domaine fini
+depuis les prémisses factuelles. La prémisse ne crée aucune valeur : elle
+retire seulement les valeurs sans support, puis le matcher final réévalue
+l'expression devenue ground.
+
+Le propagateur spécialisé traite les égalités binaires utilisant `+`, `-`,
+`*`, `/` et `%`. Pour `+` et `-`, il choisit le plus petit des trois produits
+de domaines `(x,y)`, `(x,z)` et `(y,z)` et déduit la troisième valeur ; une
+cible singleton transforme ainsi un produit cubique en parcours linéaire.
+Les comparaisons simples utilisent intersection, singleton ou bornes. Les
+expressions imbriquées ou relations non spécialisées conservent le repli
+cartésien borné de la stratégie forcée.
+
+Il n'y a ni création d'hypothèse ni backtracking caché. Si le filtrage ne
+suffit pas, le matcher ordinaire énumère les candidats restants.

@@ -5,8 +5,8 @@ from __future__ import annotations
 from dataclasses import dataclass
 from enum import StrEnum
 
-from .substitutions import Substitution
-from .terms import Number, Variable
+from .substitutions import TermBindings
+from .terms import Number, Term, Variable, is_ground, variables_in
 
 
 class ArithmeticEvaluationError(ValueError):
@@ -39,14 +39,31 @@ class UnaryArithmeticExpression:
     operand: NumericExpression
 
 
+@dataclass(frozen=True, slots=True)
+class DistinctCountExpression:
+    """Number of distinct values taken by a finite tuple of terms."""
+
+    values: tuple[Term, ...]
+
+    def __post_init__(self) -> None:
+        values = tuple(self.values)
+        if not values:
+            raise ValueError("distinct count requires at least one value")
+        object.__setattr__(self, "values", values)
+
+
 type NumericExpression = (
-    Number | Variable | BinaryArithmeticExpression | UnaryArithmeticExpression
+    Number
+    | Variable
+    | BinaryArithmeticExpression
+    | UnaryArithmeticExpression
+    | DistinctCountExpression
 )
 
 
 def evaluate_arithmetic(
     expression: NumericExpression,
-    substitution: Substitution,
+    substitution: TermBindings,
 ) -> Number:
     """Evaluate a ground numeric expression without using ``eval``."""
 
@@ -59,6 +76,15 @@ def evaluate_arithmetic(
                 f"${expression.name} is not bound to a number"
             )
         return value
+    if isinstance(expression, DistinctCountExpression):
+        resolved = tuple(
+            substitution.apply(value) for value in expression.values
+        )
+        if not all(is_ground(value) for value in resolved):
+            raise ArithmeticEvaluationError(
+                "distinct count contains an unbound value"
+            )
+        return Number(len(set(resolved)))
     if isinstance(expression, UnaryArithmeticExpression):
         operand = evaluate_arithmetic(expression.operand, substitution).value
         if expression.operator is UnaryArithmeticOperator.POSITIVE:
@@ -93,3 +119,28 @@ def evaluate_arithmetic(
             f"unsupported binary operator: {expression.operator}"
         )
     raise ArithmeticEvaluationError(f"unsupported expression: {expression!r}")
+
+
+def variables_in_arithmetic(
+    expression: NumericExpression,
+) -> frozenset[Variable]:
+    """Return variables occurring in one numeric expression."""
+
+    if isinstance(expression, Number):
+        return frozenset()
+    if isinstance(expression, Variable):
+        return frozenset((expression,))
+    if isinstance(expression, UnaryArithmeticExpression):
+        return variables_in_arithmetic(expression.operand)
+    if isinstance(expression, BinaryArithmeticExpression):
+        return (
+            variables_in_arithmetic(expression.left)
+            | variables_in_arithmetic(expression.right)
+        )
+    if isinstance(expression, DistinctCountExpression):
+        return frozenset(
+            variable
+            for value in expression.values
+            for variable in variables_in(value)
+        )
+    raise TypeError(f"unsupported expression: {expression!r}")

@@ -13,6 +13,7 @@ from snarky import (
     Fact,
     FactMutationKind,
     ForwardEngine,
+    InstantiationStrategy,
     MEAConflictStrategy,
     RunResult,
     Status,
@@ -40,7 +41,11 @@ class ScenarioResult:
         return tuple(fact for fact in self.expected_facts if fact not in facts)
 
 
-def run_scenario(relative_path: str | Path) -> ScenarioResult:
+def run_scenario(
+    relative_path: str | Path,
+    *,
+    strategy: InstantiationStrategy | None = None,
+) -> ScenarioResult:
     """Execute the scenario rooted at *relative_path*."""
 
     path = (RULEBASE_ROOT / relative_path).resolve()
@@ -58,6 +63,7 @@ def run_scenario(relative_path: str | Path) -> ScenarioResult:
     if payload["kind"] == "rules":
         result = ForwardEngine(
             parse_rules(rules_text),
+            strategy=strategy,
             conflict_strategy=conflict_strategy,
         ).run(initial_facts)
     else:
@@ -70,6 +76,7 @@ def run_scenario(relative_path: str | Path) -> ScenarioResult:
             raise ValueError(f"unknown groups in scenario: {unknown}")
         session = ForwardEngine(
             (),
+            strategy=strategy,
             conflict_strategy=conflict_strategy,
         ).create_session(initial_facts)
         for _ in range(payload["max_rounds"]):

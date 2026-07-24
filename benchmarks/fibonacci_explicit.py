@@ -11,6 +11,7 @@ from time import perf_counter
 from typing import Any
 
 from snarky import (
+    AdaptiveInstantiationStrategy,
     Fact,
     ForwardEngine,
     IndexedInstantiationStrategy,
@@ -46,7 +47,14 @@ def main() -> None:
     parser.add_argument("--repeat", type=int, default=3)
     parser.add_argument(
         "--strategy",
-        choices=("naive", "indexed", "semi-naive", "both", "all"),
+        choices=(
+            "naive",
+            "indexed",
+            "semi-naive",
+            "adaptive",
+            "both",
+            "all",
+        ),
         default="all",
     )
     arguments = parser.parse_args()
@@ -62,7 +70,7 @@ def main() -> None:
     if arguments.strategy == "both":
         strategy_names = ("naive", "indexed")
     elif arguments.strategy == "all":
-        strategy_names = ("naive", "indexed", "semi-naive")
+        strategy_names = ("naive", "indexed", "semi-naive", "adaptive")
     else:
         strategy_names = (arguments.strategy,)
     cases = [
@@ -149,6 +157,23 @@ def measure(
                 "candidate_facts": strategy.metrics.candidate_facts,
                 "activations_produced": strategy.metrics.activations_produced,
                 "index_builds": strategy.metrics.index_builds,
+                "domain_filter_runs": strategy.metrics.domain_filter_runs,
+                "domain_filter_fallbacks": (
+                    strategy.metrics.domain_filter_fallbacks
+                ),
+                "domain_filter_selections": (
+                    strategy.metrics.domain_filter_selections
+                ),
+                "domain_filter_rejections": (
+                    strategy.metrics.domain_filter_rejections
+                ),
+                "domain_rows_examined": (
+                    strategy.metrics.domain_rows_examined
+                ),
+                "domain_input_rows": strategy.metrics.domain_input_rows,
+                "domain_specialized_revisions": (
+                    strategy.metrics.domain_specialized_revisions
+                ),
             }
         )
     elapsed_values = [float(run["seconds"]) for run in runs]
@@ -169,6 +194,8 @@ def make_strategy(name: str) -> InstantiationStrategy:
         return IndexedInstantiationStrategy()
     if name == "semi-naive":
         return SemiNaiveInstantiationStrategy()
+    if name == "adaptive":
+        return AdaptiveInstantiationStrategy()
     raise ValueError(f"unknown strategy: {name}")
 
 

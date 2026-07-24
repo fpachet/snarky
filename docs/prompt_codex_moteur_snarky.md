@@ -111,6 +111,10 @@ Sont disponibles et testés :
   génération déterministe `FRESH` ;
 - chaînage avant déterministe, réfraction, limites et provenance ;
 - stratégies naïve, indexée et semi-naïve interchangeables ;
+- première stratégie d'instanciation par domaines : tables positives
+  incrémentales, projections maintenues par compteurs, point fixe par file de
+  propagateurs, relations d'ordre 2, sélection adaptative et repli
+  automatique sur le matcher semi-naïf ;
 - groupes de règles nommés, sessions persistantes et modes `SATURATE`,
   `ONE_CYCLE`, `FIRST_CHANGE` et `UNTIL` ;
 - mémoire de travail mutable avec `REMOVE` et journal chronologique
@@ -135,12 +139,15 @@ Sont disponibles et testés :
   solveur externe ;
 - arc-consistance binaire tabulaire et classification de domaines exprimées
   par des groupes de règles ordinaires dans `rulebases/constraints` ;
+- protocole public `DomainPropagator`, contraintes globales `NVALUE` et
+  `ALL_DIFFERENT`, singletons et ensembles de Hall bornés ;
 - reformulation du singe et des bananes avec buts dynamiques, parcours MEA et
   trace complète de l’agenda.
 
 Restent notamment différés : mise à jour partielle d’un fait, ATMS complet,
-adaptateur de contraintes externe, stratégie centrée sur les variables de
-BOOJUM, méta-règles réflexives et techniques Sudoku avancées p8–p18. Les
+adaptateur de contraintes externe, stratégie BOOJUM complète avec choix MRV
+et backtracking local, méta-règles réflexives et techniques Sudoku avancées
+p8–p18. Les
 séquences, la recherche explicite, un backend CSP/SAT fini et un TMS positif
 optionnel sont désormais réalisés.
 
@@ -153,6 +160,9 @@ Sudoku et ses prochains paliers sont détaillés dans
 Les options d'intégration futures entre matching, propagation, recherche et
 solveurs sont comparées dans
 [`constraints_propagation_and_search.md`](constraints_propagation_and_search.md).
+Le cap allant de ce noyau efficace au futur langage de choix, puis au solveur
+CSP pédagogique et à l'harmoniseur à quatre voix, est fixé dans
+[`choice_backtracking_and_applications.md`](choice_backtracking_and_applications.md).
 
 Toutes les capacités ajoutées pour le contrôle moderne, la mutation et
 l’orchestration sont des `MODERN_EXTENSION`, sauf attribution historique
@@ -384,6 +394,22 @@ Les expressions `LET` acceptent aussi `%` sur deux entiers. La prémisse
 L’action `FRESH $x PREFIX node` produit un atome déterministe sans collision
 dans la session et transmet cette liaison aux actions suivantes.
 
+Une expression arithmétique peut aussi devenir une relation :
+
+```text
+CONSTRAINT $x + $y == $z
+```
+
+Les premières contraintes globales ont la syntaxe :
+
+```text
+NVALUE $count OF SEQ[$x $y $z]
+ALL_DIFFERENT SEQ[$x $y $z]
+```
+
+Leur filtrage reste sûr et peut être incomplet ; le matcher ground demeure
+l'oracle sémantique.
+
 ### 2.7 Groupes et plans d’exécution
 
 Une base peut séparer ses familles de règles :
@@ -587,16 +613,24 @@ Représenter les ensembles de faits possibles pour chaque prémisse et les joind
 
 ### 5.3 Stratégie centrée sur les variables
 
-Implémenter l’idée centrale présentée dans BOOJUM :
+Le premier palier de l’idée centrale présentée dans BOOJUM est livré :
 
-- associer à chaque variable un domaine d’instanciation ;
-- projeter les faits candidats sur les positions occupées par cette variable ;
-- réduire ces domaines ;
+- ~~associer à chaque variable un domaine d’instanciation ;~~
+- ~~projeter les faits candidats sur les positions occupées par cette
+  variable ;~~
+- ~~réduire sûrement ces domaines et passer les candidats restants au matcher
+  existant ;~~
+- ~~maintenir leurs projections et points fixes entre les cycles ;~~
+- ~~ouvrir un protocole de propagateurs globaux avec `NVALUE` et
+  `ALL_DIFFERENT` ;~~
 - choisir dynamiquement la variable la plus contrainte ;
 - propager le choix sur les prémisses concernées ;
 - poursuivre jusqu’à une substitution complète.
 
-Créer des structures explicites :
+Les tables positives et leurs projections sont maintenues par delta. Une
+suppression poursuit le point fixe précédent ; un ajout réinitialise seulement
+la composante connexe qui peut s'élargir. Les structures explicites suivantes
+restent la cible de la version complète :
 
 ```python
 VariableDomain
@@ -719,24 +753,33 @@ L’implémentation actuelle maintient les index top-level simples et les trois
 combinaisons de deux positions : `(sujet, relation)`, `(relation, objet)` et
 `(sujet, objet)`. Elle choisit le plus petit bucket disponible après résolution
 des seules positions variables. Les prémisses sont compilées en arbres de
-matching et résolveurs d’index réutilisables. Les chemins imbriqués et les
-index adaptatifs restent des extensions futures.
+matching et résolveurs d’index réutilisables.
+
+Elle maintient également des index adaptatifs de chemins pour les structures
+ordonnées partiellement résolues. Un pattern tel que
+`($relation allows SEQ[$left $right])` peut créer les signatures composées
+`(sujet, relation, objet[0])` et `(sujet, relation, objet[1])`. L'index est
+construit au premier lookup seulement lorsque les buckets top-level dépassent
+le seuil mesuré de huit candidats. Les ajouts et retraits suivants le
+maintiennent incrémentalement.
 
 ### 7.2 Index adaptatifs
 
 Ne pas construire tous les index possibles.
 
-Le compilateur analyse les règles et demande les index nécessaires :
+Le pattern compilé et les liaisons courantes demandent les index nécessaires :
 
 ```python
 IndexPlan
 ```
 
-Comparer :
+L'implémentation combine actuellement :
 
-- aucun index ;
-- index fixes ;
-- index dérivés des règles.
+- index fixes top-level ;
+- signatures structurelles dérivées des règles et créées paresseusement ;
+- sélection du plus petit bucket ;
+- watchers utilisant les mêmes signatures ;
+- seuils empêchant les index de petite taille de coûter plus qu'un scan.
 
 ### 7.3 Filtrage des règles
 
@@ -1168,8 +1211,9 @@ test_optimized_strategy_equals_naive_strategy()
 
 La stratégie naïve constitue l’oracle sémantique.
 
-La future stratégie centrée sur les variables et la propagation devront être
-ajoutées à ce même protocole différentiel lorsqu’elles seront implémentées.
+La première stratégie de filtrage possède des tests différentiels ciblés. Elle
+devra être ajoutée au protocole génératif complet avant toute sélection par
+défaut.
 
 ---
 
@@ -1193,10 +1237,15 @@ Comparer :
 1. scan naïf ;
 2. indexation simple ;
 3. évaluation semi-naïve ;
-4. ordre fixe et réordonnancement borné par les barrières de comparaison.
+4. ordre fixe et réordonnancement borné par les barrières de comparaison ;
+5. filtrage forcé par domaines ;
+6. file de propagateurs et sélection adaptative ;
+7. comparaisons spécialisées et prémisses arithmétiques relationnelles.
+8. domaines persistants, `NVALUE`, `ALL_DIFFERENT` et ensembles de Hall.
 
-Les variantes MRV, propagation centrée sur les variables et consistance d’arcs
-restent des cibles futures.
+Le premier filtrage centré sur les variables et ses contraintes globales est
+mesuré séparément. Les variantes MRV, le trail de recherche local et la
+consistance généralisée de `ALL_DIFFERENT` restent des cibles futures.
 
 Mesurer :
 
@@ -1216,8 +1265,8 @@ Ne pas annoncer que le moteur bat RETE sans benchmark sérieux.
 Prévoir des interfaces, sans les implémenter initialement, pour :
 
 - solveur CSP externe ;
-- contraintes arithmétiques générales au-delà de l’évaluation déterministe
-  des actions `LET` ;
+- contraintes arithmétiques non linéaires et globales au-delà des égalités
+  binaires finies déjà couvertes par `CONSTRAINT` ;
 - propagation d’intervalles ;
 - règles probabilistes ;
 - truth-maintenance system ;
@@ -1284,6 +1333,11 @@ hypothèse.
 23. Recherche d’hypothèses explicite au-dessus de `fork()`.
 24. Interface CSP/SAT, backend fini et réinjection des solutions.
 25. Maintenance de vérité positive optionnelle avec cascade.
+26. Arc-consistance binaire tabulaire exprimée uniquement par groupes de
+    règles, avec cas résolu, incomplet et contradictoire.
+27. Rangs stables, stockage de retrait adaptatif, index de chemins
+    structurels, watchers correspondants, ordre existentiel sélectif et
+    témoins résiduels bornés.
 
 ### Travail documentaire historique encore ouvert
 
@@ -1319,12 +1373,19 @@ hypothèse.
 
 1. ~~Définir une interface générique et un backend fini de solveur de
    contraintes.~~
-2. Ajouter un adaptateur optionnel vers OR-Tools.
-3. ~~Construire une stratégie explicite d’hypothèses et de recherche au-dessus
+2. ~~Exprimer et optimiser une première propagation binaire uniquement par
+   règles.~~
+3. ~~Maintenir les domaines incrémentaux et ajouter `NVALUE`,
+   `ALL_DIFFERENT` et Hall borné.~~
+4. Produire des faits `choice` à partir des domaines non singletons et
+   spécifier leur branchement et leur backtracking explicites.
+5. Ajouter un adaptateur optionnel vers OR-Tools.
+6. ~~Construire une stratégie explicite d’hypothèses et de recherche au-dessus
    des sessions isolées.~~ Ajouter coûts ou heuristiques avec un oracle concret.
-4. Reprendre la stratégie centrée sur les variables de BOOJUM avec des
-   benchmarks différentiels.
-5. Étudier séparément les méta-règles réflexives capables d’inspecter et de
+7. ~~Livrer le premier filtrage centré sur les variables de BOOJUM avec un
+   benchmark différentiel.~~ Ajouter ensuite la sélection MRV et le trail
+   local.
+8. Étudier séparément les méta-règles réflexives capables d’inspecter et de
    transformer l’agenda.
 
 ---
@@ -1360,8 +1421,9 @@ Le jalon courant du moteur est accepté lorsque :
     ordre des mouvements et ensembles de solutions vérifiés ;
 21. toutes les décisions non établies par les sources sont documentées.
 
-La stratégie centrée sur les variables, l’adaptateur OR-Tools et l’ATMS ont
-leurs propres critères d’acceptation futurs ; ils ne bloquent pas le jalon.
+La stratégie centrée complète avec recherche locale, l’adaptateur OR-Tools et
+l’ATMS ont leurs propres critères d’acceptation futurs ; ils ne bloquent pas
+le jalon.
 
 ---
 

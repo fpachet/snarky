@@ -19,6 +19,7 @@ from ..premises import (
     NotExistsPremise,
     Premise,
     UniquePremise,
+    variables_in_comparison_operand,
 )
 from ..rules import Rule
 from ..substitutions import Substitution
@@ -65,6 +66,35 @@ class InstantiationMetrics:
     partial_join_builds: int = 0
     partial_join_updates: int = 0
     partial_join_bypasses: int = 0
+    structural_index_builds: int = 0
+    structural_index_lookups: int = 0
+    adaptive_join_reorders: int = 0
+    residual_witness_promotions: int = 0
+    domain_filter_runs: int = 0
+    domain_filter_fallbacks: int = 0
+    domain_filter_selections: int = 0
+    domain_filter_rejections: int = 0
+    domain_table_rebuilds: int = 0
+    domain_table_updates: int = 0
+    domain_candidate_facts: int = 0
+    domain_match_attempts: int = 0
+    domain_rows: int = 0
+    domain_revisions: int = 0
+    domain_propagator_revisions: int = 0
+    domain_queue_pushes: int = 0
+    domain_input_rows: int = 0
+    domain_rows_examined: int = 0
+    domain_combinations_tested: int = 0
+    domain_specialized_revisions: int = 0
+    domain_specialized_value_checks: int = 0
+    domain_global_revisions: int = 0
+    domain_global_value_checks: int = 0
+    domain_projection_rows_examined: int = 0
+    domain_projection_updates: int = 0
+    domain_state_reuses: int = 0
+    domain_component_resets: int = 0
+    domain_values_removed: int = 0
+    domain_candidates_removed: int = 0
 
     def reset(self) -> None:
         """Reset all counters before another measured run."""
@@ -84,6 +114,35 @@ class InstantiationMetrics:
         self.partial_join_builds = 0
         self.partial_join_updates = 0
         self.partial_join_bypasses = 0
+        self.structural_index_builds = 0
+        self.structural_index_lookups = 0
+        self.adaptive_join_reorders = 0
+        self.residual_witness_promotions = 0
+        self.domain_filter_runs = 0
+        self.domain_filter_fallbacks = 0
+        self.domain_filter_selections = 0
+        self.domain_filter_rejections = 0
+        self.domain_table_rebuilds = 0
+        self.domain_table_updates = 0
+        self.domain_candidate_facts = 0
+        self.domain_match_attempts = 0
+        self.domain_rows = 0
+        self.domain_revisions = 0
+        self.domain_propagator_revisions = 0
+        self.domain_queue_pushes = 0
+        self.domain_input_rows = 0
+        self.domain_rows_examined = 0
+        self.domain_combinations_tested = 0
+        self.domain_specialized_revisions = 0
+        self.domain_specialized_value_checks = 0
+        self.domain_global_revisions = 0
+        self.domain_global_value_checks = 0
+        self.domain_projection_rows_examined = 0
+        self.domain_projection_updates = 0
+        self.domain_state_reuses = 0
+        self.domain_component_resets = 0
+        self.domain_values_removed = 0
+        self.domain_candidates_removed = 0
 
 
 class InstantiationStrategy(Protocol):
@@ -146,8 +205,8 @@ def _variables_in_premises(
             variables.update(variables_in(premise.entity))
             variables.update(variables_in(premise.status))
         elif isinstance(premise, ComparisonPremise):
-            variables.update(variables_in(premise.left))
-            variables.update(variables_in(premise.right))
+            variables.update(variables_in_comparison_operand(premise.left))
+            variables.update(variables_in_comparison_operand(premise.right))
         elif isinstance(premise, BindPremise):
             variables.add(premise.target)
             variables.update(variables_in(premise.value))

@@ -55,7 +55,9 @@ ce qui demanderait une extension générale du moteur.
 [`constraints`](constraints/README.md) réifie variables, domaines,
 contraintes et tables de compatibilité sous forme de faits. Son premier noyau
 implémente l'arc-consistance binaire uniquement avec `NOT EXISTS`, `REMOVE`
-et la saturation de groupes.
+et la saturation de groupes. Une seconde base exerce les prémisses globales
+`NVALUE` et `ALL_DIFFERENT`, les bornes de cardinalité distincte et les
+ensembles de Hall.
 
 Sudoku et Spinoza restent à la racine du dépôt parce qu'ils possèdent leur
 propre corpus, leurs outils et leurs tests. [`projects`](projects/README.md)

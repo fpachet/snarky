@@ -4,6 +4,110 @@ Les benchmarks sont des programmes reproductibles séparés des tests de
 correction. Ils produisent du JSON afin de pouvoir comparer plusieurs
 versions du moteur.
 
+## Filtrage des domaines avant instanciation
+
+`constraint_instantiation` propose quatre scénarios : triangle favorable,
+jointure neutre, triangle dense défavorable et longue chaîne acyclique. Il
+compare l'indexé, les balayages complets, la file de propagateurs et le
+sélecteur adaptatif :
+
+```sh
+uv run python -m benchmarks.constraint_instantiation \
+    --scenario favorable --size 40 --repeat 9
+```
+
+Mesure du 24 juillet 2026 sur macOS ARM64 avec Python 3.13.11 :
+
+| Scénario | Taille | Indexée | Filtrage forcé | Adaptative | Gain adaptatif |
+|---|---:|---:|---:|---:|---:|
+| Favorable | 40 | 189,52 ms | 17,23 ms | 17,23 ms | ×11,00 |
+| Neutre | 200 | 2,987 ms | 5,035 ms | 2,826 ms | ×1,06 |
+| Défavorable | 20 | 52,03 ms | 58,24 ms | 52,17 ms | ×1,00 |
+| Chaîne | 40 | 6,741 ms | 8,706 ms | 6,413 ms | ×1,05 |
+
+Dans le cas favorable, la jointure textuelle crée beaucoup d'états
+intermédiaires : le matcher final passe de 65 640 à 120 tentatives, après
+3 201 matchings préparatoires. Le gain vient donc de la suppression des
+produits intermédiaires, pas d'un matching élémentaire moins cher.
+
+Le neutre et le défavorable montrent pourquoi le filtrage forcé ne doit pas
+être le défaut. Le sélecteur les refuse et reste dans le bruit de mesure de
+la jointure indexée.
+
+La chaîne mesure spécifiquement le point fixe. La file examine 4 802 lignes
+en 122 révisions, contre 67 242 lignes et 1 722 révisions pour les balayages
+complets. Le temps de filtrage passe de 43,06 à 8,71 ms, soit ×4,95. La
+jointure indexée reste néanmoins meilleure ; le graphe acyclique permet au
+sélecteur de ne pas lancer le filtre.
+
+Le script accepte :
+
+```sh
+--scenario favorable
+--scenario neutral
+--scenario adverse
+--scenario chain
+```
+
+La stratégie adaptative est encore expérimentale et n'est pas le défaut.
+Les résultats sont conservés dans
+[`results/constraint_instantiation_2026-07-24.csv`](results/constraint_instantiation_2026-07-24.csv).
+
+## Contraintes arithmétiques spécialisées
+
+`arithmetic_constraints` construit deux domaines de 200 entiers et fixe leur
+somme à 2 avec :
+
+```text
+CONSTRAINT $left + $right == $total
+```
+
+```sh
+uv run python -m benchmarks.arithmetic_constraints \
+    --size 200 --repeat 9
+```
+
+| Stratégie | Médiane | Matchings finaux | Travail de contrainte |
+|---|---:|---:|---:|
+| indexée | 339,20 ms | 160 400 | — |
+| domaines, produit cartésien | 80,69 ms | 6 | 40 001 combinaisons |
+| domaines, propagateur spécialisé | 2,06 ms | 6 | 201 vérifications |
+| adaptative | 2,04 ms | 6 | 201 vérifications |
+
+Le propagateur choisit entre les paires `(left, right)`, `(left, total)` et
+`(right, total)`. Comme `total` est singleton, il effectue un parcours
+linéaire au lieu d'énumérer le produit des trois domaines. L'état persistant
+évite aussi la seconde propagation identique. Le gain vaut ×39,2 entre filtre
+générique et spécialisé, et ×166,3 entre indexé et adaptatif.
+
+Les résultats sont conservés dans
+[`results/arithmetic_constraints_2026-07-24.csv`](results/arithmetic_constraints_2026-07-24.csv).
+
+## Contraintes globales
+
+`global_constraints` mesure `NVALUE` puis `ALL_DIFFERENT` :
+
+```sh
+uv run python -m benchmarks.global_constraints --size 200 --repeat 7
+```
+
+| Scénario | Indexée | Domaines reconstruits | Domaines persistants | Adaptative |
+|---|---:|---:|---:|---:|
+| `NVALUE`, N = 1 | 406,58 ms | 2,85 ms | 2,12 ms | 2,10 ms |
+| `ALL_DIFFERENT`, Hall triple | 65,54 ms | 68,28 ms | 67,70 ms | 43,54 ms |
+
+Sur `NVALUE`, le filtre ramène 160 402 tentatives de matching à 8 et
+l'adaptatif gagne ×193,9. La persistance réduit les 1 206 lignes projetées
+par les deux passages à 402 et ne propage qu'une fois.
+
+Le scénario `ALL_DIFFERENT` doit réellement produire 1 182 solutions. Son
+gain adaptatif plus modeste, ×1,51, vient du retrait précoce de l'ensemble de
+Hall et du repli semi-naïf au cycle suivant. Cette différence illustre que le
+coût utile dépend autant du nombre de solutions que de la force du filtre.
+
+Les résultats sont conservés dans
+[`results/global_constraints_2026-07-24.csv`](results/global_constraints_2026-07-24.csv).
+
 ## Propagation de contraintes déclarative
 
 Le benchmark exécute les trois problèmes de
@@ -14,32 +118,157 @@ activations et huit cycles cumulés :
 
 ```sh
 uv run python -m benchmarks.constraint_propagation \
-    --repeat 7 --batch-size 10
+    --repeat 7 --batch-size 20
 ```
 
-Mesure du 24 juillet 2026 sur macOS ARM64 avec Python 3.13.11 :
+Mesure courante du 24 juillet 2026 sur macOS ARM64 avec Python 3.13.11 :
 
 | Stratégie | Médiane | Gain sur le naïf |
 |---|---:|---:|
-| Naïve | 43,822 ms | référence |
-| Indexée | 3,400 ms | ×12,89 |
-| Semi-naïve | 3,300 ms | ×13,28 |
+| Naïve | 44,190 ms | référence |
+| Indexée | 3,725 ms | ×11,82 |
+| Semi-naïve | 3,577 ms | ×12,31 |
+| Adaptative | 3,597 ms | ×12,24 |
 
 L'indexation élimine donc déjà l'essentiel du coût sur cet exemple. L'écart
 de 3 % entre indexé et semi-naïf n'est pas significatif à cette échelle : le
 cas est court et son temps est dominé par les coûts fixes de session,
 d'indexation et de groupes.
 
-Ce résultat démontre que la formulation déclarative est utilisable pour une
-petite propagation, mais pas encore qu'elle passe à l'échelle. Les tables
-binaires contiennent jusqu'à `d²` couples pour un domaine de taille `d`, et
-chaque suppression peut réveiller les recherches de support corrélées des
-deux règles. Le prochain benchmark pertinent devra générer des familles de
-taille croissante et mesurer séparément retraits, recherches de support et
-mémoire, puis les comparer à AC-3.
+La stratégie adaptative ne lance aucun filtrage sur ces règles et ajoute
+0,021 ms, soit 0,6 %, au semi-naïf. Les optimisations profondes restent
+volontairement désactivées lorsque leur coût ne peut pas être amorti.
 
 Les mesures sont conservées dans
 [`results/constraint_propagation_2026-07-24.csv`](results/constraint_propagation_2026-07-24.csv).
+
+### Construction incrémentale des domaines
+
+Le benchmark Sudoku peut désactiver la persistance pour reproduire l'ancienne
+reconstruction :
+
+```sh
+uv run python -m benchmarks.sudoku_rules \
+    --levels 1 6 7 --repeat 7 --strategy domain-state
+```
+
+| Niveau | Reconstruction | Persistant | Lignes projetées avant | Après |
+|---|---:|---:|---:|---:|
+| p1 | 0,361 s | 0,356 s | 15 920 | 998 |
+| p6 | 0,651 s | 0,639 s | 21 595 | 1 033 |
+| p7 | 0,910 s | 0,899 s | 24 533 | 1 005 |
+
+Les compteurs et réinitialisations par composante suppriment 93,7 à 95,9 %
+des projections. Le gain temporel n'est pourtant que de 1 à 2 % : le coût de
+construction est désormais faible devant les révisions de tables et la
+jointure finale. Cette mesure ne justifie donc pas encore une représentation
+bitset plus complexe.
+
+Les données A/B sont dans
+[`results/domain_state_2026-07-24.csv`](results/domain_state_2026-07-24.csv).
+
+### Coût résiduel des rescans
+
+Sur Sudoku p6, le filtrage forcé fournit un profil plus réaliste avec
+ajouts, retraits et comparaisons :
+
+| Variante | Médiane | Lignes d'entrée | Lignes examinées | Révisions |
+|---|---:|---:|---:|---:|
+| balayages complets | 0,721 s | 20 562 | 41 124 | 290 |
+| file de propagateurs | 0,714 s | 20 562 | 21 701 | 174 |
+
+La file supprime toujours 94,5 % des relectures de lignes : seulement 1 139
+examens sur 21 701 ne correspondent pas au passage initial obligatoire.
+Depuis que les comparaisons n'énumèrent plus leur produit cartésien, ce gain
+structurel ne représente toutefois qu'environ 1 % du temps. Des compteurs de
+supports AC-4/AC-6 ajouteraient donc plus de complexité qu'ils ne peuvent
+actuellement en économiser.
+
+## Suite transversale des bases documentées
+
+`rulebase_suite` vérifie les oracles de onze bases avec les stratégies indexée,
+semi-naïve et adaptative :
+
+```sh
+uv run python -m benchmarks.rulebase_suite --repeat 9
+```
+
+Les scénarios incluent les contraintes globales, factorielle,
+`COMBINATIONS`/`FOR EACH`, égalité, date, Petri, les deux singes/bananes,
+MusES, quatre reines et Hanoï. Les
+petites bases restent dans le matcher semi-naïf : leur volume ne permet pas
+d'amortir la construction des domaines. Quatre reines active en revanche
+deux règles filtrées, 21 révisions spécialisées et 240 vérifications de
+valeurs. Sur les deux cas les plus longs :
+
+| Base | Semi-naïve | Adaptative | Écart |
+|---|---:|---:|---:|
+| quatre reines | 161,49 ms | 116,73 ms | −27,7 % |
+| Hanoï, 5 disques | 37,19 ms | 39,07 ms | +5,1 % |
+
+Quatre reines constitue ainsi le premier gain sur une base métier existante :
+l'adaptatif est ×1,38 plus rapide que le semi-naïf sans modifier les règles.
+Hanoï, Fibonacci et les petits scénarios ne déclenchent aucun filtre ; leurs
+écarts restent du bruit ou le faible coût du sélecteur. Les résultats complets
+sont dans
+[`results/rulebase_suite_2026-07-24.csv`](results/rulebase_suite_2026-07-24.csv).
+
+### Passage à l'échelle et index structurels
+
+`constraint_scaling` génère une chaîne d'égalité : la première variable est
+singleton, toutes les autres commencent avec le domaine complet, et la
+propagation doit retirer `(n - 1) × (d - 1)` candidats.
+
+```sh
+uv run python -m benchmarks.constraint_scaling \
+    --variables 64 --domain-size 64 --repeat 5
+```
+
+Le commit `54d5196` sert de baseline A/B. Les deux versions utilisent le même
+interpréteur, les mêmes règles et les mêmes faits :
+
+| Variables × domaine | Avant | Maintenant | Gain | Matchings avant | Maintenant |
+|---|---:|---:|---:|---:|---:|
+| 64 × 24 | 0,732 s | 0,677 s | ×1,08 | 173 236 | 139 012 |
+| 64 × 64 | 2,566 s | 1,684 s | ×1,52 | 560 196 | 310 212 |
+
+À 64 × 64, les index de chemins structurés et l'ordre adaptatif retirent
+44,6 % des matchings. Deux signatures seulement sont construites, pour les
+deux orientations de `SEQ[left right]`; 7 937 décisions de jointure commencent
+alors par le bucket le plus sélectif.
+
+Le stockage conserve des rangs stables. À partir de 1 500 faits initiaux, la
+séquence active devient un ensemble ordonné permettant les retraits directs ;
+en dessous, une liste reste plus rapide. Les buckets top-level demeurent des
+listes compactes. Ces seuils proviennent des mesures, pas de la sémantique.
+
+### Témoins existentiels résiduels
+
+Le benchmark suivant retire successivement 64 supports dans un domaine de
+1 024 valeurs, dont une sur huit possède un support :
+
+```sh
+uv run python -m benchmarks.constraint_support_churn \
+    --domain-size 1024 --support-stride 8 --steps 64 --repeat 7
+```
+
+| Variante | Médiane | Matchings | Invalidations | Promotions |
+|---|---:|---:|---:|---:|
+| Sans témoins alternatifs | 60,578 ms | 2 275 | 64 | 0 |
+| Deux témoins résiduels | 56,991 ms | 1 253 | 32 | 32 |
+
+Le gain vaut ×1,06 et la baisse de matchings 44,9 %. La mémoire reste bornée à
+deux témoins par corrélation. Lorsqu'un support disparaît, l'alternative est
+promue sans réévaluer le bloc.
+
+Comme garde de non-régression, Sudoku conserve exactement ses matchings :
+47 051 pour p1 et 106 449 pour p6. Dans l'A/B local, les médianes varient de
+0,273 à 0,279 s pour p1 et de 0,504 à 0,513 s pour p6, soit un surcoût fixe de
+2 % environ. Fibonacci `F(15)` conserve ses 9 125 matchings et varie de 0,439
+à 0,450 s.
+
+La série complète se trouve dans
+[`results/constraint_indexing_optimizations_2026-07-24.csv`](results/constraint_indexing_optimizations_2026-07-24.csv).
 
 ## Agenda MEA incrémental
 
@@ -67,7 +296,7 @@ Les données sont conservées dans
 ## Sudoku déclaratif
 
 Le benchmark Sudoku mesure par défaut les niveaux p1, p6 et p7 cinq fois avec
-la stratégie indexée exhaustive utilisée par le solveur :
+les stratégies indexée, semi-naïve et adaptative :
 
 ```sh
 uv run python -m benchmarks.sudoku_rules --levels 1 6 7 --repeat 5
@@ -91,6 +320,33 @@ Cette passe ajoute un gain ×1,62 à ×2,29 et réduit encore les matchings de
 X-Wing p7, ajouté le 24 juillet 2026, prend 0,659 s en médiane sur trois
 passages, avec 171 804 tentatives de matching et 490 activations. Cette mesure
 est un point de départ pour le niveau avancé, pas une comparaison avant/après.
+
+### Propagateurs de comparaison
+
+Une mesure A/B force le filtre de domaines avec, d'une part, l'ancien produit
+cartésien générique et, d'autre part, les propagateurs spécialisés de `!=` et
+des ordres numériques :
+
+```sh
+uv run python -m benchmarks.sudoku_rules \
+    --levels 1 6 7 --repeat 7 --strategy comparisons
+```
+
+| Niveau | Filtre générique | Filtre spécialisé | Gain |
+|---|---:|---:|---:|
+| p1 | 0,426 s | 0,366 s | ×1,17 |
+| p6 | 0,743 s | 0,656 s | ×1,13 |
+| p7 | 0,978 s | 0,924 s | ×1,06 |
+
+Les vérifications spécialisées remplacent respectivement 36 126, 48 762 et
+33 210 combinaisons cartésiennes. En sélection adaptative, p1 passe de
+0,395 s en semi-naïf à 0,355 s, soit −10,2 %. Sur p6 et p7, le filtre reste
+respectivement 3,4 et 0,25 % plus lent que le semi-naïf ; la stratégie indexée
+reste donc le choix par défaut. Le profil montre que ni les comparaisons ni la
+projection initiale ne sont plus leur goulot d'étranglement.
+
+Les mesures détaillées sont conservées dans
+[`results/comparison_propagators_2026-07-24.csv`](results/comparison_propagators_2026-07-24.csv).
 
 ### Hashes structurels précalculés
 
@@ -195,7 +451,7 @@ pas une mesure du snapshot courant. Pour celui-ci, la série `F(15)` à `F(21)`
 présentée juste au-dessus est la référence.
 
 La commande suivante calcule trois fois `F(10)` avec l'oracle naïf, la stratégie
-indexée exhaustive, puis la stratégie semi-naïve :
+indexée exhaustive, la stratégie semi-naïve puis la stratégie adaptative :
 
 ```sh
 uv run python benchmarks/fibonacci_explicit.py \

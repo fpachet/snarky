@@ -22,6 +22,9 @@ Snarky possède déjà :
   une fonction ;
 - `ConstraintProblem`, `ConstraintSolver` et un backend fini de référence ;
 - une traduction SAT élémentaire vers cette interface.
+- une première `ConstraintInstantiationStrategy` hybride qui filtre les
+  domaines de règles positives avant de confier l'énumération au matcher
+  indexé existant.
 
 Les deux dernières infrastructures ne sont utilisées que dans leurs tests.
 Elles ne pilotent aucune base de règles principale. `HypothesisSearch`
@@ -64,18 +67,79 @@ Les faits déterminent les domaines possibles et les prémisses contraignent
 les substitutions. Le matcher actuel résout ce problème comme une suite de
 jointures.
 
-Une future `ConstraintInstantiationStrategy` pourrait :
+Cette lecture n'est pas une analogie moderne ajoutée après coup. Elle reprend
+le principe central de BOOJUM décrit par Dormoy dans
+[*Amélioration de l'efficacité du pattern matching dans le langage à base de
+règles BOOJUM*](https://dormoy.org/JLuc/Papers/Boojum89.pdf) : examiner une
+règle à la fois, associer un domaine à chacune de ses variables, propager les
+contraintes, puis choisir la variable la plus contrainte. Le « second moteur »
+de BOOJUM pousse cette idée jusqu'à la consistance d'arcs. En revanche,
+conserver les tables entre deux examens et les mettre à jour par `FactDelta`
+est une adaptation moderne de Snarky.
+
+### Premier palier livré : filtrage hybride
+
+`ConstraintInstantiationStrategy` réalise maintenant :
 
 1. compiler une fois la partie gauche ;
 2. représenter chaque prémisse factuelle comme une contrainte tabulaire ;
-3. propager égalités, inégalités et domaines ;
-4. énumérer seulement les substitutions restantes ;
-5. conserver pour chaque activation ses faits supports et sa provenance ;
-6. mettre à jour les domaines incrémentalement après une mutation.
+3. construire des domaines de `Term`, relations et propositions comprises ;
+4. placer les propagateurs de tables dans une file de révision ;
+5. ne réveiller après une réduction que les contraintes voisines dans le
+   graphe d'incidence variable–prémisse ;
+6. filtrer aussi une comparaison lorsque son produit de domaines reste
+   explicitement borné ;
+7. transmettre au matcher compilé les listes de faits encore compatibles ;
+8. conserver les faits supports et la provenance ordinaires ;
+9. mettre les tables à jour après ajouts et suppressions, puis recalculer le
+   point fixe afin qu'un ajout puisse réélargir un domaine.
 
 Cette stratégie devrait produire exactement les mêmes activations que le
-matcher naïf. Elle constituerait donc une optimisation, pas une nouvelle
-sémantique.
+matcher naïf. Elle constitue donc une optimisation interchangeable, pas une
+nouvelle sémantique.
+
+Le filtre est volontairement **sûr mais incomplet** : il peut laisser au
+matcher une valeur qui échouera plus tard, mais ne doit jamais éliminer une
+activation valable. La première version accepte les règles composées
+uniquement de prémisses factuelles positives et de comparaisons dont toutes
+les variables proviennent des faits. `EXISTS`, `NOT EXISTS`, agrégats,
+liaisons calculées et combinatoires déclenchent automatiquement le repli sur
+`SemiNaiveInstantiationStrategy`.
+
+Ce palier n'introduit aucun nouveau backtracking. Le matcher actuel termine
+l'énumération avec son `BindingFrame` et son trail local. Il ne copie ni ne
+restaure la mémoire de travail.
+
+### Incrémentalité et limites actuelles
+
+Les tables extensionales sont persistantes par règle :
+
+- un ajout n'est matché que contre les prémisses de cette règle ;
+- une suppression enlève directement la ligne correspondante ;
+- les projections `(variable, valeur)` sont maintenues par compteurs ;
+- une suppression repart du point fixe précédent ;
+- un ajout réinitialise seulement la composante connexe susceptible de
+  s'élargir ;
+- un delta sans ligne pertinente réutilise le résultat filtré.
+
+Cette solution reste correcte en présence d'élargissements de domaines, mais
+ce n'est pas AC-4 ou AC-6 : un propagateur réveillé rescane encore sa table. Une
+mesure sur Sudoku p6 sépare désormais `domain_input_rows` (20 562 lignes à
+lire au moins une fois) de `domain_rows_examined` (21 701 avec la file).
+Les relectures résiduelles ne représentent donc que 5,5 % des examens. Les
+compteurs de supports par valeur et les résidus sont différés tant qu'un
+profil réel ne montre pas que cette fraction domine le temps.
+
+Les métriques distinguent le coût préparatoire
+(`domain_match_attempts`, tables, révisions et valeurs retirées) des
+`match_attempts` du matcher final.
+
+Les métriques `domain_projection_rows_examined`,
+`domain_projection_updates`, `domain_state_reuses` et
+`domain_component_resets` isolent le coût de construction. Sur Sudoku p1,
+p6 et p7, les projections relues baissent de 93,7 à 95,9 %, mais le temps
+total seulement de 1 à 2 %. Cela repousse les bitsets et les compteurs AC-4
+tant qu'un nouveau profil ne les justifie pas.
 
 ### Intérêt attendu
 
@@ -88,11 +152,87 @@ indexés. Il peut devenir important avec :
 - des contraintes arithmétiques ;
 - des domaines fortement réductibles avant leur énumération.
 
-Un premier benchmark contrôlé pourrait reconnaître des cliques de taille
-fixe ou instancier une règle directe des huit reines. L'implémentation ne
-devrait être retenue que si elle réduit effectivement le nombre de
-substitutions intermédiaires et le temps total. Appeler un solveur complet à
-chaque cycle ou activation serait au contraire trop coûteux.
+Le benchmark `benchmarks.constraint_instantiation` utilise deux relations
+denses et une troisième contrainte très sélective placée en dernier. À taille
+40, le filtrage réduit les tentatives du matcher final de 65 640 à 120 ; la
+construction des tables demande séparément 3 201 matchings. La médiane passe
+de 193,0 ms à 17,2 ms, soit ×11,2. À taille 80, elle passe de 1,518 s à
+67,4 ms, soit ×22,5. Ce cas valide le mécanisme, sans prétendre que toute
+règle courte en bénéficiera.
+
+`AdaptiveInstantiationStrategy` ajoute un sélecteur conservateur. Il vérifie
+la taille des tables, la différence de sélectivité entre buckets et la
+présence d'un cycle dans le graphe biparti variables–prémisses. Après un
+premier filtrage candidat, il exige également une réduction minimale des
+lignes. Les comparaisons simples et les égalités arithmétiques binaires ont
+maintenant des propagateurs spécialisés et peuvent être sélectionnées. Les
+formes imbriquées ou non spécialisées restent disponibles dans la stratégie
+forcée avec un produit cartésien borné. La décision est mémorisée par règle ;
+le repli est semi-naïf.
+
+La prémisse `CONSTRAINT expression opérateur expression` réutilise l'AST
+arithmétique sûr de `LET`. Contrairement à `LET`, elle est relationnelle :
+`CONSTRAINT $x + $y == $z` filtre `$x`, `$y` et `$z`. Pour l'addition et la
+soustraction, le propagateur choisit la paire de domaines au plus petit
+produit et déduit la troisième valeur. Multiplication, division et modulo
+énumèrent encore les deux opérandes, jamais le cube avec le résultat.
+
+La même famille accueille les contraintes globales :
+
+```text
+NVALUE $count OF SEQ[$x $y $z]
+ALL_DIFFERENT SEQ[$x $y $z]
+```
+
+Le protocole public `DomainPropagator` choisit un propagateur pour une
+`ComparisonPremise` et révise les domaines sans produire d'activation.
+`NVALUE` borne le nombre de valeurs distinctes par les valeurs déjà forcées et
+l'union des domaines. Les cas `N = 1` et `N = arité` déclenchent
+respectivement une intersection globale et `ALL_DIFFERENT`.
+`ALL_DIFFERENT` propage les singletons et les ensembles de Hall de taille deux
+ou trois. Le matcher ground réévalue toujours la contrainte complète : un
+filtrage volontairement incomplet ne peut donc pas créer de solution fausse.
+
+Les scénarios neutre et défavorable confirment l'intérêt de cette garde. Sur
+une jointure alignée de 600 faits, l'indexé et l'adaptatif prennent
+respectivement 2,826 et 2,818 ms, alors que le filtrage forcé prend 5,063 ms.
+Sur un triangle dense sans réduction, le surcoût adaptatif reste dans le
+bruit de mesure (environ 0,3 % sur la série courante).
+
+### Propagateurs en file
+
+Une chaîne de 40 contraintes met en évidence le coût du point fixe lui-même :
+
+| Variante | Révisions | Lignes examinées | Médiane |
+|---|---:|---:|---:|
+| balayages complets | 1 722 | 67 242 | 43,06 ms |
+| file de propagateurs | 122 | 4 802 | 8,71 ms |
+
+La file divise donc le temps de filtrage par ×4,95 et le travail structurel
+par ×14. La chaîne reste néanmoins mieux traitée par la jointure indexée
+(6,74 ms), car elle est acyclique et fonctionnelle. Le sélecteur la détecte
+et conserve 6,41 ms sans construire les domaines.
+
+### Paliers suivants
+
+1. ~~ajouter des tests différentiels sur des programmes positifs générés ;~~
+2. ~~sélectionner automatiquement les règles où le filtrage amortit son
+   coût ;~~
+3. ~~maintenir les projections et domaines entre les cycles ;~~
+4. ~~ajouter une interface de propagateur global, `NVALUE` et
+   `ALL_DIFFERENT` avec Hall borné ;~~
+5. mémoriser des supports résiduels seulement si le balayage
+   des tables par les propagateurs domine ;
+6. généraliser les index de chemins aux triples imbriqués d'ordre 2 ;
+7. mesurer une consistance généralisée de `ALL_DIFFERENT` par matching
+   biparti seulement sur un cas probant ;
+8. remplacer éventuellement l'énumération finale par le choix MRV et un trail
+   local, sans toucher à `InferenceSession` ;
+9. traiter séparément les choix métier et la recherche par sessions.
+
+Appeler un solveur complet à chaque cycle ou activation resterait au contraire
+trop coûteux et compliquerait la provenance. Un backend externe conserve son
+rôle d'oracle ou de moteur optionnel de recherche globale.
 
 ## 2. Clauses combinatoires dans les règles
 
@@ -247,6 +387,43 @@ semi-naïve. Ils vérifient :
 - l'absence de faux fait `solved` pour ce triangle ;
 - la détection de deux domaines vides dans une paire impossible.
 
+### Optimisations générales révélées par la propagation
+
+La montée en taille de ce noyau a conduit à quatre optimisations du matcher,
+sans primitive CSP spécialisée :
+
+1. les rangs d'insertion de `FactIndex` restent stables après un retrait ;
+2. les grandes mémoires utilisent un ensemble ordonné pour retirer un fait
+   sans reconstruire la séquence active, tandis que les petites conservent la
+   liste plus compacte ;
+3. un pattern partiellement lié comme
+   `SEQ[$left_value $right_value]` demande à la volée un index composé sur les
+   chemins résolus de la structure ;
+4. les blocs existentiels factuels choisissent le plus petit bucket et
+   conservent au plus deux témoins résiduels.
+
+Les mêmes signatures structurelles indexent les watchers. Un ajout portant
+sur un autre élément de séquence ne réveille donc pas une corrélation
+incompatible.
+
+Les gardes sont empiriques : les index structurels ne sont construits que si
+le meilleur bucket top-level dépasse huit faits ; l'ordre adaptatif et les
+témoins alternatifs ne sont activés qu'à partir de 128 faits ; l'ensemble
+ordonné global est retenu à partir de 1 500 faits initiaux. Ces seuils
+n'affectent jamais les résultats.
+
+Sur la chaîne d'égalité 64×64, ces mécanismes réduisent les matchings de
+560 196 à 310 212 et le temps de 2,566 s à 1,684 s, soit ×1,52. Un benchmark
+séparé de disparition des supports réduit les invalidations de 64 à 32 et les
+matchings de 2 275 à 1 253 grâce aux témoins résiduels.
+
+Les scripts reproductibles sont
+[`constraint_scaling.py`](../benchmarks/constraint_scaling.py) et
+[`constraint_support_churn.py`](../benchmarks/constraint_support_churn.py).
+Ces résultats indiquent que l'infrastructure générale suffit encore pour la
+propagation binaire étudiée. Une file AC-3 spécialisée n'est donc pas ajoutée
+à ce stade.
+
 ## 4. Recherche et backtracking explicites
 
 La propagation peut atteindre un point fixe sans résoudre le problème. Les
@@ -326,8 +503,8 @@ résultats fourniront un oracle de comportement.
    orchestrateur générique de sessions.
 3. Ajouter `MEMBER` et `SIZE`.
 4. Implémenter les naked triples de Sudoku avec `COMBINATIONS`.
-5. Ajouter `ALL_DIFFERENT` et les sous-ensembles de Hall au noyau de
-   propagation.
+5. ~~Ajouter `ALL_DIFFERENT` et les sous-ensembles de Hall au noyau de
+   propagation.~~
 6. Valider la recherche sur un Sudoku nécessitant réellement une hypothèse.
 7. Expérimenter une stratégie d'instanciation CSP sur un benchmark de
    jointures fortement contraintes.

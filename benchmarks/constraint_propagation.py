@@ -9,6 +9,7 @@ import time
 from pathlib import Path
 
 from snarky import (
+    AdaptiveInstantiationStrategy,
     ForwardEngine,
     IndexedInstantiationStrategy,
     NaiveInstantiationStrategy,
@@ -21,6 +22,7 @@ _STRATEGIES = {
     "naive": NaiveInstantiationStrategy,
     "indexed": IndexedInstantiationStrategy,
     "semi-naive": SemiNaiveInstantiationStrategy,
+    "adaptive": AdaptiveInstantiationStrategy,
 }
 
 
@@ -55,14 +57,35 @@ def run(repeat: int, batch_size: int) -> dict[str, object]:
             "facts": len(final_session.facts),
             "activations": snapshot.fired_activation_count,
             "cycles": snapshot.cycles,
+            "match_attempts": final_session.strategy.metrics.match_attempts,
+            "domain_filter_runs": (
+                final_session.strategy.metrics.domain_filter_runs
+            ),
+            "domain_filter_fallbacks": (
+                final_session.strategy.metrics.domain_filter_fallbacks
+            ),
+            "domain_filter_selections": (
+                final_session.strategy.metrics.domain_filter_selections
+            ),
+            "domain_filter_rejections": (
+                final_session.strategy.metrics.domain_filter_rejections
+            ),
+            "domain_rows_examined": (
+                final_session.strategy.metrics.domain_rows_examined
+            ),
+            "domain_input_rows": (
+                final_session.strategy.metrics.domain_input_rows
+            ),
         }
 
     naive = results["naive"]
     indexed = results["indexed"]
     semi_naive = results["semi-naive"]
+    adaptive = results["adaptive"]
     assert isinstance(naive, dict)
     assert isinstance(indexed, dict)
     assert isinstance(semi_naive, dict)
+    assert isinstance(adaptive, dict)
     return {
         "repeat": repeat,
         "batch_size": batch_size,
@@ -72,6 +95,9 @@ def run(repeat: int, batch_size: int) -> dict[str, object]:
         ),
         "speedup_semi_naive_over_naive": (
             naive["median_seconds"] / semi_naive["median_seconds"]
+        ),
+        "speedup_adaptive_over_semi_naive": (
+            semi_naive["median_seconds"] / adaptive["median_seconds"]
         ),
     }
 

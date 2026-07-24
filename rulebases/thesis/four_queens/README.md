@@ -40,6 +40,12 @@ Le matcher engendre lui-même les combinaisons. La partie action ajoute une
 séquence `queens_solution`; aucune boucle, recherche ou contrainte métier
 n'est cachée dans Python.
 
+Les inégalités de lignes et de diagonales sont désormais aussi reconnues par
+le filtre adaptatif comme des contraintes de domaines. Sans changer cette
+formulation fidèle, leur propagation spécialisée fait passer le benchmark
+semi-naïf de 161,49 ms à 116,73 ms, soit un gain ×1,38. Les projections
+persistantes ne lisent que 423 lignes et réutilisent deux états filtrés.
+
 ## Formulation générique par placements partiels
 
 `solve_n_queens` réifie chaque nœud de recherche en candidat. Son identifiant

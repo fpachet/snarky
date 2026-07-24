@@ -141,6 +141,39 @@ def test_compound_indexes_intersect_two_bound_triple_positions() -> None:
     assert strategy.metrics.match_attempts == 1
 
 
+def test_adaptive_structural_index_uses_bound_sequence_elements() -> None:
+    rule = parse_rules(
+        """
+        RULE find_structured_pair
+        WHEN
+            (query relation $relation)
+            (query left $left)
+            ($relation allows SEQ[$left $right])
+        THEN
+            ADD (result value $right)
+        END
+        """
+    )[0]
+    facts = (
+        Fact(parse_term("(query relation relation-a)")),
+        Fact(parse_term("(query left left-17)")),
+        *tuple(
+            Fact(
+                parse_term(
+                    f"(relation-a allows SEQ[left-{index} right-{index}])"
+                )
+            )
+            for index in range(40)
+        ),
+    )
+    strategy = IndexedInstantiationStrategy()
+
+    activations = strategy.instantiate(rule, facts)
+
+    assert len(activations) == 1
+    assert strategy.metrics.match_attempts == 3
+
+
 def test_bounded_partial_join_memory_updates_from_both_delta_kinds() -> None:
     rule = parse_rules(
         """
@@ -178,3 +211,42 @@ def test_bounded_partial_join_memory_updates_from_both_delta_kinds() -> None:
     assert after_removal[0].premise_facts == (left, second_right)
     assert strategy.metrics.partial_join_builds == 1
     assert strategy.metrics.partial_join_updates == 2
+
+
+def test_large_ordered_fact_set_keeps_stable_delta_ranks() -> None:
+    rule = parse_rules(
+        """
+        RULE select_target
+        WHEN
+            (target relation $value)
+        THEN
+            ADD (result value $value)
+        END
+        """
+    )[0]
+    old = Fact(parse_term("(target relation old)"))
+    new = Fact(parse_term("(target relation new)"))
+    noise = tuple(
+        Fact(parse_term(f"(noise-{index} unrelated value)"))
+        for index in range(1_600)
+    )
+    initial = (old, *noise)
+    strategy = SemiNaiveInstantiationStrategy()
+
+    first = strategy.instantiate(rule, initial)
+    strategy.invalidate(frozenset((old,)))
+    updated = (*noise, new)
+    second = strategy.instantiate(
+        rule,
+        updated,
+        FactDelta(
+            added=(new,),
+            removed=frozenset((old,)),
+            revision=1,
+        ),
+    )
+
+    assert first[0].substitution.key == (("value", parse_term("old")),)
+    assert second[0].substitution.key == (("value", parse_term("new")),)
+    assert strategy.metrics.index_builds == 1
+    assert strategy.metrics.index_removals == 1

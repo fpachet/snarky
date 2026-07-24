@@ -1,0 +1,22 @@
+GROUP solve_global_constraints
+    RULE one_distinct_value
+    WHEN
+        (nvalue-first candidate $first)
+        (nvalue-second candidate $second)
+        (nvalue-third candidate $third)
+        (nvalue-count value $count)
+        NVALUE $count OF SEQ[$first $second $third]
+    THEN
+        ADD (SEQ[$first $second $third] global_solution nvalue)
+    END
+
+    RULE hall_pair
+    WHEN
+        (hall-first candidate $first)
+        (hall-second candidate $second)
+        (hall-third candidate $third)
+        ALL_DIFFERENT SEQ[$first $second $third]
+    THEN
+        ADD (SEQ[$first $second $third] global_solution all_different)
+    END
+END_GROUP

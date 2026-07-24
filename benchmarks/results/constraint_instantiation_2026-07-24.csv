@@ -1,0 +1,17 @@
+scenario,size,facts,strategy,median_seconds,activations,match_attempts,domain_match_attempts,domain_input_rows,domain_propagator_revisions,domain_rows_examined,filter_selected,filter_rejected
+favorable,40,3201,indexed,0.189520583,40,65640,0,0,0,0,0,0
+favorable,40,3201,domain-full-scan,0.016915250,40,120,3201,3201,6,6402,0,0
+favorable,40,3201,domain-filtered,0.017229000,40,120,3201,3201,6,6402,0,0
+favorable,40,3201,adaptive,0.017228000,40,120,3201,3201,6,6402,1,0
+neutral,200,600,indexed,0.002986666,200,600,0,0,0,0,0,0
+neutral,200,600,domain-full-scan,0.004900125,200,600,600,600,3,600,0,0
+neutral,200,600,domain-filtered,0.005035375,200,600,600,600,3,600,0,0
+neutral,200,600,adaptive,0.002825959,200,600,0,0,0,0,0,1
+adverse,20,1200,indexed,0.052027291,8000,16400,0,0,0,0,0,0
+adverse,20,1200,domain-full-scan,0.058930250,8000,16400,1200,1200,3,1200,0,0
+adverse,20,1200,domain-filtered,0.058239125,8000,16400,1200,1200,3,1200,0,0
+adverse,20,1200,adaptive,0.052172958,8000,16400,0,0,0,0,0,1
+chain,40,1601,indexed,0.006740667,1,1601,0,0,0,0,0,0
+chain,40,1601,domain-full-scan,0.043063375,1,41,1601,1601,1722,67242,0,0
+chain,40,1601,domain-filtered,0.008705792,1,41,1601,1601,122,4802,0,0
+chain,40,1601,adaptive,0.006412583,1,1601,0,0,0,0,0,1

@@ -8,18 +8,37 @@ des groupes de règles réutilisables.
 ```text
 constraints/
 ├── README.md
-└── binary/
-    ├── README.md
-    ├── rules.rules
-    ├── initial_facts.yaml
-    ├── expected_facts.yaml
-    └── scenario.yaml
+├── binary/
+│   └── ...
+└── global/
+    └── ...
 ```
 
 Le premier noyau, [`binary`](binary/README.md), implémente l'arc-consistance
 de contraintes binaires tabulaires. Il ne dépend ni de
 `ConstraintProblem`, ni de `BacktrackingConstraintSolver`, ni d'une fonction
 métier Python.
+
+La base [`global`](global/README.md) exerce les prémisses `NVALUE` et
+`ALL_DIFFERENT`. Elle montre le filtrage de cardinalité distincte, des
+singletons et des ensembles de Hall sans recherche cachée.
+
+Ce noyau sert aussi de benchmark d'indexation générale. Les grandes mémoires
+profitent de rangs stables, d'index paresseux sur les éléments de `SEQ[...]`,
+d'un ordre adaptatif dans les recherches de support et de deux témoins
+résiduels bornés. Aucun de ces mécanismes ne connaît le vocabulaire CSP.
+
+Il faut distinguer ces contraintes métier réifiées du filtrage interne des
+variables d'une règle. La prémisse générique :
+
+```text
+CONSTRAINT $x + $y == $z
+```
+
+réduit temporairement les domaines d'instanciation sans ajouter ni retirer de
+fait métier. Elle convient aux comparaisons et à l'arithmétique locale d'une
+règle ; les faits `binary_constraint` restent utiles lorsqu'une contrainte
+doit être inspectée, expliquée ou propagée par la base elle-même.
 
 ## Conventions
 
@@ -55,11 +74,15 @@ Snarky ordinaire et possède donc une provenance.
 
 ## Étapes suivantes
 
-1. exposer les choix encore ouverts sous forme de faits ;
-2. connecter ces choix à des sessions hypothétiques ;
+1. exposer les choix encore ouverts sous forme de faits `choice` ;
+2. connecter ces choix à des sessions hypothétiques avec un backtracking
+   explicite et traçable ;
 3. ajouter `MEMBER` et `SIZE` pour les contraintes globales locales ;
-4. définir `ALL_DIFFERENT` et les sous-ensembles de Hall ;
-5. comparer ce noyau à un solveur CSP externe servant d'oracle.
+4. mesurer une éventuelle consistance généralisée de `ALL_DIFFERENT` par
+   matching biparti ;
+5. comparer ce noyau à un solveur CSP externe servant d'oracle ;
+6. mesurer si certaines contraintes réifiées peuvent réutiliser les
+   propagateurs internes sans perdre leur provenance explicite.
 
 L'analyse architecturale complète se trouve dans
 [`docs/constraints_propagation_and_search.md`](../../docs/constraints_propagation_and_search.md).

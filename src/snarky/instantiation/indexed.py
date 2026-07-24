@@ -3,9 +3,10 @@
 from __future__ import annotations
 
 from collections import defaultdict
-from collections.abc import Iterable, Sequence
+from collections.abc import Iterable, Iterator, Sequence
 from dataclasses import dataclass
-from typing import TypeVar
+from functools import cache
+from typing import TypeVar, cast, overload
 
 from ..computed import ComputedPremise
 from ..facts import Fact
@@ -29,7 +30,14 @@ from ..substitutions import (
     Substitution,
     TermBindings,
 )
-from ..terms import FiniteSet, Term, Triple, Variable, is_ground
+from ..terms import (
+    FiniteSequence,
+    FiniteSet,
+    Term,
+    Triple,
+    Variable,
+    is_ground,
+)
 from .base import (
     Activation,
     FactDelta,
@@ -56,6 +64,166 @@ from .compiled import (
 
 IndexKeyT = TypeVar("IndexKeyT")
 type WatchToken = tuple[str, object]
+type TermPath = tuple[str | int, ...]
+type StructuralSignature = tuple[TermPath, ...]
+type StructuralKey = tuple[Term, ...]
+_STRUCTURAL_INDEX_MIN_BUCKET = 8
+_RESIDUAL_WITNESS_MIN_FACTS = 128
+_ORDERED_FACT_SET_MIN_INITIAL_FACTS = 1_500
+
+
+class _OrderedFactSet(Sequence[Fact]):
+    """Insertion-ordered fact set with constant-time add and removal."""
+
+    __slots__ = ("_members", "_snapshot")
+
+    def __init__(self) -> None:
+        self._members: dict[Fact, None] = {}
+        self._snapshot: tuple[Fact, ...] | None = None
+
+    def add(self, fact: Fact) -> bool:
+        if fact in self._members:
+            return False
+        self._members[fact] = None
+        self._snapshot = None
+        return True
+
+    def discard(self, fact: Fact) -> bool:
+        if fact not in self._members:
+            return False
+        del self._members[fact]
+        self._snapshot = None
+        return True
+
+    def __contains__(self, item: object) -> bool:
+        return item in self._members
+
+    def __iter__(self) -> Iterator[Fact]:
+        return iter(self._members)
+
+    def __len__(self) -> int:
+        return len(self._members)
+
+    @overload
+    def __getitem__(self, index: int) -> Fact: ...
+
+    @overload
+    def __getitem__(self, index: slice) -> tuple[Fact, ...]: ...
+
+    def __getitem__(
+        self,
+        index: int | slice,
+    ) -> Fact | tuple[Fact, ...]:
+        if self._snapshot is None:
+            self._snapshot = tuple(self._members)
+        return self._snapshot[index]
+
+
+def _resolved_leaf_constraints(
+    term: Term,
+    bindings: TermBindings,
+    path: TermPath = ("entity",),
+) -> tuple[tuple[TermPath, Term], ...]:
+    """Return ground leaf constraints visible under the current bindings."""
+
+    if isinstance(term, Variable):
+        if term not in bindings:
+            return ()
+        return ((path, bindings.apply(term)),)
+    if isinstance(term, Triple):
+        constraints: list[tuple[TermPath, Term]] = []
+        for name, part in (
+            ("subject", term.subject),
+            ("relation", term.relation),
+            ("object", term.object),
+        ):
+            constraints.extend(
+                _resolved_leaf_constraints(
+                    part,
+                    bindings,
+                    (*path, name),
+                )
+            )
+        return tuple(constraints)
+    if isinstance(term, FiniteSequence):
+        sequence_constraints: list[tuple[TermPath, Term]] = []
+        for index, element in enumerate(term.elements):
+            sequence_constraints.extend(
+                _resolved_leaf_constraints(
+                    element,
+                    bindings,
+                    (*path, index),
+                )
+            )
+        return tuple(sequence_constraints)
+    return ((path, term),)
+
+
+@cache
+def _contains_sequence(term: Term) -> bool:
+    if isinstance(term, FiniteSequence):
+        return True
+    if isinstance(term, Triple):
+        return any(
+            _contains_sequence(part)
+            for part in (term.subject, term.relation, term.object)
+        )
+    return False
+
+
+def _term_at_path(fact: Fact, path: TermPath) -> Term | None:
+    """Resolve a previously compiled structural path in one ground fact."""
+
+    if not path:
+        return None
+    current: Term = fact.entity if path[0] == "entity" else fact.status
+    for step in path[1:]:
+        if isinstance(step, int):
+            if (
+                not isinstance(current, FiniteSequence)
+                or step >= len(current.elements)
+            ):
+                return None
+            current = current.elements[step]
+            continue
+        if not isinstance(current, Triple):
+            return None
+        if step == "subject":
+            current = current.subject
+        elif step == "relation":
+            current = current.relation
+        elif step == "object":
+            current = current.object
+        else:
+            return None
+    return current
+
+
+def _structural_lookup(
+    premise: CompiledFactPremise,
+    bindings: TermBindings,
+) -> tuple[StructuralSignature, StructuralKey] | None:
+    """Compile one useful partial-structure lookup for a fact premise."""
+
+    if not _contains_sequence(premise.source.entity):
+        return None
+    if premise.entity.resolve(bindings) is not None:
+        return None
+    constraints = _resolved_leaf_constraints(
+        premise.source.entity,
+        bindings,
+    )
+    if not any(
+        isinstance(step, int)
+        for path, _ in constraints
+        for step in path
+    ):
+        return None
+    ordered = tuple(sorted(constraints, key=lambda item: repr(item[0])))
+    return (
+        tuple(path for path, _ in ordered),
+        tuple(value for _, value in ordered),
+    )
 
 
 def _apply_compiled_binding(
@@ -135,6 +303,11 @@ class IndexedInstantiationStrategy:
         self._query_aggregate_supports: dict[
             WitnessCacheKey, tuple[Fact, ...]
         ] = {}
+        self._residual_witnesses: dict[
+            WitnessCacheKey,
+            tuple[tuple[Fact, ...], ...],
+        ] = {}
+        self._structural_watch_signatures: set[StructuralSignature] = set()
         self._rule_memories: dict[Rule, _RuleMemory] = {}
         self._positive_join_memories: dict[
             Rule, tuple[tuple[_PartialState, ...], ...]
@@ -457,6 +630,19 @@ class IndexedInstantiationStrategy:
         if not delta.removed:
             self.metrics.activation_cache_hits += 1
             return memory.activations
+        if any(
+            isinstance(
+                premise,
+                (
+                    ExistsPremise,
+                    CountPremise,
+                    UniquePremise,
+                    CollectPremise,
+                ),
+            )
+            for premise in rule.premises
+        ):
+            return None
         if self._removal_can_enable_negative(rule, delta.removed):
             return None
         retained = tuple(
@@ -502,7 +688,7 @@ class IndexedInstantiationStrategy:
             self._pending_removed.update(delta.removed)
         index = self._index
         if index is None:
-            index = FactIndex(facts)
+            index = FactIndex(facts, metrics=self.metrics)
             self._index = index
             self._pending_removed.clear()
             self._witness_cache.clear()
@@ -523,7 +709,7 @@ class IndexedInstantiationStrategy:
                 added = index.extend(facts[len(indexed) :])
                 self.metrics.indexed_facts += added
             elif indexed != facts:
-                index = FactIndex(facts)
+                index = FactIndex(facts, metrics=self.metrics)
                 self._index = index
                 if delta is None:
                     self._witness_cache.clear()
@@ -536,15 +722,6 @@ class IndexedInstantiationStrategy:
         if delta is not None and delta.added:
             added = index.extend(delta.added)
             self.metrics.indexed_facts += added
-        if tuple(index.facts) != facts:
-            index = FactIndex(facts)
-            self._index = index
-            if delta is None:
-                self._witness_cache.clear()
-                self._query_blocks.clear()
-                self._clear_query_watchers()
-            self.metrics.index_builds += 1
-            self.metrics.indexed_facts += len(facts)
         return index
 
     def _apply_query_delta(self, delta: FactDelta) -> None:
@@ -563,10 +740,16 @@ class IndexedInstantiationStrategy:
         candidates: set[WitnessCacheKey] = set()
         for fact in removed:
             candidates.update(self._support_watchers.get(fact, ()))
-            for token in _fact_watch_tokens(fact):
+            for token in _fact_watch_tokens(
+                fact,
+                self._structural_watch_signatures,
+            ):
                 candidates.update(self._negative_watchers.get(token, ()))
         for fact in added:
-            for token in _fact_watch_tokens(fact):
+            for token in _fact_watch_tokens(
+                fact,
+                self._structural_watch_signatures,
+            ):
                 candidates.update(self._negative_watchers.get(token, ()))
                 candidates.update(self._creation_watchers.get(token, ()))
 
@@ -577,6 +760,29 @@ class IndexedInstantiationStrategy:
                 continue
             block = self._query_blocks[key]
             witness = self._witness_cache.get(key)
+            residuals = self._residual_witnesses.get(key)
+            if residuals is not None and removed:
+                remaining_residuals = tuple(
+                    residual
+                    for residual in residuals
+                    if removed.isdisjoint(residual)
+                )
+                if remaining_residuals:
+                    if remaining_residuals != residuals:
+                        promoted = (
+                            remaining_residuals[0] != residuals[0]
+                        )
+                        self._register_query_memory(
+                            key,
+                            block,
+                            remaining_residuals[0],
+                            residual_witnesses=remaining_residuals,
+                        )
+                        if promoted:
+                            self.metrics.residual_witness_promotions += 1
+                    continue
+                expired.append(key)
+                continue
             if witness is not None and any(
                 fact in removed for fact in witness
             ):
@@ -657,19 +863,32 @@ class IndexedInstantiationStrategy:
         simple_facts: tuple[Fact, ...] | None = None,
         count_value: int | None = None,
         aggregate_supports: tuple[Fact, ...] = (),
+        residual_witnesses: tuple[tuple[Fact, ...], ...] = (),
     ) -> None:
         self._remove_query_registration(key)
         frame = BindingFrame(
             (Variable(name), term)
             for name, term in key[1]
         )
+        use_structural_watches = (
+            self._index is not None
+            and len(self._index) >= _RESIDUAL_WITNESS_MIN_FACTS
+        )
         negative_tokens = frozenset(
-            _plan_watch_token(plan, frame)
+            _plan_watch_token(
+                plan,
+                frame,
+                use_structure=use_structural_watches,
+            )
             for plan in negative_fact_plans(block)
         )
         creation_tokens = (
             frozenset(
-                _plan_watch_token(plan, frame)
+                _plan_watch_token(
+                    plan,
+                    frame,
+                    use_structure=use_structural_watches,
+                )
                 for plan in all_fact_plans(block)
             )
             if (
@@ -679,10 +898,19 @@ class IndexedInstantiationStrategy:
             )
             else frozenset()
         )
+        for token in (*negative_tokens, *creation_tokens):
+            if token[0] == "structure":
+                signature, _ = cast(
+                    tuple[StructuralSignature, StructuralKey],
+                    token[1],
+                )
+                self._structural_watch_signatures.add(signature)
         supports = (
             simple_facts
             if simple_facts is not None
-            else aggregate_supports or (witness or ())
+            else aggregate_supports
+            or _aggregate_supports(residual_witnesses)
+            or (witness or ())
         )
         for token in negative_tokens:
             self._negative_watchers[token].add(key)
@@ -704,6 +932,8 @@ class IndexedInstantiationStrategy:
         elif count_value is not None:
             self._query_counts[key] = count_value
             self._query_aggregate_supports[key] = aggregate_supports
+        if residual_witnesses:
+            self._residual_witnesses[key] = residual_witnesses
 
     def _remove_query_registration(
         self,
@@ -723,6 +953,7 @@ class IndexedInstantiationStrategy:
         self._query_counts.pop(key, None)
         self._simple_query_facts.pop(key, None)
         self._query_aggregate_supports.pop(key, None)
+        self._residual_witnesses.pop(key, None)
 
     @staticmethod
     def _discard_watcher(
@@ -745,6 +976,8 @@ class IndexedInstantiationStrategy:
         self._query_counts.clear()
         self._simple_query_facts.clear()
         self._query_aggregate_supports.clear()
+        self._residual_witnesses.clear()
+        self._structural_watch_signatures.clear()
 
     @staticmethod
     def _facts_match_plans(
@@ -946,6 +1179,28 @@ class IndexedInstantiationStrategy:
                 simple_facts=simple_facts,
             )
             return simple_witness
+        if self._can_retain_residual_witnesses(block, index, frame):
+            checkpoint = frame.checkpoint()
+            residuals: list[tuple[Fact, ...]] = []
+            self._collect_bounded_fact_witnesses(
+                block,
+                index,
+                remaining=tuple(range(len(block.premises))),
+                frame=frame,
+                selected=[],
+                output=residuals,
+                limit=2,
+            )
+            frame.rollback(checkpoint)
+            residual_tuple = tuple(residuals)
+            witness = residual_tuple[0] if residual_tuple else None
+            self._register_query_memory(
+                key,
+                block,
+                witness,
+                residual_witnesses=residual_tuple,
+            )
+            return witness
         checkpoint = frame.checkpoint()
         supports: list[Fact] = []
         witness = self._first_compiled_witness_from(
@@ -958,6 +1213,91 @@ class IndexedInstantiationStrategy:
         frame.rollback(checkpoint)
         self._register_query_memory(key, block, witness)
         return witness
+
+    @staticmethod
+    def _can_retain_residual_witnesses(
+        block: CompiledBlock,
+        index: FactIndex,
+        frame: BindingFrame,
+    ) -> bool:
+        return (
+            len(index) >= _RESIDUAL_WITNESS_MIN_FACTS
+            and
+            len(block.premises) > 1
+            and all(
+                isinstance(premise, CompiledFactPremise)
+                for premise in block.premises
+            )
+            and any(
+                _structural_lookup(premise, frame) is not None
+                for premise in block.premises
+                if isinstance(premise, CompiledFactPremise)
+            )
+        )
+
+    def _collect_bounded_fact_witnesses(
+        self,
+        block: CompiledBlock,
+        index: FactIndex,
+        *,
+        remaining: tuple[int, ...],
+        frame: BindingFrame,
+        selected: list[tuple[int, Fact]],
+        output: list[tuple[Fact, ...]],
+        limit: int,
+    ) -> None:
+        """Retain a small number of alternatives for a structured join."""
+
+        if len(output) >= limit:
+            return
+        if not remaining:
+            output.append(
+                tuple(
+                    fact
+                    for _, fact in sorted(
+                        selected,
+                        key=lambda item: item[0],
+                    )
+                )
+            )
+            return
+        choices: list[
+            tuple[int, int, CompiledFactPremise, Sequence[Fact]]
+        ] = []
+        for position in remaining:
+            premise = block.premises[position]
+            assert isinstance(premise, CompiledFactPremise)
+            candidates = index.candidates_compiled(premise, frame)
+            choices.append((len(candidates), position, premise, candidates))
+        _, position, premise, candidates = min(
+            choices,
+            key=lambda choice: (choice[0], choice[1]),
+        )
+        if position != remaining[0]:
+            self.metrics.adaptive_join_reorders += 1
+        self.metrics.candidate_facts += len(candidates)
+        for fact in candidates:
+            self.metrics.match_attempts += 1
+            checkpoint = frame.checkpoint()
+            if premise.match(fact.entity, fact.status, frame):
+                selected.append((position, fact))
+                self._collect_bounded_fact_witnesses(
+                    block,
+                    index,
+                    remaining=tuple(
+                        candidate
+                        for candidate in remaining
+                        if candidate != position
+                    ),
+                    frame=frame,
+                    selected=selected,
+                    output=output,
+                    limit=limit,
+                )
+                selected.pop()
+            frame.rollback(checkpoint)
+            if len(output) >= limit:
+                return
 
     def _first_compiled_witness_from(
         self,
@@ -1077,21 +1417,126 @@ class IndexedInstantiationStrategy:
             return witness
         if not isinstance(premise, CompiledFactPremise):
             raise TypeError(f"unsupported compiled premise: {premise!r}")
-        candidates = index.candidates_compiled(premise, frame)
+        group_end = premise_index
+        while (
+            group_end < len(block.premises)
+            and isinstance(
+                block.premises[group_end],
+                CompiledFactPremise,
+            )
+        ):
+            group_end += 1
+        group_positions = tuple(range(premise_index, group_end))
+        if not (
+            len(index) >= _RESIDUAL_WITNESS_MIN_FACTS
+            and any(
+                _structural_lookup(candidate, frame) is not None
+                for candidate in block.premises[premise_index:group_end]
+                if isinstance(candidate, CompiledFactPremise)
+            )
+        ):
+            candidates = index.candidates_compiled(premise, frame)
+            self.metrics.candidate_facts += len(candidates)
+            for fact in candidates:
+                self.metrics.match_attempts += 1
+                checkpoint = frame.checkpoint()
+                if premise.match(fact.entity, fact.status, frame):
+                    supports.append(fact)
+                    witness = self._first_compiled_witness_from(
+                        block,
+                        index,
+                        premise_index + 1,
+                        frame,
+                        supports,
+                    )
+                    supports.pop()
+                    frame.rollback(checkpoint)
+                    if witness is not None:
+                        return witness
+                else:
+                    frame.rollback(checkpoint)
+            return None
+        return self._first_compiled_fact_group(
+            block,
+            index,
+            remaining=group_positions,
+            next_index=group_end,
+            frame=frame,
+            supports=supports,
+            selected=[],
+        )
+
+    def _first_compiled_fact_group(
+        self,
+        block: CompiledBlock,
+        index: FactIndex,
+        *,
+        remaining: tuple[int, ...],
+        next_index: int,
+        frame: BindingFrame,
+        supports: list[Fact],
+        selected: list[tuple[int, Fact]],
+    ) -> tuple[Fact, ...] | None:
+        """Join one positive block from its currently smallest bucket."""
+
+        if not remaining:
+            support_count = len(supports)
+            supports.extend(
+                fact for _, fact in sorted(selected, key=lambda item: item[0])
+            )
+            witness = self._first_compiled_witness_from(
+                block,
+                index,
+                next_index,
+                frame,
+                supports,
+            )
+            del supports[support_count:]
+            return witness
+        choices: list[
+            tuple[int, int, CompiledFactPremise, Sequence[Fact]]
+        ] = []
+        for position in remaining:
+            candidate_premise = block.premises[position]
+            assert isinstance(candidate_premise, CompiledFactPremise)
+            candidate_facts = index.candidates_compiled(
+                candidate_premise,
+                frame,
+            )
+            choices.append(
+                (
+                    len(candidate_facts),
+                    position,
+                    candidate_premise,
+                    candidate_facts,
+                )
+            )
+        _, position, premise, candidates = min(
+            choices,
+            key=lambda choice: (choice[0], choice[1]),
+        )
+        if position != remaining[0]:
+            self.metrics.adaptive_join_reorders += 1
         self.metrics.candidate_facts += len(candidates)
         for fact in candidates:
             self.metrics.match_attempts += 1
             checkpoint = frame.checkpoint()
             if premise.match(fact.entity, fact.status, frame):
-                supports.append(fact)
-                witness = self._first_compiled_witness_from(
+                selected.append((position, fact))
+                witness = self._first_compiled_fact_group(
                     block,
                     index,
-                    premise_index + 1,
-                    frame,
-                    supports,
+                    remaining=tuple(
+                        candidate
+                        for candidate in remaining
+                        if candidate != position
+                    ),
+                    next_index=next_index,
+                    frame=frame,
+                    supports=supports,
+                    selected=selected,
                 )
-                supports.pop()
+                selected.pop()
                 frame.rollback(checkpoint)
                 if witness is not None:
                     return witness
@@ -1725,7 +2170,7 @@ class SemiNaiveInstantiationStrategy(IndexedInstantiationStrategy):
                 if isinstance(premise, FactPremise)
             )
             premise_groups = self._premise_groups(rule)
-            delta_start = len(index) - len(changes.added)
+            delta_start = index.delta_start(changes.added)
             unique: dict[
                 tuple[tuple[tuple[str, Term], ...], tuple[Fact, ...]],
                 Activation,
@@ -1915,9 +2360,20 @@ class SemiNaiveInstantiationStrategy(IndexedInstantiationStrategy):
 class FactIndex:
     """Incrementally maintained indexes over facts and top-level positions."""
 
-    def __init__(self, facts: Sequence[Fact] = ()) -> None:
-        self.facts: list[Fact] = []
+    def __init__(
+        self,
+        facts: Sequence[Fact] = (),
+        *,
+        metrics: InstantiationMetrics | None = None,
+    ) -> None:
+        self.metrics = metrics
+        self.facts: list[Fact] | _OrderedFactSet = (
+            _OrderedFactSet()
+            if len(facts) >= _ORDERED_FACT_SET_MIN_INITIAL_FACTS
+            else []
+        )
         self.ranks: dict[Fact, int] = {}
+        self._next_rank = 0
         self.by_entity: defaultdict[Term, list[Fact]] = defaultdict(list)
         self.by_status: defaultdict[Term, list[Fact]] = defaultdict(list)
         self.by_subject: defaultdict[Term, list[Fact]] = defaultdict(list)
@@ -1932,6 +2388,10 @@ class FactIndex:
         self.by_subject_object: defaultdict[
             tuple[Term, Term], list[Fact]
         ] = defaultdict(list)
+        self.by_structure: dict[
+            StructuralSignature,
+            defaultdict[StructuralKey, _OrderedFactSet],
+        ] = {}
         self.extend(facts)
 
     def extend(self, facts: Sequence[Fact]) -> int:
@@ -1939,8 +2399,12 @@ class FactIndex:
         for fact in facts:
             if fact in self.ranks:
                 continue
-            self.ranks[fact] = len(self.facts)
-            self.facts.append(fact)
+            self.ranks[fact] = self._next_rank
+            self._next_rank += 1
+            if isinstance(self.facts, _OrderedFactSet):
+                self.facts.add(fact)
+            else:
+                self.facts.append(fact)
             self.by_entity[fact.entity].append(fact)
             self.by_status[fact.status].append(fact)
             if isinstance(fact.entity, Triple):
@@ -1956,6 +2420,7 @@ class FactIndex:
                 self.by_subject_object[
                     (fact.entity.subject, fact.entity.object)
                 ].append(fact)
+            self._add_to_structural_indexes(fact)
             added += 1
         return added
 
@@ -1966,6 +2431,9 @@ class FactIndex:
         if not present:
             return 0
         for fact in present:
+            if isinstance(self.facts, _OrderedFactSet):
+                self.facts.discard(fact)
+            del self.ranks[fact]
             self._remove_from_bucket(self.by_entity, fact.entity, fact)
             self._remove_from_bucket(self.by_status, fact.status, fact)
             if isinstance(fact.entity, Triple):
@@ -1999,8 +2467,11 @@ class FactIndex:
                     (fact.entity.subject, fact.entity.object),
                     fact,
                 )
-        self.facts[:] = [fact for fact in self.facts if fact not in present]
-        self.ranks = {fact: rank for rank, fact in enumerate(self.facts)}
+            self._remove_from_structural_indexes(fact)
+        if isinstance(self.facts, list):
+            self.facts[:] = [
+                fact for fact in self.facts if fact not in present
+            ]
         return len(present)
 
     @staticmethod
@@ -2013,6 +2484,70 @@ class FactIndex:
         bucket.remove(fact)
         if not bucket:
             del buckets[key]
+
+    def delta_start(self, added: Sequence[Fact]) -> int:
+        """Return the stable-rank boundary for one append-only delta."""
+
+        return min(
+            (self.ranks[fact] for fact in added if fact in self.ranks),
+            default=self._next_rank,
+        )
+
+    def _add_to_structural_indexes(self, fact: Fact) -> None:
+        for signature, buckets in self.by_structure.items():
+            key = self._structural_key(fact, signature)
+            if key is not None:
+                buckets[key].add(fact)
+
+    def _remove_from_structural_indexes(self, fact: Fact) -> None:
+        for signature, buckets in self.by_structure.items():
+            key = self._structural_key(fact, signature)
+            if key is None:
+                continue
+            bucket = buckets.get(key)
+            if bucket is None:
+                continue
+            bucket.discard(fact)
+            if not bucket:
+                del buckets[key]
+
+    @staticmethod
+    def _structural_key(
+        fact: Fact,
+        signature: StructuralSignature,
+    ) -> StructuralKey | None:
+        values: list[Term] = []
+        for path in signature:
+            value = _term_at_path(fact, path)
+            if value is None:
+                return None
+            values.append(value)
+        return tuple(values)
+
+    def structural_candidates(
+        self,
+        premise: CompiledFactPremise,
+        bindings: TermBindings,
+    ) -> Sequence[Fact] | None:
+        """Return a lazily built index bucket for a partial nested term."""
+
+        lookup = _structural_lookup(premise, bindings)
+        if lookup is None:
+            return None
+        if self.metrics is not None:
+            self.metrics.structural_index_lookups += 1
+        signature, key = lookup
+        buckets = self.by_structure.get(signature)
+        if buckets is None:
+            buckets = defaultdict(_OrderedFactSet)
+            for fact in self.facts:
+                fact_key = self._structural_key(fact, signature)
+                if fact_key is not None:
+                    buckets[fact_key].add(fact)
+            self.by_structure[signature] = buckets
+            if self.metrics is not None:
+                self.metrics.structural_index_builds += 1
+        return buckets.get(key, ())
 
     def candidates(
         self,
@@ -2079,6 +2614,17 @@ class FactIndex:
                     (),
                 )
             )
+        if (
+            object_ is None
+            and (
+                not buckets
+                or min(len(bucket) for bucket in buckets)
+                > _STRUCTURAL_INDEX_MIN_BUCKET
+            )
+        ):
+            structural = self.structural_candidates(premise, bindings)
+            if structural is not None:
+                buckets.append(structural)
 
         return min(buckets, key=len) if buckets else self.facts
 
@@ -2123,10 +2669,16 @@ def _normalize_delta(
 def _plan_watch_token(
     premise: CompiledFactPremise,
     bindings: TermBindings,
+    *,
+    use_structure: bool = True,
 ) -> WatchToken:
     entity = premise.entity.resolve(bindings)
     if entity is not None:
         return "entity", entity
+    if use_structure:
+        structural = _structural_lookup(premise, bindings)
+        if structural is not None:
+            return "structure", structural
     if premise.triple_parts is not None:
         subject = premise.triple_parts[0].resolve(bindings)
         relation = premise.triple_parts[1].resolve(bindings)
@@ -2149,7 +2701,10 @@ def _plan_watch_token(
     return "any", None
 
 
-def _fact_watch_tokens(fact: Fact) -> tuple[WatchToken, ...]:
+def _fact_watch_tokens(
+    fact: Fact,
+    structural_signatures: Iterable[StructuralSignature] = (),
+) -> tuple[WatchToken, ...]:
     tokens: list[WatchToken] = [
         ("any", None),
         ("entity", fact.entity),
@@ -2175,6 +2730,10 @@ def _fact_watch_tokens(fact: Fact) -> tuple[WatchToken, ...]:
                 ),
             )
         )
+    for signature in structural_signatures:
+        key = FactIndex._structural_key(fact, signature)
+        if key is not None:
+            tokens.append(("structure", (signature, key)))
     return tuple(tokens)
 
 

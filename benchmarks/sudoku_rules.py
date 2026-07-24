@@ -9,14 +9,58 @@ import statistics
 from time import perf_counter
 from typing import Any
 
-from snarky import IndexedInstantiationStrategy, TechniquePlanStatus
+from snarky import (
+    AdaptiveInstantiationStrategy,
+    ConstraintInstantiationStrategy,
+    IndexedInstantiationStrategy,
+    InstantiationStrategy,
+    SemiNaiveInstantiationStrategy,
+    TechniquePlanStatus,
+)
 from sudoku import solve_level
+
+
+def _generic_domain_strategy() -> InstantiationStrategy:
+    return ConstraintInstantiationStrategy(
+        use_specialized_comparisons=False,
+    )
+
+
+def _rebuilt_domain_strategy() -> InstantiationStrategy:
+    return ConstraintInstantiationStrategy(
+        use_incremental_domains=False,
+    )
+
+
+_PRIMARY_STRATEGIES = {
+    "indexed": IndexedInstantiationStrategy,
+    "semi-naive": SemiNaiveInstantiationStrategy,
+    "adaptive": AdaptiveInstantiationStrategy,
+}
+_COMPARISON_STRATEGIES = {
+    "domain-generic": _generic_domain_strategy,
+    "domain-filtered": ConstraintInstantiationStrategy,
+}
+_DOMAIN_STATE_STRATEGIES = {
+    "domain-rebuilt": _rebuilt_domain_strategy,
+    "domain-incremental": ConstraintInstantiationStrategy,
+}
+_STRATEGIES = (
+    _PRIMARY_STRATEGIES
+    | _COMPARISON_STRATEGIES
+    | _DOMAIN_STATE_STRATEGIES
+)
 
 
 def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--levels", type=int, nargs="+", default=(1, 6, 7))
     parser.add_argument("--repeat", type=int, default=5)
+    parser.add_argument(
+        "--strategy",
+        choices=(*_STRATEGIES, "all", "comparisons", "domain-state"),
+        default="all",
+    )
     arguments = parser.parse_args()
     invalid_level = any(
         level not in range(1, 8) for level in arguments.levels
@@ -24,8 +68,22 @@ def main() -> None:
     if arguments.repeat < 1 or invalid_level:
         parser.error("--repeat must be positive and levels must be in 1..7")
 
+    if arguments.strategy == "all":
+        strategy_names = tuple(_PRIMARY_STRATEGIES)
+    elif arguments.strategy == "comparisons":
+        strategy_names = tuple(_COMPARISON_STRATEGIES)
+    elif arguments.strategy == "domain-state":
+        strategy_names = tuple(_DOMAIN_STATE_STRATEGIES)
+    else:
+        strategy_names = (arguments.strategy,)
     results = [
-        measure(level, arguments.repeat)
+        {
+            "level": level,
+            "strategies": [
+                measure(level, arguments.repeat, strategy_name)
+                for strategy_name in strategy_names
+            ],
+        }
         for level in arguments.levels
     ]
     print(
@@ -43,10 +101,14 @@ def main() -> None:
     )
 
 
-def measure(level: int, repeat: int) -> dict[str, Any]:
+def measure(
+    level: int,
+    repeat: int,
+    strategy_name: str,
+) -> dict[str, Any]:
     runs: list[dict[str, int | float]] = []
     for _ in range(repeat):
-        strategy = IndexedInstantiationStrategy()
+        strategy: InstantiationStrategy = _STRATEGIES[strategy_name]()
         start = perf_counter()
         result = solve_level(level, strategy=strategy)
         elapsed = perf_counter() - start
@@ -77,13 +139,66 @@ def measure(level: int, repeat: int) -> dict[str, Any]:
                 "partial_join_bypasses": (
                     strategy.metrics.partial_join_bypasses
                 ),
+                "structural_index_builds": (
+                    strategy.metrics.structural_index_builds
+                ),
+                "structural_index_lookups": (
+                    strategy.metrics.structural_index_lookups
+                ),
+                "adaptive_join_reorders": (
+                    strategy.metrics.adaptive_join_reorders
+                ),
+                "residual_witness_promotions": (
+                    strategy.metrics.residual_witness_promotions
+                ),
                 "cycles": result.inference.cycles,
                 "fired_activations": result.inference.fired_activation_count,
+                "domain_filter_runs": strategy.metrics.domain_filter_runs,
+                "domain_filter_fallbacks": (
+                    strategy.metrics.domain_filter_fallbacks
+                ),
+                "domain_filter_selections": (
+                    strategy.metrics.domain_filter_selections
+                ),
+                "domain_filter_rejections": (
+                    strategy.metrics.domain_filter_rejections
+                ),
+                "domain_rows_examined": (
+                    strategy.metrics.domain_rows_examined
+                ),
+                "domain_input_rows": strategy.metrics.domain_input_rows,
+                "domain_specialized_revisions": (
+                    strategy.metrics.domain_specialized_revisions
+                ),
+                "domain_specialized_value_checks": (
+                    strategy.metrics.domain_specialized_value_checks
+                ),
+                "domain_combinations_tested": (
+                    strategy.metrics.domain_combinations_tested
+                ),
+                "domain_projection_rows_examined": (
+                    strategy.metrics.domain_projection_rows_examined
+                ),
+                "domain_projection_updates": (
+                    strategy.metrics.domain_projection_updates
+                ),
+                "domain_state_reuses": (
+                    strategy.metrics.domain_state_reuses
+                ),
+                "domain_component_resets": (
+                    strategy.metrics.domain_component_resets
+                ),
+                "domain_global_revisions": (
+                    strategy.metrics.domain_global_revisions
+                ),
+                "domain_global_value_checks": (
+                    strategy.metrics.domain_global_value_checks
+                ),
             }
         )
     elapsed_values = [float(run["seconds"]) for run in runs]
     return {
-        "level": level,
+        "name": strategy_name,
         "mean_seconds": statistics.mean(elapsed_values),
         "median_seconds": statistics.median(elapsed_values),
         "min_seconds": min(elapsed_values),

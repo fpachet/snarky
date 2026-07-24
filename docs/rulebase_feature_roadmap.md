@@ -22,6 +22,8 @@ Snarky exprime aujourd'hui :
   et synchronisation représentés par des faits ;
 - arc-consistance de contraintes binaires tabulaires, domaines singletons et
   contradictions exprimés par des groupes de règles réutilisables ;
+- index structurels adaptatifs, rangs stables, témoins existentiels résiduels
+  et ordre de jointure sélectif validés sur des domaines jusqu'à 64 valeurs ;
 - groupes paramétrés, appels récursifs bornés et résolution de petits CSP/SAT
   comme infrastructures optionnelles indépendantes ;
 - Sudoku p1 à p7, y compris X-Wing.
@@ -37,6 +39,17 @@ classification, explication et point fixe.
 `LET` accepte `%` sur deux entiers et les prémisses acceptent
 `DIVISIBLE valeur BY diviseur`. La date du lendemain calcule les années
 bissextiles ; MusES calcule ses intervalles modulo 12.
+
+`CONSTRAINT expression opérateur expression` fournit désormais la forme
+relationnelle. Les comparaisons simples et les égalités arithmétiques binaires
+propagent leurs domaines avant le matching ; `CONSTRAINT $x + $y == $z`
+travaille dans les trois directions sans transformer `LET` en opération
+réversible.
+
+`NVALUE $n OF SEQ[...]` et `ALL_DIFFERENT SEQ[...]` ajoutent les premières
+contraintes globales. Leurs propagateurs partagent le protocole public
+`DomainPropagator`; le premier filtre des bornes sûres, le second les
+singletons et ensembles de Hall jusqu'aux triplets.
 
 ### P2 — Symboles frais
 
@@ -111,6 +124,16 @@ peuvent engendrer et filtrer les combinaisons uniquement par règles. Le
 solveur CSP reste un backend pour les problèmes où ce découplage est choisi,
 pas un remplacement implicite de la formulation déclarative.
 
+### P8b — Filtrage des domaines pendant l'instanciation
+
+`ConstraintInstantiationStrategy` livre le premier étage historique inspiré
+de BOOJUM : tables de prémisses positives, domaines de variables, point fixe
+par file de propagateurs et candidats filtrés remis au matcher actuel. Les
+tables et projections suivent les deltas par compteurs. Une suppression
+poursuit le point fixe précédent ; un ajout ne réinitialise que la composante
+touchée. Un sélecteur adaptatif protège les chaînes et jointures sans
+réduction. Le choix MRV et le backtracking local restent différés.
+
 ### P9 — Maintenance de vérité positive
 
 Le mode `truth_maintenance=True` rétracte après `retract()` les conclusions
@@ -125,8 +148,8 @@ justifications négatives complètes restent séparés.
 - prémisses de collection `MEMBER` et `SIZE`, validées d'abord par les naked
   triples de Sudoku ;
 - protocole factuel `choice` reliant les règles à `HypothesisSearch` ;
-- expérimentation d'une stratégie d'instanciation CSP sur un benchmark de
-  jointures fortement contraintes ;
+- affinement et généralisation de `AdaptiveInstantiationStrategy`, désormais
+  validée sur des jointures favorables, neutres, défavorables et acycliques ;
 - multiensembles et quantités pour des réseaux de Petri généraux ;
 - adaptateur OR-Tools derrière `ConstraintSolver` ;
 - coûts et heuristiques pour `HypothesisSearch` ;
@@ -147,16 +170,23 @@ justifications négatives complètes restent séparés.
 7. ~~Recherche explicite, CSP/SAT et TMS positif optionnel.~~
 8. ~~Réifier domaines et contraintes binaires et propager l'arc-consistance
    par règles.~~
-9. Produire des choix déclaratifs à partir des domaines non singletons, puis
+9. ~~Optimiser cette propagation par retraits à rangs stables, index de
+   chemins, témoins résiduels et ordre existentiel adaptatif.~~
+10. ~~Maintenir les domaines incrémentaux et ajouter `NVALUE`,
+    `ALL_DIFFERENT` et les ensembles de Hall bornés.~~
+11. Produire des choix déclaratifs à partir des domaines non singletons, puis
    les connecter à des branches isolées.
-10. Ajouter `MEMBER` et `SIZE`, puis implémenter les naked triples de Sudoku p8
+12. Ajouter `MEMBER` et `SIZE`, puis implémenter les naked triples de Sudoku p8
     avec `COMBINATIONS`.
-11. Mesurer une éventuelle instanciation CSP sur une base fortement contrainte.
-12. Ne retenir les extensions restantes qu'avec une base et un oracle
-   reproductibles.
+13. Mesurer une éventuelle consistance généralisée de `ALL_DIFFERENT`.
+14. Ne retenir les extensions restantes qu'avec une base et un oracle
+    reproductibles.
 
 La comparaison détaillée de ces voies se trouve dans
 [`constraints_propagation_and_search.md`](constraints_propagation_and_search.md).
+Le cap vers `choice`, le solveur CSP pédagogique et l'harmoniseur à quatre
+voix est fixé dans
+[`choice_backtracking_and_applications.md`](choice_backtracking_and_applications.md).
 
 Les primitives n'ont pas changé le modèle d'exécution fondamental. MEA ajoute
 un agenda explicite ; recherche, contraintes et TMS restent des sous-systèmes

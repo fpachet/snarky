@@ -67,8 +67,10 @@ La réfraction est liée à l’activation continûment valide :
 - un bloc `NOT EXISTS` réduit à une prémisse factuelle installe implicitement
   un bloqueur corrélé : le fait ajouté expire directement les seules
   substitutions qu’il bloque, sans réinstancier la règle entière ;
-- les blocs négatifs composés conservent une réévaluation exhaustive indexée,
-  utilisée comme chemin de repli sémantiquement sûr ;
+- les blocs négatifs composés utilisent un ordre de jointure adaptatif lorsque
+  leur structure fournit un index sélectif ; ils conservent jusqu'à deux
+  témoins résiduels, puis reviennent à une réévaluation exhaustive indexée
+  lorsque ces témoins disparaissent ;
 - une activation ayant cessé d’exister peut donc redevenir éligible plus
   tard.
 

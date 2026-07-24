@@ -10,6 +10,7 @@ from .computed import ComputedPredicate, ComputedPremise, PredicateRegistry
 from .expressions import (
     BinaryArithmeticExpression,
     BinaryArithmeticOperator,
+    DistinctCountExpression,
     NumericExpression,
     UnaryArithmeticExpression,
     UnaryArithmeticOperator,
@@ -76,6 +77,18 @@ _FOR_EACH_RE = re.compile(
 )
 _DIVISIBLE_RE = re.compile(
     r"DIVISIBLE\s+(?P<left>.+?)\s+BY\s+(?P<right>.+)\Z"
+)
+_CONSTRAINT_RE = re.compile(
+    r"CONSTRAINT\s+(?P<left>.+?)\s*"
+    r"(?P<operator>==|!=|<=|>=|<|>)\s*"
+    r"(?P<right>.+)\Z"
+)
+_ALL_DIFFERENT_RE = re.compile(
+    r"ALL_DIFFERENT\s+(?P<values>SEQ\[.*\])\Z"
+)
+_NVALUE_RE = re.compile(
+    r"NVALUE\s+(?P<count>\$[^\s()\[\]'<>!=]+|-?\d+)"
+    r"\s+OF\s+(?P<values>SEQ\[.*\])\Z"
 )
 _COLLECT_RE = re.compile(
     r"COLLECT\s+(?P<target>\$[^\s()'<>!=:+*/%-]+)"
@@ -431,6 +444,41 @@ def _parse_premise(
             parse_term(divisible.group("left")),
             ComparisonOperator.DIVISIBLE,
             parse_term(divisible.group("right")),
+        )
+    all_different = _ALL_DIFFERENT_RE.fullmatch(text)
+    if all_different is not None:
+        values = parse_term(all_different.group("values"))
+        if not isinstance(values, FiniteSequence) or not values.elements:
+            raise ParseError("ALL_DIFFERENT requires a non-empty SEQ")
+        return ComparisonPremise(
+            DistinctCountExpression(values.elements),
+            ComparisonOperator.EQ,
+            Number(len(values.elements)),
+        )
+    nvalue = _NVALUE_RE.fullmatch(text)
+    if nvalue is not None:
+        values = parse_term(nvalue.group("values"))
+        count = parse_term(nvalue.group("count"))
+        if not isinstance(values, FiniteSequence) or not values.elements:
+            raise ParseError("NVALUE requires a non-empty SEQ")
+        if not isinstance(count, (Number, Variable)) or (
+            isinstance(count, Number)
+            and not isinstance(count.value, int)
+        ):
+            raise ParseError("NVALUE count must be an integer or variable")
+        return ComparisonPremise(
+            DistinctCountExpression(values.elements),
+            ComparisonOperator.EQ,
+            count,
+        )
+    if text.startswith("CONSTRAINT"):
+        constraint = _CONSTRAINT_RE.fullmatch(text)
+        if constraint is None:
+            raise ParseError(f"malformed arithmetic constraint {text!r}")
+        return ComparisonPremise(
+            parse_arithmetic_expression(constraint.group("left")),
+            _COMPARISONS[constraint.group("operator")],
+            parse_arithmetic_expression(constraint.group("right")),
         )
     tokens = _tokenize(text)
     split = _top_level_operator(tokens)
