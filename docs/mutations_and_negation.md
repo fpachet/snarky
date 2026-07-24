@@ -112,7 +112,7 @@ témoin ; les blocs complexes sont invalidés puis recalculés paresseusement.
 Les constructeurs Python équivalents sont `exists(...)` et
 `not_exists(...)`.
 
-## `COUNT` et `UNIQUE`
+## `COUNT`, `UNIQUE` et `COLLECT`
 
 Les agrégats corrélés reposent sur les mêmes compteurs et règles de portée :
 
@@ -131,16 +131,27 @@ est équivalent à `COUNT == 1`. Les variables locales ne sont pas exportées.
 Les constructeurs Python sont `count(expected, ..., operator=...)` et
 `unique(...)`.
 
+`COLLECT $target := $projection` parcourt les mêmes solutions locales,
+projette un terme ground par solution, élimine les doublons et exporte
+uniquement `$target`, lié à un `FiniteSet`. Tous les faits des témoins retenus
+participent à la provenance. Une addition ou une suppression susceptible de
+changer la collection invalide l’activation correspondante comme pour les
+autres prémisses corrélées. Le constructeur Python est
+`collect(target, projection, ...)`.
+
 ## Limites
 
 `REMOVE` porte sur un fait ground exactement instancié. Snarky ne fournit pas
 encore :
 
 - de modification partielle d’un terme ;
-- de création de symboles frais ;
-- de vérité conditionnelle ou de retour arrière ;
+- de vérité conditionnelle ou de recherche avec retour arrière automatique ;
 - de maintenance automatique des justifications d’un fait dérivé lorsque ses
   prémisses sont retirées.
 
 Le journal conserve l’histoire, mais il ne constitue pas encore un système
-complet de maintenance de vérité.
+complet de maintenance de vérité. `FRESH` et `InferenceSession.fork()` sont
+documentés séparément dans
+[`collections_fresh_and_contexts.md`](collections_fresh_and_contexts.md) ;
+le second crée une continuation isolée mais n’implémente aucune stratégie de
+recherche.

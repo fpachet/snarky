@@ -47,10 +47,12 @@ saturation, pour un cycle, jusqu’au premier changement ou jusqu’à un motif 
 fait.
 
 Le DSL sait également exécuter des actions arithmétiques séquentielles `LET`
-dans la conclusion des règles. Cette fonctionnalité est une
+et créer des symboles déterministes avec `FRESH` dans la conclusion des
+règles. Cette fonctionnalité est une
 `MODERN_EXTENSION` : elle évalue de manière sûre des expressions numériques
-avec `+`, `-`, `*`, `/`, précédence et parenthèses, puis transmet la liaison
-calculée aux actions suivantes. Il ne s’agit pas encore d’un solveur de
+avec `+`, `-`, `*`, `/`, `%`, précédence et parenthèses, puis transmet les
+liaisons calculées aux actions suivantes. La prémisse `DIVISIBLE` couvre les
+tests de divisibilité entière. Il ne s’agit pas encore d’un solveur de
 contraintes arithmétiques.
 
 La mémoire de travail accepte maintenant `REMOVE`, avec un journal
@@ -59,10 +61,22 @@ chronologique des ajouts et retraits. Les prémisses corrélées `EXISTS` et
 configuration sans confondre cette absence avec le statut explicite
 `INEXISTANT`.
 
+Les ensembles finis immuables et la prémisse corrélée `COLLECT` permettent de
+matérialiser les valeurs produites par une sous-requête. Une session peut aussi
+être copiée avec `fork()` pour explorer une continuation isolée. Ce mécanisme
+ne choisit aucune hypothèse et n’implémente pas à lui seul une recherche avec
+retour arrière.
+
+Une stratégie de conflit optionnelle `MEAConflictStrategy` permet maintenant
+de sélectionner une activation à la fois selon la fraîcheur locale de son
+premier fait support, puis selon un ordre LEX déterministe. La reformulation
+NéOpus du singe et des bananes l’utilise pour traiter chaque sous-but avant son
+but parent, sans backtracking.
+
 `TechniquePlan` fournit une orchestration générique de groupes ordonnés :
 après chaque changement, il repart du groupe le plus simple et distingue les
 terminaisons `SOLVED`, `STUCK`, `INCONSISTENT` et `LIMIT_REACHED`. Le projet
-Sudoku valide conjointement ces capacités sur six niveaux progressifs.
+Sudoku valide conjointement ces capacités sur sept niveaux progressifs.
 
 Le contenu actuel comprend :
 
@@ -90,18 +104,24 @@ Le contenu actuel comprend :
   sélection de corpus de règles externes ;
 - [`tests/rulebases/debug`](tests/rulebases/debug/README.md), une petite base
   native destinée au debug du moteur ;
-- [`tests/rulebases/fibonacci_explicit`](tests/rulebases/fibonacci_explicit/README.md),
-  une base récursive de trois règles qui construit explicitement l'arbre de
-  calcul de Fibonacci ;
+- [`rulebases`](rulebases/README.md), le catalogue unifié des exemples
+  exécutables : Fibonacci, factorielle et huit reformulations issues de la
+  thèse NéOpus, avec scénarios, oracles et besoins futurs documentés ;
 - [`docs/semantics.md`](docs/semantics.md), les décisions sémantiques du moteur
   de référence ;
 - [`docs/arithmetic_actions.md`](docs/arithmetic_actions.md), la syntaxe et la
   sémantique des liaisons arithmétiques séquentielles `LET` ;
+- [`docs/collections_fresh_and_contexts.md`](docs/collections_fresh_and_contexts.md),
+  les ensembles finis, `COLLECT`, `FRESH` et les continuations isolées ;
 - [`docs/rule_groups.md`](docs/rule_groups.md), les sessions persistantes, la
   syntaxe des groupes de règles et leurs différents modes d’appel ;
+- [`docs/conflict_resolution.md`](docs/conflict_resolution.md), l’ensemble de
+  conflit, les `timeTag`, la stratégie MEA et les traces d’agenda ;
 - [`docs/mutations_and_negation.md`](docs/mutations_and_negation.md), la
   suppression de faits, le journal de mutations et les blocs corrélés
   `EXISTS`/`NOT EXISTS` ;
+- [`docs/rulebase_feature_roadmap.md`](docs/rulebase_feature_roadmap.md), la
+  feuille de route des extensions motivées par les bases concrètes ;
 - [`sudoku`](sudoku/README.md), le sous-projet autonome qui organise la base
   de règles, les fixtures natives, le solveur orchestré et le plan incrémental
   pour résoudre et expliquer les niveaux essentiels de l’exemple Sudoku
@@ -117,9 +137,10 @@ La base Fibonacci explicite utilise `LET $somme := $gauche + $droite` et ne
 reçoit qu’un fait racine : les sommes et les rangs des fils ne sont plus
 préchargés sous forme de tables.
 
-Les modifications partielles de faits, la création de symboles frais et le
-raisonnement par contraintes restent à implémenter. L’évaluation semi-naïve
-est le mode par défaut de `ForwardEngine`.
+Les modifications partielles de faits, les séquences ordonnées, la recherche
+automatique par hypothèses et le raisonnement par contraintes restent à
+implémenter. L’évaluation semi-naïve est le mode par défaut de
+`ForwardEngine`.
 
 ## Démarrage rapide
 
@@ -206,7 +227,7 @@ structurels précalculés des termes et faits immuables ajoutent un gain de 24 �
 sont décrits dans
 [`benchmarks/README.md`](benchmarks/README.md).
 
-La suite complète compte 285 tests et s’exécute en environ 6,7 s sur cette même
+La suite complète compte 314 tests et s’exécute en environ 7,9 s sur cette même
 machine, contre 26,05 s avant la mise en cache du catalogue de provenance
 Spinoza et 76,50 s avant les optimisations.
 
@@ -257,14 +278,14 @@ répertoire existant.
 Le répertoire [`sudoku`](sudoku/README.md) isole le cas d’étude Sudoku du cœur
 du moteur et du corpus CLIPS original. Il contient :
 
-- le [catalogue de la base de règles](sudoku/rules/catalog.yaml) p1 à p6 ;
+- le [catalogue de la base de règles](sudoku/rules/catalog.yaml) p1 à p7 ;
 - les règles natives et leur chargeur ;
 - les fixtures natives vérifiées contre les sources CLIPS ;
 - l’orchestrateur et le rendu des explications ;
 - le [plan d’implémentation](sudoku/docs/implementation_plan.md), avec un
   critère d’acceptation pour chaque étape.
 
-La base native est exécutable : les six grilles p1 à p6 sont résolues avec les
+La base native est exécutable : les sept grilles p1 à p7 sont résolues avec les
 familles de techniques annoncées par le corpus CLIPS, sans recherche
 exhaustive ni solveur externe. Chaque retrait de candidat est conservé dans
 une trace rejouable.
@@ -304,14 +325,20 @@ une trace rejouable.
    provenance.
 14. Exécuter les benchmarks externes adaptés, puis ajouter des cas de test
     dédiés au couplage entre règles et contraintes.
-15. Aborder le Sudoku avancé à partir de p7. ~~Ajouter les agrégats généraux
-    `COUNT` et `UNIQUE` sur les compteurs incrémentaux.~~ N’ajouter `COLLECT`,
-    ensembles finis, symboles frais ou hypothèses que lorsque plusieurs cas
-    d’usage en justifient la généralité.
+15. ~~Implémenter p7/X-Wing avec `COUNT` et `UNIQUE`.~~ Aborder le Sudoku
+    avancé à partir de p8. Les ensembles finis, `COLLECT`, `FRESH` et les
+    continuations isolées sont désormais disponibles ; n’ajouter une recherche
+    automatique que lorsqu’un cas d’usage en précise la stratégie.
 16. ~~Compiler les prémisses, utiliser un cadre mutable interne, propager les
     deltas de suppression, maintenir les compteurs négatifs et conserver les
     jointures partielles sous budget.~~ Poursuivre avec les activations
     paresseuses et la sélection générale des règles positives candidates.
+17. ~~Structurer un catalogue public de bases avec un exécuteur commun,
+    des oracles et des README par problème.~~ Les exemples de la thèse ont
+    motivé la divisibilité entière, le modulo, `FRESH`, `COLLECT` et les
+    continuations isolées. ~~Ajouter ensuite une stratégie de conflit MEA et
+    reformuler le singe et les bananes avec des sous-buts dynamiques.~~
+    Poursuivre avec les séquences.
 
 La cible est Python 3.12 ou ultérieur, avec `pytest`, `ruff`, `mypy` et des
 tests différentiels. L’ajout de tests génératifs fondés sur Hypothesis reste

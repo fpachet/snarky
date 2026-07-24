@@ -1,7 +1,20 @@
 """Public API of the Snarky inference engine."""
 
-from .actions import Action, AddFact, Let, RemoveFact, add, let, remove
+from .actions import (
+    Action,
+    AddFact,
+    Fresh,
+    Let,
+    RemoveFact,
+    add,
+    fresh,
+    let,
+    remove,
+)
 from .engine import (
+    AgendaCandidate,
+    AgendaSelection,
+    ConflictResolutionStrategy,
     EngineLimits,
     FactExists,
     FactMutationKind,
@@ -12,6 +25,7 @@ from .engine import (
     InferenceEvent,
     InferenceLimitError,
     InferenceSession,
+    MEAConflictStrategy,
     RunResult,
     StopCondition,
 )
@@ -43,6 +57,7 @@ from .parser import (
 )
 from .plans import TechniquePlan, TechniquePlanResult, TechniquePlanStatus
 from .premises import (
+    CollectPremise,
     ComparisonOperator,
     ComparisonPremise,
     CountPremise,
@@ -50,7 +65,9 @@ from .premises import (
     FactPremise,
     NotExistsPremise,
     UniquePremise,
+    collect,
     count,
+    divisible,
     exists,
     not_exists,
     unique,
@@ -59,6 +76,7 @@ from .rules import Rule, RuleGroup, when
 from .substitutions import EMPTY_SUBSTITUTION, Substitution
 from .terms import (
     Atom,
+    FiniteSet,
     Number,
     Proposition,
     Status,
@@ -74,6 +92,8 @@ from .unification import Unifier
 __all__ = [
     "EMPTY_SUBSTITUTION",
     "Action",
+    "AgendaCandidate",
+    "AgendaSelection",
     "AddFact",
     "ArithmeticEvaluationError",
     "Atom",
@@ -81,6 +101,8 @@ __all__ = [
     "BinaryArithmeticOperator",
     "ComparisonOperator",
     "ComparisonPremise",
+    "ConflictResolutionStrategy",
+    "CollectPremise",
     "CountPremise",
     "EngineLimits",
     "Fact",
@@ -88,6 +110,8 @@ __all__ = [
     "FactExists",
     "FactMutationKind",
     "FactPremise",
+    "FiniteSet",
+    "Fresh",
     "ExistsPremise",
     "ForwardEngine",
     "GroupExecutionMode",
@@ -100,6 +124,7 @@ __all__ = [
     "InstantiationMetrics",
     "InstantiationStrategy",
     "Let",
+    "MEAConflictStrategy",
     "Number",
     "NotExistsPremise",
     "NaiveInstantiationStrategy",
@@ -126,9 +151,12 @@ __all__ = [
     "UniquePremise",
     "Variable",
     "add",
+    "collect",
     "count",
+    "divisible",
     "evaluate_arithmetic",
     "exists",
+    "fresh",
     "is_ground",
     "let",
     "not_exists",

@@ -1,0 +1,67 @@
+GROUP derive_intervals
+    RULE compute_pitch_class_interval
+    WHEN
+        ($chord contains $root)
+        ($root pitch $root_pitch)
+        ($chord contains $note)
+        ($note pitch $note_pitch)
+    THEN
+        LET $difference := $note_pitch - $root_pitch
+        LET $interval := $difference % 12
+        ADD (($root interval_to $note) semitones $interval)
+    END
+END_GROUP
+
+GROUP form_chords
+    RULE materialize_chord_notes
+    WHEN
+        ($chord type chord)
+        COLLECT $notes := $note
+            ($chord contains $note)
+        END_COLLECT
+    THEN
+        ADD ($chord note_set $notes)
+    END
+
+    RULE recognize_major_triad
+    WHEN
+        ($chord contains $root)
+        ($chord contains $third)
+        ($chord contains $fifth)
+        (($root interval_to $third) semitones 4)
+        (($root interval_to $fifth) semitones 7)
+    THEN
+        ADD ($chord root $root)
+        ADD ($chord quality major)
+    END
+
+    RULE recognize_minor_triad
+    WHEN
+        ($chord contains $root)
+        ($chord contains $third)
+        ($chord contains $fifth)
+        (($root interval_to $third) semitones 3)
+        (($root interval_to $fifth) semitones 7)
+    THEN
+        ADD ($chord root $root)
+        ADD ($chord quality minor)
+    END
+END_GROUP
+
+GROUP analyze_progressions
+    RULE recognize_two_five_one
+    WHEN
+        ($first next $second)
+        ($second next $third)
+        ($first root $two)
+        ($first quality minor)
+        ($second root $five)
+        ($second quality major)
+        ($third root $one)
+        ($third quality major)
+        ($two descends_fifth_to $five)
+        ($five descends_fifth_to $one)
+    THEN
+        ADD (($first $second $third) analysis two_five_one)
+    END
+END_GROUP

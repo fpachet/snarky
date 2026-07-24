@@ -1,0 +1,135 @@
+# X-Wing: two rows restrict a value to the same two columns, or conversely.
+
+GROUP x_wing
+    RULE eliminate_x_wing_first_column_from_other_rows
+    WHEN
+        ($first row $first_row)
+        ($first column $first_column)
+        ($first candidate $value)
+        ($second row $first_row)
+        ($second column $second_column)
+        ($second candidate $value)
+        $first_column < $second_column
+        COUNT == 2
+            ($row_cell row $first_row)
+            ($row_cell candidate $value)
+        END_COUNT
+        ($third row $second_row)
+        ($third column $first_column)
+        ($third candidate $value)
+        $first_row < $second_row
+        ($fourth row $second_row)
+        ($fourth column $second_column)
+        ($fourth candidate $value)
+        COUNT == 2
+            ($row_cell row $second_row)
+            ($row_cell candidate $value)
+        END_COUNT
+        ($target row $target_row)
+        $target_row != $first_row
+        $target_row != $second_row
+        ($target column $first_column)
+        ($target candidate $value)
+    THEN
+        REMOVE ($target candidate $value)
+    END
+
+    RULE eliminate_x_wing_second_column_from_other_rows
+    WHEN
+        ($first row $first_row)
+        ($first column $first_column)
+        ($first candidate $value)
+        ($second row $first_row)
+        ($second column $second_column)
+        ($second candidate $value)
+        $first_column < $second_column
+        COUNT == 2
+            ($row_cell row $first_row)
+            ($row_cell candidate $value)
+        END_COUNT
+        ($third row $second_row)
+        ($third column $first_column)
+        ($third candidate $value)
+        $first_row < $second_row
+        ($fourth row $second_row)
+        ($fourth column $second_column)
+        ($fourth candidate $value)
+        COUNT == 2
+            ($row_cell row $second_row)
+            ($row_cell candidate $value)
+        END_COUNT
+        ($target row $target_row)
+        $target_row != $first_row
+        $target_row != $second_row
+        ($target column $second_column)
+        ($target candidate $value)
+    THEN
+        REMOVE ($target candidate $value)
+    END
+
+    RULE eliminate_x_wing_first_row_from_other_columns
+    WHEN
+        ($first column $first_column)
+        ($first row $first_row)
+        ($first candidate $value)
+        ($second column $first_column)
+        ($second row $second_row)
+        ($second candidate $value)
+        $first_row < $second_row
+        COUNT == 2
+            ($column_cell column $first_column)
+            ($column_cell candidate $value)
+        END_COUNT
+        ($third column $second_column)
+        ($third row $first_row)
+        ($third candidate $value)
+        $first_column < $second_column
+        ($fourth column $second_column)
+        ($fourth row $second_row)
+        ($fourth candidate $value)
+        COUNT == 2
+            ($column_cell column $second_column)
+            ($column_cell candidate $value)
+        END_COUNT
+        ($target column $target_column)
+        $target_column != $first_column
+        $target_column != $second_column
+        ($target row $first_row)
+        ($target candidate $value)
+    THEN
+        REMOVE ($target candidate $value)
+    END
+
+    RULE eliminate_x_wing_second_row_from_other_columns
+    WHEN
+        ($first column $first_column)
+        ($first row $first_row)
+        ($first candidate $value)
+        ($second column $first_column)
+        ($second row $second_row)
+        ($second candidate $value)
+        $first_row < $second_row
+        COUNT == 2
+            ($column_cell column $first_column)
+            ($column_cell candidate $value)
+        END_COUNT
+        ($third column $second_column)
+        ($third row $first_row)
+        ($third candidate $value)
+        $first_column < $second_column
+        ($fourth column $second_column)
+        ($fourth row $second_row)
+        ($fourth candidate $value)
+        COUNT == 2
+            ($column_cell column $second_column)
+            ($column_cell candidate $value)
+        END_COUNT
+        ($target column $target_column)
+        $target_column != $first_column
+        $target_column != $second_column
+        ($target row $second_row)
+        ($target candidate $value)
+    THEN
+        REMOVE ($target candidate $value)
+    END
+END_GROUP

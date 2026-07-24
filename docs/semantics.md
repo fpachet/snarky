@@ -7,11 +7,13 @@ BOOJUM.
 
 ## Termes et propositions
 
-Un terme est un `Atom`, un `Number`, un `Variable`, un `Status` standard ou un
-`Triple(subject, relation, object)`. Les trois composantes d’un triplet sont à
-leur tour des termes. Une proposition est donc un triplet, éventuellement
-imbriqué dans un autre triplet. Tous les termes sont immuables, hachables et
-comparés structurellement.
+Un terme est un `Atom`, un `Number`, un `Variable`, un `Status` standard, un
+`FiniteSet` ou un `Triple(subject, relation, object)`. Les trois composantes
+d’un triplet et les membres d’un ensemble sont à leur tour des termes. Une
+proposition est donc un triplet, éventuellement imbriqué dans un autre triplet.
+Tous les termes sont immuables, hachables et comparés structurellement. Un
+`FiniteSet` élimine les doublons et son égalité ne dépend pas de l’ordre
+d’insertion ; cet ordre est néanmoins conservé pour un rendu déterministe.
 
 Le hash structurel d’un terme ou d’un fait immuable est calculé une fois à sa
 construction puis conservé dans un slot privé. Ce cache ne participe ni à
@@ -47,19 +49,25 @@ La forme `entity ' status` matche simultanément l’entité et le statut du fai
 le statut peut être une variable. Les comparaisons sont évaluées après
 substitution et nécessitent des opérandes ground.
 
-Le moteur supporte `ADD`, `REMOVE` et la liaison arithmétique locale `LET`.
+Le moteur supporte `ADD`, `REMOVE`, la liaison arithmétique locale `LET` et la
+création de symbole `FRESH`.
 Les actions sont instanciées avant mutation, puis appliquées dans leur ordre
 textuel. `LET` évalue une expression numérique déterministe, enrichit la
 substitution de l'activation et ne crée aucun fait. Les actions suivantes
-voient immédiatement la nouvelle liaison. `ADD` et `REMOVE` appliquent la
+voient immédiatement la nouvelle liaison. `FRESH` lie sa variable à un atome
+nouveau de la forme `préfixe-N`, de manière déterministe dans une session et
+sans collision avec les atomes déjà observés. `ADD` et `REMOVE` appliquent la
 substitution courante à leur entité et à leur statut, puis refusent tout
 résultat non ground. Retirer un fait absent est une non-opération.
 
 Les expressions `LET` acceptent les nombres, les variables, les parenthèses et
-les opérateurs `+`, `-`, `*` et `/` avec leur précédence usuelle. Leurs
+les opérateurs `+`, `-`, `*`, `/` et `%` avec leur précédence usuelle. Leurs
 opérandes doivent être numériques et déjà liés ; il ne s'agit pas encore de
 résolution de contraintes. Une division par zéro ou un opérande invalide est
-une erreur d'exécution explicite. Voir [`arithmetic_actions.md`](arithmetic_actions.md).
+une erreur d'exécution explicite. Le modulo exige deux entiers et rejette
+également un diviseur nul. La comparaison `DIVISIBLE x BY y` est le prédicat
+entier correspondant. Voir
+[`arithmetic_actions.md`](arithmetic_actions.md).
 
 Les prémisses `EXISTS` et `NOT EXISTS` contiennent une conjonction locale
 corrélée. Elles voient les variables déjà liées, mais leurs variables locales
@@ -85,8 +93,26 @@ UNIQUE
 END_UNIQUE
 ```
 
-Les modifications partielles, créations de symboles frais et hypothèses avec
-retour arrière restent différées. Voir
+`COLLECT $ensemble := $projection` évalue de même une conjonction corrélée,
+projette un terme ground pour chaque solution et lie `$ensemble` au
+`FiniteSet` des valeurs distinctes. Seule cette variable cible s’échappe du
+bloc. Une collection vide est `[]` :
+
+```text
+COLLECT $notes := $note
+    ($chord contains $note)
+END_COLLECT
+```
+
+Une `InferenceSession` peut être copiée avec `fork()`. La copie possède sa
+propre mémoire de travail, sa réfraction, sa provenance, ses compteurs et ses
+générateurs `FRESH`. Elle sert à exécuter une continuation isolée ; elle ne
+formule pas d’hypothèse, ne choisit pas de branche et ne constitue donc pas un
+backtracking automatique.
+
+Les modifications partielles, les séquences ordonnées, la recherche
+automatique et les contraintes générales restent différées. Voir
+[`collections_fresh_and_contexts.md`](collections_fresh_and_contexts.md) et
 [`mutations_and_negation.md`](mutations_and_negation.md).
 
 ## Instanciation et point fixe
@@ -94,6 +120,11 @@ retour arrière restent différées. Voir
 La stratégie naïve examine les prémisses dans leur ordre et joint les faits par
 backtracking. Une instanciation complète contient la substitution obtenue et
 les faits ayant satisfait les prémisses.
+
+Ici, « backtracking » désigne uniquement l’algorithme interne qui énumère les
+combinaisons d’une jointure puis annule ses liaisons temporaires. Il ne retire
+aucun fait, ne restaure aucun état antérieur du moteur et ne constitue pas le
+retour arrière d’un système de résolution de problèmes.
 
 La stratégie indexée compile les règles en patterns et résolveurs d’index,
 puis maintient un index exact partagé. Elle l’étend avec les faits ajoutés et
@@ -134,7 +165,7 @@ automatiquement à la jointure compilée exhaustive.
 
 Dans une session persistante, une activation est identifiée par
 `(groupe, règle, substitution des prémisses)`. Les liaisons locales calculées
-par `LET` sont déterministes et ne changent pas son identité. La réfraction
+par `LET` ou `FRESH` ne changent pas son identité. La réfraction
 empêche son second déclenchement tant qu’elle reste continûment valide. Un
 retrait de support ou l’invalidation d’une prémisse négative expire la
 réfraction correspondante. Les actions de toutes les nouvelles activations
@@ -146,6 +177,26 @@ Cette sémantique n’impose pas une vérification négative après chaque ajout
 premier enregistrement d’un groupe, la session compile les seules règles dont
 la réfraction peut être invalidée par une addition. Si aucune n’existe dans
 les groupes enregistrés, la réconciliation négative est entièrement omise.
+
+## Ensemble de conflit et MEA
+
+La résolution de conflit est optionnelle. Sans stratégie explicite, le moteur
+conserve le balayage déterministe des règles et activations dans leur ordre
+source.
+
+Avec `MEAConflictStrategy`, l’ensemble complet des activations est reconstruit
+avant chaque déclenchement et une seule activation est choisie. Le critère
+principal est le `timeTag` du premier fait support, suivi d’un vecteur LEX des
+supports, de la spécificité et de l’ordre source. Chaque choix est conservé
+dans un `AgendaSelection`.
+
+Un fait initial reçoit un `timeTag` suivant son insertion. Un ajout effectif
+reçoit le prochain numéro ; un retrait supprime le numéro et une réinsertion
+est fraîche. Placer `($goal status active)` en première prémisse donne ainsi
+aux buts une fraîcheur locale : un sous-but nouveau passe devant son parent.
+
+Ce mode reste du chaînage avant sans hypothèses ni retour arrière. Voir
+[`conflict_resolution.md`](conflict_resolution.md).
 
 ## Groupes de règles et sessions persistantes
 
@@ -159,6 +210,9 @@ Quatre modes sont disponibles :
 - `ONE_CYCLE`, pour un balayage ordonné des règles ;
 - `FIRST_CHANGE`, jusqu’à la première activation modifiant la mémoire ;
 - `UNTIL`, jusqu’à une condition déclarative ou au point fixe.
+
+Lorsqu’une stratégie de conflit est active, `ONE_CYCLE` correspond à une
+sélection d’agenda et non à un balayage complet de toutes les règles.
 
 Une règle située plus loin dans un groupe voit les faits ajoutés plus tôt
 pendant le même cycle. `FIRST_CHANGE` et `UNTIL` ne coupent jamais une

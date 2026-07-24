@@ -5,7 +5,7 @@ from __future__ import annotations
 import re
 from dataclasses import dataclass
 
-from .actions import Action, AddFact, Let, RemoveFact
+from .actions import Action, AddFact, Fresh, Let, RemoveFact
 from .expressions import (
     BinaryArithmeticExpression,
     BinaryArithmeticOperator,
@@ -14,6 +14,7 @@ from .expressions import (
     UnaryArithmeticOperator,
 )
 from .premises import (
+    CollectPremise,
     ComparisonOperator,
     ComparisonPremise,
     CountPremise,
@@ -24,7 +25,7 @@ from .premises import (
     UniquePremise,
 )
 from .rules import Rule, RuleGroup
-from .terms import Atom, Number, Status, Term, Triple, Variable
+from .terms import Atom, FiniteSet, Number, Status, Term, Triple, Variable
 
 
 class ParseError(ValueError):
@@ -40,21 +41,33 @@ class _Token:
 _TOKEN_RE = re.compile(
     r"\s*(?:"
     r"(?P<LPAREN>\()|(?P<RPAREN>\))|"
+    r"(?P<LBRACKET>\[)|(?P<RBRACKET>\])|"
     r"(?P<OP>==|!=|<=|>=|<|>)|(?P<QUOTE>')|"
-    r"(?P<VARIABLE>\$[^\s()'<>!=]+)|"
+    r"(?P<VARIABLE>\$[^\s()\[\]'<>!=]+)|"
     r"(?P<NUMBER>-?(?:\d+(?:\.\d*)?|\.\d+))|"
-    r"(?P<ATOM>[^\s()'<>!=]+)"
+    r"(?P<ATOM>[^\s()\[\]'<>!=]+)"
     r")"
 )
 _COMPARISONS = {operator.value: operator for operator in ComparisonOperator}
 _STATUSES = {status.value: status for status in Status}
 _LET_RE = re.compile(
-    r"LET\s+(?P<variable>\$[^\s()'<>!=:+*/-]+)\s*:=\s*(?P<expression>.+)\Z"
+    r"LET\s+(?P<variable>\$[^\s()'<>!=:+*/%-]+)\s*:=\s*(?P<expression>.+)\Z"
+)
+_FRESH_RE = re.compile(
+    r"FRESH\s+(?P<variable>\$[^\s()'<>!=:+*/%-]+)"
+    r"(?:\s+PREFIX\s+(?P<prefix>[^\s()\[\]'<>!=]+))?\Z"
+)
+_DIVISIBLE_RE = re.compile(
+    r"DIVISIBLE\s+(?P<left>.+?)\s+BY\s+(?P<right>.+)\Z"
+)
+_COLLECT_RE = re.compile(
+    r"COLLECT\s+(?P<target>\$[^\s()'<>!=:+*/%-]+)"
+    r"\s*:=\s*(?P<projection>.+)\Z"
 )
 _ARITH_TOKEN_RE = re.compile(
     r"\s*(?:"
-    r"(?P<LPAREN>\()|(?P<RPAREN>\))|(?P<OP>[+*/-])|"
-    r"(?P<VARIABLE>\$[^\s()+*/-]+)|"
+    r"(?P<LPAREN>\()|(?P<RPAREN>\))|(?P<OP>[+*/%-])|"
+    r"(?P<VARIABLE>\$[^\s()+*/%-]+)|"
     r"(?P<NUMBER>(?:\d+(?:\.\d*)?|\.\d+))"
     r")"
 )
@@ -218,10 +231,41 @@ def _parse_premise_block(
             except ValueError as error:
                 raise ParseError(str(error)) from error
             continue
-        if keyword in {"END_EXISTS", "END_COUNT", "END_UNIQUE"}:
+        if keyword.startswith("COLLECT "):
+            match = _COLLECT_RE.fullmatch(keyword)
+            if match is None:
+                raise ParseError(
+                    "COLLECT header must be `COLLECT $target := projection`"
+                )
+            nested, position = _parse_premise_block(
+                lines,
+                position + 1,
+                "END_COLLECT",
+            )
+            if position >= len(lines) or lines[position] != "END_COLLECT":
+                raise ParseError("COLLECT block is missing END_COLLECT")
+            position += 1
+            try:
+                premises.append(
+                    CollectPremise(
+                        Variable(match.group("target")[1:]),
+                        parse_term(match.group("projection")),
+                        tuple(nested),
+                    )
+                )
+            except ValueError as error:
+                raise ParseError(str(error)) from error
+            continue
+        if keyword in {
+            "END_EXISTS",
+            "END_COUNT",
+            "END_UNIQUE",
+            "END_COLLECT",
+        }:
             raise ParseError(f"unexpected {keyword} before {terminator}")
         if (
-            terminator in {"END_EXISTS", "END_COUNT", "END_UNIQUE"}
+            terminator
+            in {"END_EXISTS", "END_COUNT", "END_UNIQUE", "END_COLLECT"}
             and keyword in {"THEN", "END"}
         ):
             raise ParseError(f"block is missing {terminator}")
@@ -231,6 +275,13 @@ def _parse_premise_block(
 
 
 def _parse_premise(text: str) -> Premise:
+    divisible = _DIVISIBLE_RE.fullmatch(text)
+    if divisible is not None:
+        return ComparisonPremise(
+            parse_term(divisible.group("left")),
+            ComparisonOperator.DIVISIBLE,
+            parse_term(divisible.group("right")),
+        )
     tokens = _tokenize(text)
     split = _top_level_operator(tokens)
     if split is None:
@@ -261,6 +312,14 @@ def _parse_action(text: str) -> Action:
         variable = Variable(match.group("variable")[1:])
         expression = parse_arithmetic_expression(match.group("expression"))
         return Let(variable, expression)
+    if text.startswith("FRESH"):
+        match = _FRESH_RE.fullmatch(text)
+        if match is None:
+            raise ParseError(f"malformed FRESH action {text!r}")
+        return Fresh(
+            Variable(match.group("variable")[1:]),
+            match.group("prefix") or "fresh",
+        )
     keyword, separator, body = text.partition(" ")
     if keyword not in {"ADD", "REMOVE"} or not separator or not body.strip():
         raise ParseError(f"unsupported action {text!r}")
@@ -319,7 +378,7 @@ def _parse_arithmetic_product(
     position: int,
 ) -> tuple[NumericExpression, int]:
     left, position = _parse_arithmetic_unary(tokens, position)
-    while position < len(tokens) and tokens[position].value in {"*", "/"}:
+    while position < len(tokens) and tokens[position].value in {"*", "/", "%"}:
         operator = BinaryArithmeticOperator(tokens[position].value)
         right, position = _parse_arithmetic_unary(tokens, position + 1)
         left = BinaryArithmeticExpression(left, operator, right)
@@ -394,6 +453,15 @@ def _parse_term_tokens(tokens: tuple[_Token, ...], position: int) -> tuple[Term,
         if position >= len(tokens) or tokens[position].kind != "RPAREN":
             raise ParseError("a triple must contain exactly three terms")
         return Triple(subject, relation, object_), position + 1
+    if token.kind == "LBRACKET":
+        elements: list[Term] = []
+        position += 1
+        while position < len(tokens) and tokens[position].kind != "RBRACKET":
+            element, position = _parse_term_tokens(tokens, position)
+            elements.append(element)
+        if position >= len(tokens):
+            raise ParseError("unclosed finite set")
+        return FiniteSet(tuple(elements)), position + 1
     if token.kind == "VARIABLE":
         return Variable(token.value[1:]), position + 1
     if token.kind == "NUMBER":
@@ -406,6 +474,7 @@ def _parse_term_tokens(tokens: tuple[_Token, ...], position: int) -> tuple[Term,
 
 def _top_level_operator(tokens: tuple[_Token, ...]) -> tuple[int, str] | None:
     depth = 0
+    bracket_depth = 0
     found: tuple[int, str] | None = None
     for index, token in enumerate(tokens):
         if token.kind == "LPAREN":
@@ -414,10 +483,22 @@ def _top_level_operator(tokens: tuple[_Token, ...]) -> tuple[int, str] | None:
             depth -= 1
             if depth < 0:
                 raise ParseError("unexpected closing parenthesis")
-        elif depth == 0 and token.kind in {"OP", "QUOTE"}:
+        elif token.kind == "LBRACKET":
+            bracket_depth += 1
+        elif token.kind == "RBRACKET":
+            bracket_depth -= 1
+            if bracket_depth < 0:
+                raise ParseError("unexpected closing bracket")
+        elif (
+            depth == 0
+            and bracket_depth == 0
+            and token.kind in {"OP", "QUOTE"}
+        ):
             if found is not None:
                 raise ParseError("a premise may contain only one top-level operator")
             found = index, token.value
     if depth != 0:
         raise ParseError("unclosed parenthesis")
+    if bracket_depth != 0:
+        raise ParseError("unclosed finite set")
     return found

@@ -1,0 +1,138 @@
+GROUP classify_year
+    RULE mark_divisible_by_4
+    WHEN
+        (current year $year)
+        DIVISIBLE $year BY 4
+    THEN
+        ADD ($year divisible_by 4)
+    END
+
+    RULE mark_divisible_by_100
+    WHEN
+        (current year $year)
+        DIVISIBLE $year BY 100
+    THEN
+        ADD ($year divisible_by 100)
+    END
+
+    RULE mark_divisible_by_400
+    WHEN
+        (current year $year)
+        DIVISIBLE $year BY 400
+    THEN
+        ADD ($year divisible_by 400)
+    END
+
+    RULE leap_year_divisible_by_400
+    WHEN
+        (current year $year)
+        ($year divisible_by 400)
+    THEN
+        ADD ($year leap true)
+    END
+
+    RULE leap_year_divisible_by_4_not_100
+    WHEN
+        (current year $year)
+        ($year divisible_by 4)
+        NOT EXISTS
+            ($year divisible_by 100)
+        END_EXISTS
+    THEN
+        ADD ($year leap true)
+    END
+
+    RULE common_century_not_divisible_by_400
+    WHEN
+        (current year $year)
+        ($year divisible_by 100)
+        NOT EXISTS
+            ($year divisible_by 400)
+        END_EXISTS
+    THEN
+        ADD ($year leap false)
+    END
+
+    RULE common_year_not_divisible_by_4
+    WHEN
+        (current year $year)
+        NOT EXISTS
+            ($year divisible_by 4)
+        END_EXISTS
+    THEN
+        ADD ($year leap false)
+    END
+END_GROUP
+
+GROUP calendar_context
+    RULE use_regular_month_length
+    WHEN
+        (current month $month)
+        ($month length $length)
+    THEN
+        ADD (current month_length $length)
+    END
+
+    RULE use_leap_february_length
+    WHEN
+        (current month february)
+        (current year $year)
+        ($year leap true)
+        (february leap_length $length)
+    THEN
+        ADD (current month_length $length)
+    END
+
+    RULE use_common_february_length
+    WHEN
+        (current month february)
+        (current year $year)
+        ($year leap false)
+        (february common_length $length)
+    THEN
+        ADD (current month_length $length)
+    END
+END_GROUP
+
+GROUP compute_tomorrow
+    RULE advance_inside_month
+    WHEN
+        (current day $day)
+        (current month $month)
+        (current year $year)
+        (current month_length $length)
+        $day < $length
+    THEN
+        LET $next_day := $day + 1
+        ADD (tomorrow day $next_day)
+        ADD (tomorrow month $month)
+        ADD (tomorrow year $year)
+    END
+
+    RULE advance_to_next_month
+    WHEN
+        (current day $day)
+        (current month $month)
+        (current year $year)
+        (current month_length $day)
+        ($month next $next_month)
+        $month != december
+    THEN
+        ADD (tomorrow day 1)
+        ADD (tomorrow month $next_month)
+        ADD (tomorrow year $year)
+    END
+
+    RULE advance_to_next_year
+    WHEN
+        (current day $day)
+        (current month december)
+        (current year $year)
+        (current month_length $day)
+    THEN
+        LET $next_year := $year + 1
+        ADD (tomorrow day 1)
+        ADD (tomorrow month january)
+        ADD (tomorrow year $next_year)
+    END
+END_GROUP

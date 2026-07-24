@@ -5,6 +5,7 @@ from __future__ import annotations
 from ..facts import Fact
 from ..matching import PatternMatcher
 from ..premises import (
+    CollectPremise,
     ComparisonPremise,
     CountPremise,
     ExistsPremise,
@@ -15,6 +16,7 @@ from ..premises import (
 )
 from ..rules import Rule
 from ..substitutions import EMPTY_SUBSTITUTION, Substitution
+from ..terms import FiniteSet, Term, is_ground
 from .base import (
     Activation,
     FactDelta,
@@ -82,6 +84,23 @@ class NaiveInstantiationStrategy:
                     output,
                     witness_cache,
                 )
+            return
+        if isinstance(premise, CollectPremise):
+            collection, collection_supports = self._collect_values(
+                premise,
+                facts,
+                substitution,
+                witness_cache,
+            )
+            self._extend(
+                rule,
+                facts,
+                premise_index + 1,
+                substitution.bind(premise.target, collection),
+                (*supports, *collection_supports),
+                output,
+                witness_cache,
+            )
             return
         if isinstance(premise, (ExistsPremise, NotExistsPremise)):
             witness = self._first_witness(
@@ -184,6 +203,21 @@ class NaiveInstantiationStrategy:
                 premise_index + 1,
                 substitution,
                 supports,
+                witness_cache,
+            )
+        if isinstance(premise, CollectPremise):
+            collection, collection_supports = self._collect_values(
+                premise,
+                facts,
+                substitution,
+                witness_cache,
+            )
+            return self._first_witness_from(
+                premises,
+                facts,
+                premise_index + 1,
+                substitution.bind(premise.target, collection),
+                (*supports, *collection_supports),
                 witness_cache,
             )
         if isinstance(premise, (ExistsPremise, NotExistsPremise)):
@@ -289,6 +323,23 @@ class NaiveInstantiationStrategy:
                     output,
                 )
             return
+        if isinstance(premise, CollectPremise):
+            collection, collection_supports = self._collect_values(
+                premise,
+                facts,
+                substitution,
+                witness_cache,
+            )
+            self._collect_witnesses_from(
+                premises,
+                facts,
+                premise_index + 1,
+                substitution.bind(premise.target, collection),
+                (*supports, *collection_supports),
+                witness_cache,
+                output,
+            )
+            return
         if isinstance(premise, (ExistsPremise, NotExistsPremise)):
             nested = self._first_witness(
                 premise.premises,
@@ -338,6 +389,143 @@ class NaiveInstantiationStrategy:
             if matched is not None:
                 self._collect_witnesses_from(
                     premises,
+                    facts,
+                    premise_index + 1,
+                    matched,
+                    (*supports, fact),
+                    witness_cache,
+                    output,
+                )
+
+    def _collect_values(
+        self,
+        premise: CollectPremise,
+        facts: tuple[Fact, ...],
+        substitution: Substitution,
+        witness_cache: WitnessCache,
+    ) -> tuple[FiniteSet, tuple[Fact, ...]]:
+        projected: list[tuple[Term, tuple[Fact, ...]]] = []
+        self._collect_projected_from(
+            premise.premises,
+            premise.projection,
+            facts,
+            premise_index=0,
+            substitution=substitution,
+            supports=(),
+            witness_cache=witness_cache,
+            output=projected,
+        )
+        values = FiniteSet(tuple(dict.fromkeys(value for value, _ in projected)))
+        supports = tuple(
+            dict.fromkeys(
+                fact
+                for _, witness_supports in projected
+                for fact in witness_supports
+            )
+        )
+        return values, supports
+
+    def _collect_projected_from(
+        self,
+        premises: tuple[Premise, ...],
+        projection: Term,
+        facts: tuple[Fact, ...],
+        premise_index: int,
+        substitution: Substitution,
+        supports: tuple[Fact, ...],
+        witness_cache: WitnessCache,
+        output: list[tuple[Term, tuple[Fact, ...]]],
+    ) -> None:
+        if premise_index == len(premises):
+            value = substitution.apply(projection)
+            if not is_ground(value):
+                raise ValueError("COLLECT projection must be ground")
+            output.append((value, supports))
+            return
+        premise = premises[premise_index]
+        if isinstance(premise, ComparisonPremise):
+            if premise.evaluate(substitution):
+                self._collect_projected_from(
+                    premises,
+                    projection,
+                    facts,
+                    premise_index + 1,
+                    substitution,
+                    supports,
+                    witness_cache,
+                    output,
+                )
+            return
+        if isinstance(premise, CollectPremise):
+            collection, collection_supports = self._collect_values(
+                premise,
+                facts,
+                substitution,
+                witness_cache,
+            )
+            self._collect_projected_from(
+                premises,
+                projection,
+                facts,
+                premise_index + 1,
+                substitution.bind(premise.target, collection),
+                (*supports, *collection_supports),
+                witness_cache,
+                output,
+            )
+            return
+        if isinstance(premise, (ExistsPremise, NotExistsPremise)):
+            nested = self._first_witness(
+                premise.premises,
+                facts,
+                substitution,
+                witness_cache,
+            )
+            succeeds = nested is not None
+            if isinstance(premise, NotExistsPremise):
+                succeeds = not succeeds
+                nested = ()
+            if succeeds:
+                self._collect_projected_from(
+                    premises,
+                    projection,
+                    facts,
+                    premise_index + 1,
+                    substitution,
+                    (*supports, *(nested or ())),
+                    witness_cache,
+                    output,
+                )
+            return
+        if isinstance(premise, (CountPremise, UniquePremise)):
+            witnesses = self._all_witnesses(
+                premise.premises,
+                facts,
+                substitution,
+                witness_cache,
+            )
+            if _aggregate_accepts(premise, len(witnesses)):
+                self._collect_projected_from(
+                    premises,
+                    projection,
+                    facts,
+                    premise_index + 1,
+                    substitution,
+                    (*supports, *_aggregate_supports(witnesses)),
+                    witness_cache,
+                    output,
+                )
+            return
+        if not isinstance(premise, FactPremise):
+            raise TypeError(f"unsupported premise: {premise!r}")
+        for fact in facts:
+            self.metrics.candidate_facts += 1
+            self.metrics.match_attempts += 1
+            matched = premise.match(fact, substitution, self.matcher)
+            if matched is not None:
+                self._collect_projected_from(
+                    premises,
+                    projection,
                     facts,
                     premise_index + 1,
                     matched,

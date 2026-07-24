@@ -10,6 +10,7 @@ from typing import TypeVar
 from ..facts import Fact
 from ..matching import PatternMatcher
 from ..premises import (
+    CollectPremise,
     ComparisonPremise,
     CountPremise,
     ExistsPremise,
@@ -25,7 +26,7 @@ from ..substitutions import (
     Substitution,
     TermBindings,
 )
-from ..terms import Term, Triple, Variable
+from ..terms import FiniteSet, Term, Triple, Variable, is_ground
 from .base import (
     Activation,
     FactDelta,
@@ -37,6 +38,7 @@ from .base import (
 from .compiled import (
     CompiledAggregatePremise,
     CompiledBlock,
+    CompiledCollectPremise,
     CompiledComparisonPremise,
     CompiledExistentialPremise,
     CompiledFactPremise,
@@ -776,6 +778,27 @@ class IndexedInstantiationStrategy:
                     output,
                 )
             return
+        if isinstance(premise, CompiledCollectPremise):
+            collection, collection_supports = self._collect_compiled_values(
+                premise,
+                index,
+                frame,
+            )
+            checkpoint = frame.checkpoint()
+            if frame.bind_ground(premise.source.target, collection):
+                support_count = len(supports)
+                supports.extend(collection_supports)
+                self._extend_compiled(
+                    block,
+                    index,
+                    premise_index + 1,
+                    frame,
+                    supports,
+                    output,
+                )
+                del supports[support_count:]
+            frame.rollback(checkpoint)
+            return
         if isinstance(premise, CompiledAggregatePremise):
             count_value, aggregate_supports = self._count_compiled_query(
                 premise.block,
@@ -906,6 +929,28 @@ class IndexedInstantiationStrategy:
                 frame,
                 supports,
             )
+        if isinstance(premise, CompiledCollectPremise):
+            collection, collection_supports = self._collect_compiled_values(
+                premise,
+                index,
+                frame,
+            )
+            checkpoint = frame.checkpoint()
+            if not frame.bind_ground(premise.source.target, collection):
+                frame.rollback(checkpoint)
+                return None
+            support_count = len(supports)
+            supports.extend(collection_supports)
+            witness = self._first_compiled_witness_from(
+                block,
+                index,
+                premise_index + 1,
+                frame,
+                supports,
+            )
+            del supports[support_count:]
+            frame.rollback(checkpoint)
+            return witness
         if isinstance(premise, CompiledAggregatePremise):
             count_value, aggregate_supports = self._count_compiled_query(
                 premise.block,
@@ -1061,6 +1106,27 @@ class IndexedInstantiationStrategy:
                     output,
                 )
             return
+        if isinstance(premise, CompiledCollectPremise):
+            collection, collection_supports = self._collect_compiled_values(
+                premise,
+                index,
+                frame,
+            )
+            checkpoint = frame.checkpoint()
+            if frame.bind_ground(premise.source.target, collection):
+                support_count = len(supports)
+                supports.extend(collection_supports)
+                self._collect_compiled_witnesses_from(
+                    block,
+                    index,
+                    premise_index + 1,
+                    frame,
+                    supports,
+                    output,
+                )
+                del supports[support_count:]
+            frame.rollback(checkpoint)
+            return
         if isinstance(premise, CompiledExistentialPremise):
             nested = self._first_compiled_witness(
                 premise.block,
@@ -1114,6 +1180,152 @@ class IndexedInstantiationStrategy:
                 supports.append(fact)
                 self._collect_compiled_witnesses_from(
                     block,
+                    index,
+                    premise_index + 1,
+                    frame,
+                    supports,
+                    output,
+                )
+                supports.pop()
+            frame.rollback(checkpoint)
+
+    def _collect_compiled_values(
+        self,
+        premise: CompiledCollectPremise,
+        index: FactIndex,
+        frame: BindingFrame,
+    ) -> tuple[FiniteSet, tuple[Fact, ...]]:
+        checkpoint = frame.checkpoint()
+        projected: list[tuple[Term, tuple[Fact, ...]]] = []
+        self._collect_compiled_projection_from(
+            premise.block,
+            premise.source.projection,
+            index,
+            premise_index=0,
+            frame=frame,
+            supports=[],
+            output=projected,
+        )
+        frame.rollback(checkpoint)
+        collection = FiniteSet(
+            tuple(dict.fromkeys(value for value, _ in projected))
+        )
+        supports = tuple(
+            dict.fromkeys(
+                fact
+                for _, witness_supports in projected
+                for fact in witness_supports
+            )
+        )
+        return collection, supports
+
+    def _collect_compiled_projection_from(
+        self,
+        block: CompiledBlock,
+        projection: Term,
+        index: FactIndex,
+        premise_index: int,
+        frame: BindingFrame,
+        supports: list[Fact],
+        output: list[tuple[Term, tuple[Fact, ...]]],
+    ) -> None:
+        if premise_index == len(block.premises):
+            value = frame.apply(projection)
+            if not is_ground(value):
+                raise ValueError("COLLECT projection must be ground")
+            output.append((value, tuple(supports)))
+            return
+        premise = block.premises[premise_index]
+        if isinstance(premise, CompiledComparisonPremise):
+            if premise.source.evaluate(frame):
+                self._collect_compiled_projection_from(
+                    block,
+                    projection,
+                    index,
+                    premise_index + 1,
+                    frame,
+                    supports,
+                    output,
+                )
+            return
+        if isinstance(premise, CompiledCollectPremise):
+            collection, collection_supports = self._collect_compiled_values(
+                premise,
+                index,
+                frame,
+            )
+            checkpoint = frame.checkpoint()
+            if frame.bind_ground(premise.source.target, collection):
+                support_count = len(supports)
+                supports.extend(collection_supports)
+                self._collect_compiled_projection_from(
+                    block,
+                    projection,
+                    index,
+                    premise_index + 1,
+                    frame,
+                    supports,
+                    output,
+                )
+                del supports[support_count:]
+            frame.rollback(checkpoint)
+            return
+        if isinstance(premise, CompiledAggregatePremise):
+            count_value, aggregate_supports = self._count_compiled_query(
+                premise.block,
+                index,
+                frame,
+            )
+            if _aggregate_accepts(premise.source, count_value):
+                support_count = len(supports)
+                supports.extend(aggregate_supports)
+                self._collect_compiled_projection_from(
+                    block,
+                    projection,
+                    index,
+                    premise_index + 1,
+                    frame,
+                    supports,
+                    output,
+                )
+                del supports[support_count:]
+            return
+        if isinstance(premise, CompiledExistentialPremise):
+            witness = self._first_compiled_witness(
+                premise.block,
+                index,
+                frame,
+            )
+            succeeds = witness is not None
+            if premise.negated:
+                succeeds = not succeeds
+                witness = ()
+            if succeeds:
+                support_count = len(supports)
+                supports.extend(witness or ())
+                self._collect_compiled_projection_from(
+                    block,
+                    projection,
+                    index,
+                    premise_index + 1,
+                    frame,
+                    supports,
+                    output,
+                )
+                del supports[support_count:]
+            return
+        if not isinstance(premise, CompiledFactPremise):
+            raise TypeError(f"unsupported compiled premise: {premise!r}")
+        candidates = index.candidates_compiled(premise, frame)
+        self.metrics.candidate_facts += len(candidates)
+        for fact in candidates:
+            self.metrics.match_attempts += 1
+            checkpoint = frame.checkpoint()
+            if premise.match(fact.entity, fact.status, frame):
+                supports.append(fact)
+                self._collect_compiled_projection_from(
+                    block,
+                    projection,
                     index,
                     premise_index + 1,
                     frame,
@@ -1297,6 +1509,7 @@ class SemiNaiveInstantiationStrategy(IndexedInstantiationStrategy):
                     NotExistsPremise,
                     CountPremise,
                     UniquePremise,
+                    CollectPremise,
                 ),
             )
             for premise in rule.premises

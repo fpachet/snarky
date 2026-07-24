@@ -18,6 +18,7 @@ PREVIOUS_TECHNIQUE = {
     4: "locked_candidates_single_line",
     5: "locked_candidates_multiple_lines",
     6: "naked_pairs",
+    7: "hidden_pairs",
 }
 
 
@@ -26,8 +27,8 @@ def _solved_level(level: int) -> SudokuSolveResult:
     return solve_level(level)
 
 
-@pytest.mark.parametrize("level", range(1, 7))
-def test_p1_to_p6_are_solved_with_exactly_the_expected_techniques(
+@pytest.mark.parametrize("level", range(1, 8))
+def test_p1_to_p7_are_solved_with_exactly_the_expected_techniques(
     level: int,
 ) -> None:
     result = _solved_level(level)
@@ -53,7 +54,7 @@ def test_p1_to_p6_are_solved_with_exactly_the_expected_techniques(
             assert derivation.rule_group == "derive_solved_cells"
 
 
-@pytest.mark.parametrize("level", range(2, 7))
+@pytest.mark.parametrize("level", range(2, 8))
 def test_disabling_the_required_last_technique_leaves_the_grid_stuck(
     level: int,
 ) -> None:

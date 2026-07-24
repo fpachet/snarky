@@ -6,11 +6,11 @@ versions du moteur.
 
 ## Sudoku déclaratif
 
-Le benchmark Sudoku mesure les niveaux p1, p5 et p6 cinq fois avec la stratégie
-indexée exhaustive utilisée par le solveur :
+Le benchmark Sudoku mesure par défaut les niveaux p1, p6 et p7 cinq fois avec
+la stratégie indexée exhaustive utilisée par le solveur :
 
 ```sh
-uv run python -m benchmarks.sudoku_rules --levels 1 5 6 --repeat 5
+uv run python -m benchmarks.sudoku_rules --levels 1 6 7 --repeat 5
 ```
 
 Mesure du 23 juillet 2026 sur macOS ARM64 avec Python 3.13.11, après la
@@ -27,6 +27,10 @@ Cette passe ajoute un gain ×1,62 à ×2,29 et réduit encore les matchings de
 33 à 50 %. Depuis la baseline initiale, le gain total vaut ×7,18 sur p1,
 ×8,26 sur p5 et ×8,74 sur p6. Les résultats synthétiques sont conservés dans
 [`results/sudoku_matching_optimizations_2026-07-23.csv`](results/sudoku_matching_optimizations_2026-07-23.csv).
+
+X-Wing p7, ajouté le 24 juillet 2026, prend 0,659 s en médiane sur trois
+passages, avec 171 804 tentatives de matching et 490 activations. Cette mesure
+est un point de départ pour le niveau avancé, pas une comparaison avant/après.
 
 ### Hashes structurels précalculés
 

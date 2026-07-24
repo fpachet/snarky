@@ -1,0 +1,42 @@
+GROUP solve_hanoi_2
+    RULE move_small_a_to_b
+    WHEN
+        (hanoi phase 1)
+        (small at a)
+    THEN
+        FRESH $move PREFIX move
+        REMOVE (small at a)
+        REMOVE (hanoi phase 1)
+        ADD (small at b)
+        ADD (hanoi phase 2)
+        ADD ($move description small_a_b)
+    END
+
+    RULE move_large_a_to_c
+    WHEN
+        (hanoi phase 2)
+        (large at a)
+        (small at b)
+    THEN
+        FRESH $move PREFIX move
+        REMOVE (large at a)
+        REMOVE (hanoi phase 2)
+        ADD (large at c)
+        ADD (hanoi phase 3)
+        ADD ($move description large_a_c)
+    END
+
+    RULE move_small_b_to_c
+    WHEN
+        (hanoi phase 3)
+        (small at b)
+        (large at c)
+    THEN
+        FRESH $move PREFIX move
+        REMOVE (small at b)
+        REMOVE (hanoi phase 3)
+        ADD (small at c)
+        ADD (hanoi state solved)
+        ADD ($move description small_b_c)
+    END
+END_GROUP

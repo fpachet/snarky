@@ -40,6 +40,7 @@ class ComparisonOperator(StrEnum):
     LE = "<="
     GT = ">"
     GE = ">="
+    DIVISIBLE = "DIVISIBLE_BY"
 
 
 @dataclass(frozen=True, slots=True)
@@ -59,6 +60,12 @@ class ComparisonPremise:
             return left == right
         if self.operator is ComparisonOperator.NE:
             return left != right
+        if self.operator is ComparisonOperator.DIVISIBLE:
+            dividend = _integer_value(left)
+            divisor = _integer_value(right)
+            if divisor == 0:
+                raise ValueError("DIVISIBLE divisor cannot be zero")
+            return dividend % divisor == 0
         left_value = _ordered_value(left)
         right_value = _ordered_value(right)
         if self.operator is ComparisonOperator.LT:
@@ -143,6 +150,21 @@ class UniquePremise:
         object.__setattr__(self, "premises", premises)
 
 
+@dataclass(frozen=True, slots=True)
+class CollectPremise:
+    """Bind a finite set to the projection of a correlated local query."""
+
+    target: Variable
+    projection: Term
+    premises: tuple[Premise, ...]
+
+    def __post_init__(self) -> None:
+        premises = tuple(self.premises)
+        if not premises:
+            raise ValueError("COLLECT requires at least one premise")
+        object.__setattr__(self, "premises", premises)
+
+
 type Premise = (
     FactPremise
     | ComparisonPremise
@@ -150,6 +172,7 @@ type Premise = (
     | NotExistsPremise
     | CountPremise
     | UniquePremise
+    | CollectPremise
 )
 
 
@@ -181,6 +204,30 @@ def validate_premise_bindings(
                     for variable in sorted(missing, key=lambda item: item.name)
                 )
                 raise ValueError(f"comparison uses unbound variables: {names}")
+            continue
+        if isinstance(premise, CollectPremise):
+            if premise.target in bound:
+                raise ValueError(
+                    f"COLLECT target ${premise.target.name} is already bound"
+                )
+            nested_bound = validate_premise_bindings(
+                premise.premises,
+                frozenset(bound),
+                require_bound_comparisons=True,
+            )
+            required = variables_in(premise.projection)
+            missing = required - nested_bound
+            if missing:
+                names = ", ".join(
+                    f"${variable.name}"
+                    for variable in sorted(missing, key=lambda item: item.name)
+                )
+                raise ValueError(
+                    f"COLLECT projection uses unbound variables: {names}"
+                )
+            local_to_existential.update(nested_bound - bound)
+            bound.add(premise.target)
+            local_to_existential.discard(premise.target)
             continue
         if isinstance(
             premise,
@@ -230,7 +277,29 @@ def unique(*premises: Premise) -> UniquePremise:
     return UniquePremise(tuple(premises))
 
 
+def collect(
+    target: Variable,
+    projection: Term,
+    *premises: Premise,
+) -> CollectPremise:
+    """Construct a correlated finite-set collection premise."""
+
+    return CollectPremise(target, projection, tuple(premises))
+
+
+def divisible(left: Term, right: Term) -> ComparisonPremise:
+    """Construct an integer divisibility premise."""
+
+    return ComparisonPremise(left, ComparisonOperator.DIVISIBLE, right)
+
+
 def _ordered_value(term: Term) -> int | float:
     if isinstance(term, Number):
         return term.value
     raise TypeError("ordered comparisons currently require Number operands")
+
+
+def _integer_value(term: Term) -> int:
+    if isinstance(term, Number) and isinstance(term.value, int):
+        return term.value
+    raise TypeError("DIVISIBLE currently requires integer Number operands")

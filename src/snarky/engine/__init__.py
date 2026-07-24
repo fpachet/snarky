@@ -1,5 +1,11 @@
 """Forward engine, persistent sessions, rule groups, and provenance APIs."""
 
+from .conflict import (
+    AgendaCandidate,
+    AgendaSelection,
+    ConflictResolutionStrategy,
+    MEAConflictStrategy,
+)
 from .events import FactMutationKind, InferenceEvent
 from .forward import (
     EngineLimits,
@@ -16,6 +22,9 @@ from .forward import (
 from .provenance import Derivation, Provenance
 
 __all__ = [
+    "AgendaCandidate",
+    "AgendaSelection",
+    "ConflictResolutionStrategy",
     "Derivation",
     "EngineLimits",
     "FactExists",
@@ -27,6 +36,7 @@ __all__ = [
     "InferenceLimitError",
     "InferenceEvent",
     "InferenceSession",
+    "MEAConflictStrategy",
     "Provenance",
     "RunResult",
     "StopCondition",

@@ -13,6 +13,7 @@ topology.rules
 singles.rules
 locked_candidates.rules
 pairs.rules
+x_wing.rules
 validation.rules
 ```
 

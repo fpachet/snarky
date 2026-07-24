@@ -7,7 +7,7 @@ from dataclasses import dataclass
 from .expressions import NumericExpression, evaluate_arithmetic
 from .facts import Fact
 from .substitutions import Substitution
-from .terms import Status, Term, Variable
+from .terms import Atom, Status, Term, Variable
 
 
 @dataclass(frozen=True, slots=True)
@@ -50,7 +50,26 @@ class Let:
         return substitution.bind(self.variable, value)
 
 
-Action = AddFact | RemoveFact | Let
+@dataclass(frozen=True, slots=True)
+class Fresh:
+    """Bind a new atom for the actions that follow in one activation."""
+
+    variable: Variable
+    prefix: str = "fresh"
+
+    def __post_init__(self) -> None:
+        if not self.prefix or any(character.isspace() for character in self.prefix):
+            raise ValueError("FRESH prefix must be a non-empty atom fragment")
+
+    def apply(
+        self,
+        substitution: Substitution,
+        value: Atom,
+    ) -> Substitution:
+        return substitution.bind(self.variable, value)
+
+
+Action = AddFact | RemoveFact | Let | Fresh
 
 
 def add(entity: Term, status: Term = Status.VRAI) -> AddFact:
@@ -69,3 +88,9 @@ def let(variable: Variable, expression: NumericExpression) -> Let:
     """Public convenience constructor for a local arithmetic binding."""
 
     return Let(variable, expression)
+
+
+def fresh(variable: Variable, prefix: str = "fresh") -> Fresh:
+    """Public convenience constructor for a deterministic fresh atom."""
+
+    return Fresh(variable, prefix)

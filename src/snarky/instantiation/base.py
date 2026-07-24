@@ -8,6 +8,7 @@ from typing import Protocol
 
 from ..facts import Fact
 from ..premises import (
+    CollectPremise,
     ComparisonPremise,
     CountPremise,
     ExistsPremise,
@@ -144,6 +145,10 @@ def _variables_in_premises(
         elif isinstance(premise, ComparisonPremise):
             variables.update(variables_in(premise.left))
             variables.update(variables_in(premise.right))
+        elif isinstance(premise, CollectPremise):
+            variables.add(premise.target)
+            variables.update(variables_in(premise.projection))
+            variables.update(_variables_in_premises(premise.premises))
         elif isinstance(
             premise,
             (

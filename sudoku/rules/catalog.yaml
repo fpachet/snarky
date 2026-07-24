@@ -1,6 +1,6 @@
 schema_version: 1
-status: executable_p1_to_p6
-scope: clips_grid3x3_p1_to_p6
+status: executable_p1_to_p7
+scope: clips_grid3x3_p1_to_p7
 required_engine_features:
   available:
     - rule_groups
@@ -60,6 +60,15 @@ groups:
     rules:
       - eliminate_other_values_from_first_hidden_pair_cell
       - eliminate_other_values_from_second_hidden_pair_cell
+
+  - name: x_wing
+    clips_rank: 7
+    first_required_by: grid3x3-p7
+    rules:
+      - eliminate_x_wing_first_column_from_other_rows
+      - eliminate_x_wing_second_column_from_other_rows
+      - eliminate_x_wing_first_row_from_other_columns
+      - eliminate_x_wing_second_row_from_other_columns
 
   - name: validate_state
     purpose: Detect solved, stuck, and inconsistent states.

@@ -107,7 +107,8 @@ Sont disponibles et testés :
 
 - termes et triplets récursifs immuables, variables dans toutes les positions
   et statuts explicites ;
-- matching orienté, unification séparée, comparaisons et actions `LET` ;
+- matching orienté, unification séparée, comparaisons, actions `LET` et
+  génération déterministe `FRESH` ;
 - chaînage avant déterministe, réfraction, limites et provenance ;
 - stratégies naïve, indexée et semi-naïve interchangeables ;
 - groupes de règles nommés, sessions persistantes et modes `SATURATE`,
@@ -116,21 +117,30 @@ Sont disponibles et testés :
   d’`InferenceEvent` ;
 - prémisses corrélées `EXISTS` et `NOT EXISTS`, avec portée locale des
   variables ;
-- agrégats corrélés `COUNT` et `UNIQUE` ;
+- agrégats corrélés `COUNT`, `UNIQUE` et `COLLECT`, avec termes ensembles
+  finis ;
+- modulo entier, prémisse `DIVISIBLE` et continuations de session isolées par
+  `fork()` ;
+- ensemble de conflit explicite, `timeTag`, stratégie
+  `MEAConflictStrategy` et journal d’`AgendaSelection` ;
 - règles compilées, cadre mutable interne, deltas nets de suppression,
   watchers, compteurs et mémoires de jointures partielles bornées ;
 - hashes structurels précalculés des termes et faits immuables ;
 - plans génériques de techniques avec les états `SOLVED`, `STUCK`,
   `INCONSISTENT` et `LIMIT_REACHED` ;
-- cas d’étude Spinoza complet et base Sudoku native p1–p6 résolue sans
-  recherche exhaustive.
+- cas d’étude Spinoza complet et base Sudoku native p1–p7 résolue sans
+  recherche exhaustive ;
+- reformulation du singe et des bananes avec buts dynamiques, parcours MEA et
+  trace complète de l’agenda.
 
-Restent notamment différés : symboles frais, mise à jour partielle d’un fait,
-TMS complet, contraintes générales, stratégie centrée sur les variables de
-BOOJUM et techniques Sudoku avancées p7–p18.
+Restent notamment différés : mise à jour partielle d’un fait, séquences
+ordonnées, recherche automatique, TMS complet, contraintes générales,
+stratégie centrée sur les variables de BOOJUM et techniques Sudoku avancées
+p8–p18.
 
 Les décisions opérationnelles exactes sont précisées dans
-[`semantics.md`](semantics.md), [`rule_groups.md`](rule_groups.md) et
+[`semantics.md`](semantics.md), [`rule_groups.md`](rule_groups.md),
+[`conflict_resolution.md`](conflict_resolution.md) et
 [`mutations_and_negation.md`](mutations_and_negation.md). Le cas d’acceptation
 Sudoku et ses prochains paliers sont détaillés dans
 [`../sudoku/docs/implementation_plan.md`](../sudoku/docs/implementation_plan.md).
@@ -349,7 +359,23 @@ END_UNIQUE
 Ils suivent les mêmes règles de corrélation et de portée locale que les blocs
 existentiels.
 
-### 2.6 Groupes et plans d’exécution
+`COLLECT` projette les valeurs distinctes de ses solutions dans un ensemble
+fini immuable et n’exporte que sa variable cible :
+
+```text
+COLLECT $notes := $note
+    ($chord contains $note)
+END_COLLECT
+```
+
+### 2.6 Arithmétique entière et symboles frais
+
+Les expressions `LET` acceptent aussi `%` sur deux entiers. La prémisse
+`DIVISIBLE x BY y` teste la divisibilité entière et rejette un diviseur nul.
+L’action `FRESH $x PREFIX node` produit un atome déterministe sans collision
+dans la session et transmet cette liaison aux actions suivantes.
+
+### 2.7 Groupes et plans d’exécution
 
 Une base peut séparer ses familles de règles :
 
@@ -535,6 +561,12 @@ Il pourra :
 - produire toutes les substitutions complètes.
 
 Cette stratégie servira d’oracle de correction aux stratégies optimisées.
+
+Dans toute cette section, le mot « backtracking » concerne l’énumération
+interne des liaisons d’une jointure : le matcher annule un choix local de
+variable et essaie le suivant. Ce n’est pas un mécanisme de résolution de
+problèmes qui poserait une hypothèse, modifierait la mémoire de travail puis
+restaurerait un état antérieur.
 
 ### 5.2 Stratégie centrée sur les prémisses
 
@@ -756,12 +788,12 @@ ActivationKey
 
 Après une suppression, les activations dont un fait support a disparu
 redeviennent éligibles. Après un ajout, une activation fondée sur
-`NOT EXISTS`, `COUNT` ou `UNIQUE` peut cesser d’être éligible. Chaque règle
-reçoit un `FactDelta` révisionné avec ajouts et retraits nets. Les watchers de
-requêtes sont indexés par leur signature résolue et ne visitent que les
-corrélations compatibles. Les blocs factuels simples mettent à jour leur
-compteur et leur premier témoin directement ; les blocs composés conservent un
-recalcul compilé paresseux comme chemin de repli.
+`NOT EXISTS`, `COUNT`, `UNIQUE` ou `COLLECT` peut cesser d’être éligible ou
+changer de valeur. Chaque règle reçoit un `FactDelta` révisionné avec ajouts et
+retraits nets. Les watchers de requêtes sont indexés par leur signature résolue
+et ne visitent que les corrélations compatibles. Les blocs factuels simples
+mettent à jour leur compteur et leur premier témoin directement ; les blocs
+composés conservent un recalcul compilé paresseux comme chemin de repli.
 
 ### 8.4 Groupes, sessions et modes de contrôle
 
@@ -779,6 +811,26 @@ sature un groupe implicite `default`.
 `TechniquePlan` orchestre plusieurs groupes sans connaître le domaine. Il
 sépare groupes de maintenance et techniques, mémorise les groupes essayés et
 efficaces, puis renvoie un statut terminal explicite.
+
+`InferenceSession.fork()` copie l’état observable et interne nécessaire à une
+continuation indépendante : faits, réfraction, provenance, compteurs, deltas
+et générateurs `FRESH`. Muter la copie ne modifie pas sa session source. Cette
+primitive ne formule aucune hypothèse et n’implémente aucune boucle de
+recherche ou de retour arrière ; une telle politique resterait à construire
+au-dessus.
+
+### 8.5 Ensemble de conflit et MEA
+
+Une `ConflictResolutionStrategy` optionnelle peut remplacer le balayage
+complet par une sélection d’agenda suivie d’une reconstruction du conflit.
+`MEAConflictStrategy` privilégie le `timeTag` du premier fait support, puis un
+vecteur LEX, la spécificité et l’ordre source. Le choix est observable dans un
+`AgendaSelection`.
+
+Dans une base à buts, `($goal status active)` doit être la première prémisse :
+un sous-but récemment ajouté passe alors devant son parent. Cette première
+version est une stratégie publique du moteur, pas encore une méta-base
+réflexive.
 
 ---
 
@@ -1057,7 +1109,7 @@ Tester :
 - retour à la technique la plus simple après progrès ;
 - arrêts `SOLVED`, `STUCK`, `INCONSISTENT` et `LIMIT_REACHED`.
 
-### 12.12 Sudoku p1–p6
+### 12.12 Sudoku p1–p7
 
 Pour chaque grille :
 
@@ -1070,6 +1122,23 @@ Pour chaque grille :
 Le benchmark `python -m benchmarks.sudoku_rules` mesure séparément le temps,
 les candidats proposés, les matchings, les cycles et les accès au cache de
 témoins. La baseline du 23 juillet 2026 couvre p1, p5 et p6 sur cinq passages.
+
+### 12.13 Catalogue des bases documentées
+
+Chaque scénario public de `rulebases/` doit posséder un README, des règles,
+des faits initiaux, un oracle minimal et un fichier d'orchestration. Le test
+paramétré `tests/test_documented_rulebases.py` exécute tous les scénarios et
+vérifie que `rulebases/catalog.yaml` ne contient ni entrée orpheline ni exemple
+non inventorié.
+
+Une version bornée ou symbolique doit le dire explicitement et distinguer :
+
+- le noyau effectivement exécutable ;
+- la partie du problème laissée à l'extérieur ;
+- les capacités génériques qui permettraient une généralisation.
+
+La priorisation de ces capacités est maintenue dans
+[`rulebase_feature_roadmap.md`](rulebase_feature_roadmap.md).
 
 ---
 
@@ -1152,14 +1221,20 @@ Prévoir des interfaces, sans les implémenter initialement, pour :
 
 Le cœur initial doit rester déterministe et symbolique.
 
-Le Sudoku avancé sert de banc d’essai pour décider ces ajouts à partir de
-besoins observés :
+Le Sudoku avancé et les bases de la thèse servent de bancs d’essai pour décider
+ces ajouts à partir de besoins observés. Les quatre primitives générales
+suivantes sont maintenant disponibles :
 
-- p7 et motifs de type X-Wing utiliseront d’abord `COUNT`/`UNIQUE` et peuvent
-  encore motiver `COLLECT` ou des ensembles finis ;
-- coloriage et chaînes peuvent motiver graphes temporaires et symboles frais ;
-- hypothèses et chaînes forcées peuvent motiver des contextes isolés et du
-  retour arrière.
+- modulo et divisibilité entière pour le calendrier et les intervalles ;
+- ensembles finis et `COLLECT` pour matérialiser une projection ;
+- `FRESH` pour nommer déterministement les objets construits ;
+- `InferenceSession.fork()` pour isoler une continuation ;
+- `MEAConflictStrategy` pour sélectionner les sous-buts par fraîcheur locale.
+
+Elles ne fournissent toujours ni séquence ordonnée native, ni méta-règles
+réflexives, ni recherche automatique. En particulier, un fork n’est pas un
+« contexte hypothétique » tant qu’un orchestrateur n’y ajoute pas explicitement
+une hypothèse.
 
 ---
 
@@ -1174,7 +1249,7 @@ besoins observés :
 5. Actions arithmétiques `LET`.
 6. Groupes nommés, sessions persistantes et modes de contrôle.
 7. Mémoire mutable, événements, `EXISTS` et `NOT EXISTS` corrélés.
-8. `TechniquePlan` et cas d’acceptation Sudoku p1–p6.
+8. `TechniquePlan` et cas d’acceptation Sudoku p1–p7.
 9. Cas Spinoza systématique exécutable et atlas de preuves.
 10. Plans compilés, cadre mutable, deltas de suppression, compteurs,
     watchers et mémoires partielles bornées.
@@ -1183,6 +1258,13 @@ besoins observés :
     désérialisation.
 13. Plans de réfraction négative compilés par groupe, avec chemin d’ajout
     direct lorsqu’aucune dépendance susceptible d’être invalidée n’existe.
+14. Modulo entier et prémisse `DIVISIBLE`.
+15. Ensembles finis et agrégat corrélé `COLLECT`.
+16. Symboles déterministes `FRESH`.
+17. Continuations de session isolées par `InferenceSession.fork()`, sans
+    stratégie de recherche implicite.
+18. Ensemble de conflit explicite, stratégie MEA, traces d’agenda et
+    reformulation du singe et des bananes par sous-buts dynamiques.
 
 ### Travail documentaire historique encore ouvert
 
@@ -1205,9 +1287,9 @@ besoins observés :
 
 ### Palier Sudoku avancé
 
-1. Implémenter p7 comme prochain oracle fonctionnel.
-2. Utiliser d’abord `COUNT` et `UNIQUE`, désormais disponibles, puis mesurer
-   si `COLLECT` ou des combinaisons finies sont réellement nécessaires.
+1. ~~Implémenter p7/X-Wing avec `COUNT` et `UNIQUE`.~~
+2. Implémenter p8 avec les primitives disponibles, notamment `COLLECT` si une
+   projection finie simplifie réellement les règles.
 3. Introduire uniquement les abstractions supplémentaires justifiées par
    plusieurs domaines.
 4. Aborder ensuite triples, Swordfish, coloriage, chaînes et rectangle unique
@@ -1217,9 +1299,12 @@ besoins observés :
 
 1. Définir une interface générique de solveur de contraintes.
 2. Ajouter un adaptateur optionnel vers OR-Tools.
-3. Étudier contextes isolés, hypothèses et retour arrière.
+3. Construire, si un cas le demande, une stratégie explicite d’hypothèses et
+   de recherche au-dessus des sessions isolées.
 4. Reprendre la stratégie centrée sur les variables de BOOJUM avec des
    benchmarks différentiels.
+5. Étudier séparément les méta-règles réflexives capables d’inspecter et de
+   transformer l’agenda.
 
 ---
 
@@ -1241,12 +1326,16 @@ Le jalon courant du moteur est accepté lorsque :
 12. les relations variables fonctionnent ;
 13. les groupes partagent une session persistante sous quatre modes ;
 14. les mutations et la négation corrélée sont journalisées et testées ;
-15. Spinoza et Sudoku p1–p6 réussissent leurs tests d’intégration ;
-16. toutes les décisions non établies par les sources sont documentées.
+15. Spinoza et Sudoku p1–p7 réussissent leurs tests d’intégration ;
+16. `%`, `DIVISIBLE`, `COLLECT`, `FRESH` et `fork()` ont une sémantique
+    déterministe testée ;
+17. MEA traite les sous-buts du singe avant leurs parents et journalise chacun
+    de ses choix ;
+18. toutes les décisions non établies par les sources sont documentées.
 
-Les symboles frais, la stratégie centrée sur les variables et les contraintes
-générales ont leurs propres critères d’acceptation lorsqu’ils entreront dans
-le périmètre ; ils ne bloquent pas le jalon courant.
+La stratégie centrée sur les variables, la recherche automatique et les
+contraintes générales ont leurs propres critères d’acceptation lorsqu’elles
+entreront dans le périmètre ; elles ne bloquent pas le jalon courant.
 
 ---
 
@@ -1305,7 +1394,7 @@ Dans `open_questions.md`, inclure notamment :
 - stratégie exacte de choix des instanciations ;
 - conséquences multiples ;
 - suppression de faits ;
-- création de symboles ;
+- politique historique de création et de nommage des symboles ;
 - refraction ;
 - gestion historique des preuves ;
 - négation ;

@@ -18,6 +18,7 @@ class BinaryArithmeticOperator(StrEnum):
     SUBTRACT = "-"
     MULTIPLY = "*"
     DIVIDE = "/"
+    MODULO = "%"
 
 
 class UnaryArithmeticOperator(StrEnum):
@@ -80,6 +81,14 @@ def evaluate_arithmetic(
             if right == 0:
                 raise ArithmeticEvaluationError("division by zero in LET")
             return Number(left / right)
+        if expression.operator is BinaryArithmeticOperator.MODULO:
+            if not isinstance(left, int) or not isinstance(right, int):
+                raise ArithmeticEvaluationError(
+                    "modulo in LET requires integer operands"
+                )
+            if right == 0:
+                raise ArithmeticEvaluationError("modulo by zero in LET")
+            return Number(left % right)
         raise ArithmeticEvaluationError(
             f"unsupported binary operator: {expression.operator}"
         )

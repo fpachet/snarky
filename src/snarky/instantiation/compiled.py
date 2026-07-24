@@ -7,6 +7,7 @@ from functools import cache
 from typing import Protocol
 
 from ..premises import (
+    CollectPremise,
     ComparisonPremise,
     CountPremise,
     ExistsPremise,
@@ -129,11 +130,18 @@ class CompiledAggregatePremise:
     block: CompiledBlock
 
 
+@dataclass(frozen=True, slots=True)
+class CompiledCollectPremise:
+    source: CollectPremise
+    block: CompiledBlock
+
+
 type CompiledPremise = (
     CompiledFactPremise
     | CompiledComparisonPremise
     | CompiledExistentialPremise
     | CompiledAggregatePremise
+    | CompiledCollectPremise
 )
 
 
@@ -182,6 +190,12 @@ def compile_block(premises: tuple[Premise, ...]) -> CompiledBlock:
             nested = compile_block(premise.premises)
             variables.update(nested.correlated_variables)
             compiled.append(CompiledAggregatePremise(premise, nested))
+        elif isinstance(premise, CollectPremise):
+            nested = compile_block(premise.premises)
+            variables.update(nested.correlated_variables)
+            variables.update(variables_in(premise.projection))
+            variables.add(premise.target)
+            compiled.append(CompiledCollectPremise(premise, nested))
         else:
             raise TypeError(f"unsupported premise: {premise!r}")
     ordered = tuple(sorted(variables, key=lambda variable: variable.name))
@@ -227,7 +241,10 @@ def negative_fact_plans(
                     inside_negative=inside_negative or premise.negated,
                 )
             )
-        elif isinstance(premise, CompiledAggregatePremise):
+        elif isinstance(
+            premise,
+            (CompiledAggregatePremise, CompiledCollectPremise),
+        ):
             dependencies.extend(
                 negative_fact_plans(
                     premise.block,
@@ -247,7 +264,11 @@ def all_fact_plans(
             dependencies.append(premise)
         elif isinstance(
             premise,
-            (CompiledExistentialPremise, CompiledAggregatePremise),
+            (
+                CompiledExistentialPremise,
+                CompiledAggregatePremise,
+                CompiledCollectPremise,
+            ),
         ):
             dependencies.extend(all_fact_plans(premise.block))
     return tuple(dependencies)

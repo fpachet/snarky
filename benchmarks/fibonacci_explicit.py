@@ -25,8 +25,8 @@ from snarky import (
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
 RULES_PATH = (
     PROJECT_ROOT
-    / "tests"
     / "rulebases"
+    / "small"
     / "fibonacci_explicit"
     / "fibonacci_explicit.rules"
 )

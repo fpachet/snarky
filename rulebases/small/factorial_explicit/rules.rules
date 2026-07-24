@@ -1,0 +1,27 @@
+RULE factorial_base
+WHEN
+    ($node factorial $n)
+    $n <= 1
+THEN
+    ADD ($node result 1)
+END
+
+RULE factorial_create_child
+WHEN
+    ($node factorial $n)
+    $n > 1
+THEN
+    LET $previous := $n - 1
+    ADD ($node child ($node previous $previous))
+    ADD (($node previous $previous) factorial $previous)
+END
+
+RULE factorial_multiply
+WHEN
+    ($node factorial $n)
+    ($node child $child)
+    ($child result $child_result)
+THEN
+    LET $result := $n * $child_result
+    ADD ($node result $result)
+END

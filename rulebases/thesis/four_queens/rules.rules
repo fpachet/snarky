@@ -1,0 +1,28 @@
+GROUP detect_attacks
+    RULE detect_shared_attack_axis
+    WHEN
+        ($axis conflict_axis true)
+        ($first at $first_cell)
+        ($second at $second_cell)
+        $first != $second
+        ($first_cell $axis $coordinate)
+        ($second_cell $axis $coordinate)
+    THEN
+        ADD (board conflict ($first $axis $second))
+    END
+END_GROUP
+
+GROUP validate_board
+    RULE accept_conflict_free_board
+    WHEN
+        (board size 4)
+        COUNT == 4
+            ($queen at $cell)
+        END_COUNT
+        NOT EXISTS
+            (board conflict $conflict)
+        END_EXISTS
+    THEN
+        ADD (board state solved)
+    END
+END_GROUP

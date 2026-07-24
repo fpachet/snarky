@@ -1,0 +1,74 @@
+GROUP construct_figures
+    RULE construct_quadrilateral_diagonals
+    WHEN
+        ($shape type quadrilateral)
+        ($shape needs_diagonals true)
+        NOT EXISTS
+            ($shape diagonals_created true)
+        END_EXISTS
+    THEN
+        FRESH $first_diagonal PREFIX diagonal
+        FRESH $second_diagonal PREFIX diagonal
+        ADD ($shape diagonal $first_diagonal)
+        ADD ($shape diagonal $second_diagonal)
+        ADD ($shape diagonals_created true)
+    END
+END_GROUP
+
+GROUP classify_figures
+    RULE quadrilateral_to_parallelogram
+    WHEN
+        ($shape type quadrilateral)
+        ($shape opposite_sides_parallel true)
+    THEN
+        ADD ($shape type parallelogram)
+    END
+
+    RULE parallelogram_to_rectangle
+    WHEN
+        ($shape type parallelogram)
+        ($shape all_angles_right true)
+    THEN
+        ADD ($shape type rectangle)
+    END
+
+    RULE parallelogram_to_rhombus
+    WHEN
+        ($shape type parallelogram)
+        ($shape all_sides_equal true)
+    THEN
+        ADD ($shape type rhombus)
+    END
+
+    RULE rectangle_and_rhombus_to_square
+    WHEN
+        ($shape type rectangle)
+        ($shape type rhombus)
+    THEN
+        ADD ($shape type square)
+    END
+
+    RULE triangle_with_right_angle
+    WHEN
+        ($shape type triangle)
+        ($shape has_right_angle true)
+    THEN
+        ADD ($shape type right_triangle)
+    END
+
+    RULE triangle_with_equal_sides
+    WHEN
+        ($shape type triangle)
+        ($shape two_sides_equal true)
+    THEN
+        ADD ($shape type isosceles_triangle)
+    END
+
+    RULE combine_triangle_types
+    WHEN
+        ($shape type right_triangle)
+        ($shape type isosceles_triangle)
+    THEN
+        ADD ($shape type right_isosceles_triangle)
+    END
+END_GROUP

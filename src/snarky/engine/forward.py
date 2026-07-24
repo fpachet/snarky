@@ -2,12 +2,13 @@
 
 from __future__ import annotations
 
+from copy import deepcopy
 from dataclasses import dataclass
 from enum import StrEnum
 from functools import cache
 from typing import Protocol
 
-from ..actions import AddFact, Let, RemoveFact
+from ..actions import AddFact, Fresh, Let, RemoveFact
 from ..facts import Fact
 from ..instantiation import (
     FactDelta,
@@ -17,6 +18,7 @@ from ..instantiation import (
 )
 from ..matching import PatternMatcher
 from ..premises import (
+    CollectPremise,
     CountPremise,
     ExistsPremise,
     FactPremise,
@@ -27,7 +29,12 @@ from ..premises import (
 from ..rules import Rule, RuleGroup
 from ..stores.naive import NaiveFactStore
 from ..substitutions import EMPTY_SUBSTITUTION, Substitution
-from ..terms import Term, Variable
+from ..terms import Atom, FiniteSet, Term, Triple, Variable
+from .conflict import (
+    AgendaCandidate,
+    AgendaSelection,
+    ConflictResolutionStrategy,
+)
 from .events import FactMutationKind, InferenceEvent
 from .provenance import Derivation, Provenance
 
@@ -100,6 +107,7 @@ class RunResult:
     fired_activation_count: int
     provenance: Provenance
     events: tuple[InferenceEvent, ...] = ()
+    agenda_selections: tuple[AgendaSelection, ...] = ()
 
 
 @dataclass(frozen=True, slots=True)
@@ -117,6 +125,7 @@ class GroupRunResult:
     provenance: Provenance
     removed_facts: tuple[Fact, ...] = ()
     events: tuple[InferenceEvent, ...] = ()
+    agenda_selections: tuple[AgendaSelection, ...] = ()
 
     @property
     def changed(self) -> bool:
@@ -157,6 +166,7 @@ class InferenceSession:
         initial_facts: tuple[Fact, ...],
         strategy: InstantiationStrategy | None = None,
         limits: EngineLimits | None = None,
+        conflict_strategy: ConflictResolutionStrategy | None = None,
     ) -> None:
         self.strategy = (
             strategy
@@ -164,6 +174,7 @@ class InferenceSession:
             else SemiNaiveInstantiationStrategy()
         )
         self.limits = limits or EngineLimits()
+        self.conflict_strategy = conflict_strategy
         self._store = NaiveFactStore(initial_facts)
         self._provenance = Provenance(self._store.facts)
         self._initial_facts = frozenset(self._store.facts)
@@ -172,10 +183,25 @@ class InferenceSession:
         self._fired_activation_total = 0
         self._derivations: list[Derivation] = []
         self._events: list[InferenceEvent] = []
+        self._agenda_selections: list[AgendaSelection] = []
         self._previous_event_counts: dict[tuple[str, str], int] = {}
         self._groups: dict[str, RuleGroup] = {}
         self._negative_refraction_plans: list[_NegativeRefractionPlan] = []
         self._cycles = 0
+        self._fresh_counters: dict[str, int] = {}
+        self._fact_time_tags = {
+            fact: time_tag
+            for time_tag, fact in enumerate(self._store.facts, start=1)
+        }
+        self._next_time_tag = len(self._fact_time_tags)
+        self._reserved_atom_names = {
+            name
+            for fact in self._store.facts
+            for name in (
+                *_atom_names_in(fact.entity),
+                *_atom_names_in(fact.status),
+            )
+        }
 
     @property
     def facts(self) -> tuple[Fact, ...]:
@@ -195,6 +221,12 @@ class InferenceSession:
 
         return tuple(self._events)
 
+    @property
+    def agenda_selections(self) -> tuple[AgendaSelection, ...]:
+        """Return cumulative conflict-set choices for agenda-driven sessions."""
+
+        return tuple(self._agenda_selections)
+
     def snapshot(self) -> RunResult:
         """Return the cumulative state using the historical result shape."""
 
@@ -209,7 +241,54 @@ class InferenceSession:
             fired_activation_count=self._fired_activation_total,
             provenance=self._provenance,
             events=tuple(self._events),
+            agenda_selections=tuple(self._agenda_selections),
         )
+
+    def fork(
+        self,
+        *,
+        strategy: InstantiationStrategy | None = None,
+    ) -> InferenceSession:
+        """Return an isolated continuation of the current inference state.
+
+        The branch inherits facts, history, provenance and refraction, but all
+        subsequent mutations remain local. This is a simulation primitive,
+        not an automatic search or backtracking policy.
+        """
+
+        branch = InferenceSession(
+            self.facts,
+            strategy=(
+                strategy
+                if strategy is not None
+                else deepcopy(self.strategy)
+            ),
+            limits=self.limits,
+            conflict_strategy=(
+                deepcopy(self.conflict_strategy)
+                if self.conflict_strategy is not None
+                else None
+            ),
+        )
+        branch._provenance = deepcopy(self._provenance)
+        branch._initial_facts = self._initial_facts
+        branch._fired = self._fired.copy()
+        branch._fired_supports = self._fired_supports.copy()
+        branch._fired_activation_total = self._fired_activation_total
+        branch._derivations = self._derivations.copy()
+        branch._events = self._events.copy()
+        branch._agenda_selections = self._agenda_selections.copy()
+        branch._previous_event_counts = self._previous_event_counts.copy()
+        branch._groups = self._groups.copy()
+        branch._negative_refraction_plans = (
+            self._negative_refraction_plans.copy()
+        )
+        branch._cycles = self._cycles
+        branch._fresh_counters = self._fresh_counters.copy()
+        branch._fact_time_tags = self._fact_time_tags.copy()
+        branch._next_time_tag = self._next_time_tag
+        branch._reserved_atom_names = self._reserved_atom_names.copy()
+        return branch
 
     def run_group(
         self,
@@ -236,6 +315,7 @@ class InferenceSession:
 
         start_derivation_count = len(self._derivations)
         start_event_count = len(self._events)
+        start_agenda_count = len(self._agenda_selections)
         start_fired_count = self._fired_activation_total
         if until is not None and until(self):
             return self._group_result(
@@ -243,9 +323,21 @@ class InferenceSession:
                 mode,
                 start_derivation_count,
                 start_event_count,
+                start_agenda_count,
                 start_fired_count,
                 cycles=0,
                 stop_reason=GroupStopReason.CONDITION_MET,
+            )
+
+        if self.conflict_strategy is not None:
+            return self._run_group_with_conflict_resolution(
+                group,
+                mode,
+                until,
+                start_derivation_count,
+                start_event_count,
+                start_agenda_count,
+                start_fired_count,
             )
 
         for local_cycle in range(1, self.limits.max_cycles + 1):
@@ -299,6 +391,7 @@ class InferenceSession:
                             mode,
                             start_derivation_count,
                             start_event_count,
+                            start_agenda_count,
                             start_fired_count,
                             cycles=local_cycle,
                             stop_reason=GroupStopReason.CONDITION_MET,
@@ -312,6 +405,7 @@ class InferenceSession:
                             mode,
                             start_derivation_count,
                             start_event_count,
+                            start_agenda_count,
                             start_fired_count,
                             cycles=local_cycle,
                             stop_reason=GroupStopReason.FIRST_CHANGE,
@@ -323,6 +417,7 @@ class InferenceSession:
                     mode,
                     start_derivation_count,
                     start_event_count,
+                    start_agenda_count,
                     start_fired_count,
                     cycles=local_cycle,
                     stop_reason=GroupStopReason.ONE_CYCLE,
@@ -333,6 +428,7 @@ class InferenceSession:
                     mode,
                     start_derivation_count,
                     start_event_count,
+                    start_agenda_count,
                     start_fired_count,
                     cycles=local_cycle,
                     stop_reason=GroupStopReason.FIXED_POINT,
@@ -342,6 +438,162 @@ class InferenceSession:
             f"rule group {group.name!r} did not stop after "
             f"{self.limits.max_cycles} cycles"
         )
+
+    def _run_group_with_conflict_resolution(
+        self,
+        group: RuleGroup,
+        mode: GroupExecutionMode,
+        until: StopCondition | None,
+        start_derivation_count: int,
+        start_event_count: int,
+        start_agenda_count: int,
+        start_fired_count: int,
+    ) -> GroupRunResult:
+        """Resolve one complete conflict set before every activation."""
+
+        assert self.conflict_strategy is not None
+        local_cycle = 0
+        while local_cycle < self.limits.max_cycles:
+            candidates = self._agenda_candidates(group)
+            if not candidates:
+                return self._group_result(
+                    group,
+                    mode,
+                    start_derivation_count,
+                    start_event_count,
+                    start_agenda_count,
+                    start_fired_count,
+                    cycles=local_cycle,
+                    stop_reason=GroupStopReason.FIXED_POINT,
+                )
+
+            selected = self.conflict_strategy.select(candidates)
+            local_cycle += 1
+            self._cycles += 1
+            key = ActivationKey(
+                group.name,
+                selected.rule.name,
+                selected.activation.substitution.key,
+            )
+            self._fired.add(key)
+            self._fired_supports[key] = selected.activation.premise_facts
+            self._fired_activation_total += 1
+            self._agenda_selections.append(
+                AgendaSelection(
+                    sequence=len(self._agenda_selections) + 1,
+                    strategy_name=self.conflict_strategy.name,
+                    rule_group=group.name,
+                    rule_name=selected.rule.name,
+                    substitution=selected.activation.substitution,
+                    premise_facts=selected.activation.premise_facts,
+                    focus_fact=selected.focus_fact,
+                    focus_time_tag=selected.focus_time_tag,
+                    lexicographic_time_tags=(
+                        selected.lexicographic_time_tags
+                    ),
+                    cycle=self._cycles,
+                )
+            )
+            outcome = self._fire_activation(
+                group,
+                selected.rule,
+                selected.activation.substitution,
+                selected.activation.premise_facts,
+            )
+
+            if until is not None and until(self):
+                return self._group_result(
+                    group,
+                    mode,
+                    start_derivation_count,
+                    start_event_count,
+                    start_agenda_count,
+                    start_fired_count,
+                    cycles=local_cycle,
+                    stop_reason=GroupStopReason.CONDITION_MET,
+                )
+            if (
+                mode is GroupExecutionMode.FIRST_CHANGE
+                and outcome.mutation_count
+            ):
+                return self._group_result(
+                    group,
+                    mode,
+                    start_derivation_count,
+                    start_event_count,
+                    start_agenda_count,
+                    start_fired_count,
+                    cycles=local_cycle,
+                    stop_reason=GroupStopReason.FIRST_CHANGE,
+                )
+            if mode is GroupExecutionMode.ONE_CYCLE:
+                return self._group_result(
+                    group,
+                    mode,
+                    start_derivation_count,
+                    start_event_count,
+                    start_agenda_count,
+                    start_fired_count,
+                    cycles=local_cycle,
+                    stop_reason=GroupStopReason.ONE_CYCLE,
+                )
+
+        raise InferenceLimitError(
+            f"rule group {group.name!r} did not stop after "
+            f"{self.limits.max_cycles} agenda selections"
+        )
+
+    def _agenda_candidates(
+        self,
+        group: RuleGroup,
+    ) -> tuple[AgendaCandidate, ...]:
+        """Build the complete current set of unfired activations."""
+
+        facts_snapshot = self._store.facts
+        candidates: list[AgendaCandidate] = []
+        candidate_order = 0
+        for rule_order, rule in enumerate(group.rules):
+            for activation in self.strategy.instantiate(
+                rule,
+                facts_snapshot,
+                None,
+            ):
+                if any(
+                    fact not in self._store
+                    for fact in activation.premise_facts
+                ):
+                    continue
+                key = ActivationKey(
+                    group.name,
+                    rule.name,
+                    activation.substitution.key,
+                )
+                if key in self._fired:
+                    continue
+                time_tags = tuple(
+                    self._fact_time_tags.get(fact, 0)
+                    for fact in activation.premise_facts
+                )
+                focus_fact = (
+                    activation.premise_facts[0]
+                    if activation.premise_facts
+                    else None
+                )
+                candidates.append(
+                    AgendaCandidate(
+                        rule=rule,
+                        activation=activation,
+                        rule_order=rule_order,
+                        candidate_order=candidate_order,
+                        focus_fact=focus_fact,
+                        focus_time_tag=time_tags[0] if time_tags else 0,
+                        lexicographic_time_tags=tuple(
+                            sorted(time_tags, reverse=True)
+                        ),
+                    )
+                )
+                candidate_order += 1
+        return tuple(candidates)
 
     def _fire_activation(
         self,
@@ -356,13 +608,14 @@ class InferenceSession:
             if isinstance(action, Let):
                 action_substitution = action.apply(action_substitution)
                 continue
+            if isinstance(action, Fresh):
+                value = self._next_fresh_atom(action.prefix)
+                action_substitution = action.apply(action_substitution, value)
+                continue
             if isinstance(action, AddFact):
-                staged.append(
-                    (
-                        FactMutationKind.ADD,
-                        action.instantiate(action_substitution),
-                    )
-                )
+                fact = action.instantiate(action_substitution)
+                self._reserve_fact_atoms(fact)
+                staged.append((FactMutationKind.ADD, fact))
                 continue
             if isinstance(action, RemoveFact):
                 staged.append(
@@ -389,12 +642,15 @@ class InferenceSession:
                 self._derivations.append(derivation)
                 if not self._store.add(fact):
                     continue
+                self._next_time_tag += 1
+                self._fact_time_tags[fact] = self._next_time_tag
                 added.append(fact)
                 if len(self._store) > self.limits.max_facts:
                     raise InferenceLimitError(
                         f"maximum fact count ({self.limits.max_facts}) exceeded"
                     )
             elif self._store.remove(fact):
+                self._fact_time_tags.pop(fact, None)
                 removed.append(fact)
             else:
                 continue
@@ -424,6 +680,20 @@ class InferenceSession:
         if present_additions and self._negative_refraction_plans:
             self._reconcile_negative_refraction(present_additions)
         return _ActivationOutcome(tuple(added), tuple(removed))
+
+    def _next_fresh_atom(self, prefix: str) -> Atom:
+        counter = self._fresh_counters.get(prefix, 0)
+        while True:
+            counter += 1
+            name = f"{prefix}-{counter}"
+            if name not in self._reserved_atom_names:
+                self._fresh_counters[prefix] = counter
+                self._reserved_atom_names.add(name)
+                return Atom(name)
+
+    def _reserve_fact_atoms(self, fact: Fact) -> None:
+        self._reserved_atom_names.update(_atom_names_in(fact.entity))
+        self._reserved_atom_names.update(_atom_names_in(fact.status))
 
     def _register_negative_refraction_plans(self, group: RuleGroup) -> None:
         for rule in group.rules:
@@ -542,6 +812,7 @@ class InferenceSession:
         mode: GroupExecutionMode,
         start_derivation_count: int,
         start_event_count: int,
+        start_agenda_count: int,
         start_fired_count: int,
         *,
         cycles: int,
@@ -571,6 +842,9 @@ class InferenceSession:
                 if event.kind is FactMutationKind.REMOVE
             ),
             events=events,
+            agenda_selections=tuple(
+                self._agenda_selections[start_agenda_count:]
+            ),
         )
 
 
@@ -582,6 +856,7 @@ class ForwardEngine:
         rules: tuple[Rule, ...],
         strategy: InstantiationStrategy | None = None,
         limits: EngineLimits | None = None,
+        conflict_strategy: ConflictResolutionStrategy | None = None,
     ) -> None:
         self.rules = tuple(rules)
         self.default_group = RuleGroup("default", self.rules)
@@ -591,6 +866,7 @@ class ForwardEngine:
             else SemiNaiveInstantiationStrategy()
         )
         self.limits = limits or EngineLimits()
+        self.conflict_strategy = conflict_strategy
 
     def create_session(
         self,
@@ -598,7 +874,12 @@ class ForwardEngine:
     ) -> InferenceSession:
         """Create a persistent session using this engine's strategy and limits."""
 
-        return InferenceSession(initial_facts, self.strategy, self.limits)
+        return InferenceSession(
+            initial_facts,
+            self.strategy,
+            self.limits,
+            self.conflict_strategy,
+        )
 
     def run(self, initial_facts: tuple[Fact, ...]) -> RunResult:
         session = self.create_session(initial_facts)
@@ -634,7 +915,7 @@ def _negative_fact_premises(
                 )
             )
             continue
-        if isinstance(premise, (CountPremise, UniquePremise)):
+        if isinstance(premise, (CountPremise, UniquePremise, CollectPremise)):
             dependencies.extend(
                 _negative_fact_premises(
                     premise.premises,
@@ -658,7 +939,7 @@ def _negative_dependency_plan(
                 _negative_fact_premises(premise.premises)
             )
             continue
-        if isinstance(premise, (CountPremise, UniquePremise)):
+        if isinstance(premise, (CountPremise, UniquePremise, CollectPremise)):
             complex_dependencies.extend(
                 _negative_fact_premises(
                     premise.premises,
@@ -688,6 +969,24 @@ def _substitution_from_key(key: ActivationKey) -> Substitution:
         (Variable(name), term)
         for name, term in key.substitution
     )
+
+
+def _atom_names_in(term: Term) -> tuple[str, ...]:
+    if isinstance(term, Atom):
+        return (term.name,)
+    if isinstance(term, Triple):
+        return (
+            *_atom_names_in(term.subject),
+            *_atom_names_in(term.relation),
+            *_atom_names_in(term.object),
+        )
+    if isinstance(term, FiniteSet):
+        return tuple(
+            name
+            for element in term.elements
+            for name in _atom_names_in(element)
+        )
+    return ()
 
 
 def _fact_delta(

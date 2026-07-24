@@ -11,7 +11,7 @@ notion générale de progrès.
 
 ## État actuel
 
-La base native est exécutable et résout les six niveaux essentiels p1 à p6.
+La base native est exécutable et résout les sept premiers niveaux p1 à p7.
 Elle utilise :
 
 - `RuleGroup` pour nommer une famille de règles ;
@@ -30,7 +30,7 @@ les jalons réalisés et les extensions avancées restantes.
 
 ## Périmètre essentiel
 
-Le premier objectif couvre les niveaux p1 à p6 de l’exemple CLIPS :
+Le périmètre exécuté couvre les niveaux p1 à p7 de l’exemple CLIPS :
 
 | Niveau | Technique nouvelle |
 |---|---|
@@ -40,13 +40,14 @@ Le premier objectif couvre les niveaux p1 à p6 de l’exemple CLIPS :
 | p4 | Locked Candidate Multiple Lines |
 | p5 | Naked Pairs |
 | p6 | Hidden Pairs |
+| p7 | X-Wing |
 
 Cette cible doit être résolue sans recherche exhaustive, sans OR-Tools et sans
 retour arrière. Chaque valeur finale devra être expliquée par une suite
 rejouable d’éliminations.
 
-Les niveaux p7 à p18 — X-Wing, triples, coloriage, chaînes et rectangle
-unique — constitueront des paliers ultérieurs.
+Les niveaux p8 à p18 — triples, Swordfish, coloriage, chaînes et rectangle
+unique — constituent les paliers ultérieurs.
 
 ## Organisation
 
@@ -61,7 +62,7 @@ sudoku/
 │   └── implementation_plan.md
 ├── fixtures/
 │   ├── README.md
-│   └── grid3x3-p1.yaml … grid3x3-p6.yaml
+│   └── grid3x3-p1.yaml … grid3x3-p7.yaml
 ├── rules/
 │   ├── README.md
 │   ├── catalog.yaml
@@ -74,7 +75,7 @@ sudoku/
   de la base essentielle, ainsi que les fonctionnalités dont ils dépendent ;
 - [`rules/README.md`](rules/README.md) fixe la convention de représentation et
   l’organisation des fichiers exécutables ;
-- [`fixtures/README.md`](fixtures/README.md) décrit les oracles p1 à p6 à
+- [`fixtures/README.md`](fixtures/README.md) décrit les oracles p1 à p7 à
   présent transcrits dans un format natif ;
 - [`docs/implementation_plan.md`](docs/implementation_plan.md) contient le
   chemin critique, les décisions sémantiques et les critères d’acceptation ;
@@ -123,7 +124,7 @@ Depuis la racine du dépôt :
 
 ```sh
 uv run python -c \
-  'from sudoku import solve_level; print(solve_level(6).techniques_used)'
+  'from sudoku import solve_level; print(solve_level(7).techniques_used)'
 ```
 
 La grille finale est comparée à l’oracle CLIPS et la suite complète
@@ -132,7 +133,7 @@ d’événements peut être rejouée indépendamment du moteur.
 Le benchmark de performance reproductible est lancé depuis la racine avec :
 
 ```sh
-uv run python -m benchmarks.sudoku_rules --levels 1 5 6 --repeat 5
+uv run python -m benchmarks.sudoku_rules --levels 1 6 7 --repeat 5
 ```
 
 La baseline mesurée et les compteurs algorithmiques sont documentés dans
@@ -140,7 +141,8 @@ La baseline mesurée et les compteurs algorithmiques sont documentés dans
 
 ## Prochain jalon
 
-Le prochain palier commence à p7 avec X-Wing. `COUNT` et `UNIQUE` sont
-désormais disponibles ; p7 servira à décider, sur mesures, si `COLLECT` ou une
-abstraction générale d’ensembles finis est réellement nécessaire avant les
-techniques de coloriage et de chaînes.
+Le prochain palier commence à p8 avec les triples. X-Wing a confirmé que les
+jointures et `COUNT` suffisent sans `COLLECT`. p8 devra déterminer si
+l'énumération déclarative de triplets reste lisible et performante, ou si une
+abstraction générale de combinaisons finies est justifiée avant Swordfish,
+coloriage et chaînes.

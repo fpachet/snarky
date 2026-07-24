@@ -20,7 +20,7 @@ from snarky import (
 from snarky.serialization import load_facts
 
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
-FIXTURE_ROOT = PROJECT_ROOT / "tests/rulebases/fibonacci_explicit"
+FIXTURE_ROOT = PROJECT_ROOT / "rulebases/small/fibonacci_explicit"
 
 
 def test_benchmark_resolves_one_rank_or_an_inclusive_range() -> None:

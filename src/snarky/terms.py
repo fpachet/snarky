@@ -109,7 +109,31 @@ class Triple(_PreHashed):
         return Triple, (self.subject, self.relation, self.object)
 
 
-type Term = Atom | Number | Variable | Status | Triple
+@dataclass(frozen=True, slots=True, eq=False)
+class FiniteSet(_PreHashed):
+    """An immutable finite set with stable presentation order."""
+
+    elements: tuple[Term, ...]
+
+    def __post_init__(self) -> None:
+        unique = tuple(dict.fromkeys(self.elements))
+        object.__setattr__(self, "elements", unique)
+        object.__setattr__(self, "_hash", hash(frozenset(unique)))
+
+    def __eq__(self, other: object) -> bool:
+        return (
+            isinstance(other, FiniteSet)
+            and frozenset(self.elements) == frozenset(other.elements)
+        )
+
+    def __hash__(self) -> int:
+        return self._hash
+
+    def __reduce__(self) -> tuple[type[FiniteSet], tuple[tuple[Term, ...]]]:
+        return FiniteSet, (self.elements,)
+
+
+type Term = Atom | Number | Variable | Status | Triple | FiniteSet
 type Proposition = Triple
 
 
@@ -120,6 +144,8 @@ def is_ground(term: Term) -> bool:
         return False
     if isinstance(term, Triple):
         return all(is_ground(part) for part in _triple_parts(term))
+    if isinstance(term, FiniteSet):
+        return all(is_ground(element) for element in term.elements)
     return True
 
 
@@ -133,6 +159,11 @@ def variables_in(term: Term) -> frozenset[Variable]:
         for part in _triple_parts(term):
             variables.update(variables_in(part))
         return frozenset(variables)
+    if isinstance(term, FiniteSet):
+        set_variables: set[Variable] = set()
+        for element in term.elements:
+            set_variables.update(variables_in(element))
+        return frozenset(set_variables)
     return frozenset()
 
 
@@ -150,6 +181,8 @@ def render_term(term: Term) -> str:
     if isinstance(term, Triple):
         subject, relation, object_ = (render_term(part) for part in _triple_parts(term))
         return f"({subject} {relation} {object_})"
+    if isinstance(term, FiniteSet):
+        return f"[{' '.join(render_term(element) for element in term.elements)}]"
     raise TypeError(f"unsupported term: {term!r}")
 
 

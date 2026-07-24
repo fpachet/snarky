@@ -35,7 +35,7 @@ class SudokuPuzzle:
 
 
 def load_puzzle(level: int, *, verify_source: bool = True) -> SudokuPuzzle:
-    """Load one native p1–p6 fixture and optionally verify its CLIPS source."""
+    """Load one native supported fixture and optionally verify its CLIPS source."""
 
     path = FIXTURE_ROOT / f"grid3x3-p{level}.yaml"
     if not path.is_file():

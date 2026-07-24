@@ -42,6 +42,7 @@ TECHNIQUE_LABELS = {
     "locked_candidates_multiple_lines": "Locked Candidate Multiple Lines",
     "naked_pairs": "Naked Pairs",
     "hidden_pairs": "Hidden Pairs",
+    "x_wing": "X Wing",
 }
 
 
@@ -75,7 +76,7 @@ def solve_level(
     max_technique: str | None = None,
     strategy: InstantiationStrategy | None = None,
 ) -> SudokuSolveResult:
-    """Load and solve one official p1–p6 level."""
+    """Load and solve one supported official Sudoku level."""
 
     return solve_puzzle(
         load_puzzle(level),
@@ -220,6 +221,13 @@ def _explain(
         return (
             f"{technique}: le candidat {render_term(value)} est verrouillé "
             f"sur une intersection; retrait en {rendered_cell}."
+        )
+    if group_name == "x_wing":
+        value = substitution[Variable("value")]
+        return (
+            f"{technique}: le candidat {render_term(value)} est limité aux "
+            "mêmes deux lignes ou colonnes; retrait en "
+            f"{rendered_cell} hors du rectangle."
         )
     first = substitution[Variable("first_value")]
     second = substitution[Variable("second_value")]

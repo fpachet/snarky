@@ -23,14 +23,14 @@ Les optimisations doivent préserver les propriétés suivantes :
 
 | Phase | État | Résultat ou prochaine étape |
 |---|---|---|
-| 0 — Mesures | Terminée pour le socle | Benchmarks Fibonacci et Sudoku p1–p6, durées pytest et compteurs d'instanciation disponibles |
+| 0 — Mesures | Terminée pour le socle | Benchmarks Fibonacci et Sudoku p1–p6, acceptation Sudoku p1–p7, durées pytest et compteurs d'instanciation disponibles |
 | 1 — Activations paresseuses | À faire | Les stratégies matérialisent encore leurs activations dans un tuple |
 | 2 — Indexation | Terminée | Index exact partagé, index composés sur deux positions, ajouts incrémentaux et retraits en lot |
 | 3 — Deltas | Terminée | Deltas nets par règle pour ajouts, suppressions et réinsertions |
 | 4 — Plans et jointures | Terminée pour le socle | Prémisses compilées, MRV delta et mémoires partielles bornées avec repli |
 | 5 — Substitutions et négation | Terminée | Cadre mutable, hashes précalculés, watchers indexés, compteurs simples et requêtes corrélées persistantes |
-| 6 — Sélection des règles | Première tranche terminée | Plans négatifs compilés par groupe, chemin direct sans dépendance négative ; l’index positif général reste à faire |
-| 7 — Agrégats | Terminée pour `COUNT`/`UNIQUE` | DSL, API Python, oracle naïf, compteurs et réfraction |
+| 6 — Sélection des règles | Deux tranches terminées | Plans négatifs compilés et stratégie MEA publique ; index positif et agenda incrémental restent à faire |
+| 7 — Agrégats | Terminée pour `COUNT`/`UNIQUE` ; socle `COLLECT` livré | DSL, API Python, oracle naïf et réfraction ; projection `COLLECT` encore recalculée |
 | 8 à 10 | À faire | Provenance configurable, stratégie centrée variables et contraintes |
 
 L'extension fonctionnelle `LET` est terminée : Fibonacci utilise désormais
@@ -91,9 +91,11 @@ sont :
 Sur la dernière séquence seule, les tentatives de matching passent de 69 793
 à 47 051 sur p1, de 217 880 à 125 298 sur p5 et de 210 908 à 106 449 sur p6.
 La baisse supplémentaire vaut 33 à 50 %, pour un gain temporel de ×1,62 à
-×2,29. Depuis la baseline initiale, le gain total vaut ×7,18 à ×8,74. La
-suite complète compte désormais 285 tests. Le protocole exécutable est
-`python -m benchmarks.sudoku_rules`.
+×2,29. Depuis la baseline initiale, le gain total vaut ×7,18 à ×8,74. À cette
+étape de mesure, la suite comptait 285 tests. Elle en compte maintenant 314 et
+s’exécute en environ 7,9 s après l’ajout des nouvelles capacités et bases ; ce
+temps élargi ne remplace pas la mesure contrôlée du tableau. Le protocole
+exécutable est `python -m benchmarks.sudoku_rules`.
 
 La passe de hachage précalculé ne change aucun compteur logique. Elle réduit
 encore les médianes Sudoku de 24 à 27 % et porte le gain total depuis la
@@ -427,12 +429,12 @@ interne pourra être introduite sans modifier l’API.
 
 ## Phase 6 — Sélection des règles candidates
 
-**État : première tranche terminée pour la négation.** Les ajouts sont filtrés
-par les signatures des prémisses négatives. Lorsqu’un `NOT EXISTS` top-level
-ne contient qu’une prémisse factuelle, le nouveau fait est testé directement
-contre chaque substitution déclenchée et seules les clés réellement bloquées
-sont expirées. Les négations composées utilisent encore l’oracle indexé
-exhaustif. L’index général des règles positives reste à implémenter.
+**État : filtrage négatif et agenda MEA explicite terminés.** Les ajouts sont
+filtrés par les signatures des prémisses négatives. Lorsqu’un `NOT EXISTS`
+top-level ne contient qu’une prémisse factuelle, le nouveau fait est testé
+directement contre chaque substitution déclenchée et seules les clés réellement
+bloquées sont expirées. Les négations composées utilisent encore l’oracle
+indexé exhaustif. L’index général des règles positives reste à implémenter.
 
 Créer un `RuleCandidateIndex` reliant les signatures de faits aux prémisses de
 règles susceptibles de les accepter.
@@ -441,10 +443,16 @@ Lorsqu’un fait est ajouté, le moteur ne doit réveiller que les règles dont 
 moins une prémisse peut matcher ce fait. Les règles contenant une relation
 variable ou un pattern très général conserveront un chemin de repli correct.
 
+La stratégie optionnelle MEA construit aujourd’hui l’ensemble complet des
+activations avant chaque choix. Cette reconstruction est volontairement simple
+et correcte pour servir d’oracle sur la base du singe et des bananes. Elle
+devra être profilée séparément : un agenda incrémental ne sera introduit que si
+des bases plus larges montrent que ce coût domine.
+
 ## Phase 7 — Agrégats corrélés
 
-**État : terminée pour `COUNT` et `UNIQUE`.** Les deux prémisses partagent la
-portée locale de `EXISTS` et utilisent la mémoire de requêtes :
+**État : terminée pour `COUNT` et `UNIQUE`, première version correcte de
+`COLLECT`.** Les trois prémisses partagent la portée locale de `EXISTS` :
 
 ```text
 COUNT == 2
@@ -454,6 +462,10 @@ END_COUNT
 UNIQUE
     ($cell selected $value)
 END_UNIQUE
+
+COLLECT $values := $value
+    ($cell candidate $value)
+END_COLLECT
 ```
 
 `COUNT` accepte les six comparateurs numériques contre un entier positif ou
@@ -461,6 +473,12 @@ nul. `UNIQUE` est la forme exacte-un. Les variables locales ne s’échappent
 pas. L’oracle naïf énumère toutes les solutions locales ; la stratégie indexée
 réutilise les compteurs et supports mémorisés. Ajouts et retraits mettent à
 jour la réfraction comme pour les négations corrélées.
+
+`COLLECT` projette les valeurs distinctes dans un `FiniteSet` et conserve tous
+les supports de provenance. Les trois stratégies produisent les mêmes
+résultats. Sa première implémentation réénumère toutefois la projection après
+une invalidation ; une maintenance incrémentale par valeur projetée ne sera
+justifiée que par un profil montrant ce coût sur une base réelle.
 
 ## Phase 8 — Provenance configurable
 
@@ -580,8 +598,10 @@ facile à comprendre et à vérifier.
 5. mesurer la mémoire des préfixes de jointure et ajuster leur budget par
    charge ;
 6. étendre les benchmarks aux fermetures transitives et jointures en étoile ;
-7. étudier `COLLECT` au-dessus de la mémoire d’agrégats uniquement lorsqu’un
-   cas p7+ le justifie.
+7. profiler `COLLECT` sur MusES et les prochains cas p8+, puis maintenir ses
+   valeurs projetées incrémentalement seulement si ce coût devient mesurable.
+8. profiler la reconstruction du conflit MEA avant de concevoir un agenda
+   incrémental partagé avec l’index positif des règles.
 
 Le critère de sortie sera un nouveau gain mesuré sur la baseline semi-naïve,
 avec identité complète des faits, dérivations, cycles et profondeurs. Les

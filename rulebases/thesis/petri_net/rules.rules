@@ -1,0 +1,37 @@
+GROUP fire_transitions
+    RULE fire_load
+    WHEN
+        (net next load)
+        (source tokens $source_tokens)
+        (buffer tokens $buffer_tokens)
+        $source_tokens > 0
+    THEN
+        LET $new_source := $source_tokens - 1
+        LET $new_buffer := $buffer_tokens + 1
+        REMOVE (source tokens $source_tokens)
+        REMOVE (buffer tokens $buffer_tokens)
+        REMOVE (net next load)
+        ADD (source tokens $new_source)
+        ADD (buffer tokens $new_buffer)
+        ADD (net next finish)
+        ADD (load fired true)
+    END
+
+    RULE fire_finish
+    WHEN
+        (net next finish)
+        (buffer tokens $buffer_tokens)
+        (done tokens $done_tokens)
+        $buffer_tokens > 0
+    THEN
+        LET $new_buffer := $buffer_tokens - 1
+        LET $new_done := $done_tokens + 1
+        REMOVE (buffer tokens $buffer_tokens)
+        REMOVE (done tokens $done_tokens)
+        REMOVE (net next finish)
+        ADD (buffer tokens $new_buffer)
+        ADD (done tokens $new_done)
+        ADD (net state complete)
+        ADD (finish fired true)
+    END
+END_GROUP

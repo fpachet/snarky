@@ -1,7 +1,7 @@
 # Fixtures Sudoku
 
 Ce répertoire contient les grilles natives et les solutions attendues des
-niveaux `grid3x3-p1` à `grid3x3-p6`.
+niveaux `grid3x3-p1` à `grid3x3-p7`.
 
 Les oracles sont actuellement les fichiers CLIPS situés dans
 [`third_party/test_rulebases/clips-6.4.2/clips_examples_642/sudoku/puzzles`](../../third_party/test_rulebases/clips-6.4.2/clips_examples_642/sudoku/puzzles).

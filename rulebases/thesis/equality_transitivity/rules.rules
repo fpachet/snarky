@@ -1,0 +1,17 @@
+GROUP equality_closure
+    RULE validate_transitive_equality
+    WHEN
+        ($first left $left)
+        ($first right $middle)
+        ($first valid true)
+        ($second left $middle)
+        ($second right $right)
+        ($second valid true)
+        ($candidate left $left)
+        ($candidate right $right)
+        ($candidate valid false)
+    THEN
+        REMOVE ($candidate valid false)
+        ADD ($candidate valid true)
+    END
+END_GROUP

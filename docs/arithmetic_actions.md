@@ -14,13 +14,14 @@ La grammaire des expressions est :
 
 ```text
 expression  ::= produit (("+" | "-") produit)*
-produit     ::= unaire (("*" | "/") unaire)*
+produit     ::= unaire (("*" | "/" | "%") unaire)*
 unaire      ::= ("+" | "-") unaire | primaire
 primaire    ::= nombre | variable | "(" expression ")"
 ```
 
 La multiplication et la division sont prioritaires sur l'addition et la
-soustraction. Les opérateurs binaires de même priorité sont associatifs à
+soustraction. Le modulo `%` a la même priorité que `*` et `/`. Les opérateurs
+binaires de même priorité sont associatifs à
 gauche. Les parenthèses permettent d'imposer un autre ordre.
 
 ## Sémantique
@@ -37,11 +38,29 @@ Les actions d'une règle sont exécutées séquentiellement :
 
 Une variable cible déjà liée doit avoir exactement la valeur calculée. Une
 liaison contradictoire, une variable opérande non liée, une valeur non
-numérique ou une division par zéro provoque une erreur explicite et arrête
-l'exécution. La division `/` est une division réelle et peut donc produire un
-nombre flottant.
+numérique, une division ou un modulo par zéro provoque une erreur explicite et
+arrête l'exécution. La division `/` est une division réelle et peut donc
+produire un nombre flottant. `%` exige deux entiers et suit la sémantique du
+modulo Python, y compris pour les valeurs négatives.
 
 Le parseur construit un AST arithmétique dédié et n'utilise jamais `eval`.
+
+## Prémisse `DIVISIBLE`
+
+La divisibilité entière peut être testée directement dans la partie gauche :
+
+```text
+WHEN
+    (current year $year)
+    DIVISIBLE $year BY 4
+THEN
+    ADD ($year divisible_by 4)
+END
+```
+
+Les deux opérandes doivent être des `Number` entiers liés et le diviseur doit
+être non nul. `DIVISIBLE` est une comparaison pure : elle ne crée aucune
+liaison ni aucun fait.
 
 ## Exemple
 

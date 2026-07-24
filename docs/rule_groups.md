@@ -85,6 +85,13 @@ Un « cycle » est un balayage des règles dans leur ordre de déclaration. Une
 règle située plus loin dans le groupe voit les faits ajoutés par les règles
 précédentes pendant le même cycle.
 
+Une `ConflictResolutionStrategy` explicite remplace ce balayage par un agenda :
+le moteur recalcule toutes les activations, en sélectionne une, l’exécute puis
+reconstruit le conflit. Avec `MEAConflictStrategy`, le premier fait support
+porte la fraîcheur locale ; `ONE_CYCLE` signifie alors une seule sélection.
+Les détails et la trace observable figurent dans
+[`conflict_resolution.md`](conflict_resolution.md).
+
 `FIRST_CHANGE` et `UNTIL` respectent l’atomicité d’une activation : toutes les
 actions d’une règle sont exécutées avant de tester l’arrêt. Le résultat expose
 les ajouts, retraits et événements produits par l’appel.
@@ -124,6 +131,13 @@ retour au premier groupe après progrès et états `SOLVED`, `STUCK`,
 Ce composant ne constitue pas encore un langage de plans SHAL complet : il
 n’existe pas de DSL pour enchaîner conditionnellement des groupes, gérer un
 échec, faire du retour arrière ou appeler un solveur de contraintes.
+
+`InferenceSession.fork()` permet néanmoins de copier une session et d’exécuter
+une continuation isolée. La copie conserve faits, réfraction, provenance et
+compteurs, mais elle ne choisit aucune hypothèse et ne revient pas
+automatiquement à la session source. Une recherche éventuelle serait donc un
+orchestrateur explicite au-dessus de cette primitive, et non un mode caché des
+groupes de règles.
 
 Cette séparation est intentionnelle. Les stratégies de résolution peuvent
 d’abord rester de petits orchestrateurs Python appelant des groupes de règles

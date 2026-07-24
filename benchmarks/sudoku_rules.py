@@ -15,14 +15,14 @@ from sudoku import solve_level
 
 def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--levels", type=int, nargs="+", default=(1, 5, 6))
+    parser.add_argument("--levels", type=int, nargs="+", default=(1, 6, 7))
     parser.add_argument("--repeat", type=int, default=5)
     arguments = parser.parse_args()
     invalid_level = any(
-        level not in range(1, 7) for level in arguments.levels
+        level not in range(1, 8) for level in arguments.levels
     )
     if arguments.repeat < 1 or invalid_level:
-        parser.error("--repeat must be positive and levels must be in 1..6")
+        parser.error("--repeat must be positive and levels must be in 1..7")
 
     results = [
         measure(level, arguments.repeat)

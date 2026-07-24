@@ -1,0 +1,344 @@
+GROUP solve_goals
+    RULE generate_move_climbable_below_ceiling_object
+    WHEN
+        ($goal status active)
+        ($goal goal_type holds)
+        ($goal object $object)
+        ($object weight light)
+        ($object on ceiling)
+        ($object at $destination)
+        ($support type climbable)
+        ($support at $support_location)
+        $support_location != $destination
+    THEN
+        FRESH $child PREFIX goal
+        ADD ($child kind goal)
+        ADD ($child parent $goal)
+        ADD ($child goal_type at)
+        ADD ($child subject $support)
+        ADD ($child destination $destination)
+        ADD ($goal spawned $child)
+        ADD ($child status active)
+    END
+
+    RULE generate_get_down_before_transport
+    WHEN
+        ($goal status active)
+        ($goal goal_type at)
+        ($goal subject $object)
+        ($goal destination $destination)
+        ($object type portable)
+        ($object at $current)
+        $current != $destination
+        (monkey on $support)
+        $support != floor
+    THEN
+        FRESH $child PREFIX goal
+        ADD ($child kind goal)
+        ADD ($child parent $goal)
+        ADD ($child goal_type on)
+        ADD ($child subject monkey)
+        ADD ($child support floor)
+        ADD ($goal spawned $child)
+        ADD ($child status active)
+    END
+
+    RULE generate_hold_object_before_transport
+    WHEN
+        ($goal status active)
+        ($goal goal_type at)
+        ($goal subject $object)
+        ($goal destination $destination)
+        ($object type portable)
+        ($object at $current)
+        $current != $destination
+        (monkey on floor)
+        NOT EXISTS
+            (monkey holds $object)
+        END_EXISTS
+    THEN
+        FRESH $child PREFIX goal
+        ADD ($child kind goal)
+        ADD ($child parent $goal)
+        ADD ($child goal_type holds)
+        ADD ($child object $object)
+        ADD ($goal spawned $child)
+        ADD ($child status active)
+    END
+
+    RULE generate_reach_floor_object
+    WHEN
+        ($goal status active)
+        ($goal goal_type holds)
+        ($goal object $object)
+        ($object on floor)
+        ($object at $destination)
+        (monkey at $current)
+        $current != $destination
+        (monkey on floor)
+    THEN
+        FRESH $child PREFIX goal
+        ADD ($child kind goal)
+        ADD ($child parent $goal)
+        ADD ($child goal_type at)
+        ADD ($child subject monkey)
+        ADD ($child destination $destination)
+        ADD ($goal spawned $child)
+        ADD ($child status active)
+    END
+
+    RULE generate_climb_below_ceiling_object
+    WHEN
+        ($goal status active)
+        ($goal goal_type holds)
+        ($goal object $object)
+        ($object on ceiling)
+        ($object at $location)
+        ($support type climbable)
+        ($support at $location)
+        (monkey on floor)
+    THEN
+        FRESH $child PREFIX goal
+        ADD ($child kind goal)
+        ADD ($child parent $goal)
+        ADD ($child goal_type on)
+        ADD ($child subject monkey)
+        ADD ($child support $support)
+        ADD ($goal spawned $child)
+        ADD ($child status active)
+    END
+
+    RULE generate_reach_climbable
+    WHEN
+        ($goal status active)
+        ($goal goal_type on)
+        ($goal subject monkey)
+        ($goal support $support)
+        $support != floor
+        ($support at $destination)
+        (monkey at $current)
+        $current != $destination
+        (monkey on floor)
+    THEN
+        FRESH $child PREFIX goal
+        ADD ($child kind goal)
+        ADD ($child parent $goal)
+        ADD ($child goal_type at)
+        ADD ($child subject monkey)
+        ADD ($child destination $destination)
+        ADD ($goal spawned $child)
+        ADD ($child status active)
+    END
+
+    RULE generate_empty_hands_before_climbing
+    WHEN
+        ($goal status active)
+        ($goal goal_type on)
+        ($goal subject monkey)
+        ($goal support $support)
+        $support != floor
+        ($support at $location)
+        (monkey at $location)
+        (monkey on floor)
+        (monkey holds $held)
+        $held != nothing
+    THEN
+        FRESH $child PREFIX goal
+        ADD ($child kind goal)
+        ADD ($child parent $goal)
+        ADD ($child goal_type holds)
+        ADD ($child object nothing)
+        ADD ($goal spawned $child)
+        ADD ($child status active)
+    END
+
+    RULE satisfy_at_already_there
+    WHEN
+        ($goal status active)
+        ($goal goal_type at)
+        ($goal subject $subject)
+        ($goal destination $destination)
+        ($subject at $destination)
+    THEN
+        REMOVE ($goal status active)
+        ADD ($goal achieved_by already_at_destination)
+        ADD ($goal status satisfied)
+    END
+
+    RULE satisfy_at_monkey_by_walking
+    WHEN
+        ($goal status active)
+        ($goal goal_type at)
+        ($goal subject monkey)
+        ($goal destination $destination)
+        (monkey at $current)
+        $current != $destination
+        (monkey on floor)
+    THEN
+        REMOVE (monkey at $current)
+        ADD (monkey at $destination)
+        REMOVE ($goal status active)
+        ADD ($goal achieved_by walk)
+        ADD ($goal status satisfied)
+    END
+
+    RULE satisfy_at_object_by_carrying
+    WHEN
+        ($goal status active)
+        ($goal goal_type at)
+        ($goal subject $object)
+        ($goal destination $destination)
+        ($object type portable)
+        ($object at $current)
+        $current != $destination
+        (monkey at $current)
+        (monkey on floor)
+        (monkey holds $object)
+    THEN
+        REMOVE (monkey at $current)
+        REMOVE ($object at $current)
+        ADD (monkey at $destination)
+        ADD ($object at $destination)
+        REMOVE ($goal status active)
+        ADD ($goal achieved_by carry)
+        ADD ($goal status satisfied)
+    END
+
+    RULE satisfy_holds_already_held
+    WHEN
+        ($goal status active)
+        ($goal goal_type holds)
+        ($goal object $object)
+        (monkey holds $object)
+    THEN
+        REMOVE ($goal status active)
+        ADD ($goal achieved_by already_held)
+        ADD ($goal status satisfied)
+    END
+
+    RULE satisfy_holds_nothing_already
+    WHEN
+        ($goal status active)
+        ($goal goal_type holds)
+        ($goal object nothing)
+        (monkey holds nothing)
+    THEN
+        REMOVE ($goal status active)
+        ADD ($goal achieved_by already_empty_handed)
+        ADD ($goal status satisfied)
+    END
+
+    RULE satisfy_holds_nothing_by_dropping
+    WHEN
+        ($goal status active)
+        ($goal goal_type holds)
+        ($goal object nothing)
+        (monkey holds $object)
+        $object != nothing
+        (monkey on floor)
+    THEN
+        REMOVE (monkey holds $object)
+        ADD (monkey holds nothing)
+        REMOVE ($goal status active)
+        ADD ($goal achieved_by drop)
+        ADD ($goal status satisfied)
+    END
+
+    RULE satisfy_holds_floor_object_by_picking_up
+    WHEN
+        ($goal status active)
+        ($goal goal_type holds)
+        ($goal object $object)
+        ($object on floor)
+        ($object at $location)
+        (monkey at $location)
+        (monkey on floor)
+        (monkey holds nothing)
+    THEN
+        REMOVE (monkey holds nothing)
+        ADD (monkey holds $object)
+        REMOVE ($goal status active)
+        ADD ($goal achieved_by pick_up)
+        ADD ($goal status satisfied)
+    END
+
+    RULE satisfy_holds_ceiling_object
+    WHEN
+        ($goal status active)
+        ($goal goal_type holds)
+        ($goal object $object)
+        ($object on ceiling)
+        ($object at $location)
+        (monkey at $location)
+        (monkey on $support)
+        $support != floor
+        ($support at $location)
+        (monkey holds nothing)
+    THEN
+        REMOVE (monkey holds nothing)
+        ADD (monkey holds $object)
+        REMOVE ($goal status active)
+        ADD ($goal achieved_by take_from_ceiling)
+        ADD ($goal status satisfied)
+    END
+
+    RULE satisfy_on_already_on_support
+    WHEN
+        ($goal status active)
+        ($goal goal_type on)
+        ($goal subject $subject)
+        ($goal support $support)
+        ($subject on $support)
+    THEN
+        REMOVE ($goal status active)
+        ADD ($goal achieved_by already_on_support)
+        ADD ($goal status satisfied)
+    END
+
+    RULE satisfy_on_floor_by_getting_down
+    WHEN
+        ($goal status active)
+        ($goal goal_type on)
+        ($goal subject monkey)
+        ($goal support floor)
+        (monkey on $support)
+        $support != floor
+    THEN
+        REMOVE (monkey on $support)
+        ADD (monkey on floor)
+        REMOVE ($goal status active)
+        ADD ($goal achieved_by get_down)
+        ADD ($goal status satisfied)
+    END
+
+    RULE satisfy_on_climbable_by_climbing
+    WHEN
+        ($goal status active)
+        ($goal goal_type on)
+        ($goal subject monkey)
+        ($goal support $support)
+        $support != floor
+        ($support type climbable)
+        ($support at $location)
+        (monkey at $location)
+        (monkey on floor)
+        (monkey holds nothing)
+    THEN
+        REMOVE (monkey on floor)
+        ADD (monkey on $support)
+        REMOVE ($goal status active)
+        ADD ($goal achieved_by climb)
+        ADD ($goal status satisfied)
+    END
+
+    RULE finish_when_root_goal_is_satisfied
+    WHEN
+        (problem root_goal $root)
+        ($root status satisfied)
+        NOT EXISTS
+            ($other status active)
+        END_EXISTS
+    THEN
+        ADD (problem state solved)
+    END
+END_GROUP

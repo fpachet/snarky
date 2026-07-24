@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 from .substitutions import EMPTY_SUBSTITUTION, Substitution
-from .terms import Term, Triple, Variable
+from .terms import FiniteSet, Term, Triple, Variable
 
 
 class PatternMatcher:
@@ -104,6 +104,8 @@ class PatternMatcher:
                     pending,
                 )
             )
+        if isinstance(pattern, FiniteSet):
+            return pattern == candidate
         return pattern == candidate
 
     def _match_general(
@@ -138,4 +140,6 @@ class PatternMatcher:
                     return None
                 current = matched
             return current
+        if isinstance(pattern, FiniteSet):
+            return substitution if pattern == candidate else None
         return substitution if pattern == candidate else None

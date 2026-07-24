@@ -1,0 +1,68 @@
+schema_version: 1
+rulebases:
+  - id: fibonacci_explicit
+    category: small
+    path: small/fibonacci_explicit
+    maturity: executable
+    purpose: recursion_and_performance
+    missing_features: []
+  - id: factorial_explicit
+    category: small
+    path: small/factorial_explicit
+    maturity: executable
+    purpose: linear_recursion_and_arithmetic
+    missing_features: []
+  - id: equality_transitivity
+    category: thesis
+    path: thesis/equality_transitivity
+    maturity: executable
+    purpose: joins_refraction_and_historical_benchmark
+    missing_features: []
+  - id: tomorrow_date
+    category: thesis
+    path: thesis/tomorrow_date
+    maturity: executable
+    purpose: human_style_staged_problem_solving
+    missing_features: []
+  - id: petri_net
+    category: thesis
+    path: thesis/petri_net
+    maturity: executable_bounded_model
+    purpose: atomic_mutations_and_control
+    missing_features: [finite_collection_actions]
+  - id: geometry
+    category: thesis
+    path: thesis/geometry
+    maturity: executable_symbolic_kernel
+    purpose: classification_and_explanation
+    missing_features: [computed_predicates, type_hierarchy]
+  - id: monkey_bananas_simple
+    category: thesis
+    path: thesis/monkey_bananas/simple
+    maturity: executable_deterministic_instance
+    purpose: planning_and_state_transition
+    missing_features: []
+  - id: monkey_bananas_neopus_mea
+    category: thesis
+    path: thesis/monkey_bananas/neopus_mea
+    maturity: executable_goal_directed_reformulation
+    purpose: dynamic_subgoals_and_mea_conflict_resolution
+    missing_features: [type_inheritance, reflective_meta_rules]
+  - id: muses
+    category: thesis
+    path: thesis/muses
+    maturity: executable_symbolic_kernel
+    purpose: recognition_and_sequence_grouping
+    missing_features: [ordered_sequences]
+  - id: four_queens
+    category: thesis
+    path: thesis/four_queens
+    maturity: executable_validator
+    purpose: combinatorial_constraints
+    missing_features: [choice_search, constraint_solver_bridge]
+  - id: hanoi
+    category: thesis
+    path: thesis/hanoi
+    maturity: executable_bounded_instance
+    purpose: sequential_recursive_control
+    missing_features: [rule_group_parameters, recursive_group_calls]

@@ -66,3 +66,9 @@ Le benchmark accepte un rang ou une plage inclusive :
 uv run python benchmarks/fibonacci_explicit.py \
     --range 15 21 --repeat 3 --strategy semi-naive
 ```
+
+Le scénario documentaire `F(8)` peut aussi être exécuté avec l'outil commun :
+
+```sh
+uv run python -m rulebases.runner small/fibonacci_explicit
+```

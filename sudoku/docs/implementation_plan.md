@@ -2,17 +2,18 @@
 
 ## État d’avancement
 
-Les phases 0 à 7 sont réalisées pour le périmètre p1–p6 :
+Les phases 0 à 7 sont réalisées pour le périmètre p1–p7 :
 
 - fixtures natives vérifiées contre les sources CLIPS ;
 - mémoire mutable, journal, réfraction et index après retrait ;
 - `EXISTS`/`NOT EXISTS` corrélés ;
 - singles, candidats verrouillés et paires ;
 - orchestrateur générique et explications rejouables ;
-- solutions et familles de techniques identiques aux oracles.
+- solutions et familles de techniques identiques aux oracles ;
+- X-Wing exprimé avec les primitives existantes, sans `COLLECT`.
 
 La phase 8 reste ouverte pour les tests génératifs 4×4 et les optimisations
-supplémentaires. Les niveaux p7 à p18 restent le palier avancé.
+supplémentaires. Les niveaux p8 à p18 restent le palier avancé.
 
 ## Objectif
 
@@ -43,8 +44,9 @@ Le premier objectif fonctionnel couvre les grilles 9×9 `grid3x3-p1.clp` à
 | p6 | Hidden Pairs |
 
 Cette cible constitue déjà une résolution logique progressive et explicable.
-Les niveaux p7 à p18, qui introduisent notamment X-Wing, triples, coloriage,
-chaînes forcées et rectangle unique, sont hors du premier périmètre.
+X-Wing p7 est désormais inclus. Les niveaux p8 à p18, qui introduisent
+notamment triples, coloriage, chaînes forcées et rectangle unique, restent
+hors du premier périmètre.
 
 ## Ce que Snarky sait déjà faire
 
@@ -81,7 +83,7 @@ résolue ou qu’aucune technique ne s’applique.
 
 ## Écarts fonctionnels
 
-| Capacité | État | Nécessité pour p1–p6 |
+| Capacité | État | Nécessité pour p1–p7 |
 |---|---|---|
 | Faits structurés et jointures | Disponible | Suffisant |
 | Comparaisons `==`, `!=`, `<`, etc. | Disponible | Suffisant |
@@ -92,10 +94,11 @@ résolue ou qu’aucune technique ne s’applique.
 | Réfaction et index compatibles avec les suppressions | Disponibles | Critique |
 | Trace des suppressions et décisions | Disponible | Critique pour expliquer |
 | Ordonnancement des techniques | Disponible via `TechniquePlan` | Requis |
-| Agrégats ou cardinalités | Absents | Utiles, mais non indispensables à p1–p6 |
+| Agrégats `COUNT`/`UNIQUE` | Disponibles | Paires, validation et X-Wing |
+| Collection matérialisée `COLLECT` | Absente | Non nécessaire jusqu'à p7 |
 | Salience CLIPS | Absente | Non nécessaire avec les groupes |
 | `deftemplate` CLIPS | Absent | Non nécessaire |
-| Retour arrière ou hypothèses | Absent | Hors périmètre p1–p6 |
+| Retour arrière ou hypothèses | Absent | Hors périmètre p1–p7 |
 
 Les deux extensions sémantiques centrales sont donc la mutation contrôlée de
 la mémoire de travail et `NOT EXISTS`. Elles ne sont pas spécifiques au
@@ -351,7 +354,12 @@ groupe requis laisse chaque grille correspondante dans l’état `STUCK`.
 Critère de sortie : une trace de p1 et une trace de p6 sont rejouables et
 chaque retrait est justifié par des faits présents juste avant l’étape.
 
-### Phase 8 — Robustesse et performances
+### Phase 8 — X-Wing, robustesse et performances
+
+X-Wing p7 est maintenant implémenté par quatre règles symétriques. Deux
+`COUNT == 2` établissent les côtés du rectangle et les actions retirent le
+candidat hors de celui-ci. Le test d'acceptation vérifie aussi que limiter le
+plan à `hidden_pairs` laisse p7 dans l'état `STUCK`.
 
 1. Ajouter des tests génératifs sur de petits Sudoku 4×4.
 2. Comparer naïf et indexé sur les mêmes grilles et journaux.
@@ -367,14 +375,17 @@ régression mesurable non expliquée.
 
 ## Après le périmètre essentiel
 
-Les niveaux p7 à p18 doivent être abordés comme de nouveaux paliers :
+Les niveaux p8 à p18 doivent être abordés comme de nouveaux paliers :
 
-- X-Wing, triples et Swordfish utiliseront d’abord `COUNT`/`UNIQUE` et peuvent
-  encore motiver `COLLECT`, ensembles ordonnés ou combinaisons finies ;
-- coloriage et chaînes demandent des identités temporaires, des graphes de
-  dépendance et éventuellement des symboles frais ;
-- chaînes forcées et hypothèses demandent des contextes isolés, du retour
-  arrière ou une vérité conditionnelle ;
+- triples et Swordfish utiliseront d’abord `COUNT`/`UNIQUE` et le `COLLECT`
+  désormais disponible ; ensembles ordonnés ou combinaisons finies restent à
+  justifier ;
+- coloriage et chaînes peuvent utiliser `FRESH` pour leurs identités
+  temporaires, mais demandent encore une représentation des graphes de
+  dépendance ;
+- `InferenceSession.fork()` isole désormais une continuation ; les chaînes
+  forcées par hypothèses demanderaient encore une stratégie explicite de choix,
+  d’exploration et de restauration logique ;
 - rectangle unique exige une sémantique explicite de l’unicité de solution.
 
 Ces fonctionnalités ne doivent pas être introduites pour faire artificiellement
@@ -399,4 +410,5 @@ RuleGroup
 
 Le premier jalon visible est p1, après les phases 0 à 4. Le jalon « Sudoku
 essentiel » est atteint à la fin de la phase 7 avec p1 à p6 résolues et
-expliquées sans recherche exhaustive ni solveur externe.
+expliquées sans recherche exhaustive ni solveur externe. X-Wing étend
+désormais le périmètre exécutable à p7.

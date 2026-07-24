@@ -23,13 +23,14 @@ def test_sudoku_project_documents_and_rule_catalog_are_localized() -> None:
     assert (SUDOKU_ROOT / "rules/singles.rules").is_file()
     assert (SUDOKU_ROOT / "rules/locked_candidates.rules").is_file()
     assert (SUDOKU_ROOT / "rules/pairs.rules").is_file()
+    assert (SUDOKU_ROOT / "rules/x_wing.rules").is_file()
     assert (SUDOKU_ROOT / "rules/validation.rules").is_file()
 
     catalog = yaml.safe_load(
         (SUDOKU_ROOT / "rules/catalog.yaml").read_text(encoding="utf-8")
     )
 
-    assert catalog["status"] == "executable_p1_to_p6"
+    assert catalog["status"] == "executable_p1_to_p7"
     assert [group["name"] for group in catalog["groups"]] == [
         "derive_solved_cells",
         "naked_singles",
@@ -38,10 +39,11 @@ def test_sudoku_project_documents_and_rule_catalog_are_localized() -> None:
         "locked_candidates_multiple_lines",
         "naked_pairs",
         "hidden_pairs",
+        "x_wing",
         "validate_state",
     ]
 
 
-def test_p1_to_p6_clips_oracles_are_present() -> None:
-    for level in range(1, 7):
+def test_p1_to_p7_clips_oracles_are_present() -> None:
+    for level in range(1, 8):
         assert (CLIPS_PUZZLES / f"grid3x3-p{level}.clp").is_file()

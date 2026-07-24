@@ -1,0 +1,54 @@
+GROUP solve_problem
+    RULE walk_to_box
+    WHEN
+        (monkey at $monkey_location)
+        (monkey on floor)
+        (box at $box_location)
+        $monkey_location != $box_location
+    THEN
+        REMOVE (monkey at $monkey_location)
+        ADD (monkey at $box_location)
+        ADD (step_1 action walk_to_box)
+    END
+
+    RULE push_box_under_bananas
+    WHEN
+        (monkey at $location)
+        (monkey on floor)
+        (box at $location)
+        (bananas at $destination)
+        $location != $destination
+    THEN
+        REMOVE (monkey at $location)
+        REMOVE (box at $location)
+        ADD (monkey at $destination)
+        ADD (box at $destination)
+        ADD (step_2 action push_box)
+    END
+
+    RULE climb_box
+    WHEN
+        (monkey at $location)
+        (monkey on floor)
+        (box at $location)
+        (bananas at $location)
+    THEN
+        REMOVE (monkey on floor)
+        ADD (monkey on box)
+        ADD (step_3 action climb_box)
+    END
+
+    RULE take_bananas
+    WHEN
+        (monkey at $location)
+        (monkey on box)
+        (bananas at $location)
+        (monkey hungry true)
+    THEN
+        REMOVE (monkey hungry true)
+        ADD (monkey has bananas)
+        ADD (monkey hungry false)
+        ADD (step_4 action take_bananas)
+        ADD (problem state solved)
+    END
+END_GROUP

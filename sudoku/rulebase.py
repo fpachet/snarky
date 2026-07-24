@@ -15,6 +15,7 @@ RULE_FILES = (
     "singles.rules",
     "locked_candidates.rules",
     "pairs.rules",
+    "x_wing.rules",
     "validation.rules",
 )
 TECHNIQUE_ORDER = (
@@ -24,6 +25,7 @@ TECHNIQUE_ORDER = (
     "locked_candidates_multiple_lines",
     "naked_pairs",
     "hidden_pairs",
+    "x_wing",
 )
 
 
