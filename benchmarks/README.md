@@ -47,17 +47,88 @@ vivants représentent environ 46,6 Ko supplémentaires.
 
 Le même changement est plus sensible sur Fibonacci, qui manipule beaucoup de
 faits récursifs : `F(15)` semi-naïf passe de 6,084 s à 0,953 s en médiane,
-soit un gain ×6,39, avec les mêmes 15 867 tentatives de matching. Les mesures
+soit un gain ×6,39, avec les mêmes 9 125 tentatives de matching. Les mesures
 A/B sont conservées dans
 [`results/hash_cache_optimizations_2026-07-24.csv`](results/hash_cache_optimizations_2026-07-24.csv).
+
+## Fibonacci explicite — état courant
+
+Mesure fraîche du 24 juillet 2026 avec Python 3.13.11 sur macOS ARM64, après
+compilation des plans de réfraction négative par groupe. Une session dont
+aucune règle n’a de dépendance négative ne lance désormais aucune
+réconciliation après les ajouts :
+
+| Rang | Avant | État courant | Gain | Passages | Faits | Matchings |
+|---:|---:|---:|---:|---:|---:|---:|
+| 15 | 0,919 s | 0,338 s | ×2,72 | 5 | 3 656 | 9 125 |
+| 16 | 2,238 s | 0,614 s | ×3,64 | 5 | 5 918 | 14 792 |
+| 17 | 6,248 s | 1,206 s | ×5,18 | 5 | 9 578 | 23 928 |
+| 18 | 18,896 s | 2,330 s | ×8,11 | 5 | 15 500 | 38 747 |
+| 19 | 53,603 s | 4,618 s | ×11,61 | 5 | 25 082 | 62 686 |
+| 20 | — | 8,791 s | — | 3 | 40 586 | 101 462 |
+| 21 | — | 12,309 s | — | 1 | 65 672 | 164 159 |
+
+Les faits, activations et tentatives de matching restent identiques : le gain
+vient uniquement de la suppression d’un balayage inutile des activations déjà
+tirées. Dans le profil instrumenté de `F(17)`,
+`_reconcile_negative_refraction` occupait 12,923 s sur 17,489 s avant le
+correctif ; elle disparaît du profil après celui-ci, dont le temps total tombe
+de 17,2 s à 4,0 s.
+
+Sur cette machine, `F(20)` devient la limite interactive sous 10 secondes et
+`F(21)` reste raisonnable sous 30 secondes. `F(22)` matérialiserait environ
+106 000 faits et dépasserait donc la garde par défaut de 100 000 faits. La
+base construit volontairement tout l’arbre récursif sans mémoïsation : sa
+taille reste exponentielle.
+
+La série complète est conservée dans
+[`results/fibonacci_explicit_current_2026-07-24.csv`](results/fibonacci_explicit_current_2026-07-24.csv).
+La comparaison avant/après est conservée dans
+[`results/negative_refraction_fast_path_2026-07-24.csv`](results/negative_refraction_fast_path_2026-07-24.csv).
+Elle se reproduit en une commande avec le mode de plage inclusive :
+
+```sh
+uv run python benchmarks/fibonacci_explicit.py \
+    --range 15 21 --repeat 3 --strategy semi-naive
+```
+
+`--n 17` conserve le format JSON historique d’un cas unique. Avec `--range`,
+la sortie contient une liste `cases` ordonnée par rang.
+
+### Comparaison historique avec NéOpus
+
+La thèse décrivant NéOpus rapporte en 1992 le même benchmark à trois règles
+sur une architecture RETE en Smalltalk. La charge logique est directement
+comparable : `F(10)` crée 109 objets et déclenche 163 règles dans NéOpus,
+contre 109 nœuds et 163 activations dans Snarky ; pour `F(15)`, les deux
+valeurs sont respectivement 1 219 et 1 828.
+
+Sur Macintosh FX, NéOpus annonçait au plus 1,2 s pour `F(10)` et 57 s pour
+`F(15)` ; sur Sparc 1, 0,8 s et 45 s. Une mesure Snarky dédiée de dix passages
+sur le MacBook Pro M1 Pro donne des médianes de 0,0214 s et 0,346 s. Les
+rapports bruts mélangent matériel, langage et architecture et ne constituent
+donc pas un classement algorithmique.
+
+La croissance interne est plus instructive : de `F(10)` à `F(15)`, la charge
+logique est multipliée par environ 11,2, le temps Snarky par 16,2, et le temps
+NéOpus par 47,5 sur Macintosh FX ou 56,3 sur Sparc 1. Le coût Snarky par
+activation ne croît que de ×1,44, contre ×4,24 à ×5,02 pour NéOpus. La thèse
+attribue justement une part importante du coût RETE de NéOpus à la
+manipulation des listes de tokens. Fibonacci réutilise peu de jointures
+partielles et favorise ainsi l’indexation semi-naïve ; cette observation ne
+préjuge pas des charges où RETE amortit mieux ses mémoires.
+
+La source présente 57 s dans le texte et 55 s dans son tableau récapitulatif ;
+la comparaison ci-dessus retient la valeur textuelle. Voir
+[`pachet-92b.pdf`, sections V.1.2.1 et V.1.4](https://www.francoispachet.fr/wp-content/uploads/2021/01/pachet-92b.pdf#page=92).
 
 ## Fibonacci explicite — séries historiques
 
 Les sous-sections suivantes conservent les mesures du 22 juillet 2026,
 obtenues à des étapes antérieures du moteur. Elles documentent les gains
 successifs de l’indexation et de l’évaluation semi-naïve, mais ne constituent
-pas une mesure du snapshot courant. Pour celui-ci, la comparaison A/B
-reproductible la plus récente est celle de `F(15)` présentée juste au-dessus.
+pas une mesure du snapshot courant. Pour celui-ci, la série `F(15)` à `F(21)`
+présentée juste au-dessus est la référence.
 
 La commande suivante calcule trois fois `F(10)` avec l'oracle naïf, la stratégie
 indexée exhaustive, puis la stratégie semi-naïve :

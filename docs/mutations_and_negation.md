@@ -46,7 +46,7 @@ simple photographie du point fixe.
 `mutation_count`. Le mode `FIRST_CHANGE` s’arrête après toute mutation
 effective, ajout ou retrait.
 
-## Réfaction et index
+## Réfraction et index
 
 Une suppression est enregistrée dans un `FactDelta` propre à chaque règle et
 appliquée en lot à l’index partagé avant l’instanciation suivante. Le delta
@@ -58,6 +58,10 @@ résultats observables.
 La réfraction est liée à l’activation continûment valide :
 
 - retirer un fait support expire les activations qui en dépendaient ;
+- lors du premier enregistrement d’un groupe, le moteur compile uniquement les
+  règles dont une addition peut invalider la réfraction ; si aucun plan de ce
+  type n’est enregistré dans la session, les ajouts ne lancent aucune
+  réconciliation négative ;
 - ajouter un fait ne réévalue que les activations négatives dont une prémisse
   peut matcher sa signature ;
 - un bloc `NOT EXISTS` réduit à une prémisse factuelle installe implicitement

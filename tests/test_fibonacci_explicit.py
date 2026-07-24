@@ -1,5 +1,8 @@
 from pathlib import Path
 
+import pytest
+
+from benchmarks.fibonacci_explicit import resolve_ranks
 from snarky import (
     Atom,
     Fact,
@@ -18,6 +21,14 @@ from snarky.serialization import load_facts
 
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
 FIXTURE_ROOT = PROJECT_ROOT / "tests/rulebases/fibonacci_explicit"
+
+
+def test_benchmark_resolves_one_rank_or_an_inclusive_range() -> None:
+    assert resolve_ranks(None, None) == (10,)
+    assert resolve_ranks(17, None) == (17,)
+    assert resolve_ranks(None, (15, 18)) == (15, 16, 17, 18)
+    with pytest.raises(ValueError, match="START <= END"):
+        resolve_ranks(None, (18, 15))
 
 
 def test_fibonacci_explicit_builds_the_tree_and_computes_f8() -> None:

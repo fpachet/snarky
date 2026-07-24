@@ -29,7 +29,7 @@ Les optimisations doivent préserver les propriétés suivantes :
 | 3 — Deltas | Terminée | Deltas nets par règle pour ajouts, suppressions et réinsertions |
 | 4 — Plans et jointures | Terminée pour le socle | Prémisses compilées, MRV delta et mémoires partielles bornées avec repli |
 | 5 — Substitutions et négation | Terminée | Cadre mutable, hashes précalculés, watchers indexés, compteurs simples et requêtes corrélées persistantes |
-| 6 — Sélection des règles | Première tranche terminée | Les dépendances négatives filtrent les réveils ; l’index positif général reste à faire |
+| 6 — Sélection des règles | Première tranche terminée | Plans négatifs compilés par groupe, chemin direct sans dépendance négative ; l’index positif général reste à faire |
 | 7 — Agrégats | Terminée pour `COUNT`/`UNIQUE` | DSL, API Python, oracle naïf, compteurs et réfraction |
 | 8 à 10 | À faire | Provenance configurable, stratégie centrée variables et contraintes |
 
@@ -56,6 +56,8 @@ suivantes :
   snapshots ;
 - réfraction négative filtrée par les prémisses susceptibles de matcher un
   fait ajouté, avec expiration directe des bloqueurs simples corrélés ;
+- plans de réfraction compilés au premier enregistrement du groupe et
+  réconciliation entièrement omise lorsqu’aucun plan n’est nécessaire ;
 - cache des variables visibles dans les blocs existentiels.
 - compilation immuable des patterns, résolveurs de positions et blocs de
   prémisses ;
@@ -90,7 +92,7 @@ Sur la dernière séquence seule, les tentatives de matching passent de 69 793
 à 47 051 sur p1, de 217 880 à 125 298 sur p5 et de 210 908 à 106 449 sur p6.
 La baisse supplémentaire vaut 33 à 50 %, pour un gain temporel de ×1,62 à
 ×2,29. Depuis la baseline initiale, le gain total vaut ×7,18 à ×8,74. La
-suite complète compte désormais 283 tests. Le protocole exécutable est
+suite complète compte désormais 285 tests. Le protocole exécutable est
 `python -m benchmarks.sudoku_rules`.
 
 La passe de hachage précalculé ne change aucun compteur logique. Elle réduit
@@ -100,6 +102,26 @@ baseline initiale à ×9,38–×11,94. Sur le snapshot exact précédant cette p
 La suite complète passe d’une mesure contrôlée de 8,38 s à environ 6,8 s,
 soit près de 19 %. Le surcoût retenu après p5 est d’environ 46,6 Ko, à raison
 de huit octets par objet concerné encore vivant.
+
+Le plan de dépendances de réfraction est désormais compilé lors du premier
+enregistrement de chaque groupe. S’il ne contient aucune règle négative ou
+agrégée, les ajouts évitent entièrement la réconciliation :
+
+| Rang | Avant | État courant | Gain | Passages | Matchings |
+|---:|---:|---:|---:|---:|---:|
+| 15 | 0,919 s | 0,338 s | ×2,72 | 5 | 9 125 |
+| 16 | 2,238 s | 0,614 s | ×3,64 | 5 | 14 792 |
+| 17 | 6,248 s | 1,206 s | ×5,18 | 5 | 23 928 |
+| 18 | 18,896 s | 2,330 s | ×8,11 | 5 | 38 747 |
+| 19 | 53,603 s | 4,618 s | ×11,61 | 5 | 62 686 |
+| 20 | — | 8,791 s | — | 3 | 101 462 |
+| 21 | — | 12,309 s | — | 1 | 164 159 |
+
+Le profil instrumenté de `F(17)` passe de 17,2 s à 4,0 s et
+`_reconcile_negative_refraction`, auparavant responsable de 12,923 s,
+disparaît entièrement. Les compteurs logiques restent identiques. `F(20)` est
+maintenant sous 10 secondes et `F(21)` sous 30 secondes ; `F(22)` dépasserait
+la garde par défaut de 100 000 faits.
 
 Ces mesures sont des baselines locales, pas des garanties multi-machines.
 Les caches ne réutilisent que des résultats déterministes tant que la mémoire
@@ -547,8 +569,8 @@ facile à comprendre et à vérifier.
 
 ## Prochaine tranche concrète
 
-1. profiler `F(18)` à `F(21)` pour séparer le coût du matching, des
-   substitutions, du tri des activations et de la provenance ;
+1. profiler `F(20)` et `F(21)` après suppression du coût de réfraction
+   négative, pour départager substitutions, jointures, tri et provenance ;
 2. produire les activations paresseusement lorsque leur tri global n'est pas
    requis, ou borner explicitement leur matérialisation ;
 3. partager éventuellement un index global entre les règles si le profilage
@@ -563,5 +585,6 @@ facile à comprendre et à vérifier.
 
 Le critère de sortie sera un nouveau gain mesuré sur la baseline semi-naïve,
 avec identité complète des faits, dérivations, cycles et profondeurs. Les
-seuils actuels à dépasser sont `F(18)` sous 10 secondes et `F(20)` sous 30
-secondes.
+seuils actuels à dépasser sont `F(20)` sous 10 secondes et `F(21)` sous 30
+secondes ; au-delà, la garde de faits doit être rendue explicite dans le
+protocole.

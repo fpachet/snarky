@@ -48,12 +48,21 @@ ne fournit au moteur que la graine `(racine fibonacci n)`. Son calcul Python de
 Fibonacci sert uniquement à vérifier le résultat final. Pour `F(10)`, Snarky
 construit 109 nœuds et atteint 326 faits.
 
-Sur la machine de développement, trois exécutions donnent en moyenne 7,243 s
-avec la stratégie naïve et 0,245 s avec la stratégie indexée, soit un gain de
-×29,6. Voir la [documentation des benchmarks](../../../benchmarks/README.md)
-pour la commande exacte et les compteurs algorithmiques.
+Les premières mesures indexées et semi-naïves sont conservées comme séries
+historiques dans la
+[documentation des benchmarks](../../../benchmarks/README.md). Elles ne
+doivent pas être confondues avec l’état courant.
 
-La stratégie semi-naïve ramène `F(10)` à 0,053 s et `F(17)` à 3,338 s. Elle a
-été mesurée jusqu'à `F(21) = 10946`, en 32,042 s avec 65 672 faits. Dans l'état
-actuel, `F(18)` est le dernier rang sous 10 secondes et `F(20)` le dernier sous
-30 secondes.
+Après compilation des plans de réfraction négative, une base comme Fibonacci,
+qui n’en contient aucune, évite entièrement cette réconciliation après les
+ajouts. Les médianes courantes vont de 0,338 s pour `F(15)` à 8,791 s pour
+`F(20)` ; `F(21) = 10 946` prend 12,309 s sur un passage avec 65 672 faits.
+`F(20)` est donc le dernier rang observé sous 10 secondes et `F(21)` reste sous
+30 secondes. `F(22)` dépasserait la garde par défaut de 100 000 faits.
+
+Le benchmark accepte un rang ou une plage inclusive :
+
+```sh
+uv run python benchmarks/fibonacci_explicit.py \
+    --range 15 21 --repeat 3 --strategy semi-naive
+```

@@ -34,7 +34,15 @@ RULES_PATH = (
 
 def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--n", type=int, default=10)
+    target = parser.add_mutually_exclusive_group()
+    target.add_argument("--n", type=int)
+    target.add_argument(
+        "--range",
+        dest="n_range",
+        type=int,
+        nargs=2,
+        metavar=("START", "END"),
+    )
     parser.add_argument("--repeat", type=int, default=3)
     parser.add_argument(
         "--strategy",
@@ -42,11 +50,14 @@ def main() -> None:
         default="all",
     )
     arguments = parser.parse_args()
-    if arguments.n < 1 or arguments.repeat < 1:
-        parser.error("--n and --repeat must be positive")
+    try:
+        ranks = resolve_ranks(arguments.n, arguments.n_range)
+    except ValueError as error:
+        parser.error(str(error))
+    if arguments.repeat < 1:
+        parser.error("--repeat must be positive")
 
     rules = parse_rules(RULES_PATH.read_text(encoding="utf-8"))
-    initial_facts = fibonacci_facts(arguments.n)
     strategy_names: tuple[str, ...]
     if arguments.strategy == "both":
         strategy_names = ("naive", "indexed")
@@ -54,20 +65,61 @@ def main() -> None:
         strategy_names = ("naive", "indexed", "semi-naive")
     else:
         strategy_names = (arguments.strategy,)
-    results = [
-        measure(name, rules, initial_facts, arguments.repeat, fibonacci(arguments.n))
-        for name in strategy_names
+    cases = [
+        measure_case(rank, rules, strategy_names, arguments.repeat)
+        for rank in ranks
     ]
-    payload = {
+    payload: dict[str, Any] = {
         "benchmark": "fibonacci_explicit",
-        "n": arguments.n,
-        "expected_result": fibonacci(arguments.n),
         "repeat": arguments.repeat,
         "python": platform.python_version(),
         "platform": platform.platform(),
-        "strategies": results,
     }
+    if len(cases) == 1:
+        payload.update(cases[0])
+    else:
+        payload["range"] = [ranks[0], ranks[-1]]
+        payload["cases"] = cases
     print(json.dumps(payload, indent=2, sort_keys=True))
+
+
+def resolve_ranks(
+    n: int | None,
+    n_range: tuple[int, int] | None,
+) -> tuple[int, ...]:
+    if n_range is None:
+        rank = 10 if n is None else n
+        if rank < 1:
+            raise ValueError("--n must be positive")
+        return (rank,)
+    start, end = n_range
+    if start < 1 or end < start:
+        raise ValueError("--range requires 1 <= START <= END")
+    return tuple(range(start, end + 1))
+
+
+def measure_case(
+    n: int,
+    rules: tuple[Rule, ...],
+    strategy_names: tuple[str, ...],
+    repeat: int,
+) -> dict[str, Any]:
+    expected_result = fibonacci(n)
+    initial_facts = fibonacci_facts(n)
+    return {
+        "n": n,
+        "expected_result": expected_result,
+        "strategies": [
+            measure(
+                name,
+                rules,
+                initial_facts,
+                repeat,
+                expected_result,
+            )
+            for name in strategy_names
+        ],
+    }
 
 
 def measure(

@@ -198,6 +198,37 @@ def test_negative_refraction_tracks_only_relevant_additions() -> None:
     assert reenabled.added_facts == (_fact("available"),)
 
 
+def test_group_without_negative_dependencies_skips_reconciliation(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    group = parse_rule_groups(
+        """
+        GROUP derive
+            RULE derive_result
+            WHEN
+                seed
+            THEN
+                ADD result
+            END
+        END_GROUP
+        """
+    )[0]
+    session = ForwardEngine(()).create_session((_fact("seed"),))
+
+    def fail_if_called(_: tuple[Fact, ...]) -> None:
+        raise AssertionError("negative refraction should not be reconciled")
+
+    monkeypatch.setattr(
+        session,
+        "_reconcile_negative_refraction",
+        fail_if_called,
+    )
+
+    result = session.run_group(group)
+
+    assert result.added_facts == (_fact("result"),)
+
+
 def test_repeated_existential_queries_are_cached_per_instantiation() -> None:
     rules = parse_rules(
         """

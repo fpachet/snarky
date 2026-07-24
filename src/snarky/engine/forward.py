@@ -141,6 +141,14 @@ class _ActivationOutcome:
         return len(self.added_facts) + len(self.removed_facts)
 
 
+@dataclass(frozen=True, slots=True)
+class _NegativeRefractionPlan:
+    group_name: str
+    rule: Rule
+    simple_dependencies: tuple[FactPremise, ...]
+    complex_dependencies: tuple[FactPremise, ...]
+
+
 class InferenceSession:
     """Persistent working memory shared by successive rule-group invocations."""
 
@@ -166,6 +174,7 @@ class InferenceSession:
         self._events: list[InferenceEvent] = []
         self._previous_event_counts: dict[tuple[str, str], int] = {}
         self._groups: dict[str, RuleGroup] = {}
+        self._negative_refraction_plans: list[_NegativeRefractionPlan] = []
         self._cycles = 0
 
     @property
@@ -215,8 +224,11 @@ class InferenceSession:
             raise ValueError("UNTIL mode requires a stop condition")
         if mode is not GroupExecutionMode.UNTIL and until is not None:
             raise ValueError("a stop condition is only valid in UNTIL mode")
-        registered = self._groups.setdefault(group.name, group)
-        if registered != group:
+        registered = self._groups.get(group.name)
+        if registered is None:
+            self._groups[group.name] = group
+            self._register_negative_refraction_plans(group)
+        elif registered != group:
             raise ValueError(
                 f"rule group {group.name!r} was already registered "
                 "with a different definition"
@@ -409,9 +421,23 @@ class InferenceSession:
         present_additions = tuple(
             fact for fact in added if fact in self._store
         )
-        if present_additions:
+        if present_additions and self._negative_refraction_plans:
             self._reconcile_negative_refraction(present_additions)
         return _ActivationOutcome(tuple(added), tuple(removed))
+
+    def _register_negative_refraction_plans(self, group: RuleGroup) -> None:
+        for rule in group.rules:
+            simple, complex_ = _negative_dependency_plan(rule.premises)
+            if not simple and not complex_:
+                continue
+            self._negative_refraction_plans.append(
+                _NegativeRefractionPlan(
+                    group.name,
+                    rule,
+                    simple,
+                    complex_,
+                )
+            )
 
     def _expire_removed_supports(self, removed: frozenset[Fact]) -> None:
         expired = {
@@ -432,80 +458,75 @@ class InferenceSession:
         oracle: IndexedInstantiationStrategy | None = None
         facts = self._store.facts
         matcher = PatternMatcher()
-        for group in self._groups.values():
-            for rule in group.rules:
-                fired_for_rule = {
-                    key
-                    for key in self._fired
-                    if (
-                        key.rule_group == group.name
-                        and key.rule_name == rule.name
-                    )
-                }
-                simple_dependencies, complex_dependencies = (
-                    _negative_dependency_plan(rule.premises)
-                )
-                negative_dependencies = (
-                    *simple_dependencies,
-                    *complex_dependencies,
-                )
+        for plan in self._negative_refraction_plans:
+            fired_for_rule = {
+                key
+                for key in self._fired
                 if (
-                    not fired_for_rule
-                    or not negative_dependencies
-                    or not any(
-                        premise.match(
-                            fact,
-                            EMPTY_SUBSTITUTION,
-                            matcher,
-                        )
-                        is not None
-                        for premise in negative_dependencies
-                        for fact in added
-                    )
-                ):
-                    continue
-
-                directly_expired = {
-                    key
-                    for key in fired_for_rule
-                    if any(
-                        premise.match(
-                            fact,
-                            _substitution_from_key(key),
-                            matcher,
-                        )
-                        is not None
-                        for premise in simple_dependencies
-                        for fact in added
-                    )
-                }
-                self._expire_activation_keys(directly_expired)
-                remaining = fired_for_rule - directly_expired
-                complex_change = any(
+                    key.rule_group == plan.group_name
+                    and key.rule_name == plan.rule.name
+                )
+            }
+            negative_dependencies = (
+                *plan.simple_dependencies,
+                *plan.complex_dependencies,
+            )
+            if (
+                not fired_for_rule
+                or not any(
                     premise.match(
                         fact,
                         EMPTY_SUBSTITUTION,
                         matcher,
                     )
                     is not None
-                    for premise in complex_dependencies
+                    for premise in negative_dependencies
                     for fact in added
                 )
-                if not remaining or not complex_change:
-                    continue
+            ):
+                continue
 
-                if oracle is None:
-                    oracle = IndexedInstantiationStrategy()
-                active: set[ActivationKey] = set()
-                for activation in oracle.instantiate(rule, facts):
-                    active.add(
-                        ActivationKey(
-                            group.name,
-                            rule.name,
-                            activation.substitution.key,
-                        )
+            directly_expired = {
+                key
+                for key in fired_for_rule
+                if any(
+                    premise.match(
+                        fact,
+                        _substitution_from_key(key),
+                        matcher,
                     )
-                self._expire_activation_keys(remaining - active)
+                    is not None
+                    for premise in plan.simple_dependencies
+                    for fact in added
+                )
+            }
+            self._expire_activation_keys(directly_expired)
+            remaining = fired_for_rule - directly_expired
+            complex_change = any(
+                premise.match(
+                    fact,
+                    EMPTY_SUBSTITUTION,
+                    matcher,
+                )
+                is not None
+                for premise in plan.complex_dependencies
+                for fact in added
+            )
+            if not remaining or not complex_change:
+                continue
+
+            if oracle is None:
+                oracle = IndexedInstantiationStrategy()
+            active: set[ActivationKey] = set()
+            for activation in oracle.instantiate(plan.rule, facts):
+                active.add(
+                    ActivationKey(
+                        plan.group_name,
+                        plan.rule.name,
+                        activation.substitution.key,
+                    )
+                )
+            self._expire_activation_keys(remaining - active)
 
     def _expire_activation_keys(
         self,

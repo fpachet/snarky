@@ -142,6 +142,11 @@ sont appliquées jusqu’à ce qu’un cycle ne modifie plus aucun fait. Un poin
 fixe mutable est atteint lorsqu’un cycle n’ajoute ni ne retire de fait. Des
 limites explicites de cycles et de faits protègent l’exécution.
 
+Cette sémantique n’impose pas une vérification négative après chaque ajout. Au
+premier enregistrement d’un groupe, la session compile les seules règles dont
+la réfraction peut être invalidée par une addition. Si aucune n’existe dans
+les groupes enregistrés, la réconciliation négative est entièrement omise.
+
 ## Groupes de règles et sessions persistantes
 
 Un `RuleGroup` est un ensemble nommé de règles dont les noms sont uniques. Une

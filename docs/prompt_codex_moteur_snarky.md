@@ -368,6 +368,14 @@ journal entre les appels. `TechniquePlan` fournit un ordonnancement générique 
 il essaie les groupes du plus simple au plus complexe et repart du premier
 après chaque mutation effective.
 
+Lors du premier enregistrement d’un `RuleGroup`, la session compile également
+les plans de dépendances susceptibles d’invalider une activation par ajout de
+fait (`NOT EXISTS`, agrégats et dépendances existentielles complexes). Les
+règles sans une telle dépendance ne sont pas conservées dans ces plans. Si la
+session n’en contient aucun, le chemin d’ajout saute entièrement la
+réconciliation négative ; la sémantique de réfraction des groupes concernés
+reste inchangée.
+
 ### 2.7 Actions
 
 Capacités disponibles :
@@ -1173,6 +1181,8 @@ besoins observés :
 11. Agrégats corrélés `COUNT` et `UNIQUE`, avec oracle différentiel.
 12. Hashes structurels précalculés, exclus de l’égalité et reconstruits après
     désérialisation.
+13. Plans de réfraction négative compilés par groupe, avec chemin d’ajout
+    direct lorsqu’aucune dépendance susceptible d’être invalidée n’existe.
 
 ### Travail documentaire historique encore ouvert
 
