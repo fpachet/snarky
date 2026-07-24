@@ -141,8 +141,16 @@ réinitialise seulement la composante connexe touchée. La jointure consomme
 directement les lignes actives et leurs liaisons prévalidées, sans refaire le
 matching structurel.
 `AdaptiveInstantiationStrategy` l'active seulement lorsque la structure et la
-sélectivité semblent rentables. Elle ne crée ni hypothèse, ni branche de
-session, ni provenance externe.
+sélectivité semblent rentables. Sur une règle ambiguë et récurrente, une sonde
+de coût différée peut comparer ce chemin au repli semi-naïf. La jointure
+Compact consomme elle-même uniquement les lignes nouvelles d'un `FactDelta`.
+Elle ne crée ni hypothèse, ni branche de session, ni provenance externe.
+
+Les définitions de Compact-Tables sont partageables ; domaines et masques
+actifs résident dans un état séparé. `DomainStore` expose les réductions et
+contradictions, tandis que `PropagationState` fournit un trail de checkpoints
+et rollbacks. Le détail est dans
+[`reversible_propagation.md`](reversible_propagation.md).
 
 Les comparaisons de ce filtre ne sont plus nécessairement des tests tardifs.
 `==`, `!=`, les quatre ordres et `DIVISIBLE` possèdent des propagateurs

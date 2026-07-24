@@ -238,6 +238,22 @@ slots par intersection de masques, puis leurs liaisons sont injectées dans le
 `BindingFrame`. `use_compact_tables=False` et `use_compact_join=False`
 réactivent les anciens chemins à des fins de benchmark.
 
+Sur un delta d'ajout, la jointure Compact applique la même sémantique
+semi-naïve que le matcher principal : chaque variante impose une prémisse
+contenant une ligne nouvelle et impose les lignes anciennes sur les prémisses
+antérieures. L'union dédupliquée contient donc exactement les nouvelles
+activations. Un delta sans ligne pertinente produit immédiatement zéro
+activation ; une suppression repasse par la jointure complète.
+
+La définition immuable d'une table (lignes, slots et supports) est distincte
+de son état de propagation (masque actif et domaines appliqués). L'API
+publique `DomainStore` enregistre des `DomainReduction` motivées par un
+`PropagationReason`; `PropagationResult` expose ces réductions et une
+`PropagationContradiction` éventuelle. Le dernier résultat filtré est
+consultable dans `ConstraintInstantiationStrategy.last_propagation_results`.
+`PropagationState` ajoute des checkpoints imbriqués et restaure domaines et
+masques par trail.
+
 Les métriques `domain_input_rows` et `domain_rows_examined` distinguent le
 volume logique des anciens examens physiques. Avec les Compact-Tables,
 `domain_rows_examined` tombe à zéro ; `domain_bitset_value_events`,
@@ -245,9 +261,14 @@ volume logique des anciens examens physiques. Avec les Compact-Tables,
 `domain_compact_join_rows` décrivent le travail restant.
 `domain_projection_rows_examined`, `domain_projection_updates`,
 `domain_state_reuses` et `domain_component_resets` mesurent séparément la
-construction incrémentale des domaines.
+construction incrémentale des domaines. `domain_delta_join_variants` et
+`domain_delta_join_skips` décrivent la jointure semi-naïve filtrée. Les
+métriques `domain_cost_probes`, `domain_cost_probe_deferrals` et
+`domain_cost_probe_rejections` rendent observable la sélection par coût.
 
-Ce mécanisme ne crée aucune branche de session. L'énumération finale réutilise
+Ce mécanisme ne crée encore aucune branche de session. Le trail est local aux
+domaines et masques : il ne restaure ni mémoire de travail, ni réfraction, ni
+provenance. L'énumération finale réutilise
 le `BindingFrame` local et son rollback de liaisons ; elle ne modifie ni la
 mémoire de travail, ni la réfraction, ni la provenance. Choix MRV et recherche
 locale complète restent séparés de la recherche métier par `fork()`.

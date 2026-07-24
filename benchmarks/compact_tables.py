@@ -72,6 +72,13 @@ def measure(
             metrics.domain_bitset_intersections
         ),
         "domain_compact_join_rows": metrics.domain_compact_join_rows,
+        "domain_delta_join_variants": metrics.domain_delta_join_variants,
+        "domain_delta_join_skips": metrics.domain_delta_join_skips,
+        "domain_cost_probes": metrics.domain_cost_probes,
+        "domain_cost_probe_deferrals": metrics.domain_cost_probe_deferrals,
+        "domain_cost_probe_rejections": (
+            metrics.domain_cost_probe_rejections
+        ),
     }
 
 

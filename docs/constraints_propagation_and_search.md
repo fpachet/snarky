@@ -195,6 +195,23 @@ formes imbriquées ou non spécialisées restent disponibles dans la stratégie
 forcée avec un produit cartésien borné. La décision est mémorisée par règle ;
 le repli est semi-naïf.
 
+Pour les réductions intermédiaires, une sonde de coût peut maintenant
+chronométrer filtre et repli puis mémoriser le plus rapide. Cette sonde est
+différée jusqu'à huit utilisations par défaut afin que les règles brèves ne
+paient jamais deux jointures. Une réduction très forte sélectionne directement
+le filtre.
+
+La jointure des Compact-Tables est elle-même semi-naïve : elle conserve un
+masque des lignes ajoutées par prémisse, partitionne les variantes delta et
+saute un cycle sans nouvelle ligne pertinente. Sur Sudoku p1, p6 et p7, cela
+réduit les matchings de 22,5 %, 9,1 % et 9,9 %, et ajoute respectivement
+11,7 %, 7,3 % et 9,0 % de gain temporel au palier Compact précédent.
+
+Les définitions de tables sont désormais séparées de l'état mutable.
+`DomainStore` rend les réductions et contradictions observables ;
+`PropagationState` fournit checkpoint et rollback des domaines et masques.
+Voir [`reversible_propagation.md`](reversible_propagation.md).
+
 La prémisse `CONSTRAINT expression opérateur expression` réutilise l'AST
 arithmétique sûr de `LET`. Contrairement à `LET`, elle est relationnelle :
 `CONSTRAINT $x + $y == $z` filtre `$x`, `$y` et `$z`. Pour l'addition et la
@@ -248,12 +265,13 @@ et conserve 6,41 ms sans construire les domaines.
    `ALL_DIFFERENT` avec Hall borné ;~~
 5. ~~mémoriser les supports par valeur en Compact-Tables et les réutiliser
    dans la jointure ;~~
-6. généraliser les index de chemins aux triples imbriqués d'ordre 2 ;
-7. mesurer une consistance généralisée de `ALL_DIFFERENT` par matching
+6. ~~rendre l'état des domaines et masques réversible par trail ;~~
+7. généraliser les index de chemins aux triples imbriqués d'ordre 2 ;
+8. mesurer une consistance généralisée de `ALL_DIFFERENT` par matching
    biparti seulement sur un cas probant ;
-8. remplacer éventuellement l'énumération finale par le choix MRV et un trail
-   local, sans toucher à `InferenceSession` ;
-9. traiter séparément les choix métier et la recherche par sessions.
+9. ajouter le choix MRV et son pilote de branche local, sans toucher à
+   `InferenceSession` ;
+10. traiter séparément les choix métier et la recherche par sessions.
 
 Appeler un solveur complet à chaque cycle ou activation resterait au contraire
 trop coûteux et compliquerait la provenance. Un backend externe conserve son

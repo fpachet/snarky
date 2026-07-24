@@ -100,6 +100,13 @@ class InstantiationMetrics:
     domain_bitset_value_events: int = 0
     domain_bitset_support_checks: int = 0
     domain_compact_join_rows: int = 0
+    domain_delta_join_variants: int = 0
+    domain_delta_join_skips: int = 0
+    domain_cost_probes: int = 0
+    domain_cost_probe_deferrals: int = 0
+    domain_cost_probe_rejections: int = 0
+    domain_filter_probe_seconds: float = 0.0
+    domain_fallback_probe_seconds: float = 0.0
     domain_values_removed: int = 0
     domain_candidates_removed: int = 0
 
@@ -155,6 +162,13 @@ class InstantiationMetrics:
         self.domain_bitset_value_events = 0
         self.domain_bitset_support_checks = 0
         self.domain_compact_join_rows = 0
+        self.domain_delta_join_variants = 0
+        self.domain_delta_join_skips = 0
+        self.domain_cost_probes = 0
+        self.domain_cost_probe_deferrals = 0
+        self.domain_cost_probe_rejections = 0
+        self.domain_filter_probe_seconds = 0.0
+        self.domain_fallback_probe_seconds = 0.0
         self.domain_values_removed = 0
         self.domain_candidates_removed = 0
 

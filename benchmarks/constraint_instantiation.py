@@ -196,6 +196,19 @@ def run(size: int, repeat: int, scenario: str) -> dict[str, object]:
             "domain_candidates_removed": metrics.domain_candidates_removed,
             "domain_filter_selections": metrics.domain_filter_selections,
             "domain_filter_rejections": metrics.domain_filter_rejections,
+            "domain_cost_probes": metrics.domain_cost_probes,
+            "domain_cost_probe_deferrals": (
+                metrics.domain_cost_probe_deferrals
+            ),
+            "domain_cost_probe_rejections": (
+                metrics.domain_cost_probe_rejections
+            ),
+            "domain_filter_probe_seconds": (
+                metrics.domain_filter_probe_seconds
+            ),
+            "domain_fallback_probe_seconds": (
+                metrics.domain_fallback_probe_seconds
+            ),
             "domain_propagator_revisions": (
                 metrics.domain_propagator_revisions
             ),

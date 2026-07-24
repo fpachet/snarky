@@ -113,9 +113,12 @@ Sont disponibles et testés :
 - stratégies naïve, indexée et semi-naïve interchangeables ;
 - première stratégie d'instanciation par domaines : tables positives
   incrémentales, projections maintenues par compteurs, point fixe par file de
-  propagateurs, Compact-Tables bitset, jointure directe des lignes actives,
-  relations d'ordre 2, sélection adaptative et repli automatique sur le
-  matcher semi-naïf ;
+  propagateurs, Compact-Tables bitset, jointure semi-naïve directe des lignes
+  actives, relations d'ordre 2, sélection adaptative avec sonde de coût
+  amortie et repli automatique sur le matcher semi-naïf ;
+- état de propagation observable et réversible : définitions de tables
+  partageables, `DomainStore`, contradictions structurées, checkpoints et
+  rollback des domaines et masques actifs ;
 - groupes de règles nommés, sessions persistantes et modes `SATURATE`,
   `ONE_CYCLE`, `FIRST_CHANGE` et `UNTIL` ;
 - mémoire de travail mutable avec `REMOVE` et journal chronologique
@@ -1245,11 +1248,13 @@ Comparer :
 6. file de propagateurs et sélection adaptative ;
 7. comparaisons spécialisées et prémisses arithmétiques relationnelles ;
 8. domaines persistants, `NVALUE`, `ALL_DIFFERENT` et ensembles de Hall ;
-9. Compact-Tables, événements de retrait de valeur et jointure directe.
+9. Compact-Tables, événements de retrait de valeur et jointure directe ;
+10. jointure delta, sonde de coût amortie et trail local.
 
 Le premier filtrage centré sur les variables et ses contraintes globales est
-mesuré séparément. Les variantes MRV, le trail de recherche local et la
-consistance généralisée de `ALL_DIFFERENT` restent des cibles futures.
+mesuré séparément. Le trail local est livré ; la sélection MRV, son pilote de
+branches et la consistance généralisée de `ALL_DIFFERENT` restent des cibles
+futures.
 
 Mesurer :
 
@@ -1381,15 +1386,17 @@ hypothèse.
    règles.~~
 3. ~~Maintenir les domaines incrémentaux et ajouter `NVALUE`,
    `ALL_DIFFERENT` et Hall borné.~~
-4. Produire des faits `choice` à partir des domaines non singletons et
+4. ~~Séparer l'état mutable des tables, propager le delta jusqu'à la jointure
+   et fournir checkpoints, rollback et contradictions structurées.~~
+5. Produire des faits `choice` à partir des domaines non singletons et
    spécifier leur branchement et leur backtracking explicites.
-5. Ajouter un adaptateur optionnel vers OR-Tools.
-6. ~~Construire une stratégie explicite d’hypothèses et de recherche au-dessus
+6. Ajouter un adaptateur optionnel vers OR-Tools.
+7. ~~Construire une stratégie explicite d’hypothèses et de recherche au-dessus
    des sessions isolées.~~ Ajouter coûts ou heuristiques avec un oracle concret.
-7. ~~Livrer le premier filtrage centré sur les variables de BOOJUM avec un
-   benchmark différentiel.~~ Ajouter ensuite la sélection MRV et le trail
-   local.
-8. Étudier séparément les méta-règles réflexives capables d’inspecter et de
+8. ~~Livrer le premier filtrage centré sur les variables de BOOJUM avec un
+   benchmark différentiel et le trail local.~~ Ajouter ensuite la sélection
+   MRV et le pilote de branches.
+9. Étudier séparément les méta-règles réflexives capables d’inspecter et de
    transformer l’agenda.
 
 ---

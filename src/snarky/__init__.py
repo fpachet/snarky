@@ -112,6 +112,16 @@ from .premises import (
     nvalue,
     unique,
 )
+from .propagation import (
+    DomainCheckpoint,
+    DomainReduction,
+    DomainStore,
+    PropagationCheckpoint,
+    PropagationContradiction,
+    PropagationReason,
+    PropagationResult,
+    PropagationState,
+)
 from .rules import Rule, RuleGroup, when
 from .search import (
     Hypothesis,
@@ -169,6 +179,9 @@ __all__ = [
     "CountPremise",
     "DistinctCountExpression",
     "DomainPropagator",
+    "DomainCheckpoint",
+    "DomainReduction",
+    "DomainStore",
     "EngineLimits",
     "Fact",
     "FactDelta",
@@ -206,6 +219,11 @@ __all__ = [
     "ParseError",
     "PatternMatcher",
     "PredicateRegistry",
+    "PropagationCheckpoint",
+    "PropagationContradiction",
+    "PropagationReason",
+    "PropagationResult",
+    "PropagationState",
     "Proposition",
     "Rule",
     "RuleGroup",

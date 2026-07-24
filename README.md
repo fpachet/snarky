@@ -44,10 +44,12 @@ compilé produire les activations. Les suppressions réduisent l'état existant 
 un ajout ne réinitialise que la composante de contraintes concernée. Une
 `AdaptiveInstantiationStrategy` réserve ce travail aux graphes cycliques,
 assez grands et assez sélectifs ; les autres formes retombent automatiquement
-sur la stratégie semi-naïve. Les égalités, différences, ordres et divisibilités
-simples possèdent désormais des propagateurs spécialisés ; le mode adaptatif
-peut donc les sélectionner sans énumérer leur produit cartésien. Le cœur prend
-en charge
+sur la stratégie semi-naïve. Dans les cas ambigus et récurrents, elle peut
+mesurer une fois les deux chemins et mémoriser le plus rapide ; cette sonde est
+différée pour ne pas pénaliser les règles courtes. Les égalités, différences,
+ordres et divisibilités simples possèdent désormais des propagateurs
+spécialisés ; le mode adaptatif peut donc les sélectionner sans énumérer leur
+produit cartésien. Le cœur prend en charge
 les termes et triplets récursifs immuables, les variables dans toutes les
 positions, le matching orienté, l’unification bidirectionnelle séparée, les
 statuts explicites, le chaînage avant jusqu’au point fixe, la réfraction et la
@@ -82,9 +84,15 @@ propagateurs sans modifier les matchers.
 Les tables extensionnelles du filtre utilisent des masques de bits persistants
 par couple `(variable, valeur)`. Une suppression de valeur désactive seulement
 les lignes qu'elle supportait, puis la jointure lie directement les lignes
-actives déjà validées, sans refaire le matching structurel. Cette
-représentation prépare aussi un futur trail réversible pour `choice` et le
-backtracking.
+actives déjà validées, sans refaire le matching structurel. Les définitions
+de tables sont maintenant séparées de leur état mutable et la jointure suit
+les lignes nouvelles de `FactDelta` : un cycle append-only ne produit que ses
+nouvelles activations.
+
+`DomainStore` et `PropagationState` exposent les réductions, contradictions,
+checkpoints et rollbacks des domaines et masques actifs. Le trail local est
+donc livré ; il ne déclenche encore aucun choix ni aucune branche
+automatiquement.
 
 La mémoire de travail accepte maintenant `REMOVE`, avec un journal
 chronologique des ajouts et retraits. Les prémisses corrélées `EXISTS` et
@@ -173,6 +181,9 @@ Le contenu actuel comprend :
   les architectures possibles pour combiner instanciation par contraintes,
   clauses combinatoires, propagation, choix explicites, solveurs externes et
   ATMS ;
+- [`docs/reversible_propagation.md`](docs/reversible_propagation.md), l'état
+  observable, le trail de domaines et masques, la jointure delta et leurs
+  benchmarks ;
 - [`docs/choice_backtracking_and_applications.md`](docs/choice_backtracking_and_applications.md),
   le cap architectural allant du moteur efficace au futur langage de choix,
   puis au solveur CSP pédagogique et à l'harmoniseur à quatre voix ;
@@ -199,9 +210,9 @@ préchargés sous forme de tables.
 Les modifications partielles de faits et un ATMS complet restent à
 implémenter. L’adaptateur vers un solveur externe tel qu’OR-Tools reste
 optionnel et futur ; le backend fini portable valide déjà l’interface.
-Le choix MRV et le backtracking local restent le prochain grand palier. Ils
-devront réutiliser les domaines et propagateurs actuels, sans transformer
-Snarky en appel opaque à un solveur. Un solveur CSP écrit en Snarky et un
+Le choix MRV et le pilote de backtracking local restent le prochain grand
+palier. Ils réutiliseront le trail, les domaines et propagateurs actuels, sans
+transformer Snarky en appel opaque à un solveur. Un solveur CSP écrit en Snarky et un
 harmoniseur à quatre voix dans le style de Bach serviront ensuite
 d'applications d'intégration. L’évaluation semi-naïve demeure le mode par
 défaut de `ForwardEngine`.
@@ -305,15 +316,25 @@ les rescans de lignes et évitent le second matching structurel. Les médianes
 A/B passent de 0,377 à 0,287 s sur p1, de 0,656 à 0,576 s sur p6 et de 0,926
 à 0,804 s sur p7, soit des gains ×1,14 à ×1,31.
 
+La jointure semi-naïve des mêmes tables réduit ensuite les matchings de
+63 946 à 49 531 sur p1, de 138 846 à 126 198 sur p6 et de 216 643 à 195 160
+sur p7. Les médianes Compact passent respectivement de 0,287 à 0,254 s, de
+0,576 à 0,534 s et de 0,804 à 0,731 s, soit encore 7 à 12 %. Le benchmark du
+trail mesure ×27,84 face à la copie complète d'un état de 1 000 domaines
+lorsqu'une branche n'en touche que trois.
+
 Sur le micro-benchmark d'agenda à 200 règles indépendantes, une mutation ciblée
 ne recalcule qu'une règle et en réutilise 199. La médiane passe de 2,206 ms
 pour une construction froide à 0,572 ms pour la mise à jour incrémentale,
 soit ×3,86.
 
-La suite complète compte désormais 369 tests et s’exécute en moins de dix
+La suite complète compte désormais 375 tests et s’exécute en moins de dix
 secondes sur cette même machine, contre 26,05 s avant la mise en cache du
 catalogue de provenance
 Spinoza et 76,50 s avant les optimisations.
+
+L'architecture et l'API réversibles sont détaillées dans
+[`docs/reversible_propagation.md`](docs/reversible_propagation.md).
 
 ## Base de debug initiale
 

@@ -242,6 +242,21 @@ def measure(
                 "domain_compact_join_rows": (
                     strategy.metrics.domain_compact_join_rows
                 ),
+                "domain_delta_join_variants": (
+                    strategy.metrics.domain_delta_join_variants
+                ),
+                "domain_delta_join_skips": (
+                    strategy.metrics.domain_delta_join_skips
+                ),
+                "domain_cost_probes": (
+                    strategy.metrics.domain_cost_probes
+                ),
+                "domain_cost_probe_deferrals": (
+                    strategy.metrics.domain_cost_probe_deferrals
+                ),
+                "domain_cost_probe_rejections": (
+                    strategy.metrics.domain_cost_probe_rejections
+                ),
             }
         )
     elapsed_values = [float(run["seconds"]) for run in runs]

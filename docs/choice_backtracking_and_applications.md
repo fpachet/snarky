@@ -15,7 +15,9 @@ matching indexé et semi-naïf
                 ↓
 domaines incrémentaux et propagateurs
                 ↓
-choice + hypothèse + trail + backtracking
+trail local et contradictions observables
+                ↓
+choice + hypothèse + pilote de backtracking
                 ↓
 applications écrites en Snarky
 ```
@@ -36,20 +38,27 @@ dans le langage.
 
 ## Palier `choice` et backtracking
 
-Le prochain grand palier, après stabilisation des propagateurs, comportera :
+Le trail local, les checkpoints et les contradictions structurées sont
+maintenant livrés. Le prochain grand palier comporte donc :
 
 1. une prémisse ou un fait déclaratif produisant un ensemble fini de choix ;
 2. une heuristique publique, MRV en premier lieu ;
-3. un trail local enregistrant l'ancienne valeur des domaines ;
+3. ~~un trail local enregistrant l'ancienne valeur des domaines et des
+   masques ;~~
 4. une propagation jusqu'au point fixe après chaque choix ;
-5. une contradiction observable ;
-6. un retour arrière qui restaure le trail sans recopier toute la session ;
+5. ~~une contradiction observable ;~~
+6. un pilote de retour arrière qui restaure le trail sans recopier toute la
+   session ;
 7. une trace distinguant décision, propagation et échec.
 
-Les Compact-Tables fournissent déjà la représentation adaptée à ce trail :
+Les Compact-Tables et `PropagationState` fournissent la représentation et le
+trail :
 un choix réduira des domaines et des masques de lignes actives ; un
 backtrack pourra restaurer leurs anciennes valeurs sans recopier les faits ni
 reconstruire les tables de la règle.
+
+Le détail de cette couche, ses garanties et ses mesures est dans
+[`reversible_propagation.md`](reversible_propagation.md).
 
 La recherche locale d'instanciation et les hypothèses métier devront rester
 deux notions séparées. La première trouve une substitution d'une règle ; la

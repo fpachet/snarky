@@ -11,6 +11,7 @@ from snarky import (
     IndexedInstantiationStrategy,
     InstantiationMetrics,
     NaiveInstantiationStrategy,
+    SemiNaiveInstantiationStrategy,
     Term,
     Variable,
     parse_rules,
@@ -131,12 +132,59 @@ def test_adaptive_strategy_selects_filter_for_late_selective_table() -> None:
         ),
         _fact("(y0 r z0)"),
     )
-    strategy = AdaptiveInstantiationStrategy()
+    strategy = AdaptiveInstantiationStrategy(
+        minimum_observed_speedup=0.001,
+    )
 
     expected = IndexedInstantiationStrategy().instantiate(rule, facts)
     assert strategy.instantiate(rule, facts) == expected
     assert strategy.metrics.domain_filter_selections == 1
     assert strategy.metrics.domain_filter_rejections == 0
+    assert strategy.metrics.domain_cost_probes == 0
+
+
+def test_adaptive_strategy_rejects_observably_expensive_filter() -> None:
+    (rule,) = parse_rules(
+        """
+        RULE constrained_triangle
+        WHEN
+            ($x p $y)
+            ($x q $z)
+            ($y r $z)
+        THEN
+            ADD ($x solution $y)
+        END
+        """
+    )
+    size = 16
+    facts = (
+        *(
+            _fact(f"(x{x_index} p y{y_index})")
+            for x_index in range(size)
+            for y_index in range(size)
+        ),
+        *(
+            _fact(f"(x{x_index} q z{z_index})")
+            for x_index in range(size)
+            for z_index in range(size)
+        ),
+        _fact("(y0 r z0)"),
+    )
+    strategy = AdaptiveInstantiationStrategy(
+        minimum_observed_speedup=1_000_000,
+        cost_probe_reduction_ceiling=1.0,
+        minimum_cost_probe_uses=1,
+    )
+
+    expected = SemiNaiveInstantiationStrategy().instantiate(rule, facts)
+    assert strategy.instantiate(rule, facts) == expected
+    assert strategy.instantiate(rule, facts) == expected
+    assert strategy.metrics.domain_cost_probes == 1
+    assert strategy.metrics.domain_cost_probe_rejections == 1
+    assert strategy.metrics.domain_filter_rejections == 1
+    assert strategy.metrics.domain_filter_fallbacks == 2
+    assert strategy.metrics.domain_filter_probe_seconds > 0
+    assert strategy.metrics.domain_fallback_probe_seconds > 0
 
 
 def test_adaptive_strategy_rejects_filter_for_uniform_small_joins() -> None:
@@ -471,10 +519,14 @@ def test_incremental_domains_restore_values_after_addition() -> None:
         FactDelta(added=(added,), revision=1),
     )
 
-    oracle = NaiveInstantiationStrategy()
+    oracle = SemiNaiveInstantiationStrategy()
     assert first == oracle.instantiate(rule, initial)
-    assert expanded == oracle.instantiate(rule, (*initial, added))
-    assert len(expanded) == 2
+    assert expanded == oracle.instantiate(
+        rule,
+        (*initial, added),
+        FactDelta(added=(added,), revision=1),
+    )
+    assert len(expanded) == 1
     assert strategy.metrics.domain_component_resets == 1
     assert strategy.metrics.domain_table_rebuilds == 1
 
@@ -507,7 +559,8 @@ def test_incremental_domain_state_is_reused_for_irrelevant_delta() -> None:
         FactDelta(added=(irrelevant,), revision=1),
     )
 
-    assert actual == expected
+    assert expected
+    assert actual == ()
     assert strategy.metrics.domain_state_reuses == 1
     assert strategy.metrics.domain_projection_rows_examined == projection_rows
 
@@ -694,11 +747,23 @@ def test_domain_tables_follow_addition_and_removal_deltas() -> None:
         FactDelta(added=(first[1],), revision=3),
     )
 
-    oracle = IndexedInstantiationStrategy()
+    oracle = SemiNaiveInstantiationStrategy()
     assert initial == oracle.instantiate(rule, first)
-    assert expanded == oracle.instantiate(rule, expanded_facts)
-    assert reduced == oracle.instantiate(rule, final_facts)
-    assert restored == oracle.instantiate(rule, restored_facts)
+    assert expanded == oracle.instantiate(
+        rule,
+        expanded_facts,
+        FactDelta(added=added, revision=1),
+    )
+    assert reduced == oracle.instantiate(
+        rule,
+        final_facts,
+        FactDelta(removed=removed, revision=2),
+    )
+    assert restored == oracle.instantiate(
+        rule,
+        restored_facts,
+        FactDelta(added=(first[1],), revision=3),
+    )
     assert strategy.metrics.domain_table_rebuilds == 1
     assert strategy.metrics.domain_table_updates == 3
     assert strategy.metrics.domain_bitset_updates == 5

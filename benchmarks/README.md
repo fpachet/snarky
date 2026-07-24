@@ -222,6 +222,42 @@ Les masques sont mis à jour avec `FactDelta`. Les compteurs de benchmark sont
 Les données A/B sont conservées dans
 [`results/compact_tables_2026-07-24.csv`](results/compact_tables_2026-07-24.csv).
 
+### Jointure delta et trail pré-backtracking
+
+La jointure Compact applique désormais le delta jusqu'à l'énumération finale.
+Elle construit une variante par prémisse ayant reçu une ligne nouvelle et
+saute le join lorsqu'aucune table de la règle n'est concernée :
+
+| Niveau | Matchings avant | Après | Réduction | Temps avant | Après | Gain |
+|---|---:|---:|---:|---:|---:|---:|
+| p1 | 63 946 | 49 531 | 22,5 % | 0,287 s | 0,254 s | ×1,13 |
+| p6 | 138 846 | 126 198 | 9,1 % | 0,576 s | 0,534 s | ×1,08 |
+| p7 | 216 643 | 195 160 | 9,9 % | 0,804 s | 0,731 s | ×1,10 |
+
+Le sélecteur adaptatif peut également mesurer filtre et repli semi-naïf dans
+les cas ambigus. La sonde est différée jusqu'à huit usages par défaut : le
+cas favorable, qui retire 97,5 % des lignes, reste à 14,23 ms et ne paie
+aucun chemin contre-factuel. Quatre reines effectue cinq reports et aucune
+sonde ; sa médiane Compact est 106,8 ms. Les compteurs sont
+`domain_cost_probes`, `domain_cost_probe_deferrals` et
+`domain_cost_probe_rejections`.
+
+Le benchmark de l'état réversible compare un trail local avec la copie de
+tous les domaines :
+
+```sh
+uv run python -m benchmarks.propagation_trail \
+    --variables 1000 --domain-size 9 --touched 3 \
+    --iterations 200 --repeat 7
+```
+
+| État | Copie complète | Trail | Gain |
+|---|---:|---:|---:|
+| 1 000 domaines, 3 touchés | 30,706 ms | 1,103 ms | ×27,84 |
+
+Les données sont dans
+[`results/pre_backtracking_2026-07-24.csv`](results/pre_backtracking_2026-07-24.csv).
+
 ## Suite transversale des bases documentées
 
 `rulebase_suite` vérifie les oracles de onze bases avec les stratégies indexée,

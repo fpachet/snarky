@@ -4,9 +4,10 @@ from __future__ import annotations
 
 from collections import deque
 from collections.abc import Iterator, Mapping, MutableMapping, Sequence
-from dataclasses import dataclass
+from dataclasses import dataclass, fields
 from functools import cache
 from itertools import combinations, product
+from time import perf_counter
 from typing import Protocol
 
 from ..expressions import (
@@ -21,6 +22,11 @@ from ..premises import (
     ComparisonOperator,
     ComparisonPremise,
     variables_in_comparison_operand,
+)
+from ..propagation import (
+    DomainStore,
+    PropagationReason,
+    PropagationResult,
 )
 from ..rules import Rule
 from ..substitutions import BindingFrame
@@ -79,7 +85,7 @@ class _DomainRow:
 
 
 @dataclass(slots=True)
-class _CompactTable:
+class _CompactTableDefinition:
     """Extensional rows plus bitset supports for each variable value."""
 
     rows: dict[Fact, _DomainRow]
@@ -87,23 +93,19 @@ class _CompactTable:
     slot_by_fact: dict[Fact, int]
     support_masks: dict[Variable, dict[Term, int]]
     present_mask: int
-    active_mask: int
-    applied_domains: dict[Variable, frozenset[Term]]
 
     @classmethod
     def build(
         cls,
         rows: Mapping[Fact, _DomainRow],
         variables: Sequence[Variable],
-    ) -> _CompactTable:
+    ) -> _CompactTableDefinition:
         table = cls(
             {},
             [],
             {},
             {variable: {} for variable in variables},
             0,
-            0,
-            {},
         )
         for row in rows.values():
             table.add(row)
@@ -112,22 +114,21 @@ class _CompactTable:
     def __len__(self) -> int:
         return len(self.rows)
 
-    def add(self, row: _DomainRow) -> bool:
+    def add(self, row: _DomainRow) -> int | None:
         if row.fact in self.rows:
-            return False
+            return None
         slot = len(self.slots)
         self.slots.append(row)
         bit = 1 << slot
         self.rows[row.fact] = row
         self.slot_by_fact[row.fact] = slot
         self.present_mask |= bit
-        self.active_mask |= bit
         for variable, value in row.bindings:
             masks = self.support_masks[variable]
             masks[value] = masks.get(value, 0) | bit
-        return True
+        return bit
 
-    def remove(self, fact: Fact) -> _DomainRow | None:
+    def remove(self, fact: Fact) -> tuple[_DomainRow, int] | None:
         row = self.rows.pop(fact, None)
         if row is None:
             return None
@@ -135,7 +136,6 @@ class _CompactTable:
         bit = 1 << slot
         self.slots[slot] = None
         self.present_mask &= ~bit
-        self.active_mask &= ~bit
         for variable, value in row.bindings:
             masks = self.support_masks[variable]
             remaining = masks[value] & ~bit
@@ -143,14 +143,10 @@ class _CompactTable:
                 masks[value] = remaining
             else:
                 del masks[value]
-        return row
+        return row, bit
 
-    def reset(self) -> None:
-        self.active_mask = self.present_mask
-        self.applied_domains.clear()
-
-    def facts(self, mask: int | None = None) -> tuple[Fact, ...]:
-        selected = self.active_mask if mask is None else mask
+    def facts(self, mask: int) -> tuple[Fact, ...]:
+        selected = mask
         facts: list[Fact] = []
         while selected:
             bit = selected & -selected
@@ -170,10 +166,11 @@ class _CompactTable:
 
     def mask_for_frame(
         self,
+        active_mask: int,
         variables: Sequence[Variable],
         frame: BindingFrame,
     ) -> tuple[int, int]:
-        mask = self.active_mask
+        mask = active_mask
         intersections = 0
         for variable in variables:
             value = frame.value(variable)
@@ -184,6 +181,25 @@ class _CompactTable:
             if not mask:
                 break
         return mask, intersections
+
+
+@dataclass(slots=True)
+class _CompactTableState:
+    """Branch-local masks derived from a shareable table definition."""
+
+    active_mask: int
+    applied_domains: dict[Variable, frozenset[Term]]
+
+    @classmethod
+    def initial(
+        cls,
+        definition: _CompactTableDefinition,
+    ) -> _CompactTableState:
+        return cls(definition.present_mask, {})
+
+    def reset(self, definition: _CompactTableDefinition) -> None:
+        self.active_mask = definition.present_mask
+        self.applied_domains.clear()
 
 
 def _add_row_projection(
@@ -215,12 +231,14 @@ def _remove_row_projection(
 
 @dataclass(slots=True)
 class _DomainMemory:
-    tables: dict[int, _CompactTable]
+    tables: dict[int, _CompactTableDefinition]
+    table_states: dict[int, _CompactTableState]
     value_counts: dict[Variable, dict[Term, int]]
     base_domains: dict[Variable, set[Term]]
     filtered_domains: dict[Variable, frozenset[Term]] | None = None
     cached_result: _FilteringResult | None = None
     additions: frozenset[Variable] = frozenset()
+    delta_masks: dict[int, int] | None = None
 
 
 @dataclass(frozen=True, slots=True)
@@ -229,6 +247,7 @@ class _FilteringResult:
     candidates: Mapping[int, tuple[Fact, ...]]
     candidate_sets: Mapping[int, frozenset[Fact]]
     consistent: bool
+    propagation: PropagationResult
 
 
 type MutableTermDomains = MutableMapping[Variable, set[Term]]
@@ -956,6 +975,9 @@ class ConstraintInstantiationStrategy(SemiNaiveInstantiationStrategy):
         minimum_domain_rows: int = 128,
         minimum_bucket_ratio: float = 8.0,
         minimum_candidate_reduction: float = 0.10,
+        minimum_observed_speedup: float = 1.05,
+        cost_probe_reduction_ceiling: float = 0.75,
+        minimum_cost_probe_uses: int = 8,
         use_propagation_queue: bool = True,
         use_specialized_comparisons: bool = True,
         use_incremental_domains: bool = True,
@@ -974,6 +996,14 @@ class ConstraintInstantiationStrategy(SemiNaiveInstantiationStrategy):
             raise ValueError(
                 "minimum_candidate_reduction must be between zero and one"
             )
+        if minimum_observed_speedup <= 0:
+            raise ValueError("minimum_observed_speedup must be positive")
+        if not 0 <= cost_probe_reduction_ceiling <= 1:
+            raise ValueError(
+                "cost_probe_reduction_ceiling must be between zero and one"
+            )
+        if minimum_cost_probe_uses < 1:
+            raise ValueError("minimum_cost_probe_uses must be positive")
         if maximum_hall_size < 1:
             raise ValueError("maximum_hall_size must be positive")
         super().__init__()
@@ -982,6 +1012,9 @@ class ConstraintInstantiationStrategy(SemiNaiveInstantiationStrategy):
         self.minimum_domain_rows = minimum_domain_rows
         self.minimum_bucket_ratio = minimum_bucket_ratio
         self.minimum_candidate_reduction = minimum_candidate_reduction
+        self.minimum_observed_speedup = minimum_observed_speedup
+        self.cost_probe_reduction_ceiling = cost_probe_reduction_ceiling
+        self.minimum_cost_probe_uses = minimum_cost_probe_uses
         self.use_propagation_queue = use_propagation_queue
         self.use_specialized_comparisons = use_specialized_comparisons
         self.use_incremental_domains = use_incremental_domains
@@ -995,6 +1028,9 @@ class ConstraintInstantiationStrategy(SemiNaiveInstantiationStrategy):
         )
         self._domain_memories: dict[Rule, _DomainMemory] = {}
         self._filter_decisions: dict[Rule, bool] = {}
+        self._filter_cost_ratios: dict[Rule, float] = {}
+        self._filter_use_counts: dict[Rule, int] = {}
+        self.last_propagation_results: dict[Rule, PropagationResult] = {}
 
     def instantiate(
         self,
@@ -1047,8 +1083,11 @@ class ConstraintInstantiationStrategy(SemiNaiveInstantiationStrategy):
             self.metrics.domain_filter_fallbacks += 1
             return super().instantiate(rule, facts, changes)
 
+        filter_started = perf_counter()
+        probe_observed_cost = False
         memory = self._domain_memory(rule, plan, index, changes)
         filtered = self._filter_domains(plan, memory)
+        self.last_propagation_results[rule] = filtered.propagation
         self.metrics.domain_filter_runs += 1
         if self.adaptive and decision is None:
             row_count = sum(
@@ -1061,17 +1100,26 @@ class ConstraintInstantiationStrategy(SemiNaiveInstantiationStrategy):
             reduction = (
                 1 - retained / row_count if row_count else 0.0
             )
-            selected = (
-                not filtered.consistent
-                or reduction >= self.minimum_candidate_reduction
-            )
-            self._filter_decisions[rule] = selected
-            if selected:
+            if not filtered.consistent:
+                self._filter_decisions[rule] = True
                 self.metrics.domain_filter_selections += 1
-            else:
+                return ()
+            if reduction < self.minimum_candidate_reduction:
+                self._filter_decisions[rule] = False
                 self.metrics.domain_filter_rejections += 1
                 self.metrics.domain_filter_fallbacks += 1
                 return super().instantiate(rule, facts, changes)
+            if reduction >= self.cost_probe_reduction_ceiling:
+                self._filter_decisions[rule] = True
+                self.metrics.domain_filter_selections += 1
+                decision = True
+            else:
+                uses = self._filter_use_counts.get(rule, 0) + 1
+                self._filter_use_counts[rule] = uses
+                if uses >= self.minimum_cost_probe_uses:
+                    probe_observed_cost = True
+                else:
+                    self.metrics.domain_cost_probe_deferrals += 1
         if not filtered.consistent:
             return ()
 
@@ -1083,14 +1131,60 @@ class ConstraintInstantiationStrategy(SemiNaiveInstantiationStrategy):
             filtered.candidates,
             filtered.candidate_sets,
         )
+        filter_elapsed = perf_counter() - filter_started
+        if probe_observed_cost:
+            fallback, fallback_elapsed = self._probe_fallback(
+                rule,
+                facts,
+                changes,
+            )
+            observed_speedup = (
+                fallback_elapsed / filter_elapsed
+                if filter_elapsed
+                else float("inf")
+            )
+            self._filter_cost_ratios[rule] = observed_speedup
+            self.metrics.domain_cost_probes += 1
+            self.metrics.domain_filter_probe_seconds += filter_elapsed
+            self.metrics.domain_fallback_probe_seconds += fallback_elapsed
+            selected = observed_speedup >= self.minimum_observed_speedup
+            self._filter_decisions[rule] = selected
+            if selected:
+                self.metrics.domain_filter_selections += 1
+            else:
+                self.metrics.domain_cost_probe_rejections += 1
+                self.metrics.domain_filter_rejections += 1
+                self.metrics.domain_filter_fallbacks += 1
+                self.metrics.activations_produced += len(fallback)
+                return fallback
         self.metrics.activations_produced += len(activations)
         return tuple(activations)
+
+    def _probe_fallback(
+        self,
+        rule: Rule,
+        facts: tuple[Fact, ...],
+        changes: FactDelta | None,
+    ) -> tuple[tuple[Activation, ...], float]:
+        snapshot = {
+            field.name: getattr(self.metrics, field.name)
+            for field in fields(InstantiationMetrics)
+        }
+        started = perf_counter()
+        activations = super().instantiate(rule, facts, changes)
+        elapsed = perf_counter() - started
+        for name, value in snapshot.items():
+            setattr(self.metrics, name, value)
+        return activations, elapsed
 
     def invalidate(self, removed: frozenset[Fact] = frozenset()) -> None:
         super().invalidate(removed)
         if not removed:
             self._domain_memories.clear()
             self._filter_decisions.clear()
+            self._filter_cost_ratios.clear()
+            self._filter_use_counts.clear()
+            self.last_propagation_results.clear()
 
     def _static_filter_candidate(
         self,
@@ -1133,11 +1227,15 @@ class ConstraintInstantiationStrategy(SemiNaiveInstantiationStrategy):
         memory = self._domain_memories.get(rule)
         if memory is None or delta is None:
             tables = {
-                table.position: _CompactTable.build(
+                table.position: _CompactTableDefinition.build(
                     self._build_table(table, index),
                     table.variables,
                 )
                 for table in plan.tables
+            }
+            table_states = {
+                position: _CompactTableState.initial(definition)
+                for position, definition in tables.items()
             }
             value_counts: dict[Variable, dict[Term, int]] = {
                 variable: {} for variable in plan.variables
@@ -1147,6 +1245,7 @@ class ConstraintInstantiationStrategy(SemiNaiveInstantiationStrategy):
                     _add_row_projection(row, value_counts)
             memory = _DomainMemory(
                 tables,
+                table_states,
                 value_counts,
                 {
                     variable: set(counts)
@@ -1162,16 +1261,20 @@ class ConstraintInstantiationStrategy(SemiNaiveInstantiationStrategy):
                 self.metrics.domain_bitset_builds += len(tables)
             return memory
 
+        memory.delta_masks = None if delta.removed else {}
         if not delta.changed:
             return memory
         changed = False
         added_variables: set[Variable] = set()
         for table in plan.tables:
             table_memory = memory.tables[table.position]
+            table_state = memory.table_states[table.position]
             for fact in delta.removed:
-                removed_row = table_memory.remove(fact)
-                if removed_row is None:
+                removed = table_memory.remove(fact)
+                if removed is None:
                     continue
+                removed_row, removed_bit = removed
+                table_state.active_mask &= ~removed_bit
                 _remove_row_projection(
                     removed_row,
                     memory.value_counts,
@@ -1183,7 +1286,18 @@ class ConstraintInstantiationStrategy(SemiNaiveInstantiationStrategy):
                     self.metrics.domain_bitset_updates += 1
             for fact in delta.added:
                 added_row = self._match_row(table, fact)
-                if added_row is not None and table_memory.add(added_row):
+                added_bit = (
+                    None
+                    if added_row is None
+                    else table_memory.add(added_row)
+                )
+                if added_row is not None and added_bit is not None:
+                    table_state.active_mask |= added_bit
+                    if memory.delta_masks is not None:
+                        memory.delta_masks[table.position] = (
+                            memory.delta_masks.get(table.position, 0)
+                            | added_bit
+                        )
                     _add_row_projection(
                         added_row,
                         memory.value_counts,
@@ -1247,9 +1361,9 @@ class ConstraintInstantiationStrategy(SemiNaiveInstantiationStrategy):
             len(memory.tables[table.position]) for table in plan.tables
         )
         if self.use_incremental_domains:
-            domains = self._starting_domains(plan, memory)
+            initial_domains = self._starting_domains(plan, memory)
         else:
-            domains = {
+            initial_domains = {
                 variable: set[Term]() for variable in plan.variables
             }
             for table in plan.tables:
@@ -1259,10 +1373,11 @@ class ConstraintInstantiationStrategy(SemiNaiveInstantiationStrategy):
                 )
                 for row in rows:
                     for variable, value in row.bindings:
-                        domains[variable].add(value)
+                        initial_domains[variable].add(value)
             if self.use_compact_tables:
-                for table_memory in memory.tables.values():
-                    table_memory.reset()
+                for position, definition in memory.tables.items():
+                    memory.table_states[position].reset(definition)
+        domains = DomainStore(initial_domains, record_trail=False)
         initial_size = sum(len(domain) for domain in domains.values())
         if any(not domain for domain in domains.values()):
             return self._remember_filtering_result(
@@ -1290,9 +1405,10 @@ class ConstraintInstantiationStrategy(SemiNaiveInstantiationStrategy):
         total_count = 0
         for table in plan.tables:
             table_memory = memory.tables[table.position]
+            table_state = memory.table_states[table.position]
             total_count += len(table_memory)
             active_facts = (
-                table_memory.facts()
+                table_memory.facts(table_state.active_mask)
                 if self.use_compact_tables
                 else tuple(
                     row.fact
@@ -1321,8 +1437,8 @@ class ConstraintInstantiationStrategy(SemiNaiveInstantiationStrategy):
         previous = memory.filtered_domains
         if previous is None:
             if self.use_compact_tables:
-                for table_memory in memory.tables.values():
-                    table_memory.reset()
+                for position, definition in memory.tables.items():
+                    memory.table_states[position].reset(definition)
             return {
                 variable: set(memory.base_domains[variable])
                 for variable in plan.variables
@@ -1344,7 +1460,9 @@ class ConstraintInstantiationStrategy(SemiNaiveInstantiationStrategy):
                         variable in affected
                         for variable in table.variables
                     ):
-                        memory.tables[table.position].reset()
+                        memory.table_states[table.position].reset(
+                            memory.tables[table.position]
+                        )
                         self.metrics.domain_bitset_resets += 1
         return {
             variable: (
@@ -1361,14 +1479,17 @@ class ConstraintInstantiationStrategy(SemiNaiveInstantiationStrategy):
     def _remember_filtering_result(
         self,
         memory: _DomainMemory,
-        domains: Mapping[Variable, set[Term]],
+        domains: DomainStore,
         candidates: Mapping[int, tuple[Fact, ...]],
         consistent: bool,
     ) -> _FilteringResult:
-        frozen_domains = {
-            variable: frozenset(domain)
-            for variable, domain in domains.items()
-        }
+        if not consistent and domains.contradiction is None:
+            domains.fail(
+                PropagationReason("fixed-point"),
+                "propagation reached an inconsistent table",
+            )
+        propagation = domains.result()
+        frozen_domains = dict(propagation.domains)
         result = _FilteringResult(
             frozen_domains,
             candidates,
@@ -1377,6 +1498,7 @@ class ConstraintInstantiationStrategy(SemiNaiveInstantiationStrategy):
                 for position, facts in candidates.items()
             },
             consistent,
+            propagation,
         )
         memory.filtered_domains = frozen_domains
         memory.cached_result = (
@@ -1391,7 +1513,7 @@ class ConstraintInstantiationStrategy(SemiNaiveInstantiationStrategy):
         self,
         plan: _DomainPlan,
         memory: _DomainMemory,
-        domains: dict[Variable, set[Term]],
+        domains: DomainStore,
     ) -> bool:
         table_by_position = {table.position: table for table in plan.tables}
         incidence = dict(plan.incidence)
@@ -1414,6 +1536,13 @@ class ConstraintInstantiationStrategy(SemiNaiveInstantiationStrategy):
                     domains,
                 )
                 if not consistent:
+                    domains.fail(
+                        PropagationReason(
+                            "table",
+                            f"premise {identifier}",
+                        ),
+                        f"premise {identifier} has no active row",
+                    )
                     return False
             else:
                 changed_variables = self._revise_comparison(
@@ -1435,7 +1564,7 @@ class ConstraintInstantiationStrategy(SemiNaiveInstantiationStrategy):
         self,
         plan: _DomainPlan,
         memory: _DomainMemory,
-        domains: dict[Variable, set[Term]],
+        domains: DomainStore,
     ) -> bool:
         while True:
             changed = False
@@ -1447,6 +1576,13 @@ class ConstraintInstantiationStrategy(SemiNaiveInstantiationStrategy):
                     domains,
                 )
                 if not consistent:
+                    domains.fail(
+                        PropagationReason(
+                            "table",
+                            f"premise {table.position}",
+                        ),
+                        f"premise {table.position} has no active row",
+                    )
                     return False
                 changed = bool(changed_variables) or changed
             for comparison in plan.comparisons:
@@ -1463,41 +1599,51 @@ class ConstraintInstantiationStrategy(SemiNaiveInstantiationStrategy):
         self,
         table: _TablePlan,
         memory: _DomainMemory,
-        domains: dict[Variable, set[Term]],
+        domains: DomainStore,
     ) -> tuple[bool, set[Variable]]:
-        if self.use_compact_tables:
-            return self._revise_compact_table(
-                table,
-                memory.tables[table.position],
-                domains,
-            )
-        rows = memory.tables[table.position].rows.values()
-        self.metrics.domain_rows_examined += len(
-            memory.tables[table.position]
+        previous_reason = domains.default_reason
+        domains.default_reason = PropagationReason(
+            "table",
+            f"premise {table.position}",
         )
-        active = tuple(row for row in rows if row.compatible(domains))
-        if not active:
-            return False, set()
-        changed: set[Variable] = set()
-        for variable in table.variables:
-            supported = {row.value(variable) for row in active}
-            reduced = domains[variable] & supported
-            if reduced != domains[variable]:
-                domains[variable] = reduced
-                self.metrics.domain_revisions += 1
-                changed.add(variable)
-        return True, changed
+        try:
+            if self.use_compact_tables:
+                return self._revise_compact_table(
+                    table,
+                    memory.tables[table.position],
+                    memory.table_states[table.position],
+                    domains,
+                )
+            rows = memory.tables[table.position].rows.values()
+            self.metrics.domain_rows_examined += len(
+                memory.tables[table.position]
+            )
+            active = tuple(row for row in rows if row.compatible(domains))
+            if not active:
+                return False, set()
+            changed: set[Variable] = set()
+            for variable in table.variables:
+                supported = {row.value(variable) for row in active}
+                reduced = domains[variable] & supported
+                if reduced != domains[variable]:
+                    domains[variable] = reduced
+                    self.metrics.domain_revisions += 1
+                    changed.add(variable)
+            return True, changed
+        finally:
+            domains.default_reason = previous_reason
 
     def _revise_compact_table(
         self,
         table: _TablePlan,
-        table_memory: _CompactTable,
-        domains: dict[Variable, set[Term]],
+        table_memory: _CompactTableDefinition,
+        table_state: _CompactTableState,
+        domains: DomainStore,
     ) -> tuple[bool, set[Variable]]:
-        active = table_memory.active_mask
+        active = table_state.active_mask
         for variable in table.variables:
             support_masks = table_memory.support_masks[variable]
-            previous = table_memory.applied_domains.get(variable)
+            previous = table_state.applied_domains.get(variable)
             removed_values = (
                 support_masks.keys() - domains[variable]
                 if previous is None
@@ -1508,12 +1654,12 @@ class ConstraintInstantiationStrategy(SemiNaiveInstantiationStrategy):
                 self.metrics.domain_bitset_value_events += 1
                 self.metrics.domain_bitset_intersections += 1
                 if not active:
-                    table_memory.active_mask = 0
+                    table_state.active_mask = 0
                     return False, set()
-            table_memory.applied_domains[variable] = frozenset(
+            table_state.applied_domains[variable] = frozenset(
                 domains[variable]
             )
-        table_memory.active_mask = active
+        table_state.active_mask = active
 
         changed: set[Variable] = set()
         for variable in table.variables:
@@ -1533,63 +1679,74 @@ class ConstraintInstantiationStrategy(SemiNaiveInstantiationStrategy):
     def _revise_comparison(
         self,
         comparison: _ComparisonPlan,
-        domains: dict[Variable, set[Term]],
+        domains: DomainStore,
     ) -> set[Variable]:
-        if self.use_specialized_comparisons:
-            for propagator in self.propagators:
-                if not propagator.accepts(comparison.premise):
-                    continue
-                specialized = propagator.revise(
-                    comparison.premise,
-                    domains,
-                    self.metrics,
-                )
-                if specialized is None:
-                    continue
-                self.metrics.domain_specialized_revisions += 1
-                if isinstance(propagator, _NValuePropagator):
-                    self.metrics.domain_global_revisions += 1
-                self.metrics.domain_revisions += len(specialized)
-                return specialized
-        if not comparison.variables:
-            return set()
-        combinations = 1
-        for variable in comparison.variables:
-            combinations *= len(domains[variable])
-            if combinations > self.comparison_product_limit:
-                return set()
-        supports = {
-            variable: set[Term]() for variable in comparison.variables
-        }
-        value_lists = tuple(
-            tuple(domains[variable]) for variable in comparison.variables
+        previous_reason = domains.default_reason
+        domains.default_reason = PropagationReason(
+            "comparison",
+            repr(comparison.premise),
         )
-        for values in product(*value_lists):
-            self.metrics.domain_combinations_tested += 1
-            frame = BindingFrame(
-                zip(comparison.variables, values, strict=True)
-            )
-            try:
-                accepted = comparison.premise.evaluate(frame)
-            except (TypeError, ValueError):
-                # The Cartesian approximation can contain combinations that
-                # no factual join can reach. Preserve exact matcher timing.
+        try:
+            if self.use_specialized_comparisons:
+                for propagator in self.propagators:
+                    if not propagator.accepts(comparison.premise):
+                        continue
+                    specialized = propagator.revise(
+                        comparison.premise,
+                        domains,
+                        self.metrics,
+                    )
+                    if specialized is None:
+                        continue
+                    self.metrics.domain_specialized_revisions += 1
+                    if isinstance(propagator, _NValuePropagator):
+                        self.metrics.domain_global_revisions += 1
+                    self.metrics.domain_revisions += len(specialized)
+                    return specialized
+            if not comparison.variables:
                 return set()
-            if accepted:
-                for variable, value in zip(
-                    comparison.variables,
-                    values,
-                    strict=True,
-                ):
-                    supports[variable].add(value)
-        changed: set[Variable] = set()
-        for variable in comparison.variables:
-            reduced = domains[variable] & supports[variable]
-            if reduced != domains[variable]:
-                domains[variable] = reduced
-                self.metrics.domain_revisions += 1
-                changed.add(variable)
-        return changed
+            combinations = 1
+            for variable in comparison.variables:
+                combinations *= len(domains[variable])
+                if combinations > self.comparison_product_limit:
+                    return set()
+            supports = {
+                variable: set[Term]()
+                for variable in comparison.variables
+            }
+            value_lists = tuple(
+                tuple(domains[variable])
+                for variable in comparison.variables
+            )
+            for values in product(*value_lists):
+                self.metrics.domain_combinations_tested += 1
+                frame = BindingFrame(
+                    zip(comparison.variables, values, strict=True)
+                )
+                try:
+                    accepted = comparison.premise.evaluate(frame)
+                except (TypeError, ValueError):
+                    # The Cartesian approximation can contain combinations
+                    # that no factual join can reach. Preserve exact matcher
+                    # timing.
+                    return set()
+                if accepted:
+                    for variable, value in zip(
+                        comparison.variables,
+                        values,
+                        strict=True,
+                    ):
+                        supports[variable].add(value)
+            changed: set[Variable] = set()
+            for variable in comparison.variables:
+                reduced = domains[variable] & supports[variable]
+                if reduced != domains[variable]:
+                    domains[variable] = reduced
+                    self.metrics.domain_revisions += 1
+                    changed.add(variable)
+            return changed
+        finally:
+            domains.default_reason = previous_reason
 
     def _join_filtered(
         self,
@@ -1602,66 +1759,142 @@ class ConstraintInstantiationStrategy(SemiNaiveInstantiationStrategy):
     ) -> list[Activation]:
         block = compile_rule(rule).block
         table_plans = {table.position: table for table in plan.tables}
-        output: list[Activation] = []
-        frame = BindingFrame()
-
-        def extend(position: int, supports: list[Fact]) -> None:
-            if position == len(block.premises):
-                output.append(Activation(frame.freeze(), tuple(supports)))
-                return
-            premise = block.premises[position]
-            if isinstance(premise, CompiledComparisonPremise):
-                if premise.source.evaluate(frame):
-                    extend(position + 1, supports)
-                return
-            if not isinstance(premise, CompiledFactPremise):
-                raise AssertionError("domain plan accepted an unsupported premise")
-            if self.use_compact_tables and self.use_compact_join:
-                table_plan = table_plans[position]
-                table_memory = memory.tables[position]
-                mask, intersections = table_memory.mask_for_frame(
-                    table_plan.variables,
-                    frame,
-                )
-                self.metrics.domain_bitset_intersections += intersections
-                self.metrics.candidate_facts += mask.bit_count()
-                for row in table_memory.rows_for_mask(mask):
-                    self.metrics.match_attempts += 1
-                    self.metrics.domain_compact_join_rows += 1
-                    checkpoint = frame.checkpoint()
-                    for variable, value in row.bindings:
-                        if not frame.bind_ground(variable, value):
-                            raise AssertionError(
-                                "compact row mask admitted conflicting binding"
-                            )
-                    supports.append(row.fact)
-                    extend(position + 1, supports)
-                    supports.pop()
-                    frame.rollback(checkpoint)
-                return
-            indexed = index.candidates_compiled(premise, frame)
-            filtered = filtered_candidates[position]
-            candidates: Sequence[Fact] = (
-                filtered
-                if len(filtered) < len(indexed)
-                else tuple(
-                    fact
-                    for fact in indexed
-                    if fact in filtered_candidate_sets[position]
-                )
+        delta_masks = memory.delta_masks
+        anchors: tuple[int | None, ...] = (
+            (None,)
+            if delta_masks is None
+            else tuple(
+                position
+                for position in sorted(delta_masks)
+                if delta_masks[position]
             )
-            self.metrics.candidate_facts += len(candidates)
-            for fact in candidates:
-                self.metrics.match_attempts += 1
-                checkpoint = frame.checkpoint()
-                if premise.match(fact.entity, fact.status, frame):
-                    supports.append(fact)
-                    extend(position + 1, supports)
-                    supports.pop()
-                frame.rollback(checkpoint)
+        )
+        if not anchors:
+            self.metrics.domain_delta_join_skips += 1
+            return []
+        if anchors != (None,):
+            self.metrics.domain_delta_join_variants += len(anchors)
+        empty_delta_facts: frozenset[Fact] = frozenset()
+        delta_fact_sets = (
+            {}
+            if delta_masks is None
+            else {
+                position: frozenset(
+                    memory.tables[position].facts(mask)
+                )
+                for position, mask in delta_masks.items()
+                if mask
+            }
+        )
 
-        extend(0, [])
-        return output
+        unique: dict[
+            tuple[tuple[tuple[str, Term], ...], tuple[Fact, ...]],
+            Activation,
+        ] = {}
+
+        def join_anchor(anchor: int | None) -> None:
+            frame = BindingFrame()
+
+            def extend(position: int, supports: list[Fact]) -> None:
+                if position == len(block.premises):
+                    activation = Activation(
+                        frame.freeze(),
+                        tuple(supports),
+                    )
+                    key = (
+                        activation.substitution.key,
+                        activation.premise_facts,
+                    )
+                    unique.setdefault(key, activation)
+                    return
+                premise = block.premises[position]
+                if isinstance(premise, CompiledComparisonPremise):
+                    if premise.source.evaluate(frame):
+                        extend(position + 1, supports)
+                    return
+                if not isinstance(premise, CompiledFactPremise):
+                    raise AssertionError(
+                        "domain plan accepted an unsupported premise"
+                    )
+                table_memory = memory.tables[position]
+                delta_mask = (
+                    0 if delta_masks is None else delta_masks.get(position, 0)
+                )
+                if self.use_compact_tables and self.use_compact_join:
+                    table_plan = table_plans[position]
+                    mask, intersections = table_memory.mask_for_frame(
+                        memory.table_states[position].active_mask,
+                        table_plan.variables,
+                        frame,
+                    )
+                    if anchor is not None:
+                        if position == anchor:
+                            mask &= delta_mask
+                            self.metrics.domain_bitset_intersections += 1
+                        elif position < anchor:
+                            mask &= ~delta_mask
+                            self.metrics.domain_bitset_intersections += 1
+                    self.metrics.domain_bitset_intersections += intersections
+                    self.metrics.candidate_facts += mask.bit_count()
+                    for row in table_memory.rows_for_mask(mask):
+                        self.metrics.match_attempts += 1
+                        self.metrics.domain_compact_join_rows += 1
+                        checkpoint = frame.checkpoint()
+                        for variable, value in row.bindings:
+                            if not frame.bind_ground(variable, value):
+                                raise AssertionError(
+                                    "compact row mask admitted conflicting "
+                                    "binding"
+                                )
+                        supports.append(row.fact)
+                        extend(position + 1, supports)
+                        supports.pop()
+                        frame.rollback(checkpoint)
+                    return
+                indexed = index.candidates_compiled(premise, frame)
+                filtered = filtered_candidates[position]
+                candidates: Sequence[Fact] = (
+                    filtered
+                    if len(filtered) < len(indexed)
+                    else tuple(
+                        fact
+                        for fact in indexed
+                        if fact in filtered_candidate_sets[position]
+                    )
+                )
+                if anchor is not None:
+                    delta_facts = delta_fact_sets.get(
+                        position,
+                        empty_delta_facts,
+                    )
+                    candidates = tuple(
+                        fact
+                        for fact in candidates
+                        if (
+                            fact in delta_facts
+                            if position == anchor
+                            else (
+                                fact not in delta_facts
+                                if position < anchor
+                                else True
+                            )
+                        )
+                    )
+                self.metrics.candidate_facts += len(candidates)
+                for fact in candidates:
+                    self.metrics.match_attempts += 1
+                    checkpoint = frame.checkpoint()
+                    if premise.match(fact.entity, fact.status, frame):
+                        supports.append(fact)
+                        extend(position + 1, supports)
+                        supports.pop()
+                    frame.rollback(checkpoint)
+
+            extend(0, [])
+
+        for anchor in anchors:
+            join_anchor(anchor)
+        return sorted(unique.values(), key=index.activation_order)
 
 
 @cache
@@ -1830,6 +2063,9 @@ class AdaptiveInstantiationStrategy(ConstraintInstantiationStrategy):
         minimum_domain_rows: int = 128,
         minimum_bucket_ratio: float = 8.0,
         minimum_candidate_reduction: float = 0.10,
+        minimum_observed_speedup: float = 1.05,
+        cost_probe_reduction_ceiling: float = 0.75,
+        minimum_cost_probe_uses: int = 8,
         use_compact_tables: bool = True,
         use_compact_join: bool = True,
         maximum_hall_size: int = 3,
@@ -1841,6 +2077,9 @@ class AdaptiveInstantiationStrategy(ConstraintInstantiationStrategy):
             minimum_domain_rows=minimum_domain_rows,
             minimum_bucket_ratio=minimum_bucket_ratio,
             minimum_candidate_reduction=minimum_candidate_reduction,
+            minimum_observed_speedup=minimum_observed_speedup,
+            cost_probe_reduction_ceiling=cost_probe_reduction_ceiling,
+            minimum_cost_probe_uses=minimum_cost_probe_uses,
             use_compact_tables=use_compact_tables,
             use_compact_join=use_compact_join,
             maximum_hall_size=maximum_hall_size,

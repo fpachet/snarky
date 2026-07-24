@@ -539,8 +539,12 @@ simultanément propagation, énumération et retour arrière :
    `ALL_DIFFERENT` avec ensembles de Hall bornés ;~~
 10. ~~conserver des supports par ligne et valeur sous forme de Compact-Tables
     bitset et les réutiliser dans la jointure ;~~
-11. choisir la variable la plus contrainte ;
-12. backtracker localement uniquement lorsque la propagation ne suffit pas.
+11. ~~propager `FactDelta` jusqu'à la jointure Compact semi-naïve ;~~
+12. ~~séparer les définitions de tables de l'état mutable et fournir un trail
+    réversible avec contradictions observables ;~~
+13. ~~ajouter une sonde de coût observé, différée pour rester amortissable ;~~
+14. choisir la variable la plus contrainte ;
+15. backtracker localement uniquement lorsque la propagation ne suffit pas.
 
 `ConstraintInstantiationStrategy` conserve aujourd'hui ses tables par règle,
 les met à jour depuis `FactDelta` et maintient les domaines de base par
@@ -609,6 +613,26 @@ filtrage bitset seul apporte 2 à 5 % ; le reste du gain vient principalement
 de la réutilisation des lignes actives par la jointure. C'est cette seconde
 partie qui rend l'optimisation substantielle.
 
+Le delta est maintenant conservé jusqu'à cette jointure. Par rapport à la
+colonne Compact-Table ci-dessus, les médianes passent à 0,254 s, 0,534 s et
+0,731 s sur Sudoku p1, p6 et p7. Les matchings baissent respectivement de
+63 946 à 49 531, de 138 846 à 126 198 et de 216 643 à 195 160. Un cycle sans
+ligne pertinente ne lance plus la jointure.
+
+Les lignes et masques de support partagés sont distincts des domaines et
+masques actifs mutables. `DomainStore` produit des réductions motivées et une
+contradiction structurée ; `PropagationState` journalise les modifications.
+Sur 1 000 domaines dont trois sont modifiés par branche, 200
+checkpoints/rollbacks prennent 1,103 ms contre 30,706 ms avec une copie
+complète, soit ×27,84.
+
+Une première sonde de coût contre-factuelle a montré pourquoi elle doit être
+amortie : lancée immédiatement, elle faisait passer le scénario favorable de
+14 à 192 ms et quatre reines de 104 à 144 ms. La version retenue accepte
+directement une forte réduction et diffère la sonde des cas ambigus jusqu'à
+huit usages. Le scénario favorable revient à 14,23 ms ; quatre reines ne
+sonde pas pendant ses cinq usages ambigus et reste à 106,8 ms.
+
 `DomainPropagator` constitue maintenant l'extension publique commune.
 `NVALUE` filtre des bornes sûres et traite exactement les cas serrés `N = 1`
 et `N = nombre de variables`. `ALL_DIFFERENT` propage les singletons et les
@@ -626,7 +650,8 @@ InstantiationState
 ChoiceHeuristic
 ```
 
-Le choix et le backtracking restent volontairement le palier suivant. Le cap
+Le choix MRV et le pilote de backtracking restent volontairement le palier
+suivant ; leur état réversible est maintenant prêt. Le cap
 complet, jusqu'au solveur CSP pédagogique et à l'harmoniseur à quatre voix,
 est décrit dans
 [`choice_backtracking_and_applications.md`](choice_backtracking_and_applications.md).

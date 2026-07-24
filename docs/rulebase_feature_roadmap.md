@@ -132,7 +132,13 @@ par file de propagateurs et Compact-Tables bitset. Les tables, projections et
 masques de supports suivent les deltas ; leurs lignes actives alimentent
 directement la jointure. Une suppression poursuit le point fixe précédent ;
 un ajout ne réinitialise que la composante touchée. Un sélecteur adaptatif
-protège les chaînes et jointures sans réduction. Le choix MRV et le
+protège les chaînes et jointures sans réduction ; les cas ambigus récurrents
+peuvent être départagés par une sonde de coût amortie. La jointure Compact est
+maintenant semi-naïve elle aussi.
+
+Les définitions de tables sont séparées de l'état mutable. `DomainStore` et
+`PropagationState` fournissent réductions motivées, contradictions,
+checkpoints et rollback des domaines et masques. Le choix MRV et le pilote de
 backtracking local restent différés.
 
 ### P9 — Maintenance de vérité positive
@@ -177,12 +183,14 @@ justifications négatives complètes restent séparés.
     `ALL_DIFFERENT` et les ensembles de Hall bornés.~~
 11. ~~Maintenir les supports en Compact-Tables bitset et réutiliser les lignes
     actives dans la jointure.~~
-12. Produire des choix déclaratifs à partir des domaines non singletons, puis
+12. ~~Rendre la jointure filtrée semi-naïve et fournir l'état réversible
+    observable.~~
+13. Produire des choix déclaratifs à partir des domaines non singletons, puis
    les connecter à des branches isolées.
-13. Ajouter `MEMBER` et `SIZE`, puis implémenter les naked triples de Sudoku p8
+14. Ajouter `MEMBER` et `SIZE`, puis implémenter les naked triples de Sudoku p8
     avec `COMBINATIONS`.
-14. Mesurer une éventuelle consistance généralisée de `ALL_DIFFERENT`.
-15. Ne retenir les extensions restantes qu'avec une base et un oracle
+15. Mesurer une éventuelle consistance généralisée de `ALL_DIFFERENT`.
+16. Ne retenir les extensions restantes qu'avec une base et un oracle
     reproductibles.
 
 La comparaison détaillée de ces voies se trouve dans

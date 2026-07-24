@@ -85,14 +85,18 @@ Chaque table maintient aussi un masque de lignes présentes et un masque de
 supports pour chaque `(variable, valeur)`. Les retraits de valeurs deviennent
 des événements bitset locaux ; aucune ligne Python n'est rescannée. Les lignes
 actives alimentent directement la jointure, qui n'a plus à rematcher leur
-structure. `use_compact_tables=False` et `use_compact_join=False` conservent
-les deux anciens chemins uniquement pour les mesures A/B.
+structure. La jointure suit aussi les lignes nouvelles du `FactDelta` et saute
+les cycles sans table pertinente. `use_compact_tables=False` et
+`use_compact_join=False` conservent les deux anciens chemins uniquement pour
+les mesures A/B.
 
 ## Limite architecturale
 
-Cette couche est un noyau de propagation, pas encore un solveur CSP. Le futur
-langage de `choice` et de backtracking utilisera les mêmes domaines et
-propagateurs, comme décrit dans
+Cette couche est un noyau de propagation, pas encore un solveur CSP.
+`DomainStore` et `PropagationState` fournissent déjà réductions,
+contradictions et rollback local. Le futur langage de `choice` et son pilote
+de backtracking utiliseront cet état et les mêmes propagateurs, comme décrit
+dans [`reversible_propagation.md`](reversible_propagation.md) et
 [`choice_backtracking_and_applications.md`](choice_backtracking_and_applications.md).
 
 ## Références
