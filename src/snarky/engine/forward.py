@@ -36,7 +36,7 @@ from ..premises import (
     UniquePremise,
 )
 from ..rules import Rule, RuleGroup
-from ..stores.naive import NaiveFactStore
+from ..stores.naive import FactStoreCheckpoint, NaiveFactStore
 from ..substitutions import EMPTY_SUBSTITUTION, Substitution
 from ..terms import (
     Atom,
@@ -54,7 +54,7 @@ from .conflict import (
     ConflictResolutionStrategy,
 )
 from .events import FactMutationKind, InferenceEvent
-from .provenance import Derivation, Provenance
+from .provenance import Derivation, Provenance, ProvenanceCheckpoint
 
 
 class InferenceLimitError(RuntimeError):
@@ -199,6 +199,48 @@ class _RuleDependencyIndex:
         return frozenset(affected)
 
 
+@dataclass(frozen=True, slots=True)
+class _TimeTagMutation:
+    fact: Fact
+    had_value: bool
+    previous_value: int
+
+
+@dataclass(frozen=True, slots=True)
+class SessionCheckpoint:
+    """Opaque reversible position in an :class:`InferenceSession`."""
+
+    owner: int
+    token: int
+    store: FactStoreCheckpoint
+    provenance: ProvenanceCheckpoint
+    assumed_facts: frozenset[Fact]
+    fired: frozenset[ActivationKey]
+    fired_supports: tuple[
+        tuple[ActivationKey, tuple[Fact, ...]],
+        ...,
+    ]
+    fired_activation_total: int
+    derivation_count: int
+    event_count: int
+    agenda_selection_count: int
+    agenda_metrics: AgendaMetrics
+    agenda_memories: tuple[tuple[str, _AgendaMemory], ...]
+    previous_event_counts: tuple[
+        tuple[tuple[str, str], int],
+        ...,
+    ]
+    force_full_evaluation: frozenset[tuple[str, str]]
+    groups: tuple[tuple[str, RuleGroup], ...]
+    negative_refraction_plan_count: int
+    cycles: int
+    fresh_counters: tuple[tuple[str, int], ...]
+    time_tag_trail_size: int
+    next_time_tag: int
+    reserved_atom_names: frozenset[str]
+    conflict_strategy: ConflictResolutionStrategy | None
+
+
 class InferenceSession:
     """Persistent working memory shared by successive rule-group invocations."""
 
@@ -250,6 +292,9 @@ class InferenceSession:
                 *_atom_names_in(fact.status),
             )
         }
+        self._time_tag_trail: list[_TimeTagMutation] = []
+        self._checkpoint_tokens: list[int] = []
+        self._next_checkpoint_token = 0
 
     @property
     def facts(self) -> tuple[Fact, ...]:
@@ -294,7 +339,7 @@ class InferenceSession:
                 continue
             self._reserve_fact_atoms(fact)
             self._next_time_tag += 1
-            self._fact_time_tags[fact] = self._next_time_tag
+            self._set_fact_time_tag(fact, self._next_time_tag)
             added.append(fact)
             self._events.append(
                 InferenceEvent(
@@ -328,7 +373,7 @@ class InferenceSession:
             self._assumed_facts.discard(fact)
             if not self._store.remove(fact):
                 continue
-            self._fact_time_tags.pop(fact, None)
+            self._set_fact_time_tag(fact, None)
             removed.append(fact)
             self._record_external_removal(fact, label)
         if self.truth_maintenance and removed:
@@ -383,7 +428,7 @@ class InferenceSession:
             ),
             truth_maintenance=self.truth_maintenance,
         )
-        branch._provenance = deepcopy(self._provenance)
+        branch._provenance = self._provenance.clone()
         branch._initial_facts = self._initial_facts
         branch._assumed_facts = self._assumed_facts.copy()
         branch._fired = self._fired.copy()
@@ -406,6 +451,127 @@ class InferenceSession:
         branch._next_time_tag = self._next_time_tag
         branch._reserved_atom_names = self._reserved_atom_names.copy()
         return branch
+
+    def checkpoint(self) -> SessionCheckpoint:
+        """Open a nested reversible scope over the complete session state.
+
+        Mutations remain immediately visible. :meth:`rollback` restores this
+        exact state in place, and :meth:`release` closes the scope. Checkpoints
+        are nested and must be released in last-in, first-out order.
+        """
+
+        self._next_checkpoint_token += 1
+        token = self._next_checkpoint_token
+        store_checkpoint = self._store.checkpoint()
+        provenance_checkpoint = self._provenance.checkpoint()
+        self._checkpoint_tokens.append(token)
+        return SessionCheckpoint(
+            owner=id(self),
+            token=token,
+            store=store_checkpoint,
+            provenance=provenance_checkpoint,
+            assumed_facts=frozenset(self._assumed_facts),
+            fired=frozenset(self._fired),
+            fired_supports=tuple(self._fired_supports.items()),
+            fired_activation_total=self._fired_activation_total,
+            derivation_count=len(self._derivations),
+            event_count=len(self._events),
+            agenda_selection_count=len(self._agenda_selections),
+            agenda_metrics=deepcopy(self.agenda_metrics),
+            agenda_memories=tuple(self._agenda_memories.items()),
+            previous_event_counts=tuple(
+                self._previous_event_counts.items()
+            ),
+            force_full_evaluation=frozenset(
+                self._force_full_evaluation
+            ),
+            groups=tuple(self._groups.items()),
+            negative_refraction_plan_count=len(
+                self._negative_refraction_plans
+            ),
+            cycles=self._cycles,
+            fresh_counters=tuple(self._fresh_counters.items()),
+            time_tag_trail_size=len(self._time_tag_trail),
+            next_time_tag=self._next_time_tag,
+            reserved_atom_names=frozenset(self._reserved_atom_names),
+            conflict_strategy=deepcopy(self.conflict_strategy),
+        )
+
+    def rollback(self, checkpoint: SessionCheckpoint) -> None:
+        """Restore *checkpoint* without closing its reusable scope."""
+
+        self._validate_checkpoint(checkpoint)
+        self._store.rollback(checkpoint.store)
+        self._provenance.rollback(checkpoint.provenance)
+        while len(self._time_tag_trail) > checkpoint.time_tag_trail_size:
+            mutation = self._time_tag_trail.pop()
+            if mutation.had_value:
+                self._fact_time_tags[mutation.fact] = (
+                    mutation.previous_value
+                )
+            else:
+                self._fact_time_tags.pop(mutation.fact, None)
+        self._assumed_facts = set(checkpoint.assumed_facts)
+        self._fired = set(checkpoint.fired)
+        self._fired_supports = dict(checkpoint.fired_supports)
+        self._fired_activation_total = checkpoint.fired_activation_total
+        del self._derivations[checkpoint.derivation_count :]
+        del self._events[checkpoint.event_count :]
+        del self._agenda_selections[checkpoint.agenda_selection_count :]
+        self.agenda_metrics = deepcopy(checkpoint.agenda_metrics)
+        self._agenda_memories = dict(checkpoint.agenda_memories)
+        self._previous_event_counts = dict(
+            checkpoint.previous_event_counts
+        )
+        self._force_full_evaluation = set(
+            checkpoint.force_full_evaluation
+        )
+        self._groups = dict(checkpoint.groups)
+        del self._negative_refraction_plans[
+            checkpoint.negative_refraction_plan_count :
+        ]
+        self._cycles = checkpoint.cycles
+        self._fresh_counters = dict(checkpoint.fresh_counters)
+        self._next_time_tag = checkpoint.next_time_tag
+        self._reserved_atom_names = set(checkpoint.reserved_atom_names)
+        self.conflict_strategy = deepcopy(checkpoint.conflict_strategy)
+        self.strategy.invalidate()
+
+    def release(self, checkpoint: SessionCheckpoint) -> None:
+        """Close the active checkpoint, retaining the current state."""
+
+        self._validate_checkpoint(checkpoint)
+        self._store.release(checkpoint.store)
+        self._provenance.release(checkpoint.provenance)
+        self._checkpoint_tokens.pop()
+        if not self._checkpoint_tokens:
+            self._time_tag_trail.clear()
+
+    def _validate_checkpoint(self, checkpoint: SessionCheckpoint) -> None:
+        if (
+            checkpoint.owner != id(self)
+            or not self._checkpoint_tokens
+            or self._checkpoint_tokens[-1] != checkpoint.token
+            or checkpoint.derivation_count > len(self._derivations)
+            or checkpoint.event_count > len(self._events)
+            or checkpoint.time_tag_trail_size > len(self._time_tag_trail)
+        ):
+            raise ValueError("checkpoint is not the active session checkpoint")
+
+    def _set_fact_time_tag(self, fact: Fact, value: int | None) -> None:
+        previous = self._fact_time_tags.get(fact)
+        if self._checkpoint_tokens:
+            self._time_tag_trail.append(
+                _TimeTagMutation(
+                    fact,
+                    previous is not None,
+                    previous or 0,
+                )
+            )
+        if value is None:
+            self._fact_time_tags.pop(fact, None)
+        else:
+            self._fact_time_tags[fact] = value
 
     def run_group(
         self,
@@ -798,7 +964,7 @@ class InferenceSession:
                 if not self._store.add(fact):
                     continue
                 self._next_time_tag += 1
-                self._fact_time_tags[fact] = self._next_time_tag
+                self._set_fact_time_tag(fact, self._next_time_tag)
                 added.append(fact)
                 if len(self._store) > self.limits.max_facts:
                     raise InferenceLimitError(
@@ -806,7 +972,7 @@ class InferenceSession:
                     )
             elif self._store.remove(fact):
                 self._assumed_facts.discard(fact)
-                self._fact_time_tags.pop(fact, None)
+                self._set_fact_time_tag(fact, None)
                 removed.append(fact)
             else:
                 continue
@@ -862,7 +1028,7 @@ class InferenceSession:
         for fact in self._store.facts:
             if fact in supported or not self._store.remove(fact):
                 continue
-            self._fact_time_tags.pop(fact, None)
+            self._set_fact_time_tag(fact, None)
             cascaded.append(fact)
             self._record_external_removal(fact, "tms")
         return cascaded

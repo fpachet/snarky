@@ -119,6 +119,8 @@ Sont disponibles et testés :
 - état de propagation observable et réversible : définitions de tables
   partageables, `DomainStore`, contradictions structurées, checkpoints et
   rollback des domaines et masques actifs ;
+- checkpoint complet d'`InferenceSession` et DFS de choix sur trail
+  réversible, avec forks conservés pour BFS et best-first ;
 - groupes de règles nommés, sessions persistantes et modes `SATURATE`,
   `ONE_CYCLE`, `FIRST_CHANGE` et `UNTIL` ;
 - mémoire de travail mutable avec `REMOVE` et journal chronologique
@@ -149,11 +151,11 @@ Sont disponibles et testés :
   trace complète de l’agenda.
 
 Restent notamment différés : mise à jour partielle d’un fait, ATMS complet,
-adaptateur de contraintes externe, raccordement du choix/backtracking au trail
-local, stratégie BOOJUM complète, méta-règles réflexives et techniques Sudoku avancées
+adaptateur de contraintes externe, restauration incrémentale des caches du
+matcher après rollback, stratégie BOOJUM complète, méta-règles réflexives et techniques Sudoku avancées
 p8–p18. Les
 séquences, la recherche explicite, le choix MRV pondéré, le backtracking par
-branches isolées, un backend CSP/SAT fini et un TMS positif optionnel sont
+trail réversible, un backend CSP/SAT fini et un TMS positif optionnel sont
 désormais réalisés.
 
 Les décisions opérationnelles exactes sont précisées dans
@@ -384,7 +386,7 @@ END_CHOICE
 ```
 
 Chaque solution de `FROM` devient une alternative. L'alternative sélectionnée
-affirme le fait cible comme hypothèse nommée dans une branche isolée. `WEIGHT`
+affirme le fait cible comme hypothèse nommée dans une branche explicite. `WEIGHT`
 est facultatif, vaut `1` par défaut, doit se résoudre en nombre fini positif
 ou nul et n'affecte pas la faisabilité.
 
@@ -909,9 +911,16 @@ efficaces, puis renvoie un statut terminal explicite.
 `InferenceSession.fork()` copie l’état observable et interne nécessaire à une
 continuation indépendante : faits, réfraction, provenance, compteurs, deltas
 et générateurs `FRESH`. Muter la copie ne modifie pas sa session source. Cette
-primitive ne formule aucune hypothèse et n’implémente aucune boucle de
-recherche ou de retour arrière ; une telle politique resterait à construire
-au-dessus.
+primitive ne formule aucune hypothèse.
+
+`InferenceSession.checkpoint()` ouvre un contexte réversible imbriqué.
+`rollback(checkpoint)` restaure faits et ordre d'insertion, provenance,
+réfraction, journaux, tags temporels, compteurs et générateurs `FRESH` sans
+fermer le checkpoint ; plusieurs alternatives peuvent donc le réutiliser.
+`release(checkpoint)` ferme le contexte en ordre LIFO en conservant l'état
+courant. `SessionChoiceSearch` construit au-dessus la politique de recherche :
+le DFS utilise ces checkpoints, tandis que BFS et best-first conservent des
+forks indépendants.
 
 ### 8.5 Ensemble de conflit et MEA
 
@@ -1425,8 +1434,8 @@ hypothèse.
 4. ~~Séparer l'état mutable des tables, propager le delta jusqu'à la jointure
    et fournir checkpoints, rollback et contradictions structurées.~~
 5. ~~Produire des faits `choice` à partir des domaines non singletons et
-   spécifier leur branchement et leur backtracking explicites.~~ Raccorder
-   ensuite les branches au trail réversible.
+   spécifier leur branchement et leur backtracking explicites.~~
+   ~~Raccorder ensuite le DFS au trail réversible.~~
 6. Ajouter un adaptateur optionnel vers OR-Tools.
 7. ~~Construire une stratégie explicite d’hypothèses et de recherche au-dessus
    des sessions isolées.~~ Les coûts, poids, MRV et oracles quatre
@@ -1434,7 +1443,7 @@ hypothèse.
    heuristiques d'impact.
 8. ~~Livrer le premier filtrage centré sur les variables de BOOJUM avec un
    benchmark différentiel, le trail local, la sélection MRV et le pilote de
-   branches.~~ Intégrer le trail au pilote.
+   branches.~~ ~~Intégrer le trail de session au pilote DFS.~~
 9. Étudier séparément les méta-règles réflexives capables d’inspecter et de
    transformer l’agenda.
 

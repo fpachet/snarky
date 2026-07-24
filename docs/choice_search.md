@@ -89,7 +89,7 @@ faisabilité.
 ## Cycle d'une branche
 
 ```text
-fork de la session
+checkpoint de la session (DFS)
       ↓
 assertion des faits de décision
       ↓
@@ -98,33 +98,52 @@ saturation des groupes jusqu'au point fixe
 contradiction ? abandon et backtrack
 but atteint ? solution
 sinon ? nouveau ChoicePoint
+      ↓
+rollback avant le choix frère
 ```
 
 La session fournie au solveur n'est jamais modifiée. Une branche hérite de la
-réfraction, des faits, de la provenance et de l'historique, puis évolue de
-manière isolée. Les projets CSP reconstruisent un matcher semi-naïf vierge
-dans chaque fork afin d'éviter la copie de ses caches volumineux.
+réfraction, des faits, de la provenance et de l'historique. En profondeur,
+une copie racine l'isole d'abord de l'appelant, puis les branches sœurs
+réutilisent cette session avec `checkpoint()`, `rollback()` et `release()`.
+Seule une solution conservée est recopiée. Un matcher semi-naïf vierge est
+installé après chaque rollback afin qu'aucun cache de la branche abandonnée
+ne survive.
+
+Les parcours largeur et meilleur poids gardent des forks : plusieurs états
+de la frontière doivent y rester vivants simultanément. Ils bénéficient
+néanmoins d'une copie spécialisée de la provenance qui partage les faits et
+termes immuables au lieu de les recopier profondément.
 
 La trace distingue `choice`, `decision`, `contradiction`, `backtrack`,
 `solution`, `dead_end` et `limit`. Les limites techniques ne sont pas
 confondues avec une contradiction logique.
 
-## Statut du trail
+## Trail de session
 
-Ce premier jalon restaure l'état en abandonnant le fork fautif. Il réutilise
-donc la sémantique éprouvée d'`InferenceSession.fork()`, mais recopie encore la
-mémoire de travail, la provenance et l'historique.
+`InferenceSession` expose maintenant un checkpoint réversible complet. Le
+trail restaure :
 
-`PropagationState` possède déjà un trail local très moins coûteux pour les
-domaines et les masques. Le prochain palier raccordera progressivement ce
-trail au pilote :
+- l'ordre et la présence des faits par une liste doublement chaînée ;
+- les profondeurs et dérivations de provenance ;
+- les tags temporels, faits supposés et compteurs `FRESH` ;
+- la réfraction positive et négative ;
+- les journaux, groupes, mémoires d'agenda et compteurs de cycles.
 
-1. checkpoint avant décision ;
-2. réduction du domaine et propagation incrémentale ;
-3. rollback des domaines, masques et deltas ;
-4. restauration cohérente de la mémoire de travail et de la réfraction.
+Les ensembles de réfraction sont photographiés au checkpoint ; les parties
+volumineuses et fréquemment mutées — mémoire de travail, provenance et tags —
+sont annulées par opérations inverses. Les checkpoints sont imbriqués,
+réutilisables entre plusieurs alternatives, et doivent être libérés en ordre
+LIFO. Un test différentiel exécute les quatre reines avec forks puis avec
+trail et compare états solutions, décisions, compteurs et événements.
 
-Cette optimisation ne doit pas changer l'API ni les traces observables.
+`reversible_depth_first=False` conserve le DFS à forks paresseux comme oracle
+et outil de mesure. La valeur par défaut est `True`.
+
+Le trail local de `PropagationState` reste utile à l'intérieur d'un
+propagateur. Une intégration future pourra éviter aussi la reconstruction du
+matcher après rollback ; elle n'est plus nécessaire pour supprimer les copies
+de sessions entre branches sœurs.
 
 ## Applications de validation
 

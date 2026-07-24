@@ -651,9 +651,11 @@ ChoiceHeuristic
 ```
 
 Le choix MRV, le pilote de backtracking, le solveur CSP pédagogique et le
-premier harmoniseur à quatre voix sont maintenant livrés. Le pilote abandonne
-des forks de sessions ; son raccordement au trail réversible constitue le
-prochain palier de performance. Le cap complet est décrit dans
+premier harmoniseur à quatre voix sont maintenant livrés. Le DFS matérialise
+les alternatives à la demande et restaure ses branches sœurs par un trail
+complet d'`InferenceSession`. BFS et best-first conservent des forks pour leurs
+frontières multiples, avec un clone spécialisé de la provenance. Le cap
+complet est décrit dans
 [`choice_backtracking_and_applications.md`](choice_backtracking_and_applications.md).
 
 La première version possède déjà des tests différentiels ciblés, y compris

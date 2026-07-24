@@ -100,9 +100,11 @@ est désormais complété par une première recherche explicite
 ## Choix pondérés et backtracking explicite
 
 `ChoicePoint` représente un ensemble fini d'alternatives factuelles.
-`SessionChoiceSearch` sélectionne un point, crée une session isolée par
-alternative, sature les groupes de règles, puis conserve la branche, la
-rejette sur contradiction ou la poursuit jusqu'au but.
+`SessionChoiceSearch` sélectionne un point, pose un checkpoint réversible,
+sature les groupes de règles, puis conserve la solution, restaure la branche
+sur contradiction ou poursuit jusqu'au but. Le DFS ne copie plus une session
+par alternative ; BFS et best-first conservent des forks pour leurs frontières
+simultanées.
 
 Le DSL peut maintenant produire ces choix en instanciant directement un
 fait :
@@ -134,7 +136,9 @@ Le premier jalon fournit :
 - parcours profondeur, largeur ou meilleur poids d'abord ;
 - limites en nœuds et en solutions ;
 - traces `choice`, `decision`, `contradiction`, `backtrack`, `solution` ;
-- conservation de la session parente, de la provenance et de la réfraction.
+- conservation de la session parente ;
+- restauration des faits, provenance, réfraction et tags temporels par
+  `InferenceSession.checkpoint()`, `rollback()` et `release()`.
 
 Les formes existentielles simples s'écrivent sans terminateur :
 
@@ -150,10 +154,10 @@ Un poids nul reste une possibilité faisable examinée après les poids positifs
 Les poids orientent la recherche et sont cumulés en log-espace ; ils ne
 modifient jamais les contraintes dures.
 
-Le premier mécanisme restaure un état en abandonnant une branche isolée. Le
-trail de `PropagationState` n'est pas encore branché directement sur la
-mémoire de travail : cette intégration évitera à terme la copie des faits et
-de la provenance. La sémantique complète est décrite dans
+Le DFS restaure maintenant ses branches sœurs par un trail complet de
+`InferenceSession`, sans recopier les faits ni la provenance à chaque
+alternative. Le trail local de `PropagationState` reste distinct et sert aux
+domaines internes des propagateurs. La sémantique complète est décrite dans
 [`docs/choice_search.md`](docs/choice_search.md).
 
 ## État actuel
@@ -215,8 +219,9 @@ nouvelles activations.
 
 `DomainStore` et `PropagationState` exposent les réductions, contradictions,
 checkpoints et rollbacks des domaines et masques actifs. Le trail local est
-livré. Le pilote de choix utilise actuellement des forks de sessions ; son
-couplage direct au trail reste une optimisation ultérieure.
+livré. `InferenceSession` expose aussi un checkpoint complet, utilisé par le
+DFS de choix ; BFS et best-first gardent des forks pour conserver plusieurs
+états vivants.
 
 La mémoire de travail accepte maintenant `REMOVE`, avec un journal
 chronologique des ajouts et retraits. Les prémisses corrélées `EXISTS` et
@@ -342,10 +347,10 @@ préchargés sous forme de tables.
 Les modifications partielles de faits et un ATMS complet restent à
 implémenter. L’adaptateur vers un solveur externe tel qu’OR-Tools reste
 optionnel et futur ; le backend fini portable valide déjà l’interface.
-Le choix MRV et le premier pilote de backtracking sont maintenant livrés,
-ainsi que leurs deux applications d'intégration. Les prochains paliers
-brancheront la recherche sur le trail réversible, enrichiront le protocole
-déclaratif de choix et étendront progressivement l'harmoniseur vers le profil
+Le choix MRV, le backtracking sur trail réversible et leurs deux applications
+d'intégration sont maintenant livrés. Les prochains paliers enrichiront le
+protocole déclaratif de choix, étudieront la restauration incrémentale des
+caches du matcher et étendront progressivement l'harmoniseur vers le profil
 `ROY_1998`. L’évaluation semi-naïve demeure le mode par défaut de
 `ForwardEngine`.
 
@@ -455,12 +460,19 @@ sur p7. Les médianes Compact passent respectivement de 0,287 à 0,254 s, de
 trail mesure ×27,84 face à la copie complète d'un état de 1 000 domaines
 lorsqu'une branche n'en touche que trois.
 
+Le DFS de choix matérialise maintenant les frères à la demande puis restaure
+la session en place. Sur N reines, N=14 passe de 16,035 s avec forks avides à
+4,749 s avec trail, soit ×3,38 (`-70,4 %`) à 20 nœuds et 8 échecs inchangés.
+La seule substitution du trail aux forks paresseux vaut ×1,25 ; le reste vient
+de la paresse et du clone spécialisé de provenance. Ce dernier profite aussi
+au best-first de l'harmoniseur, qui passe de 1,415 s à 257,78 ms.
+
 Sur le micro-benchmark d'agenda à 200 règles indépendantes, une mutation ciblée
 ne recalcule qu'une règle et en réutilise 199. La médiane passe de 2,206 ms
 pour une construction froide à 0,572 ms pour la mise à jour incrémentale,
 soit ×3,86.
 
-La suite complète compte désormais 375 tests et s’exécute en moins de dix
+La suite complète compte désormais 389 tests et s’exécute en moins de onze
 secondes sur cette même machine, contre 26,05 s avant la mise en cache du
 catalogue de provenance
 Spinoza et 76,50 s avant les optimisations.
@@ -584,8 +596,8 @@ une trace rejouable.
     prochaines bases concrètes avant d'élargir leur DSL.
 19. ~~Ajouter `ChoicePoint`, MRV, choix pondérés, branches isolées,
     backtracking et traces ; valider ce langage sur un solveur CSP des quatre
-    reines et un premier harmoniseur SATB.~~ Raccorder ensuite le pilote au
-    trail réversible et étendre progressivement le profil `ROY_1998`.
+    reines et un premier harmoniseur SATB. Raccorder ensuite le pilote DFS au
+    trail réversible.~~ Étendre progressivement le profil `ROY_1998`.
 
 La cible est Python 3.12 ou ultérieur, avec `pytest`, `ruff`, `mypy` et des
 tests différentiels. L’ajout de tests génératifs fondés sur Hypothesis reste

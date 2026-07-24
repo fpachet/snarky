@@ -11,7 +11,7 @@ from types import MappingProxyType
 from typing import Protocol
 
 from .actions import Action, AddFact, Choice, ForEach
-from .engine import InferenceSession, StopCondition
+from .engine import InferenceSession, SessionCheckpoint, StopCondition
 from .facts import Fact
 from .instantiation import (
     Activation,
@@ -512,6 +512,34 @@ class _SearchNode:
     incoming_alternative: str = ""
 
 
+@dataclass(slots=True)
+class _ChoiceFrame:
+    """A suspended DFS choice whose next sibling has not been forked yet."""
+
+    parent: _SearchNode
+    point: ChoicePoint
+    alternatives: tuple[ChoiceAlternative, ...]
+    next_index: int = 0
+
+
+@dataclass(frozen=True, slots=True)
+class _TrailChoiceFrame:
+    parent: _SearchNode
+    point: ChoicePoint
+    checkpoint: SessionCheckpoint
+
+
+@dataclass(frozen=True, slots=True)
+class _TrailAlternative:
+    frame: _TrailChoiceFrame
+    alternative: ChoiceAlternative
+
+
+@dataclass(frozen=True, slots=True)
+class _TrailRelease:
+    frame: _TrailChoiceFrame
+
+
 @dataclass(frozen=True, slots=True)
 class SessionChoiceSearch:
     """Search choices over isolated :class:`InferenceSession` branches."""
@@ -527,6 +555,7 @@ class SessionChoiceSearch:
     max_group_passes: int = 100
     seed: int = 0
     branch_strategy_factory: StrategyFactory | None = None
+    reversible_depth_first: bool = True
 
     def __post_init__(self) -> None:
         object.__setattr__(self, "groups", tuple(self.groups))
@@ -540,7 +569,15 @@ class SessionChoiceSearch:
     def solve(self, session: InferenceSession) -> ChoiceSearchResult:
         random_source = random.Random(self.seed)
         root = _SearchNode(self._fork(session), (), 0.0, 0)
-        pending = [root]
+        pending: list[
+            _SearchNode
+            | _ChoiceFrame
+            | _TrailAlternative
+            | _TrailRelease
+        ] = [root]
+        open_checkpoints: list[
+            tuple[InferenceSession, SessionCheckpoint]
+        ] = []
         best_seen: dict[frozenset[Fact], float] = {}
         solutions: list[ChoiceSolution] = []
         events: list[ChoiceEvent] = []
@@ -568,102 +605,224 @@ class SessionChoiceSearch:
                 )
             )
 
-        while (
-            pending
-            and explored < self.max_nodes
-            and len(solutions) < self.max_solutions
-        ):
-            node = self._pop(pending)
-            if node.incoming_alternative:
-                record(
-                    ChoiceEventKind.DECISION,
-                    node,
-                    point=node.incoming_point,
-                    alternative=node.incoming_alternative,
-                )
-            self._propagate(node.session)
-            state = frozenset(node.session.facts)
-            previous_score = best_seen.get(state)
-            if previous_score is not None and previous_score >= node.log_weight:
-                continue
-            best_seen[state] = node.log_weight
-            explored += 1
-
-            if self.contradiction is not None and self.contradiction(
-                node.session
+        try:
+            while (
+                pending
+                and explored < self.max_nodes
+                and len(solutions) < self.max_solutions
             ):
-                failed += 1
-                record(
-                    ChoiceEventKind.CONTRADICTION,
-                    node,
-                    detail="branch contradiction",
-                )
-                record(
-                    ChoiceEventKind.BACKTRACK,
-                    node,
-                    detail="discard isolated branch",
-                )
-                continue
-            if self.goal(node.session):
-                solutions.append(
-                    ChoiceSolution(
-                        node.session,
-                        node.decisions,
-                        node.log_weight,
+                item = self._pop(pending)
+                if isinstance(item, _TrailRelease):
+                    trail_session = item.frame.parent.session
+                    trail_session.rollback(item.frame.checkpoint)
+                    trail_session.release(item.frame.checkpoint)
+                    released_session, released_checkpoint = (
+                        open_checkpoints.pop()
                     )
-                )
-                record(ChoiceEventKind.SOLUTION, node)
-                continue
+                    if (
+                        released_session is not trail_session
+                        or released_checkpoint != item.frame.checkpoint
+                    ):
+                        raise AssertionError(
+                            "reversible choice checkpoints are not nested"
+                        )
+                    continue
+                if isinstance(item, _TrailAlternative):
+                    frame = item.frame
+                    alternative = item.alternative
+                    branch = frame.parent.session
+                    branch.rollback(frame.checkpoint)
+                    if self.branch_strategy_factory is not None:
+                        branch.strategy = self.branch_strategy_factory()
+                    branch.assume(
+                        *alternative.facts,
+                        label=(
+                            f"choice:{frame.point.name}/"
+                            f"{alternative.name}"
+                        ),
+                    )
+                    decision = ChoiceDecision(
+                        frame.point.name,
+                        alternative.name,
+                        alternative.value,
+                        alternative.weight,
+                    )
+                    pending.append(
+                        _SearchNode(
+                            branch,
+                            (*frame.parent.decisions, decision),
+                            frame.parent.log_weight
+                            + _log_weight(alternative.weight),
+                            next_order,
+                            frame.point.name,
+                            alternative.name,
+                        )
+                    )
+                    next_order += 1
+                    continue
+                if isinstance(item, _ChoiceFrame):
+                    alternative = item.alternatives[item.next_index]
+                    next_index = item.next_index + 1
+                    if next_index < len(item.alternatives):
+                        pending.append(
+                            _ChoiceFrame(
+                                item.parent,
+                                item.point,
+                                item.alternatives,
+                                next_index,
+                            )
+                        )
+                    branch = self._fork(item.parent.session)
+                    branch.assume(
+                        *alternative.facts,
+                        label=(
+                            f"choice:{item.point.name}/{alternative.name}"
+                        ),
+                    )
+                    decision = ChoiceDecision(
+                        item.point.name,
+                        alternative.name,
+                        alternative.value,
+                        alternative.weight,
+                    )
+                    pending.append(
+                        _SearchNode(
+                            branch,
+                            (*item.parent.decisions, decision),
+                            item.parent.log_weight
+                            + _log_weight(alternative.weight),
+                            next_order,
+                            item.point.name,
+                            alternative.name,
+                        )
+                    )
+                    next_order += 1
+                    continue
+                node = item
+                if node.incoming_alternative:
+                    record(
+                        ChoiceEventKind.DECISION,
+                        node,
+                        point=node.incoming_point,
+                        alternative=node.incoming_alternative,
+                    )
+                self._propagate(node.session)
+                state = frozenset(node.session.facts)
+                previous_score = best_seen.get(state)
+                if (
+                    previous_score is not None
+                    and previous_score >= node.log_weight
+                ):
+                    continue
+                best_seen[state] = node.log_weight
+                explored += 1
 
-            points = self.choices(node.session)
-            if not points:
-                failed += 1
+                if self.contradiction is not None and self.contradiction(
+                    node.session
+                ):
+                    failed += 1
+                    record(
+                        ChoiceEventKind.CONTRADICTION,
+                        node,
+                        detail="branch contradiction",
+                    )
+                    record(
+                        ChoiceEventKind.BACKTRACK,
+                        node,
+                        detail=self._backtrack_detail,
+                    )
+                    continue
+                if self.goal(node.session):
+                    solution_session = (
+                        self._fork(node.session)
+                        if self._uses_reversible_dfs
+                        else node.session
+                    )
+                    solutions.append(
+                        ChoiceSolution(
+                            solution_session,
+                            node.decisions,
+                            node.log_weight,
+                        )
+                    )
+                    record(ChoiceEventKind.SOLUTION, node)
+                    continue
+
+                points = self.choices(node.session)
+                if not points:
+                    failed += 1
+                    record(
+                        ChoiceEventKind.DEAD_END,
+                        node,
+                        detail="no choice and goal not reached",
+                    )
+                    record(
+                        ChoiceEventKind.BACKTRACK,
+                        node,
+                        detail=self._backtrack_detail,
+                    )
+                    continue
+                point = self.policy.select_point(points)
                 record(
-                    ChoiceEventKind.DEAD_END,
+                    ChoiceEventKind.CHOICE,
                     node,
-                    detail="no choice and goal not reached",
+                    point=point.name,
+                    detail=f"{len(point.alternatives)} alternatives",
                 )
-                record(
-                    ChoiceEventKind.BACKTRACK,
-                    node,
-                    detail="discard isolated branch",
+                ordered = self.policy.order_alternatives(
+                    point,
+                    random_source,
                 )
-                continue
-            point = self.policy.select_point(points)
-            record(
-                ChoiceEventKind.CHOICE,
-                node,
-                point=point.name,
-                detail=f"{len(point.alternatives)} alternatives",
-            )
-            ordered = self.policy.order_alternatives(point, random_source)
-            children: list[_SearchNode] = []
-            for alternative in ordered:
-                branch = self._fork(node.session)
-                branch.assume(
-                    *alternative.facts,
-                    label=f"choice:{point.name}/{alternative.name}",
-                )
-                decision = ChoiceDecision(
-                    point.name,
-                    alternative.name,
-                    alternative.value,
-                    alternative.weight,
-                )
-                child = _SearchNode(
-                    branch,
-                    (*node.decisions, decision),
-                    node.log_weight + _log_weight(alternative.weight),
-                    next_order,
-                    point.name,
-                    alternative.name,
-                )
-                next_order += 1
-                children.append(child)
-            if self.traversal is ChoiceTraversal.DEPTH_FIRST:
-                pending.extend(reversed(children))
-            else:
+                if self._uses_reversible_dfs:
+                    checkpoint = node.session.checkpoint()
+                    frame = _TrailChoiceFrame(
+                        node,
+                        point,
+                        checkpoint,
+                    )
+                    open_checkpoints.append((node.session, checkpoint))
+                    pending.append(_TrailRelease(frame))
+                    pending.extend(
+                        _TrailAlternative(frame, alternative)
+                        for alternative in reversed(ordered)
+                    )
+                    continue
+                if self.traversal is ChoiceTraversal.DEPTH_FIRST:
+                    pending.append(
+                        _ChoiceFrame(node, point, tuple(ordered))
+                    )
+                    continue
+                children: list[_SearchNode] = []
+                for alternative in ordered:
+                    branch = self._fork(node.session)
+                    branch.assume(
+                        *alternative.facts,
+                        label=(
+                            f"choice:{point.name}/{alternative.name}"
+                        ),
+                    )
+                    decision = ChoiceDecision(
+                        point.name,
+                        alternative.name,
+                        alternative.value,
+                        alternative.weight,
+                    )
+                    child = _SearchNode(
+                        branch,
+                        (*node.decisions, decision),
+                        node.log_weight
+                        + _log_weight(alternative.weight),
+                        next_order,
+                        point.name,
+                        alternative.name,
+                    )
+                    next_order += 1
+                    children.append(child)
                 pending.extend(children)
+        finally:
+            for trail_session, checkpoint in reversed(open_checkpoints):
+                trail_session.rollback(checkpoint)
+                trail_session.release(checkpoint)
 
         limit_reached = bool(pending) and (
             explored >= self.max_nodes
@@ -672,7 +831,7 @@ class SessionChoiceSearch:
         if limit_reached:
             record(
                 ChoiceEventKind.LIMIT,
-                pending[0],
+                self._pending_node(pending[0]),
                 detail=f"maximum node count {self.max_nodes} reached",
             )
         status = (
@@ -697,19 +856,67 @@ class SessionChoiceSearch:
             return session.fork()
         return session.fork(strategy=self.branch_strategy_factory())
 
-    def _pop(self, pending: list[_SearchNode]) -> _SearchNode:
+    def _pop(
+        self,
+        pending: list[
+            _SearchNode
+            | _ChoiceFrame
+            | _TrailAlternative
+            | _TrailRelease
+        ],
+    ) -> (
+        _SearchNode
+        | _ChoiceFrame
+        | _TrailAlternative
+        | _TrailRelease
+    ):
         if self.traversal is ChoiceTraversal.DEPTH_FIRST:
             return pending.pop()
+        nodes = [
+            item
+            for item in pending
+            if isinstance(item, _SearchNode)
+        ]
+        if len(nodes) != len(pending):
+            raise AssertionError("lazy choice frames are DFS-only")
         if self.traversal is ChoiceTraversal.BREADTH_FIRST:
             return pending.pop(0)
         best_index = max(
             range(len(pending)),
             key=lambda index: (
-                pending[index].log_weight,
-                -pending[index].insertion_order,
+                self._pending_node(pending[index]).log_weight,
+                -self._pending_node(pending[index]).insertion_order,
             ),
         )
         return pending.pop(best_index)
+
+    @staticmethod
+    def _pending_node(
+        item: (
+            _SearchNode
+            | _ChoiceFrame
+            | _TrailAlternative
+            | _TrailRelease
+        ),
+    ) -> _SearchNode:
+        if isinstance(item, _ChoiceFrame):
+            return item.parent
+        if isinstance(item, (_TrailAlternative, _TrailRelease)):
+            return item.frame.parent
+        return item
+
+    @property
+    def _uses_reversible_dfs(self) -> bool:
+        return (
+            self.reversible_depth_first
+            and self.traversal is ChoiceTraversal.DEPTH_FIRST
+        )
+
+    @property
+    def _backtrack_detail(self) -> str:
+        if self._uses_reversible_dfs:
+            return "rollback reversible branch"
+        return "discard isolated branch"
 
     def _propagate(self, session: InferenceSession) -> None:
         for _ in range(self.max_group_passes):

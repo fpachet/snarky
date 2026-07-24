@@ -67,6 +67,7 @@ from .engine import (
     InferenceSession,
     MEAConflictStrategy,
     RunResult,
+    SessionCheckpoint,
     StopCondition,
 )
 from .expressions import (
@@ -270,6 +271,7 @@ __all__ = [
     "RemoveFact",
     "RecursiveGroupProcedure",
     "RunResult",
+    "SessionCheckpoint",
     "SatClause",
     "SatLiteral",
     "SatProblem",

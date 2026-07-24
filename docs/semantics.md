@@ -124,12 +124,22 @@ propre mémoire de travail, sa réfraction, sa provenance, ses compteurs et ses
 générateurs `FRESH`. `HypothesisSearch` peut orchestrer explicitement plusieurs
 copies, mais `fork()` seul ne formule ni hypothèse ni politique de choix.
 
+Une session expose aussi `checkpoint()`, `rollback()` et `release()`.
+`rollback()` restaure exactement l'état logique et observable du checkpoint
+actif sans le fermer, ce qui permet de l'utiliser pour plusieurs frères.
+`release()` ferme le checkpoint en ordre LIFO et conserve l'état courant. Les
+faits, leur ordre, la provenance, la réfraction, les journaux, les tags
+temporels et les générateurs `FRESH` font partie de l'état restauré.
+
 `SessionChoiceSearch` ajoute cette politique sans modifier le chaînage avant.
 Un `ChoicePoint` contient des alternatives qui affirment des faits dans des
-forks isolés. Après saturation des groupes, un prédicat de contradiction
-rejette la branche et un prédicat de but accepte une solution. MRV, poids,
-graine, ordre de parcours et limites sont explicites. Les poids ordonnent les
-branches mais ne changent jamais leur faisabilité.
+branches explicites. En DFS, une copie racine isole l'appelant puis un
+checkpoint restaure chaque branche sœur en place. BFS et best-first utilisent
+des forks, puisqu'ils gardent plusieurs états vivants. Après saturation des
+groupes, un prédicat de contradiction rejette la branche et un prédicat de but
+accepte une solution. MRV, poids, graine, ordre de parcours et limites sont
+explicites. Les poids ordonnent les branches mais ne changent jamais leur
+faisabilité.
 
 Une action déclarative :
 

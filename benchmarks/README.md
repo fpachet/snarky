@@ -13,32 +13,68 @@ versions du moteur.
 PYTHONPATH=src python -m benchmarks.choice_search --repeat 5
 ```
 
-Mesure du 24 juillet 2026 sur macOS ARM64 avec Python 3.13.11 :
+Mesure du 25 juillet 2026 sur macOS ARM64 avec Python 3.13.11 :
 
 | Projet | Médiane | Nœuds explorés | Branches en échec | Solutions |
 |---|---:|---:|---:|---:|
-| quatre reines | 20,77 ms | 4 | 1 | 2 |
-| harmoniseur SATB, 2 positions | 1,415 s | 13 | 0 | 3 |
+| quatre reines | 17,60 ms | 4 | 1 | 2 |
+| harmoniseur SATB, 2 positions | 257,78 ms | 13 | 0 | 3 |
 
 Le solveur des reines propage trois affectations après la première décision.
 L'harmoniseur utilise 15 voicings sur la première position et 9 sur la
-seconde ; son coût est encore dominé par la saturation des relations
-extensionnelles dans chaque fork.
+seconde.
 
-La création d'un matcher semi-naïf vierge par branche évite de recopier ses
-caches. Lors de la mise au point du jalon, les trois solutions de
-l'harmoniseur à deux positions sont passées d'environ 3,5 s à 1,36 s. Cette
-mesure motive l'étape suivante : raccorder le pilote au trail réversible afin
-d'éviter aussi la copie de la mémoire de travail et de la provenance.
+Le DFS utilise maintenant un trail de session. L'harmoniseur parcourt en
+best-first et garde donc des forks, mais leur provenance est clonée sans
+`deepcopy` récursif des milliers de faits et termes immuables. À nombre de
+nœuds identique, sa médiane passe de 1,415 s à 257,78 ms, soit ×5,49
+(`-81,8 %`). Les quatre reines passent de 20,77 à 17,60 ms (`-15,2 %`).
 
 Le passage du générateur Python à la règle déclarative `CHOICE ... FROM`
-ajoute la recherche corrélée des alternatives : par rapport au jalon précédent,
-quatre reines passe de 18,62 à 20,77 ms et l'harmoniseur de 1,356 à 1,415 s.
-Le coût observé est respectivement de 11,5 % et 4,4 %, sans changement du
-nombre de nœuds ni des solutions.
+reste inclus dans ces mesures.
 
-Le résultat JSON est conservé dans
+Le résultat JSON courant est conservé dans
+[`results/choice_search_2026-07-25.json`](results/choice_search_2026-07-25.json) ;
+la mesure précédente reste disponible dans
 [`results/choice_search_2026-07-24.json`](results/choice_search_2026-07-24.json).
+
+## Trail de choix sur N reines
+
+`choice_trail` compare le DFS à forks paresseux, conservé comme oracle, au
+DFS réversible :
+
+```sh
+PYTHONPATH=.:src python benchmarks/choice_trail.py --repeat 3
+```
+
+| Taille | Forks paresseux | Trail | Gain propre au trail | Nœuds / échecs |
+|---:|---:|---:|---:|---:|
+| 8 | 626,70 ms | 592,86 ms | ×1,06 (`-5,4 %`) | 16 / 10 |
+| 10 | 2,098 s | 1,883 s | ×1,11 (`-10,2 %`) | 27 / 16 |
+| 12 | 4,092 s | 3,539 s | ×1,16 (`-13,5 %`) | 27 / 13 |
+| 14 | 5,935 s | 4,749 s | ×1,25 (`-20,0 %`) | 20 / 8 |
+
+Le gain augmente avec la taille de la mémoire de travail. Il ne vient pas
+d'une meilleure heuristique : nœuds, échecs et profondeur de solution sont
+identiques dans les deux modes.
+
+Une baseline de développement prise immédiatement avant ces optimisations
+utilisait encore les forks matérialisés pour tous les frères. La comparaison
+de bout en bout est :
+
+| Taille | Forks avides initiaux | Trail final | Accélération totale |
+|---:|---:|---:|---:|
+| 8 | 907,15 ms | 592,86 ms | ×1,53 (`-34,6 %`) |
+| 10 | 3,638 s | 1,883 s | ×1,93 (`-48,2 %`) |
+| 12 | 9,099 s | 3,539 s | ×2,57 (`-61,1 %`) |
+| 14 | 16,035 s | 4,749 s | ×3,38 (`-70,4 %`) |
+
+Pour N=14, les paliers mesurés ont été : 16,035 s avec création avide de
+tous les frères, 8,985 s avec frères paresseux, 5,935 s avec les forks
+paresseux et la provenance spécialisée, puis 4,749 s avec rollback en place.
+
+Les résultats reproductibles des deux modes courants sont dans
+[`results/choice_trail_2026-07-25.json`](results/choice_trail_2026-07-25.json).
 
 ## Filtrage des domaines avant instanciation
 

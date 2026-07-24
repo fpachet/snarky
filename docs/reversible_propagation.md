@@ -107,19 +107,21 @@ python -m benchmarks.propagation_trail --repeat 7
 Les mesures sont conservées dans
 [`../benchmarks/results/pre_backtracking_2026-07-24.csv`](../benchmarks/results/pre_backtracking_2026-07-24.csv).
 
-## Recherche livrée et palier suivant
+## Recherche réversible livrée
 
-`SessionChoiceSearch` livre maintenant MRV, alternatives pondérées, branches
-isolées, contradiction, backtracking et traces. Le solveur CSP pédagogique et
-l'harmoniseur à quatre voix en sont les premiers tests d'intégration.
+`SessionChoiceSearch` livre MRV, alternatives pondérées, contradiction,
+backtracking et traces. Le solveur CSP pédagogique et l'harmoniseur à quatre
+voix en sont les premiers tests d'intégration.
 
-Il utilise encore `InferenceSession.fork()` : l'échec restaure correctement
-l'état en abandonnant la branche, mais la session est copiée. Le palier suivant
-sera une optimisation compatible :
+Le DFS utilise maintenant un checkpoint complet d'`InferenceSession` :
 
-1. poser un checkpoint de `PropagationState` avant la décision ;
-2. restreindre directement le domaine choisi ;
-3. réveiller seulement les propagateurs incidents ;
-4. convertir la contradiction structurée en échec de branche ;
-5. rollback des domaines, masques, deltas et faits associés ;
-6. conserver les mêmes événements observables.
+1. poser un checkpoint avant la décision ;
+2. affirmer le fait choisi et saturer les groupes ;
+3. convertir le fait de contradiction en échec de branche ;
+4. restaurer faits, provenance, réfraction, journaux et tags temporels ;
+5. conserver une copie uniquement pour chaque solution retournée.
+
+Les parcours largeur et meilleur poids d'abord conservent des forks, car leur
+frontière contient plusieurs états simultanés. La restauration incrémentale
+des caches du matcher, au lieu de leur invalidation après rollback, reste une
+optimisation possible.

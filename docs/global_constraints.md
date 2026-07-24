@@ -95,8 +95,9 @@ les mesures A/B.
 Cette couche reste un noyau de propagation distinct du pilote de recherche.
 `DomainStore` et `PropagationState` fournissent réductions, contradictions et
 rollback local. Le premier langage de `choice` et son pilote de backtracking
-sont livrés au-dessus de sessions isolées ; leur raccordement direct à cet
-état réversible reste l'étape d'optimisation suivante, comme décrit
+utilisent maintenant un trail complet d'`InferenceSession` en DFS. Le trail
+de domaines interne et le trail de session restent deux niveaux distincts,
+comme décrit
 dans [`reversible_propagation.md`](reversible_propagation.md) et
 [`choice_backtracking_and_applications.md`](choice_backtracking_and_applications.md).
 

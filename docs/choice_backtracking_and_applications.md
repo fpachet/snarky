@@ -21,16 +21,18 @@ choice + hypothèse + pilote de backtracking
 applications écrites en Snarky
 ```
 
-Le mécanisme de recherche réutilise déjà :
+Le mécanisme de recherche réutilise :
 
 - les groupes de règles et leurs modes d'exécution ;
-- la réfraction et la provenance héritées par les forks ;
+- la réfraction et la provenance restaurées par checkpoint ;
 - les contradictions et buts représentés par des faits ;
 - une trace explicite des choix, décisions, échecs et solutions.
 
-Le raccordement direct à la file de propagateurs, à ses domaines et à son
-trail reste l'optimisation suivante. La version initiale abandonne des sessions
-isolées et recopie donc davantage d'état.
+Le DFS utilise maintenant un trail de session : les alternatives sont créées
+paresseusement, la mémoire de travail et la provenance sont annulées en place,
+et une copie n'est conservée que pour une solution. BFS et best-first gardent
+des forks, indispensables à leurs frontières multiples, mais la provenance y
+est clonée sans `deepcopy` des faits immuables.
 
 Il ne devra pas cacher une recherche métier dans une fonction Python. Python
 restera la couche d'orchestration et de stockage du trail ; les choix
@@ -46,15 +48,15 @@ Le premier palier comporte :
 2. MRV, ordre par poids et échantillonnage pondéré reproductible ;
 3. parcours DFS, BFS et best-first ;
 4. saturation des groupes après chaque décision ;
-5. branches isolées et détection de contradiction ;
+5. branches DFS réversibles et détection de contradiction ;
 6. limites en nœuds et solutions ;
 7. traces distinguant décision, propagation logique, échec et backtrack.
 
-Les Compact-Tables et `PropagationState` fournissent la représentation et le
-trail :
-Dans le palier suivant, un choix réduira directement les domaines et masques
-actifs ; un backtrack restaurera leurs anciennes valeurs sans recopier les
-faits ni reconstruire les tables de la règle.
+`InferenceSession.checkpoint()` complète le trail local des Compact-Tables et
+de `PropagationState`. Il restaure faits, provenance, réfraction, journaux et
+tags temporels. Le matcher est actuellement invalidé ou recréé au rollback ;
+sa restauration incrémentale constitue une optimisation ultérieure, distincte
+de la sémantique du backtracking.
 
 Le détail de cette couche, ses garanties et ses mesures est dans
 [`reversible_propagation.md`](reversible_propagation.md).

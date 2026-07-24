@@ -80,18 +80,25 @@ def solve_n_queens(
     size: int,
     *,
     max_solutions: int = 1,
+    reversible_depth_first: bool = True,
 ) -> ChoiceSearchResult:
     return solve_binary_csp(
         n_queens_facts(size),
         max_solutions=max_solutions,
+        reversible_depth_first=reversible_depth_first,
     )
 
 
 def solve_four_queens(
     *,
     max_solutions: int = 2,
+    reversible_depth_first: bool = True,
 ) -> ChoiceSearchResult:
-    return solve_n_queens(4, max_solutions=max_solutions)
+    return solve_n_queens(
+        4,
+        max_solutions=max_solutions,
+        reversible_depth_first=reversible_depth_first,
+    )
 
 
 def main() -> None:

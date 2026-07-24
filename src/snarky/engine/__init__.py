@@ -18,6 +18,7 @@ from .forward import (
     InferenceLimitError,
     InferenceSession,
     RunResult,
+    SessionCheckpoint,
     StopCondition,
 )
 from .provenance import Derivation, Provenance
@@ -41,5 +42,6 @@ __all__ = [
     "MEAConflictStrategy",
     "Provenance",
     "RunResult",
+    "SessionCheckpoint",
     "StopCondition",
 ]

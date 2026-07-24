@@ -138,8 +138,9 @@ maintenant semi-naïve elle aussi.
 
 Les définitions de tables sont séparées de l'état mutable. `DomainStore` et
 `PropagationState` fournissent réductions motivées, contradictions,
-checkpoints et rollback des domaines et masques. Le choix MRV et le premier
-pilote de backtracking local sont livrés au-dessus de forks de sessions.
+checkpoints et rollback des domaines et masques. Le choix MRV et le pilote de
+backtracking DFS sont raccordés à un checkpoint complet de session ; les
+forks restent utilisés par BFS et best-first.
 
 ### P9 — Maintenance de vérité positive
 

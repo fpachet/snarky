@@ -6,7 +6,7 @@ Ce projet est le cas d'intégration de la génération hybride de Snarky :
 - propagation de domaines ;
 - recherche avec `ChoicePoint` ;
 - poids issus de probabilités marginales ;
-- branches isolées et backtracking ;
+- branches explicites et backtracking ;
 - traces de décisions et contradictions.
 
 ## Premier incrément
@@ -55,7 +55,10 @@ PYTHONPATH=src python -m harmonizer.solver
 
 Le moteur cherche les solutions par best-first. Les contraintes dures
 déterminent la faisabilité ; les poids ne changent pas l'ensemble des
-solutions.
+solutions. Best-first conserve plusieurs forks simultanés et n'utilise donc
+pas le trail DFS. Le clone spécialisé de provenance ramène néanmoins la
+médiane des trois premières solutions de 1,415 s à 257,78 ms sur la baseline
+du 25 juillet 2026, sans changer les 13 nœuds explorés.
 
 ## Limites explicites
 

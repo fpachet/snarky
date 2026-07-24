@@ -37,9 +37,10 @@ THEN
 END
 ```
 
-`SessionChoiceSearch` choisit l'un des points produits par MRV, crée une
-branche isolée, affirme le fait cible, sature les groupes puis abandonne la
-branche en cas de contradiction.
+`SessionChoiceSearch` choisit l'un des points produits par MRV, pose un
+checkpoint, affirme le fait cible, sature les groupes puis restaure le
+checkpoint en cas de contradiction ou avant le choix frère. La session de
+l'appelant reste isolée par un unique fork racine.
 
 Le constructeur accepte maintenant une taille `n`; l'oracle principal reste
 le problème des quatre reines, qui possède exactement deux solutions :
@@ -52,3 +53,6 @@ Le pilote Python ne construit plus les `ChoicePoint` métier : il ne fait que
 piloter les règles génériques. Sur la baseline courante, le problème explore
 quatre nœuds, rencontre une branche contradictoire et produit exactement les
 deux solutions.
+
+Le paramètre `reversible_depth_first=False` réactive le DFS à forks paresseux
+pour les tests différentiels et les benchmarks. Le trail est le défaut.
