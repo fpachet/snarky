@@ -33,6 +33,70 @@ Le projet ne prétend pas reproduire à l’identique le logiciel historique
 BOOJUM. Chaque fonctionnalité devra être qualifiée comme `HISTORICAL`,
 `INFERRED` ou `MODERN_EXTENSION`.
 
+## Contraintes et filtrage du matching
+
+Snarky peut maintenant utiliser les variables d'une règle comme des domaines
+finis avant d'en énumérer les instanciations. Cette étape ne remplace pas le
+matcher : elle élimine d'abord les valeurs et les lignes factuelles sans
+support, puis le matcher compilé vérifie exactement les activations restantes.
+
+```text
+faits candidats
+      ↓
+tables de prémisses et domaines de variables
+      ↓
+propagation des contraintes jusqu'au point fixe
+      ↓
+lignes actives des Compact-Tables
+      ↓
+jointure semi-naïve sur les seuls faits nouveaux
+      ↓
+validation exacte par le matcher
+```
+
+Les contraintes simples peuvent être écrites directement dans les règles :
+
+```text
+CONSTRAINT $left + $right == $total
+CONSTRAINT $start < $end
+NVALUE $count OF SEQ[$x $y $z]
+ALL_DIFFERENT SEQ[$x $y $z]
+```
+
+Le filtre possède des propagateurs spécialisés pour l'égalité, la différence,
+les ordres, la divisibilité et l'arithmétique binaire. `NVALUE` propage des
+bornes sur le nombre de valeurs distinctes ; `ALL_DIFFERENT` traite les
+singletons et les ensembles de Hall jusqu'à la taille trois. L'interface
+`DomainPropagator` permet d'ajouter d'autres contraintes globales.
+
+Pour accélérer ce chemin :
+
+- les tables, projections et domaines sont conservés entre les cycles ;
+- `FactDelta` ne met à jour que les lignes ajoutées ou supprimées ;
+- une file ne réveille que les propagateurs incidents aux domaines modifiés ;
+- les supports `(variable, valeur)` et les lignes actives sont des bitsets ;
+- la jointure réutilise les liaisons déjà validées des Compact-Tables ;
+- un cycle append-only n'énumère que les activations contenant un fait
+  nouveau ;
+- `AdaptiveInstantiationStrategy` revient au matcher semi-naïf lorsque le
+  filtrage ne paraît pas rentable.
+
+Sur les trois Sudoku de référence, la dernière jointure delta réduit encore
+les matchings de 9 à 22,5 % par rapport aux Compact-Tables initiales :
+
+| Niveau | Matchings avant | Après | Temps avant | Après |
+|---|---:|---:|---:|---:|
+| p1 | 63 946 | 49 531 | 0,287 s | 0,254 s |
+| p6 | 138 846 | 126 198 | 0,576 s | 0,534 s |
+| p7 | 216 643 | 195 160 | 0,804 s | 0,731 s |
+
+`DomainStore` et `PropagationState` exposent également les réductions,
+contradictions, checkpoints et rollbacks des domaines et masques. Ce socle
+prépare le prochain palier MRV/choice/backtracking ; il ne déclenche encore
+aucune recherche implicite. Voir
+[`docs/reversible_propagation.md`](docs/reversible_propagation.md) et
+[`benchmarks/README.md`](benchmarks/README.md).
+
 ## État actuel
 
 Le dépôt contient un moteur Python semi-naïf par défaut, une stratégie naïve
