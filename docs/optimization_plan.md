@@ -113,9 +113,12 @@ fichier. Une modification sur disque déclenche donc automatiquement un nouveau
 parsing.
 
 La stratégie `SemiNaiveInstantiationStrategy` combine les index persistants,
-un delta propre à chaque règle et une planification locale des jointures. Sur
-`F(17)`, elle abaisse le temps de 27,914 s à 3,338 s et ne produit que les 4 789
-activations effectivement déclenchées, au lieu de 95 013.
+un delta propre à chaque règle et une planification locale des jointures. Dans
+la série historique du 22 juillet 2026, elle abaissait le temps de `F(17)` de
+27,914 s à 3,338 s et ne produisait que les 4 789 activations effectivement
+déclenchées, au lieu de 95 013. Ces chiffres retracent cette étape de
+développement ; la comparaison A/B courante du cache de hash est celle de
+`F(15)` donnée plus haut.
 
 ## Situation initiale
 
@@ -149,11 +152,14 @@ Ces chiffres sont indicatifs et ne remplacent pas un benchmark reproductible.
 Ils montrent néanmoins que l’implémentation de référence ne convient pas
 encore aux grandes bases récursives.
 
+Les trois paragraphes suivants décrivent les séries historiques du 22 juillet
+2026, et non les performances du snapshot courant.
+
 Le benchmark reproductible `benchmarks/fibonacci_explicit.py` couvre désormais
 le scénario Fibonacci explicite. Pour `F(10)`, trois passages sur la machine de
-développement donnent 7,243 s avec la stratégie naïve contre 0,245 s avec la
-première stratégie indexée. Les deux produisent les mêmes 326 faits et les
-mêmes dérivations. Les tentatives de matching passent de 557 302 à 8 963.
+développement donnaient 7,243 s avec la stratégie naïve contre 0,245 s avec la
+première stratégie indexée. Les deux produisaient les mêmes 326 faits et les
+mêmes dérivations. Les tentatives de matching passaient de 557 302 à 8 963.
 
 La baseline indexée initiale couvre les rangs 10 à 17. Le temps croît de
 0,245 s à 27,914 s, le point fixe de 326 à 9 578 faits et les activations

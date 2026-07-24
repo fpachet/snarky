@@ -51,7 +51,13 @@ soit un gain ×6,39, avec les mêmes 15 867 tentatives de matching. Les mesures
 A/B sont conservées dans
 [`results/hash_cache_optimizations_2026-07-24.csv`](results/hash_cache_optimizations_2026-07-24.csv).
 
-## Fibonacci explicite
+## Fibonacci explicite — séries historiques
+
+Les sous-sections suivantes conservent les mesures du 22 juillet 2026,
+obtenues à des étapes antérieures du moteur. Elles documentent les gains
+successifs de l’indexation et de l’évaluation semi-naïve, mais ne constituent
+pas une mesure du snapshot courant. Pour celui-ci, la comparaison A/B
+reproductible la plus récente est celle de `F(15)` présentée juste au-dessus.
 
 La commande suivante calcule trois fois `F(10)` avec l'oracle naïf, la stratégie
 indexée exhaustive, puis la stratégie semi-naïve :
@@ -88,7 +94,7 @@ uv run python benchmarks/fibonacci_explicit.py \
     --n 10 --repeat 5 --strategy indexed
 ```
 
-## Limite pratique initiale
+### Limite pratique initiale
 
 Cette série constitue la baseline de la première stratégie indexée avec
 arithmétique native `LET`. La mesure de `F(10)` est la moyenne de trois
@@ -115,7 +121,7 @@ la base construit l'arbre complet sans mémoïsation, le nombre de nœuds vaut
 Les données complètes sont conservées dans
 [`results/fibonacci_explicit_native_arithmetic_baseline_2026-07-22.csv`](results/fibonacci_explicit_native_arithmetic_baseline_2026-07-22.csv).
 
-## Index persistant et évaluation semi-naïve
+### Index persistant et évaluation semi-naïve
 
 La deuxième série mesure `SemiNaiveInstantiationStrategy`. Chaque règle
 conserve son index entre les cycles et ne joint que les combinaisons contenant
@@ -146,7 +152,7 @@ rapport à la première baseline indexée. Les activations produites passent de
 Les mesures complètes sont conservées dans
 [`results/fibonacci_explicit_semi_naive_2026-07-22.csv`](results/fibonacci_explicit_semi_naive_2026-07-22.csv).
 
-## Protocole de comparaison des optimisations
+### Protocole de comparaison des optimisations
 
 Après chaque phase, rejouer au minimum les rangs 10 à 20 avec la même version
 de Python et consigner :

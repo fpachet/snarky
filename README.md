@@ -189,8 +189,11 @@ groupes, voir respectivement
 [`docs/mutations_and_negation.md`](docs/mutations_and_negation.md) et la
 [spécification détaillée](docs/prompt_codex_moteur_snarky.md).
 
-Le benchmark Fibonacci explicite mesure un passage de 7,142 s à 0,053 s pour
-`F(10)` et de 27,914 s à 3,338 s pour `F(17)` sur la machine de développement.
+Le benchmark A/B le plus récent mesure `F(15)` avec la stratégie semi-naïve :
+le précalcul des hashes structurels ramène le temps médian de 6,084 s à
+0,953 s, soit un gain ×6,39, sans modifier les 15 867 tentatives de matching.
+Les séries `F(10)` à `F(21)` qui retracent les étapes antérieures de
+l’indexation sont conservées et datées dans la documentation des benchmarks.
 Le benchmark Sudoku mesure désormais p1 à 0,247 s, p5 à 0,535 s et p6 à
 0,468 s en médiane. Après la réduction algorithmique des matchings, les hashes
 structurels précalculés des termes et faits immuables ajoutent un gain de 24 à
