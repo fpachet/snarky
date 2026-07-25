@@ -2,10 +2,8 @@
 
 from __future__ import annotations
 
-import heapq
 import math
 import random
-from collections import deque
 from collections.abc import Callable, Mapping, Sequence
 from copy import deepcopy
 from dataclasses import dataclass, field
@@ -14,6 +12,12 @@ from types import MappingProxyType
 from typing import Protocol
 
 from .actions import Action, AddFact, Choice, ForEach
+from .choice_frontier import (
+    ChoiceTraversal as ChoiceTraversal,
+)
+from .choice_frontier import (
+    _SearchFrontier,
+)
 from .engine import InferenceSession, SessionCheckpoint, StopCondition
 from .facts import Fact
 from .instantiation import (
@@ -122,12 +126,6 @@ class ChoiceEvent:
     alternative: str = ""
     detail: str = ""
     log_weight: float = 0.0
-
-
-class ChoiceTraversal(StrEnum):
-    DEPTH_FIRST = "depth_first"
-    BREADTH_FIRST = "breadth_first"
-    BEST_FIRST = "best_first"
 
 
 class ChoiceSearchStatus(StrEnum):
@@ -698,58 +696,6 @@ type _PendingItem = (
 )
 
 
-class _SearchFrontier:
-    """Traversal-specific pending storage with a stable best-first heap."""
-
-    def __init__(self, traversal: ChoiceTraversal) -> None:
-        self.traversal = traversal
-        self._items: list[_PendingItem] = []
-        self._queue: deque[_PendingItem] = deque()
-        self._heap: list[tuple[float, int, _PendingItem]] = []
-
-    def push(self, item: _PendingItem) -> None:
-        if self.traversal is ChoiceTraversal.BEST_FIRST:
-            if isinstance(item, (_DeferredBranch, _SearchNode)):
-                log_weight = item.log_weight
-                insertion_order = item.insertion_order
-            else:
-                raise AssertionError("DFS frames cannot enter best-first")
-            heapq.heappush(
-                self._heap,
-                (-log_weight, insertion_order, item),
-            )
-            return
-        if self.traversal is ChoiceTraversal.BREADTH_FIRST:
-            self._queue.append(item)
-            return
-        self._items.append(item)
-
-    def extend(self, items: Sequence[_PendingItem]) -> None:
-        for item in items:
-            self.push(item)
-
-    def pop(self) -> _PendingItem:
-        if self.traversal is ChoiceTraversal.BEST_FIRST:
-            return heapq.heappop(self._heap)[2]
-        if self.traversal is ChoiceTraversal.BREADTH_FIRST:
-            return self._queue.popleft()
-        return self._items.pop()
-
-    def first(self) -> _PendingItem:
-        if self.traversal is ChoiceTraversal.BEST_FIRST:
-            return self._heap[0][2]
-        if self.traversal is ChoiceTraversal.BREADTH_FIRST:
-            return self._queue[0]
-        return self._items[0]
-
-    def __bool__(self) -> bool:
-        if self.traversal is ChoiceTraversal.BEST_FIRST:
-            return bool(self._heap)
-        if self.traversal is ChoiceTraversal.BREADTH_FIRST:
-            return bool(self._queue)
-        return bool(self._items)
-
-
 @dataclass(frozen=True, slots=True)
 class SessionChoiceSearch:
     """Search choices over isolated :class:`InferenceSession` branches."""
@@ -780,7 +726,7 @@ class SessionChoiceSearch:
     def solve(self, session: InferenceSession) -> ChoiceSearchResult:
         random_source = random.Random(self.seed)
         root = _SearchNode(self._fork(session), (), 0.0, 0)
-        pending = _SearchFrontier(self.traversal)
+        pending = _SearchFrontier[_PendingItem](self.traversal)
         pending.push(root)
         open_checkpoints: list[
             tuple[

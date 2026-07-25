@@ -185,11 +185,14 @@ The first consolidation tranche establishes:
   `engine/mutations.py`, with `InferenceSession` retaining compatibility
   delegates;
 - negative-premise dependency planning, support expiry, and refraction
-  reconciliation now live in `engine/refraction.py`.
+  reconciliation now live in `engine/refraction.py`;
+- traversal modes and stable DFS, BFS, and best-first pending storage now live
+  in `choice_frontier.py`, with `ChoiceTraversal` re-exported from its
+  historical public module.
 
 Historical public import paths remain compatible and are covered by identity
 tests.
 
 The `engine/forward.py` decomposition target is complete for C3. The next
-tranche separates choice production, frontier management, and traversal in
+tranche continues with choice production and traversal orchestration in
 `choice.py`, protected by the same mutable-state suite.

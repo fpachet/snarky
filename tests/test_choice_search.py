@@ -1,5 +1,7 @@
 import pytest
 
+import snarky
+import snarky.choice as choice_api
 from snarky import (
     Atom,
     ChoiceAlternative,
@@ -18,6 +20,15 @@ from snarky import (
     WeightedRandomChoicePolicy,
     parse_rule_groups,
 )
+from snarky.choice_frontier import (
+    ChoiceTraversal as FrontierChoiceTraversal,
+)
+
+
+def test_choice_traversal_keeps_its_public_import_paths() -> None:
+    assert ChoiceTraversal is snarky.ChoiceTraversal
+    assert ChoiceTraversal is choice_api.ChoiceTraversal
+    assert ChoiceTraversal is FrontierChoiceTraversal
 
 
 def test_choice_alternative_rejects_invalid_weights() -> None:
