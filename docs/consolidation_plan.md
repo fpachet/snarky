@@ -179,7 +179,10 @@ The first consolidation tranche establishes:
   `engine/agenda.py`;
 - rule-group modes, limits, results, and execution coordination now live in
   `engine/group_execution.py`, leaving `InferenceSession.run_group()` as the
-  stable public facade.
+  stable public facade;
+- action staging, activation mutations, fresh-name reservation, and grounded
+  truth-maintenance cascades now live in `engine/mutations.py`, with
+  `InferenceSession` retaining compatibility delegates.
 
 Historical public import paths remain compatible and are covered by identity
 tests.
