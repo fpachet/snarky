@@ -1,0 +1,62 @@
+{
+  "benchmark": "query_memory_extraction_guard",
+  "date": "2026-07-25",
+  "python": "3.13.11",
+  "platform": "macOS-15.7.7-arm64-arm-64bit-Mach-O",
+  "baseline_commit": "6d2975c",
+  "current_commit": "dd42c93",
+  "command": "python benchmarks/constraint_support_churn.py --repeat 7",
+  "protocol": {
+    "series_order": [
+      "baseline",
+      "current",
+      "current",
+      "baseline"
+    ],
+    "summary": "mean of the two independently measured medians",
+    "same_interpreter_and_environment": true
+  },
+  "cases": {
+    "with_residual_witnesses": {
+      "baseline_medians_seconds": [
+        0.053863999999521184,
+        0.0538385419995393
+      ],
+      "current_medians_seconds": [
+        0.054255832999842823,
+        0.05436179099979199
+      ],
+      "baseline_summary_seconds": 0.05385127099953024,
+      "current_summary_seconds": 0.05430881199981741,
+      "delta_percent": 0.8496382569896266,
+      "logical_counters": {
+        "match_attempts": 1253,
+        "residual_witness_promotions": 32,
+        "witness_cache_hits": 32,
+        "witness_cache_invalidations": 32,
+        "witness_cache_misses": 33
+      }
+    },
+    "without_residual_witnesses_control": {
+      "baseline_medians_seconds": [
+        0.05790499999966414,
+        0.05813641699933214
+      ],
+      "current_medians_seconds": [
+        0.05764820799959125,
+        0.057449417000498215
+      ],
+      "baseline_summary_seconds": 0.05802070849949814,
+      "current_summary_seconds": 0.05754881250004473,
+      "delta_percent": -0.8133234006570067,
+      "logical_counters": {
+        "match_attempts": 2275,
+        "residual_witness_promotions": 0,
+        "witness_cache_hits": 0,
+        "witness_cache_invalidations": 64,
+        "witness_cache_misses": 65
+      }
+    }
+  },
+  "conclusion": "Sub-millisecond changes in opposite directions show no material performance regression."
+}

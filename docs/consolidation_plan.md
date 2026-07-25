@@ -230,6 +230,13 @@ Facts, derivations, cycles, activations, match attempts, index removals, and
 structural-index counters remained identical. The complete protocol is in
 [`fact_index_extraction_2026-07-25.json`](../benchmarks/results/fact_index_extraction_2026-07-25.json).
 
+Existential and aggregate query memory was then extracted between commits
+`6d2975c` and `dd42c93`. The residual-witness churn workload changed by
++0.85%, while its no-residual control changed by -0.81%; both differences
+are below half a millisecond. Cache hits, misses, invalidations, residual
+promotions, and match attempts are identical. Raw results are in
+[`query_memory_extraction_2026-07-25.json`](../benchmarks/results/query_memory_extraction_2026-07-25.json).
+
 The `engine/forward.py` decomposition target is complete for C3. The next
 choice decomposition target is also complete: production, policies, frontier
 management, and traversal live in focused modules, while `choice.py` is a
@@ -238,5 +245,8 @@ identity. The persistent fact index, ordered storage, compound buckets,
 structural lookup, cloning, and delta-rank partitioning now live in
 `instantiation/fact_index.py`; their historical internal import remains
 compatible and direct lifecycle tests supplement the strategy suite. The
-next tranche isolates existential-query memory from
-`instantiation/indexed.py`.
+existential-query caches, registrations, support and creation watchers,
+structural signatures, aggregate supports, and revision lifecycle now live
+in `instantiation/query_memory.py`, with direct lifecycle tests and unchanged
+hot-path dictionary references. The next tranche isolates semi-naive join
+planning and delta variants from `instantiation/indexed.py`.
