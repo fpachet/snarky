@@ -1,0 +1,69 @@
+{
+  "benchmark": "domain_planning_extraction_and_optimization",
+  "date": "2026-07-25",
+  "python": "3.13.11",
+  "platform": "macOS-15.7.7-arm64-arm-64bit-Mach-O",
+  "previous_tranche_commit": "ea51fd0",
+  "extraction_commit": "558f8e9",
+  "optimized_commit": "8db0d53",
+  "protocol": {
+    "series_order": [
+      "baseline",
+      "current",
+      "current",
+      "baseline"
+    ],
+    "summary": "mean of the two independently measured medians",
+    "same_interpreter_and_environment": true
+  },
+  "cases": {
+    "wide_plan_compilation": {
+      "baseline_commit": "558f8e9",
+      "current_commit": "8db0d53",
+      "command": "python benchmarks/domain_planning.py --variables 200 --iterations 25 --repeat 21",
+      "baseline_medians_seconds_per_plan": [
+        0.0024681799999962096,
+        0.002455389999959152
+      ],
+      "current_medians_seconds_per_plan": [
+        0.00042868835997069256,
+        0.0004274150000128429
+      ],
+      "baseline_summary_seconds_per_plan": 0.002461784999977681,
+      "current_summary_seconds_per_plan": 0.00042805167999176774,
+      "delta_percent": -82.6121420028293,
+      "speedup": 5.751139675529426,
+      "logical_result": {
+        "variables": 200,
+        "tables": 1,
+        "comparisons": 1,
+        "incidence_entries": 200,
+        "component_entries": 200,
+        "cyclic": true,
+        "applicable": true
+      }
+    },
+    "all_different_engine_control": {
+      "baseline_commit": "ea51fd0",
+      "current_commit": "8db0d53",
+      "command": "python -c 'from benchmarks.global_constraints import measure; print(measure(\"all-different\", 200, 31, \"domain-incremental\"))'",
+      "baseline_summary_seconds": 0.048155792000216024,
+      "current_summary_seconds": 0.04840920849983377,
+      "delta_percent": 0.5262430314023403,
+      "logical_counters": {
+        "facts": 1391,
+        "activations": 1182,
+        "match_attempts": 5358,
+        "domain_filter_runs": 2,
+        "domain_global_revisions": 2,
+        "domain_global_value_checks": 4764,
+        "domain_bitset_intersections": 409,
+        "domain_bitset_support_checks": 406,
+        "domain_bitset_value_events": 3,
+        "domain_compact_join_rows": 5358,
+        "domain_delta_join_skips": 1
+      }
+    }
+  },
+  "conclusion": "Domain plan compilation is isolated, preserves cached plan semantics, and uses linear star connectivity instead of quadratic clique materialization."
+}

@@ -278,6 +278,19 @@ An interleaved 31-repetition `ALL_DIFFERENT` comparison changed from
 global-propagation, compact-table, and delta counters. Raw samples are in
 [`comparison_propagators_extraction_2026-07-25.json`](../benchmarks/results/comparison_propagators_extraction_2026-07-25.json).
 
+Domain-plan compilation and constraint-graph analysis were extracted to
+`instantiation/domain_planning.py` at commit `558f8e9`. Direct tests cover
+cached plan identity, incidence order, connected components, cyclic and
+acyclic graphs, unsupported rules, and wide scopes. The isolated graph code
+also exposed an avoidable quadratic operation: component discovery built a
+clique for every constraint scope and sorted all variables twice. Commit
+`8db0d53` replaces each clique with an equivalent linear star and reuses one
+stable ordering. A 200-variable plan now compiles in 0.428 ms instead of
+2.462 ms, a 5.75x speedup (-82.6%). The complete `ALL_DIFFERENT` control
+changed by only +0.53%, with all logical and propagation counters identical.
+Raw interleaved measurements are in
+[`domain_planning_2026-07-25.json`](../benchmarks/results/domain_planning_2026-07-25.json).
+
 The `engine/forward.py` decomposition target is complete for C3. The next
 choice decomposition target is also complete: production, policies, frontier
 management, and traversal live in focused modules, while `choice.py` is a
@@ -296,5 +309,6 @@ decomposition target is complete, including the separately benchmarked
 high-churn bucket optimization. The first `domain_filter.py` tranche is also
 complete: compact table definitions and state now live in
 `instantiation/domain_tables.py`, and specialized comparison propagation now
-lives in `instantiation/comparison_propagators.py`. C3 continues with domain
-planning.
+lives in `instantiation/comparison_propagators.py`. Domain planning and graph
+analysis now live in `instantiation/domain_planning.py`, including linear
+component construction. C3 continues with adaptive filter selection.
