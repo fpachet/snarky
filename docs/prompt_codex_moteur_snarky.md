@@ -122,6 +122,11 @@ Sont disponibles et testés :
 - checkpoint complet d'`InferenceSession` et DFS de choix sur trail
   réversible, avec branches différées et forks rapides pour BFS et
   best-first ;
+- politiques de phases `PriorityMRVChoicePolicy` et
+  `PriorityWeightedRandomChoicePolicy`, poids contextuels branch-locaux et
+  échantillonnage reproductible ;
+- protocole applicatif `FiniteCSP`, Sudoku natif avec backtracking et
+  harmoniseur à variables de notes avec canalisation déclarative ;
 - groupes de règles nommés, sessions persistantes et modes `SATURATE`,
   `ONE_CYCLE`, `FIRST_CHANGE` et `UNTIL` ;
 - mémoire de travail mutable avec `REMOVE` et journal chronologique

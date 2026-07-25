@@ -6,8 +6,10 @@ from snarky import Fact, TechniquePlanStatus, parse_term
 from sudoku import (
     SudokuSolveResult,
     initial_facts,
+    load_puzzle,
     replay_events,
     solve_level,
+    solve_puzzle_with_search,
 )
 
 pytestmark = pytest.mark.slow
@@ -75,3 +77,19 @@ def test_event_trace_contains_every_candidate_elimination() -> None:
 
     assert len(result.steps) == len(removed_candidates)
     assert {step.technique for step in result.steps} == {"Naked Single"}
+
+
+def test_generic_choice_search_solves_a_grid_beyond_enabled_techniques() -> None:
+    puzzle = load_puzzle(2)
+    result = solve_puzzle_with_search(
+        puzzle,
+        techniques=("naked_singles",),
+    )
+
+    assert result.grid == puzzle.solution
+    assert result.search.failed_branches > 0
+    assert result.search.explored_nodes > 1
+    assert all(
+        "choose_csp_value" in decision.point
+        for decision in result.search.solutions[0].decisions
+    )

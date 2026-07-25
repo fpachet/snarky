@@ -6,7 +6,7 @@ from csp_solver.four_queens import (
     solve_n_queens,
     solve_n_queens_intensional,
 )
-from csp_solver.solver import assignment_from_solution
+from csp_solver.solver import BinaryCSP, FiniteCSP, assignment_from_solution
 from snarky import Atom, ChoiceSearchStatus
 
 
@@ -24,6 +24,10 @@ def test_four_queens_finds_the_two_expected_solutions() -> None:
 
     assert result.status is ChoiceSearchStatus.SOLVED
     assert assignments == {(2, 4, 1, 3), (3, 1, 4, 2)}
+
+
+def test_binary_csp_name_remains_a_finite_csp_compatibility_alias() -> None:
+    assert BinaryCSP is FiniteCSP
 
 
 def test_reversible_and_forked_dfs_have_identical_search_semantics() -> None:

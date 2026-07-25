@@ -11,6 +11,8 @@ from snarky import (
     ForwardEngine,
     InferenceSession,
     MRVChoicePolicy,
+    PriorityMRVChoicePolicy,
+    PriorityWeightedRandomChoicePolicy,
     SessionChoiceSearch,
     Triple,
     WeightedRandomChoicePolicy,
@@ -107,6 +109,34 @@ def test_weighted_random_policy_is_seed_reproducible() -> None:
 
     assert tuple(item.name for item in first) == tuple(
         item.name for item in second
+    )
+
+
+def test_priority_policies_respect_phases_before_domain_size() -> None:
+    early = ChoicePoint(
+        "early",
+        (
+            ChoiceAlternative("a", (Fact(Atom("a")),)),
+            ChoiceAlternative("b", (Fact(Atom("b")),)),
+        ),
+        variable=Atom("early"),
+    )
+    late = ChoicePoint(
+        "late",
+        (ChoiceAlternative("only", (Fact(Atom("only")),)),),
+        variable=Atom("late"),
+    )
+    priorities = {Atom("early"): 0, Atom("late"): 1}
+
+    assert (
+        PriorityMRVChoicePolicy(priorities).select_point((late, early))
+        is early
+    )
+    assert (
+        PriorityWeightedRandomChoicePolicy(priorities).select_point(
+            (late, early)
+        )
+        is early
     )
 
 

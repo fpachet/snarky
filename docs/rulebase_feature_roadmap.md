@@ -192,10 +192,15 @@ justifications négatives complètes restent séparés.
 14. ~~Optimiser les frontières, forks, snapshots, index de branche, requêtes
     de choix et deltas ; conserver des formulations extensionnelles et
     intensionales de N-reines et de l'harmoniseur.~~
-15. Ajouter `MEMBER` et `SIZE`, puis implémenter les naked triples de Sudoku p8
+15. ~~Généraliser `FiniteCSP`, valider le backtracking sur le Sudoku natif,
+    choisir les notes SATB séparément et ajouter des marginales
+    conditionnelles reproductibles.~~
+16. Ajouter `MEMBER` et `SIZE`, puis implémenter les naked triples de Sudoku p8
     avec `COMBINATIONS`.
-16. Mesurer une éventuelle consistance généralisée de `ALL_DIFFERENT`.
-17. Ne retenir les extensions restantes qu'avec une base et un oracle
+17. Ajouter degrés, renversements, doublures, cadence et sensible au modèle
+    note par note.
+18. Mesurer une éventuelle consistance généralisée de `ALL_DIFFERENT`.
+19. Ne retenir les extensions restantes qu'avec une base et un oracle
     reproductibles.
 
 L'exploration parallèle des alternatives reste une piste postérieure, décrite

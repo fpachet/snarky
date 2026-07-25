@@ -28,6 +28,7 @@ from .substitutions import Substitution
 from .terms import (
     Atom,
     Term,
+    Triple,
     render_term,
     variables_in,
 )
@@ -191,6 +192,88 @@ class MRVChoicePolicy:
 
 
 @dataclass(frozen=True, slots=True)
+class PriorityMRVChoicePolicy:
+    """Respect explicit variable phases, then apply MRV inside each phase."""
+
+    priorities: Mapping[Term, int]
+    prefer_high_weight: bool = True
+    default_priority: int = 0
+
+    def __post_init__(self) -> None:
+        object.__setattr__(
+            self,
+            "priorities",
+            MappingProxyType(dict(self.priorities)),
+        )
+
+    def select_point(
+        self,
+        points: Sequence[ChoicePoint],
+    ) -> ChoicePoint:
+        if not points:
+            raise ValueError("cannot select from an empty choice set")
+        return min(
+            points,
+            key=lambda point: (
+                (
+                    self.default_priority
+                    if point.variable is None
+                    else self.priorities.get(
+                        point.variable,
+                        self.default_priority,
+                    )
+                ),
+                len(point.alternatives),
+                point.name,
+            ),
+        )
+
+    def order_alternatives(
+        self,
+        point: ChoicePoint,
+        random_source: random.Random,
+    ) -> tuple[ChoiceAlternative, ...]:
+        return MRVChoicePolicy(
+            prefer_high_weight=self.prefer_high_weight
+        ).order_alternatives(point, random_source)
+
+
+@dataclass(frozen=True, slots=True)
+class PriorityWeightedRandomChoicePolicy:
+    """Respect variable phases and sample each domain by current weights."""
+
+    priorities: Mapping[Term, int]
+    default_priority: int = 0
+
+    def __post_init__(self) -> None:
+        object.__setattr__(
+            self,
+            "priorities",
+            MappingProxyType(dict(self.priorities)),
+        )
+
+    def select_point(
+        self,
+        points: Sequence[ChoicePoint],
+    ) -> ChoicePoint:
+        return _select_priority_point(
+            points,
+            self.priorities,
+            self.default_priority,
+        )
+
+    def order_alternatives(
+        self,
+        point: ChoicePoint,
+        random_source: random.Random,
+    ) -> tuple[ChoiceAlternative, ...]:
+        return WeightedRandomChoicePolicy().order_alternatives(
+            point,
+            random_source,
+        )
+
+
+@dataclass(frozen=True, slots=True)
 class WeightedRandomChoicePolicy:
     """MRV point choice and seeded weighted sampling without replacement."""
 
@@ -224,6 +307,27 @@ class WeightedRandomChoicePolicy:
                     break
             ordered.append(remaining.pop(selected))
         return tuple(ordered)
+
+
+def _select_priority_point(
+    points: Sequence[ChoicePoint],
+    priorities: Mapping[Term, int],
+    default_priority: int,
+) -> ChoicePoint:
+    if not points:
+        raise ValueError("cannot select from an empty choice set")
+    return min(
+        points,
+        key=lambda point: (
+            (
+                default_priority
+                if point.variable is None
+                else priorities.get(point.variable, default_priority)
+            ),
+            len(point.alternatives),
+            point.name,
+        ),
+    )
 
 
 type ChoiceProvider = Callable[
@@ -449,10 +553,14 @@ def _choice_point_from_action(
         f"{group_name}:{rule.name}:{action_index}"
         f"[{context_label}]"
     )
+    target = context.apply(action.entity)
+    decision_variable = (
+        target.subject if isinstance(target, Triple) else target
+    )
     return ChoicePoint(
         point_name,
         tuple(alternatives_by_fact.values()),
-        context.apply(action.entity),
+        decision_variable,
         {
             "rule": rule.name,
             "rule_group": group_name,

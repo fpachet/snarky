@@ -1,4 +1,9 @@
 from csp_solver.solver import solve_binary_csp
+from harmonizer import (
+    build_note_harmonizer_model,
+    harmonize_notes,
+    sample_harmonization,
+)
 from harmonizer.solver import build_harmonizer_model, harmonize
 from snarky import ChoiceTraversal
 
@@ -70,3 +75,47 @@ def test_intensional_transitions_match_extensional_oracle() -> None:
             intensional_transitions=True
         ).csp.facts
     ) == 32
+
+
+def test_note_harmonizer_generates_and_chooses_individual_notes() -> None:
+    model = build_note_harmonizer_model()
+    solutions = harmonize_notes(max_solutions=3)
+
+    assert model.generated_voicings == (15, 9)
+    assert len(solutions) == 3
+    assert all(
+        tuple(voicing[0] for voicing in solution.voicings) == (67, 72)
+        for solution in solutions
+    )
+    assert all(
+        decision.point.endswith(
+            (
+                "variable=note_0_alto]",
+                "variable=note_0_tenor]",
+                "variable=note_0_bass]",
+                "variable=note_1_alto]",
+                "variable=note_1_tenor]",
+                "variable=note_1_bass]",
+            )
+        )
+        for solution in solutions
+        for decision in solution.decisions
+    )
+    assert any(
+        event.rule_group == "update_contextual_note_weights"
+        for event in solutions[0].inference_events
+    )
+    assert any(
+        event.rule_group == "maintain_note_voicing_channel"
+        for event in solutions[0].inference_events
+    )
+
+
+def test_contextual_weighted_sampling_is_seed_reproducible() -> None:
+    first = sample_harmonization(seed=7)
+    second = sample_harmonization(seed=7)
+    other = sample_harmonization(seed=8)
+
+    assert first.voicings == second.voicings
+    assert first.decisions == second.decisions
+    assert first.voicings != other.voicings

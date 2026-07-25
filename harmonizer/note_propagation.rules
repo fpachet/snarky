@@ -1,0 +1,131 @@
+# Encodage dual : les variables de notes restent les variables de CHOICE,
+# tandis que le domaine de chaque position contient les voicings encore
+# supportés. Les règles maintiennent l'arc-consistance dans les deux sens.
+
+GROUP maintain_note_voicing_channel
+    RULE remove_voicing_without_soprano
+    WHEN
+        ($position candidate SEQ[$soprano $alto $tenor $bass])
+        ($position soprano_variable $variable)
+        NOT EXISTS ($variable candidate $soprano)
+    THEN
+        REMOVE ($position candidate SEQ[$soprano $alto $tenor $bass])
+    END
+
+    RULE remove_voicing_without_alto
+    WHEN
+        ($position candidate SEQ[$soprano $alto $tenor $bass])
+        ($position alto_variable $variable)
+        NOT EXISTS ($variable candidate $alto)
+    THEN
+        REMOVE ($position candidate SEQ[$soprano $alto $tenor $bass])
+    END
+
+    RULE remove_voicing_without_tenor
+    WHEN
+        ($position candidate SEQ[$soprano $alto $tenor $bass])
+        ($position tenor_variable $variable)
+        NOT EXISTS ($variable candidate $tenor)
+    THEN
+        REMOVE ($position candidate SEQ[$soprano $alto $tenor $bass])
+    END
+
+    RULE remove_voicing_without_bass
+    WHEN
+        ($position candidate SEQ[$soprano $alto $tenor $bass])
+        ($position bass_variable $variable)
+        NOT EXISTS ($variable candidate $bass)
+    THEN
+        REMOVE ($position candidate SEQ[$soprano $alto $tenor $bass])
+    END
+
+    RULE remove_unsupported_soprano
+    WHEN
+        ($position soprano_variable $variable)
+        ($variable candidate $soprano)
+        NOT EXISTS
+            ($position candidate SEQ[$soprano $alto $tenor $bass])
+        END_NOT_EXISTS
+    THEN
+        REMOVE ($variable candidate $soprano)
+    END
+
+    RULE remove_unsupported_alto
+    WHEN
+        ($position alto_variable $variable)
+        ($variable candidate $alto)
+        NOT EXISTS
+            ($position candidate SEQ[$soprano $alto $tenor $bass])
+        END_NOT_EXISTS
+    THEN
+        REMOVE ($variable candidate $alto)
+    END
+
+    RULE remove_unsupported_tenor
+    WHEN
+        ($position tenor_variable $variable)
+        ($variable candidate $tenor)
+        NOT EXISTS
+            ($position candidate SEQ[$soprano $alto $tenor $bass])
+        END_NOT_EXISTS
+    THEN
+        REMOVE ($variable candidate $tenor)
+    END
+
+    RULE remove_unsupported_bass
+    WHEN
+        ($position bass_variable $variable)
+        ($variable candidate $bass)
+        NOT EXISTS
+            ($position candidate SEQ[$soprano $alto $tenor $bass])
+        END_NOT_EXISTS
+    THEN
+        REMOVE ($variable candidate $bass)
+    END
+END_GROUP
+
+# Une marginale conditionnelle remplace la marginale statique lorsque la
+# note précédente de la même voix est connue. Cela n'affecte que l'ordre des
+# branches : candidate et contraintes restent inchangés.
+
+GROUP update_contextual_note_weights
+    RULE use_previous_note_marginal
+    WHEN
+        ($variable predecessor $previous)
+        ($previous value $previous_pitch)
+        ($variable candidate $pitch)
+        ($variable choice_weight SEQ[$pitch $old_weight])
+        ($variable conditional_weight SEQ[$previous_pitch $pitch $new_weight])
+        $old_weight != $new_weight
+    THEN
+        REMOVE ($variable choice_weight SEQ[$pitch $old_weight])
+        ADD ($variable choice_weight SEQ[$pitch $new_weight])
+    END
+END_GROUP
+
+GROUP interpret_note_harmonization
+    RULE expose_selected_notes
+    WHEN
+        ($position soprano_variable $soprano_variable)
+        ($position alto_variable $alto_variable)
+        ($position tenor_variable $tenor_variable)
+        ($position bass_variable $bass_variable)
+        ($soprano_variable value $soprano)
+        ($alto_variable value $alto)
+        ($tenor_variable value $tenor)
+        ($bass_variable value $bass)
+    THEN
+        ADD ($position soprano $soprano)
+        ADD ($position alto $alto)
+        ADD ($position tenor $tenor)
+        ADD ($position bass $bass)
+        ADD ($position selected_voicing SEQ[$soprano $alto $tenor $bass])
+    END
+
+    RULE recognize_note_harmonization
+    WHEN
+        (roy_note_harmonization state solved)
+    THEN
+        ADD (roy_note_harmonization result harmonized)
+    END
+END_GROUP

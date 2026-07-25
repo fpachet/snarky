@@ -136,6 +136,29 @@ Le benchmark de performance reproductible est lancé depuis la racine avec :
 uv run python -m benchmarks.sudoku_rules --levels 1 6 7 --repeat 5
 ```
 
+## Recherche explicite
+
+La base humaine reste le chemin privilégié pour p1–p7. Un second mode sert
+désormais de test d'intégration du CSP générique :
+
+```python
+from sudoku import load_puzzle, solve_puzzle_with_search
+
+result = solve_puzzle_with_search(
+    load_puzzle(2),
+    techniques=("naked_singles",),
+)
+```
+
+Les techniques autorisées sont saturées après chaque décision. Si elles ne
+suffisent pas, la règle CSP générique choisit un candidat par MRV. Sur p2,
+limité aux Naked Singles, la recherche explore 11 nœuds, réfute quatre
+branches et retrouve exactement l'oracle en trois décisions.
+
+Ce mode ne remplace pas les explications humaines. Il vérifie que les mêmes
+faits et règles peuvent participer à une résolution hybride
+propagation–recherche sans solveur Sudoku Python.
+
 La baseline mesurée et les compteurs algorithmiques sont documentés dans
 [`../benchmarks/README.md`](../benchmarks/README.md).
 
@@ -166,7 +189,7 @@ moteur, mais les règles p1–p7 restent inchangées : leurs techniques humaines
 explicites continuent de produire la trace métier. La contrainte globale sert
 d'abord à l'instanciation et aux futurs niveaux ou mécanismes de choix.
 
-## Prochain jalon
+## Prochain jalon humain
 
 Le prochain palier commence à p8 avec les triples. X-Wing a confirmé que les
 jointures et `COUNT` suffisent sans `COLLECT`. p8 devra déterminer si

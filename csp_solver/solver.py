@@ -1,4 +1,4 @@
-"""Generic binary CSP protocol expressed as Snarky facts and rules."""
+"""Generic finite-CSP protocol expressed as Snarky facts and rules."""
 
 from __future__ import annotations
 
@@ -47,8 +47,13 @@ CHOICE_WEIGHT = Atom("choice_weight")
 
 
 @dataclass(frozen=True, slots=True)
-class BinaryCSP:
-    """One finite binary CSP encoded entirely as ground Snarky facts."""
+class FiniteCSP:
+    """One finite CSP encoded as ground facts and declarative rule groups.
+
+    Extensional binary relations are one representation, not a restriction
+    of the protocol. ``groups`` may implement intensional, n-ary, global, or
+    application-specific propagation.
+    """
 
     problem: Atom
     facts: tuple[Fact, ...]
@@ -58,10 +63,14 @@ class BinaryCSP:
     def __post_init__(self) -> None:
         facts = tuple(self.facts)
         if not facts:
-            raise ValueError("a binary CSP needs initial facts")
+            raise ValueError("a finite CSP needs initial facts")
         object.__setattr__(self, "facts", facts)
         object.__setattr__(self, "weights", dict(self.weights))
         object.__setattr__(self, "groups", tuple(self.groups))
+
+
+# Compatibility name retained for the first public CSP project.
+BinaryCSP = FiniteCSP
 
 
 def binary_constraint_facts(
@@ -92,7 +101,7 @@ def binary_constraint_facts(
 
 
 def solve_binary_csp(
-    model: BinaryCSP,
+    model: FiniteCSP,
     *,
     max_solutions: int = 1,
     max_nodes: int = 10_000,
@@ -102,9 +111,35 @@ def solve_binary_csp(
     reversible_depth_first: bool = True,
     lazy_frontier: bool = True,
 ) -> ChoiceSearchResult:
-    """Propagate and search a fact-encoded CSP without a Python solver."""
+    """Compatibility wrapper for :func:`solve_finite_csp`."""
+
+    return solve_finite_csp(
+        model,
+        max_solutions=max_solutions,
+        max_nodes=max_nodes,
+        policy=policy,
+        traversal=traversal,
+        seed=seed,
+        reversible_depth_first=reversible_depth_first,
+        lazy_frontier=lazy_frontier,
+    )
+
+
+def solve_finite_csp(
+    model: FiniteCSP,
+    *,
+    max_solutions: int = 1,
+    max_nodes: int = 10_000,
+    policy: ChoicePolicy | None = None,
+    traversal: ChoiceTraversal = ChoiceTraversal.DEPTH_FIRST,
+    seed: int = 0,
+    reversible_depth_first: bool = True,
+    lazy_frontier: bool = True,
+) -> ChoiceSearchResult:
+    """Propagate and search a fact-encoded finite CSP using Snarky."""
 
     provider = RuleChoiceProvider((*_csp_groups(), *model.groups))
+    existing_weights = _existing_choice_weights(model.facts)
     weighted_facts = tuple(
         Fact(
             Triple(
@@ -129,6 +164,8 @@ def solve_binary_csp(
         for fact in model.facts
         if isinstance(fact.entity, Triple)
         and fact.entity.relation == CANDIDATE
+        and (fact.entity.subject, fact.entity.object)
+        not in existing_weights
     )
     session = ForwardEngine(()).create_session(
         (*model.facts, *weighted_facts)
@@ -157,6 +194,22 @@ def solve_binary_csp(
         lazy_frontier=lazy_frontier,
     )
     return search.solve(session)
+
+
+def _existing_choice_weights(
+    facts: tuple[Fact, ...],
+) -> frozenset[tuple[Term, Term]]:
+    output: set[tuple[Term, Term]] = set()
+    for fact in facts:
+        entity = fact.entity
+        if (
+            isinstance(entity, Triple)
+            and entity.relation == CHOICE_WEIGHT
+            and isinstance(entity.object, FiniteSequence)
+            and len(entity.object.elements) == 2
+        ):
+            output.add((entity.subject, entity.object.elements[0]))
+    return frozenset(output)
 
 
 def assignment_from_solution(

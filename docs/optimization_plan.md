@@ -676,6 +676,20 @@ Cette tranche est terminée. À formulation inchangée, N-reines N=14 passe de
 1,145 s et 37,60 ms. Le nombre d'index complets de N=14 passe de 31 à 1.
 Les solutions, nœuds et échecs restent identiques.
 
+Le jalon applicatif suivant fournit une nouvelle baseline plutôt qu'une
+optimisation du noyau :
+
+- Sudoku p2 limité aux Naked Singles : 11 nœuds, 4 échecs, 1,942 s ;
+- harmoniseur note par note : 19 nœuds, 0 échec, 145,06 ms pour trois
+  solutions ;
+- oracle à voicing complet : 13 nœuds, 34,92 ms.
+
+Nogoods, backjumping, parallélisme et overlays persistants sont différés :
+aucune contradiction n'est revisitée et les arbres sont trop petits pour
+amortir ces mécanismes. La prochaine optimisation devra être déclenchée par le
+profil des règles `ROY_1998`. Voir
+[`csp_harmonizer_next.md`](csp_harmonizer_next.md).
+
 La première version possède déjà des tests différentiels ciblés, y compris
 variables en position relation et deltas d'ajout/suppression. Trente petits
 programmes positifs générés, avec et sans différence, sont aussi comparés au

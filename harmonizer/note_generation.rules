@@ -1,0 +1,25 @@
+# Phase 1 -> phase 2 de la spécification : les quadruplets ne sont engendrés
+# qu'après création et première réduction des domaines de notes.
+
+GROUP generate_candidate_voicings
+    RULE generate_legal_vertical_voicing
+    WHEN
+        ($position soprano_variable $soprano_variable)
+        ($position alto_variable $alto_variable)
+        ($position tenor_variable $tenor_variable)
+        ($position bass_variable $bass_variable)
+        ($soprano_variable candidate $soprano)
+        ($alto_variable candidate $alto)
+        ($tenor_variable candidate $tenor)
+        ($bass_variable candidate $bass)
+        $soprano >= $alto
+        $alto >= $tenor
+        $tenor >= $bass
+        CONSTRAINT $soprano - $alto <= 12
+        CONSTRAINT $alto - $tenor <= 12
+        CONSTRAINT $tenor - $bass <= 19
+        CHECK complete_c_major_triad ARGS SEQ[$soprano $alto $tenor $bass]
+    THEN
+        ADD ($position candidate SEQ[$soprano $alto $tenor $bass])
+    END
+END_GROUP

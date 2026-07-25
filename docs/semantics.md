@@ -140,6 +140,9 @@ sont différés jusqu'au retrait de la frontière. Après saturation des groupes
 un prédicat de contradiction rejette la branche et un prédicat de but accepte
 une solution. MRV, poids, graine, ordre de parcours et limites sont explicites.
 Les poids ordonnent les branches mais ne changent jamais leur faisabilité.
+Pour une cible triplet, `ChoicePoint.variable` désigne son sujet ground.
+`PriorityMRVChoicePolicy` et `PriorityWeightedRandomChoicePolicy` peuvent donc
+imposer des phases réutilisables sans connaître la règle productrice.
 
 Une action déclarative :
 
@@ -156,6 +159,11 @@ Plusieurs `CHOICE` d'une règle sont séquentiels et lient leurs variables pour
 la suite. Les actions ordinaires placées après le dernier choix constituent
 une continuation déclenchée quand tous les faits choisis existent.
 `RuleChoiceProvider` extrait ces règles du chaînage avant ordinaire.
+
+Les faits utilisés par `WEIGHT` appartiennent à la mémoire de la branche. Une
+règle peut retirer une marginale statique et en ajouter une conditionnelle ;
+le rollback restaure alors aussi le modèle de poids. Cette modification
+n'affecte que l'ordre ou l'échantillonnage des alternatives encore faisables.
 
 Les modifications partielles et un ATMS complet restent différés. Voir
 [`collections_fresh_and_contexts.md`](collections_fresh_and_contexts.md) et

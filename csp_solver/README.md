@@ -1,7 +1,12 @@
-# Solveur CSP déclaratif
+# Solveur CSP fini déclaratif
 
 Ce projet teste le mécanisme générique de `choice` et de backtracking sans
 appeler `BacktrackingConstraintSolver`.
+
+La classe publique est maintenant `FiniteCSP`. `BinaryCSP` reste un alias
+compatible : les relations binaires extensionnelles sont un format possible,
+mais les groupes du modèle peuvent également assurer une propagation
+intensionnelle, n-aire, globale ou métier.
 
 Un problème est représenté par des faits Snarky :
 
@@ -98,3 +103,26 @@ Le benchmark A/B est reproductible avec :
 ```sh
 PYTHONPATH=.:src python benchmarks/choice_formulations.py --repeat 3
 ```
+
+## Sudoku comme CSP générique
+
+Le module [`sudoku/search.py`](../sudoku/search.py) ajoute les métadonnées CSP
+aux 81 cellules natives, puis réutilise leurs groupes de règles sans
+conversion. Avec seulement les Naked Singles, p2 exige 11 nœuds, quatre
+branches contradictoires et trois décisions sur le chemin solution.
+
+```python
+from sudoku import load_puzzle, solve_puzzle_with_search
+
+result = solve_puzzle_with_search(
+    load_puzzle(2),
+    techniques=("naked_singles",),
+)
+```
+
+La grille obtenue est comparée à l'oracle CLIPS déjà utilisé par le projet
+Sudoku. Ce test démontre que `FiniteCSP` ne contient aucune connaissance des
+reines, des relations binaires ou du Sudoku.
+
+L'architecture et l'évaluation des optimisations avancées sont détaillées dans
+[`docs/csp_harmonizer_next.md`](../docs/csp_harmonizer_next.md).

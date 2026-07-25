@@ -166,6 +166,29 @@ de faits et maintient les deltas sans rescanner toute la mémoire. Best-first
 utilise un tas stable, BFS une file double. Ces changements ne modifient ni les
 solutions, ni les poids, ni les compteurs logiques.
 
+## CSP générique et génération musicale
+
+Le protocole applicatif s'appelle désormais `FiniteCSP`; `BinaryCSP` reste un
+alias compatible. Les contraintes d'un modèle peuvent être des tables
+binaires, des comparaisons intensives, des contraintes globales ou des groupes
+de règles métier.
+
+Le projet Sudoku peut maintenant limiter volontairement ses techniques puis
+passer au `CHOICE` générique. Sur p2 avec les seuls Naked Singles, il retrouve
+l'oracle après 11 nœuds, quatre contradictions et trois décisions.
+
+L'harmoniseur possède aussi un second modèle où chaque note SATB est une
+variable. Les règles engendrent les voicings après création des domaines,
+maintiennent le canal notes–voicings et recherchent les supports entre
+positions. Les poids peuvent devenir conditionnels à la note précédente dans
+la branche. Best-first retourne les meilleures solutions ; un échantillonnage
+pondéré avec graine est reproductible.
+
+Voir
+[`docs/csp_harmonizer_next.md`](docs/csp_harmonizer_next.md),
+[`csp_solver`](csp_solver/README.md) et
+[`harmonizer`](harmonizer/README.md).
+
 ## État actuel
 
 Le dépôt contient un moteur Python semi-naïf par défaut, une stratégie naïve
@@ -336,6 +359,9 @@ Le contenu actuel comprend :
 - [`docs/choice_search_optimization_plan.md`](docs/choice_search_optimization_plan.md),
   le plan profilé désormais exécuté, ses décisions et ses gains avant
   l'extension du CSP et de l'harmoniseur ;
+- [`docs/csp_harmonizer_next.md`](docs/csp_harmonizer_next.md), le CSP fini
+  générique, le Sudoku avec recherche, l'harmoniseur note par note, ses
+  marginales contextuelles et l'évaluation des mécanismes avancés ;
 - [`docs/mutations_and_negation.md`](docs/mutations_and_negation.md), la
   suppression de faits, le journal de mutations et les blocs corrélés
   `EXISTS`/`NOT EXISTS` ;
@@ -489,7 +515,7 @@ ne recalcule qu'une règle et en réutilise 199. La médiane passe de 2,206 ms
 pour une construction froide à 0,572 ms pour la mise à jour incrémentale,
 soit ×3,86.
 
-La suite complète compte désormais 395 tests et s’exécute en moins de onze
+La suite complète compte désormais 400 tests et s’exécute en moins de onze
 secondes sur cette même machine, contre 26,05 s avant la mise en cache du
 catalogue de provenance
 Spinoza et 76,50 s avant les optimisations.

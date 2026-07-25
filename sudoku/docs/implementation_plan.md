@@ -412,3 +412,15 @@ Le premier jalon visible est p1, après les phases 0 à 4. Le jalon « Sudoku
 essentiel » est atteint à la fin de la phase 7 avec p1 à p6 résolues et
 expliquées sans recherche exhaustive ni solveur externe. X-Wing étend
 désormais le périmètre exécutable à p7.
+
+## Palier transversal — choix et backtracking
+
+Le mode `solve_puzzle_with_search` réutilise maintenant les faits et groupes
+ci-dessus dans `FiniteCSP`. Les techniques autorisées sont saturées, puis MRV
+choisit un candidat si la grille reste bloquée. Le test d'intégration limite
+p2 aux Naked Singles : 11 nœuds, 4 contradictions et 3 décisions suffisent
+pour retrouver l'oracle.
+
+Ce palier ne modifie pas l'objectif humain p1–p7. Il valide la combinaison
+générale propagation–recherche et fournit un oracle pour les futurs niveaux
+où hypothèses ou chaînes seront explicitement étudiées.

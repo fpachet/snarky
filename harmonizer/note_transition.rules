@@ -1,0 +1,33 @@
+# Les opérations musicales élémentaires sont enregistrées comme prédicats
+# purs, mais leur conjonction, leur portée et la recherche de support restent
+# entièrement déclaratives.
+
+GROUP propagate_note_harmonic_transitions
+    RULE revise_successor_voicing_by_roy_rules
+    WHEN
+        ($left successor $right)
+        ($right candidate $target)
+        NOT EXISTS
+            ($left candidate $source)
+            CHECK melodic_transition ARGS SEQ[$source $target]
+            CHECK no_parallel_perfects ARGS SEQ[$source $target]
+            CHECK legal_global_motion ARGS SEQ[$source $target]
+        END_NOT_EXISTS
+    THEN
+        REMOVE ($right candidate $target)
+    END
+
+    RULE revise_predecessor_voicing_by_roy_rules
+    WHEN
+        ($left successor $right)
+        ($left candidate $source)
+        NOT EXISTS
+            ($right candidate $target)
+            CHECK melodic_transition ARGS SEQ[$source $target]
+            CHECK no_parallel_perfects ARGS SEQ[$source $target]
+            CHECK legal_global_motion ARGS SEQ[$source $target]
+        END_NOT_EXISTS
+    THEN
+        REMOVE ($left candidate $source)
+    END
+END_GROUP

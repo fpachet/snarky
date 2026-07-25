@@ -122,6 +122,31 @@ Depuis le début de cette tranche, N=14 passe de 4,749 à 1,145 s : ×4,15
 Les données brutes sont dans
 [`results/choice_formulations_2026-07-25.json`](results/choice_formulations_2026-07-25.json).
 
+## CSP générique et harmoniseur note par note
+
+Le benchmark du jalon suivant compare les chemins applicatifs, construction
+du modèle comprise :
+
+```sh
+PYTHONPATH=.:src python -m benchmarks.csp_harmonizer_next --repeat 5
+```
+
+| Cas | Médiane | Nœuds | Échecs | Solutions |
+|---|---:|---:|---:|---:|
+| Sudoku p2, règles humaines complètes | 294,36 ms | — | 0 | 1 |
+| Sudoku p2, Naked Singles + recherche | 1,942 s | 11 | 4 | 1 |
+| harmoniseur, choix d'un voicing | 34,92 ms | 13 | 0 | 3 |
+| harmoniseur, variables de notes | 145,06 ms | 19 | 0 | 3 |
+
+Le Sudoku de recherche ne vise pas à battre les règles humaines : il les
+limite volontairement pour tester une contradiction et un rollback réels.
+L'harmoniseur note par note paie ×4,15 pour exposer les variables, la
+canalisation et les marginales conditionnelles. Ces résultats constituent la
+baseline à optimiser lors de l'ajout des règles `ROY_1998`.
+
+Les résultats bruts sont conservés dans
+[`results/csp_harmonizer_next_2026-07-25.json`](results/csp_harmonizer_next_2026-07-25.json).
+
 ## Filtrage des domaines avant instanciation
 
 `constraint_instantiation` propose quatre scénarios : triangle favorable,

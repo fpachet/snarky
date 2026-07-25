@@ -87,6 +87,10 @@ reines donnent exactement leurs deux solutions. Une seconde formulation
 N-reines remplace les tables de couples autorisés par une règle
 d'arc-consistance et des comparaisons arithmétiques.
 
+Le protocole s'appelle maintenant `FiniteCSP`. Le Sudoku natif l'utilise sans
+traduction : limité aux Naked Singles, p2 nécessite 11 nœuds et quatre
+backtracks avant de retrouver son oracle.
+
 ### Harmoniseur à quatre voix dans le style de Bach
 
 Le projet [`harmonizer`](../harmonizer/README.md) livre un premier noyau
@@ -100,13 +104,17 @@ exécutable à deux positions. Il combine déjà :
 - exposition des notes choisies par des règles.
 
 Le profil `ROY_1998`, les variables de notes séparées, les préférences
-lexicographiques et le catalogue complet de règles restent planifiés. Le
-compilateur de candidats Python du premier jalon sera progressivement remplacé
-par des connaissances Snarky déclaratives.
+lexicographiques et le catalogue complet de règles restent planifiés. Un
+deuxième chemin choisit désormais les notes séparément, construit les voicings
+par règle, maintient leur canalisation et applique des marginales
+conditionnelles. Le choix de voicing complet reste son oracle.
 
 Les optimisations de recherche et les reformulations A/B sont terminées et
 mesurées dans
 [`choice_search_optimization_plan.md`](choice_search_optimization_plan.md).
+
+Le jalon applicatif suivant est décrit et mesuré dans
+[`csp_harmonizer_next.md`](csp_harmonizer_next.md).
 
 ## Critère de décision
 

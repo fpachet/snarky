@@ -9,11 +9,11 @@ Ce projet est le cas d'intégration de la génération hybride de Snarky :
 - branches explicites et backtracking ;
 - traces de décisions et contradictions.
 
-## Premier incrément
+## Oracle à voicing complet
 
-La version actuelle harmonise une phrase test de deux positions en do majeur
-avec des accords parfaits SATB. Un choix porte encore sur un voicing complet
-par position.
+L'oracle historique harmonise une phrase test de deux positions en do majeur
+avec des accords parfaits SATB. Dans ce chemin de comparaison, un choix porte
+sur un voicing complet par position.
 
 Les domaines verticaux appliquent :
 
@@ -23,7 +23,7 @@ Les domaines verticaux appliquent :
 - `R-CHORD-001` à `003` : triade complète ;
 - `R-DOUBLING-001` : multiplicité `2,1,1`.
 
-Dans ce premier incrément, ce domaine vertical est compilé en Python sous
+Dans cet oracle, ce domaine vertical est compilé en Python sous
 forme de faits `candidate`. Les règles Snarky génériques assurent ensuite la
 réduction des domaines, les singletons, la contradiction et la reconnaissance
 de solution. Ce découpage donne un oracle exécutable, mais le plan prévoit de
@@ -34,9 +34,9 @@ La sélection d'un voicing n'est plus construite par une boucle Python :
 la règle CSP générique `choose_csp_value` utilise maintenant
 `CHOICE ... FROM ... END_CHOICE`. Le fichier musical
 [`rules.rules`](rules.rules) ne contient toutefois encore que l'exposition du
-voicing choisi et la reconnaissance du résultat. Il ne constitue donc pas
-encore une base d'harmonisation substantielle. Le prochain travail portera
-précisément sur la migration des contraintes musicales vers des règles.
+voicing choisi et la reconnaissance du résultat. Ce chemin reste disponible
+pour comparer résultats, compteurs et performances avec la représentation
+note par note.
 
 Les relations entre deux positions appliquent :
 
@@ -86,6 +86,63 @@ Le benchmark comparatif s'exécute avec :
 ```sh
 PYTHONPATH=.:src python benchmarks/choice_formulations.py --repeat 3
 ```
+
+## Harmoniseur note par note
+
+[`note_solver.py`](note_solver.py) suit maintenant l'architecture en deux
+phases de la spécification. Chaque voix de chaque position est une variable
+CSP. Le soprano donné est singleton ; alto, ténor et basse sont décidés par le
+`CHOICE` générique.
+
+[`note_generation.rules`](note_generation.rules) construit les voicings après
+création des domaines. La règle expose directement l'ordre vertical SATB, les
+trois espacements maximaux et la complétude de la triade.
+
+[`note_propagation.rules`](note_propagation.rules) maintient la canalisation
+bidirectionnelle entre notes et voicings.
+[`note_transition.rules`](note_transition.rules) rend visibles dans la
+recherche de supports les contraintes mélodiques, les parallélismes interdits
+et le mouvement global.
+
+```python
+from harmonizer import harmonize_notes
+
+solutions = harmonize_notes((67, 72), max_solutions=3)
+```
+
+La phrase test engendre par règles les mêmes domaines de 15 et 9 voicings que
+l'oracle. Les trois premières solutions demandent 19 nœuds et quatre à cinq
+décisions de notes.
+
+### Marginales contextuelles
+
+Chaque variable possède une marginale statique. Lorsque la note précédente de
+la même voix est connue, `update_contextual_note_weights` la remplace par une
+marginale conditionnelle. Le poids est donc recalculé dans la branche et
+restauré par rollback.
+
+Best-first fournit les meilleures réalisations déterministes. Un tirage
+pondéré reproductible est également public :
+
+```python
+from harmonizer import sample_harmonization
+
+sample = sample_harmonization((67, 72), seed=7)
+```
+
+Les poids ordonnent ou échantillonnent les solutions ; ils ne changent jamais
+les contraintes dures.
+
+### Coût du modèle explicite
+
+Sur la phrase de deux positions, trois solutions prennent 34,92 ms avec le
+choix d'un voicing complet et 145,06 ms avec les variables de notes. Le
+facteur ×4,15 est la baseline du modèle explicatif : il manipule davantage de
+variables et maintient le canal notes–voicings.
+
+Voir [`docs/csp_harmonizer_next.md`](../docs/csp_harmonizer_next.md) pour
+l'architecture, les mesures et les décisions sur nogoods, backjumping et
+parallélisme.
 
 ## Limites explicites
 

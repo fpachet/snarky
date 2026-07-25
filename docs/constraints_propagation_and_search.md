@@ -491,7 +491,7 @@ END
 1. sature les groupes de propagation ;
 2. teste les motifs `solved` et `contradiction` ;
 3. lit un choix produit par les règles ;
-4. crée une session fille par alternative ;
+4. pose un checkpoint en DFS, ou diffère un fork en BFS/best-first ;
 5. ajoute l'alternative comme hypothèse nommée ;
 6. reprend la propagation dans chaque branche.
 
@@ -499,13 +499,23 @@ La connaissance du domaine reste déclarative : les règles décident quelle
 variable choisir, quelles alternatives proposer et ce qui constitue une
 contradiction. Le contrôleur ne connaît que le protocole général.
 
-Ce modèle ne revient pas en arrière en annulant des mutations. Chaque branche
-est une session isolée possédant ses hypothèses, événements, contradictions
-et preuves. Le pilote fournit DFS, BFS, best-first, MRV, poids, limites et
-traces. `RuleChoiceProvider` traduit la règle sans connaissance métier et le
-solveur CSP pédagogique n'a plus de générateur Python de `ChoicePoint`.
-Plusieurs `CHOICE` successifs peuvent construire progressivement un objet ;
-leurs variables sont liées dans l'ordre.
+Le DFS annule maintenant les mutations par le trail complet de session. Les
+autres parcours conservent des branches isolées différées. Le pilote fournit
+DFS, BFS, best-first, MRV, priorités de phases, poids, limites et traces.
+`RuleChoiceProvider` traduit la règle sans connaissance métier et le solveur
+CSP pédagogique n'a plus de générateur Python de `ChoicePoint`. Plusieurs
+`CHOICE` successifs peuvent construire progressivement un objet ; leurs
+variables sont liées dans l'ordre.
+
+Le protocole applicatif s'appelle désormais `FiniteCSP`; `BinaryCSP` reste un
+alias. Le Sudoku natif démontre qu'un modèle n'a pas besoin de relations
+binaires matérialisées : ses groupes humains assurent la propagation avant et
+après chaque décision.
+
+L'harmoniseur note par note utilise ce même protocole avec un encodage dual :
+variables de notes choisies, voicings comme supports n-aires et poids
+conditionnels mis à jour dans la branche. Voir
+[`csp_harmonizer_next.md`](csp_harmonizer_next.md).
 
 ## 5. Solveur CSP externe
 

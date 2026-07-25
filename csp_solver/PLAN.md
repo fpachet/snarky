@@ -13,12 +13,14 @@
 - énumération de plusieurs solutions ;
 - constructeur générique `n` reines et quatre reines comme oracle ;
 - formulation N-reines intensionnelle par recherche de supports arithmétiques ;
-- benchmark A/B extensionnel/intensionnel jusqu'à N=14.
+- benchmark A/B extensionnel/intensionnel jusqu'à N=14 ;
+- protocole généralisé `FiniteCSP`, avec alias `BinaryCSP` compatible ;
+- Sudoku p2 résolu par Naked Singles, `CHOICE` et quatre backtracks.
 
 ## Paliers suivants
 
-1. ajouter des contraintes n-aires et globales déclarées comme objets ;
+1. ajouter un problème où un nogood serait réellement réutilisé ;
 2. comparer systématiquement avec `BacktrackingConstraintSolver` ;
-3. ajouter coloration, Sudoku miniature et problèmes aléatoires ;
-4. apprendre éventuellement des nogoods ;
-5. benchmarker DFS, MRV, best-first et choix pondéré.
+3. ajouter coloration et problèmes aléatoires ;
+4. mesurer impact, backjumping et nogoods sur ces oracles ;
+5. ne retenir un mécanisme avancé que s'il réduit les nœuds ou le temps.

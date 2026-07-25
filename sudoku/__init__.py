@@ -10,6 +10,7 @@ from .domain import (
     validate_complete_grid,
 )
 from .rulebase import SudokuRuleBase, load_rulebase
+from .search import SudokuSearchResult, solve_puzzle_with_search
 from .solver import (
     SudokuSolveResult,
     SudokuStep,
@@ -22,6 +23,7 @@ __all__ = [
     "SudokuPuzzle",
     "SudokuRuleBase",
     "SudokuSolveResult",
+    "SudokuSearchResult",
     "SudokuStep",
     "SudokuValidationError",
     "candidates_from_facts",
@@ -32,5 +34,6 @@ __all__ = [
     "replay_events",
     "solve_level",
     "solve_puzzle",
+    "solve_puzzle_with_search",
     "validate_complete_grid",
 ]
