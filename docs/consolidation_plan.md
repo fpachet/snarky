@@ -321,6 +321,20 @@ rulebase changed by +0.28%, within run-to-run noise, and still produces the
 same 9 groups and 18 rules. The protocol and raw medians are recorded in
 [`parser_lexer_2026-07-25.json`](../benchmarks/results/parser_lexer_2026-07-25.json).
 
+Recursive term parsing now lives in `parser_terms.py`; `parser.py` explicitly
+re-exports `parse_term`, `_parse_all`, and `_parse_term_tokens` so public and
+historical import identities remain stable. Direct tests cover nested triples,
+sets, ordered sequences, variables, numbers, built-in statuses, composed
+token positions, and the existing error families. Profiling the extracted
+layer exposed eager construction of an `Atom` even when a token resolved to a
+built-in `Status`. Commit `f34cd12` avoids that redundant allocation while a
+cheap initial-character guard keeps ordinary atoms on the direct path. A
+1,000-status sequence improves by 18.30%; the wide-atom and nested-triple
+controls change by -0.18% and -0.10%, respectively, and a status-bearing
+Spinoza rulebase changes by -0.49%, all within noise outside the targeted
+case. Raw medians and logical controls are in
+[`parser_terms_2026-07-25.json`](../benchmarks/results/parser_terms_2026-07-25.json).
+
 The `engine/forward.py` decomposition target is complete for C3. The next
 choice decomposition target is also complete: production, policies, frontier
 management, and traversal live in focused modules, while `choice.py` is a
@@ -345,5 +359,5 @@ component construction. Adaptive selection now lives in
 `instantiation/adaptive_selection.py`, and populated branch cloning is
 explicit and isolated. The `domain_filter.py` decomposition target is
 complete. The lexical-analysis part of the `parser.py` decomposition is also
-complete. C3 continues with term parsing, followed by premise and action
-parsing.
+complete, as is recursive term parsing. C3 continues with premise parsing,
+followed by action parsing.

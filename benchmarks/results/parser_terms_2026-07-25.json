@@ -1,0 +1,88 @@
+{
+  "benchmark": "recursive_term_parser_extraction_and_status_optimization",
+  "date": "2026-07-25",
+  "python": "3.13.11",
+  "platform": "macOS-15.7.7-arm64-arm-64bit-Mach-O",
+  "previous_tranche_commit": "dfb36e4",
+  "extraction_commit": "3f11b8f",
+  "optimized_commit": "f34cd12",
+  "protocol": {
+    "series_order": [
+      "baseline",
+      "current",
+      "current",
+      "baseline"
+    ],
+    "command": "python -m benchmarks.parser_terms --width 1000 --depth 100 --iterations 20 --repeat 21",
+    "summary": "mean of the two independently measured medians",
+    "same_interpreter_and_environment": true
+  },
+  "cases": {
+    "wide_sequence": {
+      "characters": 9894,
+      "top_level_elements": 1000,
+      "baseline_medians_seconds": [
+        0.00124835835003978,
+        0.0012531833500361244
+      ],
+      "current_medians_seconds": [
+        0.0012486229000387538,
+        0.0012483833000260347
+      ],
+      "baseline_summary_seconds": 0.0012507708500379521,
+      "current_summary_seconds": 0.0012485031000323942,
+      "delta_percent": -0.18130819130371956,
+      "speedup": 1.001816375149969
+    },
+    "status_sequence": {
+      "characters": 7004,
+      "top_level_elements": 1000,
+      "baseline_medians_seconds": [
+        0.001150872900052491,
+        0.0011628958500295994
+      ],
+      "current_medians_seconds": [
+        0.0009409583500200825,
+        0.0009493333000136772
+      ],
+      "baseline_summary_seconds": 0.001156884375041045,
+      "current_summary_seconds": 0.0009451458250168798,
+      "delta_percent": -18.302481612879685,
+      "speedup": 1.224027387541371
+    },
+    "nested_triple": {
+      "characters": 1894,
+      "triple_depth": 100,
+      "baseline_medians_seconds": [
+        0.0003977332999966166,
+        0.0004001625000455533
+      ],
+      "current_medians_seconds": [
+        0.00039556040001116345,
+        0.00040151040002456284
+      ],
+      "baseline_summary_seconds": 0.000398947900021085,
+      "current_summary_seconds": 0.0003985354000178631,
+      "delta_percent": -0.10339696065577719,
+      "speedup": 1.001035039806259
+    },
+    "spinoza_status_rulebase": {
+      "source": "spinoza/systematic/rules/proofs/E3P18.rules",
+      "characters": 3016,
+      "rules": 9,
+      "baseline_medians_seconds": [
+        0.00041081459994529723,
+        0.0004117208499337721
+      ],
+      "current_medians_seconds": [
+        0.0004088729499926558,
+        0.00040961040003821835
+      ],
+      "baseline_summary_seconds": 0.00041126772493953466,
+      "current_summary_seconds": 0.00040924167501543707,
+      "delta_percent": -0.49263528383985955,
+      "speedup": 1.004950741940007
+    }
+  },
+  "conclusion": "Recursive term parsing is isolated with compatible public and historical imports. Recognized statuses no longer allocate discarded Atom objects; status-dense parsing improves materially while ordinary atoms, nested triples, and a real Spinoza rulebase remain stable within measurement noise."
+}
