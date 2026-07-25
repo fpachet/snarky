@@ -195,6 +195,31 @@ The first consolidation tranche establishes:
 Historical public import paths remain compatible and are covered by identity
 tests.
 
+The internal decomposition is also guarded against performance regressions.
+An interleaved comparison of baseline commit `50aeef0` and post-extraction
+commit `2da2902`, using the same Python 3.13.11 process environment on macOS
+ARM64, produced:
+
+| Workload | Baseline | Extracted modules | Difference |
+|---|---:|---:|---:|
+| indexed explicit Fibonacci, F(12) | 393.63 ms | 393.79 ms | +0.04% |
+| four queens choice search | 14.24 ms | 14.30 ms | +0.37% |
+| two-position choice harmonizer | 34.07 ms | 34.16 ms | +0.28% |
+| four-position choice harmonizer | 496.54 ms | 499.60 ms | +0.62% |
+| tonal harmonizer, symbolic input | 838.26 ms | 835.65 ms | -0.31% |
+| tonal harmonizer, object round trip | 851.76 ms | 850.11 ms | -0.19% |
+
+Each value is the mean of two independently measured medians, in
+baseline-current-current-baseline order, with 9 repetitions for the engine
+and choice workloads and 7 for the tonal workloads. Logical counters are
+identical in both versions. These sub-percent differences are measurement
+noise rather than a material regression. Raw medians, commands, environment,
+and counters are recorded in
+[`consolidation_refactor_2026-07-25.json`](../benchmarks/results/consolidation_refactor_2026-07-25.json).
+
 The `engine/forward.py` decomposition target is complete for C3. The next
-tranche continues with traversal orchestration in `choice.py`, protected by
-the same mutable-state suite.
+choice decomposition step is now complete: point-selection and
+alternative-ordering policies live in `choice_policies.py`, preserving all
+historical public import identities. The next tranche continues with
+traversal orchestration in `choice.py`, protected by the same mutable-state
+suite.

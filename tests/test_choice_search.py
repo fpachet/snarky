@@ -7,6 +7,7 @@ from snarky import (
     ChoiceAlternative,
     ChoiceEventKind,
     ChoicePoint,
+    ChoicePolicy,
     ChoiceSearchStatus,
     ChoiceTraversal,
     Fact,
@@ -22,6 +23,21 @@ from snarky import (
 )
 from snarky.choice_frontier import (
     ChoiceTraversal as FrontierChoiceTraversal,
+)
+from snarky.choice_policies import (
+    ChoicePolicy as PolicyChoicePolicy,
+)
+from snarky.choice_policies import (
+    MRVChoicePolicy as PolicyMRVChoicePolicy,
+)
+from snarky.choice_policies import (
+    PriorityMRVChoicePolicy as PolicyPriorityMRVChoicePolicy,
+)
+from snarky.choice_policies import (
+    PriorityWeightedRandomChoicePolicy as PolicyPriorityWeightedRandom,
+)
+from snarky.choice_policies import (
+    WeightedRandomChoicePolicy as PolicyWeightedRandomChoicePolicy,
 )
 from snarky.choice_production import (
     ChoiceAlternative as ProductionChoiceAlternative,
@@ -44,6 +60,37 @@ def test_choice_models_keep_their_public_import_paths() -> None:
     assert ChoicePoint is snarky.ChoicePoint
     assert ChoicePoint is choice_api.ChoicePoint
     assert ChoicePoint is ProductionChoicePoint
+
+
+def test_choice_policies_keep_their_public_import_paths() -> None:
+    assert ChoicePolicy is snarky.ChoicePolicy
+    assert ChoicePolicy is choice_api.ChoicePolicy
+    assert ChoicePolicy is PolicyChoicePolicy
+    assert MRVChoicePolicy is snarky.MRVChoicePolicy
+    assert MRVChoicePolicy is choice_api.MRVChoicePolicy
+    assert MRVChoicePolicy is PolicyMRVChoicePolicy
+    assert PriorityMRVChoicePolicy is snarky.PriorityMRVChoicePolicy
+    assert PriorityMRVChoicePolicy is choice_api.PriorityMRVChoicePolicy
+    assert PriorityMRVChoicePolicy is PolicyPriorityMRVChoicePolicy
+    assert (
+        PriorityWeightedRandomChoicePolicy
+        is snarky.PriorityWeightedRandomChoicePolicy
+    )
+    assert (
+        PriorityWeightedRandomChoicePolicy
+        is choice_api.PriorityWeightedRandomChoicePolicy
+    )
+    assert (
+        PriorityWeightedRandomChoicePolicy
+        is PolicyPriorityWeightedRandom
+    )
+    assert WeightedRandomChoicePolicy is snarky.WeightedRandomChoicePolicy
+    assert (
+        WeightedRandomChoicePolicy is choice_api.WeightedRandomChoicePolicy
+    )
+    assert (
+        WeightedRandomChoicePolicy is PolicyWeightedRandomChoicePolicy
+    )
 
 
 def test_choice_alternative_rejects_invalid_weights() -> None:
