@@ -406,3 +406,14 @@ isolated environment, imports it away from the source checkout, and executes
 a minimal inference. The local source-distribution build and isolated wheel
 smoke test both pass. Consolidation now proceeds to C5 documentation and
 language policy.
+
+C5 is complete. The root onboarding path, reference semantics, architecture,
+benchmark protocol, finite-CSP guide, Sudoku guide, harmonizer guide, and
+rulebase catalogue now use English as their primary language. The root README
+is shorter, starts with installation and two executable minimal examples, and
+links detailed research material instead of embedding its chronology. Direct
+tests keep both README examples executable. User-facing Sudoku explanations
+and MuSES example titles are also English. [`README.md`](README.md) maps the
+canonical publication guides and distinguishes the retained French research
+notes. The Spinoza corpus, formalization, reports, and atlas remain French by
+design. Consolidation now proceeds to C6 repository and publication hygiene.

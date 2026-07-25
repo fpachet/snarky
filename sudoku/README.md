@@ -1,107 +1,35 @@
-# Projet Sudoku
+# Sudoku case study
 
-Ce sous-projet utilise un Sudoku 9×9 comme banc d’essai pour faire évoluer
-Snarky vers une résolution symbolique progressive et explicable, proche des
-techniques employées par un humain.
+The Sudoku project tests progressive, explainable symbolic solving on standard
+9×9 grids. Domain knowledge remains in declarative rule groups; Python knows
+only group order, stopping conditions, and the general notion of progress.
 
-Il ne s’agit pas d’écrire un solveur spécialisé en Python. La connaissance du
-domaine doit rester dans des groupes de règles déclaratifs ; l’orchestrateur
-Python ne doit connaître que l’ordre des groupes, les conditions d’arrêt et la
-notion générale de progrès.
+## Supported human techniques
 
-## État actuel
+The native rulebase solves the seven reference levels p1–p7 without exhaustive
+search or an external solver:
 
-La base native est exécutable et résout les sept premiers niveaux p1 à p7.
-Elle utilise :
-
-- `RuleGroup` pour nommer une famille de règles ;
-- `InferenceSession` pour partager faits, réfraction et provenance ;
-- les modes `SATURATE`, `ONE_CYCLE`, `FIRST_CHANGE` et `UNTIL` ;
-- `FactExists` pour arrêter un groupe lorsqu’un motif apparaît ;
-- `REMOVE` et le journal d’`InferenceEvent` pour les éliminations ;
-- `NOT EXISTS` corrélé pour reconnaître singles, verrouillages et paires ;
-- `COUNT` et `UNIQUE` corrélés, adossés aux compteurs incrémentaux, pour les
-  cardinalités de candidats, la validation et les paires ;
-- `TechniquePlan` pour essayer les techniques par difficulté croissante et
-  recommencer au début après chaque groupe efficace.
-
-Le [plan d’implémentation](docs/implementation_plan.md) décrit leur sémantique,
-les jalons réalisés et les extensions avancées restantes.
-
-## Périmètre essentiel
-
-Le périmètre exécuté couvre les niveaux p1 à p7 de l’exemple CLIPS :
-
-| Niveau | Technique nouvelle |
+| Level | Newly required technique |
 |---|---|
 | p1 | Naked Single |
 | p2 | Hidden Single |
-| p3 | Locked Candidate Single Line |
-| p4 | Locked Candidate Multiple Lines |
+| p3 | Locked Candidate, single line |
+| p4 | Locked Candidate, multiple lines |
 | p5 | Naked Pairs |
 | p6 | Hidden Pairs |
 | p7 | X-Wing |
 
-Cette cible doit être résolue sans recherche exhaustive, sans OR-Tools et sans
-retour arrière. Chaque valeur finale devra être expliquée par une suite
-rejouable d’éliminations.
+Each final value is supported by a replayable sequence of eliminations. The
+engine features exercised by the model include persistent sessions, named
+rule groups, correlated negative premises, incremental aggregates, reversible
+removals, provenance, and `TechniquePlan`.
 
-Les niveaux p8 à p18 — triples, Swordfish, coloriage, chaînes et rectangle
-unique — constituent les paliers ultérieurs.
+Triples, Swordfish, coloring, chains, and unique rectangles remain future
+rulebase work; they are not part of the current acceptance baseline.
 
-## Organisation
+## Representation
 
-```text
-sudoku/
-├── README.md
-├── __init__.py
-├── domain.py
-├── rulebase.py
-├── solver.py
-├── docs/
-│   └── implementation_plan.md
-├── fixtures/
-│   ├── README.md
-│   └── grid3x3-p1.yaml … grid3x3-p7.yaml
-├── rules/
-│   ├── README.md
-│   ├── catalog.yaml
-│   └── *.rules
-└── tests/
-    └── test_*.py
-```
-
-- [`rules/catalog.yaml`](rules/catalog.yaml) inventorie les groupes et règles
-  de la base essentielle, ainsi que les fonctionnalités dont ils dépendent ;
-- [`rules/README.md`](rules/README.md) fixe la convention de représentation et
-  l’organisation des fichiers exécutables ;
-- [`fixtures/README.md`](fixtures/README.md) décrit les oracles p1 à p7 à
-  présent transcrits dans un format natif ;
-- [`docs/implementation_plan.md`](docs/implementation_plan.md) contient le
-  chemin critique, les décisions sémantiques et les critères d’acceptation ;
-- [`domain.py`](domain.py) charge et valide les grilles, [`rulebase.py`](rulebase.py)
-  charge les groupes et [`solver.py`](solver.py) les orchestre ;
-- [`tests`](tests) vérifie l’organisation, les oracles, les solutions, les
-  techniques nécessaires et le rejeu des événements.
-
-## Corpus de référence
-
-Les sources officielles CLIPS restent inchangées dans
-[`third_party/test_rulebases/clips-6.4.2/clips_examples_642/sudoku`](../third_party/test_rulebases/clips-6.4.2/clips_examples_642/sudoku).
-
-Cette séparation est intentionnelle :
-
-- `third_party/` contient l’oracle externe dans son langage d’origine ;
-- `sudoku/` contient sa reformulation native, sa documentation et ses tests ;
-- `src/snarky/` contient uniquement les capacités génériques du moteur.
-
-La comparaison porte sur les résultats et les techniques nécessaires, pas sur
-une reproduction de la salience ou de l’agenda CLIPS.
-
-## Modèle de faits
-
-Une case et ses candidats sont représentés avec les triplets ordinaires de
-Snarky :
+Cells and candidates are ordinary facts:
 
 ```text
 (r1c1 row 1)
@@ -110,36 +38,53 @@ Snarky :
 (r1c1 candidate 5)
 ```
 
-Une case donnée ne possède qu’un candidat initial. Une case vide en possède
-neuf. Les règles retirent progressivement les candidats impossibles.
+A clue has one initial candidate; an empty cell has nine. Technique groups
+remove candidates and derive values. After any effective group, orchestration
+restarts at the simplest technique. Execution ends as `SOLVED`, `STUCK`,
+`INCONSISTENT`, or `LIMIT_REACHED`.
 
-Les groupes sont appelés du plus simple au plus complexe. Après chaque
-mutation, l’orchestrateur repart du premier groupe. L’exécution se termine
-avec l’un des états génériques `SOLVED`, `STUCK`, `INCONSISTENT` ou
-`LIMIT_REACHED`.
+## Layout
 
-## Exécution
+```text
+sudoku/
+├── domain.py                 # fixture loading and validation
+├── rulebase.py               # declarative group loading
+├── solver.py                 # progressive orchestration
+├── search.py                 # optional generic CSP search
+├── fixtures/                 # native p1-p7 inputs and oracles
+├── rules/                    # rule modules and catalogue
+├── docs/implementation_plan.md
+└── tests/
+```
 
-Depuis la racine du dépôt :
+The unchanged CLIPS source oracle lives under
+`third_party/test_rulebases/clips-6.4.2/clips_examples_642/sudoku`.
+Redistribution status is recorded in the repository's
+[third-party audit](../THIRD_PARTY.md). Snarky compares results and required
+techniques; it does not reproduce CLIPS agenda or salience behavior.
+
+## Run
+
+From the repository root:
 
 ```sh
 uv run python -c \
   'from sudoku import solve_level; print(solve_level(7).techniques_used)'
 ```
 
-La grille finale est comparée à l’oracle CLIPS et la suite complète
-d’événements peut être rejouée indépendamment du moteur.
+The full event sequence can be replayed independently of the engine and the
+final grid is checked against the reference oracle.
 
-Le benchmark de performance reproductible est lancé depuis la racine avec :
+Run the representative benchmark:
 
 ```sh
 uv run python -m benchmarks.sudoku_rules --levels 1 6 7 --repeat 5
 ```
 
-## Recherche explicite
+## Explicit search
 
-La base humaine reste le chemin privilégié pour p1–p7. Un second mode sert
-désormais de test d'intégration du CSP générique :
+Human techniques remain the preferred p1–p7 path. A second mode validates
+hybrid propagation and search:
 
 ```python
 from sudoku import load_puzzle, solve_puzzle_with_search
@@ -150,49 +95,14 @@ result = solve_puzzle_with_search(
 )
 ```
 
-Les techniques autorisées sont saturées après chaque décision. Si elles ne
-suffisent pas, la règle CSP générique choisit un candidat par MRV. Sur p2,
-limité aux Naked Singles, la recherche explore 11 nœuds, réfute quatre
-branches et retrouve exactement l'oracle en trois décisions.
+Allowed techniques saturate after each decision. If they are insufficient,
+the generic finite-CSP rules choose a candidate by MRV and restore the session
+after contradiction. No Python Sudoku search algorithm is involved.
 
-Ce mode ne remplace pas les explications humaines. Il vérifie que les mêmes
-faits et règles peuvent participer à une résolution hybride
-propagation–recherche sans solveur Sudoku Python.
+Global `ALL_DIFFERENT` propagation is available to the engine, but the p1–p7
+rulebase intentionally retains explicit human techniques so that its
+domain-level trace remains meaningful.
 
-La baseline mesurée et les compteurs algorithmiques sont documentés dans
-[`../benchmarks/README.md`](../benchmarks/README.md).
-
-Les comparaisons `!=`, `<`, `<=`, `>` et `>=` disposent désormais de
-propagateurs de domaines spécialisés. Sur p1, la stratégie adaptative passe
-de 0,395 s en semi-naïf à 0,355 s. En filtrage forcé, la spécialisation gagne
-entre 6 et 17 % sur p1, p6 et p7 par rapport à l'ancien produit cartésien.
-Sur p6 et p7, la construction des tables n'est pas encore amortie : le
-matcher indexé reste donc le défaut, tandis que ces niveaux servent de profils
-pour le prochain travail sur la sélection adaptative.
-
-Les projections de domaines sont maintenant persistantes et maintenues par
-compteurs. Elles ne relisent plus que 998, 1 033 et 1 005 lignes sur p1, p6 et
-p7, au lieu de 15 920, 21 595 et 24 533. Cette réduction de 94 à 96 % ne gagne
-encore que 1 à 2 % du temps total : les prochaines optimisations doivent donc
-viser la révision des tables et la jointure, pas une représentation Sudoku
-spécialisée.
-
-Cette optimisation générale est maintenant réalisée par Compact-Tables. En
-filtrage forcé, les scans de 15 467, 18 187 et 21 588 lignes disparaissent
-sur p1, p6 et p7. La jointure consomme directement leurs lignes actives. Les
-médianes A/B passent respectivement de 0,377 à 0,287 s, de 0,656 à 0,576 s
-et de 0,926 à 0,804 s, soit des gains ×1,31, ×1,14 et ×1,15. Le nombre
-d'activations et la trace humaine restent inchangés.
-
-`ALL_DIFFERENT` et ses ensembles de Hall bornés sont disponibles dans le
-moteur, mais les règles p1–p7 restent inchangées : leurs techniques humaines
-explicites continuent de produire la trace métier. La contrainte globale sert
-d'abord à l'instanciation et aux futurs niveaux ou mécanismes de choix.
-
-## Prochain jalon humain
-
-Le prochain palier commence à p8 avec les triples. X-Wing a confirmé que les
-jointures et `COUNT` suffisent sans `COLLECT`. p8 devra déterminer si
-l'énumération déclarative de triplets reste lisible et performante, ou si une
-abstraction générale de combinaisons finies est justifiée avant Swordfish,
-coloriage et chaînes.
+See the [implementation plan](docs/implementation_plan.md), the
+[finite-CSP case study](../csp_solver/README.md), and the
+[benchmark guide](../benchmarks/README.md).

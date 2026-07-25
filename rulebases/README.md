@@ -1,64 +1,46 @@
-# Catalogue des bases de règles
+# Rulebase catalogue
 
-Ce répertoire rassemble les bases de règles fournies avec Snarky. Il sépare
-les exemples pédagogiques courts, les reformulations historiques et les deux
-grands projets du dépôt.
+This directory contains executable Snarky rulebases. It separates short
+teaching examples, historically motivated reformulations, constraint
+examples, and full project models.
 
 ```text
 rulebases/
-├── small/                  exemples minimaux et pédagogiques
-├── constraints/            propagation CSP écrite en règles Snarky
-├── thesis/                 reformulations de la thèse NéOpus
-├── projects/               index vers Sudoku et Spinoza
-├── catalog.yaml            inventaire, maturité et besoins du moteur
-└── runner.py               exécuteur commun des scénarios
+├── small/          # focused language and inference examples
+├── thesis/         # examples reconstructed from historical research
+├── constraints/    # binary, arithmetic, and global constraints
+└── projects/       # links to the larger application rulebases
 ```
 
-Une base exécutable contient normalement :
+Most runnable cases contain:
 
-- `README.md`, qui explique le problème et l'intérêt du cas ;
-- `rules.rules`, dans le DSL natif de Snarky ;
-- `initial_facts.yaml`, les données de départ ;
-- `expected_facts.yaml`, un oracle minimal ;
-- `scenario.yaml`, l'ordre d'appel des groupes.
+- a README describing the problem and its research purpose;
+- `rules.rules` in Snarky's textual DSL;
+- `initial_facts.yaml`;
+- `expected_facts.yaml` as a minimal oracle;
+- `scenario.yaml` defining group execution order.
 
-Une base peut aussi fournir un compagnon Python lorsqu'elle illustre une
-interface qui ne peut pas être déclarée dans le DSL, comme le registre de
-prédicats calculés de la géométrie. La connaissance métier reste néanmoins
-dans les règles dès que le langage le permet. Les quatre reines engendrent
-leurs combinaisons par saturation et Hanoï dérécursive entièrement ses appels
-au moyen de faits de sous-problèmes.
+[`catalog.yaml`](catalog.yaml) records provenance, feature coverage, and
+execution metadata. Historical attribution does not imply exact
+source-compatibility with the original systems.
 
-Un scénario peut aussi déclarer `conflict_strategy: mea`. L’option `--trace`
-affiche alors chaque sélection de l’agenda, sa fraîcheur et ses mutations :
+Run one entry from the repository root:
 
 ```sh
 uv run python -m rulebases.runner \
-  thesis/monkey_bananas/neopus_mea --trace
+  rulebases/small/fibonacci_explicit/scenario.yaml
 ```
 
-La commande suivante exécute un scénario et vérifie son oracle :
+Directory shorthand is also accepted:
 
 ```sh
 uv run python -m rulebases.runner thesis/tomorrow_date
 ```
 
-## Catégories
+The catalogue is included in differential tests and in the cross-rulebase
+benchmark. External source corpora remain under `third_party/`; their
+provenance and redistribution status are documented in
+[`../THIRD_PARTY.md`](../THIRD_PARTY.md).
 
-Les exemples de [`small`](small/README.md) isolent une propriété du moteur et
-servent de tutoriels ou de micro-benchmarks. Les exemples de
-[`thesis`](thesis/README.md) reconstruisent des bases décrites dans la thèse
-NéOpus de François Pachet. Certaines sont des noyaux exécutables délibérément
-bornés : leur README distingue toujours ce qui est effectivement reproduit de
-ce qui demanderait une extension générale du moteur.
-
-[`constraints`](constraints/README.md) réifie variables, domaines,
-contraintes et tables de compatibilité sous forme de faits. Son premier noyau
-implémente l'arc-consistance binaire uniquement avec `NOT EXISTS`, `REMOVE`
-et la saturation de groupes. Une seconde base exerce les prémisses globales
-`NVALUE` et `ALL_DIFFERENT`, les bornes de cardinalité distincte et les
-ensembles de Hall.
-
-Sudoku et Spinoza restent à la racine du dépôt parce qu'ils possèdent leur
-propre corpus, leurs outils et leurs tests. [`projects`](projects/README.md)
-les référence sans dupliquer leurs données.
+Spinoza is intentionally maintained as a separate French-language research
+corpus under [`../spinoza`](../spinoza/README.md).

@@ -76,9 +76,9 @@ def generate_example(
         harmonic_rhythm=LONG_HARMONIC_RHYTHM if long_form else None,
         piece_name=stem,
         title=(
-            "Soprano long harmonisé par Snarky"
+            "Long soprano harmonized by Snarky"
             if long_form
-            else "Soprano harmonisé par Snarky"
+            else "Soprano harmonized by Snarky"
         ),
         composer="Snarky / MuSES",
     )[0]

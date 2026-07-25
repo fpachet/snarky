@@ -1,14 +1,16 @@
-# Solveur CSP fini déclaratif
+# Declarative finite CSP solver
 
-Ce projet teste le mécanisme générique de `choice` et de backtracking sans
-appeler `BacktrackingConstraintSolver`.
+This project exercises Snarky's generic choice and backtracking machinery
+without delegating the problem to `BacktrackingConstraintSolver`.
 
-La classe publique est maintenant `FiniteCSP`. `BinaryCSP` reste un alias
-compatible : les relations binaires extensionnelles sont un format possible,
-mais les groupes du modèle peuvent également assurer une propagation
-intensionnelle, n-aire, globale ou métier.
+`FiniteCSP` is the public model. `BinaryCSP` remains a compatible alias:
+extensional binary relations are one supported representation, but model rule
+groups may also provide intensional, n-ary, global, or domain-specific
+propagation.
 
-Un problème est représenté par des faits Snarky :
+## Model
+
+A finite problem is represented as ordinary Snarky facts:
 
 ```text
 (problem variable x)
@@ -17,15 +19,15 @@ Un problème est représenté par des faits Snarky :
 (relation allows SEQ[red blue])
 ```
 
-Les groupes de règles :
+The generic rule library:
 
-1. produisent une décision avec `CHOICE ... FROM` ;
-2. appliquent cette décision en retirant les autres candidats ;
-3. propagent les relations binaires par `NOT EXISTS` et `REMOVE` ;
-4. reconnaissent les domaines singletons ;
-5. dérivent `solved` ou `contradiction`.
+1. produces decisions with `CHOICE ... FROM`;
+2. applies a decision by removing other candidates;
+3. propagates unsupported binary pairs with `NOT EXISTS` and `REMOVE`;
+4. recognizes singleton domains;
+5. derives `solved` or `contradiction`.
 
-La règle de décision est entièrement déclarative :
+The decision itself is declarative:
 
 ```text
 RULE choose_csp_value
@@ -42,85 +44,53 @@ THEN
 END
 ```
 
-`SessionChoiceSearch` choisit l'un des points produits par MRV, pose un
-checkpoint, affirme le fait cible, sature les groupes puis restaure le
-checkpoint en cas de contradiction ou avant le choix frère. La session de
-l'appelant reste isolée par un unique fork racine.
+`SessionChoiceSearch` selects a minimum-remaining-values choice point, creates
+a checkpoint, asserts an alternative, saturates the configured groups, and
+restores the checkpoint for a failed or sibling branch. The caller's session
+is isolated by one root fork.
 
-`CHOICE` n'appartient pas au CSP : c'est une primitive générale de Snarky. Ce
-projet apporte seulement un vocabulaire et des règles prêts à l'emploi pour
-les variables à domaines finis. `finite_csp_rule_library()` expose séparément
-les groupes `choices`, `binary_constraints`, `domains` et `problems`.
-`solve_finite_csp(..., rule_groups=...)` accepte une composition explicite ;
-sans ce paramètre, le comportement historique charge la bibliothèque complète
-puis les groupes métier.
+`CHOICE` is a general Snarky primitive, not a CSP-specific operation. This
+project supplies a reusable vocabulary and rules for finite-domain variables.
+`finite_csp_rule_library()` exposes the `choices`, `binary_constraints`,
+`domains`, and `problems` groups separately. `solve_finite_csp()` accepts an
+explicit group composition.
 
-Voir [`docs/rule_programs.md`](../docs/rule_programs.md) pour le manifeste
-`RuleProgram` général et le programme précis de l'harmoniseur.
+## N-queens
 
-Le constructeur accepte maintenant une taille `n`; l'oracle principal reste
-le problème des quatre reines, qui possède exactement deux solutions :
+Run the four-queens oracle from the repository root:
 
 ```sh
-PYTHONPATH=src python -m csp_solver.four_queens
+uv run python -m csp_solver.four_queens
 ```
 
-Le pilote Python ne construit plus les `ChoicePoint` métier : il ne fait que
-piloter les règles génériques. Sur la baseline courante, le problème explore
-quatre nœuds, rencontre une branche contradictoire et produit exactement les
-deux solutions.
+It finds the two expected solutions. The Python driver does not construct
+domain choices; it only executes the generic rules.
 
-Le paramètre `reversible_depth_first=False` réactive le DFS à forks paresseux
-pour les tests différentiels et les benchmarks. Le trail est le défaut.
+Two larger formulations are available:
 
-## Deux formulations de N-reines
+- `solve_n_queens(size)` materializes compatible row pairs for each column
+  pair. This extensional O(n⁴) representation is the binary-CSP oracle.
+- `solve_n_queens_intensional(size)` stores only candidates and uses
+  [`n_queens_intensional.rules`](n_queens_intensional.rules) to remove values
+  without support for row and diagonal constraints.
 
-`solve_n_queens(size)` conserve la formulation extensionnelle historique :
-elle matérialise les couples de lignes compatibles pour chaque paire de
-colonnes. Elle est utile comme oracle du CSP binaire générique, mais sa base
-croît approximativement en O(n⁴).
+The intensional version still uses Snarky for support queries, fixed-point
+filtering, choices, and rollback; no problem-specific Python solver is called.
 
-`solve_n_queens_intensional(size)` construit seulement les candidats de chaque
-reine et charge
-[`n_queens_intensional.rules`](n_queens_intensional.rules). Une règle retire
-un candidat quand une autre colonne n'a plus aucun support satisfaisant les
-trois contraintes :
-
-```text
-row != other_row
-row - column != other_row - other_column
-row + column != other_row + other_column
-```
-
-La résolution reste entièrement pilotée par Snarky : `NOT EXISTS` effectue la
-recherche de support, `REMOVE` filtre les domaines jusqu'au point fixe, puis
-`CHOICE` et le trail explorent les valeurs restantes. Aucun solveur Python
-métier n'est appelé.
-
-Sur N=14, les deux versions trouvent la même première solution avec 20 nœuds
-et 8 branches en échec :
-
-| Formulation | Faits initiaux | Médiane |
-|---|---:|---:|
-| extensionnelle | 15 513 | 2,675 s |
-| intensionnelle | 253 | 1,145 s |
-
-La reformulation vaut ×2,34 (`-57,2 %`). En incluant les optimisations du
-moteur depuis la baseline extensionnelle de 4,749 s, le gain total vaut
-×4,15 (`-75,9 %`).
-
-Le benchmark A/B est reproductible avec :
+Reproduce the comparison with:
 
 ```sh
-PYTHONPATH=.:src python benchmarks/choice_formulations.py --repeat 3
+uv run python benchmarks/choice_formulations.py --repeat 3
 ```
 
-## Sudoku comme CSP générique
+Machine-readable historical results are stored under
+[`../benchmarks/results`](../benchmarks/results). Compare logical solutions
+and search counters before interpreting wall-clock differences.
 
-Le module [`sudoku/search.py`](../sudoku/search.py) ajoute les métadonnées CSP
-aux 81 cellules natives, puis réutilise leurs groupes de règles sans
-conversion. Avec seulement les Naked Singles, p2 exige 11 nœuds, quatre
-branches contradictoires et trois décisions sur le chemin solution.
+## Sudoku reuse
+
+[`sudoku/search.py`](../sudoku/search.py) adds the generic CSP metadata to the
+native 81-cell model, then reuses its rule groups directly:
 
 ```python
 from sudoku import load_puzzle, solve_puzzle_with_search
@@ -131,9 +101,10 @@ result = solve_puzzle_with_search(
 )
 ```
 
-La grille obtenue est comparée à l'oracle CLIPS déjà utilisé par le projet
-Sudoku. Ce test démontre que `FiniteCSP` ne contient aucune connaissance des
-reines, des relations binaires ou du Sudoku.
+When the selected human techniques cannot finish, the generic CSP rule chooses
+a candidate by MRV. The final grid is checked against the same oracle as the
+human-technique solver. This demonstrates that `FiniteCSP` contains no
+N-queens or Sudoku knowledge.
 
-L'architecture et l'évaluation des optimisations avancées sont détaillées dans
-[`docs/csp_harmonizer_next.md`](../docs/csp_harmonizer_next.md).
+See [rule programs](../docs/rule_programs.md) for explicit group composition
+and [the benchmark guide](../benchmarks/README.md) for current protocols.

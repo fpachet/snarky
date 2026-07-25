@@ -1,476 +1,68 @@
 # Snarky
 
-Snarky est un moteur d’inférence symbolique en Python inspiré de SNARK, de
-Jean-Louis Laurière, et de BOOJUM, développé par Jean-Luc Dormoy. Sa propre
-sémantique combine déjà règles symboliques, propagation de contraintes, choix
-pondérés et backtracking explicite.
-
-## Pourquoi « Snarky » ?
-
-Le nom rend d’abord hommage au langage historique SNARK, l’une des principales
-sources d’inspiration du projet. Il constitue aussi un clin d’œil à Snarky
-Puppy, groupe emblématique de la fusion musicale.
-
-Cette idée de fusion décrit l’ambition de Snarky : faire coopérer dans un même
-moteur règles symboliques, filtrage de domaines, recherche et préférences
-probabilistes. Des solveurs externes tels qu’OR-Tools pourront rester des
-backends optionnels. Snarky ne désigne donc pas une réimplémentation de SNARK
-ou de BOOJUM, mais un moteur hybride qui en prolonge certains principes.
-
-L’objectif est de construire un moteur expressif, déterministe et testable,
-capable de manipuler :
-
-- des règles d’ordre 0, 1 et 2 ;
-- des variables dans les trois positions d’un triplet, y compris en position
-  relation ;
-- des triplets récursifs et des propositions utilisées comme objets ;
-- des statuts explicites tels que `VRAI`, `FAUX` et `INEXISTANT` ;
-- le chaînage avant récursif, la réfraction et la provenance des faits ;
-- les mutations réversibles, groupes de règles et traces explicables ;
-- les choix finis, les poids contextuels et le retour arrière ;
-- plusieurs stratégies d’instanciation, d’un matcher naïf de référence à des
-  stratégies centrées sur les variables et la propagation de contraintes.
-
-Chaque fonctionnalité est qualifiée comme `HISTORICAL`, `INFERRED` ou
-`MODERN_EXTENSION` afin de distinguer l'héritage documenté, la reconstruction
-et les extensions modernes.
-
-## Ce que le projet démontre aujourd’hui
-
-| Démonstrateur | Capacités exercées |
-|---|---|
-| [Spinoza](spinoza/README.md) | corpus de l’Éthique III, règles d’ordre supérieur, provenance et explications |
-| [Sudoku](sudoku/README.md) | techniques humaines p1–p7, éliminations rejouables, puis `CHOICE` et backtracking |
-| [CSP fini](csp_solver/README.md) | N-reines extensionnel et intensionnel, propagation métier et recherche générique |
-| [Harmonisation SATB](harmonizer/README.md) | ligne MuSES donnée, degrés et renversements, variables SATB, progression/cadence, exemples court et long, recherche pondérée et `Piece` à quatre voix |
-| [Bases NéOpus](rulebases/README.md) | Fibonacci, Hanoï, singe et bananes, MuSES et autres reformulations historiques |
-
-Le cœur reste léger : Python 3.12+, PyYAML, aucun solveur externe obligatoire.
-La suite standard fait passer 420 tests, avec des oracles naïfs, différentiels
-et applicatifs. Deux tests supplémentaires valident le codec et le pipeline
-d'harmonisation avec les vraies classes MuSES lorsque cette dépendance
-optionnelle est disponible.
-
-## Contraintes et filtrage du matching
-
-Snarky peut maintenant utiliser les variables d'une règle comme des domaines
-finis avant d'en énumérer les instanciations. Cette étape ne remplace pas le
-matcher : elle élimine d'abord les valeurs et les lignes factuelles sans
-support, puis le matcher compilé vérifie exactement les activations restantes.
-
-```text
-faits candidats
-      ↓
-tables de prémisses et domaines de variables
-      ↓
-propagation des contraintes jusqu'au point fixe
-      ↓
-lignes actives des Compact-Tables
-      ↓
-jointure semi-naïve sur les seuls faits nouveaux
-      ↓
-validation exacte par le matcher
-```
-
-Les contraintes simples peuvent être écrites directement dans les règles :
-
-```text
-CONSTRAINT $left + $right == $total
-CONSTRAINT $start < $end
-NVALUE $count OF SEQ[$x $y $z]
-ALL_DIFFERENT SEQ[$x $y $z]
-```
-
-Le filtre possède des propagateurs spécialisés pour l'égalité, la différence,
-les ordres, la divisibilité et l'arithmétique binaire. `NVALUE` propage des
-bornes sur le nombre de valeurs distinctes ; `ALL_DIFFERENT` traite les
-singletons et les ensembles de Hall jusqu'à la taille trois. L'interface
-`DomainPropagator` permet d'ajouter d'autres contraintes globales.
-
-Pour accélérer ce chemin :
-
-- les tables, projections et domaines sont conservés entre les cycles ;
-- `FactDelta` ne met à jour que les lignes ajoutées ou supprimées ;
-- une file ne réveille que les propagateurs incidents aux domaines modifiés ;
-- les supports `(variable, valeur)` et les lignes actives sont des bitsets ;
-- la jointure réutilise les liaisons déjà validées des Compact-Tables ;
-- un cycle append-only n'énumère que les activations contenant un fait
-  nouveau ;
-- `AdaptiveInstantiationStrategy` revient au matcher semi-naïf lorsque le
-  filtrage ne paraît pas rentable.
-
-Sur les trois Sudoku de référence, la dernière jointure delta réduit encore
-les matchings de 9 à 22,5 % par rapport aux Compact-Tables initiales :
-
-| Niveau | Matchings avant | Après | Temps avant | Après |
-|---|---:|---:|---:|---:|
-| p1 | 63 946 | 49 531 | 0,287 s | 0,254 s |
-| p6 | 138 846 | 126 198 | 0,576 s | 0,534 s |
-| p7 | 216 643 | 195 160 | 0,804 s | 0,731 s |
-
-`DomainStore` et `PropagationState` exposent également les réductions,
-contradictions, checkpoints et rollbacks des domaines et masques. Ce socle
-est désormais complété par une recherche explicite
-`SessionChoiceSearch`. Voir
-[`docs/reversible_propagation.md`](docs/reversible_propagation.md) et
-[`benchmarks/README.md`](benchmarks/README.md).
-
-## Choix pondérés et backtracking explicite
-
-`ChoicePoint` représente un ensemble fini d'alternatives factuelles.
-`SessionChoiceSearch` sélectionne un point, pose un checkpoint réversible,
-sature les groupes de règles, puis conserve la solution, restaure la branche
-sur contradiction ou poursuit jusqu'au but. Le DFS ne copie plus une session
-par alternative. BFS et best-first placent des branches différées dans leur
-frontière et ne créent leur session qu'au moment de l'exploration.
-
-Le DSL peut maintenant produire ces choix en instanciant directement un
-fait :
-
-```text
-RULE assign_queen
-WHEN
-    (n_queens variable $queen)
-    NOT EXISTS ($queen value $known)
-THEN
-    CHOICE ($queen decision $row) WEIGHT $weight
-    FROM
-        ($queen candidate $row)
-        ($queen choice_weight SEQ[$row $weight])
-    END_CHOICE
-END
-```
-
-Le `WHEN` établit le contexte de l'objet. La sous-requête `FROM` énumère les
-instanciations possibles du fait cible. Plusieurs `CHOICE` dans la même règle
-sont séquentiels : les variables choisies par le premier sont visibles dans
-le suivant. Les actions déterministes placées après le dernier choix reprennent
-quand tous les faits cibles existent dans la branche.
-
-La recherche fournit :
-
-- sélection MRV et ordre déterministe par poids ;
-- ordre probabiliste reproductible avec une graine ;
-- parcours profondeur, largeur ou meilleur poids d'abord ;
-- limites en nœuds et en solutions ;
-- traces `choice`, `decision`, `contradiction`, `backtrack`, `solution` ;
-- conservation de la session parente ;
-- restauration des faits, provenance, réfraction et tags temporels par
-  `InferenceSession.checkpoint()`, `rollback()` et `release()`.
-
-Les formes existentielles simples s'écrivent sans terminateur :
-
-```text
-EXISTS ($item selected $value)
-NOT EXISTS ($item rejected $value)
-```
-
-Les conjonctions utilisent toujours un bloc. `NOT EXISTS` se ferme désormais
-par `END_NOT_EXISTS`; l'ancien `END_EXISTS` reste accepté pour compatibilité.
-
-Un poids nul reste une possibilité faisable examinée après les poids positifs.
-Les poids orientent la recherche et sont cumulés en log-espace ; ils ne
-modifient jamais les contraintes dures.
-
-Le DFS restaure maintenant ses branches sœurs par un trail complet de
-`InferenceSession`, sans recopier les faits ni la provenance à chaque
-alternative. Le trail local de `PropagationState` reste distinct et sert aux
-domaines internes des propagateurs. La sémantique complète est décrite dans
-[`docs/choice_search.md`](docs/choice_search.md).
-
-La recherche partage aussi l'index factuel entre le matcher et le producteur
-de choix, clone un index présemé pour les branches, met en cache les snapshots
-de faits et maintient les deltas sans rescanner toute la mémoire. Best-first
-utilise un tas stable, BFS une file double. Ces changements ne modifient ni les
-solutions, ni les poids, ni les compteurs logiques.
-
-## CSP générique et génération musicale
-
-Le protocole applicatif s'appelle désormais `FiniteCSP`; `BinaryCSP` reste un
-alias compatible. Les contraintes d'un modèle peuvent être des tables
-binaires, des comparaisons intensives, des contraintes globales ou des groupes
-de règles métier.
-
-Le projet Sudoku peut maintenant limiter volontairement ses techniques puis
-passer au `CHOICE` générique. Sur p2 avec les seuls Naked Singles, il retrouve
-l'oracle après 11 nœuds, quatre contradictions et trois décisions.
-
-L'harmoniseur possède aussi un modèle tonal où chaque position porte six
-variables : degré d'accord, renversement et quatre notes SATB. Une voix donnée,
-choisie parmi soprano, alto, ténor et basse, devient singleton. Les règles
-engendrent les voicings après création des domaines, maintiennent le canal
-accord–renversement–notes–voicing et recherchent les supports entre positions.
-Le premier vocabulaire couvre `I`, `ii`, `IV`, `V`, `vi`, leurs états
-fondamental et premier renversement, les transitions fonctionnelles et une
-cadence finale `V–I`. Les poids peuvent devenir conditionnels à la note ou à
-l'accord précédent dans la branche. Best-first retourne les meilleures
-solutions ; un échantillonnage pondéré avec graine est reproductible.
-
-Ce modèle est relié de bout en bout à MuSES : une `TemporalCollection` donnée
-est encodée en faits, ses hauteurs entrent dans les domaines par règle, puis
-chaque solution est reconstruite comme une vraie `Piece` contenant quatre
-`TemporalCollection` SATB. Le rythme et les métadonnées sont préservés, sans
-mutation de l'objet source.
-
-Voir
-[`docs/csp_harmonizer_next.md`](docs/csp_harmonizer_next.md),
-[`csp_solver`](csp_solver/README.md) et
-[`harmonizer`](harmonizer/README.md).
-
-## Intégration avec les objets Python
-
-`FactCodec[T]` projette un objet métier dans des faits immuables, puis
-reconstruit un nouvel objet depuis les faits d'une solution. Les objets
-sources ne sont jamais modifiés pendant une branche : checkpoints et
-rollbacks restent entièrement factuels.
-
-Le premier adaptateur optionnel couvre les `TemporalNote` et les
-`TemporalCollection` de la bibliothèque sibling
-[MuSES](https://github.com/fpachet/muses). Il conserve hauteurs, temps,
-durées, vélocités, canaux, ordre et métadonnées de collection, sans ajouter
-MuSES aux dépendances obligatoires du cœur.
-
-L'harmoniseur utilise concrètement cet adaptateur via
-`harmonize_temporal_collection(...)` et reconstruit les quatre voix dans une
-`Piece`. Le codec est donc désormais une frontière applicative validée, pas
-seulement un exemple isolé.
-
-Voir
-[`docs/python_object_integration.md`](docs/python_object_integration.md) et
-`snarky.integrations.MusesTemporalCollectionCodec`.
-
-## État actuel
-
-Le dépôt contient un moteur Python semi-naïf par défaut, une stratégie naïve
-servant de référence sémantique, une stratégie indexée exhaustive et une
-`ConstraintInstantiationStrategy`. Cette dernière conserve des
-tables positives et des compteurs de projection par règle, maintient les
-domaines entre les cycles, filtre jusqu'au point fixe, puis laisse le matcher
-compilé produire les activations. Les suppressions réduisent l'état existant ;
-un ajout ne réinitialise que la composante de contraintes concernée. Une
-`AdaptiveInstantiationStrategy` réserve ce travail aux graphes cycliques,
-assez grands et assez sélectifs ; les autres formes retombent automatiquement
-sur la stratégie semi-naïve. Dans les cas ambigus et récurrents, elle peut
-mesurer une fois les deux chemins et mémoriser le plus rapide ; cette sonde est
-différée pour ne pas pénaliser les règles courtes. Les égalités, différences,
-ordres et divisibilités simples possèdent désormais des propagateurs
-spécialisés ; le mode adaptatif peut donc les sélectionner sans énumérer leur
-produit cartésien. Le cœur prend en charge
-les termes et triplets récursifs immuables, les variables dans toutes les
-positions, le matching orienté, l’unification bidirectionnelle séparée, les
-statuts explicites, le chaînage avant jusqu’au point fixe, la réfraction et la
-provenance avec profondeur de preuve. Des groupes de règles nommés peuvent
-désormais être appelés successivement dans une même session persistante, en
-saturation, pour un cycle, jusqu’au premier changement ou jusqu’à un motif de
-fait.
-
-Le DSL sait également exécuter des actions arithmétiques séquentielles `LET`
-et créer des symboles déterministes avec `FRESH` dans la conclusion des
-règles. Cette fonctionnalité est une
-`MODERN_EXTENSION` : elle évalue de manière sûre des expressions numériques
-avec `+`, `-`, `*`, `/`, `%`, précédence et parenthèses, puis transmet les
-liaisons calculées aux actions suivantes. La prémisse `DIVISIBLE` couvre les
-tests de divisibilité entière. Une prémisse déclarative telle que
-`CONSTRAINT $x + $y == $z` réutilise le même AST et filtre les domaines
-numériques dans les trois directions. Le filtrage peut maintenant être suivi
-d'un choix explicite et d'un backtracking piloté ; il ne déclenche toujours
-aucune recherche implicite pendant l'instanciation d'une règle.
-
-Les contraintes globales utilisent la même infrastructure :
-
-```text
-NVALUE $count OF SEQ[$x $y $z]
-ALL_DIFFERENT SEQ[$x $y $z]
-```
-
-`NVALUE` propage des bornes sûres sur le nombre de valeurs distinctes.
-`ALL_DIFFERENT` propage les singletons et les ensembles de Hall jusqu'à la
-taille trois. L'interface publique `DomainPropagator` permet d'ajouter d'autres
-propagateurs sans modifier les matchers.
-
-Les tables extensionnelles du filtre utilisent des masques de bits persistants
-par couple `(variable, valeur)`. Une suppression de valeur désactive seulement
-les lignes qu'elle supportait, puis la jointure lie directement les lignes
-actives déjà validées, sans refaire le matching structurel. Les définitions
-de tables sont maintenant séparées de leur état mutable et la jointure suit
-les lignes nouvelles de `FactDelta` : un cycle append-only ne produit que ses
-nouvelles activations.
-
-`DomainStore` et `PropagationState` exposent les réductions, contradictions,
-checkpoints et rollbacks des domaines et masques actifs. Le trail local est
-livré. `InferenceSession` expose aussi un checkpoint complet, utilisé par le
-DFS de choix ; BFS et best-first gardent plusieurs descripteurs différés et
-ne créent leur fork rapide qu'à l'exploration.
-
-La mémoire de travail accepte maintenant `REMOVE`, avec un journal
-chronologique des ajouts et retraits. Les prémisses corrélées `EXISTS` et
-`NOT EXISTS` permettent de raisonner sur la présence ou l’absence d’une
-configuration sans confondre cette absence avec le statut explicite
-`INEXISTANT`.
-
-Les ensembles finis immuables et la prémisse corrélée `COLLECT` permettent de
-matérialiser les valeurs produites par une sous-requête. Les séquences
-ordonnées `SEQ[...]`, `WINDOW`, `COMBINATIONS` et `FOR EACH` couvrent maintenant
-les fenêtres, les choix de taille fixe et l'itération d'actions.
-
-Une session peut être copiée avec `fork()`. `HypothesisSearch` construit
-explicitement une recherche BFS ou DFS au-dessus de cette primitive, sans
-ajouter de retour arrière caché au chaînage avant. Une interface CSP/SAT et un
-solveur fini de référence fournissent également un couplage règles–
-contraintes.
-
-Une stratégie de conflit optionnelle `MEAConflictStrategy` permet de
-sélectionner une activation à la fois selon la fraîcheur locale d'une prémisse
-`FOCUS`, ou du premier fait support par compatibilité, puis selon un ordre LEX
-déterministe. Son agenda mémorise les activations par règle et utilise un index
-de dépendances pour ne rematcher que les règles touchées. La reformulation
-NéOpus du singe et des bananes l’utilise pour traiter chaque sous-but avant son
-but parent, sans backtracking.
-
-Les groupes peuvent être spécialisés avec `RuleGroupTemplate` et pilotés par
-des appels récursifs bornés. Les fonctions externes doivent être enregistrées
-comme `ComputedPredicate`; la hiérarchie de types réutilisable reste exprimée
-par des règles ordinaires. Une maintenance de vérité positive est disponible
-sur option et ne modifie pas le comportement par défaut.
-
-`TechniquePlan` fournit une orchestration générique de groupes ordonnés :
-après chaque changement, il repart du groupe le plus simple et distingue les
-terminaisons `SOLVED`, `STUCK`, `INCONSISTENT` et `LIMIT_REACHED`. Le projet
-Sudoku valide conjointement ces capacités sur sept niveaux progressifs.
-
-Le contenu actuel comprend :
-
-- [l’atlas web de l’Éthique III](https://fpachet.github.io/snarky/), une
-  exploration statique des textes, affects, 27 explications, règles, chaînes
-  de preuve et dépendances producteur–consommateur entre règles, publiée
-  automatiquement par GitHub Pages ;
-
-- [`docs/prompt_codex_moteur_snarky.md`](docs/prompt_codex_moteur_snarky.md),
-  la spécification détaillée du moteur ;
-- [`docs/prompt_codex_spinoza_ethique_III.md`](docs/prompt_codex_spinoza_ethique_III.md),
-  la spécification du cas d’étude Spinoza ;
-- [`docs/Gondran.ppt`](docs/Gondran.ppt), la présentation historique de Michel
-  Gondran sur la modélisation de l’*Éthique* en SNARK/BOOJUM ;
-- [`docs/Cavarretta-X1988-SpinozaExpertSystem.pdf`](docs/Cavarretta-X1988-SpinozaExpertSystem.pdf),
-  le rapport complet de Fabrice Cavarretta sur SpinoLog ; ses apports possibles
-  au projet sont analysés dans
-  [`spinoza/reports/spinolog_1988_enrichment.md`](spinoza/reports/spinolog_1988_enrichment.md) ;
-- [`spinoza`](spinoza/README.md), le cas d'étude complet de l'*Éthique III* :
-  corpus structuré des 59 propositions, reproduction historique des quatre
-  preuves de Gondran et reconstruction systématique exécutable de E3P01 à
-  E3P59 ainsi que des 48 définitions finales et de la définition générale des
-  affects, avec faits, règles, provenance et contre-cas explicites ;
-- [`third_party/test_rulebases`](third_party/test_rulebases/README.md), une
-  sélection de corpus de règles externes ;
-- [`tests/rulebases/debug`](tests/rulebases/debug/README.md), une petite base
-  native destinée au debug du moteur ;
-- [`rulebases`](rulebases/README.md), le catalogue unifié des exemples
-  exécutables : exemples pédagogiques, propagation de contraintes binaires
-  écrite en règles, contraintes globales `NVALUE`/`ALL_DIFFERENT` et huit
-  reformulations issues de la thèse NéOpus,
-  notamment Hanoï dérécursivé et les quatre reines engendrées entièrement par
-  règles ;
-- [`csp_solver`](csp_solver/README.md), le protocole `FiniteCSP` : variables,
-  domaines, contraintes extensionnelles ou intensionnelles, propagation
-  métier, `CHOICE` et backtracking ; N-reines et Sudoku en sont les oracles ;
-- [`harmonizer`](harmonizer/README.md), l'harmoniseur SATB tonal à variables
-  d'accord, de renversement et de notes : voicings engendrés par règles,
-  cadence, transitions, marginales contextuelles, recherche best-first et
-  tirage pondéré ;
-- [`docs/semantics.md`](docs/semantics.md), les décisions sémantiques du moteur
-  de référence ;
-- [`docs/arithmetic_actions.md`](docs/arithmetic_actions.md), la syntaxe et la
-  sémantique des liaisons arithmétiques séquentielles `LET` ;
-- [`docs/global_constraints.md`](docs/global_constraints.md), la sémantique
-  de `NVALUE`, `ALL_DIFFERENT`, des ensembles de Hall et de
-  `DomainPropagator` ;
-- [`docs/collections_fresh_and_contexts.md`](docs/collections_fresh_and_contexts.md),
-  les ensembles finis, `COLLECT`, `FRESH` et les continuations isolées ;
-- [`docs/rule_groups.md`](docs/rule_groups.md), les sessions persistantes, la
-  syntaxe des groupes de règles et leurs différents modes d’appel ;
-- [`docs/conflict_resolution.md`](docs/conflict_resolution.md), l’ensemble de
-  conflit, les `timeTag`, la stratégie MEA et les traces d’agenda ;
-- [`docs/advanced_problem_solving.md`](docs/advanced_problem_solving.md), les
-  séquences, groupes paramétrés, prédicats sûrs, hypothèses, CSP/SAT et TMS ;
-- [`docs/constraints_propagation_and_search.md`](docs/constraints_propagation_and_search.md),
-  les architectures possibles pour combiner instanciation par contraintes,
-  clauses combinatoires, propagation, choix explicites, solveurs externes et
-  ATMS ;
-- [`docs/reversible_propagation.md`](docs/reversible_propagation.md), l'état
-  observable, le trail de domaines et masques, la jointure delta et leurs
-  benchmarks ;
-- [`docs/choice_backtracking_and_applications.md`](docs/choice_backtracking_and_applications.md),
-  le cap architectural et l'état des deux applications de référence ;
-- [`docs/choice_search.md`](docs/choice_search.md), l'API, la sémantique et
-  les optimisations du pilote de choix/backtracking ;
-- [`docs/parallel_choice_search.md`](docs/parallel_choice_search.md), la piste
-  différée d'un fork par processus suivi d'un DFS local sur trail, avec
-  déterminisme, granularité et benchmarks requis ;
-- [`docs/choice_search_optimization_plan.md`](docs/choice_search_optimization_plan.md),
-  le plan profilé désormais exécuté, ses décisions et ses gains avant
-  l'extension du CSP et de l'harmoniseur ;
-- [`docs/csp_harmonizer_next.md`](docs/csp_harmonizer_next.md), le CSP fini
-  générique, le Sudoku avec recherche, l'harmoniseur note par note, ses
-  marginales contextuelles et l'évaluation des mécanismes avancés ;
-- [`docs/python_object_integration.md`](docs/python_object_integration.md),
-  le protocole `FactCodec`, le codec MuSES et leur sémantique de snapshot ;
-- [`docs/mutations_and_negation.md`](docs/mutations_and_negation.md), la
-  suppression de faits, le journal de mutations et les blocs corrélés
-  `EXISTS`/`NOT EXISTS` ;
-- [`docs/rulebase_feature_roadmap.md`](docs/rulebase_feature_roadmap.md), la
-  feuille de route des extensions motivées par les bases concrètes ;
-- [`docs/rule_programs.md`](docs/rule_programs.md), la composition explicite
-  des groupes de préparation, choix, propagation et interprétation ;
-- [`sudoku`](sudoku/README.md), le sous-projet autonome qui organise la base
-  de règles, les fixtures natives, le solveur orchestré et le plan incrémental
-  pour résoudre et expliquer les niveaux essentiels de l’exemple Sudoku
-  CLIPS ;
-- [`docs/optimization_plan.md`](docs/optimization_plan.md), le plan mesurable
-  pour faire évoluer le moteur naïf vers des stratégies indexées, semi-naïves
-  et centrées sur les contraintes ;
-- [`benchmarks`](benchmarks/README.md), les scénarios reproductibles, leurs
-  compteurs algorithmiques et les baselines de performance ;
-- [`src/snarky`](src/snarky), le package Python et son API publique.
-
-La base Fibonacci explicite utilise `LET $somme := $gauche + $droite` et ne
-reçoit qu’un fait racine : les sommes et les rangs des fils ne sont plus
-préchargés sous forme de tables.
-
-Le choix MRV, le backtracking sur trail réversible, le CSP fini, le Sudoku
-hybride, l'harmoniseur tonal et sa frontière MuSES vers `Piece` sont livrés.
-Le sous-ensemble musical comprend maintenant six triades, `V7`, trois valeurs
-de renversement dont `I64` cadentiel, des règles de doublure et de résolution,
-quatre cadences et un rythme harmonique explicite. La priorité fonctionnelle
-est maintenant d'enrichir ce noyau vers le profil `ROY_1998` : autres accords
-de septième et renversements, six-quatre non cadentiels, exceptions complètes,
-notes étrangères, métrique, tonalités et modulations. Les
-nogoods, le backjumping et la recherche parallèle restent différés jusqu'à ce
-qu'un profil établisse leur utilité. Les modifications partielles de faits et
-un ATMS complet restent également futurs. L'adaptateur vers un solveur externe
-tel qu'OR-Tools demeure optionnel ; le backend fini portable valide déjà
-l'interface. L’évaluation semi-naïve reste le mode par défaut de
-`ForwardEngine`.
-
-## Démarrage rapide
-
-Le projet cible Python 3.12 ou ultérieur. Depuis la racine du dépôt :
+Snarky is a typed symbolic inference engine for Python, inspired by
+Jean-Louis Laurière's SNARK and Jean-Luc Dormoy's BOOJUM. It combines
+production rules, recursive terms, finite-domain propagation, explicit
+weighted choices, and reversible search in one explainable runtime.
+
+Snarky is a research prototype: its core semantics and compatibility boundary
+are tested, while adaptive propagation and some search policies remain
+experimental.
+
+## Why Snarky?
+
+The name acknowledges the historical SNARK language and nods to Snarky Puppy.
+The latter also suggests the project's central idea: a fusion of symbolic
+rules, constraint filtering, search, and musical applications.
+
+Snarky is not a source-compatible reimplementation of SNARK or BOOJUM.
+Historical behavior is identified where sources support it; reconstructed
+behavior and modern extensions are documented separately.
+
+## Capabilities
+
+- immutable atoms, numbers, variables, triples, propositions, sequences, and
+  sets;
+- recursive terms and variables in every triple position;
+- forward chaining with deterministic ordering, refraction, and provenance;
+- mutable working memory with reversible `ADD` and `REMOVE` actions;
+- correlated `EXISTS`, `NOT EXISTS`, `COUNT`, `UNIQUE`, and collection
+  premises;
+- named rule groups, persistent sessions, checkpoints, and explicit programs;
+- finite choices, contextual weights, depth- or breadth-first traversal, and
+  backtracking;
+- finite-domain filtering, arithmetic constraints, `NVALUE`, and
+  `ALL_DIFFERENT`;
+- reference, indexed, semi-naive, constraint-filtered, and adaptive
+  instantiation strategies;
+- strict type checking and differential tests across execution strategies.
+
+The required runtime is Python 3.12 or newer. PyYAML is the only mandatory
+third-party dependency.
+
+## Install from source
 
 ```sh
-python -m pip install -e '.[dev]'
-pytest
+git clone https://github.com/fpachet/snarky.git
+cd snarky
+python -m pip install -e .
 ```
 
-Pour une boucle locale rapide, les grands balayages d’intégration peuvent être
-écartés avec `pytest -m "not slow"`. Si `pytest-xdist` est installé
-séparément, la suite complète peut exploiter plusieurs cœurs avec
-`pytest -n auto`.
+For development:
 
-Le plan et les baselines de performance, notamment pour Fibonacci et Sudoku,
-sont consignés dans [`docs/optimization_plan.md`](docs/optimization_plan.md).
-La stabilisation du prototype est suivie séparément dans le
-[`plan de consolidation`](docs/consolidation_plan.md).
+```sh
+python -m pip install -e ".[dev]"
+pytest
+ruff check .
+mypy src
+```
 
-Exemple minimal avec l’API Python :
+The project has not yet declared a redistribution license. See
+[publication status](LICENSE_STATUS.md) before copying or redistributing it.
+
+## Quick start
+
+The stable Python API can define rules directly:
 
 ```python
 from snarky import Atom, Fact, ForwardEngine, Rule, Triple, Variable, add, when
@@ -479,246 +71,130 @@ x = Variable("x")
 y = Variable("y")
 z = Variable("z")
 
-rule = Rule(
-    name="grand_parent",
+grandparent = Rule(
+    name="grandparent",
     premises=(
-        when(Triple(x, Atom("parent_de"), y)),
-        when(Triple(y, Atom("parent_de"), z)),
+        when(Triple(x, Atom("parent_of"), y)),
+        when(Triple(y, Atom("parent_of"), z)),
     ),
-    actions=(add(Triple(x, Atom("grand_parent_de"), z)),),
+    actions=(add(Triple(x, Atom("grandparent_of"), z)),),
 )
 
 facts = (
-    Fact(Triple(Atom("alice"), Atom("parent_de"), Atom("bob"))),
-    Fact(Triple(Atom("bob"), Atom("parent_de"), Atom("clara"))),
+    Fact(Triple(Atom("alice"), Atom("parent_of"), Atom("bob"))),
+    Fact(Triple(Atom("bob"), Atom("parent_of"), Atom("clara"))),
 )
-result = ForwardEngine((rule,)).run(facts)
+result = ForwardEngine((grandparent,)).run(facts)
+
+assert Fact(
+    Triple(Atom("alice"), Atom("grandparent_of"), Atom("clara"))
+) in result.facts
 ```
 
-Le moteur utilise par défaut la stratégie semi-naïve. Elle maintient des index
-persistants et ne recalcule que les jointures contenant un fait nouveau, sans
-modifier l'ordre observable des activations. L'appel sans paramètre `strategy`
-dans l'exemple ci-dessus utilise donc directement cette implémentation.
-
-La stratégie naïve reste disponible comme oracle sémantique et comme option de
-diagnostic explicite :
+The same ideas can be written in the textual rule language:
 
 ```python
-from snarky import NaiveInstantiationStrategy
+from snarky import Fact, ForwardEngine, parse_rules, parse_term
 
-result = ForwardEngine(
-    (rule,),
-    strategy=NaiveInstantiationStrategy(),
-).run(facts)
+rules = parse_rules(
+    """
+    RULE grandparent
+    WHEN
+        ($x parent_of $y)
+        ($y parent_of $z)
+    THEN
+        ADD ($x grandparent_of $z)
+    END
+    """
+)
+facts = (
+    Fact(parse_term("(alice parent_of bob)")),
+    Fact(parse_term("(bob parent_of clara)")),
+)
+result = ForwardEngine(rules).run(facts)
 ```
 
-`IndexedInstantiationStrategy` reste disponible pour mesurer séparément le
-bénéfice de l'indexation exhaustive.
+The default engine uses semi-naive instantiation. The naive strategy remains
+the executable semantic reference and a useful diagnostic oracle.
 
-Les contraintes binaires ont depuis motivé des optimisations générales :
-rangs d'index stables, stockage de retrait adaptatif, index paresseux sur les
-chemins de termes structurés, ordre sélectif des sous-jointures existentielles
-et deux témoins résiduels par corrélation. Sur une chaîne de 64 variables à
-64 valeurs, elles ramènent le matching de 560 196 à 310 212 tentatives et le
-temps de 2,566 s à 1,684 s, soit un gain ×1,52. Les résultats A/B et les
-gardes de non-régression Sudoku/Fibonacci se trouvent dans
-[`benchmarks/README.md`](benchmarks/README.md).
+## Execution model
 
-Pour les sessions persistantes, les mutations, la négation et les plans de
-groupes, voir respectivement
-[`docs/rule_groups.md`](docs/rule_groups.md),
-[`docs/mutations_and_negation.md`](docs/mutations_and_negation.md) et la
-[spécification détaillée](docs/prompt_codex_moteur_snarky.md).
+Snarky keeps inference and search separate:
 
-Le benchmark A/B du précalcul des hashes structurels ramenait `F(15)` de
-6,084 s à 0,953 s, soit un gain ×6,39. Le chemin rapide qui désactive ensuite
-la réconciliation négative pour les groupes sans dépendance négative ramène
-`F(15)` de 0,919 s à 0,338 s et `F(19)` de 53,603 s à 4,618 s, sans modifier
-les faits, activations ou matchings. `F(20)` prend désormais 8,791 s en
-médiane et `F(21)` 12,309 s sur un passage : ce sont respectivement les
-limites interactive et ponctuelle raisonnables sur la machine de
-développement. `F(22)` dépasserait la garde par défaut de 100 000 faits.
-Les séries antérieures sont conservées et explicitement datées dans la
-documentation des benchmarks.
-Le benchmark Sudoku mesure désormais p1 à 0,247 s, p5 à 0,535 s et p6 à
-0,468 s en médiane. Après la réduction algorithmique des matchings, les hashes
-structurels précalculés des termes et faits immuables ajoutent un gain de 24 à
-27 % sans modifier leur nombre. Les commandes reproductibles et les compteurs
-sont décrits dans
-[`benchmarks/README.md`](benchmarks/README.md).
+1. a forward engine evaluates eligible rule activations to a deterministic
+   fixed point;
+2. an inference session retains facts, refraction, indexes, and provenance;
+3. checkpoints make mutations and propagation state reversible;
+4. choice search selects explicit alternatives and restores the session when
+   a branch fails.
 
-Sur le chemin de filtrage forcé, les Compact-Tables suppriment ensuite tous
-les rescans de lignes et évitent le second matching structurel. Les médianes
-A/B passent de 0,377 à 0,287 s sur p1, de 0,656 à 0,576 s sur p6 et de 0,926
-à 0,804 s sur p7, soit des gains ×1,14 à ×1,31.
+Constraint filtering narrows finite variable domains before exact matching:
 
-La jointure semi-naïve des mêmes tables réduit ensuite les matchings de
-63 946 à 49 531 sur p1, de 138 846 à 126 198 sur p6 et de 216 643 à 195 160
-sur p7. Les médianes Compact passent respectivement de 0,287 à 0,254 s, de
-0,576 à 0,534 s et de 0,804 à 0,731 s, soit encore 7 à 12 %. Le benchmark du
-trail mesure ×27,84 face à la copie complète d'un état de 1 000 domaines
-lorsqu'une branche n'en touche que trois.
+```text
+candidate facts
+    -> premise tables and variable domains
+    -> propagation to a fixed point
+    -> active Compact-Table rows
+    -> semi-naive joins containing new facts
+    -> exact matcher validation
+```
 
-Le DFS de choix matérialise maintenant les frères à la demande puis restaure
-la session en place. Sur N reines extensionnel, N=14 passe de 16,035 s avec
-forks avides à 2,675 s avec le noyau actuel, soit ×5,99 (`-83,3 %`) à
-20 nœuds et 8 échecs inchangés. La formulation intensionnelle réduit ensuite
-15 513 faits à 253 et atteint 1,145 s : gain cumulé ×14,0 (`-92,9 %`).
+This preserves one semantic reference while allowing optimized strategies to
+avoid irrelevant matches.
 
-Sur l'harmoniseur court, le noyau optimisé ramène la formulation extensionnelle
-de 257,78 à 99,31 ms. Les règles de transition intensionales réduisent
-401 faits à 32 et atteignent 37,60 ms, soit ×6,86 (`-85,4 %`) depuis cette
-baseline. Sur quatre positions, la reformulation passe de 2,573 s et
-1 171 faits à 562,00 ms et 64 faits, soit ×4,58.
+## Research applications
 
-Sur le micro-benchmark d'agenda à 200 règles indépendantes, une mutation ciblée
-ne recalcule qu'une règle et en réutilise 199. La médiane passe de 2,206 ms
-pour une construction froide à 0,572 ms pour la mise à jour incrémentale,
-soit ×3,86.
+| Project | Purpose |
+|---|---|
+| [Finite CSP](csp_solver/README.md) | N-queens and Sudoku through generic declarative choices and propagation |
+| [Sudoku](sudoku/README.md) | progressive, explainable human techniques followed by explicit search |
+| [Four-part harmonizer](harmonizer/README.md) | SATB generation with tonal rules, contextual weights, and MuSES integration |
+| [Rulebase catalogue](rulebases/README.md) | executable pedagogical and historically motivated examples |
+| [Spinoza](spinoza/README.md) | French-language formalization of Part III of the *Ethics* |
 
-La dernière exécution standard fait passer 420 tests et en ignore deux,
-conditionnés par l'installation de MuSES, en 29,64 s. Les anciennes références
-étaient de 26,05 s avant la mise en cache du catalogue de provenance Spinoza
-et de 76,50 s avant les optimisations.
+Spinoza intentionally remains in French because its corpus, formalization, and
+reports are tied to French primary material. Publication-facing engine and
+application documentation is in English.
 
-L'architecture et l'API réversibles sont détaillées dans
-[`docs/reversible_propagation.md`](docs/reversible_propagation.md).
+## Documentation
 
-## Base de debug initiale
+- [Documentation map](docs/README.md)
+- [Semantics](docs/semantics.md)
+- [API stability](docs/api_stability.md)
+- [Versioning and compatibility](docs/versioning.md)
+- [Strategy lifecycle](docs/strategy_lifecycle.md)
+- [Benchmarks](benchmarks/README.md)
+- [Changelog](CHANGELOG.md)
+- [Contributing](CONTRIBUTING.md)
 
-La base `mini_snarky` constitue le premier test d’intégration. Elle tient
-en quatre règles et neuf faits initiaux, tout en testant :
+The stable API is exported from `snarky`. Advanced and experimental components
+should be imported from their defining modules. All historical explicit root
+imports remain compatible during the 0.1 series.
 
-1. une jointure sur deux prémisses ;
-2. une relation variable ;
-3. une clôture transitive récursive ;
-4. des propositions imbriquées ;
-5. une variable représentant une proposition complète ;
-6. un statut explicite `FAUX`.
+## Reproducibility and performance
 
-Le moteur semi-naïf par défaut et l'oracle naïf reproduisent le même point fixe
-attendu : six faits dérivés, dont un à profondeur de preuve deux. Voir :
+Correctness tests compare optimized strategies with the naive reference across
+mutation, negation, search, propagation, and application scenarios.
+Microbenchmarks are separate from tests and write machine-readable results
+under `benchmarks/results/`.
 
-- [`mini_snarky.rules`](tests/rulebases/debug/mini_snarky.rules) ;
-- [`initial_facts.yaml`](tests/rulebases/debug/initial_facts.yaml) ;
-- [`expected.yaml`](tests/rulebases/debug/expected.yaml).
-
-## Corpus externes
-
-Le dépôt contient des sélections provenant de W3C N3, W3C RIF, CLIPS,
-ChaseBench, rbench/OpenRuleBench, Soufflé et EYE. Les versions, chemins
-sélectionnés, licences trouvées et sommes SHA-256 sont consignés dans
-[`third_party/test_rulebases/manifest.yaml`](third_party/test_rulebases/manifest.yaml).
-
-Ces corpus restent dans leur langage source. Ils devront être traduits par des
-adaptateurs explicites ; les comparaisons ne seront valides que pour
-l’intersection des sémantiques.
-
-Les snapshots ChaseBench et rbench ne contiennent pas de licence explicite.
-Leur redistribution doit donc être réévaluée avant de rendre ce dépôt public.
-
-Pour reconstruire la sélection dans un dépôt propre :
+Run the cross-rulebase benchmark:
 
 ```sh
-./scripts/fetch_test_rulebases.sh
+uv run python -m benchmarks.rulebase_suite --repeat 7
 ```
 
-Le script vérifie les révisions et les sommes SHA-256, et refuse d’écraser un
-répertoire existant.
+See [benchmarks/README.md](benchmarks/README.md) for protocols, interpretation,
+and the historical result files. Performance figures are environment-specific;
+logical equivalence is always checked before a change is accepted.
 
-## Projet Sudoku
+## Project status
 
-Le répertoire [`sudoku`](sudoku/README.md) isole le cas d’étude Sudoku du cœur
-du moteur et du corpus CLIPS original. Il contient :
+The consolidation through parser decomposition and API stabilization is
+complete. Work still required before a public tagged release is tracked in
+[docs/consolidation_plan.md](docs/consolidation_plan.md), especially explicit
+licensing and third-party redistribution decisions.
 
-- le [catalogue de la base de règles](sudoku/rules/catalog.yaml) p1 à p7 ;
-- les règles natives et leur chargeur ;
-- les fixtures natives vérifiées contre les sources CLIPS ;
-- l’orchestrateur et le rendu des explications ;
-- un mode hybride réutilisant ces mêmes faits et règles avec `FiniteCSP` ;
-- le [plan d’implémentation](sudoku/docs/implementation_plan.md), avec un
-  critère d’acceptation pour chaque étape.
-
-La base native est exécutable : les sept grilles p1 à p7 sont résolues avec les
-familles de techniques annoncées par le corpus CLIPS, sans recherche
-exhaustive ni solveur externe. Chaque retrait de candidat est conservé dans
-une trace rejouable. En complément, la recherche générique peut volontairement
-limiter les techniques humaines : sur p2 avec les seuls Naked Singles, elle
-retrouve l'oracle en 11 nœuds, quatre backtracks et trois décisions sur le
-chemin solution.
-
-## Plan de développement
-
-1. Produire la reconstruction historique et documenter les questions
-   ouvertes.
-2. ~~Définir la sémantique opérationnelle minimale.~~
-3. ~~Implémenter les termes immuables, substitutions et matching récursif.~~
-4. ~~Faire passer la base `mini_snarky` avec un moteur naïf de référence.~~
-5. ~~Ajouter la réfraction et la provenance avec profondeur de preuve.~~
-6. ~~Introduire l’action arithmétique séquentielle `LET`, documenter sa
-   sémantique et reformuler Fibonacci sans tables de prédécesseurs ni de
-   sommes.~~
-7. ~~Ajouter une première stratégie d’instanciation indexée, des compteurs et
-   une baseline Fibonacci reproductible jusqu’à `F(17)`.~~
-8. ~~Ajouter des index persistants par règle et une évaluation semi-naïve
-   pilotée par les faits nouveaux, avec ordre et provenance identiques au
-   moteur naïf.~~
-9. ~~Ajouter des groupes de règles nommés, une mémoire de travail persistante
-   entre leurs appels et plusieurs modes de contrôle du chaînage avant.~~
-10. ~~Ajouter les suppressions, un journal de mutations et les prémisses
-    corrélées `EXISTS`/`NOT EXISTS`, puis résoudre les niveaux Sudoku p1 à
-    p6 par techniques progressives.~~
-11. Renforcer le moteur mutable par des tests génératifs 4×4, des tests
-    différentiels sur les retraits et des mesures de reconstruction d’index.
-12. ~~Reproduire les démonstrations Spinoza P19, P21, P22 et P33, importer la
-    structure textuelle complète de l'Éthique III, puis rendre exécutables les
-    59 propositions, les 48 définitions finales et la définition générale dans
-    le modèle systématique.~~
-13. ~~Ajouter une couche optionnelle de raisonnement par contraintes pour
-   exprimer et résoudre des problèmes de satisfaction (CSP, SAT et variantes),
-   avec une interface générique, un backend fini de référence et une
-   réinjection des solutions comme faits.~~ Ajouter si nécessaire un
-   adaptateur OR-Tools optionnel.
-14. Exécuter les benchmarks externes adaptés, puis ajouter des cas de test
-    dédiés au couplage entre règles et contraintes.
-15. ~~Implémenter p7/X-Wing avec `COUNT` et `UNIQUE`.~~ Aborder le Sudoku
-    avancé à partir de p8. Les ensembles finis, `COLLECT`, `FRESH` et les
-    continuations isolées sont désormais disponibles ; la recherche explicite
-    reste indépendante des techniques humaines déterministes.
-16. ~~Compiler les prémisses, utiliser un cadre mutable interne, propager les
-    deltas de suppression, maintenir les compteurs négatifs et conserver les
-    jointures partielles sous budget. Ajouter un index de dépendances positives
-    et un agenda incrémental. Ajouter des index de chemins adaptatifs, des
-    retraits à rangs stables, des témoins résiduels et un ordre existentiel
-    sélectif.~~ Mesurer les prochaines optimisations sur les conflits réellement
-    dominants.
-17. ~~Structurer un catalogue public de bases avec un exécuteur commun,
-    des oracles et des README par problème.~~ Les exemples de la thèse ont
-    motivé la divisibilité entière, le modulo, `FRESH`, `COLLECT` et les
-    continuations isolées. ~~Ajouter ensuite une stratégie de conflit MEA et
-    reformuler le singe et les bananes avec des sous-buts dynamiques. Ajouter
-    `FOCUS`, les séquences, fenêtres, combinaisons et `FOR EACH`.~~
-18. ~~Ajouter groupes paramétrés, récursion bornée, prédicats calculés sur
-    registre, hiérarchie explicable, recherche par hypothèses, interface
-    CSP/SAT et TMS positif optionnel.~~ Évaluer ces primitives sur les
-    prochaines bases concrètes avant d'élargir leur DSL.
-19. ~~Ajouter `ChoicePoint`, MRV, choix pondérés et contextuels, branches
-    isolées, backtracking, traces et trail réversible ; valider ce langage sur
-    `FiniteCSP`, N-reines, le Sudoku hybride et un harmoniseur SATB note par
-    note.~~
-20. ~~Relier l'harmoniseur aux objets MuSES : accepter une
-    `TemporalCollection` comme l'une des voix SATB, l'importer par règles et
-    reconstruire une `Piece` à quatre voix sans muter la source.~~
-21. ~~Livrer un premier squelette tonal puis l'étendre avec `vii°`, `V7`,
-    `I64` cadentiel, doublures, résolutions, quatre cadences et rythme
-    harmonique.~~ Continuer vers le profil `ROY_1998` avec les autres
-    septièmes et renversements, six-quatre non cadentiels, exceptions,
-    tonalités, notes étrangères, métrique et préférences stylistiques, puis
-    profiler avant d'envisager nogoods, backjumping ou recherche parallèle.
-
-La cible est Python 3.12 ou ultérieur, avec `pytest`, `ruff`, `mypy` et des
-tests différentiels. L’ajout de tests génératifs fondés sur Hypothesis reste
-prévu.
-Les solveurs externes, dont OR-Tools, resteront des dépendances optionnelles
-derrière une interface générique afin de préserver un cœur symbolique léger et
-de permettre l’utilisation future d’autres backends.
+Feature proposals such as reflective meta-rules, full ATMS support, and
+parallel choice search remain research directions rather than current API
+commitments.

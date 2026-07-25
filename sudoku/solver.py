@@ -187,7 +187,7 @@ def _explain(
 ) -> str:
     removed = event.fact.entity
     if not isinstance(removed, Triple):
-        return f"{technique}: modification de la mémoire de travail."
+        return f"{technique}: working-memory update."
     cell = removed.subject
     discarded = removed.object
     rendered_cell = render_term(cell)
@@ -201,39 +201,39 @@ def _explain(
                 if isinstance(premise.entity, Triple)
                 and premise.entity.relation == Atom("solved")
             ),
-            Atom("une case résolue"),
+            Atom("a solved cell"),
         )
         return (
-            f"{technique}: retrait de {rendered_discarded} en "
-            f"{rendered_cell}, car {render_term(support)} porte déjà cette "
-            "valeur dans la même unité."
+            f"{technique}: remove {rendered_discarded} from {rendered_cell} "
+            f"because {render_term(support)} already has that value in the "
+            "same unit."
         )
     if group_name == "hidden_singles":
         value = substitution[Variable("value")]
         unit = substitution[Variable("unit")]
         return (
-            f"{technique}: {render_term(value)} n’apparaît qu’en "
-            f"{rendered_cell} dans {render_term(unit)}; retrait de "
-            f"{rendered_discarded} dans cette case."
+            f"{technique}: {render_term(value)} occurs only in "
+            f"{rendered_cell} within {render_term(unit)}; remove "
+            f"{rendered_discarded} from that cell."
         )
     if group_name.startswith("locked_candidates"):
         value = substitution[Variable("value")]
         return (
-            f"{technique}: le candidat {render_term(value)} est verrouillé "
-            f"sur une intersection; retrait en {rendered_cell}."
+            f"{technique}: candidate {render_term(value)} is locked to an "
+            f"intersection; remove it from {rendered_cell}."
         )
     if group_name == "x_wing":
         value = substitution[Variable("value")]
         return (
-            f"{technique}: le candidat {render_term(value)} est limité aux "
-            "mêmes deux lignes ou colonnes; retrait en "
-            f"{rendered_cell} hors du rectangle."
+            f"{technique}: candidate {render_term(value)} is restricted to "
+            "the same two rows or columns; remove it from "
+            f"{rendered_cell} outside the rectangle."
         )
     first = substitution[Variable("first_value")]
     second = substitution[Variable("second_value")]
     unit = substitution[Variable("unit")]
     return (
-        f"{technique}: la paire {{{render_term(first)}, "
-        f"{render_term(second)}}} est confinée dans {render_term(unit)}; "
-        f"retrait de {rendered_discarded} en {rendered_cell}."
+        f"{technique}: pair {{{render_term(first)}, {render_term(second)}}} "
+        f"is confined within {render_term(unit)}; remove "
+        f"{rendered_discarded} from {rendered_cell}."
     )
