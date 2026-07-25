@@ -95,7 +95,7 @@ Sur la dernière séquence seule, les tentatives de matching passent de 69 793
 La baisse supplémentaire vaut 33 à 50 %, pour un gain temporel de ×1,62 à
 ×2,29. Depuis la baseline initiale, le gain total vaut ×7,18 à ×8,74. À cette
 étape de mesure, la suite comptait 285 tests. La dernière exécution standard
-fait passer 413 tests et en ignore deux, conditionnés par MuSES, en 12,46 s après
+fait passer 414 tests et en ignore deux, conditionnés par MuSES, en 18,35 s après
 l'ajout des nouvelles capacités et bases ; ce temps élargi ne remplace pas la
 mesure contrôlée du tableau. Le protocole exécutable est
 `python -m benchmarks.sudoku_rules`.
@@ -680,18 +680,26 @@ Cette tranche est terminée. À formulation inchangée, N-reines N=14 passe de
 1,145 s et 37,60 ms. Le nombre d'index complets de N=14 passe de 31 à 1.
 Les solutions, nœuds et échecs restent identiques.
 
-Le jalon applicatif suivant fournit une nouvelle baseline plutôt qu'une
+Le jalon applicatif suivant fournissait une baseline historique plutôt qu'une
 optimisation du noyau :
 
 - Sudoku p2 limité aux Naked Singles : 11 nœuds, 4 échecs, 1,942 s ;
-- harmoniseur note par note : 19 nœuds, 0 échec, 145,06 ms pour trois
+- harmoniseur note par note à accord de do fixe : 19 nœuds, 0 échec,
+  145,06 ms pour trois
   solutions ;
 - oracle à voicing complet : 13 nœuds, 34,92 ms.
 
-Nogoods, backjumping, parallélisme et overlays persistants sont différés :
-aucune contradiction n'est revisitée et les arbres sont trop petits pour
-amortir ces mécanismes. La prochaine optimisation devra être déclenchée par le
-profil des règles `ROY_1998`. Voir
+Le nouveau jalon tonal constitue une autre baseline : sur `C5–A4–B4–C5`, il
+engendre `I–IV–V–I` avec cinq degrés, deux renversements et six variables par
+position. Il demande 14 nœuds, 0 échec, 3 décisions et 962,38 ms par l'entrée
+symbolique directe ; la frontière MuSES porte la médiane à 975,65 ms
+(`+1,4 %`). Ces chiffres ne sont pas comparables A/B au cas fixe précédent :
+ils mesurent le problème musical enrichi.
+
+Nogoods, backjumping, parallélisme et overlays persistants restent différés :
+aucune contradiction n'est revisitée dans ce premier exemple tonal et l'arbre
+reste trop petit pour amortir ces mécanismes. La prochaine optimisation devra
+être déclenchée par le profil des règles musicales enrichies. Voir
 [`csp_harmonizer_next.md`](csp_harmonizer_next.md).
 
 La première version possède déjà des tests différentiels ciblés, y compris
@@ -778,8 +786,10 @@ non-régression, pas les moteurs automatiques de la prochaine optimisation.
 
 La prochaine tranche doit partir des applications enrichies :
 
-1. ajouter les connaissances `ROY_1998` prioritaires à l'harmoniseur afin
-   d'obtenir des problèmes musicaux représentatifs ;
+1. enrichir le squelette livré (`I`, `ii`, `IV`, `V`, `vi`, deux
+   renversements et cadence `V–I`) avec les prochaines connaissances
+   `ROY_1998` : `vii°`, six-quatre, septièmes, doublures, sensible,
+   résolutions, autres cadences et rythme harmonique ;
 2. conserver comme baselines le Sudoku hybride, N-reines intensionnel,
    l'oracle à voicing complet et l'harmoniseur note par note ;
 3. profiler par nœud la saturation des groupes, la production des points de

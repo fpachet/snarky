@@ -42,13 +42,26 @@ Le jalon livre maintenant :
 - exemple exécutable et benchmark séparant moteur et frontière objet.
 - orchestration inspectable par `RuleProgram`, sans groupe CSP inactif.
 
-## Jalon 3 — profil dur `ROY_1998`
+## Jalon 3a — squelette tonal — livré
 
-Ajouter degrés, renversements, vocabulaire, doublures, sensible, cadence,
-progressions et exceptions. Chaque règle stable `R-*` recevra ses cas positif,
-négatif, limite et exception. Étendre parallèlement l'entrée MuSES aux
-tonalités supportées, silences et informations métriques réellement utilisées
-par ces règles.
+- tessitures diatoniques complètes en do majeur ;
+- variables d'accord et de renversement à chaque position ;
+- degrés `I`, `ii`, `IV`, `V`, `vi` ;
+- fondamentale et premier renversement ;
+- génération déclarative de voicings à six composantes ;
+- canalisation accord–renversement–notes–voicing ;
+- table de progressions fonctionnelles ;
+- forme initiale `I` et cadence finale `V → I` à l'état fondamental ;
+- marginales conditionnelles des accords ;
+- exemple MuSES `C5–A4–B4–C5` donnant `I–IV–V–I`.
+
+## Jalon 3b — profil dur `ROY_1998`
+
+Ajouter `vii°`, six-quatre, septièmes, vocabulaire complet, doublures,
+sensible et résolutions, cadences supplémentaires, rythme harmonique et
+exceptions. Chaque règle stable `R-*` recevra ses cas positif, négatif, limite
+et exception. Étendre parallèlement l'entrée MuSES aux tonalités supportées,
+silences et informations métriques réellement utilisées par ces règles.
 
 ## Jalon 4 — préférences et probabilités — premier palier livré
 

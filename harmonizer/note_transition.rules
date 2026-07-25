@@ -1,33 +1,34 @@
-# Les opérations musicales élémentaires sont enregistrées comme prédicats
-# purs, mais leur conjonction, leur portée et la recherche de support restent
-# entièrement déclaratives.
+# Révision bidirectionnelle des positions voisines. Un support doit respecter
+# à la fois la progression fonctionnelle et les règles de conduite des voix.
 
 GROUP propagate_note_harmonic_transitions
-    RULE revise_successor_voicing_by_roy_rules
+    RULE revise_successor_voicing_by_tonal_rules
     WHEN
         ($left successor $right)
-        ($right candidate $target)
+        ($right voicing_candidate SEQ[$target_chord $target_inversion $target_soprano $target_alto $target_tenor $target_bass])
         NOT EXISTS
-            ($left candidate $source)
-            CHECK melodic_transition ARGS SEQ[$source $target]
-            CHECK no_parallel_perfects ARGS SEQ[$source $target]
-            CHECK legal_global_motion ARGS SEQ[$source $target]
+            ($left voicing_candidate SEQ[$source_chord $source_inversion $source_soprano $source_alto $source_tenor $source_bass])
+            ($source_chord allows_successor $target_chord)
+            CHECK melodic_transition ARGS SEQ[SEQ[$source_soprano $source_alto $source_tenor $source_bass] SEQ[$target_soprano $target_alto $target_tenor $target_bass]]
+            CHECK no_parallel_perfects ARGS SEQ[SEQ[$source_soprano $source_alto $source_tenor $source_bass] SEQ[$target_soprano $target_alto $target_tenor $target_bass]]
+            CHECK legal_global_motion ARGS SEQ[SEQ[$source_soprano $source_alto $source_tenor $source_bass] SEQ[$target_soprano $target_alto $target_tenor $target_bass]]
         END_NOT_EXISTS
     THEN
-        REMOVE ($right candidate $target)
+        REMOVE ($right voicing_candidate SEQ[$target_chord $target_inversion $target_soprano $target_alto $target_tenor $target_bass])
     END
 
-    RULE revise_predecessor_voicing_by_roy_rules
+    RULE revise_predecessor_voicing_by_tonal_rules
     WHEN
         ($left successor $right)
-        ($left candidate $source)
+        ($left voicing_candidate SEQ[$source_chord $source_inversion $source_soprano $source_alto $source_tenor $source_bass])
         NOT EXISTS
-            ($right candidate $target)
-            CHECK melodic_transition ARGS SEQ[$source $target]
-            CHECK no_parallel_perfects ARGS SEQ[$source $target]
-            CHECK legal_global_motion ARGS SEQ[$source $target]
+            ($right voicing_candidate SEQ[$target_chord $target_inversion $target_soprano $target_alto $target_tenor $target_bass])
+            ($source_chord allows_successor $target_chord)
+            CHECK melodic_transition ARGS SEQ[SEQ[$source_soprano $source_alto $source_tenor $source_bass] SEQ[$target_soprano $target_alto $target_tenor $target_bass]]
+            CHECK no_parallel_perfects ARGS SEQ[SEQ[$source_soprano $source_alto $source_tenor $source_bass] SEQ[$target_soprano $target_alto $target_tenor $target_bass]]
+            CHECK legal_global_motion ARGS SEQ[SEQ[$source_soprano $source_alto $source_tenor $source_bass] SEQ[$target_soprano $target_alto $target_tenor $target_bass]]
         END_NOT_EXISTS
     THEN
-        REMOVE ($left candidate $source)
+        REMOVE ($left voicing_candidate SEQ[$source_chord $source_inversion $source_soprano $source_alto $source_tenor $source_bass])
     END
 END_GROUP

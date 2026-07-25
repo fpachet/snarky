@@ -12,16 +12,14 @@ from .muses_harmonizer import MusesHarmonization, harmonize_temporal_collection
 
 
 def build_example_soprano() -> TemporalCollection:
-    """Return a two-measure C-major soprano with a small rhythmic profile."""
+    """Return a two-measure soprano designed for an I-IV-V-I cadence."""
 
     return TemporalCollection(
         name="soprano_donne",
         temporals=(
-            TemporalNote(67, 0.0, 1.0, velocity=72, midi_channel=0),
-            TemporalNote(64, 1.0, 1.0, velocity=70, midi_channel=0),
-            TemporalNote(60, 2.0, 2.0, velocity=68, midi_channel=0),
-            TemporalNote(64, 4.0, 1.0, velocity=70, midi_channel=0),
-            TemporalNote(67, 5.0, 1.0, velocity=72, midi_channel=0),
+            TemporalNote(72, 0.0, 2.0, velocity=72, midi_channel=0),
+            TemporalNote(69, 2.0, 2.0, velocity=70, midi_channel=0),
+            TemporalNote(71, 4.0, 2.0, velocity=74, midi_channel=0),
             TemporalNote(72, 6.0, 2.0, velocity=76, midi_channel=0),
         ),
         instrument="choir",
@@ -67,6 +65,8 @@ def main() -> None:
     for voice in result.piece.melodies:
         pitches = [note.pitch for note in voice.temporals]
         print(f"  {voice.name:8s} {pitches}")
+    print("  chords  ", list(result.symbolic.chords))
+    print("  inversions", list(result.symbolic.inversions))
     print(f"MIDI:     {midi_path}")
     print(f"MusicXML: {musicxml_path}")
     print(

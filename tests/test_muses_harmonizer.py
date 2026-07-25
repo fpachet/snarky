@@ -97,8 +97,8 @@ def _integration() -> tuple[
     ("voice", "line", "voice_index"),
     (
         ("soprano", (67, 72), 0),
-        ("alto", (64, 60), 1),
-        ("tenor", (55, 60), 2),
+        ("alto", (62, 64), 1),
+        ("tenor", (59, 55), 2),
         ("bass", (43, 48), 3),
     ),
 )

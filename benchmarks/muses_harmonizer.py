@@ -120,14 +120,16 @@ def run(repeat: int) -> dict[str, Any]:
     source = BenchmarkCollection(
         name="benchmark_soprano",
         temporals=(
-            BenchmarkNote(67, 0.0, 1.0),
-            BenchmarkNote(72, 1.0, 1.0),
+            BenchmarkNote(72, 0.0, 1.0),
+            BenchmarkNote(69, 1.0, 1.0),
+            BenchmarkNote(71, 2.0, 1.0),
+            BenchmarkNote(72, 3.0, 1.0),
         ),
         instrument="choir",
     )
 
     def symbolic() -> tuple[int, int]:
-        solutions = harmonize_notes((67, 72), max_solutions=1)
+        solutions = harmonize_notes((72, 69, 71, 72), max_solutions=1)
         return len(solutions[0].decisions), len(solutions)
 
     def object_bridge() -> tuple[int, int]:

@@ -42,11 +42,11 @@ et les extensions modernes.
 | [Spinoza](spinoza/README.md) | corpus de l’Éthique III, règles d’ordre supérieur, provenance et explications |
 | [Sudoku](sudoku/README.md) | techniques humaines p1–p7, éliminations rejouables, puis `CHOICE` et backtracking |
 | [CSP fini](csp_solver/README.md) | N-reines extensionnel et intensionnel, propagation métier et recherche générique |
-| [Harmonisation SATB](harmonizer/README.md) | ligne MuSES donnée, variables de notes, règles, recherche pondérée et `Piece` à quatre voix |
+| [Harmonisation SATB](harmonizer/README.md) | ligne MuSES donnée, degrés et renversements, variables SATB, progression/cadence, recherche pondérée et `Piece` à quatre voix |
 | [Bases NéOpus](rulebases/README.md) | Fibonacci, Hanoï, singe et bananes, MuSES et autres reformulations historiques |
 
 Le cœur reste léger : Python 3.12+, PyYAML, aucun solveur externe obligatoire.
-La suite standard fait passer 413 tests, avec des oracles naïfs, différentiels
+La suite standard fait passer 414 tests, avec des oracles naïfs, différentiels
 et applicatifs. Deux tests supplémentaires valident le codec et le pipeline
 d'harmonisation avec les vraies classes MuSES lorsque cette dépendance
 optionnelle est disponible.
@@ -195,13 +195,16 @@ Le projet Sudoku peut maintenant limiter volontairement ses techniques puis
 passer au `CHOICE` générique. Sur p2 avec les seuls Naked Singles, il retrouve
 l'oracle après 11 nœuds, quatre contradictions et trois décisions.
 
-L'harmoniseur possède aussi un second modèle où chaque note SATB est une
-variable. Une voix donnée, choisie parmi soprano, alto, ténor et basse, devient
-singleton. Les règles engendrent les voicings après création des domaines,
-maintiennent le canal notes–voicings et recherchent les supports entre
-positions. Les poids peuvent devenir conditionnels à la note précédente dans
-la branche. Best-first retourne les meilleures solutions ; un échantillonnage
-pondéré avec graine est reproductible.
+L'harmoniseur possède aussi un modèle tonal où chaque position porte six
+variables : degré d'accord, renversement et quatre notes SATB. Une voix donnée,
+choisie parmi soprano, alto, ténor et basse, devient singleton. Les règles
+engendrent les voicings après création des domaines, maintiennent le canal
+accord–renversement–notes–voicing et recherchent les supports entre positions.
+Le premier vocabulaire couvre `I`, `ii`, `IV`, `V`, `vi`, leurs états
+fondamental et premier renversement, les transitions fonctionnelles et une
+cadence finale `V–I`. Les poids peuvent devenir conditionnels à la note ou à
+l'accord précédent dans la branche. Best-first retourne les meilleures
+solutions ; un échantillonnage pondéré avec graine est reproductible.
 
 Ce modèle est relié de bout en bout à MuSES : une `TemporalCollection` donnée
 est encodée en faits, ses hauteurs entrent dans les domaines par règle, puis
@@ -370,9 +373,10 @@ Le contenu actuel comprend :
 - [`csp_solver`](csp_solver/README.md), le protocole `FiniteCSP` : variables,
   domaines, contraintes extensionnelles ou intensionnelles, propagation
   métier, `CHOICE` et backtracking ; N-reines et Sudoku en sont les oracles ;
-- [`harmonizer`](harmonizer/README.md), l'harmoniseur SATB à variables de
-  notes : voicings engendrés par règles, canalisation, transitions,
-  marginales contextuelles, recherche best-first et tirage pondéré ;
+- [`harmonizer`](harmonizer/README.md), l'harmoniseur SATB tonal à variables
+  d'accord, de renversement et de notes : voicings engendrés par règles,
+  cadence, transitions, marginales contextuelles, recherche best-first et
+  tirage pondéré ;
 - [`docs/semantics.md`](docs/semantics.md), les décisions sémantiques du moteur
   de référence ;
 - [`docs/arithmetic_actions.md`](docs/arithmetic_actions.md), la syntaxe et la
@@ -433,10 +437,12 @@ reçoit qu’un fait racine : les sommes et les rangs des fils ne sont plus
 préchargés sous forme de tables.
 
 Le choix MRV, le backtracking sur trail réversible, le CSP fini, le Sudoku
-hybride, l'harmoniseur note par note et sa frontière MuSES vers `Piece` sont
-livrés. La priorité fonctionnelle est maintenant d'enrichir les connaissances
-musicales vers le profil
-`ROY_1998` : degrés, renversements, doublures, sensible et cadences. Les
+hybride, l'harmoniseur tonal et sa frontière MuSES vers `Piece` sont livrés.
+Le premier squelette musical comprend cinq degrés, deux renversements, une
+table de progression et une cadence `V–I`. La priorité fonctionnelle est
+maintenant d'enrichir ce sous-ensemble vers le profil `ROY_1998` : `vii°`,
+accords de six-quatre et de septième, règles fines de doublure, sensible et
+résolutions, notes étrangères, autres cadences et rythme harmonique. Les
 nogoods, le backjumping et la recherche parallèle restent différés jusqu'à ce
 qu'un profil établisse leur utilité. Les modifications partielles de faits et
 un ATMS complet restent également futurs. L'adaptateur vers un solveur externe
@@ -567,8 +573,8 @@ ne recalcule qu'une règle et en réutilise 199. La médiane passe de 2,206 ms
 pour une construction froide à 0,572 ms pour la mise à jour incrémentale,
 soit ×3,86.
 
-La dernière exécution standard fait passer 413 tests et en ignore deux,
-conditionnés par l'installation de MuSES, en 12,46 s. Les anciennes références
+La dernière exécution standard fait passer 414 tests et en ignore deux,
+conditionnés par l'installation de MuSES, en 18,35 s. Les anciennes références
 étaient de 26,05 s avant la mise en cache du catalogue de provenance Spinoza
 et de 76,50 s avant les optimisations.
 
@@ -700,10 +706,12 @@ chemin solution.
 20. ~~Relier l'harmoniseur aux objets MuSES : accepter une
     `TemporalCollection` comme l'une des voix SATB, l'importer par règles et
     reconstruire une `Piece` à quatre voix sans muter la source.~~
-21. Étendre progressivement l'harmoniseur vers le profil `ROY_1998` :
-    degrés, renversements, doublures, sensible, cadences et préférences
-    stylistiques, puis profiler avant d'envisager nogoods, backjumping ou
-    recherche parallèle.
+21. ~~Livrer un premier squelette tonal : cinq degrés, fondamentale/premier
+    renversement, progression fonctionnelle, cadence `V–I` et marginales
+    d'accord.~~ Étendre progressivement ce noyau vers le profil `ROY_1998` :
+    `vii°`, six-quatre, septièmes, doublures fines, sensible et résolutions,
+    autres cadences, rythme harmonique et préférences stylistiques, puis
+    profiler avant d'envisager nogoods, backjumping ou recherche parallèle.
 
 La cible est Python 3.12 ou ultérieur, avec `pytest`, `ruff`, `mypy` et des
 tests différentiels. L’ajout de tests génératifs fondés sur Hypothesis reste

@@ -164,8 +164,11 @@ piece = solutions[0].piece
 
 Le pipeline encode la collection, importe ses hauteurs par une règle Snarky,
 exécute la génération et la recherche, puis encode et reconstruit quatre
-collections distinctes avant de créer une `Piece`. Les faits source, les
-faits de chaque voix et la trace symbolique sont conservés dans le résultat.
+collections distinctes avant de créer une `Piece`. Le résultat symbolique
+conserve les accords, les renversements, les quatre voicings, les faits source,
+les faits de chaque voix et la trace. Le premier vocabulaire tonal couvre
+`I`, `ii`, `IV`, `V`, `vi`, les états fondamental et premier renversement,
+une table de progression et une cadence finale `V–I`.
 
 Cette validation montre que les atomes stables et les snapshots suffisent au
 premier harmoniseur : aucun `ObjectRef` natif ni mutation d'objet sur le trail

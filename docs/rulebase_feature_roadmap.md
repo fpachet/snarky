@@ -210,8 +210,11 @@ Voir [`python_object_integration.md`](python_object_integration.md).
     `TemporalNote` et `TemporalCollection` de MuSES.~~
 17. Ajouter `MEMBER` et `SIZE`, puis implémenter les naked triples de Sudoku p8
     avec `COMBINATIONS`.
-18. Ajouter degrés, renversements, doublures, cadence et sensible au modèle
-    note par note.
+18. ~~Ajouter un premier modèle tonal avec `I`, `ii`, `IV`, `V`, `vi`,
+    fondamentale/premier renversement, progression fonctionnelle et cadence
+    `V–I`.~~ Compléter ensuite vers `ROY_1998` avec `vii°`, six-quatre,
+    septièmes, doublures fines, sensible et résolutions, autres cadences et
+    rythme harmonique.
 19. Mesurer une éventuelle consistance généralisée de `ALL_DIFFERENT`.
 20. Ne retenir les extensions restantes qu'avec une base et un oracle
     reproductibles.

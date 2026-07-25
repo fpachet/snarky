@@ -87,32 +87,64 @@ Le benchmark comparatif s'exécute avec :
 PYTHONPATH=.:src python benchmarks/choice_formulations.py --repeat 3
 ```
 
-## Harmoniseur note par note
+## Harmoniseur tonal note par note
 
 [`note_solver.py`](note_solver.py) suit maintenant l'architecture en deux
-phases de la spécification. Chaque voix de chaque position est une variable
-CSP. La voix donnée — soprano, alto, ténor ou basse — est singleton ; les trois
-autres sont décidées par le `CHOICE` générique.
+phases de la spécification. Chaque position possède désormais six variables
+CSP :
+
+- un degré d'accord parmi `I`, `ii`, `IV`, `V`, `vi` ;
+- un renversement, fondamentale ou premier renversement ;
+- les quatre notes SATB.
+
+La voix donnée — soprano, alto, ténor ou basse — est singleton. Les tessitures
+contiennent toutes les notes diatoniques de do majeur ; accords, renversements
+et notes restantes utilisent le `CHOICE` générique.
 
 [`note_generation.rules`](note_generation.rules) construit les voicings après
-création des domaines. La règle expose directement l'ordre vertical SATB, les
-trois espacements maximaux et la complétude de la triade.
+création des domaines. Chaque candidat relie explicitement accord,
+renversement et quatre hauteurs. La règle expose l'ordre strict SATB, les trois
+espacements maximaux, l'appartenance à l'accord, la basse imposée par le
+renversement et la complétude de la triade.
+
+[`harmonic_form.rules`](harmonic_form.rules) impose le premier squelette
+fonctionnel :
+
+- début sur `I` pour une phrase d'au moins trois positions ;
+- cadence finale `V → I` ;
+- dominante et tonique cadentielles à l'état fondamental.
 
 [`note_propagation.rules`](note_propagation.rules) maintient la canalisation
-bidirectionnelle entre notes et voicings.
+bidirectionnelle entre accord, renversement, notes et voicings.
 [`note_transition.rules`](note_transition.rules) rend visibles dans la
-recherche de supports les contraintes mélodiques, les parallélismes interdits
-et le mouvement global.
+recherche de supports la progression fonctionnelle, les contraintes
+mélodiques, les parallélismes interdits et le mouvement global.
 
 ```python
 from harmonizer import harmonize_notes
 
-solutions = harmonize_notes((67, 72), max_solutions=3)
+solution = harmonize_notes((72, 69, 71, 72), max_solutions=1)[0]
+assert solution.chords == (
+    "degree_I",
+    "degree_IV",
+    "degree_V",
+    "degree_I",
+)
 ```
 
-La phrase test engendre par règles les mêmes domaines de 15 et 9 voicings que
-l'oracle. Les trois premières solutions demandent 19 nœuds et quatre à cinq
-décisions de notes.
+Le soprano `C5–A4–B4–C5` produit :
+
+| Voix | Hauteurs MIDI |
+|---|---|
+| soprano | `72 69 71 72` |
+| alto | `64 60 59 64` |
+| ténor | `55 57 50 55` |
+| basse | `48 41 43 36` |
+
+La basse dessine donc `C–F–G–C`. Les accords ne sont pas recopiés depuis
+Python : la forme, les supports verticaux et les transitions réduisent leurs
+domaines. Sur une phrase ambiguë, la trace contient une véritable décision
+`harmony_*_chord` produite par `CHOICE`.
 
 ### Orchestration explicite
 
@@ -125,7 +157,7 @@ print(model.program.manifest())
 ```
 
 Le programme distingue préparation, choix, propagation et interprétation. Il
-compose neuf groupes et vingt-deux règles pour l'entrée MuSES. Il sélectionne
+compose dix groupes et trente-et-une règles pour l'entrée MuSES. Il sélectionne
 les modules CSP `choices`, `domains` et `problems`, mais pas
 `binary_constraints`, inutilisé par ce modèle. La composition complète est
 détaillée dans
@@ -138,10 +170,11 @@ ni aucune règle CSP.
 
 ### Marginales contextuelles
 
-Chaque variable possède une marginale statique. Lorsque la note précédente de
-la même voix est connue, `update_contextual_note_weights` la remplace par une
-marginale conditionnelle. Le poids est donc recalculé dans la branche et
-restauré par rollback.
+Chaque note, accord et renversement possède une marginale statique. Lorsque la
+note ou l'accord précédent est connu, `update_contextual_note_weights`
+sélectionne une marginale conditionnelle. Les transitions fonctionnelles
+favorisent par exemple `I → IV`, `IV → V` et `V → I`. Le poids est recalculé
+dans la branche et restauré par rollback.
 
 Best-first fournit les meilleures réalisations déterministes. Un tirage
 pondéré reproductible est également public :
@@ -169,8 +202,10 @@ from muses.base.temporals import TemporalCollection, TemporalNote
 soprano = TemporalCollection(
     name="given_soprano",
     temporals=(
-        TemporalNote(67, 0.0, 1.0),
-        TemporalNote(72, 1.0, 1.0),
+        TemporalNote(72, 0.0, 2.0),
+        TemporalNote(69, 2.0, 2.0),
+        TemporalNote(71, 4.0, 2.0),
+        TemporalNote(72, 6.0, 2.0),
     ),
     instrument="choir",
 )
@@ -206,7 +241,7 @@ PYTHONPATH=src python -m harmonizer.example_muses
 ```
 
 L'exemple construit deux mesures de soprano
-`G4–E4–C4–E4–G4–C5`, calcule les quatre voix, puis appelle directement
+`C5–A4–B4–C5`, calcule `I–IV–V–I` et les quatre voix, puis appelle directement
 `Piece.save_midi(...)` et `muses.io.write_musicxml(...)`. Il écrit :
 
 - `harmonizer/generated/snarky_soprano_satb.mid` ;
@@ -220,12 +255,15 @@ structurel même sans installation de MuSES, puis un test optionnel vérifie les
 classes réelles. La version actuelle accepte au moins deux notes
 monophoniques, toute voix SATB donnée, et le profil restreint de do majeur.
 
-### Coût du modèle explicite
+### Coût du modèle tonal
 
-Sur la phrase de deux positions, trois solutions prennent 34,92 ms avec le
-choix d'un voicing complet et 145,06 ms avec les variables de notes. Le
-facteur ×4,15 est la baseline du modèle explicatif : il manipule davantage de
-variables et maintient le canal notes–voicings.
+Sur le cas `I–IV–V–I` à quatre positions, une solution prend 962,38 ms depuis
+un tuple de hauteurs et 975,65 ms avec le trajet MuSES complet. La frontière
+objet ne coûte que 13,27 ms (`+1,4 %`) ; le coût est donc dans la génération
+des voicings, la canalisation à six composantes et les supports entre
+positions. L'ancien benchmark à 145,06 ms concernait seulement deux positions
+et un accord de do fixe : il reste historique, mais ne mesure plus le même
+problème.
 
 Voir [`docs/csp_harmonizer_next.md`](../docs/csp_harmonizer_next.md) pour
 l'architecture, les mesures et les décisions sur nogoods, backjumping et
@@ -233,9 +271,11 @@ parallélisme.
 
 ## Limites explicites
 
-Ce n'est pas encore la réimplémentation complète du profil `ROY_1998`.
-Manquent notamment degrés, renversements, sensible, cadences, règles détaillées
-de doublure, mouvements directs complets et optimisation stylistique
-lexicographique. Le pipeline MuSES ne traite encore ni silences, ni accords
-dans la collection donnée, ni changement de tonalité, ni métrique musicale
-dans le raisonnement ; le rythme est pour l'instant transmis au résultat.
+Ce n'est pas encore la réimplémentation complète du profil `ROY_1998`. Le
+premier vocabulaire tonal couvre cinq triades diatoniques, deux renversements,
+une table de progressions et une cadence parfaite. Manquent notamment `vii°`,
+les six-quatre, accords de septième, sensible et résolutions détaillées,
+doublures stylistiques, notes étrangères, rythme harmonique, autres cadences
+et optimisation lexicographique. Le pipeline MuSES ne traite encore ni
+silences, ni changement de tonalité, ni métrique musicale dans le
+raisonnement ; le rythme est pour l'instant transmis au résultat.

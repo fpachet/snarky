@@ -82,6 +82,7 @@ choice
 
 propagation
   classify_csp_domains
+  enforce_tonal_form
   maintain_note_voicing_channel
   update_contextual_note_weights
   propagate_note_harmonic_transitions
@@ -91,7 +92,7 @@ interpretation
   interpret_note_harmonization
 ```
 
-Cela représente neuf groupes et vingt-deux règles. Le groupe
+Cela représente dix groupes et trente-et-une règles. Le groupe
 `propagate_binary_constraints`, auparavant ajouté implicitement, n'est plus
 chargé : le modèle musical ne construit aucun fait `binary_constraint`.
 

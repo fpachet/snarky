@@ -60,45 +60,57 @@ backtracking, pas une simple énumération sans échec.
 
 La nouvelle architecture suit les deux phases de la spécification Roy.
 
-### Phase des notes
+### Variables de notes et d'harmonie
 
-Chaque couple `(position, voix)` est une variable CSP distincte. Les faits
-exposent :
+Chaque couple `(position, voix)` est une variable CSP distincte. Deux
+variables supplémentaires choisissent accord et renversement :
 
 ```text
 (roy_note_harmonization variable note_0_alto)
 (note_0_alto candidate 60)
 (note_0_alto voice alto)
 (note_0_alto position note_position_0)
+(note_position_0 chord_variable harmony_0_chord)
+(harmony_0_chord candidate degree_I)
+(note_position_0 inversion_variable harmony_0_inversion)
+(harmony_0_inversion candidate root)
 ```
 
 La voix donnée devient un domaine singleton ; elle peut être soprano, alto,
 ténor ou basse. Une politique générique `PriorityMRVChoicePolicy` impose les
-phases temporelles puis applique MRV dans la phase courante.
+positions temporelles puis applique MRV. Les mêmes règles `CHOICE` traitent
+les accords, renversements et notes parce que tous suivent le protocole de
+domaine fini.
 
 ### Construction différée des voicings
 
-`note_generation.rules` croise les domaines de notes après leur création.
+`note_generation.rules` croise les domaines d'accord, renversement et notes
+après leur création.
 Les règles écrivent explicitement :
 
 - `R-ORDER-001` par trois comparaisons ;
 - `R-SPACING-001` à `003` par trois contraintes arithmétiques ;
+- l'appartenance des voix aux hauteurs de l'accord ;
+- la basse correspondant au renversement ;
 - la complétude de la triade par un prédicat calculé pur.
 
-La règle produit respectivement 15 et 9 voicings pour la phrase `(67, 72)`,
-comme l'oracle historique. Python ne filtre pas ces produits : il ne construit
-que les domaines et pilote la frontière entre les deux phases.
+Le cas `C5–A4–B4–C5` produit respectivement 26, 30, 7 et 26 voicings avant
+propagation. Python construit le vocabulaire factuel indexé ; la règle effectue
+les jointures et décide quels sextuplets
+`accord–renversement–soprano–alto–ténor–basse` existent.
 
 ### Canalisation et transitions
 
-`note_propagation.rules` maintient un encodage dual :
+`note_propagation.rules` maintient un encodage lié :
 
-- un voicing disparaît dès qu'une de ses quatre notes n'est plus candidate ;
-- une note disparaît dès qu'aucun voicing ne la supporte.
+- un voicing disparaît dès qu'une de ses six composantes n'est plus candidate ;
+- un accord, renversement ou note disparaît dès qu'aucun voicing ne le
+  supporte.
 
 `note_transition.rules` recherche ensuite un support dans la position voisine.
 La conjonction est visible dans la règle :
 
+- progression de degrés autorisée ;
 - mouvement mélodique légal ;
 - absence de quintes, octaves et unissons parallèles ;
 - mouvement global légal.
@@ -109,12 +121,13 @@ ne pilotent ni propagation ni backtracking.
 
 ## Probabilités
 
-Chaque note reçoit une marginale statique. Lorsqu'une note précédente de la
-même voix est connue, `update_contextual_note_weights` remplace cette
+Chaque note et chaque accord reçoit une marginale statique. Lorsqu'une valeur
+précédente est connue, `update_contextual_note_weights` remplace cette
 marginale par une table conditionnelle :
 
 ```text
 P(note[v,t] | note[v,t-1])
+P(chord[t] | chord[t-1])
 ```
 
 Les faits `choice_weight` sont donc branch-locales et restaurés par rollback.
@@ -128,7 +141,7 @@ Deux usages sont disponibles :
 
 Les probabilités ne transforment jamais une interdiction en préférence.
 
-## Performances
+## Performances historiques et tonales
 
 Mesure du 25 juillet 2026, macOS ARM64, Python 3.13.11, cinq répétitions :
 
@@ -137,17 +150,20 @@ Mesure du 25 juillet 2026, macOS ARM64, Python 3.13.11, cinq répétitions :
 | Sudoku p2, règles humaines complètes | 294,36 ms | — | 0 | 1 |
 | Sudoku p2, Naked Singles + recherche | 1,942 s | 11 | 4 | 1 |
 | harmoniseur, choix d'un voicing | 34,92 ms | 13 | 0 | 3 |
-| harmoniseur, variables de notes | 145,06 ms | 19 | 0 | 3 |
+| harmoniseur historique, variables de notes, 2 positions | 145,06 ms | 19 | 0 | 3 |
+| harmoniseur tonal, `I–IV–V–I`, 4 positions | 962,38 ms | 14 | 0 | 1 |
+| pipeline MuSES tonal complet | 975,65 ms | 14 | 0 | 1 |
 
 Le coût supplémentaire est attendu :
 
 - le Sudoku générique remplace une technique humaine très déterminante par
   quatre branches réfutées ;
-- l'harmoniseur expose jusqu'à six variables de notes non singleton au lieu
-  de deux variables de voicings.
+- l'harmoniseur tonal expose six variables par position, génère les voicings
+  de cinq accords et propage accords, renversements et notes.
 
-Ces chiffres sont une baseline fonctionnelle, pas encore une cible
-d'optimisation.
+Les 145,06 ms historiques et les 962,38 ms tonales ne mesurent pas le même
+problème. La frontière MuSES n'ajoute que 13,27 ms (`+1,4 %`) ; la prochaine
+optimisation doit donc viser génération et supports musicaux.
 
 ## Évaluation des mécanismes avancés
 
@@ -179,14 +195,17 @@ canalisation et la recherche de supports.
 
 ## Prochain incrément musical
 
-Le prochain travail doit enrichir les connaissances, sans changer
+Le premier squelette tonal est livré : degrés `I`, `ii`, `IV`, `V`, `vi`,
+fondamentale et premier renversement, progressions et cadence parfaite. Le
+prochain travail doit enrichir les connaissances sans changer
 l'architecture :
 
-1. degrés et renversements comme variables d'accord ;
+1. `vii°`, six-quatre et septièmes ;
 2. règles de doublure identifiées `R-DOUBLING-*` ;
-3. vocabulaire `R-VOCAB-001` ;
-4. cadence et sensible ;
-5. tests positif, négatif, limite et exception par identifiant stable.
+3. sensible et résolutions obligatoires ;
+4. autres cadences et rythme harmonique ;
+5. notes étrangères ;
+6. tests positif, négatif, limite et exception par identifiant stable.
 
 Un mécanisme avancé de recherche ne sera ajouté que si ces règles produisent
 un profil et un oracle qui le justifient.

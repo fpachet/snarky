@@ -4,10 +4,13 @@ Les benchmarks sont des programmes reproductibles séparés des tests de
 correction. Ils produisent du JSON afin de pouvoir comparer plusieurs
 versions du moteur.
 
-## Choix, backtracking et applications
+## Choix, backtracking et applications — oracle historique
 
 `choice_search` mesure les deux premiers projets qui utilisent
-`SessionChoiceSearch` :
+`SessionChoiceSearch`. Les cas d'harmonisation de cette section choisissent
+encore un voicing complet dans un vocabulaire d'accord fixe ; ils servent
+d'oracles historiques du moteur de recherche, pas de mesure du modèle tonal
+actuel :
 
 ```sh
 PYTHONPATH=src python -m benchmarks.choice_search --repeat 5
@@ -22,8 +25,8 @@ Mesure finale du 25 juillet 2026 sur macOS ARM64 avec Python 3.13.11 :
 | harmoniseur SATB, 4 positions | 549,50 ms | 124 | 0 | 3 |
 
 Le solveur des reines propage trois affectations après la première décision.
-L'harmoniseur utilise 15 voicings sur la première position et 9 sur la
-seconde.
+Cet oracle à voicing complet utilise 15 voicings sur la première position et
+9 sur la seconde.
 
 Le DFS utilise un trail de session. Les frontières BFS et best-first stockent
 des alternatives différées et ne créent une session qu'au moment de les
@@ -122,10 +125,11 @@ Depuis le début de cette tranche, N=14 passe de 4,749 à 1,145 s : ×4,15
 Les données brutes sont dans
 [`results/choice_formulations_2026-07-25.json`](results/choice_formulations_2026-07-25.json).
 
-## CSP générique et harmoniseur note par note
+## CSP générique et harmoniseur note par note — baseline historique
 
-Le benchmark du jalon suivant compare les chemins applicatifs, construction
-du modèle comprise :
+Le benchmark de ce jalon comparait les chemins applicatifs, construction du
+modèle comprise. L'harmoniseur avait alors quatre variables de notes par
+position et un unique accord de do fixe :
 
 ```sh
 PYTHONPATH=.:src python -m benchmarks.csp_harmonizer_next --repeat 5
@@ -141,8 +145,10 @@ PYTHONPATH=.:src python -m benchmarks.csp_harmonizer_next --repeat 5
 Le Sudoku de recherche ne vise pas à battre les règles humaines : il les
 limite volontairement pour tester une contradiction et un rollback réels.
 L'harmoniseur note par note paie ×4,15 pour exposer les variables, la
-canalisation et les marginales conditionnelles. Ces résultats constituent la
-baseline à optimiser lors de l'ajout des règles `ROY_1998`.
+canalisation et les marginales conditionnelles. Ces résultats restent la
+baseline historique à accord fixe. Ils ne doivent pas être comparés
+directement au modèle tonal ci-dessous, qui ajoute accord, renversement,
+vocabulaire diatonique, progression et cadence.
 
 Les résultats bruts sont conservés dans
 [`results/csp_harmonizer_next_2026-07-25.json`](results/csp_harmonizer_next_2026-07-25.json).
@@ -158,20 +164,21 @@ PYTHONPATH=.:src python -m benchmarks.muses_harmonizer --repeat 7
 
 Mesure du 25 juillet 2026 sur macOS ARM64 avec Python 3.13.11 :
 
-| Chemin, 2 positions, 1 solution | Médiane | Décisions |
+| Chemin tonal `I–IV–V–I`, 4 positions, 1 solution | Médiane | Décisions |
 |---|---:|---:|
-| tuple de hauteurs → harmoniseur | 66,09 ms | 4 |
-| `TemporalCollection` → faits → règles → `Piece` | 69,81 ms | 4 |
+| tuple de hauteurs → harmoniseur | 962,38 ms | 3 |
+| `TemporalCollection` → faits → règles → `Piece` | 975,65 ms | 3 |
 
 Le codec, l'import par règle et la reconstruction des quatre collections
-ajoutent 3,72 ms, soit `+5,6 %`. Le nombre de décisions et la solution ne
+ajoutent 13,27 ms, soit `+1,4 %`. Le nombre de décisions et la solution ne
 changent pas : le coût reste dominé par la génération, la propagation et la
 recherche du modèle musical.
 
-L'orchestration explicite retire en outre le groupe de contraintes binaires
-qui ne rencontrait aucun fait dans ce modèle. Par rapport aux mesures
-précédentes, cela réduit le chemin symbolique de `11,0 %` et le pipeline MuSES
-de `12,3 %`, sans changer les résultats ni les décisions.
+La mesure précédente à 69,81 ms portait sur deux positions et un seul accord
+de do fixe. Le nouveau cas engendre et canalise cinq degrés, deux
+renversements, six variables par position et des supports de progression : il
+constitue une nouvelle baseline fonctionnelle, pas une régression A/B à
+problème constant.
 
 Le script emploie des classes structurellement compatibles afin de rester
 reproductible sans dépendance optionnelle. Les tests d'intégration exécutent

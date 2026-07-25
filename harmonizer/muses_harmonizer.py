@@ -1,4 +1,10 @@
-"""End-to-end MuSES to Snarky SATB harmonization."""
+"""End-to-end MuSES to tonal Snarky SATB harmonization.
+
+The current executable profile chooses five diatonic chord degrees, root or
+first inversion, and four SATB notes per position.  Snarky rules enforce
+vertical voicing, functional transitions, and the final V-I cadence before
+the selected solution is reconstructed as a MuSES Piece.
+"""
 
 from __future__ import annotations
 

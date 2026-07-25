@@ -1,0 +1,55 @@
+# Forme tonale minimale : une phrase d'au moins trois positions commence sur I,
+# toute phrase se termine par une cadence parfaite V fondamentale -> I
+# fondamentale. Les règles filtrent les domaines, elles ne posent aucun choix.
+
+GROUP enforce_tonal_form
+    RULE require_initial_tonic
+    WHEN
+        ($position phrase_role initial)
+        ($position chord_variable $variable)
+        ($variable candidate $chord)
+        $chord != degree_I
+    THEN
+        REMOVE ($variable candidate $chord)
+    END
+
+    RULE require_penultimate_dominant
+    WHEN
+        ($position phrase_role penultimate)
+        ($position chord_variable $variable)
+        ($variable candidate $chord)
+        $chord != degree_V
+    THEN
+        REMOVE ($variable candidate $chord)
+    END
+
+    RULE require_final_tonic
+    WHEN
+        ($position phrase_role final)
+        ($position chord_variable $variable)
+        ($variable candidate $chord)
+        $chord != degree_I
+    THEN
+        REMOVE ($variable candidate $chord)
+    END
+
+    RULE require_penultimate_root_position
+    WHEN
+        ($position phrase_role penultimate)
+        ($position inversion_variable $variable)
+        ($variable candidate $inversion)
+        $inversion != root
+    THEN
+        REMOVE ($variable candidate $inversion)
+    END
+
+    RULE require_final_root_position
+    WHEN
+        ($position phrase_role final)
+        ($position inversion_variable $variable)
+        ($variable candidate $inversion)
+        $inversion != root
+    THEN
+        REMOVE ($variable candidate $inversion)
+    END
+END_GROUP
