@@ -92,7 +92,7 @@ interpretation
   interpret_note_harmonization
 ```
 
-Cela représente dix groupes et trente-et-une règles. Le groupe
+Cela représente dix groupes et trente-trois règles. Le groupe
 `propagate_binary_constraints`, auparavant ajouté implicitement, n'est plus
 chargé : le modèle musical ne construit aucun fait `binary_constraint`.
 

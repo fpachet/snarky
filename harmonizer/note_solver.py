@@ -72,10 +72,16 @@ ALLOWS_SUCCESSOR = Atom("allows_successor")
 VOICING_CANDIDATE = Atom("voicing_candidate")
 PHRASE_ROLE = Atom("phrase_role")
 INITIAL = Atom("initial")
+PRECADENTIAL = Atom("precadential")
 PENULTIMATE = Atom("penultimate")
 FINAL = Atom("final")
+RESTRICT_CHORD = Atom("restrict_chord")
+ALLOWED_FORM_CHORD = Atom("allowed_form_chord")
+RESTRICT_INVERSION = Atom("restrict_inversion")
+ALLOWED_FORM_INVERSION = Atom("allowed_form_inversion")
 ROOT_INVERSION = Atom("root")
 FIRST_INVERSION = Atom("first")
+SECOND_INVERSION = Atom("second")
 
 VOICE_NAMES = (
     Atom("soprano"),
@@ -86,26 +92,56 @@ VOICE_NAMES = (
 VOICE_VARIABLE_RELATIONS = tuple(
     Atom(f"{voice.name}_variable") for voice in VOICE_NAMES
 )
+DEGREE_I = Atom("degree_I")
+DEGREE_II = Atom("degree_ii")
+DEGREE_IV = Atom("degree_IV")
+DEGREE_V = Atom("degree_V")
+DEGREE_V7 = Atom("degree_V7")
+DEGREE_VI = Atom("degree_vi")
+DEGREE_VII = Atom("degree_vii")
 CHORDS = (
-    Atom("degree_I"),
-    Atom("degree_ii"),
-    Atom("degree_IV"),
-    Atom("degree_V"),
-    Atom("degree_vi"),
+    DEGREE_I,
+    DEGREE_II,
+    DEGREE_IV,
+    DEGREE_V,
+    DEGREE_V7,
+    DEGREE_VI,
+    DEGREE_VII,
 )
-CHORD_PITCH_CLASSES: dict[Atom, tuple[int, int, int]] = {
-    CHORDS[0]: (0, 4, 7),
-    CHORDS[1]: (2, 5, 9),
-    CHORDS[2]: (5, 9, 0),
-    CHORDS[3]: (7, 11, 2),
-    CHORDS[4]: (9, 0, 4),
+CHORD_PITCH_CLASSES: dict[Atom, tuple[int, ...]] = {
+    DEGREE_I: (0, 4, 7),
+    DEGREE_II: (2, 5, 9),
+    DEGREE_IV: (5, 9, 0),
+    DEGREE_V: (7, 11, 2),
+    DEGREE_V7: (7, 11, 2, 5),
+    DEGREE_VI: (9, 0, 4),
+    DEGREE_VII: (11, 2, 5),
 }
 CHORD_TRANSITIONS: dict[Atom, tuple[Atom, ...]] = {
-    CHORDS[0]: (CHORDS[0], CHORDS[2], CHORDS[3], CHORDS[4]),
-    CHORDS[1]: (CHORDS[3],),
-    CHORDS[2]: (CHORDS[0], CHORDS[1], CHORDS[3]),
-    CHORDS[3]: (CHORDS[0], CHORDS[4]),
-    CHORDS[4]: (CHORDS[1], CHORDS[2]),
+    DEGREE_I: (
+        DEGREE_I,
+        DEGREE_II,
+        DEGREE_IV,
+        DEGREE_V,
+        DEGREE_V7,
+        DEGREE_VI,
+        DEGREE_VII,
+    ),
+    DEGREE_II: (DEGREE_II, DEGREE_V, DEGREE_V7),
+    DEGREE_IV: (DEGREE_IV, DEGREE_I, DEGREE_II, DEGREE_V, DEGREE_V7),
+    DEGREE_V: (DEGREE_V, DEGREE_V7, DEGREE_I, DEGREE_VI),
+    DEGREE_V7: (DEGREE_V7, DEGREE_I, DEGREE_VI),
+    DEGREE_VI: (DEGREE_VI, DEGREE_II, DEGREE_IV),
+    DEGREE_VII: (DEGREE_VII, DEGREE_I),
+}
+CHORD_INVERSIONS: dict[Atom, tuple[Atom, ...]] = {
+    DEGREE_I: (ROOT_INVERSION, FIRST_INVERSION, SECOND_INVERSION),
+    DEGREE_II: (ROOT_INVERSION, FIRST_INVERSION),
+    DEGREE_IV: (ROOT_INVERSION, FIRST_INVERSION),
+    DEGREE_V: (ROOT_INVERSION, FIRST_INVERSION),
+    DEGREE_V7: (ROOT_INVERSION,),
+    DEGREE_VI: (ROOT_INVERSION, FIRST_INVERSION),
+    DEGREE_VII: (FIRST_INVERSION,),
 }
 DIATONIC_PITCH_CLASSES = frozenset((0, 2, 4, 5, 7, 9, 11))
 DIATONIC_VOICE_POOLS = (
@@ -114,8 +150,9 @@ DIATONIC_VOICE_POOLS = (
     tuple(pitch for pitch in range(48, 65) if pitch % 12 in DIATONIC_PITCH_CLASSES),
     tuple(pitch for pitch in range(36, 53) if pitch % 12 in DIATONIC_PITCH_CLASSES),
 )
-INVERSION_NAMES = (ROOT_INVERSION, FIRST_INVERSION)
+INVERSION_NAMES = (ROOT_INVERSION, FIRST_INVERSION, SECOND_INVERSION)
 type SATBVoice = Literal["soprano", "alto", "tenor", "bass"]
+type Cadence = Literal["perfect", "plagal", "deceptive", "half"]
 
 
 @dataclass(frozen=True, slots=True)
@@ -130,6 +167,8 @@ class NoteHarmonizerModel:
     choice_priorities: dict[Term, int]
     generated_voicings: tuple[int, ...]
     given_voice: SATBVoice
+    cadence: Cadence
+    harmonic_rhythm: tuple[int, ...]
     preparation_events: tuple[InferenceEvent, ...]
 
 
@@ -140,6 +179,8 @@ class NoteHarmonization:
     voicings: tuple[PitchVoicing, ...]
     chords: tuple[str, ...]
     inversions: tuple[str, ...]
+    cadence: Cadence
+    harmonic_rhythm: tuple[int, ...]
     log_weight: float
     decisions: tuple[ChoiceDecision, ...]
     choice_events: tuple[ChoiceEvent, ...]
@@ -147,9 +188,11 @@ class NoteHarmonization:
 
 
 def build_note_harmonizer_model(
-    melody: tuple[int, ...] = (67, 72),
+    melody: tuple[int, ...] = (71, 72),
     *,
     given_voice: SATBVoice = "soprano",
+    cadence: Cadence = "perfect",
+    harmonic_rhythm: tuple[int, ...] | None = None,
     source_facts: tuple[Fact, ...] = (),
     source_notes: tuple[Atom, ...] = (),
 ) -> NoteHarmonizerModel:
@@ -170,6 +213,8 @@ def build_note_harmonizer_model(
     if len(set(source_notes)) != len(source_notes):
         raise ValueError("source note identities must be unique")
     imported_line = bool(source_notes)
+    rhythm = _normalized_harmonic_rhythm(len(melody), harmonic_rhythm)
+    harmonic_positions = tuple(rhythm.index(slot) for slot in range(max(rhythm) + 1))
 
     positions = tuple(Atom(f"note_position_{index}") for index in range(len(melody)))
     variables = tuple(
@@ -181,12 +226,15 @@ def build_note_harmonizer_model(
         )
         for index in range(len(melody))
     )
-    harmonic_variables = tuple(
+    slot_harmonic_variables = tuple(
         (
-            Atom(f"harmony_{index}_chord"),
-            Atom(f"harmony_{index}_inversion"),
+            Atom(f"harmony_{slot}_chord"),
+            Atom(f"harmony_{slot}_inversion"),
         )
-        for index in range(len(melody))
+        for slot in range(len(harmonic_positions))
+    )
+    harmonic_variables = tuple(
+        slot_harmonic_variables[slot] for slot in rhythm
     )
     facts: list[Fact] = [
         Fact(Triple(PROBLEM, KIND, CSP_PROBLEM)),
@@ -196,35 +244,34 @@ def build_note_harmonizer_model(
     weights: dict[tuple[Term, Term], float] = {}
     choice_priorities: dict[Term, int] = {}
 
-    for index, (position, position_variables, harmonic_pair) in enumerate(
-        zip(positions, variables, harmonic_variables, strict=True)
+    for slot, (
+        first_position,
+        harmonic_pair,
+    ) in enumerate(
+        zip(
+            harmonic_positions,
+            slot_harmonic_variables,
+            strict=True,
+        )
     ):
+        position = positions[first_position]
         chord_variable, inversion_variable = harmonic_pair
-        facts.append(Fact(Triple(position, KIND, HARMONIC_POSITION)))
         facts.extend(
             (
                 Fact(Triple(PROBLEM, VARIABLE, chord_variable)),
                 Fact(Triple(chord_variable, KIND, CSP_VARIABLE)),
                 Fact(Triple(chord_variable, KIND, HARMONIC_CHORD)),
                 Fact(Triple(chord_variable, POSITION, position)),
-                Fact(Triple(position, CHORD_VARIABLE, chord_variable)),
                 Fact(Triple(PROBLEM, VARIABLE, inversion_variable)),
                 Fact(Triple(inversion_variable, KIND, CSP_VARIABLE)),
                 Fact(Triple(inversion_variable, KIND, HARMONIC_INVERSION)),
                 Fact(Triple(inversion_variable, POSITION, position)),
-                Fact(
-                    Triple(
-                        position,
-                        INVERSION_VARIABLE,
-                        inversion_variable,
-                    )
-                ),
             )
         )
-        choice_priorities[chord_variable] = index * 6
-        choice_priorities[inversion_variable] = index * 6 + 1
+        choice_priorities[chord_variable] = first_position * 6
+        choice_priorities[inversion_variable] = first_position * 6 + 1
 
-        chord_weights = _static_chord_weights(index)
+        chord_weights = _static_chord_weights(first_position)
         for chord in CHORDS:
             weight = chord_weights[chord]
             facts.extend(
@@ -242,20 +289,15 @@ def build_note_harmonizer_model(
             weights[(chord_variable, chord)] = weight
 
         inversion_weights = {
-            ROOT_INVERSION: 0.8,
-            FIRST_INVERSION: 0.2,
+            ROOT_INVERSION: 0.72,
+            FIRST_INVERSION: 0.23,
+            SECOND_INVERSION: 0.05,
         }
         for inversion in INVERSION_NAMES:
             weight = inversion_weights[inversion]
             facts.extend(
                 (
-                    Fact(
-                        Triple(
-                            inversion_variable,
-                            CANDIDATE,
-                            inversion,
-                        )
-                    ),
+                    Fact(Triple(inversion_variable, CANDIDATE, inversion)),
                     Fact(
                         Triple(
                             inversion_variable,
@@ -267,35 +309,40 @@ def build_note_harmonizer_model(
             )
             weights[(inversion_variable, inversion)] = weight
 
-        if index > 0:
-            previous_chord = harmonic_variables[index - 1][0]
-            facts.append(
+        if slot == 0:
+            continue
+        previous_chord = slot_harmonic_variables[slot - 1][0]
+        facts.append(Fact(Triple(chord_variable, PREDECESSOR, previous_chord)))
+        for previous in CHORDS:
+            conditional = _chord_transition_weights(previous)
+            facts.extend(
                 Fact(
                     Triple(
                         chord_variable,
-                        PREDECESSOR,
-                        previous_chord,
+                        CONDITIONAL_WEIGHT,
+                        FiniteSequence(
+                            (
+                                previous,
+                                chord,
+                                Number(conditional[chord]),
+                            )
+                        ),
                     )
                 )
+                for chord in CHORDS
             )
-            for previous in CHORDS:
-                conditional = _chord_transition_weights(previous)
-                facts.extend(
-                    Fact(
-                        Triple(
-                            chord_variable,
-                            CONDITIONAL_WEIGHT,
-                            FiniteSequence(
-                                (
-                                    previous,
-                                    chord,
-                                    Number(conditional[chord]),
-                                )
-                            ),
-                        )
-                    )
-                    for chord in CHORDS
-                )
+
+    for index, (position, position_variables, harmonic_pair) in enumerate(
+        zip(positions, variables, harmonic_variables, strict=True)
+    ):
+        chord_variable, inversion_variable = harmonic_pair
+        facts.extend(
+            (
+                Fact(Triple(position, KIND, HARMONIC_POSITION)),
+                Fact(Triple(position, CHORD_VARIABLE, chord_variable)),
+                Fact(Triple(position, INVERSION_VARIABLE, inversion_variable)),
+            )
+        )
 
         for voice_index, (voice, relation, variable) in enumerate(
             zip(
@@ -363,7 +410,7 @@ def build_note_harmonizer_model(
             )
             facts.append(Fact(Triple(variable, PREDECESSOR, previous)))
             for previous_pitch in previous_candidates:
-                conditional = _conditional_marginal(
+                note_conditional = _conditional_marginal(
                     previous_pitch,
                     candidates,
                 )
@@ -376,7 +423,7 @@ def build_note_harmonizer_model(
                                 (
                                     Number(previous_pitch),
                                     Number(pitch),
-                                    Number(conditional[pitch]),
+                                    Number(note_conditional[pitch]),
                                 )
                             ),
                         )
@@ -384,13 +431,11 @@ def build_note_harmonizer_model(
                     for pitch in candidates
                 )
 
-    if len(positions) >= 3:
-        facts.append(Fact(Triple(positions[0], PHRASE_ROLE, INITIAL)))
-    facts.extend(
-        (
-            Fact(Triple(positions[-2], PHRASE_ROLE, PENULTIMATE)),
-            Fact(Triple(positions[-1], PHRASE_ROLE, FINAL)),
-        )
+    _add_form_facts(
+        facts,
+        positions,
+        harmonic_positions,
+        cadence,
     )
     facts.extend(
         Fact(Triple(left, SUCCESSOR, right))
@@ -417,10 +462,10 @@ def build_note_harmonizer_model(
         for position in positions
     )
     if 0 in generated_counts:
-        position = generated_counts.index(0)
+        empty_position = generated_counts.index(0)
         raise ValueError(
-            f"no legal tonal SATB voicing at position {position} "
-            f"for {given_voice} pitch {melody[position]}"
+            f"no legal tonal SATB voicing at position {empty_position} "
+            f"for {given_voice} pitch {melody[empty_position]}"
         )
     return NoteHarmonizerModel(
         FiniteCSP(
@@ -436,14 +481,102 @@ def build_note_harmonizer_model(
         choice_priorities,
         generated_counts,
         given_voice,
+        cadence,
+        rhythm,
         preparation_events,
     )
 
 
+def _normalized_harmonic_rhythm(
+    note_count: int,
+    harmonic_rhythm: tuple[int, ...] | None,
+) -> tuple[int, ...]:
+    rhythm = tuple(range(note_count)) if harmonic_rhythm is None else harmonic_rhythm
+    if len(rhythm) != note_count:
+        raise ValueError("harmonic_rhythm must contain one slot number per note")
+    if not rhythm or rhythm[0] != 0:
+        raise ValueError("harmonic_rhythm must start at slot 0")
+    if any(
+        not isinstance(slot, int) or isinstance(slot, bool) or slot < 0
+        for slot in rhythm
+    ):
+        raise ValueError("harmonic_rhythm slots must be non-negative integers")
+    if any(
+        right not in (left, left + 1)
+        for left, right in zip(rhythm, rhythm[1:], strict=False)
+    ):
+        raise ValueError("harmonic_rhythm slots must be contiguous and non-decreasing")
+    if rhythm[-1] < 1:
+        raise ValueError("the harmonizer needs at least two harmonic slots")
+    return rhythm
+
+
+def _add_form_facts(
+    facts: list[Fact],
+    positions: tuple[Atom, ...],
+    harmonic_positions: tuple[int, ...],
+    cadence: Cadence,
+) -> None:
+    try:
+        penultimate_chords, final_chords = {
+            "perfect": ((DEGREE_V, DEGREE_V7), (DEGREE_I,)),
+            "plagal": ((DEGREE_IV,), (DEGREE_I,)),
+            "deceptive": ((DEGREE_V, DEGREE_V7), (DEGREE_VI,)),
+            "half": ((), (DEGREE_V, DEGREE_V7)),
+        }[cadence]
+    except KeyError as error:
+        raise ValueError(
+            "cadence must be perfect, plagal, deceptive, or half"
+        ) from error
+
+    def restrict_chord(position: Atom, allowed: tuple[Atom, ...]) -> None:
+        facts.append(Fact(Triple(position, RESTRICT_CHORD, Atom("true"))))
+        facts.extend(
+            Fact(Triple(position, ALLOWED_FORM_CHORD, chord)) for chord in allowed
+        )
+
+    def restrict_inversion(position: Atom, allowed: tuple[Atom, ...]) -> None:
+        facts.append(Fact(Triple(position, RESTRICT_INVERSION, Atom("true"))))
+        facts.extend(
+            Fact(Triple(position, ALLOWED_FORM_INVERSION, inversion))
+            for inversion in allowed
+        )
+
+    representative_positions = tuple(
+        positions[index] for index in harmonic_positions
+    )
+    if len(representative_positions) >= 3:
+        initial = representative_positions[0]
+        facts.append(Fact(Triple(initial, PHRASE_ROLE, INITIAL)))
+        restrict_chord(initial, (DEGREE_I,))
+        restrict_inversion(initial, (ROOT_INVERSION,))
+
+    if penultimate_chords:
+        penultimate = representative_positions[-2]
+        facts.append(Fact(Triple(penultimate, PHRASE_ROLE, PENULTIMATE)))
+        restrict_chord(penultimate, penultimate_chords)
+        restrict_inversion(penultimate, (ROOT_INVERSION,))
+
+    final = representative_positions[-1]
+    facts.append(Fact(Triple(final, PHRASE_ROLE, FINAL)))
+    restrict_chord(final, final_chords)
+    restrict_inversion(final, (ROOT_INVERSION,))
+
+    if cadence == "perfect" and len(representative_positions) >= 4:
+        precadential_start = harmonic_positions[-3]
+        precadential_end = harmonic_positions[-2]
+        facts.extend(
+            Fact(Triple(position, PHRASE_ROLE, PRECADENTIAL))
+            for position in positions[precadential_start:precadential_end]
+        )
+
+
 def harmonize_notes(
-    melody: tuple[int, ...] = (67, 72),
+    melody: tuple[int, ...] = (71, 72),
     *,
     given_voice: SATBVoice = "soprano",
+    cadence: Cadence = "perfect",
+    harmonic_rhythm: tuple[int, ...] | None = None,
     max_solutions: int = 3,
     seed: int = 0,
 ) -> tuple[NoteHarmonization, ...]:
@@ -452,6 +585,8 @@ def harmonize_notes(
     model = build_note_harmonizer_model(
         melody,
         given_voice=given_voice,
+        cadence=cadence,
+        harmonic_rhythm=harmonic_rhythm,
     )
     result = solve_note_harmonizer(
         model,
@@ -465,9 +600,11 @@ def harmonize_notes(
 
 
 def sample_harmonization(
-    melody: tuple[int, ...] = (67, 72),
+    melody: tuple[int, ...] = (71, 72),
     *,
     given_voice: SATBVoice = "soprano",
+    cadence: Cadence = "perfect",
+    harmonic_rhythm: tuple[int, ...] | None = None,
     seed: int = 0,
 ) -> NoteHarmonization:
     """Sample one feasible harmonization from contextual note marginals."""
@@ -475,6 +612,8 @@ def sample_harmonization(
     model = build_note_harmonizer_model(
         melody,
         given_voice=given_voice,
+        cadence=cadence,
+        harmonic_rhythm=harmonic_rhythm,
     )
     result = solve_note_harmonizer(
         model,
@@ -534,6 +673,8 @@ def _note_harmonization(
         tuple(voicings),
         chords,
         inversions,
+        model.cadence,
+        model.harmonic_rhythm,
         solution.log_weight,
         solution.decisions,
         result.events,
@@ -586,11 +727,13 @@ def _conditional_marginal(
 def _static_chord_weights(position: int) -> dict[Atom, float]:
     del position
     raw = {
-        CHORDS[0]: 0.20,
-        CHORDS[1]: 0.05,
-        CHORDS[2]: 0.35,
-        CHORDS[3]: 0.25,
-        CHORDS[4]: 0.15,
+        DEGREE_I: 0.20,
+        DEGREE_II: 0.05,
+        DEGREE_IV: 0.31,
+        DEGREE_V: 0.20,
+        DEGREE_V7: 0.06,
+        DEGREE_VI: 0.14,
+        DEGREE_VII: 0.04,
     }
     total = sum(raw.values())
     return {chord: value / total for chord, value in raw.items()}
@@ -598,20 +741,47 @@ def _static_chord_weights(position: int) -> dict[Atom, float]:
 
 def _chord_transition_weights(previous: Atom) -> dict[Atom, float]:
     preferred = {
-        CHORDS[0]: {
-            CHORDS[0]: 0.10,
-            CHORDS[2]: 0.45,
-            CHORDS[3]: 0.25,
-            CHORDS[4]: 0.20,
+        DEGREE_I: {
+            DEGREE_I: 0.08,
+            DEGREE_II: 0.05,
+            DEGREE_IV: 0.35,
+            DEGREE_V: 0.20,
+            DEGREE_V7: 0.08,
+            DEGREE_VI: 0.17,
+            DEGREE_VII: 0.07,
         },
-        CHORDS[1]: {CHORDS[3]: 1.0},
-        CHORDS[2]: {
-            CHORDS[0]: 0.15,
-            CHORDS[1]: 0.15,
-            CHORDS[3]: 0.70,
+        DEGREE_II: {
+            DEGREE_II: 0.05,
+            DEGREE_V: 0.65,
+            DEGREE_V7: 0.30,
         },
-        CHORDS[3]: {CHORDS[0]: 0.85, CHORDS[4]: 0.15},
-        CHORDS[4]: {CHORDS[1]: 0.40, CHORDS[2]: 0.60},
+        DEGREE_IV: {
+            DEGREE_IV: 0.08,
+            DEGREE_I: 0.12,
+            DEGREE_II: 0.10,
+            DEGREE_V: 0.48,
+            DEGREE_V7: 0.22,
+        },
+        DEGREE_V: {
+            DEGREE_V: 0.05,
+            DEGREE_V7: 0.10,
+            DEGREE_I: 0.75,
+            DEGREE_VI: 0.10,
+        },
+        DEGREE_V7: {
+            DEGREE_V7: 0.05,
+            DEGREE_I: 0.85,
+            DEGREE_VI: 0.10,
+        },
+        DEGREE_VI: {
+            DEGREE_VI: 0.08,
+            DEGREE_II: 0.37,
+            DEGREE_IV: 0.55,
+        },
+        DEGREE_VII: {
+            DEGREE_VII: 0.05,
+            DEGREE_I: 0.95,
+        },
     }[previous]
     return {chord: preferred.get(chord, 0.001) for chord in CHORDS}
 
@@ -619,12 +789,12 @@ def _chord_transition_weights(previous: Atom) -> dict[Atom, float]:
 def _harmonic_vocabulary_facts() -> tuple[Fact, ...]:
     facts: list[Fact] = []
     for chord, pitch_classes in CHORD_PITCH_CLASSES.items():
+        facts.append(
+            Fact(Triple(chord, KIND, HARMONIC_CHORD))
+        )
         facts.extend(
-            (
-                Fact(Triple(chord, KIND, HARMONIC_CHORD)),
-                Fact(Triple(chord, ALLOWS_INVERSION, ROOT_INVERSION)),
-                Fact(Triple(chord, ALLOWS_INVERSION, FIRST_INVERSION)),
-            )
+            Fact(Triple(chord, ALLOWS_INVERSION, inversion))
+            for inversion in CHORD_INVERSIONS[chord]
         )
         for voice, pool in zip(
             VOICE_NAMES,
@@ -642,30 +812,25 @@ def _harmonic_vocabulary_facts() -> tuple[Fact, ...]:
                 for pitch in pool
                 if pitch % 12 in pitch_classes
             )
-        root_pitch_class, third_pitch_class, _ = pitch_classes
         bass_pool = DIATONIC_VOICE_POOLS[3]
-        facts.extend(
-            Fact(
-                Triple(
-                    chord,
-                    INVERSION_BASS_PITCH,
-                    FiniteSequence((ROOT_INVERSION, Number(pitch))),
+        inversion_indexes = {
+            ROOT_INVERSION: 0,
+            FIRST_INVERSION: 1,
+            SECOND_INVERSION: 2,
+        }
+        for inversion in CHORD_INVERSIONS[chord]:
+            bass_pitch_class = pitch_classes[inversion_indexes[inversion]]
+            facts.extend(
+                Fact(
+                    Triple(
+                        chord,
+                        INVERSION_BASS_PITCH,
+                        FiniteSequence((inversion, Number(pitch))),
+                    )
                 )
+                for pitch in bass_pool
+                if pitch % 12 == bass_pitch_class
             )
-            for pitch in bass_pool
-            if pitch % 12 == root_pitch_class
-        )
-        facts.extend(
-            Fact(
-                Triple(
-                    chord,
-                    INVERSION_BASS_PITCH,
-                    FiniteSequence((FIRST_INVERSION, Number(pitch))),
-                )
-            )
-            for pitch in bass_pool
-            if pitch % 12 == third_pitch_class
-        )
     for source, targets in CHORD_TRANSITIONS.items():
         facts.extend(
             Fact(Triple(source, ALLOWS_SUCCESSOR, target)) for target in targets
@@ -698,6 +863,56 @@ def _complete_chord(arguments: tuple[Term, ...]) -> bool:
     return {pitch % 12 for pitch in pitches} == required
 
 
+def _legal_doubling(arguments: tuple[Term, ...]) -> bool:
+    if (
+        len(arguments) != 6
+        or not isinstance(arguments[0], Atom)
+        or not isinstance(arguments[1], Atom)
+    ):
+        raise ValueError(
+            "legal_doubling expects chord, inversion, and four notes"
+        )
+    chord = arguments[0]
+    inversion = arguments[1]
+    pitches = tuple(_integer_value(argument) for argument in arguments[2:])
+    pitch_classes = tuple(pitch % 12 for pitch in pitches)
+    counts = {
+        pitch_class: pitch_classes.count(pitch_class)
+        for pitch_class in set(pitch_classes)
+    }
+
+    # R-DOUBLING-002 and R-EXT-7CHORD-003.
+    if counts.get(11, 0) > 1:
+        return False
+    if chord == DEGREE_V7:
+        return all(count == 1 for count in counts.values())
+
+    # R-DOUBLING-004/005: the third of root-position I/IV is exceptional
+    # only when soprano and alto carry it together.
+    if chord in (DEGREE_I, DEGREE_IV) and inversion == ROOT_INVERSION:
+        third = CHORD_PITCH_CLASSES[chord][1]
+        if counts.get(third, 0) > 1 and pitch_classes[:2] != (third, third):
+            return False
+
+    # R-DOUBLING-006/007.
+    if inversion == FIRST_INVERSION:
+        if pitch_classes[1] == pitch_classes[3]:
+            return False
+        if (
+            chord in (DEGREE_I, DEGREE_IV, DEGREE_VI, DEGREE_VII)
+            and counts[pitch_classes[3]] != 1
+        ):
+            return False
+
+    # The delivered six-four is cadential: double its dominant bass.
+    if inversion == SECOND_INVERSION:
+        return chord == DEGREE_I and counts[pitch_classes[3]] == 2
+
+    # For vii° in first inversion, R-DOUBLING-002 and R-DOUBLING-007 leave
+    # only the fifth available for doubling in the four-part triad.
+    return True
+
+
 def _voicing_predicate(
     predicate: object,
     arguments: tuple[Term, ...],
@@ -727,6 +942,57 @@ def _global_motion_predicate(arguments: tuple[Term, ...]) -> bool:
     return _voicing_predicate(_global_motion, arguments)
 
 
+def _resolves_tendency_tones(arguments: tuple[Term, ...]) -> bool:
+    if (
+        len(arguments) != 6
+        or not isinstance(arguments[0], Atom)
+        or not isinstance(arguments[1], Atom)
+        or not isinstance(arguments[2], Atom)
+        or not isinstance(arguments[3], Atom)
+    ):
+        raise ValueError(
+            "resolves_tendency_tones expects two chords, two inversions, "
+            "and two voicings"
+        )
+    source_chord, source_inversion, target_chord, target_inversion = arguments[:4]
+    source = _term_voicing(arguments[4])
+    target = _term_voicing(arguments[5])
+
+    if source_chord == DEGREE_I and source_inversion == SECOND_INVERSION:
+        if target_chord not in (DEGREE_V, DEGREE_V7):
+            return False
+        if target_inversion != ROOT_INVERSION or source[3] != target[3]:
+            return False
+        for source_pitch, target_pitch in zip(source[:3], target[:3], strict=True):
+            if source_pitch % 12 == 0 and target_pitch != source_pitch - 1:
+                return False
+            if source_pitch % 12 == 4 and target_pitch != source_pitch - 2:
+                return False
+
+    if source_chord in (DEGREE_V, DEGREE_V7, DEGREE_VII):
+        for voice, (source_pitch, target_pitch) in enumerate(
+            zip(source, target, strict=True)
+        ):
+            if source_pitch % 12 == 11:
+                deceptive_inner_voice_exception = (
+                    target_chord == DEGREE_VI
+                    and voice in (1, 2)
+                    and target[voice - 1] % 12 == 0
+                )
+                if (
+                    not deceptive_inner_voice_exception
+                    and target_pitch != source_pitch + 1
+                ):
+                    return False
+            if (
+                source_chord in (DEGREE_V7, DEGREE_VII)
+                and source_pitch % 12 == 5
+                and target_pitch != source_pitch - 1
+            ):
+                return False
+    return True
+
+
 def _voice_index(voice: SATBVoice) -> int:
     try:
         return tuple(item.name for item in VOICE_NAMES).index(voice)
@@ -741,6 +1007,10 @@ def _note_generation_groups() -> tuple[RuleGroup, ...]:
             ComputedPredicate(
                 "complete_chord",
                 _complete_chord,
+            ),
+            ComputedPredicate(
+                "legal_doubling",
+                _legal_doubling,
             ),
         )
     )
@@ -794,6 +1064,10 @@ def _note_harmonizer_groups() -> tuple[RuleGroup, ...]:
             ComputedPredicate(
                 "legal_global_motion",
                 _global_motion_predicate,
+            ),
+            ComputedPredicate(
+                "resolves_tendency_tones",
+                _resolves_tendency_tones,
             ),
         )
     )

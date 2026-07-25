@@ -12,7 +12,7 @@ from .muses_harmonizer import MusesHarmonization, harmonize_temporal_collection
 
 
 def build_example_soprano() -> TemporalCollection:
-    """Return a two-measure soprano designed for an I-IV-V-I cadence."""
+    """Return a two-measure soprano designed for an I-ii-V7-I cadence."""
 
     return TemporalCollection(
         name="soprano_donne",

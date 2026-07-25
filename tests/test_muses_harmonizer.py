@@ -96,9 +96,9 @@ def _integration() -> tuple[
 @pytest.mark.parametrize(
     ("voice", "line", "voice_index"),
     (
-        ("soprano", (67, 72), 0),
+        ("soprano", (71, 72), 0),
         ("alto", (62, 64), 1),
-        ("tenor", (59, 55), 2),
+        ("tenor", (50, 52), 2),
         ("bass", (43, 48), 3),
     ),
 )
@@ -121,7 +121,7 @@ def test_muses_line_becomes_a_four_voice_piece_through_rules() -> None:
     source = FakeTemporalCollection(
         name="subject",
         temporals=(
-            FakeTemporalNote(67, 0.0, 0.5, velocity=72, midi_channel=9),
+            FakeTemporalNote(71, 0.0, 0.5, velocity=72, midi_channel=9),
             FakeTemporalNote(72, 1.0, 1.5, velocity=68, midi_channel=9),
         ),
         instrument="choir",
@@ -149,7 +149,7 @@ def test_muses_line_becomes_a_four_voice_piece_through_rules() -> None:
         "tenor",
         "bass",
     ]
-    assert [note.pitch for note in result.piece.melodies[0].temporals] == [67, 72]
+    assert [note.pitch for note in result.piece.melodies[0].temporals] == [71, 72]
     assert [
         [note.pitch for note in voice.temporals] for voice in result.piece.melodies
     ] == [
@@ -162,7 +162,7 @@ def test_muses_line_becomes_a_four_voice_piece_through_rules() -> None:
         assert voice.program_change == 52
         assert voice.end_beat == 3.0
     assert [note.midi_channel for note in result.piece.melodies[0].temporals] == [9, 9]
-    assert source.temporals[0].pitch == 67
+    assert source.temporals[0].pitch == 71
     assert len(result.voice_facts) == 4
     assert all(result.voice_facts)
     assert result.symbolic.inference_events
@@ -233,7 +233,7 @@ def test_real_muses_piece_and_exports_when_optional_dependency_is_available(
     source = temporals.TemporalCollection(
         name="real_subject",
         temporals=(
-            temporals.TemporalNote(67, 0.0, 1.0),
+            temporals.TemporalNote(71, 0.0, 1.0),
             temporals.TemporalNote(72, 1.0, 1.0),
         ),
         instrument="choir",

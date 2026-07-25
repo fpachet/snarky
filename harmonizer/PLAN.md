@@ -53,15 +53,23 @@ Le jalon livre maintenant :
 - table de progressions fonctionnelles ;
 - forme initiale `I` et cadence finale `V → I` à l'état fondamental ;
 - marginales conditionnelles des accords ;
-- exemple MuSES `C5–A4–B4–C5` donnant `I–IV–V–I`.
+- exemple MuSES `C5–A4–B4–C5` donnant `I–ii–V7–I`.
 
-## Jalon 3b — profil dur `ROY_1998`
+## Jalon 3b — enrichissement tonal — premier palier livré
 
-Ajouter `vii°`, six-quatre, septièmes, vocabulaire complet, doublures,
-sensible et résolutions, cadences supplémentaires, rythme harmonique et
-exceptions. Chaque règle stable `R-*` recevra ses cas positif, négatif, limite
-et exception. Étendre parallèlement l'entrée MuSES aux tonalités supportées,
-silences et informations métriques réellement utilisées par ces règles.
+- `vii°` au premier renversement ;
+- `V7` complet à l'état fondamental ;
+- `I64` cadentiel avec basse pédale et résolutions `6→5`, `4→3` ;
+- règles `R-DOUBLING-001..007` applicables au sous-ensemble courant ;
+- résolution de la sensible et de la septième de dominante ;
+- cadences parfaite, plagale, rompue et demi-cadence ;
+- rythme harmonique explicite par partage des variables d'accord ;
+- oracles ciblés et nouvelle baseline de performance.
+
+Restent les renversements de `V7`, autres septièmes, six-quatre de passage ou
+de pédale, exceptions complètes, tonalités, notes étrangères et métrique.
+Chaque extension stable `R-*` recevra ses cas positif, négatif, limite et
+exception.
 
 ## Jalon 4 — préférences et probabilités — premier palier livré
 
@@ -72,5 +80,6 @@ ou calibré sur corpus.
 
 ## Jalon 5 — `FOUR_PART_COMPLETE`
 
-Ajouter six-quatre fonctionnels, accords de septième, notes étrangères,
-métrique et modulations uniquement après validation du profil historique.
+Ajouter les six-quatre non cadentiels, les autres accords de septième, notes
+étrangères, métrique et modulations uniquement après validation du profil
+historique.

@@ -1,9 +1,9 @@
 """End-to-end MuSES to tonal Snarky SATB harmonization.
 
-The current executable profile chooses five diatonic chord degrees, root or
-first inversion, and four SATB notes per position.  Snarky rules enforce
-vertical voicing, functional transitions, and the final V-I cadence before
-the selected solution is reconstructed as a MuSES Piece.
+The current executable profile chooses six diatonic triads or V7, their
+supported inversions, and four SATB notes per position. Snarky rules enforce
+vertical voicing, doubling, tendency-tone resolution, harmonic rhythm and the
+selected cadence before the solution is reconstructed as a MuSES Piece.
 """
 
 from __future__ import annotations
@@ -27,6 +27,7 @@ from snarky.integrations.muses import (
 
 from .note_solver import (
     VOICE_NAMES,
+    Cadence,
     NoteHarmonization,
     SATBVoice,
     _note_harmonization,
@@ -112,6 +113,8 @@ def harmonize_temporal_collection(
     line: TemporalCollectionLike,
     *,
     given_voice: SATBVoice = "soprano",
+    cadence: Cadence = "perfect",
+    harmonic_rhythm: tuple[int, ...] | None = None,
     max_solutions: int = 1,
     seed: int = 0,
     identity: Atom = DEFAULT_SOURCE_IDENTITY,
@@ -128,9 +131,9 @@ def harmonize_temporal_collection(
     """Harmonize one MuSES monophonic line as any SATB voice.
 
     The current musical profile is the executable C-major core documented by
-    :mod:`harmonizer`: legal vertical triads, SATB ranges and spacing,
-    melodic transitions, voice overlap, parallel perfect intervals and
-    global direct motion.
+    :mod:`harmonizer`: diatonic triads, dominant seventh, inversions, SATB
+    ranges and spacing, tendency-tone resolution, functional transitions,
+    cadence profile and explicit harmonic rhythm.
     """
 
     if key_signature != "C":
@@ -151,6 +154,8 @@ def harmonize_temporal_collection(
     model = build_note_harmonizer_model(
         pitches,
         given_voice=given_voice,
+        cadence=cadence,
+        harmonic_rhythm=harmonic_rhythm,
         source_facts=source_facts,
         source_notes=source_notes,
     )

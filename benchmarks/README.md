@@ -164,21 +164,22 @@ PYTHONPATH=.:src python -m benchmarks.muses_harmonizer --repeat 7
 
 Mesure du 25 juillet 2026 sur macOS ARM64 avec Python 3.13.11 :
 
-| Chemin tonal `I–IV–V–I`, 4 positions, 1 solution | Médiane | Décisions |
+| Chemin tonal `I–ii–V7–I`, 4 positions, 1 solution | Médiane | Décisions |
 |---|---:|---:|
-| tuple de hauteurs → harmoniseur | 962,38 ms | 3 |
-| `TemporalCollection` → faits → règles → `Piece` | 975,65 ms | 3 |
+| tuple de hauteurs → harmoniseur | 896,27 ms | 3 |
+| `TemporalCollection` → faits → règles → `Piece` | 910,59 ms | 3 |
 
 Le codec, l'import par règle et la reconstruction des quatre collections
-ajoutent 13,27 ms, soit `+1,4 %`. Le nombre de décisions et la solution ne
+ajoutent 14,32 ms, soit `+1,6 %`. Le nombre de décisions et la solution ne
 changent pas : le coût reste dominé par la génération, la propagation et la
 recherche du modèle musical.
 
 La mesure précédente à 69,81 ms portait sur deux positions et un seul accord
-de do fixe. Le nouveau cas engendre et canalise cinq degrés, deux
-renversements, six variables par position et des supports de progression : il
-constitue une nouvelle baseline fonctionnelle, pas une régression A/B à
-problème constant.
+de do fixe. Le cas courant engendre et canalise six triades, `V7`, trois
+valeurs de renversement, six variables par position, des doublures et des
+résolutions obligatoires. La baseline précédente du premier squelette tonal
+était de 962,38/975,65 ms : le filtrage vertical plus précoce la réduit
+respectivement de 6,9 % et 6,7 %, malgré le vocabulaire enrichi.
 
 Le script emploie des classes structurellement compatibles afin de rester
 reproductible sans dépendance optionnelle. Les tests d'intégration exécutent

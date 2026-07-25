@@ -7,6 +7,7 @@ from .muses_harmonizer import (
     harmonize_temporal_collection,
 )
 from .note_solver import (
+    Cadence,
     NoteHarmonization,
     NoteHarmonizerModel,
     SATBVoice,
@@ -25,6 +26,7 @@ from .solver import (
 __all__ = [
     "Harmonization",
     "HarmonizerModel",
+    "Cadence",
     "MusesFactories",
     "MusesHarmonization",
     "NoteHarmonization",

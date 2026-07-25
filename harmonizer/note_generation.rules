@@ -1,6 +1,6 @@
 # Les quadruplets sont engendrés avec leur accord et leur renversement.
 # Le vocabulaire factuel pré-indexe les hauteurs de chaque accord par voix ;
-# la règle conserve ordre, espacements et complétude de la triade.
+# la règle conserve ordre, espacements, complétude et doublures.
 
 GROUP generate_candidate_voicings
     RULE generate_legal_tonal_voicing
@@ -29,6 +29,7 @@ GROUP generate_candidate_voicings
         CONSTRAINT $alto - $tenor <= 12
         CONSTRAINT $tenor - $bass <= 19
         CHECK complete_chord ARGS SEQ[$chord $soprano $alto $tenor $bass]
+        CHECK legal_doubling ARGS SEQ[$chord $inversion $soprano $alto $tenor $bass]
     THEN
         ADD ($position voicing_candidate SEQ[$chord $inversion $soprano $alto $tenor $bass])
     END

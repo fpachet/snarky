@@ -1,3 +1,5 @@
+import pytest
+
 from csp_solver.solver import solve_binary_csp
 from harmonizer import (
     build_note_harmonizer_model,
@@ -5,7 +7,7 @@ from harmonizer import (
     sample_harmonization,
 )
 from harmonizer.solver import build_harmonizer_model, harmonize
-from snarky import ChoiceTraversal
+from snarky import Atom, ChoiceTraversal, FiniteSequence, Number, Triple
 
 
 def test_first_harmonizer_returns_legal_weighted_satb_solutions() -> None:
@@ -74,7 +76,7 @@ def test_note_harmonizer_generates_and_chooses_individual_notes() -> None:
     model = build_note_harmonizer_model(melody)
     solutions = harmonize_notes(melody, max_solutions=3)
 
-    assert model.generated_voicings == (26, 30, 7, 26)
+    assert model.generated_voicings == (20, 24, 7, 20)
     assert model.program.manifest() == (
         ("preparation", ("generate_candidate_voicings",)),
         ("choice", ("apply_csp_choices",)),
@@ -100,14 +102,21 @@ def test_note_harmonizer_generates_and_chooses_individual_notes() -> None:
         for solution in solutions
     )
     assert all(
-        solution.chords == ("degree_I", "degree_IV", "degree_V", "degree_I")
+        solution.chords[:2] == ("degree_I", "degree_ii")
+        and solution.chords[-1] == "degree_I"
         for solution in solutions
     )
+    assert solutions[0].chords == (
+        "degree_I",
+        "degree_ii",
+        "degree_V7",
+        "degree_I",
+    )
     assert solutions[0].voicings == (
+        (72, 67, 64, 48),
+        (69, 65, 62, 50),
+        (71, 65, 62, 43),
         (72, 64, 55, 48),
-        (69, 60, 57, 41),
-        (71, 59, 50, 43),
-        (72, 64, 55, 36),
     )
     assert all(
         decision.point.startswith("apply_csp_choices:choose_csp_value:")
@@ -143,32 +152,28 @@ def test_contextual_weighted_sampling_is_seed_reproducible() -> None:
 
 
 def test_chord_choice_and_first_inversion_are_exposed_declaratively() -> None:
-    melody = (72, 72, 67, 67, 72)
-    solution = harmonize_notes(melody, max_solutions=1)[0]
+    melody = (72, 71)
+    solution = harmonize_notes(melody, cadence="half", max_solutions=1)[0]
 
     assert solution.chords == (
-        "degree_I",
         "degree_IV",
-        "degree_I",
         "degree_V",
-        "degree_I",
     )
     assert solution.inversions == (
-        "root",
-        "root",
         "first",
-        "root",
         "root",
     )
     assert any(
-        "variable=harmony_1_chord]" in decision.point for decision in solution.decisions
+        "variable=harmony_0_chord]" in decision.point for decision in solution.decisions
     )
     chord_pitch_classes = {
         "degree_I": {0, 4, 7},
         "degree_ii": {2, 5, 9},
         "degree_IV": {0, 5, 9},
         "degree_V": {2, 7, 11},
+        "degree_V7": {2, 5, 7, 11},
         "degree_vi": {0, 4, 9},
+        "degree_vii": {2, 5, 11},
     }
     for chord, voicing in zip(
         solution.chords,
@@ -177,4 +182,104 @@ def test_chord_choice_and_first_inversion_are_exposed_declaratively() -> None:
     ):
         assert {pitch % 12 for pitch in voicing} == chord_pitch_classes[chord]
     first_inversion_index = solution.inversions.index("first")
-    assert solution.voicings[first_inversion_index][3] % 12 == 4
+    assert solution.voicings[first_inversion_index][3] % 12 == 9
+
+
+def test_dominant_seventh_and_tendency_tones_resolve() -> None:
+    solution = harmonize_notes((72, 69, 71, 72), max_solutions=1)[0]
+
+    assert solution.chords[-2:] == ("degree_V7", "degree_I")
+    dominant, tonic = solution.voicings[-2:]
+    assert {pitch % 12 for pitch in dominant} == {2, 5, 7, 11}
+    for source, target in zip(dominant, tonic, strict=True):
+        if source % 12 == 11:
+            assert target == source + 1
+        if source % 12 == 5:
+            assert target == source - 1
+
+
+def test_diminished_leading_tone_chord_has_legal_first_inversion_voicings() -> None:
+    model = build_note_harmonizer_model((71, 72))
+    candidates = []
+    for fact in model.csp.facts:
+        entity = fact.entity
+        if (
+            isinstance(entity, Triple)
+            and entity.subject == model.positions[0]
+            and entity.relation == Atom("voicing_candidate")
+            and isinstance(entity.object, FiniteSequence)
+            and entity.object.elements[0] == Atom("degree_vii")
+        ):
+            candidates.append(entity.object.elements)
+
+    assert candidates
+    for chord, inversion, *notes in candidates:
+        assert chord == Atom("degree_vii")
+        assert inversion == Atom("first")
+        assert all(isinstance(note, Number) for note in notes)
+        pitch_classes = [
+            int(note.value) % 12 for note in notes if isinstance(note, Number)
+        ]
+        assert pitch_classes[3] == 2
+        assert pitch_classes.count(11) == 1
+        assert pitch_classes.count(2) == 1
+        assert pitch_classes.count(5) == 2
+
+
+def test_cadential_six_four_is_generated_and_resolved() -> None:
+    solution = harmonize_notes(
+        (48, 43, 43, 48),
+        given_voice="bass",
+        max_solutions=1,
+    )[0]
+
+    assert solution.chords == (
+        "degree_I",
+        "degree_I",
+        "degree_V",
+        "degree_I",
+    )
+    assert solution.inversions == ("root", "second", "root", "root")
+    six_four, dominant = solution.voicings[1:3]
+    assert six_four[3] == dominant[3]
+    for source, target in zip(six_four[:3], dominant[:3], strict=True):
+        if source % 12 == 0:
+            assert target == source - 1
+        if source % 12 == 4:
+            assert target == source - 2
+
+
+def test_cadence_profiles_and_harmonic_rhythm_are_explicit() -> None:
+    plagal = harmonize_notes((69, 72), cadence="plagal", max_solutions=1)[0]
+    deceptive = harmonize_notes(
+        (71, 72),
+        cadence="deceptive",
+        max_solutions=1,
+    )[0]
+    half = harmonize_notes((72, 71), cadence="half", max_solutions=1)[0]
+    held = harmonize_notes(
+        (72, 72, 71, 72),
+        harmonic_rhythm=(0, 0, 1, 2),
+        max_solutions=1,
+    )[0]
+
+    assert plagal.chords == ("degree_IV", "degree_I")
+    assert deceptive.chords == ("degree_V", "degree_vi")
+    assert half.chords[-1] == "degree_V"
+    assert held.harmonic_rhythm == (0, 0, 1, 2)
+    assert held.chords[0] == held.chords[1]
+    assert held.inversions[0] == held.inversions[1]
+
+
+def test_harmonic_rhythm_and_cadence_are_validated() -> None:
+    with pytest.raises(ValueError, match="one slot number per note"):
+        build_note_harmonizer_model((71, 72), harmonic_rhythm=(0,))
+    with pytest.raises(ValueError, match="contiguous"):
+        build_note_harmonizer_model((72, 71, 72), harmonic_rhythm=(0, 2, 2))
+    with pytest.raises(ValueError, match="at least two harmonic slots"):
+        build_note_harmonizer_model((71, 72), harmonic_rhythm=(0, 0))
+    with pytest.raises(ValueError, match="cadence must be"):
+        build_note_harmonizer_model(
+            (71, 72),
+            cadence="unknown",  # type: ignore[arg-type]
+        )

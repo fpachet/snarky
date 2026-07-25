@@ -1,55 +1,68 @@
-# Forme tonale minimale : une phrase d'au moins trois positions commence sur I,
-# toute phrase se termine par une cadence parfaite V fondamentale -> I
-# fondamentale. Les règles filtrent les domaines, elles ne posent aucun choix.
+# Les faits de forme déclarent les accords et renversements permis aux
+# positions structurelles. Cela rend le même groupe applicable aux cadences
+# parfaite, plagale, rompue et demi-cadence.
 
 GROUP enforce_tonal_form
-    RULE require_initial_tonic
+    RULE remove_chord_forbidden_by_form
     WHEN
-        ($position phrase_role initial)
+        ($position restrict_chord true)
         ($position chord_variable $variable)
         ($variable candidate $chord)
-        $chord != degree_I
+        NOT EXISTS ($position allowed_form_chord $chord)
     THEN
         REMOVE ($variable candidate $chord)
     END
 
-    RULE require_penultimate_dominant
+    RULE remove_inversion_forbidden_by_form
     WHEN
-        ($position phrase_role penultimate)
-        ($position chord_variable $variable)
-        ($variable candidate $chord)
-        $chord != degree_V
-    THEN
-        REMOVE ($variable candidate $chord)
-    END
-
-    RULE require_final_tonic
-    WHEN
-        ($position phrase_role final)
-        ($position chord_variable $variable)
-        ($variable candidate $chord)
-        $chord != degree_I
-    THEN
-        REMOVE ($variable candidate $chord)
-    END
-
-    RULE require_penultimate_root_position
-    WHEN
-        ($position phrase_role penultimate)
+        ($position restrict_inversion true)
         ($position inversion_variable $variable)
         ($variable candidate $inversion)
-        $inversion != root
+        NOT EXISTS ($position allowed_form_inversion $inversion)
     THEN
         REMOVE ($variable candidate $inversion)
     END
 
-    RULE require_final_root_position
+    RULE remove_non_cadential_six_four
     WHEN
-        ($position phrase_role final)
         ($position inversion_variable $variable)
-        ($variable candidate $inversion)
-        $inversion != root
+        ($variable candidate second)
+        NOT EXISTS ($position phrase_role precadential)
     THEN
-        REMOVE ($variable candidate $inversion)
+        REMOVE ($variable candidate second)
+    END
+
+    RULE cadential_six_four_requires_tonic
+    WHEN
+        ($position phrase_role precadential)
+        ($position voicing_candidate SEQ[$chord second $soprano $alto $tenor $bass])
+        $chord != degree_I
+    THEN
+        REMOVE ($position voicing_candidate SEQ[$chord second $soprano $alto $tenor $bass])
+    END
+
+    RULE prepare_cadence_without_plain_tonic
+    WHEN
+        ($position phrase_role precadential)
+        ($position voicing_candidate SEQ[degree_I $inversion $soprano $alto $tenor $bass])
+        $inversion != second
+    THEN
+        REMOVE ($position voicing_candidate SEQ[degree_I $inversion $soprano $alto $tenor $bass])
+    END
+
+    RULE prepare_cadence_without_early_dominant
+    WHEN
+        ($position phrase_role precadential)
+        ($position voicing_candidate SEQ[degree_V $inversion $soprano $alto $tenor $bass])
+    THEN
+        REMOVE ($position voicing_candidate SEQ[degree_V $inversion $soprano $alto $tenor $bass])
+    END
+
+    RULE prepare_cadence_without_early_dominant_seventh
+    WHEN
+        ($position phrase_role precadential)
+        ($position voicing_candidate SEQ[degree_V7 $inversion $soprano $alto $tenor $bass])
+    THEN
+        REMOVE ($position voicing_candidate SEQ[degree_V7 $inversion $soprano $alto $tenor $bass])
     END
 END_GROUP

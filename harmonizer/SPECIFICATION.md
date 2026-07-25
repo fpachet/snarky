@@ -25,28 +25,36 @@ Le second incrément suit maintenant la section 5 de la spécification :
 | Élément normatif | Implémentation |
 |---|---|
 | variables `note[v,t]` | un objet `csp_variable` par voix et position |
-| variables `chord[t]` | un `csp_variable` parmi `I`, `ii`, `IV`, `V`, `vi` |
-| variables `inversion[t]` | fondamentale ou premier renversement |
+| variables `chord[t]` | un `csp_variable` parmi `I`, `ii`, `IV`, `V`, `V7`, `vi`, `vii°` |
+| variables `inversion[t]` | fondamentale, premier renversement, ou second renversement cadentiel |
 | ligne donnée | domaine singleton de la voix SATB choisie |
 | `R-ORDER-001` | comparaisons de `note_generation.rules` |
 | `R-SPACING-001..003` | contraintes arithmétiques de génération |
 | construction différée | groupe `generate_candidate_voicings` |
-| compatibilité verticale | triade de l'accord choisi, complète, et basse du renversement |
+| compatibilité verticale | triade ou `V7` complet, basse du renversement et règles de doublure |
 | canalisation | accord–renversement–notes–voicing dans `maintain_note_voicing_channel` |
 | progression fonctionnelle | table `allows_successor` révisée dans les deux directions |
-| forme | `I` initial puis cadence finale `V` fondamental → `I` fondamental |
+| forme | `I` initial ; cadence parfaite, plagale, rompue ou demi-cadence |
+| `R-CADENCE-004` | préparation sans `I`/`V`, sauf `I64` cadentiel |
+| `R-DOUBLING-001..007` | prédicat vertical pur appelé par la règle de génération |
+| `R-LEADING-001..004` | résolution de la sensible, avec exception intérieure `V→vi` |
+| `R-EXT-7CHORD-001..003` | `V7` complet, septième non doublée et résolution descendante |
+| `R-EXT-64-001` | `I64→V`, basse pédale, résolutions `6→5` et `4→3` |
+| rythme harmonique | plusieurs notes peuvent partager les mêmes variables harmoniques |
 | `R-MELODY-001/002` | prédicat `melodic_transition` dans la règle de support |
 | `R-PARALLEL-001/002` | prédicat `no_parallel_perfects` |
 | `R-GLOBAL-MOTION-001` | prédicat `legal_global_motion` |
 | first fail | `PriorityMRVChoicePolicy` |
 | optimisation/échantillonnage | poids conditionnels des notes et accords |
 
-Ce jalon introduit un premier sous-ensemble des degrés, renversements et
-cadences, mais ne revendique pas encore le profil `ROY_1998`. Restent `vii°`,
-six-quatre, septièmes, sensible et résolutions, règles détaillées de doublure,
-notes étrangères, autres cadences et rythme harmonique. Les prédicats calculés
-ne contiennent aucune recherche : ils évaluent une opération musicale
-élémentaire sur des termes ground fournis par une règle.
+Ce jalon couvre maintenant un sous-ensemble substantiel des degrés,
+renversements, doublures, résolutions et cadences, mais ne revendique pas
+encore le profil `ROY_1998`. Restent les accords de septième autres que `V7`,
+leurs renversements, les six-quatre non cadentiels, toutes les exceptions,
+les notes étrangères, la métrique, les modulations et la totalité du
+catalogue. Les prédicats calculés ne contiennent aucune recherche : ils
+évaluent une opération musicale élémentaire sur des termes ground fournis par
+une règle.
 
 ## Vocabulaire tonal exécutable
 
@@ -56,11 +64,13 @@ basses permises pour ses renversements :
 
 | Degré | Classes de hauteur | Transitions autorisées |
 |---|---|---|
-| `I` | C E G | `I`, `IV`, `V`, `vi` |
-| `ii` | D F A | `V` |
-| `IV` | F A C | `I`, `ii`, `V` |
-| `V` | G B D | `I`, `vi` |
-| `vi` | A C E | `ii`, `IV` |
+| `I` | C E G | `I`, `ii`, `IV`, `V`, `V7`, `vi`, `vii°` |
+| `ii` | D F A | `ii`, `V`, `V7` |
+| `IV` | F A C | `IV`, `I`, `ii`, `V`, `V7` |
+| `V` | G B D | `V`, `V7`, `I`, `vi` |
+| `V7` | G B D F | `V7`, `I`, `vi` |
+| `vi` | A C E | `vi`, `ii`, `IV` |
+| `vii°` | B D F | `vii°`, `I` |
 
 Un voicing candidat est le terme :
 
@@ -68,15 +78,17 @@ Un voicing candidat est le terme :
 SEQ[chord inversion soprano alto tenor bass]
 ```
 
-Il doit avoir les quatre notes dans l'accord, contenir les trois classes de
-hauteur, respecter l'ordre strict et les espacements SATB, et placer à la
-basse la fondamentale ou la tierce selon le renversement. Les douze règles de
+Il doit avoir les quatre notes dans l'accord, contenir ses trois ou quatre
+classes de hauteur, respecter l'ordre strict, les espacements SATB et les
+doublures, puis placer à la basse la note du renversement. Les douze règles de
 canalisation maintiennent les supports dans les deux directions.
 
-Pour deux positions, la forme est `V → I`. À partir de trois positions, elle
-ajoute `I` au début. Les positions intermédiaires restent choisies et
-propagées ; cette contrainte de forme est volontairement un premier oracle
-cadentiel, pas une grammaire complète de phrases.
+La forme est paramétrée par `cadence` : `perfect`, `plagal`, `deceptive` ou
+`half`. À partir de trois événements harmoniques, elle ajoute `I` fondamental
+au début. Pour la cadence parfaite, l'événement pré-cadentiel refuse `I` et
+`V`, sauf `I64`. `harmonic_rhythm` associe chaque note à un événement :
+deux notes du même événement partagent les mêmes variables d'accord et de
+renversement, tandis que leurs voicings restent distincts.
 
 ## Frontière MuSES
 

@@ -12,6 +12,7 @@ GROUP propagate_note_harmonic_transitions
             CHECK melodic_transition ARGS SEQ[SEQ[$source_soprano $source_alto $source_tenor $source_bass] SEQ[$target_soprano $target_alto $target_tenor $target_bass]]
             CHECK no_parallel_perfects ARGS SEQ[SEQ[$source_soprano $source_alto $source_tenor $source_bass] SEQ[$target_soprano $target_alto $target_tenor $target_bass]]
             CHECK legal_global_motion ARGS SEQ[SEQ[$source_soprano $source_alto $source_tenor $source_bass] SEQ[$target_soprano $target_alto $target_tenor $target_bass]]
+            CHECK resolves_tendency_tones ARGS SEQ[$source_chord $source_inversion $target_chord $target_inversion SEQ[$source_soprano $source_alto $source_tenor $source_bass] SEQ[$target_soprano $target_alto $target_tenor $target_bass]]
         END_NOT_EXISTS
     THEN
         REMOVE ($right voicing_candidate SEQ[$target_chord $target_inversion $target_soprano $target_alto $target_tenor $target_bass])
@@ -27,6 +28,7 @@ GROUP propagate_note_harmonic_transitions
             CHECK melodic_transition ARGS SEQ[SEQ[$source_soprano $source_alto $source_tenor $source_bass] SEQ[$target_soprano $target_alto $target_tenor $target_bass]]
             CHECK no_parallel_perfects ARGS SEQ[SEQ[$source_soprano $source_alto $source_tenor $source_bass] SEQ[$target_soprano $target_alto $target_tenor $target_bass]]
             CHECK legal_global_motion ARGS SEQ[SEQ[$source_soprano $source_alto $source_tenor $source_bass] SEQ[$target_soprano $target_alto $target_tenor $target_bass]]
+            CHECK resolves_tendency_tones ARGS SEQ[$source_chord $source_inversion $target_chord $target_inversion SEQ[$source_soprano $source_alto $source_tenor $source_bass] SEQ[$target_soprano $target_alto $target_tenor $target_bass]]
         END_NOT_EXISTS
     THEN
         REMOVE ($left voicing_candidate SEQ[$source_chord $source_inversion $source_soprano $source_alto $source_tenor $source_bass])

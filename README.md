@@ -46,7 +46,7 @@ et les extensions modernes.
 | [Bases NéOpus](rulebases/README.md) | Fibonacci, Hanoï, singe et bananes, MuSES et autres reformulations historiques |
 
 Le cœur reste léger : Python 3.12+, PyYAML, aucun solveur externe obligatoire.
-La suite standard fait passer 414 tests, avec des oracles naïfs, différentiels
+La suite standard fait passer 419 tests, avec des oracles naïfs, différentiels
 et applicatifs. Deux tests supplémentaires valident le codec et le pipeline
 d'harmonisation avec les vraies classes MuSES lorsque cette dépendance
 optionnelle est disponible.
@@ -438,11 +438,12 @@ préchargés sous forme de tables.
 
 Le choix MRV, le backtracking sur trail réversible, le CSP fini, le Sudoku
 hybride, l'harmoniseur tonal et sa frontière MuSES vers `Piece` sont livrés.
-Le premier squelette musical comprend cinq degrés, deux renversements, une
-table de progression et une cadence `V–I`. La priorité fonctionnelle est
-maintenant d'enrichir ce sous-ensemble vers le profil `ROY_1998` : `vii°`,
-accords de six-quatre et de septième, règles fines de doublure, sensible et
-résolutions, notes étrangères, autres cadences et rythme harmonique. Les
+Le sous-ensemble musical comprend maintenant six triades, `V7`, trois valeurs
+de renversement dont `I64` cadentiel, des règles de doublure et de résolution,
+quatre cadences et un rythme harmonique explicite. La priorité fonctionnelle
+est maintenant d'enrichir ce noyau vers le profil `ROY_1998` : autres accords
+de septième et renversements, six-quatre non cadentiels, exceptions complètes,
+notes étrangères, métrique, tonalités et modulations. Les
 nogoods, le backjumping et la recherche parallèle restent différés jusqu'à ce
 qu'un profil établisse leur utilité. Les modifications partielles de faits et
 un ATMS complet restent également futurs. L'adaptateur vers un solveur externe
@@ -573,8 +574,8 @@ ne recalcule qu'une règle et en réutilise 199. La médiane passe de 2,206 ms
 pour une construction froide à 0,572 ms pour la mise à jour incrémentale,
 soit ×3,86.
 
-La dernière exécution standard fait passer 414 tests et en ignore deux,
-conditionnés par l'installation de MuSES, en 18,35 s. Les anciennes références
+La dernière exécution standard fait passer 419 tests et en ignore deux,
+conditionnés par l'installation de MuSES, en 22,19 s. Les anciennes références
 étaient de 26,05 s avant la mise en cache du catalogue de provenance Spinoza
 et de 76,50 s avant les optimisations.
 
@@ -706,11 +707,11 @@ chemin solution.
 20. ~~Relier l'harmoniseur aux objets MuSES : accepter une
     `TemporalCollection` comme l'une des voix SATB, l'importer par règles et
     reconstruire une `Piece` à quatre voix sans muter la source.~~
-21. ~~Livrer un premier squelette tonal : cinq degrés, fondamentale/premier
-    renversement, progression fonctionnelle, cadence `V–I` et marginales
-    d'accord.~~ Étendre progressivement ce noyau vers le profil `ROY_1998` :
-    `vii°`, six-quatre, septièmes, doublures fines, sensible et résolutions,
-    autres cadences, rythme harmonique et préférences stylistiques, puis
+21. ~~Livrer un premier squelette tonal puis l'étendre avec `vii°`, `V7`,
+    `I64` cadentiel, doublures, résolutions, quatre cadences et rythme
+    harmonique.~~ Continuer vers le profil `ROY_1998` avec les autres
+    septièmes et renversements, six-quatre non cadentiels, exceptions,
+    tonalités, notes étrangères, métrique et préférences stylistiques, puis
     profiler avant d'envisager nogoods, backjumping ou recherche parallèle.
 
 La cible est Python 3.12 ou ultérieur, avec `pytest`, `ruff`, `mypy` et des

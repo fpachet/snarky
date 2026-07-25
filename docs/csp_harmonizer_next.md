@@ -151,19 +151,21 @@ Mesure du 25 juillet 2026, macOS ARM64, Python 3.13.11, cinq répétitions :
 | Sudoku p2, Naked Singles + recherche | 1,942 s | 11 | 4 | 1 |
 | harmoniseur, choix d'un voicing | 34,92 ms | 13 | 0 | 3 |
 | harmoniseur historique, variables de notes, 2 positions | 145,06 ms | 19 | 0 | 3 |
-| harmoniseur tonal, `I–IV–V–I`, 4 positions | 962,38 ms | 14 | 0 | 1 |
-| pipeline MuSES tonal complet | 975,65 ms | 14 | 0 | 1 |
+| harmoniseur tonal enrichi, `I–ii–V7–I`, 4 positions | 896,27 ms | 8 | 0 | 1 |
+| pipeline MuSES tonal complet | 910,59 ms | 8 | 0 | 1 |
 
 Le coût supplémentaire est attendu :
 
 - le Sudoku générique remplace une technique humaine très déterminante par
   quatre branches réfutées ;
 - l'harmoniseur tonal expose six variables par position, génère les voicings
-  de cinq accords et propage accords, renversements et notes.
+  de six triades et `V7`, puis propage accords, renversements, doublures,
+  résolutions et notes.
 
-Les 145,06 ms historiques et les 962,38 ms tonales ne mesurent pas le même
-problème. La frontière MuSES n'ajoute que 13,27 ms (`+1,4 %`) ; la prochaine
-optimisation doit donc viser génération et supports musicaux.
+Les 145,06 ms historiques et les 896,27 ms tonales ne mesurent pas le même
+problème. La frontière MuSES n'ajoute que 14,32 ms (`+1,6 %`). Face au premier
+squelette tonal à 962,38 ms, le filtrage des doublures réduit le temps de
+6,9 % et les nœuds de 14 à 8.
 
 ## Évaluation des mécanismes avancés
 
@@ -193,19 +195,21 @@ Différés. Les profils précédents ne placent plus le fork parmi les coûts
 dominants. Le modèle note par note est actuellement dominé par les règles de
 canalisation et la recherche de supports.
 
-## Prochain incrément musical
+## Incrément musical livré et suite
 
-Le premier squelette tonal est livré : degrés `I`, `ii`, `IV`, `V`, `vi`,
-fondamentale et premier renversement, progressions et cadence parfaite. Le
-prochain travail doit enrichir les connaissances sans changer
-l'architecture :
+Le modèle couvre désormais `I`, `ii`, `IV`, `V`, `V7`, `vi`, `vii°`,
+fondamentale/premier renversement, `I64` cadentiel, les règles de doublure du
+sous-ensemble, sensible et septième résolues, quatre profils cadentiels et un
+rythme harmonique explicite. Plusieurs notes d'un même événement partagent les
+mêmes variables harmoniques.
 
-1. `vii°`, six-quatre et septièmes ;
-2. règles de doublure identifiées `R-DOUBLING-*` ;
-3. sensible et résolutions obligatoires ;
-4. autres cadences et rythme harmonique ;
-5. notes étrangères ;
-6. tests positif, négatif, limite et exception par identifiant stable.
+Le prochain travail reste :
+
+1. renversements de `V7` et autres accords de septième ;
+2. six-quatre de passage, pédale et arpège ;
+3. exceptions complètes de sensible et de doublure ;
+4. notes étrangères, métrique, autres tonalités et modulations ;
+5. tests positif, négatif, limite et exception par identifiant stable.
 
 Un mécanisme avancé de recherche ne sera ajouté que si ces règles produisent
 un profil et un oracle qui le justifient.

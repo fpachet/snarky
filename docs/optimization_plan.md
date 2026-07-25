@@ -95,7 +95,7 @@ Sur la dernière séquence seule, les tentatives de matching passent de 69 793
 La baisse supplémentaire vaut 33 à 50 %, pour un gain temporel de ×1,62 à
 ×2,29. Depuis la baseline initiale, le gain total vaut ×7,18 à ×8,74. À cette
 étape de mesure, la suite comptait 285 tests. La dernière exécution standard
-fait passer 414 tests et en ignore deux, conditionnés par MuSES, en 18,35 s après
+fait passer 419 tests et en ignore deux, conditionnés par MuSES, en 22,19 s après
 l'ajout des nouvelles capacités et bases ; ce temps élargi ne remplace pas la
 mesure contrôlée du tableau. Le protocole exécutable est
 `python -m benchmarks.sudoku_rules`.
@@ -689,12 +689,14 @@ optimisation du noyau :
   solutions ;
 - oracle à voicing complet : 13 nœuds, 34,92 ms.
 
-Le nouveau jalon tonal constitue une autre baseline : sur `C5–A4–B4–C5`, il
-engendre `I–IV–V–I` avec cinq degrés, deux renversements et six variables par
-position. Il demande 14 nœuds, 0 échec, 3 décisions et 962,38 ms par l'entrée
-symbolique directe ; la frontière MuSES porte la médiane à 975,65 ms
-(`+1,4 %`). Ces chiffres ne sont pas comparables A/B au cas fixe précédent :
-ils mesurent le problème musical enrichi.
+Le premier jalon tonal constituait une autre baseline : sur
+`C5–A4–B4–C5`, il engendrait `I–IV–V–I` avec cinq degrés, deux renversements
+et six variables par position, en 14 nœuds et 962,38 ms. Le jalon enrichi
+produit maintenant `I–ii–V7–I` avec six triades, `V7`, `I64`, doublures,
+résolutions, quatre cadences et rythme harmonique. Le filtrage vertical plus
+précoce réduit pourtant la recherche à 8 nœuds et la médiane à 896,27 ms ;
+la frontière MuSES atteint 910,59 ms (`+1,6 %`). Ces chiffres ne sont pas
+comparables A/B au cas fixe historique à 145,06 ms.
 
 Nogoods, backjumping, parallélisme et overlays persistants restent différés :
 aucune contradiction n'est revisitée dans ce premier exemple tonal et l'arbre
@@ -786,10 +788,10 @@ non-régression, pas les moteurs automatiques de la prochaine optimisation.
 
 La prochaine tranche doit partir des applications enrichies :
 
-1. enrichir le squelette livré (`I`, `ii`, `IV`, `V`, `vi`, deux
-   renversements et cadence `V–I`) avec les prochaines connaissances
-   `ROY_1998` : `vii°`, six-quatre, septièmes, doublures, sensible,
-   résolutions, autres cadences et rythme harmonique ;
+1. compléter le noyau livré (`I`, `ii`, `IV`, `V`, `V7`, `vi`, `vii°`,
+   `I64`, doublures, résolutions, quatre cadences et rythme harmonique) avec
+   les autres accords de septième et renversements, six-quatre non
+   cadentiels, exceptions, notes étrangères, métrique et tonalités ;
 2. conserver comme baselines le Sudoku hybride, N-reines intensionnel,
    l'oracle à voicing complet et l'harmoniseur note par note ;
 3. profiler par nœud la saturation des groupes, la production des points de
