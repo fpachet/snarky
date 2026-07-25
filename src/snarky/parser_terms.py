@@ -73,5 +73,9 @@ def _parse_term_tokens(
         value = float(token.value) if "." in token.value else int(token.value)
         return Number(value), position + 1
     if token.kind == "ATOM":
-        return _STATUSES.get(token.value, Atom(token.value)), position + 1
+        if token.value[0] in "VFIN":
+            status = _STATUSES.get(token.value)
+            if status is not None:
+                return status, position + 1
+        return Atom(token.value), position + 1
     raise ParseError(f"expected a term, got {token.value!r}")
