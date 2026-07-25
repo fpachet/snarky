@@ -57,6 +57,20 @@ class _CompactTableDefinition:
     def __len__(self) -> int:
         return len(self.rows)
 
+    def clone(self) -> _CompactTableDefinition:
+        """Clone mutable indexes while sharing immutable rows and facts."""
+
+        return _CompactTableDefinition(
+            self.rows.copy(),
+            self.slots.copy(),
+            self.slot_by_fact.copy(),
+            {
+                variable: masks.copy()
+                for variable, masks in self.support_masks.items()
+            },
+            self.present_mask,
+        )
+
     def add(self, row: _DomainRow) -> int | None:
         if row.fact in self.rows:
             return None
@@ -143,6 +157,12 @@ class _CompactTableState:
     def reset(self, definition: _CompactTableDefinition) -> None:
         self.active_mask = definition.present_mask
         self.applied_domains.clear()
+
+    def clone(self) -> _CompactTableState:
+        return _CompactTableState(
+            self.active_mask,
+            self.applied_domains.copy(),
+        )
 
 
 def _add_row_projection(

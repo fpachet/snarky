@@ -52,6 +52,22 @@ class _AdaptiveFilterSelector:
     def decision(self, rule: Rule) -> bool | None:
         return self.decisions.get(rule)
 
+    def clone(self) -> _AdaptiveFilterSelector:
+        """Return isolated per-branch state with identical decisions."""
+
+        return _AdaptiveFilterSelector(
+            enabled=self.enabled,
+            minimum_domain_rows=self.minimum_domain_rows,
+            minimum_bucket_ratio=self.minimum_bucket_ratio,
+            minimum_candidate_reduction=self.minimum_candidate_reduction,
+            minimum_observed_speedup=self.minimum_observed_speedup,
+            cost_probe_reduction_ceiling=self.cost_probe_reduction_ceiling,
+            minimum_cost_probe_uses=self.minimum_cost_probe_uses,
+            decisions=self.decisions.copy(),
+            cost_ratios=self.cost_ratios.copy(),
+            use_counts=self.use_counts.copy(),
+        )
+
     def select(self, rule: Rule) -> None:
         self.decisions[rule] = True
 

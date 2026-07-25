@@ -11,6 +11,7 @@ from snarky import (
     SessionChoiceSearch,
     Triple,
     parse_rule_groups,
+    parse_rules,
 )
 from snarky.instantiation import (
     Activation,
@@ -160,3 +161,65 @@ def test_constraint_strategies_preserve_their_type_when_branching() -> None:
 
     assert type(constrained) is ConstraintInstantiationStrategy
     assert type(adaptive) is AdaptiveInstantiationStrategy
+
+
+def test_populated_adaptive_strategy_forks_isolated_filter_state() -> None:
+    (rule,) = parse_rules(
+        """
+        RULE constrained_triangle
+        WHEN
+            ($x p $y)
+            ($x q $z)
+            ($y r $z)
+        THEN
+            ADD ($x solution $y)
+        END
+        """
+    )
+    size = 8
+    facts = (
+        *(
+            Fact(
+                Triple(
+                    Atom(f"x{x_index}"),
+                    Atom("p"),
+                    Atom(f"y{y_index}"),
+                )
+            )
+            for x_index in range(size)
+            for y_index in range(size)
+        ),
+        *(
+            Fact(
+                Triple(
+                    Atom(f"x{x_index}"),
+                    Atom("q"),
+                    Atom(f"z{z_index}"),
+                )
+            )
+            for x_index in range(size)
+            for z_index in range(size)
+        ),
+        Fact(Triple(Atom("y0"), Atom("r"), Atom("z0"))),
+    )
+    strategy = AdaptiveInstantiationStrategy(minimum_domain_rows=1)
+    expected = strategy.instantiate(rule, facts)
+
+    branch = strategy.fork_for_branch()
+
+    assert type(branch) is AdaptiveInstantiationStrategy
+    assert branch._adaptive_selector is not strategy._adaptive_selector
+    assert branch._filter_decisions == strategy._filter_decisions
+    assert branch._filter_decisions is not strategy._filter_decisions
+    assert branch._domain_memories[rule] is not strategy._domain_memories[rule]
+    assert all(
+        branch._domain_memories[rule].tables[position]
+        is not strategy._domain_memories[rule].tables[position]
+        for position in strategy._domain_memories[rule].tables
+    )
+    assert branch.instantiate(rule, facts) == expected
+
+    branch.invalidate()
+
+    assert strategy._domain_memories
+    assert strategy._filter_decisions

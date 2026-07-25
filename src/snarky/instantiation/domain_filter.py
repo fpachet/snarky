@@ -74,6 +74,55 @@ class _FilteringResult:
     propagation: PropagationResult
 
 
+def _clone_filtering_result(
+    result: _FilteringResult,
+) -> _FilteringResult:
+    return _FilteringResult(
+        dict(result.domains),
+        dict(result.candidates),
+        dict(result.candidate_sets),
+        result.consistent,
+        result.propagation,
+    )
+
+
+def _clone_domain_memory(memory: _DomainMemory) -> _DomainMemory:
+    return _DomainMemory(
+        {
+            position: definition.clone()
+            for position, definition in memory.tables.items()
+        },
+        {
+            position: state.clone()
+            for position, state in memory.table_states.items()
+        },
+        {
+            variable: counts.copy()
+            for variable, counts in memory.value_counts.items()
+        },
+        {
+            variable: values.copy()
+            for variable, values in memory.base_domains.items()
+        },
+        (
+            None
+            if memory.filtered_domains is None
+            else dict(memory.filtered_domains)
+        ),
+        (
+            None
+            if memory.cached_result is None
+            else _clone_filtering_result(memory.cached_result)
+        ),
+        memory.additions,
+        (
+            None
+            if memory.delta_masks is None
+            else memory.delta_masks.copy()
+        ),
+    )
+
+
 class ConstraintInstantiationStrategy(SemiNaiveInstantiationStrategy):
     """Filter positive-rule domains, then join the surviving table rows.
 
@@ -122,8 +171,10 @@ class ConstraintInstantiationStrategy(SemiNaiveInstantiationStrategy):
         self.use_incremental_domains = use_incremental_domains
         self.use_compact_tables = use_compact_tables
         self.use_compact_join = use_compact_join
+        self._maximum_hall_size = maximum_hall_size
+        self._custom_propagators = tuple(propagators)
         self.propagators = (
-            *tuple(propagators),
+            *self._custom_propagators,
             _NValuePropagator(maximum_hall_size),
             _SimpleComparisonPropagator(),
             _BinaryArithmeticPropagator(),
@@ -286,7 +337,48 @@ class ConstraintInstantiationStrategy(SemiNaiveInstantiationStrategy):
     def fork_for_branch(self) -> ConstraintInstantiationStrategy:
         """Preserve constraint configuration and branch-local filter state."""
 
-        return deepcopy(self)
+        branch = object.__new__(type(self))
+        selector = self._adaptive_selector
+        ConstraintInstantiationStrategy.__init__(
+            branch,
+            comparison_product_limit=self.comparison_product_limit,
+            adaptive=selector.enabled,
+            minimum_domain_rows=selector.minimum_domain_rows,
+            minimum_bucket_ratio=selector.minimum_bucket_ratio,
+            minimum_candidate_reduction=(
+                selector.minimum_candidate_reduction
+            ),
+            minimum_observed_speedup=selector.minimum_observed_speedup,
+            cost_probe_reduction_ceiling=(
+                selector.cost_probe_reduction_ceiling
+            ),
+            minimum_cost_probe_uses=selector.minimum_cost_probe_uses,
+            use_propagation_queue=self.use_propagation_queue,
+            use_specialized_comparisons=(
+                self.use_specialized_comparisons
+            ),
+            use_incremental_domains=self.use_incremental_domains,
+            use_compact_tables=self.use_compact_tables,
+            use_compact_join=self.use_compact_join,
+            maximum_hall_size=self._maximum_hall_size,
+            propagators=deepcopy(self._custom_propagators),
+        )
+        branch.matcher = self.matcher
+        branch.partial_join_limit = self.partial_join_limit
+        if self._index is not None:
+            branch._index = self._index.clone(metrics=branch.metrics)
+        branch._adaptive_selector = selector.clone()
+        branch._filter_decisions = branch._adaptive_selector.decisions
+        branch._filter_cost_ratios = branch._adaptive_selector.cost_ratios
+        branch._filter_use_counts = branch._adaptive_selector.use_counts
+        branch._domain_memories = {
+            rule: _clone_domain_memory(memory)
+            for rule, memory in self._domain_memories.items()
+        }
+        branch.last_propagation_results = (
+            self.last_propagation_results.copy()
+        )
+        return branch
 
     def _static_filter_candidate(
         self,
