@@ -350,6 +350,21 @@ nested-terminator state once per block. A 400-fact block improves by 8.40%, a
 still producing the same 9 groups and 18 rules. Raw medians are in
 [`parser_premises_2026-07-25.json`](../benchmarks/results/parser_premises_2026-07-25.json).
 
+Action parsing now lives in `parser_actions.py`, including simple `ADD`,
+`REMOVE`, `LET`, and `FRESH` actions, nested `FOR EACH` blocks, correlated
+`CHOICE` blocks, weights, and explicit statuses. `parser.py` is now a
+155-line rule/group facade that preserves all historical parser function
+identities. Direct tests cover every action family, block positions, default
+and explicit statuses, and exact error families. Profiling showed that
+ordinary status-free actions still scanned every parsed token for an optional
+apostrophe. Commit `4ac68ce` sends templates containing no possible status or
+comparison character directly through the term parser, while ambiguous input
+keeps the original validation path and diagnostics. A 400-action block
+improves by 3.62% and a nested mixed block by 2.53%; the combined Sudoku
+rulebase changes by -0.18%, within noise, with unchanged logical output. Raw
+medians are in
+[`parser_actions_2026-07-25.json`](../benchmarks/results/parser_actions_2026-07-25.json).
+
 The `engine/forward.py` decomposition target is complete for C3. The next
 choice decomposition target is also complete: production, policies, frontier
 management, and traversal live in focused modules, while `choice.py` is a
@@ -375,4 +390,6 @@ component construction. Adaptive selection now lives in
 explicit and isolated. The `domain_filter.py` decomposition target is
 complete. The lexical-analysis part of the `parser.py` decomposition is also
 complete, as are recursive term parsing, shared arithmetic parsing, and
-premise parsing. C3 continues with action parsing, the final parser extraction.
+premise parsing. Action parsing is complete as well. All C3 decomposition
+targets are now complete; consolidation proceeds to C4 public API and release
+boundaries.

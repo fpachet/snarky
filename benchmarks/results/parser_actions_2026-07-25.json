@@ -1,0 +1,74 @@
+{
+  "benchmark": "action_parser_extraction_and_ordinary_template_fast_path",
+  "date": "2026-07-25",
+  "python": "3.13.11",
+  "platform": "macOS-15.7.7-arm64-arm-64bit-Mach-O",
+  "previous_tranche_commit": "3b47f35",
+  "extraction_commit": "5fa0682",
+  "optimized_commit": "4ac68ce",
+  "protocol": {
+    "series_order": [
+      "baseline",
+      "current",
+      "current",
+      "baseline"
+    ],
+    "command": "python -m benchmarks.parser_actions --width 400 --iterations 10 --repeat 21",
+    "summary": "mean of the two independently measured medians",
+    "same_interpreter_and_environment": true
+  },
+  "cases": {
+    "ordinary_block": {
+      "source_lines": 400,
+      "actions": 400,
+      "final_position": 400,
+      "baseline_medians_seconds": [
+        0.0023838291001084142,
+        0.002379995800038159
+      ],
+      "current_medians_seconds": [
+        0.002295162500013248,
+        0.002296208400002797
+      ],
+      "baseline_summary_seconds": 0.0023819124500732867,
+      "current_summary_seconds": 0.0022956854500080226,
+      "delta_percent": -3.6200742836963284,
+      "speedup": 1.0375604593673593
+    },
+    "mixed_block": {
+      "source_lines": 440,
+      "actions": 240,
+      "final_position": 440,
+      "baseline_medians_seconds": [
+        0.001723462500012829,
+        0.001713308299986238
+      ],
+      "current_medians_seconds": [
+        0.0016789207998954224,
+        0.0016710457999579375
+      ],
+      "baseline_summary_seconds": 0.0017183853999995335,
+      "current_summary_seconds": 0.00167498329992668,
+      "delta_percent": -2.5257488845555454,
+      "speedup": 1.0259119598832738
+    },
+    "sudoku_rulebase": {
+      "characters": 12444,
+      "groups": 9,
+      "rules": 18,
+      "baseline_medians_seconds": [
+        0.0019369915999050136,
+        0.001915920799910964
+      ],
+      "current_medians_seconds": [
+        0.0019221207998270985,
+        0.0019237374999647727
+      ],
+      "baseline_summary_seconds": 0.0019264561999079888,
+      "current_summary_seconds": 0.0019229291498959356,
+      "delta_percent": -0.18308487949124652,
+      "speedup": 1.0018342069504975
+    }
+  },
+  "conclusion": "Action parsing is isolated with all historical function identities preserved. Ordinary templates avoid an unnecessary token scan, improving action-heavy blocks while the real Sudoku rulebase remains stable within measurement noise."
+}
