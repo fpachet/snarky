@@ -31,7 +31,9 @@ Les optimisations doivent préserver les propriétés suivantes :
 | 5 — Substitutions et négation | Terminée | Cadre mutable, hashes précalculés, watchers indexés, compteurs simples et requêtes corrélées persistantes |
 | 6 — Sélection des règles | Terminée | Plans négatifs, index positif conservatif, focus MEA et agenda incrémental mesurable |
 | 7 — Agrégats | Terminée pour `COUNT`/`UNIQUE` ; socle `COLLECT` livré | DSL, API Python, oracle naïf et réfraction ; projection `COLLECT` encore recalculée |
-| 8 à 10 | Partielles | Backend CSP/SAT fini livré ; provenance configurable, stratégie centrée variables et backend externe restent à faire |
+| 8 — Provenance configurable | Différée | La provenance complète reste la référence ; attendre un profil mémoire dominant |
+| 9 — Instanciation centrée variables | Terminée pour le socle | Domaines, Compact-Tables, propagateurs, MRV et recherche explicite livrés |
+| 10 — Raisonnement par contraintes | Backend fini livré | `ConstraintSolver`, `FiniteCSP` et réinjection factuelle disponibles ; backend externe optionnel |
 
 L'extension fonctionnelle `LET` est terminée : Fibonacci utilise désormais
 l'arithmétique native du moteur et ne dépend plus de tables de sommes et de
@@ -92,10 +94,10 @@ Sur la dernière séquence seule, les tentatives de matching passent de 69 793
 à 47 051 sur p1, de 217 880 à 125 298 sur p5 et de 210 908 à 106 449 sur p6.
 La baisse supplémentaire vaut 33 à 50 %, pour un gain temporel de ×1,62 à
 ×2,29. Depuis la baseline initiale, le gain total vaut ×7,18 à ×8,74. À cette
-étape de mesure, la suite comptait 285 tests. Elle en compte maintenant 314 et
-s’exécute en environ 7,9 s après l’ajout des nouvelles capacités et bases ; ce
-temps élargi ne remplace pas la mesure contrôlée du tableau. Le protocole
-exécutable est `python -m benchmarks.sudoku_rules`.
+étape de mesure, la suite comptait 285 tests. Elle en compte désormais 400 et
+s'exécute en moins de onze secondes après l'ajout des nouvelles capacités et
+bases ; ce temps élargi ne remplace pas la mesure contrôlée du tableau. Le
+protocole exécutable est `python -m benchmarks.sudoku_rules`.
 
 La passe de hachage précalculé ne change aucun compteur logique. Elle réduit
 encore les médianes Sudoku de 24 à 27 % et porte le gain total depuis la
@@ -519,7 +521,7 @@ preuve incorrecte.
 
 ## Phase 9 — Instanciation centrée sur les variables
 
-**État : premier palier hybride livré.**
+**État : filtrage centré variables et recherche explicite livrés.**
 
 L’approche historique de BOOJUM est découpée afin de ne pas introduire
 simultanément propagation, énumération et retour arrière :
@@ -543,8 +545,9 @@ simultanément propagation, énumération et retour arrière :
 12. ~~séparer les définitions de tables de l'état mutable et fournir un trail
     réversible avec contradictions observables ;~~
 13. ~~ajouter une sonde de coût observé, différée pour rester amortissable ;~~
-14. choisir la variable la plus contrainte ;
-15. backtracker localement uniquement lorsque la propagation ne suffit pas.
+14. ~~choisir la variable la plus contrainte ;~~
+15. ~~backtracker localement uniquement lorsque la propagation ne suffit
+    pas.~~
 
 `ConstraintInstantiationStrategy` conserve aujourd'hui ses tables par règle,
 les met à jour depuis `FactDelta` et maintient les domaines de base par
@@ -640,7 +643,7 @@ ensembles de Hall de taille au plus trois. Sur le scénario `NVALUE` à deux
 domaines de 200 valeurs, l'adaptatif passe de 414,61 à 2,13 ms, soit ×194,7.
 Le benchmark `ALL_DIFFERENT` passe de 67,36 à 44,88 ms, soit ×1,50.
 
-La stratégie complète pourra être représentée explicitement par :
+L'architecture livrée sépare conceptuellement :
 
 ```text
 VariableDomain
@@ -650,12 +653,12 @@ InstantiationState
 ChoiceHeuristic
 ```
 
-Le choix MRV, le pilote de backtracking, le solveur CSP pédagogique et le
-premier harmoniseur à quatre voix sont maintenant livrés. Le DFS matérialise
-les alternatives à la demande et restaure ses branches sœurs par un trail
-complet d'`InferenceSession`. BFS et best-first conservent des descripteurs
-différés dans leurs frontières multiples et ne créent un fork rapide qu'au
-retrait. Le cap complet est décrit dans
+Le choix MRV, le pilote de backtracking, `FiniteCSP`, N-reines, le Sudoku
+hybride et l'harmoniseur SATB note par note sont maintenant livrés. Le DFS
+matérialise les alternatives à la demande et restaure ses branches sœurs par
+un trail complet d'`InferenceSession`. BFS et best-first conservent des
+descripteurs différés dans leurs frontières multiples et ne créent un fork
+rapide qu'au retrait. Le cap complet est décrit dans
 [`choice_backtracking_and_applications.md`](choice_backtracking_and_applications.md).
 
 L'exploration parallèle de plusieurs alternatives est documentée mais
@@ -697,19 +700,20 @@ matcher naïf avant chaque validation.
 
 ## Phase 10 — Raisonnement par contraintes
 
-Le couplage avec OR-Tools ou d’autres solveurs interviendra après stabilisation
-du moteur symbolique indexé.
+**État : interface et backends finis internes livrés ; solveurs externes
+différés.**
 
-Une interface de backend devra permettre :
+`ConstraintSolver` et son backend portable `BacktrackingConstraintSolver`
+permettent déjà :
 
-1. de traduire certaines prémisses en contraintes ;
-2. de transmettre les domaines et relations au solveur ;
-3. de récupérer zéro, une ou plusieurs solutions ;
-4. de convertir ces solutions en substitutions Snarky ;
-5. de réinjecter conclusions et contradictions avec leur provenance.
+1. de déclarer des variables, domaines et contraintes finies ;
+2. de récupérer zéro, une ou plusieurs solutions ;
+3. de convertir une solution en faits Snarky explicables.
 
-Le solveur externe restera optionnel. Le cœur de Snarky ne devra pas dépendre
-directement d’OR-Tools.
+`FiniteCSP` fournit en parallèle la formulation entièrement pilotée par faits,
+règles, `CHOICE` et trail. Un adaptateur vers OR-Tools ou un autre solveur
+pourrait traduire un sous-ensemble explicite des prémisses, mais restera
+optionnel ; le cœur de Snarky ne devra pas en dépendre directement.
 
 ## Validation différentielle
 
@@ -745,9 +749,9 @@ Une phase est acceptée lorsque :
    provenance ou l’ordre observable ;
 7. une option permet de revenir au moteur naïf.
 
-## Ordre de réalisation recommandé
+## Ordre de réalisation historique
 
-L’ordre offrant le meilleur rapport gain/risque est :
+L'ordre suivi pour construire le socle était :
 
 1. instrumentation et benchmarks ;
 2. activations paresseuses ;
@@ -766,23 +770,32 @@ facile à comprendre et à vérifier.
 
 ## Prochaine tranche concrète
 
-1. profiler `F(20)` et `F(21)` après suppression du coût de réfraction
-   négative, pour départager substitutions, jointures, tri et provenance ;
-2. profiler les activations hors agenda avant de décider d'une API paresseuse ;
-3. partager éventuellement un index global entre les règles si le profilage
-   montre que les trois index persistants restent significatifs ;
-4. ~~ajouter une sélection générale des règles positives candidates
-   réveillées par chaque delta ;~~
-5. mesurer la mémoire des préfixes de jointure et ajuster leur budget par
-   charge ;
-6. étendre les benchmarks aux fermetures transitives et jointures en étoile ;
-7. profiler `COLLECT` sur MusES et les prochains cas p8+, puis maintenir ses
-   valeurs projetées incrémentalement seulement si ce coût devient mesurable.
-8. ~~profiler et rendre incrémental le conflit MEA avec l’index positif des
-   règles.~~ Étendre la mesure au singe et à de futures bases MEA plus larges.
+Les objectifs historiques Fibonacci sont atteints : `F(20)` passe sous dix
+secondes et `F(21)` sous trente secondes sur la machine de référence.
+Fibonacci, Sudoku p1–p7 et N-reines restent désormais des gardes de
+non-régression, pas les moteurs automatiques de la prochaine optimisation.
 
-Le critère de sortie sera un nouveau gain mesuré sur la baseline semi-naïve,
-avec identité complète des faits, dérivations, cycles et profondeurs. Les
-seuils actuels à dépasser sont `F(20)` sous 10 secondes et `F(21)` sous 30
-secondes ; au-delà, la garde de faits doit être rendue explicite dans le
-protocole.
+La prochaine tranche doit partir des applications enrichies :
+
+1. ajouter les connaissances `ROY_1998` prioritaires à l'harmoniseur afin
+   d'obtenir des problèmes musicaux représentatifs ;
+2. conserver comme baselines le Sudoku hybride, N-reines intensionnel,
+   l'oracle à voicing complet et l'harmoniseur note par note ;
+3. profiler par nœud la saturation des groupes, la production des points de
+   choix/MRV, la canalisation, les recherches de supports et les rollbacks ;
+4. rendre le producteur de choix ou MRV plus incrémental seulement s'il
+   redevient un coût dominant ;
+5. optimiser les supports intensionnels ou la canalisation seulement si les
+   nouvelles règles musicales les placent en tête du profil ;
+6. profiler `COLLECT` sur MusES ou Sudoku p8+ avant toute maintenance
+   incrémentale de ses projections ;
+7. envisager nogoods et backjumping uniquement si des contradictions ou
+   sous-problèmes identiques sont effectivement revisités ;
+8. envisager overlays persistants et parallélisme uniquement si la taille des
+   frontières et des sous-arbres amortit leur complexité.
+
+Toute nouvelle optimisation du noyau devra montrer un gain reproductible sur
+au moins une application représentative, sans changer faits, solutions,
+ordre déterministe, décisions, poids, provenance ni compteurs logiques. Les
+baselines et commandes sont centralisées dans
+[`../benchmarks/README.md`](../benchmarks/README.md).

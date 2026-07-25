@@ -1,8 +1,10 @@
 # État de propagation observable et réversible
 
-Snarky possède maintenant les briques d'état nécessaires au futur
-`choice`/backtracking, sans encore introduire de recherche implicite dans le
-moteur de règles.
+Snarky possède les deux niveaux d'état réversible utilisés par le
+`choice`/backtracking explicite : un trail local pour la propagation de
+domaines et un checkpoint complet pour `InferenceSession`. La recherche reste
+pilotée au-dessus du moteur de règles ; le chaînage avant n'introduit aucun
+backtracking implicite.
 
 ## Séparation entre définition et état
 
@@ -13,8 +15,9 @@ Une Compact-Table est séparée en deux parties :
 - l'état mutable contient le masque des lignes encore actives et les domaines
   déjà appliqués.
 
-Une future branche pourra donc partager les lignes et les index, puis ne
-journaliser que ses réductions de domaines et changements de masques.
+Les branches partagent ainsi les définitions immuables, tandis que leurs
+réductions de domaines et changements de masques sont journalisés dans l'état
+mutable.
 
 ## API publique
 
@@ -52,9 +55,11 @@ Le rollback est proportionnel au nombre de modifications depuis le
 checkpoint, pas à la taille totale de l'état. Le filtre sans branche conserve
 les réductions observables mais désactive l'enregistrement du trail inutile.
 
-Ce mécanisme ne restaure pas encore une `InferenceSession`, la réfraction ou
-la provenance : il s'agit du trail local d'instanciation qui sera consommé
-par le futur pilote de recherche.
+Ce checkpoint reste local au filtre. Le checkpoint distinct
+`InferenceSession.checkpoint()` couvre les faits, la provenance, la
+réfraction, les journaux et les tags temporels. `SessionChoiceSearch` orchestre
+ce second niveau pour restaurer les branches DFS ; cette séparation évite de
+coupler l'état interne des propagateurs à toute la mémoire de travail.
 
 ## Jointure semi-naïve des tables filtrées
 
@@ -110,8 +115,8 @@ Les mesures sont conservées dans
 ## Recherche réversible livrée
 
 `SessionChoiceSearch` livre MRV, alternatives pondérées, contradiction,
-backtracking et traces. Le solveur CSP pédagogique et l'harmoniseur à quatre
-voix en sont les premiers tests d'intégration.
+backtracking et traces. `FiniteCSP`, N-reines, le Sudoku hybride et
+l'harmoniseur SATB note par note en sont les tests d'intégration.
 
 Le DFS utilise maintenant un checkpoint complet d'`InferenceSession` :
 

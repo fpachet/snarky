@@ -2,7 +2,7 @@
 
 ## Objet et statut
 
-Ce document organise la tranche d'optimisation à exécuter avant de poursuivre
+Ce document consigne la tranche d'optimisation exécutée avant la reprise de
 l'enrichissement fonctionnel du solveur CSP et de l'harmoniseur.
 
 La tranche P1–P7 a été exécutée le 25 juillet 2026. P8 reste volontairement
@@ -10,9 +10,9 @@ différée : après les optimisations précédentes, les profils ne montrent plu
 la copie complète des sessions comme centre de coût dominant. Le parallélisme
 reste lui aussi un projet ultérieur.
 
-Le but n'est pas de modifier la sémantique de `CHOICE`, MRV, des poids ou du
-backtracking. Il s'agit de supprimer le travail technique qui subsiste autour
-de chaque nœud :
+Le but n'était pas de modifier la sémantique de `CHOICE`, MRV, des poids ou du
+backtracking, mais de supprimer les coûts techniques observés initialement
+autour de chaque nœud :
 
 - branches matérialisées mais jamais explorées ;
 - initialisations redondantes pendant un fork ;
@@ -22,8 +22,9 @@ de chaque nœud :
 - journaux reparcourus pour reconstituer les mêmes deltas ;
 - relations extensionnelles beaucoup plus grandes que le problème logique.
 
-L'ordre ci-dessous privilégie d'abord les changements localisés, mesurables et
-réversibles. Chaque palier doit être benchmarké avant de passer au suivant.
+Les sections P1–P7 conservent le problème initial, la réalisation retenue et
+les mesures correspondantes. Leur ordre privilégiait les changements
+localisés, mesurables et réversibles.
 
 ## Invariants
 
@@ -512,8 +513,9 @@ Les résultats bruts sont conservés dans :
 
 ## P8 — Base immuable et overlays de branches
 
-Ce palier n'est pas exigé avant la reprise fonctionnelle, mais constitue la
-suite naturelle si les forks restent dominants :
+Ce palier n'a pas été exigé avant la reprise fonctionnelle. Il ne redeviendra
+pertinent que si de futurs profils montrent que les forks dominent de
+nouveau :
 
 ```text
 base de faits immuable partagée
@@ -522,14 +524,14 @@ base de faits immuable partagée
     + provenance locale
 ```
 
-Il bénéficierait à BFS, best-first et au futur parallélisme. Il ne doit être
-entrepris qu'après P1 et P2 : la paresse peut supprimer assez de forks pour
-rendre cette complexité inutile à court terme.
+Il bénéficierait à BFS, best-first et au futur parallélisme. P1 et P2 ont
+cependant supprimé assez de forks pour rendre cette complexité inutile à court
+terme.
 
 Voir [`parallel_choice_search.md`](parallel_choice_search.md) pour le lien
 avec l'exécution multiprocessus.
 
-## Ordre d'exécution
+## Ordre exécuté
 
 1. P1 — frontières paresseuses ;
 2. P2 — fork rapide ;
@@ -541,10 +543,9 @@ avec l'exécution multiprocessus.
 8. P7 — formulations intensives ;
 9. décider P8 à partir des nouveaux profils — décision : différer.
 
-## Critères de sortie avant reprise fonctionnelle
+## Critères de sortie et résultat
 
-La tranche peut s'arrêter et rendre la priorité aux règles CSP et musicales
-quand :
+La tranche devait rendre la priorité aux règles CSP et musicales quand :
 
 1. les forks best-first sont proches des nœuds réellement explorés ;
 2. le fork ne rescane plus les atomes ;
