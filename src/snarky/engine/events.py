@@ -17,6 +17,16 @@ class FactMutationKind(StrEnum):
 
 
 @dataclass(frozen=True, slots=True)
+class InferenceEventCursor:
+    """Rollback-aware position in one session mutation journal."""
+
+    owner: int
+    generation: int
+    generation_origin: int
+    position: int
+
+
+@dataclass(frozen=True, slots=True)
 class InferenceEvent:
     """One effective fact mutation caused by a rule activation."""
 

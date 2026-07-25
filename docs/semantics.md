@@ -122,6 +122,36 @@ Specializations include equality, inequality, numeric order, divisibility,
 binary arithmetic, `NVALUE`, and `ALL_DIFFERENT`. Unsupported or complex
 premise shapes fall back to semi-naive matching.
 
+This premise-local filtering is distinct from the persistent finite-domain
+constraints used by `FiniteCSP`. A `SessionChoiceSearch` may receive
+deterministic session propagators. At every search node it alternates those
+propagators with its forward-rule groups until the complete fact state is
+stable. Goal and contradiction tests, rule-based choice production, and MRV
+therefore all observe the filtered state.
+
+The first persistent CSP layer is narrowing-only:
+
+- initial `candidate` facts define fixed base domains;
+- `AllDifferentConstraint`, `SumConstraint`, `GlobalCardinalityConstraint`,
+  and `TableConstraint` retract candidates without branching;
+- ordinary rules can observe those retractions and derive other facts;
+- `CHOICE` adds a branch decision, after which propagation restarts;
+- rollback restores the decision, constraint reductions, and rule
+  consequences together.
+
+Rules that add candidate values require a different widening and
+recomputation semantics and are not part of this layer.
+
+Persistent constraint templates are grounded once from root facts. Domain
+removals schedule incident constraints through a compiled adjacency graph.
+The joint fixed-point scheduler compiles relation watches from factual rule
+premises and revisits only components affected by net fact changes. Unknown or
+dynamic dependencies use a wildcard, preserving conservative behavior. The
+finite-domain projection consumes rollback-aware event cursors and reverses
+its delta trail to the restored journal origin before applying sibling events.
+See [persistent finite-domain constraints](persistent_constraints.md) for the
+syntax and propagator contracts.
+
 ## Fixed points and refraction
 
 Within a persistent session, an activation identity consists of its group,

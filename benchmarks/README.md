@@ -40,6 +40,7 @@ chord-generating harmonizer measure different workloads.
 | `choice_search` | CSP and harmonizer integration across search traversals |
 | `choice_trail` | lazy forked DFS versus reversible-trail DFS on N-queens |
 | `choice_formulations` | extensional versus intensional N-queens and harmony transitions |
+| `classical_csp` | magic squares, Latin squares, and constraints-only versus hybrid Sudoku |
 | `csp_harmonizer_next` | generic Sudoku search and note-variable harmonizer |
 | `muses_harmonizer` | symbolic harmony core versus complete MuSES object bridge |
 | `sudoku_rules` | p1, p6, and p7 human-technique workloads |
@@ -52,6 +53,9 @@ Representative commands:
 uv run python -m benchmarks.choice_search --repeat 5
 uv run python benchmarks/choice_trail.py --repeat 3
 uv run python benchmarks/choice_formulations.py --repeat 3
+uv run python -m benchmarks.classical_csp --repeat 3
+uv run python -m benchmarks.classical_csp \
+  --magic-sizes 6 --only-magic --repeat 3
 uv run python -m benchmarks.csp_harmonizer_next --repeat 5
 uv run python -m benchmarks.sudoku_rules --levels 1 6 7 --repeat 5
 uv run python benchmarks/fibonacci_explicit.py --repeat 7
@@ -121,6 +125,9 @@ File names include the feature and date:
 
 ```text
 results/
+├── classical_csp_2026-07-25.json
+├── classical_csp_incremental_2026-07-25.json
+├── classical_csp_optimized_2026-07-25.json
 ├── choice_search_2026-07-25.json
 ├── compact_tables_2026-07-24.csv
 ├── parser_actions_2026-07-25.json
@@ -163,4 +170,7 @@ Consequently, no one strategy must win every microbenchmark:
   joins.
 
 Optimization work should target a measured bottleneck, retain a differential
-oracle, and avoid application-specific shortcuts in the generic engine.
+oracle, and avoid application-specific shortcuts in the generic engine. The
+[finite-CSP solver optimization plan](../docs/solver_optimization_plan.md)
+records the current profile, completed dependency scheduling and `SUM` bitset
+work, and the acceptance boundary for future incremental state.

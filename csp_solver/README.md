@@ -55,6 +55,47 @@ project supplies a reusable vocabulary and rules for finite-domain variables.
 `domains`, and `problems` groups separately. `solve_finite_csp()` accepts an
 explicit group composition.
 
+## Persistent constraints and rules
+
+`FiniteCSP.constraints` holds deterministic constraints that remain active for
+the whole search. The initial practical constraint set is:
+
+```python
+AllDifferentConstraint(Atom("name"), variables)
+SumConstraint(Atom("name"), variables, target)
+GlobalCardinalityConstraint(Atom("name"), variables, bounds)
+TableConstraint(Atom("name"), variables, allowed_tuples)
+```
+
+They can also be created from N-independent `.constraints` declarations.
+`SCOPE ... FROM` selects variables from facts, while
+`FOR EACH SEQ[...]` groups those facts into multiple constraint instances.
+The complete syntax is documented in
+[the textual syntax reference](../docs/syntax.md) and
+[persistent finite-domain constraints](../docs/persistent_constraints.md).
+
+At every search node, Snarky computes:
+
+```text
+persistent-constraint closure
+→ forward-rule closure
+→ repeat until the visible fact state is stable
+→ expose CHOICE points
+```
+
+Constraint reductions are materialized by retracting unsupported `candidate`
+facts. Ordinary rules and `CHOICE ... FROM` therefore inspect the filtered
+domains without mentioning constraints in their premises. A choice adds a
+branch-local `decision`; the generic rule restricts that variable's candidate
+facts, after which all persistent constraints run again. The complete session
+checkpoint restores constraint reductions, rule conclusions, and the decision
+on backtracking.
+
+This is deliberately the narrowing-only model. Initial candidate facts define
+fixed base domains. Rules may derive ordinary facts and may impose additional
+restrictions, but adding candidate values during inference is not part of this
+semantics; that operation would require domain widening and recomputation.
+
 ## N-queens
 
 Run the four-queens oracle from the repository root:
@@ -87,6 +128,79 @@ Machine-readable historical results are stored under
 [`../benchmarks/results`](../benchmarks/results). Compare logical solutions
 and search counters before interpreting wall-clock differences.
 
+## Magic square
+
+A normal order-\(N\) magic square is another classic CSP:
+
+- the \(N^2\) cells have domain `1..N²`;
+- all cells have different values;
+- every row, column, and the two diagonals sum to
+  \(N(N^2 + 1)/2\).
+
+[`magic_square.py`](magic_square.py) represents each cell as the same
+`csp_variable`/`candidate` facts used by N-queens and Sudoku. The
+N-independent [`magic_square.constraints`](magic_square.constraints) declares
+one persistent global constraint over all cells:
+
+```text
+CONSTRAINT magic_cells_all_different
+KIND ALL_DIFFERENT
+SCOPE $cell
+FROM
+    ($cell kind magic_cell)
+END_SCOPE
+END
+```
+
+and one global sum template for every row, column, and diagonal:
+
+```text
+CONSTRAINT magic_line_sum
+KIND SUM
+FOR EACH SEQ[$line]
+    ($line kind magic_line)
+    ($line target $target)
+END_FOR_EACH
+SCOPE $cell ORDER BY $position
+FROM
+    ($line cell SEQ[$position $cell])
+END_SCOPE
+TARGET $target
+END
+```
+
+There are no magic-square propagation rules. The reusable forward rules
+classify singleton domains, detect solved or contradictory problems, and
+produce explicit choices. Thus the model cleanly demonstrates the division of
+labour: constraints filter domains; rules observe the filtered facts and
+control search.
+
+Run the default 3×3 example (the order is also an explicit CLI parameter):
+
+```sh
+uv run python -m csp_solver.magic_square
+uv run python -m csp_solver.magic_square 3
+uv run python -m csp_solver.magic_square 5
+```
+
+The representation accepts any positive `N` (and correctly exhausts the
+impossible 2×2 case). The 5×5 example is solved by the same model and rule
+library; only the grounded cells, scopes, domains, and target differ.
+
+## Latin squares
+
+[`latin_square.py`](latin_square.py) uses one fact-derived
+`ALL_DIFFERENT` template for every row and column:
+
+```sh
+uv run python -m csp_solver.latin_square 5
+uv run python -m csp_solver.latin_square 7
+```
+
+The default reduced formulation fixes the first row and column to remove
+symmetries; the constraint declaration itself remains independent of the
+order.
+
 ## Sudoku reuse
 
 [`sudoku/search.py`](../sudoku/search.py) adds the generic CSP metadata to the
@@ -101,10 +215,63 @@ result = solve_puzzle_with_search(
 )
 ```
 
-When the selected human techniques cannot finish, the generic CSP rule chooses
-a candidate by MRV. The final grid is checked against the same oracle as the
-human-technique solver. This demonstrates that `FiniteCSP` contains no
-N-queens or Sudoku knowledge.
+Twenty-seven persistent `ALL_DIFFERENT` constraints cover rows, columns, and
+boxes. Existing forward rules still express human techniques such as locked
+candidates, pairs, and X-wings. When those rules cannot finish, the generic CSP
+rule chooses a candidate by MRV.
+
+The first recorded p7 run illustrated the hybrid's purpose: constraints alone
+used 242 nodes and 190 failed branches; constraints plus the complete
+forward-rule library used 2 nodes and no failed branch. The current
+dependency-scheduled implementation solves the same validated fixture in 2
+nodes with constraints only and at the root with the complete rule library.
+Because the counters differ, the two archives document solver evolution and
+must not be interpreted as a pure timing comparison. Reproduce all classical
+cases with:
+
+```sh
+uv run python -m benchmarks.classical_csp --repeat 3
+```
+
+The [initial](../benchmarks/results/classical_csp_2026-07-25.json) and
+[dependency-scheduled](../benchmarks/results/classical_csp_optimized_2026-07-25.json)
+results are retained alongside the current
+[incremental-domain](../benchmarks/results/classical_csp_incremental_2026-07-25.json)
+measurements.
+
+The current order-6 magic square has a three-run median of 19.179 seconds at
+5,358 nodes and 4,236 failed branches. The earlier implementation took
+131.25 seconds for the same search tree. Reproduce the larger case alone:
+
+```sh
+uv run python -m benchmarks.classical_csp \
+  --magic-sizes 6 --only-magic --repeat 3
+```
+
+Its raw result is
+[archived separately](../benchmarks/results/magic_square_6_incremental_2026-07-25.json).
+
+The complete deterministic search profile is:
+
+| Measure | Order-6 result |
+|---|---:|
+| Explored nodes | 5,358 |
+| Branch decisions | 5,357 |
+| Failed branches | 4,236 |
+| Maximum explored depth | 20 |
+| Successful solution depth | 18 |
+| Persistent-propagator invocations | 5,358 |
+| Individual constraint revisions | 111,140 |
+| `ALL_DIFFERENT` revisions | 13,777 |
+| `SUM` revisions | 97,363 |
+| Constraint candidate removals | 333,440 |
+
+The model uses one global Régin-style `ALL_DIFFERENT`, not a decomposition
+into pairwise inequalities. Search uses MRV/first-fail with a deterministic
+fixed-order tie-break. It has no explicit symmetry-breaking constraint.
 
 See [rule programs](../docs/rule_programs.md) for explicit group composition
-and [the benchmark guide](../benchmarks/README.md) for current protocols.
+and [the benchmark guide](../benchmarks/README.md) for current protocols. The
+[solver optimization plan](../docs/solver_optimization_plan.md) records the
+measured bottlenecks, implemented scheduling/kernel work, and the criteria for
+future incremental optimizations.

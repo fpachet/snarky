@@ -3,13 +3,21 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
+from functools import cache
+from pathlib import Path
 
+from csp_solver.constraint_syntax import (
+    PersistentConstraintTemplate,
+    instantiate_constraint_templates,
+    parse_constraint_templates,
+)
 from csp_solver.solver import (
     CSP_PROBLEM,
     CSP_VARIABLE,
     KIND,
     VARIABLE,
     FiniteCSP,
+    finite_csp_rule_library,
     solve_finite_csp,
 )
 from snarky import (
@@ -87,6 +95,10 @@ def solve_puzzle_with_search(
             *selected,
             rulebase.validate_state,
         ),
+        instantiate_constraint_templates(
+            _sudoku_constraint_templates(),
+            base_facts,
+        ),
     )
     search = solve_finite_csp(
         model,
@@ -94,6 +106,10 @@ def solve_puzzle_with_search(
         policy=policy or MRVChoicePolicy(),
         traversal=traversal,
         seed=seed,
+        rule_groups=(
+            *finite_csp_rule_library().finite_domain_groups,
+            *model.groups,
+        ),
     )
     grid = (
         grid_from_facts(search.solutions[0].session.facts)
@@ -103,3 +119,12 @@ def solve_puzzle_with_search(
     if grid is not None:
         validate_complete_grid(grid, clues=puzzle.grid)
     return SudokuSearchResult(puzzle, grid, search, techniques)
+
+
+@cache
+def _sudoku_constraint_templates() -> tuple[
+    PersistentConstraintTemplate,
+    ...,
+]:
+    path = Path(__file__).resolve().parent / "persistent.constraints"
+    return parse_constraint_templates(path.read_text())

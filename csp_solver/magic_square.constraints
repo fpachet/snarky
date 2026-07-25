@@ -1,0 +1,23 @@
+# One global constraint, independent of the number of cells.
+CONSTRAINT magic_cells_all_different
+KIND ALL_DIFFERENT
+SCOPE $cell
+FROM
+    ($cell kind magic_cell)
+END_SCOPE
+END
+
+# The template grounds once per line. Rows, columns, and diagonals are all
+# represented by the same magic_line facts.
+CONSTRAINT magic_line_sum
+KIND SUM
+FOR EACH SEQ[$line]
+    ($line kind magic_line)
+    ($line target $target)
+END_FOR_EACH
+SCOPE $cell ORDER BY $position
+FROM
+    ($line cell SEQ[$position $cell])
+END_SCOPE
+TARGET $target
+END

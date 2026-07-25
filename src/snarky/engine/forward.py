@@ -23,7 +23,11 @@ from .conflict import (
     AgendaSelection,
     ConflictResolutionStrategy,
 )
-from .events import FactMutationKind, InferenceEvent
+from .events import (
+    FactMutationKind,
+    InferenceEvent,
+    InferenceEventCursor,
+)
 from .group_execution import (
     EngineLimits as EngineLimits,
 )
@@ -115,6 +119,8 @@ class InferenceSession:
         self._fired_activation_total = 0
         self._derivations: list[Derivation] = []
         self._events: list[InferenceEvent] = []
+        self._event_generation = 0
+        self._event_generation_origin = 0
         self._agenda_selections: list[AgendaSelection] = []
         self.agenda_metrics = AgendaMetrics()
         self._agenda_memories: dict[str, _AgendaMemory] = {}
@@ -158,6 +164,43 @@ class InferenceSession:
         """Return the cumulative chronological mutation journal."""
 
         return tuple(self._events)
+
+    @property
+    def event_count(self) -> int:
+        """Return the current mutation-journal length without copying it."""
+
+        return len(self._events)
+
+    def events_since(self, position: int) -> tuple[InferenceEvent, ...]:
+        """Return journal events appended after zero-based *position*."""
+
+        if not 0 <= position <= len(self._events):
+            raise ValueError("event position is outside the current journal")
+        return tuple(self._events[position:])
+
+    def event_cursor(self) -> InferenceEventCursor:
+        """Return a journal cursor invalidated by rollback or another fork."""
+
+        return InferenceEventCursor(
+            id(self),
+            self._event_generation,
+            self._event_generation_origin,
+            len(self._events),
+        )
+
+    def events_after(
+        self,
+        cursor: InferenceEventCursor,
+    ) -> tuple[InferenceEvent, ...] | None:
+        """Return events after *cursor*, or ``None`` when rollback expired it."""
+
+        if cursor.owner != id(self):
+            raise ValueError("event cursor belongs to another session")
+        if cursor.generation != self._event_generation:
+            return None
+        if not 0 <= cursor.position <= len(self._events):
+            return None
+        return tuple(self._events[cursor.position:])
 
     @property
     def agenda_selections(self) -> tuple[AgendaSelection, ...]:
@@ -288,6 +331,32 @@ class InferenceSession:
     ) -> _ActivationOutcome:
         return _fire_activation(
             self,
+            group,
+            rule,
+            substitution,
+            premise_facts,
+        )
+
+    def _fire_compiled_activation(
+        self,
+        group: RuleGroup,
+        rule: Rule,
+        substitution: Substitution,
+        premise_facts: tuple[Fact, ...],
+    ) -> _ActivationOutcome | None:
+        """Fire one prevalidated activation through normal refraction."""
+
+        key = ActivationKey(
+            group.name,
+            rule.name,
+            substitution.key,
+        )
+        if key in self._fired:
+            return None
+        self._fired.add(key)
+        self._fired_supports[key] = premise_facts
+        self._fired_activation_total += 1
+        return self._fire_activation(
             group,
             rule,
             substitution,

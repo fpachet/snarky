@@ -12,7 +12,11 @@ should not be mechanically mixed with English sections.
 ## Publication guides in English
 
 - [Architecture](architecture.md)
+- [Textual syntax](syntax.md)
 - [Reference semantics](semantics.md)
+- [Persistent finite-domain constraints](persistent_constraints.md)
+- [Finite-CSP solver optimization plan](solver_optimization_plan.md)
+- [LORE, LAURE, CLAIRE, and Snarky](caseau_rules_constraints.md)
 - [API stability](api_stability.md)
 - [Versioning and compatibility](versioning.md)
 - [Strategy lifecycle](strategy_lifecycle.md)

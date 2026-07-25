@@ -27,6 +27,25 @@ def _fact(text: str) -> Fact:
     return Fact(parse_term(text))
 
 
+def test_event_cursor_reports_deltas_and_expires_on_rollback() -> None:
+    session = InferenceSession(())
+    cursor = session.event_cursor()
+    first = _fact("(item state first)")
+    session.assume(first)
+
+    events = session.events_after(cursor)
+
+    assert events is not None
+    assert tuple(event.fact for event in events) == (first,)
+    checkpoint = session.checkpoint()
+    branch_cursor = session.event_cursor()
+    session.assume(_fact("(item state second)"))
+    session.rollback(checkpoint)
+
+    assert session.events_after(branch_cursor) is None
+    session.release(checkpoint)
+
+
 def test_remove_action_mutates_memory_and_records_an_event() -> None:
     rules = parse_rules(
         """

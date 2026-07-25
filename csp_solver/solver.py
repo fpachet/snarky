@@ -27,6 +27,14 @@ from snarky import (
     parse_rule_groups,
 )
 
+from .finite_domain_choice import FiniteDomainChoiceProvider
+from .finite_domain_projection import FiniteDomainProjection
+from .finite_domain_state import FiniteDomainStatePropagator
+from .persistent_constraints import (
+    PersistentConstraint,
+    PersistentConstraintPropagator,
+)
+
 KIND = Atom("kind")
 CSP_PROBLEM = Atom("csp_problem")
 CSP_VARIABLE = Atom("csp_variable")
@@ -52,13 +60,16 @@ class FiniteCSP:
 
     Extensional binary relations are one representation, not a restriction
     of the protocol. ``groups`` may implement intensional, n-ary, global, or
-    application-specific propagation.
+    application-specific propagation. ``constraints`` remain active across
+    the search and filter candidate facts before rules and choices inspect
+    each stable state.
     """
 
     problem: Atom
     facts: tuple[Fact, ...]
     weights: Mapping[tuple[Term, Term], float]
     groups: tuple[RuleGroup, ...] = ()
+    constraints: tuple[PersistentConstraint, ...] = ()
 
     def __post_init__(self) -> None:
         facts = tuple(self.facts)
@@ -67,6 +78,7 @@ class FiniteCSP:
         object.__setattr__(self, "facts", facts)
         object.__setattr__(self, "weights", dict(self.weights))
         object.__setattr__(self, "groups", tuple(self.groups))
+        object.__setattr__(self, "constraints", tuple(self.constraints))
 
 
 # Compatibility name retained for the first public CSP project.
@@ -89,6 +101,16 @@ class FiniteCSPRuleLibrary:
         return (
             self.choices,
             self.binary_constraints,
+            self.domains,
+            self.problems,
+        )
+
+    @property
+    def finite_domain_groups(self) -> tuple[RuleGroup, ...]:
+        """Groups needed when propagation is supplied by global constraints."""
+
+        return (
+            self.choices,
             self.domains,
             self.problems,
         )
@@ -170,7 +192,37 @@ def solve_finite_csp(
     selected_groups = (
         (*_csp_groups(), *model.groups) if rule_groups is None else tuple(rule_groups)
     )
-    provider = RuleChoiceProvider(selected_groups)
+    rule_provider = RuleChoiceProvider(selected_groups)
+    projection = FiniteDomainProjection()
+    optimized_finite_domain = _supports_compiled_finite_domain(
+        rule_provider
+    )
+    propagation_groups = rule_provider.propagation_groups
+    state_propagator: FiniteDomainStatePropagator | None = None
+    if optimized_finite_domain:
+        library = finite_csp_rule_library()
+        propagation_groups = tuple(
+            group
+            for group in propagation_groups
+            if group.name
+            not in {
+                library.choices.name,
+                library.domains.name,
+                library.problems.name,
+            }
+        )
+        state_propagator = FiniteDomainStatePropagator(
+            model.problem,
+            library.choices,
+            library.domains,
+            library.problems,
+            projection,
+        )
+    provider = (
+        FiniteDomainChoiceProvider(propagation_groups, projection)
+        if optimized_finite_domain
+        else rule_provider
+    )
     existing_weights = _existing_choice_weights(model.facts)
     weighted_facts = tuple(
         Fact(
@@ -218,8 +270,36 @@ def solve_finite_csp(
         branch_strategy_factory=SemiNaiveInstantiationStrategy,
         reversible_depth_first=reversible_depth_first,
         lazy_frontier=lazy_frontier,
+        propagators=(
+            *((state_propagator,) if state_propagator is not None else ()),
+            *(
+                (
+                    PersistentConstraintPropagator(
+                        model.problem,
+                        model.constraints,
+                        projection,
+                    ),
+                )
+                if model.constraints
+                else ()
+            ),
+        ),
     )
     return search.solve(session)
+
+
+def _supports_compiled_finite_domain(
+    provider: RuleChoiceProvider,
+) -> bool:
+    library = finite_csp_rule_library()
+    return (
+        len(provider.choice_rules) == 1
+        and provider.choice_rules[0][0] == "apply_csp_choices"
+        and provider.choice_rules[0][1].name == "choose_csp_value"
+        and len(provider.choice_rules[0][2]) == 1
+        and library.domains in provider.groups
+        and library.problems in provider.groups
+    )
 
 
 def _existing_choice_weights(

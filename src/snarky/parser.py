@@ -59,6 +59,7 @@ from .parser_terms import (
 from .parser_terms import (
     parse_term as parse_term,
 )
+from .premises import Premise
 from .rules import Rule, RuleGroup
 
 
@@ -70,6 +71,25 @@ def parse_rules(
     """Parse one or more ``RULE ... END`` definitions."""
 
     return _parse_rule_lines(_normalized_lines(text), predicates)
+
+
+def parse_premises(
+    text: str,
+    *,
+    predicates: PredicateRegistry | None = None,
+) -> tuple[Premise, ...]:
+    """Parse a standalone conjunction using the rule ``WHEN`` syntax."""
+
+    lines = _normalized_lines(text)
+    premises, position = _parse_premise_block(
+        lines,
+        0,
+        "<END_OF_INPUT>",
+        predicates,
+    )
+    if position != len(lines):
+        raise ParseError(f"unexpected premise input {lines[position]!r}")
+    return tuple(premises)
 
 
 def parse_rule_groups(

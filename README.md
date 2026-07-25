@@ -31,8 +31,8 @@ behavior and modern extensions are documented separately.
 - named rule groups, persistent sessions, checkpoints, and explicit programs;
 - finite choices, contextual weights, depth- or breadth-first traversal, and
   backtracking;
-- finite-domain filtering, arithmetic constraints, `NVALUE`, and
-  `ALL_DIFFERENT`;
+- premise-local finite-domain filtering plus persistent `ALL_DIFFERENT`,
+  `SUM`, `GCC`, and `TABLE` constraints;
 - reference, indexed, semi-naive, constraint-filtered, and adaptive
   instantiation strategies;
 - strict type checking and differential tests across execution strategies.
@@ -142,11 +142,26 @@ candidate facts
 This preserves one semantic reference while allowing optimized strategies to
 avoid irrelevant matches.
 
+Choice search can additionally host persistent constraints over fact-encoded
+domains:
+
+```text
+persistent constraint closure
+    -> forward-rule closure
+    -> repeat to a joint fixed point
+    -> explicit CHOICE
+    -> reversible propagation or backtracking
+```
+
+Fact-derived `.constraints` templates keep global scopes independent of
+problem size. See [persistent constraints](docs/persistent_constraints.md)
+and the [Caseau historical comparison](docs/caseau_rules_constraints.md).
+
 ## Research applications
 
 | Project | Purpose |
 |---|---|
-| [Finite CSP](csp_solver/README.md) | N-queens and Sudoku through generic declarative choices and propagation |
+| [Finite CSP](csp_solver/README.md) | N-queens, magic squares, and Sudoku through generic declarative choices and propagation |
 | [Sudoku](sudoku/README.md) | progressive, explainable human techniques followed by explicit search |
 | [Four-part harmonizer](harmonizer/README.md) | SATB generation with tonal rules, contextual weights, and MuSES integration |
 | [Rulebase catalogue](rulebases/README.md) | executable pedagogical and historically motivated examples |
@@ -159,7 +174,9 @@ application documentation is in English.
 ## Documentation
 
 - [Documentation map](docs/README.md)
+- [Textual syntax](docs/syntax.md)
 - [Semantics](docs/semantics.md)
+- [Finite-CSP solver optimization plan](docs/solver_optimization_plan.md)
 - [API stability](docs/api_stability.md)
 - [Versioning and compatibility](docs/versioning.md)
 - [Strategy lifecycle](docs/strategy_lifecycle.md)

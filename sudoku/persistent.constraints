@@ -1,0 +1,12 @@
+# One ALL_DIFFERENT instance per row, column, and box. The anchor cell is
+# needed only to enumerate unit identifiers; FOR EACH groups solely by $unit.
+CONSTRAINT sudoku_units
+KIND ALL_DIFFERENT
+FOR EACH SEQ[$unit]
+    ($anchor unit $unit)
+END_FOR_EACH
+SCOPE $cell
+FROM
+    ($cell unit $unit)
+END_SCOPE
+END

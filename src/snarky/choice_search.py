@@ -9,6 +9,12 @@ from copy import deepcopy
 from dataclasses import dataclass, field
 from enum import StrEnum
 
+from .choice_fixed_point import (
+    JointFixedPointScheduler,
+)
+from .choice_fixed_point import (
+    SessionPropagator as SessionPropagator,
+)
 from .choice_frontier import (
     ChoiceTraversal as ChoiceTraversal,
 )
@@ -182,7 +188,13 @@ type _PendingItem = (
 
 @dataclass(frozen=True, slots=True)
 class SessionChoiceSearch:
-    """Search choices over isolated :class:`InferenceSession` branches."""
+    """Search choices over isolated :class:`InferenceSession` branches.
+
+    ``propagators`` are deterministic, branch-local state filters.  At each
+    node they alternate with ordinary forward-rule groups until the complete
+    visible fact state reaches a fixed point.  Choice production only observes
+    that stable state.
+    """
 
     groups: tuple[RuleGroup, ...]
     choices: ChoiceProvider
@@ -197,15 +209,31 @@ class SessionChoiceSearch:
     branch_strategy_factory: StrategyFactory | None = None
     reversible_depth_first: bool = True
     lazy_frontier: bool = True
+    propagators: tuple[SessionPropagator, ...] = ()
+    _fixed_point: JointFixedPointScheduler = field(
+        init=False,
+        repr=False,
+        compare=False,
+    )
 
     def __post_init__(self) -> None:
         object.__setattr__(self, "groups", tuple(self.groups))
+        object.__setattr__(self, "propagators", tuple(self.propagators))
         if self.max_nodes < 1:
             raise ValueError("max_nodes must be positive")
         if self.max_solutions < 1:
             raise ValueError("max_solutions must be positive")
         if self.max_group_passes < 1:
             raise ValueError("max_group_passes must be positive")
+        object.__setattr__(
+            self,
+            "_fixed_point",
+            JointFixedPointScheduler(
+                self.groups,
+                self.propagators,
+                maximum_rounds=self.max_group_passes,
+            ),
+        )
 
     def solve(self, session: InferenceSession) -> ChoiceSearchResult:
         random_source = random.Random(self.seed)
@@ -610,16 +638,9 @@ class SessionChoiceSearch:
         return "discard isolated branch"
 
     def _propagate(self, session: InferenceSession) -> None:
-        for _ in range(self.max_group_passes):
-            before = session.facts
-            for group in self.groups:
-                session.run_group(group)
-            if session.facts == before:
-                return
-        raise RuntimeError(
-            "choice propagation did not stabilize within "
-            f"{self.max_group_passes} group passes"
-        )
+        """Reach a joint fixed point before testing the goal or choosing."""
+
+        self._fixed_point.run(session)
 
 
 def _log_weight(weight: float) -> float:

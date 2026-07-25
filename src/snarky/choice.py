@@ -23,4 +23,5 @@ from .choice_search import ChoiceSearchResult as ChoiceSearchResult
 from .choice_search import ChoiceSearchStatus as ChoiceSearchStatus
 from .choice_search import ChoiceSolution as ChoiceSolution
 from .choice_search import SessionChoiceSearch as SessionChoiceSearch
+from .choice_search import SessionPropagator as SessionPropagator
 from .choice_search import StrategyFactory as StrategyFactory

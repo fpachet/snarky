@@ -122,6 +122,8 @@ def _fork(
     branch._fired_activation_total = session._fired_activation_total
     branch._derivations = session._derivations.copy()
     branch._events = session._events.copy()
+    branch._event_generation = session._event_generation
+    branch._event_generation_origin = session._event_generation_origin
     branch._agenda_selections = session._agenda_selections.copy()
     branch.agenda_metrics = deepcopy(session.agenda_metrics)
     branch._agenda_memories = session._agenda_memories.copy()
@@ -204,6 +206,8 @@ def _rollback(
     session._fired_activation_total = checkpoint.fired_activation_total
     del session._derivations[checkpoint.derivation_count :]
     del session._events[checkpoint.event_count :]
+    session._event_generation += 1
+    session._event_generation_origin = checkpoint.event_count
     del session._agenda_selections[checkpoint.agenda_selection_count :]
     session.agenda_metrics = deepcopy(checkpoint.agenda_metrics)
     session._agenda_memories = dict(checkpoint.agenda_memories)

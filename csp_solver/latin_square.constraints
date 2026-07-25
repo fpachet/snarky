@@ -1,0 +1,10 @@
+CONSTRAINT latin_lines_all_different
+KIND ALL_DIFFERENT
+FOR EACH SEQ[$line]
+    ($line kind latin_line)
+END_FOR_EACH
+SCOPE $cell ORDER BY $position
+FROM
+    ($line cell SEQ[$position $cell])
+END_SCOPE
+END

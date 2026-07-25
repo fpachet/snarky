@@ -16,6 +16,16 @@ details are documented in [docs/versioning.md](docs/versioning.md).
 - Contribution, security, citation, release, licensing-status, and
   third-party provenance guidance.
 - Automated checks for local documentation links and distribution contents.
+- Fact-derived persistent constraint templates with `ALL_DIFFERENT`, `SUM`,
+  `GCC`, and allowed `TABLE` propagation.
+- Joint constraint/rule fixed points during reversible `CHOICE` search.
+- Dependency-aware joint fixed-point scheduling and exact bitset filtering for
+  bounded non-negative `SUM` constraints.
+- Rollback-aware inference-event cursors, incremental finite-domain
+  projections, compiled canonical CSP choice/classification lookup, and
+  reusable `ALL_DIFFERENT` matchings.
+- Parameterized magic-square and Latin-square models plus a classical CSP
+  benchmark and a persistent-constraint/forward-rule Sudoku hybrid.
 
 ### Changed
 

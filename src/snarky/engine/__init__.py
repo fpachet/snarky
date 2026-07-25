@@ -7,7 +7,7 @@ from .conflict import (
     ConflictResolutionStrategy,
     MEAConflictStrategy,
 )
-from .events import FactMutationKind, InferenceEvent
+from .events import FactMutationKind, InferenceEvent, InferenceEventCursor
 from .forward import (
     EngineLimits,
     FactExists,
@@ -38,6 +38,7 @@ __all__ = [
     "GroupStopReason",
     "InferenceLimitError",
     "InferenceEvent",
+    "InferenceEventCursor",
     "InferenceSession",
     "MEAConflictStrategy",
     "Provenance",
