@@ -173,21 +173,23 @@ The first consolidation tranche establishes:
 - compatibility fallback for third-party strategies;
 - deterministic and Hypothesis-generated mutation and truth-maintenance
   sequences across naïve, indexed, and semi-naïve execution;
-- the first C3 extraction: checkpoint data, opening, rollback, release, and
-  time-tag trails now live in `engine/session_state.py`, while incremental
+- the first C3 extraction: checkpoints, rollback, time-tag trails, snapshots,
+  and isolated forks now live in `engine/session_state.py`, while incremental
   agenda memory, dependency tracking, delta reduction, and conflict-set
   materialization live in `engine/agenda.py`;
 - rule-group modes, limits, results, and execution coordination now live in
   `engine/group_execution.py`, leaving `InferenceSession.run_group()` as the
   stable public facade;
-- action staging, activation mutations, fresh-name reservation, and grounded
-  truth-maintenance cascades now live in `engine/mutations.py`, with
-  `InferenceSession` retaining compatibility delegates;
+- external assumptions and retractions, action staging, activation mutations,
+  fresh-name reservation, and grounded truth-maintenance cascades now live in
+  `engine/mutations.py`, with `InferenceSession` retaining compatibility
+  delegates;
 - negative-premise dependency planning, support expiry, and refraction
   reconciliation now live in `engine/refraction.py`.
 
 Historical public import paths remain compatible and are covered by identity
 tests.
 
-The next tranche continues the bounded decomposition of session execution in
-`engine/forward.py`, protected by the broader mutable-state suite.
+The `engine/forward.py` decomposition target is complete for C3. The next
+tranche separates choice production, frontier management, and traversal in
+`choice.py`, protected by the same mutable-state suite.

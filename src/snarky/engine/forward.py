@@ -2,9 +2,6 @@
 
 from __future__ import annotations
 
-from copy import deepcopy
-from dataclasses import dataclass
-
 from ..actions import Action
 from ..facts import Fact
 from ..instantiation import (
@@ -13,7 +10,7 @@ from ..instantiation import (
 )
 from ..rules import Rule, RuleGroup
 from ..stores.naive import NaiveFactStore
-from ..substitutions import EMPTY_SUBSTITUTION, Substitution
+from ..substitutions import Substitution
 from ..terms import Atom
 from .agenda import (
     ActivationKey,
@@ -53,12 +50,14 @@ from .group_execution import (
 )
 from .mutations import (
     _ActivationOutcome,
+    _assume,
     _atom_names_in,
     _cascade_unsupported,
     _fire_activation,
     _next_fresh_atom,
     _record_external_removal,
     _reserve_fact_atoms,
+    _retract,
     _stage_actions,
 )
 from .provenance import Derivation, Provenance
@@ -70,28 +69,21 @@ from .refraction import (
     _register_negative_refraction_plans,
 )
 from .session_state import (
+    RunResult as RunResult,
+)
+from .session_state import (
     SessionCheckpoint as SessionCheckpoint,
 )
 from .session_state import (
     _checkpoint,
+    _fork,
     _release,
     _rollback,
     _set_fact_time_tag,
+    _snapshot,
     _TimeTagMutation,
     _validate_checkpoint,
 )
-
-
-@dataclass(frozen=True, slots=True)
-class RunResult:
-    facts: tuple[Fact, ...]
-    derived_facts: tuple[Fact, ...]
-    derivations: tuple[Derivation, ...]
-    cycles: int
-    fired_activation_count: int
-    provenance: Provenance
-    events: tuple[InferenceEvent, ...] = ()
-    agenda_selections: tuple[AgendaSelection, ...] = ()
 
 
 class InferenceSession:
@@ -184,35 +176,7 @@ class InferenceSession:
     def assume(self, *facts: Fact, label: str = "hypothesis") -> tuple[Fact, ...]:
         """Assert branch-local depth-zero facts for explicit search clients."""
 
-        added: list[Fact] = []
-        for fact in facts:
-            self._provenance.assume(fact)
-            self._assumed_facts.add(fact)
-            if not self._store.add(fact):
-                continue
-            self._reserve_fact_atoms(fact)
-            self._next_time_tag += 1
-            self._set_fact_time_tag(fact, self._next_time_tag)
-            added.append(fact)
-            self._events.append(
-                InferenceEvent(
-                    sequence=len(self._events) + 1,
-                    kind=FactMutationKind.ADD,
-                    fact=fact,
-                    rule_name=f"<{label}>",
-                    rule_group="<assumptions>",
-                    substitution=EMPTY_SUBSTITUTION,
-                    premises=(),
-                    cycle=self._cycles,
-                )
-            )
-        if len(self._store) > self.limits.max_facts:
-            raise InferenceLimitError(
-                f"maximum fact count ({self.limits.max_facts}) exceeded"
-            )
-        if added and self._negative_refraction_plans:
-            self._reconcile_negative_refraction(tuple(added))
-        return tuple(added)
+        return _assume(self, facts, label)
 
     def retract(
         self,
@@ -221,38 +185,12 @@ class InferenceSession:
     ) -> tuple[Fact, ...]:
         """Retract facts and optionally cascade unsupported conclusions."""
 
-        removed: list[Fact] = []
-        for fact in facts:
-            self._assumed_facts.discard(fact)
-            if not self._store.remove(fact):
-                continue
-            self._set_fact_time_tag(fact, None)
-            removed.append(fact)
-            self._record_external_removal(fact, label)
-        if self.truth_maintenance and removed:
-            removed.extend(self._cascade_unsupported())
-        absent = frozenset(removed)
-        if absent:
-            self.strategy.invalidate(absent)
-            self._expire_removed_supports(absent)
-        return tuple(removed)
+        return _retract(self, facts, label)
 
     def snapshot(self) -> RunResult:
         """Return the cumulative state using the historical result shape."""
 
-        facts = self._store.facts
-        return RunResult(
-            facts=facts,
-            derived_facts=tuple(
-                fact for fact in facts if fact not in self._initial_facts
-            ),
-            derivations=tuple(self._derivations),
-            cycles=self._cycles,
-            fired_activation_count=self._fired_activation_total,
-            provenance=self._provenance,
-            events=tuple(self._events),
-            agenda_selections=tuple(self._agenda_selections),
-        )
+        return _snapshot(self)
 
     def fork(
         self,
@@ -266,44 +204,7 @@ class InferenceSession:
         not an automatic search or backtracking policy.
         """
 
-        branch = object.__new__(InferenceSession)
-        branch.strategy = (
-            strategy if strategy is not None else deepcopy(self.strategy)
-        )
-        branch.limits = self.limits
-        branch.conflict_strategy = (
-            deepcopy(self.conflict_strategy)
-            if self.conflict_strategy is not None
-            else None
-        )
-        branch.truth_maintenance = self.truth_maintenance
-        branch._store = self._store.clone()
-        branch._provenance = self._provenance.clone()
-        branch._initial_facts = self._initial_facts
-        branch._assumed_facts = self._assumed_facts.copy()
-        branch._fired = self._fired.copy()
-        branch._fired_supports = self._fired_supports.copy()
-        branch._fired_activation_total = self._fired_activation_total
-        branch._derivations = self._derivations.copy()
-        branch._events = self._events.copy()
-        branch._agenda_selections = self._agenda_selections.copy()
-        branch.agenda_metrics = deepcopy(self.agenda_metrics)
-        branch._agenda_memories = self._agenda_memories.copy()
-        branch._previous_event_counts = self._previous_event_counts.copy()
-        branch._force_full_evaluation = self._force_full_evaluation.copy()
-        branch._groups = self._groups.copy()
-        branch._negative_refraction_plans = (
-            self._negative_refraction_plans.copy()
-        )
-        branch._cycles = self._cycles
-        branch._fresh_counters = self._fresh_counters.copy()
-        branch._fact_time_tags = self._fact_time_tags.copy()
-        branch._next_time_tag = self._next_time_tag
-        branch._reserved_atom_names = self._reserved_atom_names.copy()
-        branch._time_tag_trail = []
-        branch._checkpoint_tokens = []
-        branch._next_checkpoint_token = 0
-        return branch
+        return _fork(self, InferenceSession, strategy)
 
     def checkpoint(self) -> SessionCheckpoint:
         """Open a nested reversible scope over the complete session state.

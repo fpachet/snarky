@@ -7,14 +7,21 @@ from dataclasses import dataclass
 from typing import TYPE_CHECKING
 
 from ..facts import Fact
+from ..instantiation import InstantiationStrategy
 from ..rules import RuleGroup
 from ..stores.naive import FactStoreCheckpoint
 from .agenda import ActivationKey, _AgendaMemory
 from .conflict import (
     AgendaMetrics,
+    AgendaSelection,
     ConflictResolutionStrategy,
 )
-from .provenance import ProvenanceCheckpoint
+from .events import InferenceEvent
+from .provenance import (
+    Derivation,
+    Provenance,
+    ProvenanceCheckpoint,
+)
 
 if TYPE_CHECKING:
     from .forward import InferenceSession
@@ -60,6 +67,79 @@ class SessionCheckpoint:
     next_time_tag: int
     reserved_atom_names: frozenset[str]
     conflict_strategy: ConflictResolutionStrategy | None
+
+
+@dataclass(frozen=True, slots=True)
+class RunResult:
+    facts: tuple[Fact, ...]
+    derived_facts: tuple[Fact, ...]
+    derivations: tuple[Derivation, ...]
+    cycles: int
+    fired_activation_count: int
+    provenance: Provenance
+    events: tuple[InferenceEvent, ...] = ()
+    agenda_selections: tuple[AgendaSelection, ...] = ()
+
+
+def _snapshot(session: InferenceSession) -> RunResult:
+    facts = session._store.facts
+    return RunResult(
+        facts=facts,
+        derived_facts=tuple(
+            fact for fact in facts if fact not in session._initial_facts
+        ),
+        derivations=tuple(session._derivations),
+        cycles=session._cycles,
+        fired_activation_count=session._fired_activation_total,
+        provenance=session._provenance,
+        events=tuple(session._events),
+        agenda_selections=tuple(session._agenda_selections),
+    )
+
+
+def _fork(
+    session: InferenceSession,
+    session_type: type[InferenceSession],
+    strategy: InstantiationStrategy | None,
+) -> InferenceSession:
+    branch = object.__new__(session_type)
+    branch.strategy = (
+        strategy if strategy is not None else deepcopy(session.strategy)
+    )
+    branch.limits = session.limits
+    branch.conflict_strategy = (
+        deepcopy(session.conflict_strategy)
+        if session.conflict_strategy is not None
+        else None
+    )
+    branch.truth_maintenance = session.truth_maintenance
+    branch._store = session._store.clone()
+    branch._provenance = session._provenance.clone()
+    branch._initial_facts = session._initial_facts
+    branch._assumed_facts = session._assumed_facts.copy()
+    branch._fired = session._fired.copy()
+    branch._fired_supports = session._fired_supports.copy()
+    branch._fired_activation_total = session._fired_activation_total
+    branch._derivations = session._derivations.copy()
+    branch._events = session._events.copy()
+    branch._agenda_selections = session._agenda_selections.copy()
+    branch.agenda_metrics = deepcopy(session.agenda_metrics)
+    branch._agenda_memories = session._agenda_memories.copy()
+    branch._previous_event_counts = session._previous_event_counts.copy()
+    branch._force_full_evaluation = session._force_full_evaluation.copy()
+    branch._groups = session._groups.copy()
+    branch._negative_refraction_plans = (
+        session._negative_refraction_plans.copy()
+    )
+    branch._cycles = session._cycles
+    branch._fresh_counters = session._fresh_counters.copy()
+    branch._fact_time_tags = session._fact_time_tags.copy()
+    branch._next_time_tag = session._next_time_tag
+    branch._reserved_atom_names = session._reserved_atom_names.copy()
+    branch._time_tag_trail = []
+    branch._checkpoint_tokens = []
+    branch._next_checkpoint_token = 0
+    return branch
 
 
 def _checkpoint(session: InferenceSession) -> SessionCheckpoint:

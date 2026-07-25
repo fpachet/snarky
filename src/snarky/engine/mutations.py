@@ -35,6 +35,64 @@ class _ActivationOutcome:
         return len(self.added_facts) + len(self.removed_facts)
 
 
+def _assume(
+    session: InferenceSession,
+    facts: tuple[Fact, ...],
+    label: str,
+) -> tuple[Fact, ...]:
+    added: list[Fact] = []
+    for fact in facts:
+        session._provenance.assume(fact)
+        session._assumed_facts.add(fact)
+        if not session._store.add(fact):
+            continue
+        session._reserve_fact_atoms(fact)
+        session._next_time_tag += 1
+        session._set_fact_time_tag(fact, session._next_time_tag)
+        added.append(fact)
+        session._events.append(
+            InferenceEvent(
+                sequence=len(session._events) + 1,
+                kind=FactMutationKind.ADD,
+                fact=fact,
+                rule_name=f"<{label}>",
+                rule_group="<assumptions>",
+                substitution=EMPTY_SUBSTITUTION,
+                premises=(),
+                cycle=session._cycles,
+            )
+        )
+    if len(session._store) > session.limits.max_facts:
+        raise InferenceLimitError(
+            f"maximum fact count ({session.limits.max_facts}) exceeded"
+        )
+    if added and session._negative_refraction_plans:
+        session._reconcile_negative_refraction(tuple(added))
+    return tuple(added)
+
+
+def _retract(
+    session: InferenceSession,
+    facts: tuple[Fact, ...],
+    label: str,
+) -> tuple[Fact, ...]:
+    removed: list[Fact] = []
+    for fact in facts:
+        session._assumed_facts.discard(fact)
+        if not session._store.remove(fact):
+            continue
+        session._set_fact_time_tag(fact, None)
+        removed.append(fact)
+        session._record_external_removal(fact, label)
+    if session.truth_maintenance and removed:
+        removed.extend(session._cascade_unsupported())
+    absent = frozenset(removed)
+    if absent:
+        session.strategy.invalidate(absent)
+        session._expire_removed_supports(absent)
+    return tuple(removed)
+
+
 def _fire_activation(
     session: InferenceSession,
     group: RuleGroup,
