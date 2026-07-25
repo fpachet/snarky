@@ -136,6 +136,7 @@ from .premises import (
     nvalue,
     unique,
 )
+from .programs import RuleProgram
 from .propagation import (
     DomainCheckpoint,
     DomainReduction,
@@ -268,6 +269,7 @@ __all__ = [
     "Proposition",
     "Rule",
     "RuleGroup",
+    "RuleProgram",
     "RuleGroupTemplate",
     "SearchNode",
     "SearchStatus",

@@ -147,6 +147,38 @@ baseline à optimiser lors de l'ajout des règles `ROY_1998`.
 Les résultats bruts sont conservés dans
 [`results/csp_harmonizer_next_2026-07-25.json`](results/csp_harmonizer_next_2026-07-25.json).
 
+## Frontière MuSES de l'harmoniseur
+
+Ce benchmark isole le coût applicatif du trajet objet complet par rapport à
+l'entrée symbolique directe :
+
+```sh
+PYTHONPATH=.:src python -m benchmarks.muses_harmonizer --repeat 7
+```
+
+Mesure du 25 juillet 2026 sur macOS ARM64 avec Python 3.13.11 :
+
+| Chemin, 2 positions, 1 solution | Médiane | Décisions |
+|---|---:|---:|
+| tuple de hauteurs → harmoniseur | 66,09 ms | 4 |
+| `TemporalCollection` → faits → règles → `Piece` | 69,81 ms | 4 |
+
+Le codec, l'import par règle et la reconstruction des quatre collections
+ajoutent 3,72 ms, soit `+5,6 %`. Le nombre de décisions et la solution ne
+changent pas : le coût reste dominé par la génération, la propagation et la
+recherche du modèle musical.
+
+L'orchestration explicite retire en outre le groupe de contraintes binaires
+qui ne rencontrait aucun fait dans ce modèle. Par rapport aux mesures
+précédentes, cela réduit le chemin symbolique de `11,0 %` et le pipeline MuSES
+de `12,3 %`, sans changer les résultats ni les décisions.
+
+Le script emploie des classes structurellement compatibles afin de rester
+reproductible sans dépendance optionnelle. Les tests d'intégration exécutent
+le même chemin avec les vraies classes MuSES lorsqu'elles sont disponibles.
+Les données brutes sont dans
+[`results/muses_harmonizer_2026-07-25.json`](results/muses_harmonizer_2026-07-25.json).
+
 ## Filtrage des domaines avant instanciation
 
 `constraint_instantiation` propose quatre scénarios : triangle favorable,

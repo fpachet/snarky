@@ -73,6 +73,27 @@ class FiniteCSP:
 BinaryCSP = FiniteCSP
 
 
+@dataclass(frozen=True, slots=True)
+class FiniteCSPRuleLibrary:
+    """Named reusable groups of the finite-CSP protocol."""
+
+    choices: RuleGroup
+    binary_constraints: RuleGroup
+    domains: RuleGroup
+    problems: RuleGroup
+
+    @property
+    def groups(self) -> tuple[RuleGroup, ...]:
+        """All CSP groups in the legacy default order."""
+
+        return (
+            self.choices,
+            self.binary_constraints,
+            self.domains,
+            self.problems,
+        )
+
+
 def binary_constraint_facts(
     constraint: Atom,
     relation: Atom,
@@ -110,6 +131,7 @@ def solve_binary_csp(
     seed: int = 0,
     reversible_depth_first: bool = True,
     lazy_frontier: bool = True,
+    rule_groups: Sequence[RuleGroup] | None = None,
 ) -> ChoiceSearchResult:
     """Compatibility wrapper for :func:`solve_finite_csp`."""
 
@@ -122,6 +144,7 @@ def solve_binary_csp(
         seed=seed,
         reversible_depth_first=reversible_depth_first,
         lazy_frontier=lazy_frontier,
+        rule_groups=rule_groups,
     )
 
 
@@ -135,10 +158,19 @@ def solve_finite_csp(
     seed: int = 0,
     reversible_depth_first: bool = True,
     lazy_frontier: bool = True,
+    rule_groups: Sequence[RuleGroup] | None = None,
 ) -> ChoiceSearchResult:
-    """Propagate and search a fact-encoded finite CSP using Snarky."""
+    """Propagate and search a fact-encoded finite CSP using Snarky.
 
-    provider = RuleChoiceProvider((*_csp_groups(), *model.groups))
+    ``rule_groups`` makes orchestration explicit when supplied.  The default
+    remains the complete CSP library followed by the model groups for
+    compatibility.
+    """
+
+    selected_groups = (
+        (*_csp_groups(), *model.groups) if rule_groups is None else tuple(rule_groups)
+    )
+    provider = RuleChoiceProvider(selected_groups)
     existing_weights = _existing_choice_weights(model.facts)
     weighted_facts = tuple(
         Fact(
@@ -164,16 +196,11 @@ def solve_finite_csp(
         for fact in model.facts
         if isinstance(fact.entity, Triple)
         and fact.entity.relation == CANDIDATE
-        and (fact.entity.subject, fact.entity.object)
-        not in existing_weights
+        and (fact.entity.subject, fact.entity.object) not in existing_weights
     )
-    session = ForwardEngine(()).create_session(
-        (*model.facts, *weighted_facts)
-    )
+    session = ForwardEngine(()).create_session((*model.facts, *weighted_facts))
     solved_fact = Fact(Triple(model.problem, STATE, SOLVED))
-    contradiction_fact = Fact(
-        Triple(model.problem, STATE, CONTRADICTION)
-    )
+    contradiction_fact = Fact(Triple(model.problem, STATE, CONTRADICTION))
     invalid_choice_fact = Fact(Triple(SEARCH, STATE, CONTRADICTION))
 
     search = SessionChoiceSearch(
@@ -181,8 +208,7 @@ def solve_finite_csp(
         provider,
         lambda current: solved_fact in current.facts,
         lambda current: (
-            contradiction_fact in current.facts
-            or invalid_choice_fact in current.facts
+            contradiction_fact in current.facts or invalid_choice_fact in current.facts
         ),
         policy=policy or MRVChoicePolicy(),
         traversal=traversal,
@@ -233,10 +259,23 @@ def assignment_from_solution(
 
 
 @cache
-def _csp_groups() -> tuple[RuleGroup, ...]:
+def finite_csp_rule_library() -> FiniteCSPRuleLibrary:
+    """Load individually selectable groups implementing the CSP protocol."""
+
     root = Path(__file__).resolve().parents[1]
     decision_text = (root / "csp_solver" / "rules.rules").read_text()
     binary_text = (
         root / "rulebases" / "constraints" / "binary" / "rules.rules"
     ).read_text()
-    return (*parse_rule_groups(decision_text), *parse_rule_groups(binary_text))
+    (choices,) = parse_rule_groups(decision_text)
+    binary_constraints, domains, problems = parse_rule_groups(binary_text)
+    return FiniteCSPRuleLibrary(
+        choices,
+        binary_constraints,
+        domains,
+        problems,
+    )
+
+
+def _csp_groups() -> tuple[RuleGroup, ...]:
+    return finite_csp_rule_library().groups

@@ -8,6 +8,7 @@ from snarky import (
     InferenceSession,
     Number,
     RuleChoiceProvider,
+    RuleProgram,
     SessionChoiceSearch,
     Triple,
     parse_rule_groups,
@@ -92,6 +93,57 @@ def test_rule_choice_provider_selects_one_fact_instantiation() -> None:
     )
 
 
+def test_choice_program_does_not_require_the_csp_protocol() -> None:
+    (choice_group,) = parse_rule_groups(
+        """
+        GROUP choose_color
+            RULE choose_one_color
+            WHEN
+                (painting state open)
+            THEN
+                CHOICE (painting color $color)
+                FROM
+                    (palette color $color)
+                END_CHOICE
+            END
+        END_GROUP
+        """
+    )
+    program = RuleProgram(
+        "painting_generator",
+        choice_groups=(choice_group,),
+    )
+    provider = RuleChoiceProvider(program.search_groups)
+    session = ForwardEngine(()).create_session(
+        (
+            _fact("(painting state open)"),
+            _fact("(palette color blue)"),
+            _fact("(palette color red)"),
+        )
+    )
+    result = SessionChoiceSearch(
+        provider.propagation_groups,
+        provider,
+        lambda current: any(
+            fact.entity
+            in (
+                parse_term("(painting color blue)"),
+                parse_term("(painting color red)"),
+            )
+            for fact in current.facts
+        ),
+        max_solutions=1,
+    ).solve(session)
+
+    assert result.status is ChoiceSearchStatus.SOLVED
+    assert program.manifest() == (
+        ("preparation", ()),
+        ("choice", ("choose_color",)),
+        ("propagation", ()),
+        ("interpretation", ()),
+    )
+
+
 def test_multiple_choices_in_one_rule_are_sequential() -> None:
     (group,) = parse_rule_groups(
         """
@@ -169,6 +221,4 @@ def test_multiple_choices_in_one_rule_are_sequential() -> None:
 
     assert pairs == {(1, 2), (1, 3), (2, 1), (2, 3)}
     assert all(len(solution.decisions) == 2 for solution in result.solutions)
-    assert sum(
-        event.kind is ChoiceEventKind.CHOICE for event in result.events
-    ) >= 3
+    assert sum(event.kind is ChoiceEventKind.CHOICE for event in result.events) >= 3

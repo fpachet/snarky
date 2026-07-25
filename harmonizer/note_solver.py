@@ -6,6 +6,7 @@ import math
 from dataclasses import dataclass
 from functools import cache
 from pathlib import Path
+from typing import Literal
 
 from csp_solver.solver import (
     CANDIDATE,
@@ -16,6 +17,7 @@ from csp_solver.solver import (
     VARIABLE,
     FiniteCSP,
     assignment_from_solution,
+    finite_csp_rule_library,
     solve_finite_csp,
 )
 from snarky import (
@@ -34,6 +36,7 @@ from snarky import (
     PriorityMRVChoicePolicy,
     PriorityWeightedRandomChoicePolicy,
     RuleGroup,
+    RuleProgram,
     SemiNaiveInstantiationStrategy,
     Term,
     Triple,
@@ -57,6 +60,7 @@ VOICE = Atom("voice")
 PREDECESSOR = Atom("predecessor")
 CONDITIONAL_WEIGHT = Atom("conditional_weight")
 SUCCESSOR = Atom("successor")
+SOURCE_VARIABLE = Atom("harmonizer_variable")
 
 VOICE_NAMES = (
     Atom("soprano"),
@@ -67,6 +71,7 @@ VOICE_NAMES = (
 VOICE_VARIABLE_RELATIONS = tuple(
     Atom(f"{voice.name}_variable") for voice in VOICE_NAMES
 )
+type SATBVoice = Literal["soprano", "alto", "tenor", "bass"]
 
 
 @dataclass(frozen=True, slots=True)
@@ -74,9 +79,12 @@ class NoteHarmonizerModel:
     """The two-phase note/voicing model and its stable variable layout."""
 
     csp: FiniteCSP
+    program: RuleProgram
     positions: tuple[Atom, ...]
     variables: tuple[tuple[Atom, Atom, Atom, Atom], ...]
     generated_voicings: tuple[int, ...]
+    given_voice: SATBVoice
+    preparation_events: tuple[InferenceEvent, ...]
 
 
 @dataclass(frozen=True, slots=True)
@@ -92,17 +100,29 @@ class NoteHarmonization:
 
 def build_note_harmonizer_model(
     melody: tuple[int, ...] = (67, 72),
+    *,
+    given_voice: SATBVoice = "soprano",
+    source_facts: tuple[Fact, ...] = (),
+    source_notes: tuple[Atom, ...] = (),
 ) -> NoteHarmonizerModel:
     """Build note domains, then let Snarky generate legal vertical tuples."""
 
     if len(melody) < 2:
         raise ValueError("the note harmonizer needs at least two positions")
-    if any(pitch not in VOICE_POOLS[0] for pitch in melody):
-        raise ValueError("the melody contains a pitch outside the soprano pool")
+    given_voice_index = _voice_index(given_voice)
+    if any(pitch not in VOICE_POOLS[given_voice_index] for pitch in melody):
+        raise ValueError(
+            f"the given line contains a pitch outside the {given_voice} pool"
+        )
+    if source_notes and not source_facts:
+        raise ValueError("source note identities require their encoded facts")
+    if source_notes and len(source_notes) != len(melody):
+        raise ValueError("source notes must match the given line length")
+    if len(set(source_notes)) != len(source_notes):
+        raise ValueError("source note identities must be unique")
+    imported_line = bool(source_notes)
 
-    positions = tuple(
-        Atom(f"note_position_{index}") for index in range(len(melody))
-    )
+    positions = tuple(Atom(f"note_position_{index}") for index in range(len(melody)))
     variables = tuple(
         (
             Atom(f"note_{index}_soprano"),
@@ -112,7 +132,10 @@ def build_note_harmonizer_model(
         )
         for index in range(len(melody))
     )
-    facts: list[Fact] = [Fact(Triple(PROBLEM, KIND, CSP_PROBLEM))]
+    facts: list[Fact] = [
+        Fact(Triple(PROBLEM, KIND, CSP_PROBLEM)),
+        *source_facts,
+    ]
     weights: dict[tuple[Term, Term], float] = {}
 
     for index, (position, position_variables) in enumerate(
@@ -129,7 +152,7 @@ def build_note_harmonizer_model(
         ):
             candidates = (
                 (melody[index],)
-                if voice_index == 0
+                if voice_index == given_voice_index
                 else VOICE_POOLS[voice_index]
             )
             facts.extend(
@@ -150,28 +173,36 @@ def build_note_harmonizer_model(
             for pitch in candidates:
                 pitch_term = Number(pitch)
                 weight = static_weights[pitch]
-                facts.extend(
-                    (
-                        Fact(Triple(variable, CANDIDATE, pitch_term)),
-                        Fact(
-                            Triple(
-                                variable,
-                                CHOICE_WEIGHT,
-                                FiniteSequence(
-                                    (pitch_term, Number(weight))
-                                ),
-                            )
-                        ),
+                if not (imported_line and voice_index == given_voice_index):
+                    facts.append(Fact(Triple(variable, CANDIDATE, pitch_term)))
+                facts.append(
+                    Fact(
+                        Triple(
+                            variable,
+                            CHOICE_WEIGHT,
+                            FiniteSequence((pitch_term, Number(weight))),
+                        )
                     )
                 )
                 weights[(variable, pitch_term)] = weight
+
+            if imported_line and voice_index == given_voice_index:
+                facts.append(
+                    Fact(
+                        Triple(
+                            source_notes[index],
+                            SOURCE_VARIABLE,
+                            variable,
+                        )
+                    )
+                )
 
             if index == 0:
                 continue
             previous = variables[index - 1][voice_index]
             previous_candidates = (
                 (melody[index - 1],)
-                if voice_index == 0
+                if voice_index == given_voice_index
                 else VOICE_POOLS[voice_index]
             )
             facts.append(Fact(Triple(variable, PREDECESSOR, previous)))
@@ -206,7 +237,11 @@ def build_note_harmonizer_model(
         )
     )
 
-    generated_facts = _generate_voicings(tuple(facts))
+    program = _note_harmonizer_program(import_muses=imported_line)
+    generated_facts, preparation_events = _prepare_model_facts(
+        tuple(facts),
+        program,
+    )
     generated_counts = tuple(
         sum(
             1
@@ -217,6 +252,12 @@ def build_note_harmonizer_model(
         )
         for position in positions
     )
+    if 0 in generated_counts:
+        position = generated_counts.index(0)
+        raise ValueError(
+            f"no legal C-major SATB voicing at position {position} "
+            f"for {given_voice} pitch {melody[position]}"
+        )
     return NoteHarmonizerModel(
         FiniteCSP(
             PROBLEM,
@@ -224,21 +265,28 @@ def build_note_harmonizer_model(
             weights,
             _note_harmonizer_groups(),
         ),
+        program,
         positions,
         variables,
         generated_counts,
+        given_voice,
+        preparation_events,
     )
 
 
 def harmonize_notes(
     melody: tuple[int, ...] = (67, 72),
     *,
+    given_voice: SATBVoice = "soprano",
     max_solutions: int = 3,
     seed: int = 0,
 ) -> tuple[NoteHarmonization, ...]:
     """Return best-first harmonizations chosen one note variable at a time."""
 
-    model = build_note_harmonizer_model(melody)
+    model = build_note_harmonizer_model(
+        melody,
+        given_voice=given_voice,
+    )
     result = solve_note_harmonizer(
         model,
         max_solutions=max_solutions,
@@ -253,11 +301,15 @@ def harmonize_notes(
 def sample_harmonization(
     melody: tuple[int, ...] = (67, 72),
     *,
+    given_voice: SATBVoice = "soprano",
     seed: int = 0,
 ) -> NoteHarmonization:
     """Sample one feasible harmonization from contextual note marginals."""
 
-    model = build_note_harmonizer_model(melody)
+    model = build_note_harmonizer_model(
+        melody,
+        given_voice=given_voice,
+    )
     result = solve_note_harmonizer(
         model,
         max_solutions=1,
@@ -296,6 +348,7 @@ def solve_note_harmonizer(
         traversal=traversal,
         policy=policy,
         seed=seed,
+        rule_groups=model.program.search_groups,
     )
 
 
@@ -308,16 +361,14 @@ def _note_harmonization(
     assignment = assignment_from_solution(solution, PROBLEM)
     voicings: list[PitchVoicing] = []
     for position_variables in model.variables:
-        pitches = tuple(
-            _integer_value(assignment[item]) for item in position_variables
-        )
+        pitches = tuple(_integer_value(assignment[item]) for item in position_variables)
         voicings.append((pitches[0], pitches[1], pitches[2], pitches[3]))
     return NoteHarmonization(
         tuple(voicings),
         solution.log_weight,
         solution.decisions,
         result.events,
-        solution.session.events,
+        (*model.preparation_events, *solution.session.events),
     )
 
 
@@ -335,13 +386,13 @@ def _static_marginal(
     if len(pitches) == 1:
         return {pitches[0]: 1.0}
     centers = (
-        0,
-        (60, 60, 64)[position % 3],
-        (55, 55, 55)[position % 3],
-        (36, 43, 48)[position % 3],
+        (67, 67, 72),
+        (60, 60, 64),
+        (55, 55, 55),
+        (36, 43, 48),
     )
     raw = {
-        pitch: math.exp(-abs(pitch - centers[voice]) / 4)
+        pitch: math.exp(-abs(pitch - centers[voice][position % 3]) / 4)
         for pitch in pitches
     }
     total = sum(raw.values())
@@ -352,22 +403,22 @@ def _conditional_marginal(
     previous_pitch: int,
     pitches: tuple[int, ...],
 ) -> dict[int, float]:
-    raw = {
-        pitch: math.exp(-abs(pitch - previous_pitch) / 3)
-        for pitch in pitches
-    }
+    raw = {pitch: math.exp(-abs(pitch - previous_pitch) / 3) for pitch in pitches}
     total = sum(raw.values())
     return {pitch: value / total for pitch, value in raw.items()}
 
 
-def _generate_voicings(facts: tuple[Fact, ...]) -> tuple[Fact, ...]:
+def _prepare_model_facts(
+    facts: tuple[Fact, ...],
+    program: RuleProgram,
+) -> tuple[tuple[Fact, ...], tuple[InferenceEvent, ...]]:
     session = InferenceSession(
         facts,
         strategy=SemiNaiveInstantiationStrategy(),
     )
-    for group in _note_generation_groups():
+    for group in program.preparation_groups:
         session.run_group(group)
-    return session.facts
+    return session.facts, session.events
 
 
 def _complete_c_major_triad(arguments: tuple[Term, ...]) -> bool:
@@ -406,6 +457,13 @@ def _global_motion_predicate(arguments: tuple[Term, ...]) -> bool:
     return _voicing_predicate(_global_motion, arguments)
 
 
+def _voice_index(voice: SATBVoice) -> int:
+    try:
+        return tuple(item.name for item in VOICE_NAMES).index(voice)
+    except ValueError as error:
+        raise ValueError("given_voice must be soprano, alto, tenor, or bass") from error
+
+
 @cache
 def _note_generation_groups() -> tuple[RuleGroup, ...]:
     registry = PredicateRegistry(
@@ -418,6 +476,36 @@ def _note_generation_groups() -> tuple[RuleGroup, ...]:
     )
     path = Path(__file__).with_name("note_generation.rules")
     return parse_rule_groups(path.read_text(), predicates=registry)
+
+
+@cache
+def _muses_input_groups() -> tuple[RuleGroup, ...]:
+    path = Path(__file__).with_name("muses_input.rules")
+    return parse_rule_groups(path.read_text())
+
+
+@cache
+def _note_harmonizer_program(*, import_muses: bool) -> RuleProgram:
+    csp = finite_csp_rule_library()
+    musical = {group.name: group for group in _note_harmonizer_groups()}
+    preparation = (
+        (*_muses_input_groups(), *_note_generation_groups())
+        if import_muses
+        else _note_generation_groups()
+    )
+    return RuleProgram(
+        name="muses_note_harmonizer" if import_muses else "note_harmonizer",
+        preparation_groups=preparation,
+        choice_groups=(csp.choices,),
+        propagation_groups=(
+            csp.domains,
+            musical["maintain_note_voicing_channel"],
+            musical["update_contextual_note_weights"],
+            musical["propagate_note_harmonic_transitions"],
+            csp.problems,
+        ),
+        interpretation_groups=(musical["interpret_note_harmonization"],),
+    )
 
 
 @cache

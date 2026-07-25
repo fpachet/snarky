@@ -146,16 +146,41 @@ bibliothèque Python et empêche les effets de bord d'une branche abandonnée.
 - la reconstruction ne signifie pas que tous les faits d'une solution ont
   une provenance musicale minimale.
 
+## Harmoniseur MuSES livré
+
+Le cas applicatif est maintenant disponible dans
+`harmonizer.muses_harmonizer` :
+
+```python
+from harmonizer import harmonize_temporal_collection
+
+solutions = harmonize_temporal_collection(
+    given_collection,
+    given_voice="bass",
+    max_solutions=3,
+)
+piece = solutions[0].piece
+```
+
+Le pipeline encode la collection, importe ses hauteurs par une règle Snarky,
+exécute la génération et la recherche, puis encode et reconstruit quatre
+collections distinctes avant de créer une `Piece`. Les faits source, les
+faits de chaque voix et la trace symbolique sont conservés dans le résultat.
+
+Cette validation montre que les atomes stables et les snapshots suffisent au
+premier harmoniseur : aucun `ObjectRef` natif ni mutation d'objet sur le trail
+n'a été nécessaire.
+
 ## Suite proposée
 
-Le prochain palier devra être motivé par l'harmoniseur :
+Les extensions restantes seront ajoutées seulement à partir d'usages
+concrets :
 
-1. encoder les entrées mélodiques de l'harmoniseur depuis
-   `TemporalCollection` ;
-2. reconstruire ses quatre voix sous forme de collections MuSES distinctes ;
-3. ajouter un petit `ObjectSession` calculant les deltas d'un remplacement
+1. ajouter un petit `ObjectSession` calculant les deltas d'un remplacement
    d'objet ;
-4. introduire `ObjectRef` comme terme natif seulement si l'usage d'atomes
+2. introduire `ObjectRef` comme terme natif seulement si l'usage d'atomes
    stables devient réellement limitant ;
-5. envisager un DSL Python déclaratif séparément, sans rendre les fonctions
+3. étendre le codec aux silences ou autres objets temporels lorsqu'une règle
+   musicale les consommera ;
+4. envisager un DSL Python déclaratif séparément, sans rendre les fonctions
    arbitraires opaques au matcher.

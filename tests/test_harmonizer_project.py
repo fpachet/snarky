@@ -65,16 +65,8 @@ def test_intensional_transitions_match_extensional_oracle() -> None:
     )
 
     assert intensional == extensional
-    assert len(
-        build_harmonizer_model(
-            intensional_transitions=False
-        ).csp.facts
-    ) == 401
-    assert len(
-        build_harmonizer_model(
-            intensional_transitions=True
-        ).csp.facts
-    ) == 32
+    assert len(build_harmonizer_model(intensional_transitions=False).csp.facts) == 401
+    assert len(build_harmonizer_model(intensional_transitions=True).csp.facts) == 32
 
 
 def test_note_harmonizer_generates_and_chooses_individual_notes() -> None:
@@ -82,6 +74,24 @@ def test_note_harmonizer_generates_and_chooses_individual_notes() -> None:
     solutions = harmonize_notes(max_solutions=3)
 
     assert model.generated_voicings == (15, 9)
+    assert model.program.manifest() == (
+        ("preparation", ("generate_candidate_voicings",)),
+        ("choice", ("apply_csp_choices",)),
+        (
+            "propagation",
+            (
+                "classify_csp_domains",
+                "maintain_note_voicing_channel",
+                "update_contextual_note_weights",
+                "propagate_note_harmonic_transitions",
+                "classify_csp_problems",
+            ),
+        ),
+        ("interpretation", ("interpret_note_harmonization",)),
+    )
+    assert "propagate_binary_constraints" not in tuple(
+        group.name for group in model.program.all_groups
+    )
     assert len(solutions) == 3
     assert all(
         tuple(voicing[0] for voicing in solution.voicings) == (67, 72)

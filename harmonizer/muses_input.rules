@@ -1,0 +1,14 @@
+# Le codec MuSES fournit les objets, leur ordre et leurs hauteurs. Ce groupe
+# relie chaque note source à la variable SATB correspondante. Les candidats de
+# la voix imposée proviennent donc des faits du codec, pas d'une table Python.
+
+GROUP import_muses_given_voice
+    RULE import_muses_pitch_as_candidate
+    WHEN
+        ($note muses_type muses_temporal_note)
+        ($note muses_pitch $pitch)
+        ($note harmonizer_variable $variable)
+    THEN
+        ADD ($variable candidate $pitch)
+    END
+END_GROUP

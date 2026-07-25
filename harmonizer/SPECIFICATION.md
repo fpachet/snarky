@@ -25,7 +25,7 @@ Le second incrément suit maintenant la section 5 de la spécification :
 | Élément normatif | Implémentation |
 |---|---|
 | variables `note[v,t]` | un objet `csp_variable` par voix et position |
-| ligne donnée | domaine singleton du soprano |
+| ligne donnée | domaine singleton de la voix SATB choisie |
 | `R-ORDER-001` | comparaisons de `note_generation.rules` |
 | `R-SPACING-001..003` | contraintes arithmétiques de génération |
 | construction différée | groupe `generate_candidate_voicings` |
@@ -41,3 +41,26 @@ Les degrés, renversements, cadences, sensible et règles détaillées de doublu
 restent le prochain jalon `ROY_1998`. Les prédicats calculés ne contiennent
 aucune recherche : ils évaluent une opération musicale élémentaire sur des
 termes ground fournis par une règle.
+
+## Frontière MuSES
+
+La ligne donnée peut être une `TemporalCollection` MuSES désignée comme
+soprano, alto, ténor ou basse. Chaque note reçoit une identité factuelle stable
+et expose hauteur, rang, début, durée, vélocité et canal. La collection expose
+son ordre et ses métadonnées.
+
+Le groupe `import_muses_given_voice` est la frontière déclarative minimale :
+pour chaque note source associée à une variable Snarky, il transforme
+`muses_pitch` en `candidate`. La hauteur donnée n'est donc pas injectée dans le
+domaine par une boucle Python cachée. Le reste de la base ne dépend pas de
+MuSES et conserve son modèle factuel.
+
+Après résolution, chaque tuple SATB fournit une hauteur à chacune des quatre
+voix. Les attributs temporels positionnels de la ligne source sont recopiés,
+les collections sont encodées puis décodées par le même codec et assemblées
+dans une `Piece`. Cette reconstruction est un snapshot de solution, pas une
+mutation de la collection d'entrée.
+
+Ce premier contrat considère que les quatre voix partagent le même rythme.
+Il refuse une ligne polyphonique ou une durée non positive et limite le
+raisonnement au vocabulaire C majeur du noyau courant.

@@ -95,7 +95,7 @@ Sur la dernière séquence seule, les tentatives de matching passent de 69 793
 La baisse supplémentaire vaut 33 à 50 %, pour un gain temporel de ×1,62 à
 ×2,29. Depuis la baseline initiale, le gain total vaut ×7,18 à ×8,74. À cette
 étape de mesure, la suite comptait 285 tests. La dernière exécution standard
-fait passer 403 tests et en ignore un, conditionné par MuSES, en 13,04 s après
+fait passer 413 tests et en ignore deux, conditionnés par MuSES, en 12,46 s après
 l'ajout des nouvelles capacités et bases ; ce temps élargi ne remplace pas la
 mesure contrôlée du tableau. Le protocole exécutable est
 `python -m benchmarks.sudoku_rules`.

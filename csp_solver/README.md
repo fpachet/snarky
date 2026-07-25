@@ -47,6 +47,17 @@ checkpoint, affirme le fait cible, sature les groupes puis restaure le
 checkpoint en cas de contradiction ou avant le choix frère. La session de
 l'appelant reste isolée par un unique fork racine.
 
+`CHOICE` n'appartient pas au CSP : c'est une primitive générale de Snarky. Ce
+projet apporte seulement un vocabulaire et des règles prêts à l'emploi pour
+les variables à domaines finis. `finite_csp_rule_library()` expose séparément
+les groupes `choices`, `binary_constraints`, `domains` et `problems`.
+`solve_finite_csp(..., rule_groups=...)` accepte une composition explicite ;
+sans ce paramètre, le comportement historique charge la bibliothèque complète
+puis les groupes métier.
+
+Voir [`docs/rule_programs.md`](../docs/rule_programs.md) pour le manifeste
+`RuleProgram` général et le programme précis de l'harmoniseur.
+
 Le constructeur accepte maintenant une taille `n`; l'oracle principal reste
 le problème des quatre reines, qui possède exactement deux solutions :
 

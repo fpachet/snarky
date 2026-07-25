@@ -42,13 +42,14 @@ et les extensions modernes.
 | [Spinoza](spinoza/README.md) | corpus de l’Éthique III, règles d’ordre supérieur, provenance et explications |
 | [Sudoku](sudoku/README.md) | techniques humaines p1–p7, éliminations rejouables, puis `CHOICE` et backtracking |
 | [CSP fini](csp_solver/README.md) | N-reines extensionnel et intensionnel, propagation métier et recherche générique |
-| [Harmonisation SATB](harmonizer/README.md) | variables de notes, voicings engendrés par règles, contraintes musicales et probabilités contextuelles |
+| [Harmonisation SATB](harmonizer/README.md) | ligne MuSES donnée, variables de notes, règles, recherche pondérée et `Piece` à quatre voix |
 | [Bases NéOpus](rulebases/README.md) | Fibonacci, Hanoï, singe et bananes, MuSES et autres reformulations historiques |
 
 Le cœur reste léger : Python 3.12+, PyYAML, aucun solveur externe obligatoire.
-La suite standard fait passer 403 tests, avec des oracles naïfs, différentiels
-et applicatifs. Un 404e test valide les vraies classes MuSES lorsque cette
-dépendance optionnelle est disponible.
+La suite standard fait passer 413 tests, avec des oracles naïfs, différentiels
+et applicatifs. Deux tests supplémentaires valident le codec et le pipeline
+d'harmonisation avec les vraies classes MuSES lorsque cette dépendance
+optionnelle est disponible.
 
 ## Contraintes et filtrage du matching
 
@@ -195,11 +196,18 @@ passer au `CHOICE` générique. Sur p2 avec les seuls Naked Singles, il retrouve
 l'oracle après 11 nœuds, quatre contradictions et trois décisions.
 
 L'harmoniseur possède aussi un second modèle où chaque note SATB est une
-variable. Les règles engendrent les voicings après création des domaines,
+variable. Une voix donnée, choisie parmi soprano, alto, ténor et basse, devient
+singleton. Les règles engendrent les voicings après création des domaines,
 maintiennent le canal notes–voicings et recherchent les supports entre
 positions. Les poids peuvent devenir conditionnels à la note précédente dans
 la branche. Best-first retourne les meilleures solutions ; un échantillonnage
 pondéré avec graine est reproductible.
+
+Ce modèle est relié de bout en bout à MuSES : une `TemporalCollection` donnée
+est encodée en faits, ses hauteurs entrent dans les domaines par règle, puis
+chaque solution est reconstruite comme une vraie `Piece` contenant quatre
+`TemporalCollection` SATB. Le rythme et les métadonnées sont préservés, sans
+mutation de l'objet source.
 
 Voir
 [`docs/csp_harmonizer_next.md`](docs/csp_harmonizer_next.md),
@@ -218,6 +226,11 @@ Le premier adaptateur optionnel couvre les `TemporalNote` et les
 [MuSES](https://github.com/fpachet/muses). Il conserve hauteurs, temps,
 durées, vélocités, canaux, ordre et métadonnées de collection, sans ajouter
 MuSES aux dépendances obligatoires du cœur.
+
+L'harmoniseur utilise concrètement cet adaptateur via
+`harmonize_temporal_collection(...)` et reconstruit les quatre voix dans une
+`Piece`. Le codec est donc désormais une frontière applicative validée, pas
+seulement un exemple isolé.
 
 Voir
 [`docs/python_object_integration.md`](docs/python_object_integration.md) et
@@ -402,6 +415,8 @@ Le contenu actuel comprend :
   `EXISTS`/`NOT EXISTS` ;
 - [`docs/rulebase_feature_roadmap.md`](docs/rulebase_feature_roadmap.md), la
   feuille de route des extensions motivées par les bases concrètes ;
+- [`docs/rule_programs.md`](docs/rule_programs.md), la composition explicite
+  des groupes de préparation, choix, propagation et interprétation ;
 - [`sudoku`](sudoku/README.md), le sous-projet autonome qui organise la base
   de règles, les fixtures natives, le solveur orchestré et le plan incrémental
   pour résoudre et expliquer les niveaux essentiels de l’exemple Sudoku
@@ -418,8 +433,9 @@ reçoit qu’un fait racine : les sommes et les rangs des fils ne sont plus
 préchargés sous forme de tables.
 
 Le choix MRV, le backtracking sur trail réversible, le CSP fini, le Sudoku
-hybride et l'harmoniseur note par note sont livrés. La priorité fonctionnelle
-est maintenant d'enrichir les connaissances musicales vers le profil
+hybride, l'harmoniseur note par note et sa frontière MuSES vers `Piece` sont
+livrés. La priorité fonctionnelle est maintenant d'enrichir les connaissances
+musicales vers le profil
 `ROY_1998` : degrés, renversements, doublures, sensible et cadences. Les
 nogoods, le backjumping et la recherche parallèle restent différés jusqu'à ce
 qu'un profil établisse leur utilité. Les modifications partielles de faits et
@@ -551,8 +567,8 @@ ne recalcule qu'une règle et en réutilise 199. La médiane passe de 2,206 ms
 pour une construction froide à 0,572 ms pour la mise à jour incrémentale,
 soit ×3,86.
 
-La dernière exécution standard fait passer 403 tests et en ignore un,
-conditionné par l'installation de MuSES, en 13,04 s. Les anciennes références
+La dernière exécution standard fait passer 413 tests et en ignore deux,
+conditionnés par l'installation de MuSES, en 12,46 s. Les anciennes références
 étaient de 26,05 s avant la mise en cache du catalogue de provenance Spinoza
 et de 76,50 s avant les optimisations.
 
@@ -681,7 +697,10 @@ chemin solution.
     isolées, backtracking, traces et trail réversible ; valider ce langage sur
     `FiniteCSP`, N-reines, le Sudoku hybride et un harmoniseur SATB note par
     note.~~
-20. Étendre progressivement l'harmoniseur vers le profil `ROY_1998` :
+20. ~~Relier l'harmoniseur aux objets MuSES : accepter une
+    `TemporalCollection` comme l'une des voix SATB, l'importer par règles et
+    reconstruire une `Piece` à quatre voix sans muter la source.~~
+21. Étendre progressivement l'harmoniseur vers le profil `ROY_1998` :
     degrés, renversements, doublures, sensible, cadences et préférences
     stylistiques, puis profiler avant d'envisager nogoods, backjumping ou
     recherche parallèle.

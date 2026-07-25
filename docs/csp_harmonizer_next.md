@@ -7,7 +7,9 @@ deux applications qui exercent réellement les mêmes primitives :
 
 1. un solveur CSP fini générique, validé par un Sudoku nécessitant des choix ;
 2. un harmoniseur dont les décisions portent sur les notes SATB et non plus
-   sur un voicing opaque.
+   sur un voicing opaque, avec n'importe laquelle des quatre voix donnée ;
+3. une frontière MuSES qui transforme une `TemporalCollection` en faits et
+   les solutions en `Piece` à quatre voix.
 
 Le moteur de règles ne lance toujours aucune recherche implicitement.
 `SessionChoiceSearch` orchestre les décisions, mais variables, domaines,
@@ -70,9 +72,9 @@ exposent :
 (note_0_alto position note_position_0)
 ```
 
-Le soprano donné devient un domaine singleton. Une politique générique
-`PriorityMRVChoicePolicy` impose les phases temporelles puis applique MRV
-dans la phase courante.
+La voix donnée devient un domaine singleton ; elle peut être soprano, alto,
+ténor ou basse. Une politique générique `PriorityMRVChoicePolicy` impose les
+phases temporelles puis applique MRV dans la phase courante.
 
 ### Construction différée des voicings
 
