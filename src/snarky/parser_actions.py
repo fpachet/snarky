@@ -31,6 +31,7 @@ _FOR_EACH_RE = re.compile(
     r"FOR EACH\s+(?P<variable>\$[^\s()'<>!=:+*/%-]+)"
     r"\s+IN\s+(?P<collection>.+)\Z"
 )
+_FACT_OPERATOR_RE = re.compile(r"['<>!=]")
 
 
 def _parse_action_block(
@@ -151,6 +152,8 @@ def _parse_fact_template(
     text: str,
     keyword: str,
 ) -> tuple[Term, Term]:
+    if _FACT_OPERATOR_RE.search(text) is None:
+        return parse_term(text), Status.VRAI
     tokens = _tokenize(text)
     split = _top_level_operator(tokens)
     if split is None:
