@@ -94,10 +94,11 @@ Sur la dernière séquence seule, les tentatives de matching passent de 69 793
 à 47 051 sur p1, de 217 880 à 125 298 sur p5 et de 210 908 à 106 449 sur p6.
 La baisse supplémentaire vaut 33 à 50 %, pour un gain temporel de ×1,62 à
 ×2,29. Depuis la baseline initiale, le gain total vaut ×7,18 à ×8,74. À cette
-étape de mesure, la suite comptait 285 tests. Elle en compte désormais 400 et
-s'exécute en moins de onze secondes après l'ajout des nouvelles capacités et
-bases ; ce temps élargi ne remplace pas la mesure contrôlée du tableau. Le
-protocole exécutable est `python -m benchmarks.sudoku_rules`.
+étape de mesure, la suite comptait 285 tests. La dernière exécution standard
+fait passer 403 tests et en ignore un, conditionné par MuSES, en 13,04 s après
+l'ajout des nouvelles capacités et bases ; ce temps élargi ne remplace pas la
+mesure contrôlée du tableau. Le protocole exécutable est
+`python -m benchmarks.sudoku_rules`.
 
 La passe de hachage précalculé ne change aucun compteur logique. Elle réduit
 encore les médianes Sudoku de 24 à 27 % et porte le gain total depuis la

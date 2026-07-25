@@ -1,10 +1,9 @@
 # Snarky
 
 Snarky est un moteur d’inférence symbolique en Python inspiré de SNARK, de
-Jean-Louis Laurière, et de BOOJUM, développé par Jean-Luc Dormoy. Il ne cherche
-pas à reproduire exactement BOOJUM : Snarky possède sa propre sémantique et
-combine déjà règles symboliques, propagation de contraintes, choix pondérés
-et backtracking explicite.
+Jean-Louis Laurière, et de BOOJUM, développé par Jean-Luc Dormoy. Sa propre
+sémantique combine déjà règles symboliques, propagation de contraintes, choix
+pondérés et backtracking explicite.
 
 ## Pourquoi « Snarky » ?
 
@@ -32,9 +31,9 @@ capable de manipuler :
 - plusieurs stratégies d’instanciation, d’un matcher naïf de référence à des
   stratégies centrées sur les variables et la propagation de contraintes.
 
-Le projet ne prétend pas reproduire à l’identique le logiciel historique
-BOOJUM. Chaque fonctionnalité devra être qualifiée comme `HISTORICAL`,
-`INFERRED` ou `MODERN_EXTENSION`.
+Chaque fonctionnalité est qualifiée comme `HISTORICAL`, `INFERRED` ou
+`MODERN_EXTENSION` afin de distinguer l'héritage documenté, la reconstruction
+et les extensions modernes.
 
 ## Ce que le projet démontre aujourd’hui
 
@@ -47,8 +46,9 @@ BOOJUM. Chaque fonctionnalité devra être qualifiée comme `HISTORICAL`,
 | [Bases NéOpus](rulebases/README.md) | Fibonacci, Hanoï, singe et bananes, MuSES et autres reformulations historiques |
 
 Le cœur reste léger : Python 3.12+, PyYAML, aucun solveur externe obligatoire.
-La suite actuelle comporte 400 tests, avec des oracles naïfs, différentiels et
-applicatifs.
+La suite standard fait passer 403 tests, avec des oracles naïfs, différentiels
+et applicatifs. Un 404e test valide les vraies classes MuSES lorsque cette
+dépendance optionnelle est disponible.
 
 ## Contraintes et filtrage du matching
 
@@ -205,6 +205,23 @@ Voir
 [`docs/csp_harmonizer_next.md`](docs/csp_harmonizer_next.md),
 [`csp_solver`](csp_solver/README.md) et
 [`harmonizer`](harmonizer/README.md).
+
+## Intégration avec les objets Python
+
+`FactCodec[T]` projette un objet métier dans des faits immuables, puis
+reconstruit un nouvel objet depuis les faits d'une solution. Les objets
+sources ne sont jamais modifiés pendant une branche : checkpoints et
+rollbacks restent entièrement factuels.
+
+Le premier adaptateur optionnel couvre les `TemporalNote` et les
+`TemporalCollection` de la bibliothèque sibling
+[MuSES](https://github.com/fpachet/muses). Il conserve hauteurs, temps,
+durées, vélocités, canaux, ordre et métadonnées de collection, sans ajouter
+MuSES aux dépendances obligatoires du cœur.
+
+Voir
+[`docs/python_object_integration.md`](docs/python_object_integration.md) et
+`snarky.integrations.MusesTemporalCollectionCodec`.
 
 ## État actuel
 
@@ -378,6 +395,8 @@ Le contenu actuel comprend :
 - [`docs/csp_harmonizer_next.md`](docs/csp_harmonizer_next.md), le CSP fini
   générique, le Sudoku avec recherche, l'harmoniseur note par note, ses
   marginales contextuelles et l'évaluation des mécanismes avancés ;
+- [`docs/python_object_integration.md`](docs/python_object_integration.md),
+  le protocole `FactCodec`, le codec MuSES et leur sémantique de snapshot ;
 - [`docs/mutations_and_negation.md`](docs/mutations_and_negation.md), la
   suppression de faits, le journal de mutations et les blocs corrélés
   `EXISTS`/`NOT EXISTS` ;
@@ -532,10 +551,10 @@ ne recalcule qu'une règle et en réutilise 199. La médiane passe de 2,206 ms
 pour une construction froide à 0,572 ms pour la mise à jour incrémentale,
 soit ×3,86.
 
-La suite complète compte désormais 400 tests et s’exécute en moins de onze
-secondes sur cette même machine, contre 26,05 s avant la mise en cache du
-catalogue de provenance
-Spinoza et 76,50 s avant les optimisations.
+La dernière exécution standard fait passer 403 tests et en ignore un,
+conditionné par l'installation de MuSES, en 13,04 s. Les anciennes références
+étaient de 26,05 s avant la mise en cache du catalogue de provenance Spinoza
+et de 76,50 s avant les optimisations.
 
 L'architecture et l'API réversibles sont détaillées dans
 [`docs/reversible_propagation.md`](docs/reversible_propagation.md).

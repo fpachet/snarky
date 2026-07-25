@@ -1074,7 +1074,41 @@ plan = TechniquePlan(tuple(groups))
 result = plan.solve(session, solved=FactExists(goal_premise))
 ```
 
-### 11.2 DSL textuel
+### 11.2 Objets Python par snapshot
+
+`FactCodec[T]` définit la frontière entre un objet métier Python et la mémoire
+de travail :
+
+```python
+class FactCodec(Protocol[T]):
+    def encode(
+        self,
+        value: T,
+        *,
+        identity: Atom,
+    ) -> tuple[Fact, ...]: ...
+
+    def decode(
+        self,
+        identity: Atom,
+        facts: Iterable[Fact],
+    ) -> T: ...
+```
+
+L'objet source n'est jamais placé directement dans un `Term` et n'est pas
+muté pendant l'inférence. `encode()` produit un snapshot factuel immuable ;
+`decode()` matérialise un nouvel objet depuis la solution. L'identité est
+explicite et stable. Cette discipline conserve les index, la sérialisation,
+les forks et le rollback sans trail spécifique à la bibliothèque cliente.
+
+Le premier adaptateur optionnel couvre `TemporalNote` et les
+`TemporalCollection` de notes de MuSES. Il conserve les attributs temporels et
+MIDI, l'ordre et les métadonnées de collection. MuSES n'est pas une dépendance
+obligatoire de Snarky et son import est paresseux lors de la reconstruction.
+
+Voir [`python_object_integration.md`](python_object_integration.md).
+
+### 11.3 DSL textuel
 
 ```text
 RULE grand_parent

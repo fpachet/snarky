@@ -101,6 +101,7 @@ from .instantiation import (
     NaiveInstantiationStrategy,
     SemiNaiveInstantiationStrategy,
 )
+from .integrations.objects import FactCodec
 from .matching import PatternMatcher
 from .parser import (
     ParseError,
@@ -219,6 +220,7 @@ __all__ = [
     "DomainStore",
     "EngineLimits",
     "Fact",
+    "FactCodec",
     "FactDelta",
     "FactExists",
     "FactMutationKind",

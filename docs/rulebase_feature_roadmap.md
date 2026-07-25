@@ -167,6 +167,17 @@ justifications négatives complètes restent séparés.
 - modifications partielles de faits ;
 - Sudoku p8 et niveaux suivants, seulement à partir d'oracles précis.
 
+## Intégration des objets Python
+
+Le protocole `FactCodec[T]` projette désormais un objet Python vers des faits
+immuables et matérialise un nouvel objet depuis une solution. Le premier codec
+concret couvre `TemporalNote` et les `TemporalCollection` composées de notes
+de la bibliothèque MuSES. Cette intégration reste extérieure au matcher :
+aucun objet mutable n'est placé dans un `Term`, et le rollback porte
+uniquement sur les faits.
+
+Voir [`python_object_integration.md`](python_object_integration.md).
+
 ## Ordre recommandé actualisé
 
 1. ~~Arithmétique entière et divisibilité.~~
@@ -195,12 +206,14 @@ justifications négatives complètes restent séparés.
 15. ~~Généraliser `FiniteCSP`, valider le backtracking sur le Sudoku natif,
     choisir les notes SATB séparément et ajouter des marginales
     conditionnelles reproductibles.~~
-16. Ajouter `MEMBER` et `SIZE`, puis implémenter les naked triples de Sudoku p8
+16. ~~Ajouter un `FactCodec` par snapshot et valider l'intégration sur
+    `TemporalNote` et `TemporalCollection` de MuSES.~~
+17. Ajouter `MEMBER` et `SIZE`, puis implémenter les naked triples de Sudoku p8
     avec `COMBINATIONS`.
-17. Ajouter degrés, renversements, doublures, cadence et sensible au modèle
+18. Ajouter degrés, renversements, doublures, cadence et sensible au modèle
     note par note.
-18. Mesurer une éventuelle consistance généralisée de `ALL_DIFFERENT`.
-19. Ne retenir les extensions restantes qu'avec une base et un oracle
+19. Mesurer une éventuelle consistance généralisée de `ALL_DIFFERENT`.
+20. Ne retenir les extensions restantes qu'avec une base et un oracle
     reproductibles.
 
 L'exploration parallèle des alternatives reste une piste postérieure, décrite
