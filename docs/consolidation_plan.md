@@ -237,6 +237,16 @@ are below half a millisecond. Cache hits, misses, invalidations, residual
 promotions, and match attempts are identical. Raw results are in
 [`query_memory_extraction_2026-07-25.json`](../benchmarks/results/query_memory_extraction_2026-07-25.json).
 
+The semi-naive tranche first removed 216 lines of unreachable pre-compiled
+join code at commit `e110a5d`, then moved delta-anchored traversal to
+`instantiation/semi_naive_join.py` at `a4a70e1`. Once isolated, the delta
+path was converted to compiled premise resolvers and one reversible
+`BindingFrame` at commit `e75c46f`. Indexed F(12) fell from 73.71 ms to
+54.31 ms, a 1.36x speedup (-26.3%), while facts, cycles, activations,
+candidates, and match attempts remained identical. The interleaved
+21-repetition protocol is recorded in
+[`semi_naive_compiled_delta_2026-07-25.json`](../benchmarks/results/semi_naive_compiled_delta_2026-07-25.json).
+
 The `engine/forward.py` decomposition target is complete for C3. The next
 choice decomposition target is also complete: production, policies, frontier
 management, and traversal live in focused modules, while `choice.py` is a
@@ -248,5 +258,8 @@ compatible and direct lifecycle tests supplement the strategy suite. The
 existential-query caches, registrations, support and creation watchers,
 structural signatures, aggregate supports, and revision lifecycle now live
 in `instantiation/query_memory.py`, with direct lifecycle tests and unchanged
-hot-path dictionary references. The next tranche isolates semi-naive join
-planning and delta variants from `instantiation/indexed.py`.
+hot-path dictionary references. Semi-naive delta planning and traversal now
+live in `instantiation/semi_naive_join.py`; the optimized path shares the
+compiled matching representation used by complete joins. The remaining
+`indexed.py` work is a separately benchmarked improvement to high-churn fact
+bucket removal before C3 moves to `domain_filter.py`.

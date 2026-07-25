@@ -1,0 +1,41 @@
+{
+  "benchmark": "semi_naive_compiled_delta",
+  "date": "2026-07-25",
+  "python": "3.13.11",
+  "platform": "macOS-15.7.7-arm64-arm-64bit-Mach-O",
+  "baseline_commit": "a4a70e1",
+  "current_commit": "e75c46f",
+  "command": "python benchmarks/fibonacci_explicit.py --n 12 --repeat 21 --strategy semi-naive",
+  "protocol": {
+    "series_order": [
+      "baseline",
+      "current",
+      "current",
+      "baseline"
+    ],
+    "summary": "mean of the two independently measured medians",
+    "same_interpreter_and_environment": true
+  },
+  "baseline_medians_seconds": [
+    0.0736624170003779,
+    0.07376079100049537
+  ],
+  "current_medians_seconds": [
+    0.054202041999815265,
+    0.0544183330002852
+  ],
+  "baseline_summary_seconds": 0.07371160400043664,
+  "current_summary_seconds": 0.05431018750005023,
+  "delta_percent": -26.320708609558242,
+  "speedup": 1.357233465643411,
+  "logical_counters": {
+    "facts": 860,
+    "derived_facts": 859,
+    "cycles": 21,
+    "fired_activations": 430,
+    "activations_produced": 430,
+    "candidate_facts": 2147,
+    "match_attempts": 2147
+  },
+  "conclusion": "Compiled resolvers and one reversible BindingFrame make the delta join 1.36 times faster without changing its logical work."
+}
