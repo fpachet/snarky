@@ -73,6 +73,16 @@ _CHECK_RE = re.compile(
     r"CHECK\s+(?P<name>[A-Za-z_][A-Za-z0-9_]*)"
     r"\s+ARGS\s+(?P<arguments>SEQ\[.*\])\Z"
 )
+_BLOCK_TERMINATORS = frozenset(
+    {
+        "END_EXISTS",
+        "END_NOT_EXISTS",
+        "END_COUNT",
+        "END_UNIQUE",
+        "END_COLLECT",
+        "END_CHOICE",
+    }
+)
 
 
 def _parse_premise_block(
@@ -84,6 +94,7 @@ def _parse_premise_block(
     terminators = (
         (terminator,) if isinstance(terminator, str) else terminator
     )
+    expects_block_terminator = not _BLOCK_TERMINATORS.isdisjoint(terminators)
     premises: list[Premise] = []
     while position < len(lines) and lines[position] not in terminators:
         keyword = lines[position]
@@ -91,9 +102,10 @@ def _parse_premise_block(
             premises.extend(_parse_window(keyword))
             position += 1
             continue
-        compact_existential = _parse_compact_existential(
-            keyword,
-            predicates,
+        compact_existential = (
+            _parse_compact_existential(keyword, predicates)
+            if keyword.startswith(("EXISTS ", "NOT EXISTS "))
+            else None
         )
         if compact_existential is not None:
             premises.append(compact_existential)
@@ -203,30 +215,12 @@ def _parse_premise_block(
             except ValueError as error:
                 raise ParseError(str(error)) from error
             continue
-        if keyword in {
-            "END_EXISTS",
-            "END_NOT_EXISTS",
-            "END_COUNT",
-            "END_UNIQUE",
-            "END_COLLECT",
-            "END_CHOICE",
-        }:
+        if keyword in _BLOCK_TERMINATORS:
             raise ParseError(
                 f"unexpected {keyword} before {' or '.join(terminators)}"
             )
         if (
-            any(
-                item
-                in {
-                    "END_EXISTS",
-                    "END_NOT_EXISTS",
-                    "END_COUNT",
-                    "END_UNIQUE",
-                    "END_COLLECT",
-                    "END_CHOICE",
-                }
-                for item in terminators
-            )
+            expects_block_terminator
             and keyword in {"THEN", "END"}
         ):
             raise ParseError(
@@ -271,20 +265,26 @@ def _parse_premise(
         if not isinstance(premise, FactPremise):
             raise ParseError("FOCUS requires a factual premise")
         return focus(premise)
-    bind_match = _BIND_RE.fullmatch(text)
+    bind_match = _BIND_RE.fullmatch(text) if text.startswith("BIND") else None
     if bind_match is not None:
         return BindPremise(
             Variable(bind_match.group("target")[1:]),
             parse_term(bind_match.group("value")),
         )
-    combinations_match = _COMBINATIONS_RE.fullmatch(text)
+    combinations_match = (
+        _COMBINATIONS_RE.fullmatch(text)
+        if text.startswith("COMBINATIONS")
+        else None
+    )
     if combinations_match is not None:
         return CombinationsPremise(
             Variable(combinations_match.group("target")[1:]),
             parse_term(combinations_match.group("source")),
             int(combinations_match.group("size")),
         )
-    compute_match = _COMPUTE_RE.fullmatch(text)
+    compute_match = (
+        _COMPUTE_RE.fullmatch(text) if text.startswith("COMPUTE") else None
+    )
     if compute_match is not None:
         predicate, arguments = _parse_computed_call(
             compute_match.group("name"),
@@ -296,7 +296,9 @@ def _parse_premise(
             arguments,
             Variable(compute_match.group("target")[1:]),
         )
-    check_match = _CHECK_RE.fullmatch(text)
+    check_match = (
+        _CHECK_RE.fullmatch(text) if text.startswith("CHECK") else None
+    )
     if check_match is not None:
         predicate, arguments = _parse_computed_call(
             check_match.group("name"),
@@ -304,14 +306,22 @@ def _parse_premise(
             predicates,
         )
         return ComputedPremise(predicate, arguments)
-    divisible = _DIVISIBLE_RE.fullmatch(text)
+    divisible = (
+        _DIVISIBLE_RE.fullmatch(text)
+        if text.startswith("DIVISIBLE")
+        else None
+    )
     if divisible is not None:
         return ComparisonPremise(
             parse_term(divisible.group("left")),
             ComparisonOperator.DIVISIBLE,
             parse_term(divisible.group("right")),
         )
-    all_different = _ALL_DIFFERENT_RE.fullmatch(text)
+    all_different = (
+        _ALL_DIFFERENT_RE.fullmatch(text)
+        if text.startswith("ALL_DIFFERENT")
+        else None
+    )
     if all_different is not None:
         values = parse_term(all_different.group("values"))
         if not isinstance(values, FiniteSequence) or not values.elements:
@@ -321,7 +331,9 @@ def _parse_premise(
             ComparisonOperator.EQ,
             Number(len(values.elements)),
         )
-    nvalue = _NVALUE_RE.fullmatch(text)
+    nvalue = (
+        _NVALUE_RE.fullmatch(text) if text.startswith("NVALUE") else None
+    )
     if nvalue is not None:
         values = parse_term(nvalue.group("values"))
         count = parse_term(nvalue.group("count"))

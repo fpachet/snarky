@@ -92,6 +92,14 @@ def test_compact_existential_and_window_expansion_are_preserved() -> None:
     assert isinstance(window[-1], BindPremise)
 
 
+def test_specialized_dispatch_preserves_whitespace_and_atom_fallbacks() -> None:
+    bind = _parse_premise("BIND\t$target := value")
+    ordinary = _parse_premise("(BINDING relation value)")
+
+    assert isinstance(bind, BindPremise)
+    assert isinstance(ordinary, FactPremise)
+
+
 def test_top_level_operator_ignores_nested_terms_and_sequences() -> None:
     tokens = _tokenize("(left relation [one two]) == SEQ[one two]")
 
