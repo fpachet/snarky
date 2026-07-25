@@ -11,12 +11,14 @@ from snarky import (
     ChoicePolicy,
     ChoiceSearchStatus,
     ChoiceTraversal,
+    DomWdegChoicePolicy,
     Fact,
     ForwardEngine,
     InferenceSession,
     MRVChoicePolicy,
     PriorityMRVChoicePolicy,
     PriorityWeightedRandomChoicePolicy,
+    PropagationGuidedChoicePolicy,
     SessionChoiceSearch,
     Triple,
     WeightedRandomChoicePolicy,
@@ -29,6 +31,9 @@ from snarky.choice_policies import (
     ChoicePolicy as PolicyChoicePolicy,
 )
 from snarky.choice_policies import (
+    DomWdegChoicePolicy as PolicyDomWdegChoicePolicy,
+)
+from snarky.choice_policies import (
     MRVChoicePolicy as PolicyMRVChoicePolicy,
 )
 from snarky.choice_policies import (
@@ -36,6 +41,9 @@ from snarky.choice_policies import (
 )
 from snarky.choice_policies import (
     PriorityWeightedRandomChoicePolicy as PolicyPriorityWeightedRandom,
+)
+from snarky.choice_policies import (
+    PropagationGuidedChoicePolicy as PolicyPropagationGuidedChoicePolicy,
 )
 from snarky.choice_policies import (
     WeightedRandomChoicePolicy as PolicyWeightedRandomChoicePolicy,
@@ -67,9 +75,24 @@ def test_choice_policies_keep_their_public_import_paths() -> None:
     assert ChoicePolicy is snarky.ChoicePolicy
     assert ChoicePolicy is choice_api.ChoicePolicy
     assert ChoicePolicy is PolicyChoicePolicy
+    assert DomWdegChoicePolicy is snarky.DomWdegChoicePolicy
+    assert DomWdegChoicePolicy is choice_api.DomWdegChoicePolicy
+    assert DomWdegChoicePolicy is PolicyDomWdegChoicePolicy
     assert MRVChoicePolicy is snarky.MRVChoicePolicy
     assert MRVChoicePolicy is choice_api.MRVChoicePolicy
     assert MRVChoicePolicy is PolicyMRVChoicePolicy
+    assert (
+        PropagationGuidedChoicePolicy
+        is snarky.PropagationGuidedChoicePolicy
+    )
+    assert (
+        PropagationGuidedChoicePolicy
+        is choice_api.PropagationGuidedChoicePolicy
+    )
+    assert (
+        PropagationGuidedChoicePolicy
+        is PolicyPropagationGuidedChoicePolicy
+    )
     assert PriorityMRVChoicePolicy is snarky.PriorityMRVChoicePolicy
     assert PriorityMRVChoicePolicy is choice_api.PriorityMRVChoicePolicy
     assert PriorityMRVChoicePolicy is PolicyPriorityMRVChoicePolicy
@@ -92,6 +115,43 @@ def test_choice_policies_keep_their_public_import_paths() -> None:
     assert (
         WeightedRandomChoicePolicy is PolicyWeightedRandomChoicePolicy
     )
+
+
+def test_dom_wdeg_selects_by_domain_over_dynamic_weighted_degree() -> None:
+    x = Atom("x")
+    y = Atom("y")
+    z = Atom("z")
+    xy = Atom("xy")
+    yz = Atom("yz")
+
+    def point(variable: Atom, size: int) -> ChoicePoint:
+        return ChoicePoint(
+            variable.name,
+            tuple(
+                ChoiceAlternative(
+                    str(index),
+                    (Fact(Triple(variable, Atom("value"), Atom(str(index)))),),
+                )
+                for index in range(size)
+            ),
+            variable=variable,
+        )
+
+    failed: tuple[Atom, ...] = ()
+    policy = DomWdegChoicePolicy(
+        {xy: (x, y), yz: (y, z)},
+        lambda _session: failed,
+    )
+    points = (point(x, 2), point(y, 4), point(z, 4))
+
+    assert policy.select_point(points).variable == x
+
+    failed = (yz,)
+    policy.observe_failure(InferenceSession(()))
+    policy.observe_failure(InferenceSession(()))
+
+    assert policy.weights[yz] == 3
+    assert policy.select_point(points).variable == y
 
 
 def test_choice_search_keeps_its_public_import_paths() -> None:
@@ -182,6 +242,60 @@ def test_search_backtracks_without_mutating_parent_session() -> None:
     assert ChoiceEventKind.CONTRADICTION in kinds
     assert ChoiceEventKind.BACKTRACK in kinds
     assert ChoiceEventKind.SOLUTION in kinds
+
+
+def test_propagation_guided_order_places_a_failed_probe_last() -> None:
+    (classify,) = parse_rule_groups(
+        """
+        GROUP classify_probe
+            RULE reject_bad_probe
+            WHEN
+                (selection value bad)
+            THEN
+                ADD contradiction
+            END
+
+            RULE accept_good_probe
+            WHEN
+                (selection value good)
+            THEN
+                ADD solved
+            END
+        END_GROUP
+        """
+    )
+    bad = Fact(Triple(Atom("selection"), Atom("value"), Atom("bad")))
+    good = Fact(Triple(Atom("selection"), Atom("value"), Atom("good")))
+    solved = Fact(Atom("solved"))
+    contradiction = Fact(Atom("contradiction"))
+    point = ChoicePoint(
+        "selection",
+        (
+            ChoiceAlternative("bad", (bad,), weight=2.0),
+            ChoiceAlternative("good", (good,), weight=1.0),
+        ),
+    )
+    search = SessionChoiceSearch(
+        (classify,),
+        lambda current: (
+            ()
+            if bad in current.facts or good in current.facts
+            else (point,)
+        ),
+        lambda current: solved in current.facts,
+        lambda current: contradiction in current.facts,
+        policy=PropagationGuidedChoicePolicy(
+            MRVChoicePolicy(),
+            lambda current: float(len(current.facts)),
+        ),
+    )
+
+    result = search.solve(InferenceSession((Fact(Atom("start")),)))
+
+    assert result.status is ChoiceSearchStatus.SOLVED
+    assert result.explored_nodes == 2
+    assert result.failed_branches == 0
+    assert result.solutions[0].decisions[0].alternative == "good"
 
 
 def test_weighted_random_policy_is_seed_reproducible() -> None:

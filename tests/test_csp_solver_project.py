@@ -16,6 +16,7 @@ from csp_solver.magic_square import (
     solve_magic_square,
     square_from_solution,
 )
+from csp_solver.persistent_constraints import LexLessEqualConstraint
 from csp_solver.solver import BinaryCSP, FiniteCSP, assignment_from_solution
 from snarky import Atom, ChoiceSearchStatus
 
@@ -112,6 +113,37 @@ def test_magic_square_builder_handles_parameterized_orders() -> None:
     assert two.status is ChoiceSearchStatus.EXHAUSTED
     assert magic_constant(4) == 34
     assert magic_square_facts(4).problem == Atom("magic_square_4")
+
+
+def test_magic_square_symmetry_breaking_is_declarative_and_optional() -> None:
+    plain = magic_square_facts(3)
+    canonical = magic_square_facts(3, symmetry_breaking=True)
+
+    assert not any(
+        isinstance(constraint, LexLessEqualConstraint)
+        for constraint in plain.constraints
+    )
+    assert (
+        sum(
+            isinstance(constraint, LexLessEqualConstraint)
+            for constraint in canonical.constraints
+        )
+        == 7
+    )
+    result = solve_magic_square(3, symmetry_breaking=True)
+    square = square_from_solution(result.solutions[0], 3)
+    row_major = tuple(value for row in square for value in row)
+    rotations_and_reflections = (
+        tuple(square[2 - column][row] for row in range(3) for column in range(3)),
+        tuple(square[2 - row][2 - column] for row in range(3) for column in range(3)),
+        tuple(square[column][2 - row] for row in range(3) for column in range(3)),
+        tuple(square[2 - row][column] for row in range(3) for column in range(3)),
+        tuple(square[row][2 - column] for row in range(3) for column in range(3)),
+        tuple(square[column][row] for row in range(3) for column in range(3)),
+        tuple(square[2 - column][2 - row] for row in range(3) for column in range(3)),
+    )
+
+    assert all(row_major <= transformed for transformed in rotations_and_reflections)
 
 
 def test_reduced_latin_square_uses_global_line_constraints() -> None:

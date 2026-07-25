@@ -181,11 +181,37 @@ Run the default 3×3 example (the order is also an explicit CLI parameter):
 uv run python -m csp_solver.magic_square
 uv run python -m csp_solver.magic_square 3
 uv run python -m csp_solver.magic_square 5
+uv run python -m csp_solver.magic_square 6 --symmetry-breaking
+uv run python -m csp_solver.magic_square 7 --propagation-guided
 ```
 
 The representation accepts any positive `N` (and correctly exhausts the
 impossible 2×2 case). The 5×5 example is solved by the same model and rule
 library; only the grounded cells, scopes, domains, and target differ.
+
+Persistent-constraint models use failure-attributed dom/wdeg selection by
+default. `--propagation-guided` additionally probes choice points of at most
+eight values and tries the least-constraining branch first.
+
+`--symmetry-breaking` grounds seven instances of this N-independent
+lex-leader template:
+
+```text
+CONSTRAINT magic_lex_leader
+KIND LEX_LESS_EQUAL
+FOR EACH SEQ[$symmetry]
+    ($symmetry kind magic_symmetry)
+END_FOR_EACH
+SCOPE SEQ[$left $right] ORDER BY $position
+FROM
+    ($symmetry pair SEQ[$position $left $right])
+END_SCOPE
+END
+```
+
+Each fact-defined scope compares the row-major square with one rotation or
+reflection. This option reduces order 6 to 73 nodes in the recorded run, but
+is not universally favorable and therefore is not the default.
 
 ## Latin squares
 
@@ -237,21 +263,37 @@ The [initial](../benchmarks/results/classical_csp_2026-07-25.json) and
 [dependency-scheduled](../benchmarks/results/classical_csp_optimized_2026-07-25.json)
 results are retained alongside the current
 [incremental-domain](../benchmarks/results/classical_csp_incremental_2026-07-25.json)
-measurements.
+measurements and the
+[dom/wdeg search-policy run](../benchmarks/results/classical_csp_dom_wdeg_2026-07-25.json).
 
-The current order-6 magic square has a three-run median of 19.179 seconds at
-5,358 nodes and 4,236 failed branches. The earlier implementation took
-131.25 seconds for the same search tree. Reproduce the larger case alone:
+The historical MRV order-6 run has a three-run median of 19.179 seconds at
+5,358 nodes and 4,236 failed branches. Default dom/wdeg now solves the same
+model in a 2.308-second median at 575 nodes and 445 failures. Reproduce the
+larger case alone:
 
 ```sh
 uv run python -m benchmarks.classical_csp \
   --magic-sizes 6 --only-magic --repeat 3
+
+uv run python -m benchmarks.classical_csp \
+  --magic-sizes 6 --only-magic --repeat 3 \
+  --magic-symmetry-breaking
+
+uv run python -m benchmarks.classical_csp \
+  --magic-sizes 6 7 --only-magic --repeat 3 \
+  --magic-propagation-guided
 ```
 
-Its raw result is
+The corresponding raw archives are
+[dom/wdeg](../benchmarks/results/magic_square_dom_wdeg_2026-07-25.json),
+[dom/wdeg with bounded probes](../benchmarks/results/magic_square_dom_wdeg_lcv_2026-07-25.json),
+and
+[dom/wdeg with lex symmetry](../benchmarks/results/magic_square_dom_wdeg_symmetry_2026-07-25.json).
+
+The historical MRV raw result remains
 [archived separately](../benchmarks/results/magic_square_6_incremental_2026-07-25.json).
 
-The complete deterministic search profile is:
+The earlier MRV deterministic search profile was:
 
 | Measure | Order-6 result |
 |---|---:|
@@ -267,8 +309,9 @@ The complete deterministic search profile is:
 | Constraint candidate removals | 333,440 |
 
 The model uses one global Régin-style `ALL_DIFFERENT`, not a decomposition
-into pairwise inequalities. Search uses MRV/first-fail with a deterministic
-fixed-order tie-break. It has no explicit symmetry-breaking constraint.
+into pairwise inequalities. Default search now uses dom/wdeg with
+failure-attributed constraint weights. Declarative lexicographic symmetry
+breaking and bounded propagation-guided value ordering are explicit options.
 
 See [rule programs](../docs/rule_programs.md) for explicit group composition
 and [the benchmark guide](../benchmarks/README.md) for current protocols. The

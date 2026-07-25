@@ -130,7 +130,8 @@ any search counters:
 | Latin 7×7 | 0.253 s | 0.045 s | 5.7× |
 | Sudoku p7, constraints only | 0.155 s | 0.106 s | 1.5× |
 
-The complete 6×6 magic square retains 5,358 nodes and 4,236 failures. Its
+At the end of phase 3, the complete 6×6 magic square retained 5,358 nodes and
+4,236 failures. Its
 three-run median is 19.179 seconds, compared with the earlier 131.25-second
 single run: approximately 6.8× faster with the same search tree.
 
@@ -143,22 +144,50 @@ fixed-order ties and no explicit symmetry breaking.
 
 ## Phase 4: search policy, symmetry, and explanations
 
-Status: measured and deferred.
+Status: implemented and measured.
 
 Search order often matters more than another low-level percentage. Generic
 extensions may include degree or impact tie-breakers, value ordering, and
 restart/nogood policies. Symmetry breaking belongs in declarative model facts,
 rules, or constraints and must be reported as a search change.
 
-Degree-first and numeric ascending/descending prototypes were slightly worse
-than the deterministic MRV baseline over the same first 300 order-6 nodes.
-They were therefore not made defaults. Unguided order-7 processes 10,000 nodes
-in 59.4 seconds but does not find a solution; this is now primarily a search
-policy/model-guidance issue.
+Static degree and numeric ascending/descending prototypes were slightly worse
+than deterministic MRV over the same first 300 order-6 nodes. The implemented
+policy instead uses dynamic weighted degree. A failed branch increments the
+weight of its reported `violated_constraint`; an empty domain without that
+fact credits its incident constraints. Persistent-constraint models now use
+dom/wdeg by default, while models without such constraints retain MRV.
 
-Magic squares are particularly sensitive to value ordering. A constructive
-weighting can solve some orders quickly, but that demonstrates model guidance,
-not a faster propagation kernel. Both measurements should remain available.
+The search-order comparison is deliberately separate from the kernel
+benchmark:
+
+| Formulation | Median | Nodes | Failures |
+|---|---:|---:|---:|
+| Magic 6, MRV, no symmetry | 19.179 s | 5,358 | 4,236 |
+| Magic 6, dom/wdeg, no symmetry | 2.308 s | 575 | 445 |
+| Magic 6, dom/wdeg + LCV probes | 2.329 s | 217 | 159 |
+| Magic 6, dom/wdeg + lex symmetry | 0.513 s | 73 | 40 |
+| Magic 7, dom/wdeg, no symmetry | 2.507 s | 431 | 266 |
+| Magic 7, dom/wdeg + LCV probes | 3.116 s | 160 | 89 |
+
+The bounded propagation-guided wrapper probes at most eight alternatives and
+tries the least-constraining non-contradictory value first. It substantially
+reduces nodes here, but duplicate propagation offsets the saving, so it
+remains opt-in.
+
+`LEX_LESS_EQUAL` is a generic persistent constraint whose paired ordered scope
+can contain aliased variables. The magic-square model can use seven such
+fact-derived lex leaders to choose one representative under rotations and
+reflections. This is also opt-in: it is excellent for order 6, whereas order
+7 reached the 1,000-node limit in 10.087 s instead of solving in 431 nodes
+without symmetry. Symmetry changes the search tree and is not a propagator
+kernel speedup.
+
+The raw runs are archived as
+[`magic_square_dom_wdeg_2026-07-25.json`](../benchmarks/results/magic_square_dom_wdeg_2026-07-25.json),
+[`magic_square_dom_wdeg_lcv_2026-07-25.json`](../benchmarks/results/magic_square_dom_wdeg_lcv_2026-07-25.json),
+and
+[`magic_square_dom_wdeg_symmetry_2026-07-25.json`](../benchmarks/results/magic_square_dom_wdeg_symmetry_2026-07-25.json).
 
 ## Benchmark protocol
 
@@ -175,6 +204,8 @@ counters. For stronger filtering or changed search policy, archive it as a
 separate formulation and do not present its timing as a direct speedup.
 
 The current three-run archive is
+[`classical_csp_dom_wdeg_2026-07-25.json`](../benchmarks/results/classical_csp_dom_wdeg_2026-07-25.json).
+The preceding implementation-speed archive is
 [`classical_csp_incremental_2026-07-25.json`](../benchmarks/results/classical_csp_incremental_2026-07-25.json).
 The separate
 [`magic_square_6_incremental_2026-07-25.json`](../benchmarks/results/magic_square_6_incremental_2026-07-25.json)

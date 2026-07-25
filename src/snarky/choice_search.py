@@ -422,6 +422,7 @@ class SessionChoiceSearch:
                     node.session
                 ):
                     failed += 1
+                    self._observe_failure(node.session)
                     record(
                         ChoiceEventKind.CONTRADICTION,
                         node,
@@ -452,6 +453,7 @@ class SessionChoiceSearch:
                 points = self.choices(node.session)
                 if not points:
                     failed += 1
+                    self._observe_failure(node.session)
                     record(
                         ChoiceEventKind.DEAD_END,
                         node,
@@ -470,10 +472,28 @@ class SessionChoiceSearch:
                     point=point.name,
                     detail=f"{len(point.alternatives)} alternatives",
                 )
-                ordered = self.policy.order_alternatives(
-                    point,
-                    random_source,
+                propagation_order = getattr(
+                    self.policy,
+                    "order_alternatives_with_propagation",
+                    None,
                 )
+                if callable(propagation_order):
+                    ordered = propagation_order(
+                        point,
+                        random_source,
+                        lambda alternative,
+                        parent=node.session,
+                        selected=point: self._probe_alternative(
+                            parent,
+                            selected,
+                            alternative,
+                        ),
+                    )
+                else:
+                    ordered = self.policy.order_alternatives(
+                        point,
+                        random_source,
+                    )
                 if self._uses_reversible_dfs:
                     checkpoint = node.session.checkpoint()
                     frame = _TrailChoiceFrame(
@@ -641,6 +661,29 @@ class SessionChoiceSearch:
         """Reach a joint fixed point before testing the goal or choosing."""
 
         self._fixed_point.run(session)
+
+    def _observe_failure(self, session: InferenceSession) -> None:
+        observer = getattr(self.policy, "observe_failure", None)
+        if callable(observer):
+            observer(session)
+
+    def _probe_alternative(
+        self,
+        session: InferenceSession,
+        point: ChoicePoint,
+        alternative: ChoiceAlternative,
+    ) -> tuple[bool, InferenceSession]:
+        branch = self._fork(session)
+        branch.assume(
+            *alternative.facts,
+            label=f"choice-probe:{point.name}/{alternative.name}",
+        )
+        self._propagate(branch)
+        contradiction = (
+            self.contradiction is not None
+            and self.contradiction(branch)
+        )
+        return contradiction, branch
 
 
 def _log_weight(weight: float) -> float:

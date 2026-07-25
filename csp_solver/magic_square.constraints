@@ -21,3 +21,16 @@ FROM
 END_SCOPE
 TARGET $target
 END
+
+# Choose the lexicographically smallest representative under the seven
+# non-identity rotations/reflections of the square.
+CONSTRAINT magic_lex_leader
+KIND LEX_LESS_EQUAL
+FOR EACH SEQ[$symmetry]
+    ($symmetry kind magic_symmetry)
+END_FOR_EACH
+SCOPE SEQ[$left $right] ORDER BY $position
+FROM
+    ($symmetry pair SEQ[$position $left $right])
+END_SCOPE
+END

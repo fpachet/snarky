@@ -3,9 +3,11 @@ from itertools import product
 from csp_solver.persistent_constraints import (
     AllDifferentConstraint,
     GlobalCardinalityConstraint,
+    LexLessEqualConstraint,
     SumConstraint,
     _revise_all_different,
     _revise_gcc,
+    _revise_lex_less_equal,
     _revise_sum,
 )
 from snarky import Atom, Number, Term
@@ -160,3 +162,83 @@ def test_sum_gac_matches_exhaustive_support_oracle() -> None:
             assert _revise_sum(constraint, filtered) is consistent
             if consistent:
                 assert filtered == expected
+
+
+def test_lex_less_equal_bounds_filter_is_sound_with_aliases() -> None:
+    x, y, z = (Atom(name) for name in ("x", "y", "z"))
+    variables = (x, y, z)
+    values = tuple(Number(index) for index in range(3))
+    subsets = _non_empty_subsets(values)
+    constraint = LexLessEqualConstraint(
+        Atom("lex_oracle"),
+        (x, y),
+        (y, z),
+    )
+
+    for selections in product(subsets, repeat=len(variables)):
+        domains = {
+            variable: set(selection)
+            for variable, selection in zip(
+                variables,
+                selections,
+                strict=True,
+            )
+        }
+        consistent, expected = _supported_domains(
+            variables,
+            domains,
+            lambda assignment: tuple(
+                value.value for value in assignment[:2]
+            )
+            <= tuple(value.value for value in assignment[1:]),
+        )
+        filtered = {
+            variable: set(domain)
+            for variable, domain in domains.items()
+        }
+
+        propagated = _revise_lex_less_equal(constraint, filtered)
+        if not propagated:
+            assert not consistent
+        if consistent:
+            assert all(
+                expected[variable] <= filtered[variable]
+                for variable in variables
+            )
+
+
+def test_disjoint_lex_less_equal_gac_matches_exhaustive_oracle() -> None:
+    variables = tuple(Atom(name) for name in ("x_1", "x_2", "y_1", "y_2"))
+    values = (Number(0), Number(1))
+    subsets = _non_empty_subsets(values)
+    constraint = LexLessEqualConstraint(
+        Atom("disjoint_lex_oracle"),
+        variables[:2],
+        variables[2:],
+    )
+
+    for selections in product(subsets, repeat=len(variables)):
+        domains = {
+            variable: set(selection)
+            for variable, selection in zip(
+                variables,
+                selections,
+                strict=True,
+            )
+        }
+        consistent, expected = _supported_domains(
+            variables,
+            domains,
+            lambda assignment: tuple(
+                value.value for value in assignment[:2]
+            )
+            <= tuple(value.value for value in assignment[2:]),
+        )
+        filtered = {
+            variable: set(domain)
+            for variable, domain in domains.items()
+        }
+
+        assert _revise_lex_less_equal(constraint, filtered) is consistent
+        if consistent:
+            assert filtered == expected

@@ -9,6 +9,7 @@ rebuilds its branch-local cache.
 
 from __future__ import annotations
 
+import math
 from collections import deque
 from collections.abc import Mapping
 from dataclasses import dataclass, field
@@ -100,11 +101,37 @@ class TableConstraint:
         object.__setattr__(self, "allowed", tuple(dict.fromkeys(allowed)))
 
 
+@dataclass(frozen=True, slots=True)
+class LexLessEqualConstraint:
+    """Require one sequence of numeric variables to be lexicographically <= another."""
+
+    name: Atom
+    left: tuple[Term, ...]
+    right: tuple[Term, ...]
+
+    def __post_init__(self) -> None:
+        left = tuple(self.left)
+        right = tuple(self.right)
+        if not left or len(left) != len(right):
+            raise ValueError(
+                "LEX_LESS_EQUAL requires non-empty sequences of equal length"
+            )
+        object.__setattr__(self, "left", left)
+        object.__setattr__(self, "right", right)
+
+    @property
+    def variables(self) -> tuple[Term, ...]:
+        """Return the distinct variables observed by this constraint."""
+
+        return tuple(dict.fromkeys((*self.left, *self.right)))
+
+
 type PersistentConstraint = (
     AllDifferentConstraint
     | SumConstraint
     | GlobalCardinalityConstraint
     | TableConstraint
+    | LexLessEqualConstraint
 )
 
 
@@ -208,7 +235,7 @@ class PersistentConstraintPropagator:
                 return
             pending = deque()
             queued = set()
-            for variable in externally_changed:
+            for variable in sorted(externally_changed, key=repr):
                 _schedule(
                     self._adjacency[variable],
                     pending,
@@ -229,7 +256,7 @@ class PersistentConstraintPropagator:
             if not consistent:
                 state.violated = constraint
                 break
-            for variable in changed:
+            for variable in sorted(changed, key=repr):
                 _schedule(
                     self._adjacency[variable],
                     pending,
@@ -321,8 +348,10 @@ def _revise(
         consistent = _revise_sum(constraint, domains)
     elif isinstance(constraint, GlobalCardinalityConstraint):
         consistent = _revise_gcc(constraint, domains)
-    else:
+    elif isinstance(constraint, TableConstraint):
         consistent = _revise_table(constraint, domains)
+    else:
+        consistent = _revise_lex_less_equal(constraint, domains)
     changed = {
         variable
         for variable, previous in before.items()
@@ -595,6 +624,177 @@ def _revise_sum(
         if not domains[variable]:
             return False
     return True
+
+
+def _revise_lex_less_equal(
+    constraint: LexLessEqualConstraint,
+    domains: dict[Term, set[Term]],
+) -> bool:
+    """Establish GAC for disjoint sequences, with safe alias-aware bounds."""
+
+    variables = constraint.variables
+    if any(not domains[variable] for variable in variables):
+        return False
+    numeric_domains = {
+        variable: {
+            value: _lex_numeric_value(constraint, value)
+            for value in domains[variable]
+        }
+        for variable in variables
+    }
+    if len(variables) == 2 * len(constraint.left):
+        return _revise_disjoint_lex_less_equal(
+            constraint,
+            domains,
+            numeric_domains,
+        )
+    return _revise_aliased_lex_less_equal_bounds(
+        constraint,
+        domains,
+        numeric_domains,
+    )
+
+
+def _revise_disjoint_lex_less_equal(
+    constraint: LexLessEqualConstraint,
+    domains: dict[Term, set[Term]],
+    numeric_domains: Mapping[Term, Mapping[Term, int | float]],
+) -> bool:
+    """Establish GAC when every sequence position has distinct variables."""
+
+    size = len(constraint.left)
+    equality_possible = [False] * size
+    strict_possible = [False] * size
+    suffix_feasible = [False] * (size + 1)
+    suffix_feasible[size] = True
+    for position in range(size - 1, -1, -1):
+        left = constraint.left[position]
+        right = constraint.right[position]
+        equality_possible[position] = bool(
+            domains[left] & domains[right]
+        )
+        strict_possible[position] = (
+            min(numeric_domains[left].values())
+            < max(numeric_domains[right].values())
+        )
+        suffix_feasible[position] = (
+            strict_possible[position]
+            or (
+                equality_possible[position]
+                and suffix_feasible[position + 1]
+            )
+        )
+    if not suffix_feasible[0]:
+        return False
+
+    prefix_equal = True
+    prefix_less = False
+    for position, (left, right) in enumerate(
+        zip(constraint.left, constraint.right, strict=True)
+    ):
+        if not prefix_less:
+            left_min = min(numeric_domains[left].values())
+            right_max = max(numeric_domains[right].values())
+            supported_left = {
+                value
+                for value, numeric in numeric_domains[left].items()
+                if prefix_equal
+                and (
+                    numeric < right_max
+                    or (
+                        value in domains[right]
+                        and suffix_feasible[position + 1]
+                    )
+                )
+            }
+            supported_right = {
+                value
+                for value, numeric in numeric_domains[right].items()
+                if prefix_equal
+                and (
+                    left_min < numeric
+                    or (
+                        value in domains[left]
+                        and suffix_feasible[position + 1]
+                    )
+                )
+            }
+            domains[left].intersection_update(supported_left)
+            domains[right].intersection_update(supported_right)
+            if not domains[left] or not domains[right]:
+                return False
+        prefix_less = prefix_less or (
+            prefix_equal and strict_possible[position]
+        )
+        prefix_equal = (
+            prefix_equal and equality_possible[position]
+        )
+    return True
+
+
+def _revise_aliased_lex_less_equal_bounds(
+    constraint: LexLessEqualConstraint,
+    domains: dict[Term, set[Term]],
+    numeric_domains: Mapping[Term, Mapping[Term, int | float]],
+) -> bool:
+    """Apply numeric bounds filtering at the first non-fixed position.
+
+    The linear propagator is intentionally conservative after an ambiguous
+    equality: representing both the equal and strictly-less continuations
+    would require reification. It is exact once the preceding pairs are fixed
+    equal, and is cheap enough for large symmetry-breaking vectors.
+    """
+
+    for left, right in zip(constraint.left, constraint.right, strict=True):
+        if left == right:
+            continue
+        left_values = numeric_domains[left]
+        right_values = numeric_domains[right]
+        left_min = min(left_values.values())
+        left_max = max(left_values.values())
+        right_min = min(right_values.values())
+        right_max = max(right_values.values())
+        if left_max < right_min:
+            return True
+        if left_min > right_max:
+            return False
+
+        domains[left].intersection_update(
+            value
+            for value, numeric in left_values.items()
+            if numeric <= right_max
+        )
+        domains[right].intersection_update(
+            value
+            for value, numeric in right_values.items()
+            if numeric >= left_min
+        )
+        if not domains[left] or not domains[right]:
+            return False
+        if (
+            len(domains[left]) == 1
+            and domains[left] == domains[right]
+        ):
+            continue
+        return True
+    return True
+
+
+def _lex_numeric_value(
+    constraint: LexLessEqualConstraint,
+    value: Term,
+) -> int | float:
+    if (
+        not isinstance(value, Number)
+        or isinstance(value.value, bool)
+        or not isinstance(value.value, (int, float))
+        or not math.isfinite(value.value)
+    ):
+        raise TypeError(
+            f"LEX_LESS_EQUAL constraint {constraint.name.name!r} requires "
+            "numeric Number candidates"
+        )
+    return value.value
 
 
 def _revise_nonnegative_sum_bitsets(

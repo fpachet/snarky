@@ -3,12 +3,13 @@
 from __future__ import annotations
 
 import random
-from collections.abc import Mapping, Sequence
-from dataclasses import dataclass
+from collections.abc import Callable, Mapping, Sequence
+from dataclasses import dataclass, field
 from types import MappingProxyType
 from typing import Protocol
 
 from .choice_production import ChoiceAlternative, ChoicePoint
+from .engine import InferenceSession
 from .terms import Term
 
 
@@ -66,6 +67,158 @@ class MRVChoicePolicy:
                 key=lambda alternative: alternative.name,
             )
         )
+
+
+@dataclass(slots=True)
+class DomWdegChoicePolicy:
+    """MRV refined by dynamically weighted failing constraints."""
+
+    constraint_scopes: Mapping[Term, tuple[Term, ...]]
+    failure_constraints: Callable[
+        [InferenceSession],
+        Sequence[Term],
+    ]
+    prefer_high_weight: bool = True
+    weights: dict[Term, int] = field(init=False)
+
+    def __post_init__(self) -> None:
+        self.constraint_scopes = MappingProxyType(
+            {
+                constraint: tuple(variables)
+                for constraint, variables in self.constraint_scopes.items()
+            }
+        )
+        self.weights = {
+            constraint: 1 for constraint in self.constraint_scopes
+        }
+
+    def select_point(
+        self,
+        points: Sequence[ChoicePoint],
+    ) -> ChoicePoint:
+        if not points:
+            raise ValueError("cannot select from an empty choice set")
+        active = {
+            point.variable
+            for point in points
+            if point.variable is not None
+        }
+
+        def score(point: ChoicePoint) -> tuple[float, int, int, str]:
+            weighted_degree = self._weighted_degree(
+                point.variable,
+                active,
+            )
+            return (
+                len(point.alternatives) / weighted_degree,
+                len(point.alternatives),
+                -weighted_degree,
+                point.name,
+            )
+
+        return min(points, key=score)
+
+    def order_alternatives(
+        self,
+        point: ChoicePoint,
+        random_source: random.Random,
+    ) -> tuple[ChoiceAlternative, ...]:
+        return MRVChoicePolicy(
+            prefer_high_weight=self.prefer_high_weight
+        ).order_alternatives(point, random_source)
+
+    def observe_failure(self, session: InferenceSession) -> None:
+        """Increase weights of constraints explaining one failed branch."""
+
+        for constraint in self.failure_constraints(session):
+            if constraint in self.weights:
+                self.weights[constraint] += 1
+
+    def _weighted_degree(
+        self,
+        variable: Term | None,
+        active: set[Term],
+    ) -> int:
+        if variable is None:
+            return 1
+        degree = sum(
+            self.weights[constraint]
+            for constraint, scope in self.constraint_scopes.items()
+            if variable in scope
+            and any(
+                other != variable and other in active
+                for other in scope
+            )
+        )
+        return max(1, degree)
+
+
+@dataclass(frozen=True, slots=True)
+class PropagationGuidedChoicePolicy:
+    """Order small value sets by the state obtained after propagation.
+
+    The wrapped policy still selects the choice point and supplies the stable
+    fallback order. Alternatives are probed only when their count is within
+    ``maximum_alternatives``. Contradictory probes are placed last.
+    """
+
+    base: ChoicePolicy
+    score_session: Callable[[InferenceSession], float]
+    maximum_alternatives: int = 8
+    prefer_high_score: bool = True
+
+    def __post_init__(self) -> None:
+        if self.maximum_alternatives < 1:
+            raise ValueError("maximum_alternatives must be positive")
+
+    def select_point(
+        self,
+        points: Sequence[ChoicePoint],
+    ) -> ChoicePoint:
+        return self.base.select_point(points)
+
+    def order_alternatives(
+        self,
+        point: ChoicePoint,
+        random_source: random.Random,
+    ) -> tuple[ChoiceAlternative, ...]:
+        return self.base.order_alternatives(point, random_source)
+
+    def order_alternatives_with_propagation(
+        self,
+        point: ChoicePoint,
+        random_source: random.Random,
+        probe: Callable[
+            [ChoiceAlternative],
+            tuple[bool, InferenceSession],
+        ],
+    ) -> tuple[ChoiceAlternative, ...]:
+        """Probe and rank a bounded set of alternatives."""
+
+        ordered = self.order_alternatives(point, random_source)
+        if len(ordered) > self.maximum_alternatives:
+            return ordered
+        scored: list[tuple[bool, float, int, ChoiceAlternative]] = []
+        for index, alternative in enumerate(ordered):
+            contradiction, session = probe(alternative)
+            score = self.score_session(session)
+            scored.append(
+                (
+                    contradiction,
+                    -score if self.prefer_high_score else score,
+                    index,
+                    alternative,
+                )
+            )
+        scored.sort(key=lambda row: row[:3])
+        return tuple(row[3] for row in scored)
+
+    def observe_failure(self, session: InferenceSession) -> None:
+        """Forward failure feedback when the wrapped policy accepts it."""
+
+        observer = getattr(self.base, "observe_failure", None)
+        if callable(observer):
+            observer(session)
 
 
 @dataclass(frozen=True, slots=True)

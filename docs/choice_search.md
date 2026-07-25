@@ -81,6 +81,12 @@ décroissant. `WeightedRandomChoicePolicy` échantillonne sans remise,
 proportionnellement aux poids, avec une graine reproductible. Un poids nul
 reste faisable mais vient après les poids positifs.
 
+`DomWdegChoicePolicy` divise la taille du domaine par la somme des poids des
+contraintes incidentes encore actives, puis augmente le poids des contraintes
+qui expliquent un échec. `PropagationGuidedChoicePolicy` est un décorateur
+optionnel : pour un petit domaine, il propage chaque valeur sur une session
+isolée et laisse un score métier ordonner les branches non contradictoires.
+
 Les parcours disponibles sont profondeur, largeur et meilleur poids d'abord.
 Le score d'un chemin est la somme des logarithmes des poids. Il s'agit d'un
 score de priorité : les contraintes et les règles déterminent seules la

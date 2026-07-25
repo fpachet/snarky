@@ -32,7 +32,7 @@ behavior and modern extensions are documented separately.
 - finite choices, contextual weights, depth- or breadth-first traversal, and
   backtracking;
 - premise-local finite-domain filtering plus persistent `ALL_DIFFERENT`,
-  `SUM`, `GCC`, and `TABLE` constraints;
+  `SUM`, `GCC`, `TABLE`, and `LEX_LESS_EQUAL` constraints;
 - reference, indexed, semi-naive, constraint-filtered, and adaptive
   instantiation strategies;
 - strict type checking and differential tests across execution strategies.

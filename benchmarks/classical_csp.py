@@ -56,8 +56,17 @@ def _measure(
     }
 
 
-def _magic(size: int) -> ChoiceSearchResult:
-    result = solve_magic_square(size)
+def _magic(
+    size: int,
+    *,
+    symmetry_breaking: bool,
+    propagation_guided: bool,
+) -> ChoiceSearchResult:
+    result = solve_magic_square(
+        size,
+        symmetry_breaking=symmetry_breaking,
+        propagation_guided=propagation_guided,
+    )
     if result.status is not ChoiceSearchStatus.SOLVED:
         raise AssertionError(f"order-{size} magic square was not solved")
     square = square_from_solution(result.solutions[0], size)
@@ -110,12 +119,24 @@ def run(
     *,
     magic_sizes: tuple[int, ...] = (3, 4, 5),
     include_other: bool = True,
+    magic_symmetry_breaking: bool = False,
+    magic_propagation_guided: bool = False,
 ) -> dict[str, Any]:
     results: dict[str, Any] = {}
     for size in magic_sizes:
-        model = magic_square_facts(size)
+        model = magic_square_facts(
+            size,
+            symmetry_breaking=magic_symmetry_breaking,
+        )
         results[f"magic_square_{size}"] = {
-            **_measure(lambda size=size: _magic(size), repeat),
+            **_measure(
+                lambda size=size: _magic(
+                    size,
+                    symmetry_breaking=magic_symmetry_breaking,
+                    propagation_guided=magic_propagation_guided,
+                ),
+                repeat,
+            ),
             "facts": len(model.facts),
             "constraints": len(model.constraints),
         }
@@ -140,6 +161,8 @@ def run(
         "python": platform.python_version(),
         "platform": platform.platform(),
         "repeat": repeat,
+        "magic_symmetry_breaking": magic_symmetry_breaking,
+        "magic_propagation_guided": magic_propagation_guided,
         "results": results,
     }
 
@@ -158,6 +181,14 @@ def main() -> None:
         action="store_true",
         help="skip Latin-square and Sudoku cases",
     )
+    parser.add_argument(
+        "--magic-symmetry-breaking",
+        action="store_true",
+    )
+    parser.add_argument(
+        "--magic-propagation-guided",
+        action="store_true",
+    )
     arguments = parser.parse_args()
     if arguments.repeat < 1:
         parser.error("repeat must be positive")
@@ -169,6 +200,12 @@ def main() -> None:
                 arguments.repeat,
                 magic_sizes=tuple(arguments.magic_sizes),
                 include_other=not arguments.only_magic,
+                magic_symmetry_breaking=(
+                    arguments.magic_symmetry_breaking
+                ),
+                magic_propagation_guided=(
+                    arguments.magic_propagation_guided
+                ),
             ),
             indent=2,
         )

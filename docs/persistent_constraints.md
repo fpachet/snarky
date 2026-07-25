@@ -135,6 +135,40 @@ An allowed table tuple is active when every component remains in the
 corresponding domain. Each domain is intersected with the projections of the
 active tuples.
 
+### `LEX_LESS_EQUAL`
+
+```text
+CONSTRAINT canonical_form
+KIND LEX_LESS_EQUAL
+SCOPE SEQ[$left $right] ORDER BY $position
+FROM
+    ($symmetry pair SEQ[$position $left $right])
+END_SCOPE
+END
+```
+
+The paired scope rows ground two numeric sequences and require the left
+sequence to be lexicographically less than or equal to the right sequence.
+Variables may occur on both sides, as they do when a grid is compared with a
+rotation. The linear propagator establishes GAC when every position uses
+distinct variables. For aliased sequences it applies exact bounds filtering
+at the first position whose preceding pairs are fixed equal, then
+conservatively stops when equality and strict inequality are both possible.
+
+## Search policies
+
+Finite CSPs with persistent constraints use dom/wdeg by default. The policy
+chooses the smallest ratio of current domain size to the weighted degree of
+active incident constraints. Every constraint starts at weight one. A
+`violated_constraint` explanation increments the responsible constraint; an
+unexplained empty domain conservatively increments all incident constraints.
+
+`constraint_propagation_guided_policy()` optionally wraps dom/wdeg with
+bounded least-constraining-value probes. It propagates at most eight
+alternatives, places immediate contradictions last, and prefers the branch
+leaving the most candidate facts. Because probes perform real propagation,
+this can reduce nodes without reducing wall time.
+
 ## Scheduling and rollback
 
 The propagator compiles a variable-to-constraint adjacency graph. A removal

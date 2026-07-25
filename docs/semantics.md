@@ -133,7 +133,8 @@ The first persistent CSP layer is narrowing-only:
 
 - initial `candidate` facts define fixed base domains;
 - `AllDifferentConstraint`, `SumConstraint`, `GlobalCardinalityConstraint`,
-  and `TableConstraint` retract candidates without branching;
+  `TableConstraint`, and `LexLessEqualConstraint` retract candidates without
+  branching;
 - ordinary rules can observe those retractions and derive other facts;
 - `CHOICE` adds a branch decision, after which propagation restarts;
 - rollback restores the decision, constraint reductions, and rule
@@ -151,6 +152,11 @@ finite-domain projection consumes rollback-aware event cursors and reverses
 its delta trail to the restored journal origin before applying sibling events.
 See [persistent finite-domain constraints](persistent_constraints.md) for the
 syntax and propagator contracts.
+
+For persistent-constraint models, the default choice policy is dom/wdeg:
+domain size is divided by the accumulated weights of incident active
+constraints, and a constraint's weight increases when it explains a failed
+branch. This changes search order, not logical feasibility.
 
 ## Fixed points and refraction
 

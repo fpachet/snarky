@@ -17,6 +17,7 @@ from snarky import (
 )
 
 from .constraint_syntax import (
+    PersistentConstraintKind,
     PersistentConstraintTemplate,
     instantiate_constraint_templates,
     parse_constraint_templates,
@@ -29,6 +30,7 @@ from .solver import (
     VARIABLE,
     FiniteCSP,
     assignment_from_solution,
+    constraint_propagation_guided_policy,
     finite_csp_rule_library,
     solve_finite_csp,
 )
@@ -40,6 +42,8 @@ TARGET = Atom("target")
 ROW = Atom("row")
 COLUMN = Atom("column")
 CELL = Atom("cell")
+MAGIC_SYMMETRY = Atom("magic_symmetry")
+PAIR = Atom("pair")
 
 
 def magic_constant(size: int) -> int:
@@ -66,13 +70,19 @@ def magic_cell(row: int, column: int) -> Atom:
     return Atom(f"cell_{row}_{column}")
 
 
-def magic_square_facts(size: int) -> FiniteCSP:
+def magic_square_facts(
+    size: int,
+    *,
+    symmetry_breaking: bool = False,
+) -> FiniteCSP:
     """Build a normal order-``size`` magic square as declarative Snarky facts.
 
     Cell variables range over ``1..size²``.  One persistent global
     ``ALL_DIFFERENT`` covers all cells and one persistent ``SUM`` covers each
     row, column, and diagonal.  These constraints filter candidate facts
-    before ordinary rules and ``CHOICE`` inspect them.
+    before ordinary rules and ``CHOICE`` inspect them. When requested, seven
+    declarative ``LEX_LESS_EQUAL`` constraints select one representative from
+    the rotations and reflections of the square.
     """
 
     problem = magic_square_problem(size)
@@ -134,6 +144,48 @@ def magic_square_facts(size: int) -> FiniteCSP:
                 ),
             )
         )
+    transformations = (
+        lambda row, column: (size + 1 - column, row),
+        lambda row, column: (size + 1 - row, size + 1 - column),
+        lambda row, column: (column, size + 1 - row),
+        lambda row, column: (size + 1 - row, column),
+        lambda row, column: (row, size + 1 - column),
+        lambda row, column: (column, row),
+        lambda row, column: (size + 1 - column, size + 1 - row),
+    )
+    if symmetry_breaking:
+        for symmetry_number, transform in enumerate(
+            transformations,
+            start=1,
+        ):
+            symmetry = Atom(f"magic_symmetry_{symmetry_number}")
+            facts.append(Fact(Triple(symmetry, KIND, MAGIC_SYMMETRY)))
+            position = 0
+            for row in range(1, size + 1):
+                for column in range(1, size + 1):
+                    position += 1
+                    transformed_row, transformed_column = transform(
+                        row,
+                        column,
+                    )
+                    facts.append(
+                        Fact(
+                            Triple(
+                                symmetry,
+                                PAIR,
+                                FiniteSequence(
+                                    (
+                                        Number(position),
+                                        magic_cell(row, column),
+                                        magic_cell(
+                                            transformed_row,
+                                            transformed_column,
+                                        ),
+                                    )
+                                ),
+                            )
+                        )
+                    )
     fact_tuple = tuple(facts)
 
     return FiniteCSP(
@@ -141,7 +193,15 @@ def magic_square_facts(size: int) -> FiniteCSP:
         fact_tuple,
         {},
         constraints=instantiate_constraint_templates(
-            _magic_square_templates(),
+            tuple(
+                template
+                for template in _magic_square_templates()
+                if (
+                    symmetry_breaking
+                    or template.kind
+                    is not PersistentConstraintKind.LEX_LESS_EQUAL
+                )
+            ),
             fact_tuple,
         ),
     )
@@ -158,14 +218,24 @@ def solve_magic_square(
     *,
     max_solutions: int = 1,
     max_nodes: int = 100_000,
+    symmetry_breaking: bool = False,
+    propagation_guided: bool = False,
 ) -> ChoiceSearchResult:
     """Solve a normal magic square using Snarky propagation and choices."""
 
-    model = magic_square_facts(size)
+    model = magic_square_facts(
+        size,
+        symmetry_breaking=symmetry_breaking,
+    )
     return solve_finite_csp(
         model,
         max_solutions=max_solutions,
         max_nodes=max_nodes,
+        policy=(
+            constraint_propagation_guided_policy(model)
+            if propagation_guided
+            else None
+        ),
         rule_groups=(
             *finite_csp_rule_library().finite_domain_groups,
             *model.groups,
@@ -199,11 +269,23 @@ def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("size", nargs="?", type=int, default=3)
     parser.add_argument("--solutions", type=int, default=1)
+    parser.add_argument(
+        "--symmetry-breaking",
+        action="store_true",
+        help="select a lexicographic representative under rotations/reflections",
+    )
+    parser.add_argument(
+        "--propagation-guided",
+        action="store_true",
+        help="probe up to eight values and try the least constraining first",
+    )
     arguments = parser.parse_args()
 
     result = solve_magic_square(
         arguments.size,
         max_solutions=arguments.solutions,
+        symmetry_breaking=arguments.symmetry_breaking,
+        propagation_guided=arguments.propagation_guided,
     )
     print(f"status={result.status} nodes={result.explored_nodes}")
     for solution in result.solutions:

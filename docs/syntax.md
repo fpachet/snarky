@@ -221,6 +221,18 @@ FROM
 END_TUPLES
 ```
 
+```text
+KIND LEX_LESS_EQUAL
+SCOPE SEQ[$left $right] ORDER BY $position
+FROM
+    ($ordering pair SEQ[$position $left $right])
+END_SCOPE
+```
+
+For `LEX_LESS_EQUAL`, every ordered scope row projects the corresponding
+left/right pair. The two grounded numeric variable sequences must have the
+same non-zero length.
+
 The complete operational contract and examples are in
 [Persistent finite-domain constraints](persistent_constraints.md).
 

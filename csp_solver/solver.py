@@ -13,11 +13,14 @@ from snarky import (
     ChoiceSearchResult,
     ChoiceSolution,
     ChoiceTraversal,
+    DomWdegChoicePolicy,
     Fact,
     FiniteSequence,
     ForwardEngine,
+    InferenceSession,
     MRVChoicePolicy,
     Number,
+    PropagationGuidedChoicePolicy,
     RuleChoiceProvider,
     RuleGroup,
     SemiNaiveInstantiationStrategy,
@@ -52,6 +55,8 @@ RIGHT = Atom("right")
 ALLOWS = Atom("allows")
 SEARCH = Atom("search")
 CHOICE_WEIGHT = Atom("choice_weight")
+VIOLATED_CONSTRAINT = Atom("violated_constraint")
+EMPTY_DOMAIN = Atom("empty_domain")
 
 
 @dataclass(frozen=True, slots=True)
@@ -170,6 +175,75 @@ def solve_binary_csp(
     )
 
 
+def constraint_dom_wdeg_policy(
+    model: FiniteCSP,
+) -> DomWdegChoicePolicy:
+    """Build a failure-attributed dom/wdeg policy for *model*."""
+
+    scopes: dict[Term, tuple[Term, ...]] = {
+        constraint.name: constraint.variables
+        for constraint in model.constraints
+    }
+    incident_lists: dict[Term, list[Term]] = {}
+    for constraint, variables in scopes.items():
+        for variable in variables:
+            incident_lists.setdefault(variable, []).append(constraint)
+    incident = {
+        variable: tuple(constraints)
+        for variable, constraints in incident_lists.items()
+    }
+
+    def failures(session: InferenceSession) -> tuple[Term, ...]:
+        violated = tuple(
+            fact.entity.object
+            for fact in session.facts
+            if isinstance(fact.entity, Triple)
+            and fact.entity.subject == model.problem
+            and fact.entity.relation == VIOLATED_CONSTRAINT
+        )
+        if violated:
+            return tuple(dict.fromkeys(violated))
+        empty_variables = tuple(
+            fact.entity.object
+            for fact in session.facts
+            if isinstance(fact.entity, Triple)
+            and fact.entity.subject == model.problem
+            and fact.entity.relation == EMPTY_DOMAIN
+        )
+        return tuple(
+            dict.fromkeys(
+                constraint
+                for variable in empty_variables
+                for constraint in incident.get(variable, ())
+            )
+        )
+
+    return DomWdegChoicePolicy(scopes, failures)
+
+
+def constraint_propagation_guided_policy(
+    model: FiniteCSP,
+    *,
+    maximum_alternatives: int = 8,
+) -> PropagationGuidedChoicePolicy:
+    """Combine dom/wdeg with bounded least-constraining-value probes."""
+
+    def remaining_candidates(session: InferenceSession) -> float:
+        return float(
+            sum(
+                isinstance(fact.entity, Triple)
+                and fact.entity.relation == CANDIDATE
+                for fact in session.facts
+            )
+        )
+
+    return PropagationGuidedChoicePolicy(
+        constraint_dom_wdeg_policy(model),
+        remaining_candidates,
+        maximum_alternatives=maximum_alternatives,
+    )
+
+
 def solve_finite_csp(
     model: FiniteCSP,
     *,
@@ -262,7 +336,14 @@ def solve_finite_csp(
         lambda current: (
             contradiction_fact in current.facts or invalid_choice_fact in current.facts
         ),
-        policy=policy or MRVChoicePolicy(),
+        policy=(
+            policy
+            or (
+                constraint_dom_wdeg_policy(model)
+                if model.constraints
+                else MRVChoicePolicy()
+            )
+        ),
         traversal=traversal,
         max_nodes=max_nodes,
         max_solutions=max_solutions,

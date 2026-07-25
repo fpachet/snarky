@@ -1,3 +1,5 @@
+import pytest
+
 from csp_solver.constraint_syntax import (
     instantiate_constraint_templates,
     parse_constraint_templates,
@@ -5,6 +7,7 @@ from csp_solver.constraint_syntax import (
 from csp_solver.persistent_constraints import (
     AllDifferentConstraint,
     GlobalCardinalityConstraint,
+    LexLessEqualConstraint,
     SumConstraint,
     TableConstraint,
 )
@@ -16,6 +19,7 @@ from csp_solver.solver import (
     VARIABLE,
     FiniteCSP,
     assignment_from_solution,
+    constraint_dom_wdeg_policy,
     solve_finite_csp,
 )
 from snarky import (
@@ -130,11 +134,13 @@ def test_persistent_constraint_contradiction_stops_before_choice() -> None:
         ),
     )
 
-    result = solve_finite_csp(model)
+    policy = constraint_dom_wdeg_policy(model)
+    result = solve_finite_csp(model, policy=policy)
 
     assert result.status is ChoiceSearchStatus.EXHAUSTED
     assert result.explored_nodes == 1
     assert result.failed_branches == 1
+    assert policy.weights[Atom("impossible_all_different")] == 2
 
 
 def test_sum_constraint_rejects_non_integer_candidate_domains() -> None:
@@ -160,6 +166,31 @@ def test_sum_constraint_rejects_non_integer_candidate_domains() -> None:
         assert "integer Number candidates" in str(error)
     else:
         raise AssertionError("SUM accepted a non-integer domain")
+
+
+def test_lex_constraint_rejects_non_numeric_candidate_domains() -> None:
+    problem = Atom("non_numeric_lex")
+    variable = Atom("x")
+    model = FiniteCSP(
+        problem,
+        (
+            Fact(Triple(problem, KIND, CSP_PROBLEM)),
+            Fact(Triple(problem, VARIABLE, variable)),
+            Fact(Triple(variable, KIND, CSP_VARIABLE)),
+            Fact(Triple(variable, CANDIDATE, Atom("not_a_number"))),
+        ),
+        {},
+        constraints=(
+            LexLessEqualConstraint(
+                Atom("numeric_lex"),
+                (variable,),
+                (variable,),
+            ),
+        ),
+    )
+
+    with pytest.raises(TypeError, match="numeric Number candidates"):
+        solve_finite_csp(model)
 
 
 def test_fact_derived_gcc_template_filters_occurrence_bounds() -> None:
@@ -317,3 +348,45 @@ def test_fact_derived_table_constraint_filters_complete_supports() -> None:
         left: red,
         right: blue,
     }
+
+
+def test_fact_derived_lex_less_equal_accepts_paired_scope_projection() -> None:
+    first = Atom("first")
+    second = Atom("second")
+    third = Atom("third")
+    ordering = Atom("ordering")
+    facts = (
+        Fact(
+            Triple(
+                ordering,
+                Atom("pair"),
+                FiniteSequence((Number(1), first, second)),
+            )
+        ),
+        Fact(
+            Triple(
+                ordering,
+                Atom("pair"),
+                FiniteSequence((Number(2), second, third)),
+            )
+        ),
+    )
+    templates = parse_constraint_templates(
+        """
+        CONSTRAINT canonical_order
+        KIND LEX_LESS_EQUAL
+        SCOPE SEQ[$left $right] ORDER BY $position
+        FROM
+            (ordering pair SEQ[$position $left $right])
+        END_SCOPE
+        END
+        """
+    )
+
+    assert instantiate_constraint_templates(templates, facts) == (
+        LexLessEqualConstraint(
+            Atom("canonical_order"),
+            (first, second),
+            (second, third),
+        ),
+    )

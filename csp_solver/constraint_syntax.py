@@ -28,6 +28,7 @@ from snarky.premises import Premise, validate_premise_bindings
 from .persistent_constraints import (
     AllDifferentConstraint,
     GlobalCardinalityConstraint,
+    LexLessEqualConstraint,
     PersistentConstraint,
     SumConstraint,
     TableConstraint,
@@ -43,6 +44,7 @@ _BOUNDS_RE = re.compile(r"BOUNDS\s+(?P<projection>.+)\Z")
 class PersistentConstraintKind(StrEnum):
     ALL_DIFFERENT = "ALL_DIFFERENT"
     GCC = "GCC"
+    LEX_LESS_EQUAL = "LEX_LESS_EQUAL"
     SUM = "SUM"
     TABLE = "TABLE"
 
@@ -436,15 +438,16 @@ def _instantiate_template(
             rows.sort(key=lambda row: _term_sort_key(row[0]))
         else:
             rows.sort(key=lambda row: repr(row[1]))
-        variables = tuple(dict.fromkeys(row[1] for row in rows))
         name = Atom(
             template.name
             if len(ordered_groups) == 1 and not key
             else f"{template.name}_{instance}"
         )
         if template.kind is PersistentConstraintKind.ALL_DIFFERENT:
+            variables = tuple(dict.fromkeys(row[1] for row in rows))
             output.append(AllDifferentConstraint(name, variables))
         elif template.kind is PersistentConstraintKind.SUM:
+            variables = tuple(dict.fromkeys(row[1] for row in rows))
             targets = {row[2] for row in rows}
             if len(targets) != 1:
                 raise ValueError(
@@ -461,6 +464,7 @@ def _instantiate_template(
                 )
             )
         elif template.kind is PersistentConstraintKind.GCC:
+            variables = tuple(dict.fromkeys(row[1] for row in rows))
             output.append(
                 GlobalCardinalityConstraint(
                     name,
@@ -473,12 +477,33 @@ def _instantiate_template(
                     ),
                 )
             )
-        else:
+        elif template.kind is PersistentConstraintKind.TABLE:
+            variables = tuple(dict.fromkeys(row[1] for row in rows))
             output.append(
                 TableConstraint(
                     name,
                     variables,
                     tuple(tuples_by_context.get(key, ())),
+                )
+            )
+        else:
+            pairs: list[tuple[Term, Term]] = []
+            for _, projection, _ in rows:
+                if (
+                    not isinstance(projection, FiniteSequence)
+                    or len(projection.elements) != 2
+                ):
+                    raise ValueError(
+                        f"LEX_LESS_EQUAL template {template.name!r} SCOPE "
+                        "must project SEQ[left right]"
+                    )
+                left, right = projection.elements
+                pairs.append((left, right))
+            output.append(
+                LexLessEqualConstraint(
+                    name,
+                    tuple(left for left, _ in pairs),
+                    tuple(right for _, right in pairs),
                 )
             )
     return tuple(output)

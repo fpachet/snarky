@@ -2,12 +2,16 @@
 
 from .choice_frontier import ChoiceTraversal as ChoiceTraversal
 from .choice_policies import ChoicePolicy as ChoicePolicy
+from .choice_policies import DomWdegChoicePolicy as DomWdegChoicePolicy
 from .choice_policies import MRVChoicePolicy as MRVChoicePolicy
 from .choice_policies import (
     PriorityMRVChoicePolicy as PriorityMRVChoicePolicy,
 )
 from .choice_policies import (
     PriorityWeightedRandomChoicePolicy as PriorityWeightedRandomChoicePolicy,
+)
+from .choice_policies import (
+    PropagationGuidedChoicePolicy as PropagationGuidedChoicePolicy,
 )
 from .choice_policies import (
     WeightedRandomChoicePolicy as WeightedRandomChoicePolicy,
