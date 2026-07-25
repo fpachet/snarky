@@ -1,0 +1,64 @@
+{
+  "benchmark": "adaptive_fact_buckets",
+  "date": "2026-07-25",
+  "python": "3.13.11",
+  "platform": "macOS-15.7.7-arm64-arm-64bit-Mach-O",
+  "baseline_commit": "ed8e0cd",
+  "current_commit": "4f82cd5",
+  "protocol": {
+    "series_order": [
+      "baseline",
+      "current",
+      "current",
+      "baseline"
+    ],
+    "summary": "mean of the two independently measured medians",
+    "same_interpreter_and_environment": true
+  },
+  "cases": {
+    "residual_witness_churn": {
+      "command": "python benchmarks/constraint_support_churn.py --repeat 21",
+      "baseline_summary_seconds": 0.05431689599981837,
+      "current_summary_seconds": 0.036731458000303974,
+      "delta_percent": -32.375631331313926,
+      "speedup": 1.4787568737230323,
+      "logical_counters": {
+        "match_attempts": 1253,
+        "residual_witness_promotions": 32,
+        "witness_cache_hits": 32,
+        "witness_cache_invalidations": 32,
+        "witness_cache_misses": 33
+      }
+    },
+    "no_residual_witness_control": {
+      "command": "python benchmarks/constraint_support_churn.py --repeat 21",
+      "baseline_summary_seconds": 0.057912875000056374,
+      "current_summary_seconds": 0.04085399999985384,
+      "delta_percent": -29.456101083197694,
+      "speedup": 1.417557032365584,
+      "logical_counters": {
+        "match_attempts": 2275,
+        "residual_witness_promotions": 0,
+        "witness_cache_hits": 0,
+        "witness_cache_invalidations": 64,
+        "witness_cache_misses": 65
+      }
+    },
+    "append_only_fibonacci_control": {
+      "command": "python benchmarks/fibonacci_explicit.py --n 12 --repeat 31 --strategy semi-naive",
+      "baseline_summary_seconds": 0.054204895999646396,
+      "current_summary_seconds": 0.054242957999122154,
+      "delta_percent": 0.07021874827692898,
+      "logical_counters": {
+        "facts": 860,
+        "derived_facts": 859,
+        "cycles": 21,
+        "fired_activations": 430,
+        "activations_produced": 430,
+        "candidate_facts": 2147,
+        "match_attempts": 2147
+      }
+    }
+  },
+  "conclusion": "Buckets remain lists while append-only and promote to ordered constant-time-removal storage only on large mutations."
+}

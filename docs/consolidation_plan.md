@@ -247,6 +247,15 @@ candidates, and match attempts remained identical. The interleaved
 21-repetition protocol is recorded in
 [`semi_naive_compiled_delta_2026-07-25.json`](../benchmarks/results/semi_naive_compiled_delta_2026-07-25.json).
 
+High-churn top-level fact buckets were optimized separately at commit
+`4f82cd5`. Buckets remain compact lists on append-only workloads and promote
+to ordered constant-time-removal storage only when a large bucket is first
+mutated. Residual-witness churn improved by 32.4% and its control by 29.5%;
+append-only semi-naive F(12) changed by only +0.07%. Order, cloning, later
+additions, delta partitioning, and all logical counters remain identical.
+The protocol is recorded in
+[`adaptive_fact_buckets_2026-07-25.json`](../benchmarks/results/adaptive_fact_buckets_2026-07-25.json).
+
 The `engine/forward.py` decomposition target is complete for C3. The next
 choice decomposition target is also complete: production, policies, frontier
 management, and traversal live in focused modules, while `choice.py` is a
@@ -260,6 +269,7 @@ structural signatures, aggregate supports, and revision lifecycle now live
 in `instantiation/query_memory.py`, with direct lifecycle tests and unchanged
 hot-path dictionary references. Semi-naive delta planning and traversal now
 live in `instantiation/semi_naive_join.py`; the optimized path shares the
-compiled matching representation used by complete joins. The remaining
-`indexed.py` work is a separately benchmarked improvement to high-churn fact
-bucket removal before C3 moves to `domain_filter.py`.
+compiled matching representation used by complete joins. The `indexed.py`
+decomposition target is complete, including the separately benchmarked
+high-churn bucket optimization. C3 now moves to `domain_filter.py`, beginning
+with compact table definitions and state.
