@@ -2,6 +2,7 @@ import pytest
 
 import snarky
 import snarky.choice as choice_api
+import snarky.choice_search as search_api
 from snarky import (
     Atom,
     ChoiceAlternative,
@@ -91,6 +92,28 @@ def test_choice_policies_keep_their_public_import_paths() -> None:
     assert (
         WeightedRandomChoicePolicy is PolicyWeightedRandomChoicePolicy
     )
+
+
+def test_choice_search_keeps_its_public_import_paths() -> None:
+    assert SessionChoiceSearch is snarky.SessionChoiceSearch
+    assert SessionChoiceSearch is choice_api.SessionChoiceSearch
+    assert SessionChoiceSearch is search_api.SessionChoiceSearch
+    assert ChoiceEventKind is snarky.ChoiceEventKind
+    assert ChoiceEventKind is choice_api.ChoiceEventKind
+    assert ChoiceEventKind is search_api.ChoiceEventKind
+    assert ChoiceSearchStatus is snarky.ChoiceSearchStatus
+    assert ChoiceSearchStatus is choice_api.ChoiceSearchStatus
+    assert ChoiceSearchStatus is search_api.ChoiceSearchStatus
+    assert snarky.ChoiceDecision is choice_api.ChoiceDecision
+    assert snarky.ChoiceDecision is search_api.ChoiceDecision
+    assert snarky.ChoiceEvent is choice_api.ChoiceEvent
+    assert snarky.ChoiceEvent is search_api.ChoiceEvent
+    assert snarky.ChoiceSearchResult is choice_api.ChoiceSearchResult
+    assert snarky.ChoiceSearchResult is search_api.ChoiceSearchResult
+    assert snarky.ChoiceSolution is choice_api.ChoiceSolution
+    assert snarky.ChoiceSolution is search_api.ChoiceSolution
+    assert snarky.StrategyFactory is choice_api.StrategyFactory
+    assert snarky.StrategyFactory is search_api.StrategyFactory
 
 
 def test_choice_alternative_rejects_invalid_weights() -> None:
