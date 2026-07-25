@@ -63,3 +63,44 @@ def test_fact_index_partitions_candidates_at_a_stable_delta_rank() -> None:
             new=True,
         )
     ) == (new,)
+
+
+def test_large_mutated_bucket_preserves_order_clone_and_delta_partition() -> None:
+    facts = tuple(
+        _fact(f"node-{index}", f"value-{index}")
+        for index in range(80)
+    )
+    removed = facts[20]
+    index = FactIndex(facts)
+    premise = FactPremise(
+        Triple(
+            Variable("subject"),
+            Atom("relation"),
+            Variable("object"),
+        )
+    )
+
+    assert index.remove(frozenset((removed,))) == 1
+    clone = index.clone()
+    added = _fact("node-new", "value-new")
+    assert index.extend((added,)) == 1
+    delta_start = index.delta_start((added,))
+
+    survivors = tuple(fact for fact in facts if fact != removed)
+    assert tuple(
+        index.candidates_partitioned(
+            premise,
+            EMPTY_SUBSTITUTION,
+            delta_start,
+            new=False,
+        )
+    ) == survivors
+    assert tuple(
+        index.candidates_partitioned(
+            premise,
+            EMPTY_SUBSTITUTION,
+            delta_start,
+            new=True,
+        )
+    ) == (added,)
+    assert tuple(clone.candidates(premise, EMPTY_SUBSTITUTION)) == survivors

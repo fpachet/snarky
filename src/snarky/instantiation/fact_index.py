@@ -20,6 +20,7 @@ type StructuralSignature = tuple[TermPath, ...]
 type StructuralKey = tuple[Term, ...]
 _STRUCTURAL_INDEX_MIN_BUCKET = 8
 _ORDERED_FACT_SET_MIN_INITIAL_FACTS = 1_500
+_ORDERED_BUCKET_MIN_REMOVAL_SIZE = 64
 
 
 class _OrderedFactSet(Sequence[Fact]):
@@ -27,8 +28,8 @@ class _OrderedFactSet(Sequence[Fact]):
 
     __slots__ = ("_members", "_snapshot")
 
-    def __init__(self) -> None:
-        self._members: dict[Fact, None] = {}
+    def __init__(self, facts: Sequence[Fact] = ()) -> None:
+        self._members: dict[Fact, None] = dict.fromkeys(facts)
         self._snapshot: tuple[Fact, ...] | None = None
 
     def add(self, fact: Fact) -> bool:
@@ -37,6 +38,11 @@ class _OrderedFactSet(Sequence[Fact]):
         self._members[fact] = None
         self._snapshot = None
         return True
+
+    def append(self, fact: Fact) -> None:
+        """Provide the list insertion API used by adaptive buckets."""
+
+        self.add(fact)
 
     def discard(self, fact: Fact) -> bool:
         if fact not in self._members:
@@ -75,6 +81,9 @@ class _OrderedFactSet(Sequence[Fact]):
         if self._snapshot is None:
             self._snapshot = tuple(self._members)
         return self._snapshot[index]
+
+
+type _FactBucket = list[Fact] | _OrderedFactSet
 
 
 def _resolved_leaf_constraints(
@@ -201,19 +210,19 @@ class FactIndex:
         )
         self.ranks: dict[Fact, int] = {}
         self._next_rank = 0
-        self.by_entity: defaultdict[Term, list[Fact]] = defaultdict(list)
-        self.by_status: defaultdict[Term, list[Fact]] = defaultdict(list)
-        self.by_subject: defaultdict[Term, list[Fact]] = defaultdict(list)
-        self.by_relation: defaultdict[Term, list[Fact]] = defaultdict(list)
-        self.by_object: defaultdict[Term, list[Fact]] = defaultdict(list)
+        self.by_entity: defaultdict[Term, _FactBucket] = defaultdict(list)
+        self.by_status: defaultdict[Term, _FactBucket] = defaultdict(list)
+        self.by_subject: defaultdict[Term, _FactBucket] = defaultdict(list)
+        self.by_relation: defaultdict[Term, _FactBucket] = defaultdict(list)
+        self.by_object: defaultdict[Term, _FactBucket] = defaultdict(list)
         self.by_subject_relation: defaultdict[
-            tuple[Term, Term], list[Fact]
+            tuple[Term, Term], _FactBucket
         ] = defaultdict(list)
         self.by_relation_object: defaultdict[
-            tuple[Term, Term], list[Fact]
+            tuple[Term, Term], _FactBucket
         ] = defaultdict(list)
         self.by_subject_object: defaultdict[
-            tuple[Term, Term], list[Fact]
+            tuple[Term, Term], _FactBucket
         ] = defaultdict(list)
         self.by_structure: dict[
             StructuralSignature,
@@ -317,18 +326,18 @@ class FactIndex:
         )
         clone.ranks = self.ranks.copy()
         clone._next_rank = self._next_rank
-        clone.by_entity = _clone_list_buckets(self.by_entity)
-        clone.by_status = _clone_list_buckets(self.by_status)
-        clone.by_subject = _clone_list_buckets(self.by_subject)
-        clone.by_relation = _clone_list_buckets(self.by_relation)
-        clone.by_object = _clone_list_buckets(self.by_object)
-        clone.by_subject_relation = _clone_list_buckets(
+        clone.by_entity = _clone_fact_buckets(self.by_entity)
+        clone.by_status = _clone_fact_buckets(self.by_status)
+        clone.by_subject = _clone_fact_buckets(self.by_subject)
+        clone.by_relation = _clone_fact_buckets(self.by_relation)
+        clone.by_object = _clone_fact_buckets(self.by_object)
+        clone.by_subject_relation = _clone_fact_buckets(
             self.by_subject_relation
         )
-        clone.by_relation_object = _clone_list_buckets(
+        clone.by_relation_object = _clone_fact_buckets(
             self.by_relation_object
         )
-        clone.by_subject_object = _clone_list_buckets(
+        clone.by_subject_object = _clone_fact_buckets(
             self.by_subject_object
         )
         clone.by_structure = {
@@ -345,12 +354,19 @@ class FactIndex:
 
     @staticmethod
     def _remove_from_bucket(
-        buckets: defaultdict[IndexKeyT, list[Fact]],
+        buckets: defaultdict[IndexKeyT, _FactBucket],
         key: IndexKeyT,
         fact: Fact,
     ) -> None:
         bucket = buckets[key]
-        bucket.remove(fact)
+        if isinstance(bucket, _OrderedFactSet):
+            bucket.discard(fact)
+        elif len(bucket) >= _ORDERED_BUCKET_MIN_REMOVAL_SIZE:
+            promoted = _OrderedFactSet(bucket)
+            buckets[key] = promoted
+            promoted.discard(fact)
+        else:
+            bucket.remove(fact)
         if not bucket:
             del buckets[key]
 
@@ -542,10 +558,17 @@ class FactIndex:
         return len(self.facts)
 
 
-def _clone_list_buckets[KeyT](
-    buckets: defaultdict[KeyT, list[Fact]],
-) -> defaultdict[KeyT, list[Fact]]:
+def _clone_fact_buckets[KeyT](
+    buckets: defaultdict[KeyT, _FactBucket],
+) -> defaultdict[KeyT, _FactBucket]:
     return defaultdict(
         list,
-        {key: facts.copy() for key, facts in buckets.items()},
+        {
+            key: (
+                facts.clone()
+                if isinstance(facts, _OrderedFactSet)
+                else facts.copy()
+            )
+            for key, facts in buckets.items()
+        },
     )
