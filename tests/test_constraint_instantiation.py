@@ -5,6 +5,7 @@ from snarky import (
     AdaptiveInstantiationStrategy,
     ComparisonPremise,
     ConstraintInstantiationStrategy,
+    DomainPropagator,
     Fact,
     FactDelta,
     ForwardEngine,
@@ -16,6 +17,12 @@ from snarky import (
     Variable,
     parse_rules,
     parse_term,
+)
+from snarky.instantiation.comparison_propagators import (
+    DomainPropagator as ExtractedDomainPropagator,
+)
+from snarky.instantiation.domain_filter import (
+    DomainPropagator as HistoricalDomainPropagator,
 )
 
 
@@ -38,6 +45,11 @@ class _CountingPropagator:
     ) -> set[Variable] | None:
         self.calls += 1
         return set()
+
+
+def test_domain_propagator_keeps_its_public_and_historical_imports() -> None:
+    assert DomainPropagator is ExtractedDomainPropagator
+    assert HistoricalDomainPropagator is ExtractedDomainPropagator
 
 
 def test_custom_domain_propagator_is_used_before_builtin_ones() -> None:
