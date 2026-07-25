@@ -1,0 +1,69 @@
+{
+  "benchmark": "adaptive_selection_and_branching",
+  "date": "2026-07-25",
+  "python": "3.13.11",
+  "platform": "macOS-15.7.7-arm64-arm-64bit-Mach-O",
+  "previous_tranche_commit": "60f2231",
+  "selection_extraction_commit": "0222852",
+  "branch_optimization_commit": "f331118",
+  "protocol": {
+    "series_order": [
+      "baseline",
+      "current",
+      "current",
+      "baseline"
+    ],
+    "same_interpreter_and_environment": true
+  },
+  "cases": {
+    "populated_adaptive_branch": {
+      "command": "python -m benchmarks.constraint_branching --size 40 --forks-per-sample 5 --repeat 21",
+      "facts": 3201,
+      "domain_memories": 1,
+      "adaptive_decisions": 1,
+      "baseline_result": {
+        "status": "error",
+        "exception": "TypeError",
+        "message": "cannot pickle 'mappingproxy' object"
+      },
+      "current_medians_seconds_per_fork": [
+        0.0020499750000453785,
+        0.0020464418001211017
+      ],
+      "current_summary_seconds_per_fork": 0.00204820840008324,
+      "current_status": "success",
+      "preserved_state": [
+        "concrete strategy type",
+        "configuration",
+        "adaptive decisions and cost ratios",
+        "domain definitions and active masks",
+        "projected domains",
+        "populated fact index"
+      ]
+    },
+    "adaptive_arithmetic_control": {
+      "baseline_commit": "60f2231",
+      "current_commit": "f331118",
+      "command": "python -c 'from benchmarks.arithmetic_constraints import measure; print(measure(200, 31, \"adaptive\"))'",
+      "baseline_summary_seconds": 0.002124416500009829,
+      "current_summary_seconds": 0.00210881250040984,
+      "delta_percent": -0.7345075506576482,
+      "logical_counters": {
+        "facts": 402,
+        "activations": 1,
+        "match_attempts": 3,
+        "domain_match_attempts": 404,
+        "domain_specialized_revisions": 2,
+        "domain_specialized_value_checks": 201,
+        "domain_projection_rows_examined": 401,
+        "domain_state_reuses": 1,
+        "domain_bitset_intersections": 801,
+        "domain_bitset_support_checks": 403,
+        "domain_bitset_value_events": 398,
+        "domain_compact_join_rows": 3,
+        "domain_delta_join_skips": 1
+      }
+    }
+  },
+  "conclusion": "Adaptive decisions now live in a focused policy object, comparison support is computed once, and populated branch cloning no longer depends on generic deepcopy."
+}

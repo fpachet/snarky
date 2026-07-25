@@ -291,6 +291,24 @@ changed by only +0.53%, with all logical and propagation counters identical.
 Raw interleaved measurements are in
 [`domain_planning_2026-07-25.json`](../benchmarks/results/domain_planning_2026-07-25.json).
 
+Adaptive thresholds, per-rule decisions, deferred probe counts, and observed
+cost ratios were extracted to `instantiation/adaptive_selection.py` at commit
+`0222852`. The strategy now computes comparison-propagator support once and
+passes the result through the static and table-size decisions. Direct policy
+tests cover shape and distribution rejection, immediate selection, deferred
+probing, measured selection, and invalidation.
+
+Profiling this lifecycle exposed a correctness issue in the former generic
+`deepcopy` branch path: a populated adaptive strategy raised `TypeError`
+because cached propagation mappings and rule-indexed state are not picklable.
+Commit `f331118` replaces it with a specialized clone that shares immutable
+facts and explanations while isolating the fact index, compact tables,
+active masks, projected domains, adaptive state, and custom propagators. A
+branch over 3,201 facts and one populated domain memory now succeeds in
+2.05 ms. The adaptive arithmetic control changed by -0.73%, with all logical
+and propagation counters identical. The reproduction and measurements are in
+[`adaptive_selection_branching_2026-07-25.json`](../benchmarks/results/adaptive_selection_branching_2026-07-25.json).
+
 The `engine/forward.py` decomposition target is complete for C3. The next
 choice decomposition target is also complete: production, policies, frontier
 management, and traversal live in focused modules, while `choice.py` is a
@@ -311,4 +329,7 @@ complete: compact table definitions and state now live in
 `instantiation/domain_tables.py`, and specialized comparison propagation now
 lives in `instantiation/comparison_propagators.py`. Domain planning and graph
 analysis now live in `instantiation/domain_planning.py`, including linear
-component construction. C3 continues with adaptive filter selection.
+component construction. Adaptive selection now lives in
+`instantiation/adaptive_selection.py`, and populated branch cloning is
+explicit and isolated. The `domain_filter.py` decomposition target is
+complete. C3 continues with `parser.py`.
