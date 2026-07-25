@@ -152,6 +152,48 @@ cycles sans support externe et reste désactivé par défaut.
 Il ne s'agit pas d'un ATMS : environnements alternatifs, nogoods et
 justifications négatives complètes restent séparés.
 
+## Apports à conserver de la présentation SNARK 2
+
+La présentation de Bernard Espinasse
+[`6-SNARK2-4p.pdf`](6-SNARK2-4p.pdf) décrit plusieurs mécanismes historiques
+de SNARK 2. La représentation par triplets, les variables en position
+relation, la négation, les suppressions, la justification, les hypothèses,
+les étapes, le filtrage des règles et l'ordre heuristique des prémisses ont
+déjà un équivalent dans Snarky.
+
+Les idées suivantes restent pertinentes, sans imposer de reprendre leur
+syntaxe historique :
+
+1. **Mutations structurées.** Distinguer l'ajout d'un triplet du remplacement
+   de toutes les autres valeurs d'un même couple `(objet, relation)`, puis
+   étudier les suppressions par motif : tous les faits mentionnant un objet,
+   ou tous les faits d'une relation donnée pour un objet. Ces opérations
+   devront être atomiques, produire des `InferenceEvent` explicites et
+   préserver la provenance.
+2. **Rétraction dirigée par la dépendance.** Étudier un équivalent sûr de
+   `REVENIR-SUR`, qui retire un fait et restaure la fermeture comme s'il
+   n'avait pas été inféré. Cette opération doit rester distincte du rollback
+   de branche et généraliser le TMS positif avant tout ATMS complet.
+3. **Méta-connaissance sur l'agenda.** Permettre à terme de désigner des règles
+   par la structure de leurs prémisses ou actions, de leur attribuer une
+   priorité locale, puis de les inhiber ou les réactiver sous conditions. Une
+   telle réflexion devra être typée, bornée, traçable et ne jamais évaluer du
+   code ou des noms dynamiques.
+4. **Stratégie de conflit historique.** Reproduire comme oracle optionnel le
+   filtrage et les heuristiques documentés par SNARK 2 : sélectivité des
+   prémisses, nombre d'occurrences et rapport entre actions et variables. Le
+   but serait de comparer cette stratégie à MEA et aux jointures adaptatives,
+   pas d'en faire le nouveau comportement par défaut.
+5. **Règles démons.** Évaluer les règles à priorité absolue comme une
+   composition de groupes réactifs, priorités d'agenda et conditions d'arrêt.
+   Une primitive spéciale ne sera justifiée que si cette composition ne
+   reproduit pas leur sémantique.
+
+Le problème des enfants et des fleurs présenté dans le document constitue le
+meilleur oracle historique pour ces mécanismes. Sa transcription devra
+précéder toute extension du moteur et comparer faits, ordre des
+déclenchements, mutations et résultat final.
+
 ## Extensions encore proposées
 
 - prémisses de collection `MEMBER` et `SIZE`, validées d'abord par les naked
@@ -163,8 +205,12 @@ justifications négatives complètes restent séparés.
 - apprentissage de nogoods et heuristiques d'impact pour la recherche ;
 - langage déclaratif unifié de procédures de groupes ;
 - ATMS et provenance complète des prémisses négatives ;
-- réflexion sur les règles et méta-règles NéOpus ;
-- modifications partielles de faits ;
+- mutations structurées et rétraction dirigée par la provenance, inspirées de
+  SNARK 2 ;
+- réflexion sur les règles, priorités locales, inhibition et réactivation par
+  méta-règles SNARK 2/NéOpus ;
+- stratégie de conflit historique et règles démons, seulement après
+  transcription d'une base et d'un oracle reproductibles ;
 - Sudoku p8 et niveaux suivants, seulement à partir d'oracles précis.
 
 ## Intégration des objets Python
@@ -216,7 +262,13 @@ Voir [`python_object_integration.md`](python_object_integration.md).
     renversements, six-quatre non cadentiels, exceptions, notes étrangères,
     métrique, tonalités et modulations.
 19. Mesurer une éventuelle consistance généralisée de `ALL_DIFFERENT`.
-20. Ne retenir les extensions restantes qu'avec une base et un oracle
+20. Transcrire le problème SNARK 2 des enfants et des fleurs comme base
+    historique, avec faits, règles, trace attendue et résultat final.
+21. Comparer sur cet oracle MEA, la stratégie de conflit historique et
+    l'ordre adaptatif des prémisses.
+22. Spécifier les mutations structurées et la rétraction dirigée avant
+    d'envisager les méta-règles, l'inhibition dynamique ou les règles démons.
+23. Ne retenir les extensions restantes qu'avec une base et un oracle
     reproductibles.
 
 L'exploration parallèle des alternatives reste une piste postérieure, décrite
