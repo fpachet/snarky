@@ -62,6 +62,11 @@ class NaiveInstantiationStrategy:
 
         del removed
 
+    def fork_for_branch(self) -> NaiveInstantiationStrategy:
+        """Return an isolated stateless strategy for a search branch."""
+
+        return NaiveInstantiationStrategy(self.matcher)
+
     def _extend(
         self,
         rule: Rule,

@@ -1,11 +1,22 @@
+import random
+
+from hypothesis import given, settings
+from hypothesis import strategies as st
+
 from snarky import (
+    Atom,
     Fact,
     FactMutationKind,
     ForwardEngine,
     GroupExecutionMode,
     GroupStopReason,
     IndexedInstantiationStrategy,
+    InferenceSession,
+    NaiveInstantiationStrategy,
     RemoveFact,
+    SemiNaiveInstantiationStrategy,
+    SessionCheckpoint,
+    Triple,
     parse_rule_groups,
     parse_rules,
     parse_term,
@@ -165,3 +176,261 @@ def test_indexed_strategy_updates_its_shared_index_after_removal() -> None:
     assert result.mutation_count == 4
     assert strategy.metrics.index_builds == 1
     assert strategy.metrics.index_removals == 2
+
+
+def _observable_state(session: InferenceSession) -> tuple[object, ...]:
+    snapshot = session.snapshot()
+    return (
+        snapshot.facts,
+        snapshot.derived_facts,
+        snapshot.derivations,
+        snapshot.cycles,
+        snapshot.fired_activation_count,
+        snapshot.events,
+    )
+
+
+def test_generated_mutation_sequences_match_naive_oracle() -> None:
+    (derive,) = parse_rule_groups(
+        """
+        GROUP derive
+            RULE copy_source
+            WHEN
+                ($item source $value)
+            THEN
+                ADD ($item derived $value)
+            END
+
+            RULE expose_unblocked
+            WHEN
+                ($item derived $value)
+                NOT EXISTS ($item blocked $value)
+            THEN
+                ADD ($item available $value)
+            END
+        END_GROUP
+        """
+    )
+    strategies = (
+        NaiveInstantiationStrategy(),
+        IndexedInstantiationStrategy(),
+        SemiNaiveInstantiationStrategy(),
+    )
+    sessions = tuple(
+        ForwardEngine((), strategy=strategy).create_session(())
+        for strategy in strategies
+    )
+    generator = random.Random(20260725)
+    items = tuple(Atom(f"item_{index}") for index in range(4))
+    values = tuple(Atom(f"value_{index}") for index in range(3))
+    checkpoints: tuple[SessionCheckpoint, ...] | None = None
+
+    for step in range(24):
+        item = generator.choice(items)
+        value = generator.choice(values)
+        relation = generator.choice((Atom("source"), Atom("blocked")))
+        fact = Fact(Triple(item, relation, value))
+        mutation = generator.choice(("assume", "retract"))
+        for session in sessions:
+            if mutation == "assume":
+                session.assume(fact)
+            else:
+                session.retract(fact)
+            session.run_group(derive)
+
+        if step == 7:
+            checkpoints = tuple(session.checkpoint() for session in sessions)
+        elif step == 15:
+            assert checkpoints is not None
+            for session, checkpoint in zip(
+                sessions,
+                checkpoints,
+                strict=True,
+            ):
+                session.rollback(checkpoint)
+                session.release(checkpoint)
+
+        expected = _observable_state(sessions[0])
+        assert all(
+            _observable_state(session) == expected
+            for session in sessions[1:]
+        )
+
+
+@settings(max_examples=40, deadline=None)
+@given(
+    st.lists(
+        st.tuples(
+            st.sampled_from(
+                (
+                    "assume_source",
+                    "retract_source",
+                    "assume_blocked",
+                    "retract_blocked",
+                    "branch_source",
+                    "branch_blocked",
+                )
+            ),
+            st.integers(min_value=0, max_value=3),
+            st.integers(min_value=0, max_value=2),
+        ),
+        min_size=1,
+        max_size=20,
+    )
+)
+def test_property_mutation_sequences_match_naive_oracle(
+    operations: list[tuple[str, int, int]],
+) -> None:
+    (derive,) = parse_rule_groups(
+        """
+        GROUP derive
+            RULE copy_source
+            WHEN
+                ($item source $value)
+            THEN
+                ADD ($item derived $value)
+            END
+
+            RULE expose_unblocked
+            WHEN
+                ($item derived $value)
+                NOT EXISTS ($item blocked $value)
+            THEN
+                ADD ($item available $value)
+            END
+        END_GROUP
+        """
+    )
+    sessions = tuple(
+        ForwardEngine((), strategy=strategy).create_session(())
+        for strategy in (
+            NaiveInstantiationStrategy(),
+            IndexedInstantiationStrategy(),
+            SemiNaiveInstantiationStrategy(),
+        )
+    )
+
+    for action, item_index, value_index in operations:
+        relation = (
+            Atom("source")
+            if action.endswith("source")
+            else Atom("blocked")
+        )
+        fact = Fact(
+            Triple(
+                Atom(f"item_{item_index}"),
+                relation,
+                Atom(f"value_{value_index}"),
+            )
+        )
+        if action.startswith("branch"):
+            checkpoints = tuple(
+                session.checkpoint() for session in sessions
+            )
+            for session in sessions:
+                session.assume(fact)
+                session.run_group(derive)
+            for session, checkpoint in zip(
+                sessions,
+                checkpoints,
+                strict=True,
+            ):
+                session.rollback(checkpoint)
+                session.release(checkpoint)
+        else:
+            for session in sessions:
+                if action.startswith("assume"):
+                    session.assume(fact)
+                else:
+                    session.retract(fact)
+                session.run_group(derive)
+
+        expected = _observable_state(sessions[0])
+        assert all(
+            _observable_state(session) == expected
+            for session in sessions[1:]
+        )
+
+
+@settings(max_examples=30, deadline=None)
+@given(
+    st.lists(
+        st.tuples(
+            st.sampled_from(("assume", "retract", "branch")),
+            st.integers(min_value=0, max_value=3),
+            st.integers(min_value=0, max_value=2),
+        ),
+        min_size=1,
+        max_size=20,
+    )
+)
+def test_property_truth_maintenance_sequences_match_naive_oracle(
+    operations: list[tuple[str, int, int]],
+) -> None:
+    (derive,) = parse_rule_groups(
+        """
+        GROUP derive
+            RULE source_to_middle
+            WHEN
+                ($item source $value)
+            THEN
+                ADD ($item middle $value)
+            END
+
+            RULE middle_to_final
+            WHEN
+                ($item middle $value)
+            THEN
+                ADD ($item final $value)
+            END
+        END_GROUP
+        """
+    )
+    sessions = tuple(
+        ForwardEngine(
+            (),
+            strategy=strategy,
+            truth_maintenance=True,
+        ).create_session(())
+        for strategy in (
+            NaiveInstantiationStrategy(),
+            IndexedInstantiationStrategy(),
+            SemiNaiveInstantiationStrategy(),
+        )
+    )
+
+    for action, item_index, value_index in operations:
+        fact = Fact(
+            Triple(
+                Atom(f"item_{item_index}"),
+                Atom("source"),
+                Atom(f"value_{value_index}"),
+            )
+        )
+        if action == "branch":
+            checkpoints = tuple(
+                session.checkpoint() for session in sessions
+            )
+            for session in sessions:
+                session.assume(fact)
+                session.run_group(derive)
+            for session, checkpoint in zip(
+                sessions,
+                checkpoints,
+                strict=True,
+            ):
+                session.rollback(checkpoint)
+                session.release(checkpoint)
+        else:
+            for session in sessions:
+                if action == "assume":
+                    session.assume(fact)
+                else:
+                    session.retract(fact)
+                session.run_group(derive)
+
+        expected = _observable_state(sessions[0])
+        assert all(
+            _observable_state(session) == expected
+            for session in sessions[1:]
+        )

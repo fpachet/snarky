@@ -1,9 +1,29 @@
-from snarky import Fact, ForwardEngine, InferenceSession, parse_rule_groups
+from snarky import (
+    Fact,
+    ForwardEngine,
+    InferenceSession,
+    SessionCheckpoint,
+    parse_rule_groups,
+)
+from snarky.engine import SessionCheckpoint as EngineSessionCheckpoint
+from snarky.engine.forward import (
+    SessionCheckpoint as ForwardSessionCheckpoint,
+)
 from snarky.parser import parse_term
 
 
 def _fact(text: str) -> Fact:
     return Fact(parse_term(text))
+
+
+def test_checkpoint_type_keeps_its_public_import_paths() -> None:
+    session = InferenceSession(())
+    checkpoint = session.checkpoint()
+
+    assert type(checkpoint) is SessionCheckpoint
+    assert SessionCheckpoint is EngineSessionCheckpoint
+    assert SessionCheckpoint is ForwardSessionCheckpoint
+    session.release(checkpoint)
 
 
 def test_checkpoint_restores_fact_order_provenance_and_fresh_names() -> None:

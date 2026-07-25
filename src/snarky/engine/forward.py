@@ -19,7 +19,6 @@ from ..actions import (
 )
 from ..facts import Fact
 from ..instantiation import (
-    Activation,
     FactDelta,
     IndexedInstantiationStrategy,
     InstantiationStrategy,
@@ -36,7 +35,7 @@ from ..premises import (
     UniquePremise,
 )
 from ..rules import Rule, RuleGroup
-from ..stores.naive import FactStoreCheckpoint, NaiveFactStore
+from ..stores.naive import NaiveFactStore
 from ..substitutions import EMPTY_SUBSTITUTION, Substitution
 from ..terms import (
     Atom,
@@ -45,7 +44,12 @@ from ..terms import (
     Term,
     Triple,
     Variable,
-    is_ground,
+)
+from .agenda import (
+    _activation_focus_fact,
+    _AgendaMemory,
+    _build_rule_dependency_index,
+    _merge_agenda_activations,
 )
 from .conflict import (
     AgendaCandidate,
@@ -54,7 +58,14 @@ from .conflict import (
     ConflictResolutionStrategy,
 )
 from .events import FactMutationKind, InferenceEvent
-from .provenance import Derivation, Provenance, ProvenanceCheckpoint
+from .provenance import Derivation, Provenance
+from .session_state import (
+    ActivationKey,
+    _TimeTagMutation,
+)
+from .session_state import (
+    SessionCheckpoint as SessionCheckpoint,
+)
 
 
 class InferenceLimitError(RuntimeError):
@@ -69,13 +80,6 @@ class EngineLimits:
     def __post_init__(self) -> None:
         if self.max_cycles < 1 or self.max_facts < 1:
             raise ValueError("engine limits must be positive")
-
-
-@dataclass(frozen=True, slots=True)
-class ActivationKey:
-    rule_group: str
-    rule_name: str
-    substitution: tuple[tuple[str, Term], ...]
 
 
 class GroupExecutionMode(StrEnum):
@@ -174,71 +178,6 @@ class _NegativeRefractionPlan:
     rule: Rule
     simple_dependencies: tuple[FactPremise, ...]
     complex_dependencies: tuple[FactPremise, ...]
-
-
-@dataclass(frozen=True, slots=True)
-class _AgendaMemory:
-    group: RuleGroup
-    activations: tuple[tuple[Activation, ...], ...]
-    revision: int
-    dependencies: _RuleDependencyIndex
-
-
-@dataclass(frozen=True, slots=True)
-class _RuleDependencyIndex:
-    by_token: dict[tuple[str, Term], frozenset[int]]
-    wildcard: frozenset[int]
-
-    def affected(self, events: tuple[InferenceEvent, ...]) -> frozenset[int]:
-        if not events:
-            return frozenset()
-        affected = set(self.wildcard)
-        for event in events:
-            for token in _dependency_tokens_for_fact(event.fact):
-                affected.update(self.by_token.get(token, ()))
-        return frozenset(affected)
-
-
-@dataclass(frozen=True, slots=True)
-class _TimeTagMutation:
-    fact: Fact
-    had_value: bool
-    previous_value: int
-
-
-@dataclass(frozen=True, slots=True)
-class SessionCheckpoint:
-    """Opaque reversible position in an :class:`InferenceSession`."""
-
-    owner: int
-    token: int
-    store: FactStoreCheckpoint
-    provenance: ProvenanceCheckpoint
-    assumed_facts: frozenset[Fact]
-    fired: frozenset[ActivationKey]
-    fired_supports: tuple[
-        tuple[ActivationKey, tuple[Fact, ...]],
-        ...,
-    ]
-    fired_activation_total: int
-    derivation_count: int
-    event_count: int
-    agenda_selection_count: int
-    agenda_metrics: AgendaMetrics
-    agenda_memories: tuple[tuple[str, _AgendaMemory], ...]
-    previous_event_counts: tuple[
-        tuple[tuple[str, str], int],
-        ...,
-    ]
-    force_full_evaluation: frozenset[tuple[str, str]]
-    groups: tuple[tuple[str, RuleGroup], ...]
-    negative_refraction_plan_count: int
-    cycles: int
-    fresh_counters: tuple[tuple[str, int], ...]
-    time_tag_trail_size: int
-    next_time_tag: int
-    reserved_atom_names: frozenset[str]
-    conflict_strategy: ConflictResolutionStrategy | None
 
 
 class InferenceSession:
@@ -1334,135 +1273,6 @@ class ForwardEngine:
         return session.snapshot()
 
 
-def _build_rule_dependency_index(
-    group: RuleGroup,
-) -> _RuleDependencyIndex:
-    by_token: dict[tuple[str, Term], set[int]] = {}
-    wildcard: set[int] = set()
-    for rule_index, rule in enumerate(group.rules):
-        fact_premises = _all_fact_premises(rule.premises)
-        if not fact_premises:
-            wildcard.add(rule_index)
-            continue
-        for premise in fact_premises:
-            tokens = _dependency_tokens_for_premise(premise)
-            if not tokens:
-                wildcard.add(rule_index)
-                break
-            for token in tokens:
-                by_token.setdefault(token, set()).add(rule_index)
-    return _RuleDependencyIndex(
-        {
-            token: frozenset(rule_indices)
-            for token, rule_indices in by_token.items()
-        },
-        frozenset(wildcard),
-    )
-
-
-def _merge_agenda_activations(
-    rule: Rule,
-    previous: tuple[Activation, ...],
-    refreshed: tuple[Activation, ...],
-    delta: FactDelta,
-    strategy: InstantiationStrategy,
-    store: NaiveFactStore,
-) -> tuple[Activation, ...]:
-    """Adapt delta-only semi-naïve results to a materialized agenda row."""
-
-    has_non_monotonic_query = any(
-        isinstance(
-            premise,
-            (
-                ExistsPremise,
-                NotExistsPremise,
-                CountPremise,
-                UniquePremise,
-                CollectPremise,
-            ),
-        )
-        for premise in rule.premises
-    )
-    if (
-        not isinstance(strategy, SemiNaiveInstantiationStrategy)
-        or delta.removed
-        or has_non_monotonic_query
-    ):
-        return refreshed
-    retained = (
-        activation
-        for activation in previous
-        if all(fact in store for fact in activation.premise_facts)
-    )
-    unique: dict[
-        tuple[tuple[tuple[str, Term], ...], tuple[Fact, ...]],
-        Activation,
-    ] = {}
-    for activation in (*retained, *refreshed):
-        unique.setdefault(
-            (activation.substitution.key, activation.premise_facts),
-            activation,
-        )
-    return tuple(unique.values())
-
-
-def _all_fact_premises(
-    premises: tuple[Premise, ...],
-) -> tuple[FactPremise, ...]:
-    facts: list[FactPremise] = []
-    for premise in premises:
-        if isinstance(premise, FactPremise):
-            facts.append(premise)
-        elif isinstance(
-            premise,
-            (
-                ExistsPremise,
-                NotExistsPremise,
-                CountPremise,
-                UniquePremise,
-                CollectPremise,
-            ),
-        ):
-            facts.extend(_all_fact_premises(premise.premises))
-    return tuple(facts)
-
-
-def _dependency_tokens_for_premise(
-    premise: FactPremise,
-) -> frozenset[tuple[str, Term]]:
-    if is_ground(premise.entity):
-        return frozenset((("entity", premise.entity),))
-    if isinstance(premise.entity, Triple):
-        for name, value in (
-            ("relation", premise.entity.relation),
-            ("subject", premise.entity.subject),
-            ("object", premise.entity.object),
-        ):
-            if is_ground(value):
-                return frozenset(((name, value),))
-    if is_ground(premise.status):
-        return frozenset((("status", premise.status),))
-    return frozenset()
-
-
-def _dependency_tokens_for_fact(
-    fact: Fact,
-) -> frozenset[tuple[str, Term]]:
-    tokens = {
-        ("entity", fact.entity),
-        ("status", fact.status),
-    }
-    if isinstance(fact.entity, Triple):
-        tokens.update(
-            (
-                ("subject", fact.entity.subject),
-                ("relation", fact.entity.relation),
-                ("object", fact.entity.object),
-            )
-        )
-    return frozenset(tokens)
-
-
 @cache
 def _negative_fact_premises(
     premises: tuple[Premise, ...],
@@ -1545,33 +1355,6 @@ def _substitution_from_key(key: ActivationKey) -> Substitution:
         (Variable(name), term)
         for name, term in key.substitution
     )
-
-
-def _activation_focus_fact(
-    rule: Rule,
-    activation: Activation,
-) -> Fact | None:
-    focused = next(
-        (
-            premise
-            for premise in rule.premises
-            if isinstance(premise, FactPremise) and premise.focused
-        ),
-        None,
-    )
-    if focused is not None:
-        matcher = PatternMatcher()
-        for fact in activation.premise_facts:
-            if (
-                focused.match(
-                    fact,
-                    activation.substitution,
-                    matcher,
-                )
-                is not None
-            ):
-                return fact
-    return activation.premise_facts[0] if activation.premise_facts else None
 
 
 def _atom_names_in(term: Term) -> tuple[str, ...]:

@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 from functools import cache
-from typing import Protocol
+from typing import Protocol, runtime_checkable
 
 from ..computed import ComputedPremise
 from ..facts import Fact
@@ -187,6 +187,22 @@ class InstantiationStrategy(Protocol):
 
     def invalidate(self, removed: frozenset[Fact] = frozenset()) -> None:
         """Update or discard indexes after a non-append-only mutation."""
+
+
+@runtime_checkable
+class BranchableInstantiationStrategy(Protocol):
+    """Optional lifecycle contract for efficiently isolated search branches."""
+
+    def fork_for_branch(self) -> InstantiationStrategy:
+        """Return an isolated strategy prepared for a child branch."""
+
+
+@runtime_checkable
+class QueryableInstantiationStrategy(Protocol):
+    """Optional lifecycle contract for isolated read-only rule queries."""
+
+    def query_view(self) -> InstantiationStrategy:
+        """Return a strategy view for queries over the current fact snapshot."""
 
 
 type Witness = tuple[Fact, ...] | None

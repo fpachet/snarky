@@ -467,6 +467,8 @@ séparément, la suite complète peut exploiter plusieurs cœurs avec
 
 Le plan et les baselines de performance, notamment pour Fibonacci et Sudoku,
 sont consignés dans [`docs/optimization_plan.md`](docs/optimization_plan.md).
+La stabilisation du prototype est suivie séparément dans le
+[`plan de consolidation`](docs/consolidation_plan.md).
 
 Exemple minimal avec l’API Python :
 

@@ -2,9 +2,11 @@
 
 from .base import (
     Activation,
+    BranchableInstantiationStrategy,
     FactDelta,
     InstantiationMetrics,
     InstantiationStrategy,
+    QueryableInstantiationStrategy,
 )
 from .domain_filter import (
     AdaptiveInstantiationStrategy,
@@ -17,6 +19,7 @@ from .naive_join import NaiveInstantiationStrategy
 __all__ = [
     "Activation",
     "AdaptiveInstantiationStrategy",
+    "BranchableInstantiationStrategy",
     "ConstraintInstantiationStrategy",
     "DomainPropagator",
     "FactDelta",
@@ -24,5 +27,6 @@ __all__ = [
     "InstantiationMetrics",
     "InstantiationStrategy",
     "NaiveInstantiationStrategy",
+    "QueryableInstantiationStrategy",
     "SemiNaiveInstantiationStrategy",
 ]

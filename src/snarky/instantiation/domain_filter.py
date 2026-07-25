@@ -4,6 +4,7 @@ from __future__ import annotations
 
 from collections import deque
 from collections.abc import Iterator, Mapping, MutableMapping, Sequence
+from copy import deepcopy
 from dataclasses import dataclass, fields
 from functools import cache
 from itertools import combinations, product
@@ -1185,6 +1186,11 @@ class ConstraintInstantiationStrategy(SemiNaiveInstantiationStrategy):
             self._filter_cost_ratios.clear()
             self._filter_use_counts.clear()
             self.last_propagation_results.clear()
+
+    def fork_for_branch(self) -> ConstraintInstantiationStrategy:
+        """Preserve constraint configuration and branch-local filter state."""
+
+        return deepcopy(self)
 
     def _static_filter_candidate(
         self,

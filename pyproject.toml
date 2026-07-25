@@ -9,9 +9,30 @@ description = "A recursive symbolic inference engine inspired by BOOJUM and SNAR
 readme = "README.md"
 requires-python = ">=3.12"
 dependencies = ["PyYAML>=6.0"]
+keywords = [
+    "constraint-programming",
+    "expert-systems",
+    "inference-engine",
+    "symbolic-ai",
+]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Intended Audience :: Science/Research",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Topic :: Scientific/Engineering :: Artificial Intelligence",
+    "Typing :: Typed",
+]
+
+[project.urls]
+Homepage = "https://github.com/fpachet/snarky"
+Repository = "https://github.com/fpachet/snarky.git"
+Issues = "https://github.com/fpachet/snarky/issues"
 
 [project.optional-dependencies]
 dev = [
+    "hypothesis>=6.0",
     "mypy>=1.14",
     "pytest>=8.0",
     "ruff>=0.8",

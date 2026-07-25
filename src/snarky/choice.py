@@ -11,16 +11,17 @@ from copy import deepcopy
 from dataclasses import dataclass, field
 from enum import StrEnum
 from types import MappingProxyType
-from typing import Protocol, cast
+from typing import Protocol
 
 from .actions import Action, AddFact, Choice, ForEach
 from .engine import InferenceSession, SessionCheckpoint, StopCondition
 from .facts import Fact
 from .instantiation import (
     Activation,
+    BranchableInstantiationStrategy,
     IndexedInstantiationStrategy,
     InstantiationStrategy,
-    SemiNaiveInstantiationStrategy,
+    QueryableInstantiationStrategy,
 )
 from .premises import BindPremise, FactPremise, Premise
 from .rules import Rule, RuleGroup
@@ -467,14 +468,10 @@ class RuleChoiceProvider:
 
 def _choice_query_strategy(
     session: InferenceSession,
-) -> IndexedInstantiationStrategy:
+) -> InstantiationStrategy:
     strategy = session.strategy
-    if type(strategy) in (
-        IndexedInstantiationStrategy,
-        SemiNaiveInstantiationStrategy,
-    ):
-        indexed = cast(IndexedInstantiationStrategy, strategy)
-        return indexed.query_view()
+    if isinstance(strategy, QueryableInstantiationStrategy):
+        return strategy.query_view()
     return IndexedInstantiationStrategy()
 
 
@@ -1130,24 +1127,16 @@ class SessionChoiceSearch:
         if self.branch_strategy_factory is not None:
             return session.fork(strategy=self.branch_strategy_factory())
         strategy = session.strategy
-        if type(strategy) in (
-            IndexedInstantiationStrategy,
-            SemiNaiveInstantiationStrategy,
-        ):
-            indexed = cast(IndexedInstantiationStrategy, strategy)
-            return session.fork(strategy=indexed.fork_for_branch())
+        if isinstance(strategy, BranchableInstantiationStrategy):
+            return session.fork(strategy=strategy.fork_for_branch())
         return session.fork()
 
     def _reversible_branch_strategy(
         self,
         template: InstantiationStrategy,
     ) -> InstantiationStrategy:
-        if type(template) in (
-            IndexedInstantiationStrategy,
-            SemiNaiveInstantiationStrategy,
-        ):
-            indexed = cast(IndexedInstantiationStrategy, template)
-            return indexed.fork_for_branch()
+        if isinstance(template, BranchableInstantiationStrategy):
+            return template.fork_for_branch()
         if self.branch_strategy_factory is not None:
             return self.branch_strategy_factory()
         return deepcopy(template)
