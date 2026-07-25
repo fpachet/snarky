@@ -1661,7 +1661,6 @@ class SemiNaiveInstantiationStrategy(IndexedInstantiationStrategy):
                 rule,
                 index,
                 changes.added,
-                self.matcher,
                 self.metrics,
             )
         self.metrics.activations_produced += len(activations)

@@ -6,22 +6,26 @@ from collections.abc import Sequence
 
 from ..computed import ComputedPremise
 from ..facts import Fact
-from ..matching import PatternMatcher
 from ..premises import (
     BindPremise,
     CollectPremise,
-    CombinationsPremise,
-    ComparisonPremise,
     CountPremise,
     ExistsPremise,
-    FactPremise,
     NotExistsPremise,
     UniquePremise,
 )
 from ..rules import Rule
-from ..substitutions import EMPTY_SUBSTITUTION, Substitution
-from ..terms import Term
+from ..substitutions import BindingFrame
+from ..terms import Term, is_ground
 from .base import Activation, InstantiationMetrics
+from .compiled import (
+    CompiledBindPremise,
+    CompiledBlock,
+    CompiledCombinationsPremise,
+    CompiledComparisonPremise,
+    CompiledFactPremise,
+    compile_rule,
+)
 from .fact_index import FactIndex
 
 type PremiseGroups = tuple[tuple[tuple[int, ...], int | None], ...]
@@ -49,17 +53,17 @@ def join_delta_variants(
     rule: Rule,
     index: FactIndex,
     added: tuple[Fact, ...],
-    matcher: PatternMatcher,
     metrics: InstantiationMetrics,
 ) -> list[Activation]:
     """Enumerate unique joins containing at least one newly added fact."""
 
+    block = compile_rule(rule).block
     fact_premises = tuple(
         position
-        for position, premise in enumerate(rule.premises)
-        if isinstance(premise, FactPremise)
+        for position, premise in enumerate(block.premises)
+        if isinstance(premise, CompiledFactPremise)
     )
-    premise_groups = _premise_groups(rule)
+    premise_groups = _premise_groups(block)
     delta_start = index.delta_start(added)
     unique: dict[
         tuple[tuple[tuple[str, Term], ...], tuple[Fact, ...]],
@@ -67,12 +71,11 @@ def join_delta_variants(
     ] = {}
     for anchor in fact_premises:
         for activation in _join_delta_variant(
-            rule,
+            block,
             index,
             premise_groups,
             anchor,
             delta_start,
-            matcher,
             metrics,
         ):
             key = activation.substitution.key, activation.premise_facts
@@ -81,53 +84,50 @@ def join_delta_variants(
 
 
 def _join_delta_variant(
-    rule: Rule,
+    block: CompiledBlock,
     index: FactIndex,
     premise_groups: PremiseGroups,
     anchor: int,
     delta_start: int,
-    matcher: PatternMatcher,
     metrics: InstantiationMetrics,
 ) -> list[Activation]:
     """Join from the delta premise, then restore textual support order."""
 
     activations: list[Activation] = []
     _extend_delta_variant(
-        rule,
+        block,
         index,
         premise_groups=premise_groups,
         group_index=0,
         remaining=premise_groups[0][0],
         anchor=anchor,
         delta_start=delta_start,
-        substitution=EMPTY_SUBSTITUTION,
+        frame=BindingFrame(),
         supports=(),
         output=activations,
-        matcher=matcher,
         metrics=metrics,
     )
     return activations
 
 
 def _extend_delta_variant(
-    rule: Rule,
+    block: CompiledBlock,
     index: FactIndex,
     premise_groups: PremiseGroups,
     group_index: int,
     remaining: tuple[int, ...],
     anchor: int,
     delta_start: int,
-    substitution: Substitution,
+    frame: BindingFrame,
     supports: tuple[tuple[int, Fact], ...],
     output: list[Activation],
-    matcher: PatternMatcher,
     metrics: InstantiationMetrics,
 ) -> None:
     if group_index == len(premise_groups):
         ordered_supports = tuple(
             fact for _, fact in sorted(supports, key=lambda item: item[0])
         )
-        output.append(Activation(substitution, ordered_supports))
+        output.append(Activation(frame.freeze(), ordered_supports))
         return
 
     if not remaining:
@@ -138,68 +138,105 @@ def _extend_delta_variant(
             else ()
         )
         barrier_index = premise_groups[group_index][1]
-        substitutions: tuple[Substitution, ...] = (substitution,)
-        if barrier_index is not None:
-            barrier = rule.premises[barrier_index]
-            if isinstance(barrier, ComparisonPremise):
-                substitutions = (
-                    (substitution,)
-                    if barrier.evaluate(substitution)
-                    else ()
-                )
-            elif isinstance(barrier, (BindPremise, ComputedPremise)):
-                bound = barrier.apply(substitution)
-                substitutions = () if bound is None else (bound,)
-            elif isinstance(barrier, CombinationsPremise):
-                substitutions = tuple(
-                    substitution.bind(barrier.target, value)
-                    for value in barrier.values(substitution)
-                )
-            else:
-                raise TypeError(f"unsupported delta barrier: {barrier!r}")
-        for next_substitution in substitutions:
+        if barrier_index is None:
             _extend_delta_variant(
-                rule,
+                block,
                 index,
                 premise_groups,
                 next_group,
                 next_remaining,
                 anchor,
                 delta_start,
-                next_substitution,
+                frame,
                 supports,
                 output,
-                matcher,
                 metrics,
             )
-        return
+            return
+        barrier = block.premises[barrier_index]
+        if isinstance(barrier, CompiledComparisonPremise):
+            if barrier.source.evaluate(frame):
+                _extend_delta_variant(
+                    block,
+                    index,
+                    premise_groups,
+                    next_group,
+                    next_remaining,
+                    anchor,
+                    delta_start,
+                    frame,
+                    supports,
+                    output,
+                    metrics,
+                )
+            return
+        if isinstance(barrier, CompiledBindPremise):
+            checkpoint = frame.checkpoint()
+            if _apply_compiled_binding(barrier.source, frame):
+                _extend_delta_variant(
+                    block,
+                    index,
+                    premise_groups,
+                    next_group,
+                    next_remaining,
+                    anchor,
+                    delta_start,
+                    frame,
+                    supports,
+                    output,
+                    metrics,
+                )
+            frame.rollback(checkpoint)
+            return
+        if isinstance(barrier, CompiledCombinationsPremise):
+            for value in barrier.source.values(frame):
+                checkpoint = frame.checkpoint()
+                if frame.bind_ground(barrier.source.target, value):
+                    _extend_delta_variant(
+                        block,
+                        index,
+                        premise_groups,
+                        next_group,
+                        next_remaining,
+                        anchor,
+                        delta_start,
+                        frame,
+                        supports,
+                        output,
+                        metrics,
+                    )
+                frame.rollback(checkpoint)
+            return
+        raise TypeError(f"unsupported delta barrier: {barrier!r}")
 
-    choices: list[tuple[int, int, Sequence[Fact], FactPremise]] = []
+    choices: list[
+        tuple[int, int, Sequence[Fact], CompiledFactPremise]
+    ] = []
     group_positions = premise_groups[group_index][0]
     group_started = len(remaining) < len(group_positions)
     positions = (
         (anchor,) if anchor in remaining and not group_started else remaining
     )
     for premise_index in positions:
-        premise = rule.premises[premise_index]
-        if not isinstance(premise, FactPremise):
+        premise = block.premises[premise_index]
+        if not isinstance(premise, CompiledFactPremise):
             raise TypeError(f"expected fact premise, got: {premise!r}")
         if premise_index == anchor:
-            candidates = index.candidates_partitioned(
+            candidates = index.candidates_compiled_partitioned(
                 premise,
-                substitution,
+                frame,
                 delta_start,
                 new=True,
             )
         elif premise_index < anchor:
-            candidates = index.candidates_partitioned(
+            candidates = index.candidates_compiled_partitioned(
                 premise,
-                substitution,
+                frame,
                 delta_start,
                 new=False,
             )
         else:
-            candidates = index.candidates(premise, substitution)
+            candidates = index.candidates_compiled(premise, frame)
         choices.append((len(candidates), premise_index, candidates, premise))
     _, premise_index, candidates, premise = min(
         choices,
@@ -209,37 +246,36 @@ def _extend_delta_variant(
     metrics.candidate_facts += len(candidates)
     for fact in candidates:
         metrics.match_attempts += 1
-        matched = premise.match(fact, substitution, matcher)
-        if matched is not None:
+        checkpoint = frame.checkpoint()
+        if premise.match(fact.entity, fact.status, frame):
             _extend_delta_variant(
-                rule,
+                block,
                 index,
                 premise_groups,
                 group_index,
                 next_remaining,
                 anchor,
                 delta_start,
-                matched,
+                frame,
                 (*supports, (premise_index, fact)),
                 output,
-                matcher,
                 metrics,
             )
+        frame.rollback(checkpoint)
 
 
-def _premise_groups(rule: Rule) -> PremiseGroups:
+def _premise_groups(block: CompiledBlock) -> PremiseGroups:
     groups: list[tuple[tuple[int, ...], int | None]] = []
     facts: list[int] = []
-    for position, premise in enumerate(rule.premises):
-        if isinstance(premise, FactPremise):
+    for position, premise in enumerate(block.premises):
+        if isinstance(premise, CompiledFactPremise):
             facts.append(position)
         elif isinstance(
             premise,
             (
-                ComparisonPremise,
-                BindPremise,
-                CombinationsPremise,
-                ComputedPremise,
+                CompiledComparisonPremise,
+                CompiledBindPremise,
+                CompiledCombinationsPremise,
             ),
         ):
             groups.append((tuple(facts), position))
@@ -248,3 +284,22 @@ def _premise_groups(rule: Rule) -> PremiseGroups:
             raise TypeError(f"unsupported premise: {premise!r}")
     groups.append((tuple(facts), None))
     return tuple(groups)
+
+
+def _apply_compiled_binding(
+    premise: BindPremise | ComputedPremise,
+    frame: BindingFrame,
+) -> bool:
+    if isinstance(premise, BindPremise):
+        bound_value = frame.apply(premise.value)
+        return is_ground(bound_value) and frame.bind_ground(
+            premise.target,
+            bound_value,
+        )
+    accepted, computed_value = premise.resolve(frame)
+    if not accepted:
+        return False
+    if premise.target is None:
+        return True
+    assert computed_value is not None
+    return frame.bind_ground(premise.target, computed_value)

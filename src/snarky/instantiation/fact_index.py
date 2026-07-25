@@ -505,7 +505,22 @@ class FactIndex:
         *,
         new: bool,
     ) -> Sequence[Fact]:
-        candidates = self.candidates(premise, substitution)
+        return self.candidates_compiled_partitioned(
+            compile_fact_premise(premise),
+            substitution,
+            delta_start,
+            new=new,
+        )
+
+    def candidates_compiled_partitioned(
+        self,
+        premise: CompiledFactPremise,
+        bindings: TermBindings,
+        delta_start: int,
+        *,
+        new: bool,
+    ) -> Sequence[Fact]:
+        candidates = self.candidates_compiled(premise, bindings)
         split = self._rank_split(candidates, delta_start)
         return candidates[split:] if new else candidates[:split]
 

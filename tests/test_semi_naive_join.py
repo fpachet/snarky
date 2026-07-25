@@ -5,7 +5,6 @@ from snarky.instantiation.semi_naive_join import (
     has_query_premise,
     join_delta_variants,
 )
-from snarky.matching import PatternMatcher
 
 
 def test_delta_join_emits_only_chains_containing_the_new_fact() -> None:
@@ -29,7 +28,6 @@ def test_delta_join_emits_only_chains_containing_the_new_fact() -> None:
         rule,
         FactIndex((old, new, disconnected)),
         (new,),
-        PatternMatcher(),
         metrics,
     )
 
