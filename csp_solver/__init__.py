@@ -8,6 +8,7 @@ from .constraint_syntax import (
 )
 from .persistent_constraints import (
     AllDifferentConstraint,
+    CandidateRemovalExplanation,
     GlobalCardinalityConstraint,
     LexLessEqualConstraint,
     PersistentConstraint,
@@ -22,6 +23,7 @@ from .solver import (
     assignment_from_solution,
     binary_constraint_facts,
     constraint_dom_wdeg_policy,
+    constraint_learned_impact_policy,
     constraint_propagation_guided_policy,
     finite_csp_rule_library,
     solve_binary_csp,
@@ -31,6 +33,7 @@ from .solver import (
 __all__ = [
     "AllDifferentConstraint",
     "BinaryCSP",
+    "CandidateRemovalExplanation",
     "FiniteCSP",
     "FiniteCSPRuleLibrary",
     "GlobalCardinalityConstraint",
@@ -44,6 +47,7 @@ __all__ = [
     "assignment_from_solution",
     "binary_constraint_facts",
     "constraint_dom_wdeg_policy",
+    "constraint_learned_impact_policy",
     "constraint_propagation_guided_policy",
     "finite_csp_rule_library",
     "instantiate_constraint_templates",

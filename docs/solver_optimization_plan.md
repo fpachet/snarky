@@ -189,6 +189,40 @@ The raw runs are archived as
 and
 [`magic_square_dom_wdeg_symmetry_2026-07-25.json`](../benchmarks/results/magic_square_dom_wdeg_symmetry_2026-07-25.json).
 
+## Phase 5: explanation-backed learned impacts
+
+Status: implemented.
+
+The persistent propagator now records which constraint removes each candidate.
+These branch-local explanations are kept outside working memory and are
+invalidated on a session journal-generation change, so causes from a rolled
+back branch cannot leak into its sibling. Direct constraint contradictions
+still expose the exact `violated_constraint`; domain wipeouts can additionally
+consult the retained removal causes.
+
+`LearnedImpactChoicePolicy` observes only real search branches. It measures
+the logarithmic domain-volume change across fixed-point propagation and keeps
+a running mean per variable/value. Contradictions have impact 1, solutions
+impact 0, and lower-impact values are tried first. It therefore captures much
+of the node reduction sought by LCV probing without creating and propagating
+speculative sessions.
+
+The three-run comparison on the same final implementation is:
+
+| Formulation | Median | Nodes | Failures |
+|---|---:|---:|---:|
+| Magic 6, plain dom/wdeg | 2.060 s | 575 | 445 |
+| Magic 6, learned impact | 1.352 s | 387 | 297 |
+| Magic 7, plain dom/wdeg | 2.132 s | 431 | 266 |
+| Magic 7, learned impact | 1.826 s | 368 | 223 |
+
+Learned impact is consequently the default value ordering for persistent
+CSPs, wrapping dom/wdeg point selection. Plain dom/wdeg remains available for
+A/B runs. The raw comparison is archived in
+[`magic_square_dom_wdeg_only_2026-07-25.json`](../benchmarks/results/magic_square_dom_wdeg_only_2026-07-25.json)
+and
+[`magic_square_learned_impact_2026-07-25.json`](../benchmarks/results/magic_square_learned_impact_2026-07-25.json).
+
 ## Benchmark protocol
 
 Run:
@@ -204,6 +238,8 @@ counters. For stronger filtering or changed search policy, archive it as a
 separate formulation and do not present its timing as a direct speedup.
 
 The current three-run archive is
+[`classical_csp_learned_impact_2026-07-25.json`](../benchmarks/results/classical_csp_learned_impact_2026-07-25.json).
+The preceding search-policy archive is
 [`classical_csp_dom_wdeg_2026-07-25.json`](../benchmarks/results/classical_csp_dom_wdeg_2026-07-25.json).
 The preceding implementation-speed archive is
 [`classical_csp_incremental_2026-07-25.json`](../benchmarks/results/classical_csp_incremental_2026-07-25.json).

@@ -2,7 +2,13 @@
 
 from .choice_frontier import ChoiceTraversal as ChoiceTraversal
 from .choice_policies import ChoicePolicy as ChoicePolicy
+from .choice_policies import (
+    ChoicePropagationObservation as ChoicePropagationObservation,
+)
 from .choice_policies import DomWdegChoicePolicy as DomWdegChoicePolicy
+from .choice_policies import (
+    LearnedImpactChoicePolicy as LearnedImpactChoicePolicy,
+)
 from .choice_policies import MRVChoicePolicy as MRVChoicePolicy
 from .choice_policies import (
     PriorityMRVChoicePolicy as PriorityMRVChoicePolicy,

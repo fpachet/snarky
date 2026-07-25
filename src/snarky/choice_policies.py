@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import math
 import random
 from collections.abc import Callable, Mapping, Sequence
 from dataclasses import dataclass, field
@@ -26,6 +27,20 @@ class ChoicePolicy(Protocol):
         point: ChoicePoint,
         random_source: random.Random,
     ) -> tuple[ChoiceAlternative, ...]: ...
+
+
+@dataclass(frozen=True, slots=True)
+class ChoicePropagationObservation:
+    """Observed effect of one real choice after fixed-point propagation."""
+
+    point: str
+    alternative: str
+    variable: Term | None
+    value: Term | None
+    before_log_volume: float
+    after_log_volume: float | None
+    failed: bool = False
+    solved: bool = False
 
 
 @dataclass(frozen=True, slots=True)
@@ -219,6 +234,110 @@ class PropagationGuidedChoicePolicy:
         observer = getattr(self.base, "observe_failure", None)
         if callable(observer):
             observer(session)
+
+
+@dataclass(slots=True)
+class LearnedImpactChoicePolicy:
+    """Order values by impacts learned from real, non-speculative branches."""
+
+    base: ChoicePolicy
+    initial_impact: float = 0.5
+    impacts: dict[
+        tuple[str, Term | None, Term | None, str],
+        float,
+    ] = field(
+        init=False
+    )
+    observation_counts: dict[
+        tuple[str, Term | None, Term | None, str],
+        int,
+    ] = field(init=False)
+
+    def __post_init__(self) -> None:
+        if not 0 <= self.initial_impact <= 1:
+            raise ValueError("initial_impact must be between zero and one")
+        self.impacts = {}
+        self.observation_counts = {}
+
+    def select_point(
+        self,
+        points: Sequence[ChoicePoint],
+    ) -> ChoicePoint:
+        return self.base.select_point(points)
+
+    def order_alternatives(
+        self,
+        point: ChoicePoint,
+        random_source: random.Random,
+    ) -> tuple[ChoiceAlternative, ...]:
+        ordered = self.base.order_alternatives(point, random_source)
+        ranks = {
+            alternative.name: index
+            for index, alternative in enumerate(ordered)
+        }
+        return tuple(
+            sorted(
+                ordered,
+                key=lambda alternative: (
+                    self.impacts.get(
+                        self._key(point, alternative),
+                        self.initial_impact,
+                    ),
+                    ranks[alternative.name],
+                ),
+            )
+        )
+
+    def observe_propagation(
+        self,
+        observation: ChoicePropagationObservation,
+    ) -> None:
+        """Update a running mean impact for one variable/value choice."""
+
+        key = (
+            observation.point,
+            observation.variable,
+            observation.value,
+            observation.alternative,
+        )
+        if observation.failed:
+            sample = 1.0
+        elif observation.solved:
+            sample = 0.0
+        elif observation.after_log_volume is None:
+            return
+        else:
+            remaining_ratio = math.exp(
+                min(
+                    0.0,
+                    observation.after_log_volume
+                    - observation.before_log_volume,
+                )
+            )
+            sample = 1.0 - remaining_ratio
+        count = self.observation_counts.get(key, 0) + 1
+        previous = self.impacts.get(key, 0.0)
+        self.impacts[key] = previous + (sample - previous) / count
+        self.observation_counts[key] = count
+
+    def observe_failure(self, session: InferenceSession) -> None:
+        """Forward failure feedback to the wrapped point policy."""
+
+        observer = getattr(self.base, "observe_failure", None)
+        if callable(observer):
+            observer(session)
+
+    @staticmethod
+    def _key(
+        point: ChoicePoint,
+        alternative: ChoiceAlternative,
+    ) -> tuple[str, Term | None, Term | None, str]:
+        return (
+            point.name,
+            point.variable,
+            alternative.value,
+            alternative.name,
+        )
 
 
 @dataclass(frozen=True, slots=True)

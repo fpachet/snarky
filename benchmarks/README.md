@@ -62,6 +62,9 @@ uv run python -m benchmarks.classical_csp \
 uv run python -m benchmarks.classical_csp \
   --magic-sizes 6 7 --only-magic --repeat 3 \
   --magic-propagation-guided
+uv run python -m benchmarks.classical_csp \
+  --magic-sizes 6 7 --only-magic --repeat 3 \
+  --magic-dom-wdeg-only
 uv run python -m benchmarks.csp_harmonizer_next --repeat 5
 uv run python -m benchmarks.sudoku_rules --levels 1 6 7 --repeat 5
 uv run python benchmarks/fibonacci_explicit.py --repeat 7
@@ -133,6 +136,7 @@ File names include the feature and date:
 results/
 ├── classical_csp_2026-07-25.json
 ├── classical_csp_dom_wdeg_2026-07-25.json
+├── classical_csp_learned_impact_2026-07-25.json
 ├── classical_csp_incremental_2026-07-25.json
 ├── classical_csp_optimized_2026-07-25.json
 ├── choice_search_2026-07-25.json

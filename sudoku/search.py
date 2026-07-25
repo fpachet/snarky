@@ -26,7 +26,6 @@ from snarky import (
     ChoiceSearchResult,
     ChoiceTraversal,
     Fact,
-    MRVChoicePolicy,
     Triple,
 )
 
@@ -103,7 +102,7 @@ def solve_puzzle_with_search(
     search = solve_finite_csp(
         model,
         max_nodes=max_nodes,
-        policy=policy or MRVChoicePolicy(),
+        policy=policy,
         traversal=traversal,
         seed=seed,
         rule_groups=(

@@ -9,12 +9,14 @@ from snarky import (
     ChoiceEventKind,
     ChoicePoint,
     ChoicePolicy,
+    ChoicePropagationObservation,
     ChoiceSearchStatus,
     ChoiceTraversal,
     DomWdegChoicePolicy,
     Fact,
     ForwardEngine,
     InferenceSession,
+    LearnedImpactChoicePolicy,
     MRVChoicePolicy,
     PriorityMRVChoicePolicy,
     PriorityWeightedRandomChoicePolicy,
@@ -31,7 +33,13 @@ from snarky.choice_policies import (
     ChoicePolicy as PolicyChoicePolicy,
 )
 from snarky.choice_policies import (
+    ChoicePropagationObservation as PolicyChoicePropagationObservation,
+)
+from snarky.choice_policies import (
     DomWdegChoicePolicy as PolicyDomWdegChoicePolicy,
+)
+from snarky.choice_policies import (
+    LearnedImpactChoicePolicy as PolicyLearnedImpactChoicePolicy,
 )
 from snarky.choice_policies import (
     MRVChoicePolicy as PolicyMRVChoicePolicy,
@@ -75,9 +83,23 @@ def test_choice_policies_keep_their_public_import_paths() -> None:
     assert ChoicePolicy is snarky.ChoicePolicy
     assert ChoicePolicy is choice_api.ChoicePolicy
     assert ChoicePolicy is PolicyChoicePolicy
+    assert ChoicePropagationObservation is snarky.ChoicePropagationObservation
+    assert (
+        ChoicePropagationObservation
+        is choice_api.ChoicePropagationObservation
+    )
+    assert (
+        ChoicePropagationObservation
+        is PolicyChoicePropagationObservation
+    )
     assert DomWdegChoicePolicy is snarky.DomWdegChoicePolicy
     assert DomWdegChoicePolicy is choice_api.DomWdegChoicePolicy
     assert DomWdegChoicePolicy is PolicyDomWdegChoicePolicy
+    assert LearnedImpactChoicePolicy is snarky.LearnedImpactChoicePolicy
+    assert LearnedImpactChoicePolicy is choice_api.LearnedImpactChoicePolicy
+    assert (
+        LearnedImpactChoicePolicy is PolicyLearnedImpactChoicePolicy
+    )
     assert MRVChoicePolicy is snarky.MRVChoicePolicy
     assert MRVChoicePolicy is choice_api.MRVChoicePolicy
     assert MRVChoicePolicy is PolicyMRVChoicePolicy
@@ -296,6 +318,115 @@ def test_propagation_guided_order_places_a_failed_probe_last() -> None:
     assert result.explored_nodes == 2
     assert result.failed_branches == 0
     assert result.solutions[0].decisions[0].alternative == "good"
+
+
+def test_learned_impact_orders_values_from_real_branch_observations() -> None:
+    variable = Atom("x")
+    low = ChoiceAlternative(
+        "low",
+        (Fact(Triple(variable, Atom("value"), Atom("low"))),),
+        value=Atom("low"),
+    )
+    high = ChoiceAlternative(
+        "high",
+        (Fact(Triple(variable, Atom("value"), Atom("high"))),),
+        value=Atom("high"),
+    )
+    point = ChoicePoint("x", (high, low), variable=variable)
+    policy = LearnedImpactChoicePolicy(MRVChoicePolicy())
+    policy.observe_propagation(
+        ChoicePropagationObservation(
+            "x",
+            "high",
+            variable,
+            Atom("high"),
+            2.0,
+            None,
+            failed=True,
+        )
+    )
+    policy.observe_propagation(
+        ChoicePropagationObservation(
+            "x",
+            "low",
+            variable,
+            Atom("low"),
+            2.0,
+            1.9,
+        )
+    )
+
+    import random
+
+    ordered = policy.order_alternatives(point, random.Random(0))
+
+    assert tuple(alternative.name for alternative in ordered) == (
+        "low",
+        "high",
+    )
+    assert policy.impacts[("x", variable, Atom("high"), "high")] == 1.0
+
+
+def test_search_feeds_real_branch_impacts_to_the_policy() -> None:
+    (classify,) = parse_rule_groups(
+        """
+        GROUP classify_learned_impact
+            RULE reject_bad_impact
+            WHEN
+                (selection value bad)
+            THEN
+                ADD contradiction
+            END
+
+            RULE accept_good_impact
+            WHEN
+                (selection value good)
+            THEN
+                ADD solved
+            END
+        END_GROUP
+        """
+    )
+    variable = Atom("selection")
+    bad_value = Atom("bad")
+    good_value = Atom("good")
+    bad = Fact(Triple(variable, Atom("value"), bad_value))
+    good = Fact(Triple(variable, Atom("value"), good_value))
+    point = ChoicePoint(
+        "selection",
+        (
+            ChoiceAlternative(
+                "bad",
+                (bad,),
+                value=bad_value,
+                weight=2.0,
+            ),
+            ChoiceAlternative("good", (good,), value=good_value),
+        ),
+        variable=variable,
+    )
+    policy = LearnedImpactChoicePolicy(MRVChoicePolicy())
+    result = SessionChoiceSearch(
+        (classify,),
+        lambda current: (
+            ()
+            if bad in current.facts or good in current.facts
+            else (point,)
+        ),
+        lambda current: Fact(Atom("solved")) in current.facts,
+        lambda current: Fact(Atom("contradiction")) in current.facts,
+        policy=policy,
+    ).solve(InferenceSession((Fact(Atom("start")),)))
+
+    assert result.status is ChoiceSearchStatus.SOLVED
+    assert result.explored_nodes == 3
+    assert result.failed_branches == 1
+    assert policy.impacts[
+        ("selection", variable, bad_value, "bad")
+    ] == 1.0
+    assert policy.impacts[
+        ("selection", variable, good_value, "good")
+    ] == 0.0
 
 
 def test_weighted_random_policy_is_seed_reproducible() -> None:

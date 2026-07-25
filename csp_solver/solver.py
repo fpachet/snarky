@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from collections.abc import Mapping, Sequence
+from collections.abc import Callable, Mapping, Sequence
 from dataclasses import dataclass
 from functools import cache
 from pathlib import Path
@@ -18,6 +18,7 @@ from snarky import (
     FiniteSequence,
     ForwardEngine,
     InferenceSession,
+    LearnedImpactChoicePolicy,
     MRVChoicePolicy,
     Number,
     PropagationGuidedChoicePolicy,
@@ -177,6 +178,10 @@ def solve_binary_csp(
 
 def constraint_dom_wdeg_policy(
     model: FiniteCSP,
+    *,
+    failure_constraints: (
+        Callable[[InferenceSession], Sequence[Term]] | None
+    ) = None,
 ) -> DomWdegChoicePolicy:
     """Build a failure-attributed dom/wdeg policy for *model*."""
 
@@ -218,7 +223,10 @@ def constraint_dom_wdeg_policy(
             )
         )
 
-    return DomWdegChoicePolicy(scopes, failures)
+    return DomWdegChoicePolicy(
+        scopes,
+        failure_constraints or failures,
+    )
 
 
 def constraint_propagation_guided_policy(
@@ -241,6 +249,19 @@ def constraint_propagation_guided_policy(
         constraint_dom_wdeg_policy(model),
         remaining_candidates,
         maximum_alternatives=maximum_alternatives,
+    )
+
+
+def constraint_learned_impact_policy(
+    model: FiniteCSP,
+    *,
+    initial_impact: float = 0.5,
+) -> LearnedImpactChoicePolicy:
+    """Combine dom/wdeg point selection with learned value impacts."""
+
+    return LearnedImpactChoicePolicy(
+        constraint_dom_wdeg_policy(model),
+        initial_impact=initial_impact,
     )
 
 
@@ -328,6 +349,35 @@ def solve_finite_csp(
     solved_fact = Fact(Triple(model.problem, STATE, SOLVED))
     contradiction_fact = Fact(Triple(model.problem, STATE, CONTRADICTION))
     invalid_choice_fact = Fact(Triple(SEARCH, STATE, CONTRADICTION))
+    persistent_propagator = (
+        PersistentConstraintPropagator(
+            model.problem,
+            model.constraints,
+            projection,
+        )
+        if model.constraints
+        else None
+    )
+    selected_policy = (
+        policy
+        or (
+            constraint_dom_wdeg_policy(
+                model,
+                failure_constraints=(
+                    persistent_propagator.failure_constraints
+                    if persistent_propagator is not None
+                    else None
+                ),
+            )
+            if model.constraints
+            else MRVChoicePolicy()
+        )
+    )
+    if policy is None and isinstance(
+        selected_policy,
+        DomWdegChoicePolicy,
+    ):
+        selected_policy = LearnedImpactChoicePolicy(selected_policy)
 
     search = SessionChoiceSearch(
         provider.propagation_groups,
@@ -336,14 +386,7 @@ def solve_finite_csp(
         lambda current: (
             contradiction_fact in current.facts or invalid_choice_fact in current.facts
         ),
-        policy=(
-            policy
-            or (
-                constraint_dom_wdeg_policy(model)
-                if model.constraints
-                else MRVChoicePolicy()
-            )
-        ),
+        policy=selected_policy,
         traversal=traversal,
         max_nodes=max_nodes,
         max_solutions=max_solutions,
@@ -353,17 +396,7 @@ def solve_finite_csp(
         lazy_frontier=lazy_frontier,
         propagators=(
             *((state_propagator,) if state_propagator is not None else ()),
-            *(
-                (
-                    PersistentConstraintPropagator(
-                        model.problem,
-                        model.constraints,
-                        projection,
-                    ),
-                )
-                if model.constraints
-                else ()
-            ),
+            *((persistent_propagator,) if persistent_propagator is not None else ()),
         ),
     )
     return search.solve(session)

@@ -25,6 +25,9 @@ from .choice_policies import (
     ChoicePolicy as ChoicePolicy,
 )
 from .choice_policies import (
+    ChoicePropagationObservation,
+)
+from .choice_policies import (
     MRVChoicePolicy as MRVChoicePolicy,
 )
 from .choice_policies import (
@@ -120,6 +123,9 @@ class _SearchNode:
     insertion_order: int
     incoming_point: str = ""
     incoming_alternative: str = ""
+    incoming_variable: Term | None = None
+    incoming_value: Term | None = None
+    before_log_volume: float | None = None
 
 
 @dataclass(slots=True)
@@ -129,6 +135,7 @@ class _ChoiceFrame:
     parent: _SearchNode
     point: ChoicePoint
     alternatives: tuple[ChoiceAlternative, ...]
+    before_log_volume: float
     next_index: int = 0
 
 
@@ -140,6 +147,7 @@ class _DeferredBranch:
     point: ChoicePoint
     alternative: ChoiceAlternative
     insertion_order: int
+    before_log_volume: float
 
     @property
     def decisions(self) -> tuple[ChoiceDecision, ...]:
@@ -164,6 +172,7 @@ class _TrailChoiceFrame:
     point: ChoicePoint
     checkpoint: SessionCheckpoint
     strategy_template: InstantiationStrategy
+    before_log_volume: float
 
 
 @dataclass(frozen=True, slots=True)
@@ -339,6 +348,9 @@ class SessionChoiceSearch:
                             next_order,
                             frame.point.name,
                             alternative.name,
+                            frame.point.variable,
+                            alternative.value,
+                            frame.before_log_volume,
                         )
                     )
                     next_order += 1
@@ -352,6 +364,7 @@ class SessionChoiceSearch:
                                 item.parent,
                                 item.point,
                                 item.alternatives,
+                                item.before_log_volume,
                                 next_index,
                             )
                         )
@@ -377,6 +390,9 @@ class SessionChoiceSearch:
                             next_order,
                             item.point.name,
                             alternative.name,
+                            item.point.variable,
+                            alternative.value,
+                            item.before_log_volume,
                         )
                     )
                     next_order += 1
@@ -397,6 +413,9 @@ class SessionChoiceSearch:
                         item.insertion_order,
                         item.point.name,
                         item.alternative.name,
+                        item.point.variable,
+                        item.alternative.value,
+                        item.before_log_volume,
                     )
                 else:
                     node = item
@@ -422,6 +441,11 @@ class SessionChoiceSearch:
                     node.session
                 ):
                     failed += 1
+                    self._observe_propagation(
+                        node,
+                        after_log_volume=None,
+                        failed=True,
+                    )
                     self._observe_failure(node.session)
                     record(
                         ChoiceEventKind.CONTRADICTION,
@@ -435,6 +459,11 @@ class SessionChoiceSearch:
                     )
                     continue
                 if self.goal(node.session):
+                    self._observe_propagation(
+                        node,
+                        after_log_volume=None,
+                        solved=True,
+                    )
                     solution_session = (
                         self._fork(node.session)
                         if self._uses_reversible_dfs
@@ -453,6 +482,11 @@ class SessionChoiceSearch:
                 points = self.choices(node.session)
                 if not points:
                     failed += 1
+                    self._observe_propagation(
+                        node,
+                        after_log_volume=None,
+                        failed=True,
+                    )
                     self._observe_failure(node.session)
                     record(
                         ChoiceEventKind.DEAD_END,
@@ -465,6 +499,11 @@ class SessionChoiceSearch:
                         detail=self._backtrack_detail,
                     )
                     continue
+                current_log_volume = _choice_log_volume(points)
+                self._observe_propagation(
+                    node,
+                    after_log_volume=current_log_volume,
+                )
                 point = self.policy.select_point(points)
                 record(
                     ChoiceEventKind.CHOICE,
@@ -501,6 +540,7 @@ class SessionChoiceSearch:
                         point,
                         checkpoint,
                         node.session.strategy,
+                        current_log_volume,
                     )
                     open_checkpoints.append(
                         (
@@ -519,7 +559,12 @@ class SessionChoiceSearch:
                     continue
                 if self.traversal is ChoiceTraversal.DEPTH_FIRST:
                     pending.push(
-                        _ChoiceFrame(node, point, tuple(ordered))
+                        _ChoiceFrame(
+                            node,
+                            point,
+                            tuple(ordered),
+                            current_log_volume,
+                        )
                     )
                     continue
                 if self.lazy_frontier:
@@ -530,6 +575,7 @@ class SessionChoiceSearch:
                                 point,
                                 alternative,
                                 next_order,
+                                current_log_volume,
                             )
                         )
                         next_order += 1
@@ -557,6 +603,9 @@ class SessionChoiceSearch:
                         next_order,
                         point.name,
                         alternative.name,
+                        point.variable,
+                        alternative.value,
+                        current_log_volume,
                     )
                     next_order += 1
                     children.append(child)
@@ -641,6 +690,9 @@ class SessionChoiceSearch:
                 item.insertion_order,
                 item.point.name,
                 item.alternative.name,
+                item.point.variable,
+                item.alternative.value,
+                item.before_log_volume,
             )
         return item
 
@@ -667,6 +719,33 @@ class SessionChoiceSearch:
         if callable(observer):
             observer(session)
 
+    def _observe_propagation(
+        self,
+        node: _SearchNode,
+        *,
+        after_log_volume: float | None,
+        failed: bool = False,
+        solved: bool = False,
+    ) -> None:
+        observer = getattr(self.policy, "observe_propagation", None)
+        if (
+            not callable(observer)
+            or node.before_log_volume is None
+        ):
+            return
+        observer(
+            ChoicePropagationObservation(
+                node.incoming_point,
+                node.incoming_alternative,
+                node.incoming_variable,
+                node.incoming_value,
+                node.before_log_volume,
+                after_log_volume,
+                failed,
+                solved,
+            )
+        )
+
     def _probe_alternative(
         self,
         session: InferenceSession,
@@ -688,3 +767,7 @@ class SessionChoiceSearch:
 
 def _log_weight(weight: float) -> float:
     return math.log(weight) if weight > 0 else float("-inf")
+
+
+def _choice_log_volume(points: tuple[ChoicePoint, ...]) -> float:
+    return sum(math.log(len(point.alternatives)) for point in points)

@@ -61,11 +61,13 @@ def _magic(
     *,
     symmetry_breaking: bool,
     propagation_guided: bool,
+    dom_wdeg_only: bool,
 ) -> ChoiceSearchResult:
     result = solve_magic_square(
         size,
         symmetry_breaking=symmetry_breaking,
         propagation_guided=propagation_guided,
+        dom_wdeg_only=dom_wdeg_only,
     )
     if result.status is not ChoiceSearchStatus.SOLVED:
         raise AssertionError(f"order-{size} magic square was not solved")
@@ -121,6 +123,7 @@ def run(
     include_other: bool = True,
     magic_symmetry_breaking: bool = False,
     magic_propagation_guided: bool = False,
+    magic_dom_wdeg_only: bool = False,
 ) -> dict[str, Any]:
     results: dict[str, Any] = {}
     for size in magic_sizes:
@@ -134,6 +137,7 @@ def run(
                     size,
                     symmetry_breaking=magic_symmetry_breaking,
                     propagation_guided=magic_propagation_guided,
+                    dom_wdeg_only=magic_dom_wdeg_only,
                 ),
                 repeat,
             ),
@@ -163,6 +167,7 @@ def run(
         "repeat": repeat,
         "magic_symmetry_breaking": magic_symmetry_breaking,
         "magic_propagation_guided": magic_propagation_guided,
+        "magic_dom_wdeg_only": magic_dom_wdeg_only,
         "results": results,
     }
 
@@ -185,8 +190,13 @@ def main() -> None:
         "--magic-symmetry-breaking",
         action="store_true",
     )
-    parser.add_argument(
+    magic_value_ordering = parser.add_mutually_exclusive_group()
+    magic_value_ordering.add_argument(
         "--magic-propagation-guided",
+        action="store_true",
+    )
+    magic_value_ordering.add_argument(
+        "--magic-dom-wdeg-only",
         action="store_true",
     )
     arguments = parser.parse_args()
@@ -206,6 +216,7 @@ def main() -> None:
                 magic_propagation_guided=(
                     arguments.magic_propagation_guided
                 ),
+                magic_dom_wdeg_only=arguments.magic_dom_wdeg_only,
             ),
             indent=2,
         )

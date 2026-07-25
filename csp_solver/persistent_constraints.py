@@ -30,6 +30,7 @@ CANDIDATE = Atom("candidate")
 STATE = Atom("state")
 CONTRADICTION = Atom("contradiction")
 VIOLATED_CONSTRAINT = Atom("violated_constraint")
+EMPTY_DOMAIN = Atom("empty_domain")
 
 
 @dataclass(frozen=True, slots=True)
@@ -135,10 +136,23 @@ type PersistentConstraint = (
 )
 
 
+@dataclass(frozen=True, slots=True)
+class CandidateRemovalExplanation:
+    """Identify the constraint that removed one candidate value."""
+
+    variable: Term
+    value: Term
+    constraint: Atom
+
+
 @dataclass(slots=True)
 class _CachedPropagationState:
     domains: dict[Term, set[Term]]
     violated: PersistentConstraint | None = None
+    removal_causes: dict[tuple[Term, Term], Atom] = field(
+        default_factory=dict
+    )
+    generation: int = 0
     all_different_matchings: dict[int, dict[Term, Term]] = field(
         default_factory=dict
     )
@@ -201,6 +215,14 @@ class PersistentConstraintPropagator:
             for variable in self._variables
         }
         state = self._states.get(session)
+        if (
+            state is not None
+            and state.generation != snapshot.cursor.generation
+        ):
+            # A rollback starts another journal generation. Causes from the
+            # abandoned branch must never be attributed to its sibling.
+            state.removal_causes.clear()
+            state.generation = snapshot.cursor.generation
         widened = state is None or any(
             current[variable] - state.domains[variable]
             for variable in self._variables
@@ -218,6 +240,7 @@ class PersistentConstraintPropagator:
                     variable: set(values)
                     for variable, values in current.items()
                 },
+                generation=snapshot.cursor.generation,
                 all_different_matchings=reusable_matchings,
             )
             self._states[session] = state
@@ -247,12 +270,14 @@ class PersistentConstraintPropagator:
             index = pending.popleft()
             queued.remove(index)
             constraint = self.constraints[index]
-            changed, consistent = _revise(
+            changed, removed, consistent = _revise(
                 constraint,
                 state.domains,
                 index=index,
                 state=state,
             )
+            for variable, value in removed:
+                state.removal_causes[(variable, value)] = constraint.name
             if not consistent:
                 state.violated = constraint
                 break
@@ -285,6 +310,61 @@ class PersistentConstraintPropagator:
                 ),
                 label=f"constraint:{state.violated.name.name}",
             )
+        state.generation = session.event_cursor().generation
+
+    def removal_explanations(
+        self,
+        session: InferenceSession,
+    ) -> tuple[CandidateRemovalExplanation, ...]:
+        """Return current branch-local candidate-removal explanations."""
+
+        state = self._states.get(session)
+        if state is None:
+            return ()
+        return tuple(
+            CandidateRemovalExplanation(variable, value, constraint)
+            for (variable, value), constraint in sorted(
+                state.removal_causes.items(),
+                key=lambda item: (
+                    repr(item[0][0]),
+                    repr(item[0][1]),
+                    item[1].name,
+                ),
+            )
+        )
+
+    def failure_constraints(
+        self,
+        session: InferenceSession,
+    ) -> tuple[Atom, ...]:
+        """Return the constraints that explain the current failed state."""
+
+        state = self._states.get(session)
+        if state is None:
+            return ()
+        if state.violated is not None:
+            return (state.violated.name,)
+        empty_variables = {
+            fact.entity.object
+            for fact in session.facts
+            if isinstance(fact.entity, Triple)
+            and fact.entity.subject == self.problem
+            and fact.entity.relation == EMPTY_DOMAIN
+        }
+        return tuple(
+            dict.fromkeys(
+                constraint
+                for (variable, _), constraint in sorted(
+                    state.removal_causes.items(),
+                    key=lambda item: (
+                        repr(item[0][0]),
+                        repr(item[0][1]),
+                        item[1].name,
+                    ),
+                )
+                if variable in empty_variables
+            )
+        )
 
 
 def _validate_scope(kind: str, variables: tuple[Term, ...]) -> None:
@@ -323,7 +403,7 @@ def _revise(
     *,
     index: int | None = None,
     state: _CachedPropagationState | None = None,
-) -> tuple[set[Term], bool]:
+) -> tuple[set[Term], set[tuple[Term, Term]], bool]:
     before = {
         variable: frozenset(domains[variable])
         for variable in constraint.variables
@@ -357,7 +437,12 @@ def _revise(
         for variable, previous in before.items()
         if domains[variable] != previous
     }
-    return changed, consistent
+    removed = {
+        (variable, value)
+        for variable, previous in before.items()
+        for value in previous - domains[variable]
+    }
+    return changed, removed, consistent
 
 
 def _revise_all_different(

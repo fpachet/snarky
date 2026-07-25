@@ -87,6 +87,12 @@ qui expliquent un échec. `PropagationGuidedChoicePolicy` est un décorateur
 optionnel : pour un petit domaine, il propage chaque valeur sur une session
 isolée et laisse un score métier ordonner les branches non contradictoires.
 
+`LearnedImpactChoicePolicy` apprend au contraire pendant les branches réelles.
+Il compare le produit logarithmique des tailles de domaines avant et après le
+point fixe, puis essaie d'abord les valeurs ayant laissé le plus de choix.
+Une contradiction a un impact maximal et une solution un impact nul. Cette
+politique enveloppe dom/wdeg par défaut pour les CSP persistants.
+
 Les parcours disponibles sont profondeur, largeur et meilleur poids d'abord.
 Le score d'un chemin est la somme des logarithmes des poids. Il s'agit d'un
 score de priorité : les contraintes et les règles déterminent seules la

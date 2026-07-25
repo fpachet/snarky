@@ -23,7 +23,7 @@ instantiation strategies, metrics, and extension points. They are public and
 documented, but applications should import them from their defining modules:
 
 ```python
-from snarky.choice import MRVChoicePolicy
+from snarky.choice import LearnedImpactChoicePolicy, MRVChoicePolicy
 from snarky.instantiation import SemiNaiveInstantiationStrategy
 from snarky.propagation import DomainStore
 ```
@@ -73,4 +73,3 @@ from snarky.api_stability import (
     STABLE_CORE_API,
 )
 ```
-

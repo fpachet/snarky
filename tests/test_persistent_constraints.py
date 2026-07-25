@@ -6,8 +6,10 @@ from csp_solver.constraint_syntax import (
 )
 from csp_solver.persistent_constraints import (
     AllDifferentConstraint,
+    CandidateRemovalExplanation,
     GlobalCardinalityConstraint,
     LexLessEqualConstraint,
+    PersistentConstraintPropagator,
     SumConstraint,
     TableConstraint,
 )
@@ -27,6 +29,7 @@ from snarky import (
     ChoiceSearchStatus,
     Fact,
     FiniteSequence,
+    ForwardEngine,
     Number,
     Triple,
     parse_rule_groups,
@@ -114,6 +117,52 @@ def test_rules_observe_the_persistent_constraint_fixed_point() -> None:
         for solution in result.solutions
     }
     assert assignments == {(1, 2, 3), (2, 1, 3)}
+
+
+def test_candidate_removal_explanations_are_rollback_aware() -> None:
+    problem = Atom("explained_sum")
+    left = Atom("left")
+    right = Atom("right")
+    facts = _domain_facts(
+        problem,
+        {
+            left: (1, 2),
+            right: (1, 2),
+        },
+    )
+    session = ForwardEngine(()).create_session(facts)
+    constraint = SumConstraint(
+        Atom("sum_three"),
+        (left, right),
+        3,
+    )
+    propagator = PersistentConstraintPropagator(
+        problem,
+        (constraint,),
+    )
+    propagator(session)
+    assert propagator.removal_explanations(session) == ()
+
+    checkpoint = session.checkpoint()
+    session.retract(
+        Fact(Triple(left, CANDIDATE, Number(2))),
+        label="test-decision",
+    )
+    propagator(session)
+
+    assert propagator.removal_explanations(session) == (
+        CandidateRemovalExplanation(
+            right,
+            Number(1),
+            constraint.name,
+        ),
+    )
+
+    session.rollback(checkpoint)
+    session.release(checkpoint)
+    propagator(session)
+
+    assert propagator.removal_explanations(session) == ()
 
 
 def test_persistent_constraint_contradiction_stops_before_choice() -> None:

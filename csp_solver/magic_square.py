@@ -30,6 +30,7 @@ from .solver import (
     VARIABLE,
     FiniteCSP,
     assignment_from_solution,
+    constraint_dom_wdeg_policy,
     constraint_propagation_guided_policy,
     finite_csp_rule_library,
     solve_finite_csp,
@@ -220,9 +221,14 @@ def solve_magic_square(
     max_nodes: int = 100_000,
     symmetry_breaking: bool = False,
     propagation_guided: bool = False,
+    dom_wdeg_only: bool = False,
 ) -> ChoiceSearchResult:
     """Solve a normal magic square using Snarky propagation and choices."""
 
+    if propagation_guided and dom_wdeg_only:
+        raise ValueError(
+            "propagation-guided and dom-wdeg-only ordering are alternatives"
+        )
     model = magic_square_facts(
         size,
         symmetry_breaking=symmetry_breaking,
@@ -234,7 +240,11 @@ def solve_magic_square(
         policy=(
             constraint_propagation_guided_policy(model)
             if propagation_guided
-            else None
+            else (
+                constraint_dom_wdeg_policy(model)
+                if dom_wdeg_only
+                else None
+            )
         ),
         rule_groups=(
             *finite_csp_rule_library().finite_domain_groups,
@@ -274,10 +284,16 @@ def main() -> None:
         action="store_true",
         help="select a lexicographic representative under rotations/reflections",
     )
-    parser.add_argument(
+    value_ordering = parser.add_mutually_exclusive_group()
+    value_ordering.add_argument(
         "--propagation-guided",
         action="store_true",
         help="probe up to eight values and try the least constraining first",
+    )
+    value_ordering.add_argument(
+        "--dom-wdeg-only",
+        action="store_true",
+        help="disable the default learned-impact value ordering",
     )
     arguments = parser.parse_args()
 
@@ -286,6 +302,7 @@ def main() -> None:
         max_solutions=arguments.solutions,
         symmetry_breaking=arguments.symmetry_breaking,
         propagation_guided=arguments.propagation_guided,
+        dom_wdeg_only=arguments.dom_wdeg_only,
     )
     print(f"status={result.status} nodes={result.explored_nodes}")
     for solution in result.solutions:

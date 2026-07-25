@@ -153,10 +153,12 @@ its delta trail to the restored journal origin before applying sibling events.
 See [persistent finite-domain constraints](persistent_constraints.md) for the
 syntax and propagator contracts.
 
-For persistent-constraint models, the default choice policy is dom/wdeg:
+For persistent-constraint models, the default point selection is dom/wdeg:
 domain size is divided by the accumulated weights of incident active
 constraints, and a constraint's weight increases when it explains a failed
-branch. This changes search order, not logical feasibility.
+branch. Value order uses impacts learned from real propagated branches;
+there is no speculative propagation. These policies change search order, not
+logical feasibility.
 
 ## Fixed points and refraction
 

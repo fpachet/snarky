@@ -157,11 +157,25 @@ conservatively stops when equality and strict inequality are both possible.
 
 ## Search policies
 
-Finite CSPs with persistent constraints use dom/wdeg by default. The policy
-chooses the smallest ratio of current domain size to the weighted degree of
-active incident constraints. Every constraint starts at weight one. A
-`violated_constraint` explanation increments the responsible constraint; an
-unexplained empty domain conservatively increments all incident constraints.
+Finite CSPs with persistent constraints use dom/wdeg point selection by
+default. The policy chooses the smallest ratio of current domain size to the
+weighted degree of active incident constraints. Every constraint starts at
+weight one. A `violated_constraint` explanation increments the responsible
+constraint.
+
+The propagator also retains a branch-local
+`CandidateRemovalExplanation(variable, value, constraint)` for every
+constraint-driven removal. Explanations follow journal generations: rollback
+clears causes learned in the abandoned branch, preventing false attribution
+to a sibling. They remain internal and inspectable rather than becoming
+working-memory facts, so explanation tracking does not trigger rule groups.
+
+`LearnedImpactChoicePolicy` is the default value-ordering wrapper. Each real
+branch compares the logarithmic product of domain sizes before and after
+fixed-point propagation. Contradictions receive impact one, solutions impact
+zero, and other observations update a running mean per variable/value.
+Lower-impact values are tried first. Unlike probing, this adds no speculative
+branches.
 
 `constraint_propagation_guided_policy()` optionally wraps dom/wdeg with
 bounded least-constraining-value probes. It propagates at most eight

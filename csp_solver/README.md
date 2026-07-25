@@ -183,15 +183,18 @@ uv run python -m csp_solver.magic_square 3
 uv run python -m csp_solver.magic_square 5
 uv run python -m csp_solver.magic_square 6 --symmetry-breaking
 uv run python -m csp_solver.magic_square 7 --propagation-guided
+uv run python -m csp_solver.magic_square 7 --dom-wdeg-only
 ```
 
 The representation accepts any positive `N` (and correctly exhausts the
 impossible 2×2 case). The 5×5 example is solved by the same model and rule
 library; only the grounded cells, scopes, domains, and target differ.
 
-Persistent-constraint models use failure-attributed dom/wdeg selection by
-default. `--propagation-guided` additionally probes choice points of at most
-eight values and tries the least-constraining branch first.
+Persistent-constraint models use failure-attributed dom/wdeg point selection
+and learned-impact value ordering by default. The impact policy learns only
+from real branches. `--propagation-guided` instead probes choice points of at
+most eight values; `--dom-wdeg-only` disables both value-ordering extensions
+for controlled comparisons.
 
 `--symmetry-breaking` grounds seven instances of this N-independent
 lex-leader template:
@@ -244,7 +247,7 @@ result = solve_puzzle_with_search(
 Twenty-seven persistent `ALL_DIFFERENT` constraints cover rows, columns, and
 boxes. Existing forward rules still express human techniques such as locked
 candidates, pairs, and X-wings. When those rules cannot finish, the generic CSP
-rule chooses a candidate by MRV.
+search uses dom/wdeg point selection and learned-impact value ordering.
 
 The first recorded p7 run illustrated the hybrid's purpose: constraints alone
 used 242 nodes and 190 failed branches; constraints plus the complete
@@ -265,15 +268,21 @@ results are retained alongside the current
 [incremental-domain](../benchmarks/results/classical_csp_incremental_2026-07-25.json)
 measurements and the
 [dom/wdeg search-policy run](../benchmarks/results/classical_csp_dom_wdeg_2026-07-25.json).
+The current complete run is
+[learned impact](../benchmarks/results/classical_csp_learned_impact_2026-07-25.json).
 
 The historical MRV order-6 run has a three-run median of 19.179 seconds at
-5,358 nodes and 4,236 failed branches. Default dom/wdeg now solves the same
-model in a 2.308-second median at 575 nodes and 445 failures. Reproduce the
-larger case alone:
+5,358 nodes and 4,236 failed branches. Plain dom/wdeg now takes 2.060 seconds
+at 575 nodes and 445 failures. Default learned-impact ordering reduces that
+to 1.352 seconds, 387 nodes, and 297 failures. Reproduce the larger case:
 
 ```sh
 uv run python -m benchmarks.classical_csp \
   --magic-sizes 6 --only-magic --repeat 3
+
+uv run python -m benchmarks.classical_csp \
+  --magic-sizes 6 7 --only-magic --repeat 3 \
+  --magic-dom-wdeg-only
 
 uv run python -m benchmarks.classical_csp \
   --magic-sizes 6 --only-magic --repeat 3 \
@@ -286,6 +295,8 @@ uv run python -m benchmarks.classical_csp \
 
 The corresponding raw archives are
 [dom/wdeg](../benchmarks/results/magic_square_dom_wdeg_2026-07-25.json),
+[current plain dom/wdeg](../benchmarks/results/magic_square_dom_wdeg_only_2026-07-25.json),
+[learned impact](../benchmarks/results/magic_square_learned_impact_2026-07-25.json),
 [dom/wdeg with bounded probes](../benchmarks/results/magic_square_dom_wdeg_lcv_2026-07-25.json),
 and
 [dom/wdeg with lex symmetry](../benchmarks/results/magic_square_dom_wdeg_symmetry_2026-07-25.json).
@@ -309,9 +320,10 @@ The earlier MRV deterministic search profile was:
 | Constraint candidate removals | 333,440 |
 
 The model uses one global Régin-style `ALL_DIFFERENT`, not a decomposition
-into pairwise inequalities. Default search now uses dom/wdeg with
-failure-attributed constraint weights. Declarative lexicographic symmetry
-breaking and bounded propagation-guided value ordering are explicit options.
+into pairwise inequalities. Default search now uses explanation-backed
+dom/wdeg with learned-impact value ordering. Declarative lexicographic
+symmetry breaking, plain dom/wdeg, and bounded propagation-guided ordering are
+explicit options.
 
 See [rule programs](../docs/rule_programs.md) for explicit group composition
 and [the benchmark guide](../benchmarks/README.md) for current protocols. The
