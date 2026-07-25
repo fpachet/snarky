@@ -2,10 +2,8 @@
 
 from __future__ import annotations
 
-from collections import defaultdict
-from collections.abc import Iterable, Sequence
+from collections.abc import Sequence
 from dataclasses import dataclass
-from typing import TypeVar, cast
 
 from ..computed import ComputedPremise
 from ..facts import Fact
@@ -27,12 +25,10 @@ from ..substitutions import (
     EMPTY_SUBSTITUTION,
     BindingFrame,
     Substitution,
-    TermBindings,
 )
 from ..terms import (
     FiniteSet,
     Term,
-    Triple,
     Variable,
     is_ground,
 )
@@ -59,10 +55,13 @@ from .compiled import (
     simple_fact_plan,
 )
 from .fact_index import FactIndex as FactIndex
-from .fact_index import StructuralKey, StructuralSignature, _structural_lookup
+from .fact_index import _structural_lookup
+from .query_memory import (
+    QueryMemory,
+    aggregate_witness_supports,
+    facts_match_plans,
+)
 
-IndexKeyT = TypeVar("IndexKeyT")
-type WatchToken = tuple[str, object]
 _RESIDUAL_WITNESS_MIN_FACTS = 128
 
 
@@ -117,43 +116,20 @@ class IndexedInstantiationStrategy:
         self.metrics = InstantiationMetrics()
         self._index: FactIndex | None = None
         self._pending_removed: set[Fact] = set()
-        self._witness_cache: WitnessCache = {}
-        self._query_blocks: dict[WitnessCacheKey, CompiledBlock] = {}
-        self._negative_watchers: defaultdict[
-            WatchToken, set[WitnessCacheKey]
-        ] = defaultdict(set)
-        self._creation_watchers: defaultdict[
-            WatchToken, set[WitnessCacheKey]
-        ] = defaultdict(set)
-        self._support_watchers: defaultdict[
-            Fact, set[WitnessCacheKey]
-        ] = defaultdict(set)
-        self._query_registrations: dict[
-            WitnessCacheKey,
-            tuple[
-                frozenset[WatchToken],
-                frozenset[WatchToken],
-                tuple[Fact, ...],
-            ],
-        ] = {}
-        self._query_counts: dict[WitnessCacheKey, int] = {}
-        self._simple_query_facts: dict[
-            WitnessCacheKey, tuple[Fact, ...]
-        ] = {}
-        self._query_aggregate_supports: dict[
-            WitnessCacheKey, tuple[Fact, ...]
-        ] = {}
-        self._residual_witnesses: dict[
-            WitnessCacheKey,
-            tuple[tuple[Fact, ...], ...],
-        ] = {}
-        self._structural_watch_signatures: set[StructuralSignature] = set()
+        self._query_memory = QueryMemory()
+        self._witness_cache = self._query_memory.witness_cache
+        self._query_blocks = self._query_memory.blocks
+        self._query_counts = self._query_memory.counts
+        self._simple_query_facts = self._query_memory.simple_facts
+        self._query_aggregate_supports = (
+            self._query_memory.aggregate_supports
+        )
+        self._residual_witnesses = self._query_memory.residual_witnesses
         self._rule_memories: dict[Rule, _RuleMemory] = {}
         self._positive_join_memories: dict[
             Rule, tuple[tuple[_PartialState, ...], ...]
         ] = {}
         self._partial_memory_disabled: set[Rule] = set()
-        self._processed_revision = 0
 
     def instantiate(
         self,
@@ -200,13 +176,10 @@ class IndexedInstantiationStrategy:
         if not removed:
             self._index = None
             self._pending_removed.clear()
-            self._witness_cache.clear()
-            self._query_blocks.clear()
-            self._clear_query_watchers()
+            self._query_memory.clear(reset_revision=True)
             self._rule_memories.clear()
             self._positive_join_memories.clear()
             self._partial_memory_disabled.clear()
-            self._processed_revision = 0
             return
         self._pending_removed.update(removed)
         self._invalidate_query_memories((), removed)
@@ -556,9 +529,7 @@ class IndexedInstantiationStrategy:
             index = FactIndex(facts, metrics=self.metrics)
             self._index = index
             self._pending_removed.clear()
-            self._witness_cache.clear()
-            self._query_blocks.clear()
-            self._clear_query_watchers()
+            self._query_memory.clear()
             self.metrics.index_builds += 1
             self.metrics.indexed_facts += len(facts)
             return index
@@ -577,9 +548,7 @@ class IndexedInstantiationStrategy:
                 index = FactIndex(facts, metrics=self.metrics)
                 self._index = index
                 if delta is None:
-                    self._witness_cache.clear()
-                    self._query_blocks.clear()
-                    self._clear_query_watchers()
+                    self._query_memory.clear()
                 self.metrics.index_builds += 1
                 self.metrics.indexed_facts += len(facts)
             return index
@@ -590,33 +559,22 @@ class IndexedInstantiationStrategy:
         return index
 
     def _apply_query_delta(self, delta: FactDelta) -> None:
-        if delta.revision and delta.revision <= self._processed_revision:
+        if (
+            delta.revision
+            and delta.revision <= self._query_memory.processed_revision
+        ):
             return
         if delta.changed:
             self._invalidate_query_memories(delta.added, delta.removed)
         if delta.revision:
-            self._processed_revision = delta.revision
+            self._query_memory.processed_revision = delta.revision
 
     def _invalidate_query_memories(
         self,
         added: tuple[Fact, ...],
         removed: frozenset[Fact],
     ) -> None:
-        candidates: set[WitnessCacheKey] = set()
-        for fact in removed:
-            candidates.update(self._support_watchers.get(fact, ()))
-            for token in _fact_watch_tokens(
-                fact,
-                self._structural_watch_signatures,
-            ):
-                candidates.update(self._negative_watchers.get(token, ()))
-        for fact in added:
-            for token in _fact_watch_tokens(
-                fact,
-                self._structural_watch_signatures,
-            ):
-                candidates.update(self._negative_watchers.get(token, ()))
-                candidates.update(self._creation_watchers.get(token, ()))
+        candidates = self._query_memory.affected_keys(added, removed)
 
         expired: list[WitnessCacheKey] = []
         for key in candidates:
@@ -659,10 +617,10 @@ class IndexedInstantiationStrategy:
             )
             frame = BindingFrame(bindings)
             negative = negative_fact_plans(block)
-            if removed and self._facts_match_plans(removed, negative, frame):
+            if removed and facts_match_plans(removed, negative, frame):
                 expired.append(key)
                 continue
-            if added and negative and self._facts_match_plans(
+            if added and negative and facts_match_plans(
                 added,
                 negative,
                 frame,
@@ -672,7 +630,7 @@ class IndexedInstantiationStrategy:
             if (
                 added
                 and witness is None
-                and self._facts_match_plans(
+                and facts_match_plans(
                     added,
                     all_fact_plans(block),
                     frame,
@@ -730,134 +688,25 @@ class IndexedInstantiationStrategy:
         aggregate_supports: tuple[Fact, ...] = (),
         residual_witnesses: tuple[tuple[Fact, ...], ...] = (),
     ) -> None:
-        self._remove_query_registration(key)
-        frame = BindingFrame(
-            (Variable(name), term)
-            for name, term in key[1]
+        self._query_memory.register(
+            key,
+            block,
+            witness,
+            use_structural_watches=(
+                self._index is not None
+                and len(self._index) >= _RESIDUAL_WITNESS_MIN_FACTS
+            ),
+            simple_facts=simple_facts,
+            count_value=count_value,
+            aggregate_supports=aggregate_supports,
+            residual_witnesses=residual_witnesses,
         )
-        use_structural_watches = (
-            self._index is not None
-            and len(self._index) >= _RESIDUAL_WITNESS_MIN_FACTS
-        )
-        negative_tokens = frozenset(
-            _plan_watch_token(
-                plan,
-                frame,
-                use_structure=use_structural_watches,
-            )
-            for plan in negative_fact_plans(block)
-        )
-        creation_tokens = (
-            frozenset(
-                _plan_watch_token(
-                    plan,
-                    frame,
-                    use_structure=use_structural_watches,
-                )
-                for plan in all_fact_plans(block)
-            )
-            if (
-                witness is None
-                or simple_facts is not None
-                or count_value is not None
-            )
-            else frozenset()
-        )
-        for token in (*negative_tokens, *creation_tokens):
-            if token[0] == "structure":
-                signature, _ = cast(
-                    tuple[StructuralSignature, StructuralKey],
-                    token[1],
-                )
-                self._structural_watch_signatures.add(signature)
-        supports = (
-            simple_facts
-            if simple_facts is not None
-            else aggregate_supports
-            or _aggregate_supports(residual_witnesses)
-            or (witness or ())
-        )
-        for token in negative_tokens:
-            self._negative_watchers[token].add(key)
-        for token in creation_tokens:
-            self._creation_watchers[token].add(key)
-        for fact in supports:
-            self._support_watchers[fact].add(key)
-        self._witness_cache[key] = witness
-        self._query_blocks[key] = block
-        self._query_registrations[key] = (
-            negative_tokens,
-            creation_tokens,
-            supports,
-        )
-        if simple_facts is not None:
-            self._query_counts[key] = len(simple_facts)
-            self._simple_query_facts[key] = simple_facts
-            self._query_aggregate_supports[key] = simple_facts
-        elif count_value is not None:
-            self._query_counts[key] = count_value
-            self._query_aggregate_supports[key] = aggregate_supports
-        if residual_witnesses:
-            self._residual_witnesses[key] = residual_witnesses
 
     def _remove_query_registration(
         self,
         key: WitnessCacheKey,
     ) -> None:
-        registration = self._query_registrations.pop(key, None)
-        if registration is not None:
-            negative_tokens, creation_tokens, supports = registration
-            for token in negative_tokens:
-                self._discard_watcher(self._negative_watchers, token, key)
-            for token in creation_tokens:
-                self._discard_watcher(self._creation_watchers, token, key)
-            for fact in supports:
-                self._discard_watcher(self._support_watchers, fact, key)
-        self._witness_cache.pop(key, None)
-        self._query_blocks.pop(key, None)
-        self._query_counts.pop(key, None)
-        self._simple_query_facts.pop(key, None)
-        self._query_aggregate_supports.pop(key, None)
-        self._residual_witnesses.pop(key, None)
-
-    @staticmethod
-    def _discard_watcher(
-        watchers: defaultdict[IndexKeyT, set[WitnessCacheKey]],
-        token: IndexKeyT,
-        key: WitnessCacheKey,
-    ) -> None:
-        watched = watchers.get(token)
-        if watched is None:
-            return
-        watched.discard(key)
-        if not watched:
-            watchers.pop(token, None)
-
-    def _clear_query_watchers(self) -> None:
-        self._negative_watchers.clear()
-        self._creation_watchers.clear()
-        self._support_watchers.clear()
-        self._query_registrations.clear()
-        self._query_counts.clear()
-        self._simple_query_facts.clear()
-        self._query_aggregate_supports.clear()
-        self._residual_witnesses.clear()
-        self._structural_watch_signatures.clear()
-
-    @staticmethod
-    def _facts_match_plans(
-        facts: Iterable[Fact],
-        plans: tuple[CompiledFactPremise, ...],
-        frame: BindingFrame,
-    ) -> bool:
-        for fact in facts:
-            for plan in plans:
-                checkpoint = frame.checkpoint()
-                matches = plan.match(fact.entity, fact.status, frame)
-                frame.rollback(checkpoint)
-                if matches:
-                    return True
-        return False
+        self._query_memory.remove(key)
 
     def _join(
         self,
@@ -1463,7 +1312,7 @@ class IndexedInstantiationStrategy:
         )
         frame.rollback(checkpoint)
         witness_tuple = tuple(witnesses)
-        aggregate_supports = _aggregate_supports(witness_tuple)
+        aggregate_supports = aggregate_witness_supports(witness_tuple)
         first = witness_tuple[0] if witness_tuple else None
         self._register_query_memory(
             key,
@@ -2241,77 +2090,6 @@ def _normalize_delta(
     return FactDelta(added=delta)
 
 
-def _plan_watch_token(
-    premise: CompiledFactPremise,
-    bindings: TermBindings,
-    *,
-    use_structure: bool = True,
-) -> WatchToken:
-    entity = premise.entity.resolve(bindings)
-    if entity is not None:
-        return "entity", entity
-    if use_structure:
-        structural = _structural_lookup(premise, bindings)
-        if structural is not None:
-            return "structure", structural
-    if premise.triple_parts is not None:
-        subject = premise.triple_parts[0].resolve(bindings)
-        relation = premise.triple_parts[1].resolve(bindings)
-        object_ = premise.triple_parts[2].resolve(bindings)
-        if subject is not None and relation is not None:
-            return "subject_relation", (subject, relation)
-        if relation is not None and object_ is not None:
-            return "relation_object", (relation, object_)
-        if subject is not None and object_ is not None:
-            return "subject_object", (subject, object_)
-        if subject is not None:
-            return "subject", subject
-        if relation is not None:
-            return "relation", relation
-        if object_ is not None:
-            return "object", object_
-    status = premise.status.resolve(bindings)
-    if status is not None:
-        return "status", status
-    return "any", None
-
-
-def _fact_watch_tokens(
-    fact: Fact,
-    structural_signatures: Iterable[StructuralSignature] = (),
-) -> tuple[WatchToken, ...]:
-    tokens: list[WatchToken] = [
-        ("any", None),
-        ("entity", fact.entity),
-        ("status", fact.status),
-    ]
-    if isinstance(fact.entity, Triple):
-        tokens.extend(
-            (
-                ("subject", fact.entity.subject),
-                ("relation", fact.entity.relation),
-                ("object", fact.entity.object),
-                (
-                    "subject_relation",
-                    (fact.entity.subject, fact.entity.relation),
-                ),
-                (
-                    "relation_object",
-                    (fact.entity.relation, fact.entity.object),
-                ),
-                (
-                    "subject_object",
-                    (fact.entity.subject, fact.entity.object),
-                ),
-            )
-        )
-    for signature in structural_signatures:
-        key = FactIndex._structural_key(fact, signature)
-        if key is not None:
-            tokens.append(("structure", (signature, key)))
-    return tuple(tokens)
-
-
 def _partial_state_key(
     state: _PartialState,
 ) -> tuple[tuple[tuple[str, Term], ...], tuple[Fact, ...]]:
@@ -2325,15 +2103,3 @@ def _aggregate_accepts(
     if isinstance(premise, UniquePremise):
         return count_value == 1
     return premise.accepts(count_value)
-
-
-def _aggregate_supports(
-    witnesses: tuple[tuple[Fact, ...], ...],
-) -> tuple[Fact, ...]:
-    return tuple(
-        dict.fromkeys(
-            fact
-            for witness in witnesses
-            for fact in witness
-        )
-    )
