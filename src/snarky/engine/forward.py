@@ -19,7 +19,6 @@ from ..actions import (
 )
 from ..facts import Fact
 from ..instantiation import (
-    FactDelta,
     IndexedInstantiationStrategy,
     InstantiationStrategy,
     SemiNaiveInstantiationStrategy,
@@ -46,10 +45,10 @@ from ..terms import (
     Variable,
 )
 from .agenda import (
-    _activation_focus_fact,
+    ActivationKey,
     _AgendaMemory,
-    _build_rule_dependency_index,
-    _merge_agenda_activations,
+    _evaluate_agenda,
+    _fact_delta,
 )
 from .conflict import (
     AgendaCandidate,
@@ -60,11 +59,10 @@ from .conflict import (
 from .events import FactMutationKind, InferenceEvent
 from .provenance import Derivation, Provenance
 from .session_state import (
-    ActivationKey,
-    _TimeTagMutation,
+    SessionCheckpoint as SessionCheckpoint,
 )
 from .session_state import (
-    SessionCheckpoint as SessionCheckpoint,
+    _TimeTagMutation,
 )
 
 
@@ -787,105 +785,20 @@ class InferenceSession:
 
         facts_snapshot = self._store.facts
         memory = self._agenda_memories.get(group.name)
-        if memory is not None and memory.group != group:
-            raise ValueError(
-                f"agenda group {group.name!r} has a different definition"
-            )
-        if memory is None:
-            dependencies = _build_rule_dependency_index(group)
-            activation_rows = tuple(
-                self.strategy.instantiate(rule, facts_snapshot, None)
-                for rule in group.rules
-            )
-            self.agenda_metrics.rebuilds += 1
-            self.agenda_metrics.rule_recomputations += len(group.rules)
-        else:
-            changed_events = tuple(self._events[memory.revision :])
-            dirty = memory.dependencies.affected(changed_events)
-            activation_rows_list = list(memory.activations)
-            if dirty:
-                delta = _fact_delta(
-                    changed_events,
-                    facts_snapshot,
-                    revision=len(self._events),
-                )
-                for rule_index in dirty:
-                    rule = group.rules[rule_index]
-                    state_key = (group.name, rule.name)
-                    force_full = (
-                        not delta.changed
-                        or state_key in self._force_full_evaluation
-                    )
-                    refreshed = self.strategy.instantiate(
-                        rule,
-                        facts_snapshot,
-                        None if force_full else delta,
-                    )
-                    self._force_full_evaluation.discard(state_key)
-                    activation_rows_list[rule_index] = (
-                        refreshed
-                        if force_full
-                        else _merge_agenda_activations(
-                            rule,
-                            activation_rows_list[rule_index],
-                            refreshed,
-                            delta,
-                            self.strategy,
-                            self._store,
-                        )
-                    )
-                self.agenda_metrics.rule_recomputations += len(dirty)
-            self.agenda_metrics.rule_reuses += len(group.rules) - len(dirty)
-            activation_rows = tuple(activation_rows_list)
-            dependencies = memory.dependencies
-        self._agenda_memories[group.name] = _AgendaMemory(
+        updated_memory, candidates = _evaluate_agenda(
             group,
-            activation_rows,
-            len(self._events),
-            dependencies,
+            facts_snapshot,
+            self._events,
+            memory,
+            self.strategy,
+            self._store,
+            self._force_full_evaluation,
+            self._fired,
+            self._fact_time_tags,
+            self.agenda_metrics,
         )
-        candidates: list[AgendaCandidate] = []
-        candidate_order = 0
-        for rule_order, (rule, activations) in enumerate(
-            zip(group.rules, activation_rows, strict=True)
-        ):
-            for activation in activations:
-                if any(
-                    fact not in self._store
-                    for fact in activation.premise_facts
-                ):
-                    continue
-                key = ActivationKey(
-                    group.name,
-                    rule.name,
-                    activation.substitution.key,
-                )
-                if key in self._fired:
-                    continue
-                time_tags = tuple(
-                    self._fact_time_tags.get(fact, 0)
-                    for fact in activation.premise_facts
-                )
-                focus_fact = _activation_focus_fact(rule, activation)
-                candidates.append(
-                    AgendaCandidate(
-                        rule=rule,
-                        activation=activation,
-                        rule_order=rule_order,
-                        candidate_order=candidate_order,
-                        focus_fact=focus_fact,
-                        focus_time_tag=(
-                            self._fact_time_tags.get(focus_fact, 0)
-                            if focus_fact is not None
-                            else 0
-                        ),
-                        lexicographic_time_tags=tuple(
-                            sorted(time_tags, reverse=True)
-                        ),
-                    )
-                )
-                candidate_order += 1
-        return tuple(candidates)
+        self._agenda_memories[group.name] = updated_memory
+        return candidates
 
     def _fire_activation(
         self,
@@ -1379,58 +1292,3 @@ def _atom_names_in(term: Term) -> tuple[str, ...]:
             for name in _atom_names_in(element)
         )
     return ()
-
-
-def _fact_delta(
-    events: tuple[InferenceEvent, ...],
-    current_facts: tuple[Fact, ...],
-    *,
-    revision: int,
-) -> FactDelta:
-    """Reduce a mutation journal slice to its net per-rule fact delta."""
-
-    del current_facts
-    initial_presence: dict[Fact, bool] = {}
-    final_presence: dict[Fact, bool] = {}
-    removed_then_added: set[Fact] = set()
-    last_add_order: dict[Fact, int] = {}
-    for order, event in enumerate(events):
-        if event.fact not in initial_presence:
-            initial_presence[event.fact] = (
-                event.kind is FactMutationKind.REMOVE
-            )
-        elif (
-            event.kind is FactMutationKind.ADD
-            and initial_presence[event.fact]
-            and not final_presence[event.fact]
-        ):
-            removed_then_added.add(event.fact)
-        added = event.kind is FactMutationKind.ADD
-        final_presence[event.fact] = added
-        if added:
-            last_add_order[event.fact] = order
-    added_set = {
-        fact
-        for fact, present in final_presence.items()
-        if present and (
-            not initial_presence[fact] or fact in removed_then_added
-        )
-    }
-    removed = frozenset(
-        fact
-        for fact, present in final_presence.items()
-        if (
-            (not present and initial_presence[fact])
-            or fact in removed_then_added
-        )
-    )
-    return FactDelta(
-        added=tuple(
-            sorted(
-                added_set,
-                key=last_add_order.__getitem__,
-            )
-        ),
-        removed=removed,
-        revision=revision,
-    )

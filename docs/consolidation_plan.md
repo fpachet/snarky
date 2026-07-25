@@ -174,9 +174,9 @@ The first consolidation tranche establishes:
 - deterministic and Hypothesis-generated mutation and truth-maintenance
   sequences across naïve, indexed, and semi-naïve execution;
 - the first C3 extraction: checkpoint bookkeeping now lives in
-  `engine/session_state.py`, while incremental agenda memory and dependency
-  helpers live in `engine/agenda.py`; historical public import paths remain
-  compatible.
+  `engine/session_state.py`, while incremental agenda memory, dependency
+  tracking, delta reduction, and conflict-set materialization live in
+  `engine/agenda.py`; historical public import paths remain compatible.
 
 The next tranche continues the bounded decomposition of session execution in
 `engine/forward.py`, protected by the broader mutable-state suite.

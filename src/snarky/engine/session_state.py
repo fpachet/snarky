@@ -7,20 +7,12 @@ from dataclasses import dataclass
 from ..facts import Fact
 from ..rules import RuleGroup
 from ..stores.naive import FactStoreCheckpoint
-from ..terms import Term
-from .agenda import _AgendaMemory
+from .agenda import ActivationKey, _AgendaMemory
 from .conflict import (
     AgendaMetrics,
     ConflictResolutionStrategy,
 )
 from .provenance import ProvenanceCheckpoint
-
-
-@dataclass(frozen=True, slots=True)
-class ActivationKey:
-    rule_group: str
-    rule_name: str
-    substitution: tuple[tuple[str, Term], ...]
 
 
 @dataclass(frozen=True, slots=True)
