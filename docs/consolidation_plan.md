@@ -188,11 +188,13 @@ The first consolidation tranche establishes:
   reconciliation now live in `engine/refraction.py`;
 - traversal modes and stable DFS, BFS, and best-first pending storage now live
   in `choice_frontier.py`, with `ChoiceTraversal` re-exported from its
-  historical public module.
+  historical public module;
+- declarative choice models, `RuleChoiceProvider`, query isolation, and
+  sequential `CHOICE` production now live in `choice_production.py`.
 
 Historical public import paths remain compatible and are covered by identity
 tests.
 
 The `engine/forward.py` decomposition target is complete for C3. The next
-tranche continues with choice production and traversal orchestration in
-`choice.py`, protected by the same mutable-state suite.
+tranche continues with traversal orchestration in `choice.py`, protected by
+the same mutable-state suite.

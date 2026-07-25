@@ -1,3 +1,5 @@
+import snarky
+import snarky.choice as choice_api
 from snarky import (
     Atom,
     Choice,
@@ -14,10 +16,19 @@ from snarky import (
     parse_rule_groups,
     parse_term,
 )
+from snarky.choice_production import (
+    RuleChoiceProvider as ProductionRuleChoiceProvider,
+)
 
 
 def _fact(text: str) -> Fact:
     return Fact(parse_term(text))
+
+
+def test_rule_choice_provider_keeps_its_public_import_paths() -> None:
+    assert RuleChoiceProvider is snarky.RuleChoiceProvider
+    assert RuleChoiceProvider is choice_api.RuleChoiceProvider
+    assert RuleChoiceProvider is ProductionRuleChoiceProvider
 
 
 def test_choice_action_parses_target_source_and_weight() -> None:

@@ -23,12 +23,27 @@ from snarky import (
 from snarky.choice_frontier import (
     ChoiceTraversal as FrontierChoiceTraversal,
 )
+from snarky.choice_production import (
+    ChoiceAlternative as ProductionChoiceAlternative,
+)
+from snarky.choice_production import (
+    ChoicePoint as ProductionChoicePoint,
+)
 
 
 def test_choice_traversal_keeps_its_public_import_paths() -> None:
     assert ChoiceTraversal is snarky.ChoiceTraversal
     assert ChoiceTraversal is choice_api.ChoiceTraversal
     assert ChoiceTraversal is FrontierChoiceTraversal
+
+
+def test_choice_models_keep_their_public_import_paths() -> None:
+    assert ChoiceAlternative is snarky.ChoiceAlternative
+    assert ChoiceAlternative is choice_api.ChoiceAlternative
+    assert ChoiceAlternative is ProductionChoiceAlternative
+    assert ChoicePoint is snarky.ChoicePoint
+    assert ChoicePoint is choice_api.ChoicePoint
+    assert ChoicePoint is ProductionChoicePoint
 
 
 def test_choice_alternative_rejects_invalid_weights() -> None:
