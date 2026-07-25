@@ -223,10 +223,20 @@ by -0.37%, the tonal symbolic path by -0.05%, and the object round trip by
 +0.39%, with identical search counters. The choice decomposition therefore
 has no material measured runtime cost.
 
+The first `indexed.py` extraction is guarded independently. Between commits
+`3312333` and `6e7157f`, indexed F(12) changed by +0.07% and a semi-naive
+constraint chain with removals and structural lookups changed by -0.54%.
+Facts, derivations, cycles, activations, match attempts, index removals, and
+structural-index counters remained identical. The complete protocol is in
+[`fact_index_extraction_2026-07-25.json`](../benchmarks/results/fact_index_extraction_2026-07-25.json).
+
 The `engine/forward.py` decomposition target is complete for C3. The next
 choice decomposition target is also complete: production, policies, frontier
 management, and traversal live in focused modules, while `choice.py` is a
 26-line compatibility facade preserving every historical public import
-identity. The next tranche starts the decomposition of
-`instantiation/indexed.py`, beginning with fact indexing and protected by the
-same differential and performance suites.
+identity. The persistent fact index, ordered storage, compound buckets,
+structural lookup, cloning, and delta-rank partitioning now live in
+`instantiation/fact_index.py`; their historical internal import remains
+compatible and direct lifecycle tests supplement the strategy suite. The
+next tranche isolates existential-query memory from
+`instantiation/indexed.py`.

@@ -1,0 +1,65 @@
+{
+  "benchmark": "fact_index_extraction_guard",
+  "date": "2026-07-25",
+  "python": "3.13.11",
+  "platform": "macOS-15.7.7-arm64-arm-64bit-Mach-O",
+  "baseline_commit": "3312333",
+  "current_commit": "6e7157f",
+  "protocol": {
+    "series_order": [
+      "baseline",
+      "current",
+      "current",
+      "baseline"
+    ],
+    "summary": "mean of the two independently measured medians",
+    "same_interpreter_and_environment": true
+  },
+  "cases": {
+    "fibonacci_12_indexed": {
+      "command": "python benchmarks/fibonacci_explicit.py --n 12 --repeat 9 --strategy indexed",
+      "baseline_medians_seconds": [
+        0.39415883399942686,
+        0.39329008299955603
+      ],
+      "current_medians_seconds": [
+        0.39437249999991764,
+        0.3936429160003172
+      ],
+      "baseline_summary_seconds": 0.39372445849949145,
+      "current_summary_seconds": 0.3940077080001174,
+      "delta_percent": 0.07194104773309284,
+      "logical_counters": {
+        "facts": 860,
+        "derived_facts": 859,
+        "cycles": 21,
+        "fired_activations": 430,
+        "match_attempts": 1146,
+        "activations_produced": 5792
+      }
+    },
+    "constraint_chain_semi_naive": {
+      "command": "python benchmarks/constraint_scaling.py --variables 16 --domain-size 12 --repeat 7 --strategy semi-naive",
+      "baseline_medians_seconds": [
+        0.040900417000557354,
+        0.040576916000645724
+      ],
+      "current_medians_seconds": [
+        0.04062816700024996,
+        0.04041020800013939
+      ],
+      "baseline_summary_seconds": 0.04073866650060154,
+      "current_summary_seconds": 0.040519187500194676,
+      "delta_percent": -0.5387486122149454,
+      "logical_counters": {
+        "cycles": 16,
+        "fired_activations": 165,
+        "match_attempts": 5716,
+        "index_removals": 165,
+        "structural_index_builds": 2,
+        "structural_index_lookups": 503
+      }
+    }
+  },
+  "conclusion": "No material performance regression was observed."
+}
