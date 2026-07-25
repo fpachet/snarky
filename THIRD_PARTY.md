@@ -1,0 +1,77 @@
+# Third-party material and redistribution audit
+
+This inventory records provenance separately from permission. A citation,
+download URL, or use as a research oracle does not by itself grant
+redistribution rights.
+
+All external corpora and historical documents are excluded from Snarky's
+Python source and wheel distributions. A public tagged repository release is
+also blocked wherever the table says `review required`.
+
+## Historical documents
+
+| Local path | Identification | Recorded terms | Decision |
+|---|---|---|---|
+| `docs/481057722-Intelligence-artificielle-Resolution-de-problemes-par-lhomme-et-la-machine-by-Jean-Louis-Lauriere-z-lib-org-pdf.pdf` | Jean-Louis Laurière, *Intelligence Artificielle - Résolution de problèmes par l'Homme et la machine*, 485 pages; PDF metadata dated 2009 | No redistribution terms recorded; file origin is not an authoritative publisher URL | Internal reference only; exclude from distributions and tagged releases pending a legitimate source and permission review |
+| `docs/6-SNARK2-4p.pdf` | Bernard Espinasse, *Programmation Déclarative: SNARK 2*, 2004, 13-page four-slides-per-page handout | No redistribution terms recorded | Internal reference only; exclude pending author or publisher permission |
+| `docs/Cavarretta-X1988-SpinozaExpertSystem.pdf` | Fabrice Cavarretta, *SpinoLog*, École Polytechnique X85, supervised by Michel Gondran, 49-page scan | No redistribution terms recorded | Internal Spinoza reference only; exclude pending permission |
+| `docs/Gondran.ppt` | Michel Gondran, *Modélisation de l'Éthique de Spinoza dans le langage Snark de Jean-Louis Laurière*, 2006 presentation | No redistribution terms recorded | Internal Spinoza reference only; exclude pending permission |
+| `docs/Satisfaction_de_contraintes_et_programmation_par_o.pdf` | Pierre Roy, doctoral thesis, *Satisfaction de contraintes et programmation par objets*, Université Paris 6, defended 21 December 1998, 232 pages | No redistribution terms or authoritative repository URL recorded | Internal CSP/harmony reference only; exclude pending repository or author rights verification |
+
+`docs/Shal.doc` is a local, ignored document and is not tracked or
+distributed.
+
+## External rulebase corpora
+
+Exact revisions, selected paths, archive hashes, and source URLs are in
+[`third_party/test_rulebases/manifest.yaml`](third_party/test_rulebases/manifest.yaml).
+
+| Corpus | Revision/source | Recorded terms | Repository decision |
+|---|---|---|---|
+| W3C N3 | `b975fc59...`, `github.com/w3c/N3` | W3C Test Suite License and W3C Software and Document License bundled in the selected tree | Retain for research testing with notices; exclude from Python distributions |
+| W3C RIF 1.22 | official W3C BLD/Core/PRD archives with SHA-256 hashes | Upstream W3C software-license URL recorded; no local license copy in the imported snapshot | Review notices before any corpus release; exclude from Python distributions |
+| CLIPS 6.4.2 | official SourceForge example and feature-test archives with SHA-256 hashes | Upstream project declares MIT; no license file is bundled with the selected archives | Add authoritative license notice before any corpus release; exclude from Python distributions |
+| ChaseBench | `7427e1c1...`, `github.com/dbunibas/chasebench` | No license found in the imported revision | Review required; do not include in a tagged release |
+| rbench | `1dda8ded...`, `gitlab.informatik.uni-halle.de/brass/rbench` | No license found in the imported revision | Review required; do not include in a tagged release |
+| Soufflé | `a1303be3...`, `github.com/souffle-lang/souffle` | UPL-1.0 license and upstream notices bundled | Retain with notices for research testing; exclude from Python distributions |
+| EYE | `f14729b5...`, `github.com/josd/eye` | MIT license bundled | Retain with notice for research testing; exclude from Python distributions |
+
+The imported selections are reference inputs, not native Snarky tests and not
+claims of conformance to the source systems. `scripts/fetch_test_rulebases.sh`
+reproduces the selection and refuses to overwrite an existing corpus.
+
+## Spinoza text
+
+`spinoza/sources/ethique_III_appuhn_1913.txt` and
+`spinoza/sources/passages.json` derive from Charles Appuhn's 1913 French
+translation as transcribed by Wikisource. The source URL and retrieval date
+are recorded in `spinoza/sources/bibliography.yaml`.
+
+The age of the printed translation does not by itself settle the terms of the
+online transcription or structured derivative. These files remain research
+corpus material, are excluded from Python distributions, and require a
+documented rights decision before a tagged corpus release.
+
+## Generated and first-party research artifacts
+
+- `harmonizer/generated/` contains reproducible MIDI and MusicXML outputs.
+  They are ignored by Git and regenerated with
+  `python -m harmonizer.example_muses`.
+- `benchmarks/results/` contains tracked, machine-readable experimental
+  records. It is first-party evidence, not runtime source, and is excluded
+  from Python distributions.
+- caches, wheels, source distributions, coverage reports, and local IDE files
+  are ignored.
+
+## Audit rule
+
+Before adding any external artifact, record:
+
+1. its author or originating organization;
+2. an authoritative source URL and immutable revision or checksum;
+3. the applicable license or permission text;
+4. required notices and modification status;
+5. whether it belongs in the repository, a tagged research corpus, a Python
+   distribution, or only a private reference collection.
+
+Unknown is a valid audit result, but never an implicit permission.

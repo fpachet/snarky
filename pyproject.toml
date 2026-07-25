@@ -34,6 +34,7 @@ Documentation = "https://github.com/fpachet/snarky#readme"
 
 [project.optional-dependencies]
 dev = [
+    "build>=1.2",
     "hypothesis>=6.0",
     "mypy>=1.14",
     "pytest>=8.0",
@@ -43,6 +44,17 @@ dev = [
 
 [tool.hatch.build.targets.wheel]
 packages = ["src/snarky"]
+
+[tool.hatch.build.targets.sdist]
+only-include = [
+    "CHANGELOG.md",
+    "CITATION.cff",
+    "LICENSE_STATUS.md",
+    "README.md",
+    "SECURITY.md",
+    "THIRD_PARTY.md",
+    "src/snarky",
+]
 
 [tool.pytest.ini_options]
 addopts = "-q"

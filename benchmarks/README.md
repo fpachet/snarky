@@ -13,7 +13,7 @@ Algorithmic counters and output equivalence are usually more portable.
 Run benchmarks from the repository root in a clean environment:
 
 ```sh
-uv sync
+uv sync --extra dev
 uv run pytest
 uv run python -m benchmarks.rulebase_suite --repeat 7
 ```

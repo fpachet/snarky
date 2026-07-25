@@ -417,3 +417,23 @@ and MuSES example titles are also English. [`README.md`](README.md) maps the
 canonical publication guides and distinguishes the retained French research
 notes. The Spinoza corpus, formalization, reports, and atlas remain French by
 design. Consolidation now proceeds to C6 repository and publication hygiene.
+
+C6 is technically complete, with legal decisions left as explicit release
+gates rather than assumptions. [`../THIRD_PARTY.md`](../THIRD_PARTY.md)
+records every historical document, external rulebase corpus, Spinoza source,
+generated music file, and benchmark archive category, together with its
+provenance and redistribution decision. External references and corpora are
+excluded from Python distributions; ChaseBench, rbench, and the five
+historical documents also block a tagged corpus release until rights are
+resolved. [`../LICENSE_STATUS.md`](../LICENSE_STATUS.md) records that no
+project license has been selected and prevents the local build from being
+presented as a public release.
+
+Contribution, security, citation, and release guidance now live at the
+repository root. Generated MIDI and MusicXML remain on local disks but are
+ignored by Git and reproducible from their source model. Benchmark records
+stay tracked as explicitly separated scientific evidence. Automated checks
+validate first-party Markdown links and reject private, external, or generated
+material in either archive. The sdist fell from approximately 27 MB to 96 KB,
+the 124 KB wheel still installs and runs an isolated inference, and both
+archives contain the typed Snarky package and required publication metadata.
