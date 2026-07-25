@@ -391,5 +391,18 @@ explicit and isolated. The `domain_filter.py` decomposition target is
 complete. The lexical-analysis part of the `parser.py` decomposition is also
 complete, as are recursive term parsing, shared arithmetic parsing, and
 premise parsing. Action parsing is complete as well. All C3 decomposition
-targets are now complete; consolidation proceeds to C4 public API and release
-boundaries.
+targets are now complete.
+
+C4 is complete. The 152 historical top-level exports are classified in
+`snarky.api_stability` as stable core, advanced, integration, or experimental.
+Wildcard imports now contain only the stable core, while every historical
+explicit root import remains available throughout the 0.1 series. The
+transition and its deprecation schedule are documented in
+[`api_stability.md`](api_stability.md), and Python, rule-language, and
+serialization compatibility rules are documented in
+[`versioning.md`](versioning.md). Package metadata links to the documentation
+and changelog. CI now installs the built wheel without dependencies in an
+isolated environment, imports it away from the source checkout, and executes
+a minimal inference. The local source-distribution build and isolated wheel
+smoke test both pass. Consolidation now proceeds to C5 documentation and
+language policy.

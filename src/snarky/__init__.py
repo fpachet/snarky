@@ -1,5 +1,9 @@
 """Public API of the Snarky inference engine."""
 
+# The explicit imports below preserve the historical top-level API.  Ruff cannot
+# infer their use through the stability-driven, computed ``__all__``.
+# ruff: noqa: F401
+
 from .actions import (
     Action,
     AddFact,
@@ -15,6 +19,7 @@ from .actions import (
     let,
     remove,
 )
+from .api_stability import STABLE_CORE_API
 from .choice import (
     ChoiceAlternative,
     ChoiceDecision,
@@ -174,7 +179,7 @@ from .terms import (
 )
 from .unification import Unifier
 
-__all__ = [
+_LEGACY_ALL = [
     "EMPTY_SUBSTITUTION",
     "Action",
     "AdaptiveInstantiationStrategy",
@@ -328,3 +333,5 @@ __all__ = [
     "variables_in",
     "when",
 ]
+
+__all__ = sorted(STABLE_CORE_API)

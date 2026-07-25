@@ -42,3 +42,6 @@ jobs:
 
       - name: Build wheel
         run: python -m pip wheel . --no-deps --wheel-dir dist
+
+      - name: Test installed wheel
+        run: python scripts/check_wheel_install.py dist
