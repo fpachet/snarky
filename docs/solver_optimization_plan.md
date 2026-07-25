@@ -90,6 +90,10 @@ Current global propagators deliberately favor inspectable algorithms:
 - `GCC`: lower-bounded flow feasibility with per-candidate support checks;
 - `TABLE`: active-tuple projection;
 - `SUM`: exact prefix/suffix support.
+- `LINEAR_SUM`: exact weighted reachable-sum support for equality and bounds;
+- `LESS_EQUAL`, `LESS_THAN`, and `NOT_EQUAL`: binary GAC;
+- `ELEMENT`: exact one-based index/value support for distinct variables;
+- `COUNT`: exact mandatory/possible occurrence support.
 
 The next kernel optimizations should be accepted only after profiles identify
 them as dominant:
@@ -246,3 +250,23 @@ The preceding implementation-speed archive is
 The separate
 [`magic_square_6_incremental_2026-07-25.json`](../benchmarks/results/magic_square_6_incremental_2026-07-25.json)
 records the larger three-run case.
+
+## Phase 6: practical constraint vocabulary
+
+Status: implemented.
+
+The persistent layer now covers the small reusable vocabulary needed by many
+classical CSP models without forcing decompositions into rules:
+
+- signed integer `LINEAR_SUM` with equality and two bound operators;
+- binary numeric order and generic disequality;
+- one-based `ELEMENT`;
+- fixed-value `COUNT`.
+
+These propagators retain the same narrowing-only, deterministic contract and
+participate in the existing adjacency scheduler, removal explanations,
+checkpoint rollback, dom/wdeg attribution, and learned-impact search. Small
+domain differential tests compare their consistency result and every
+surviving candidate with exhaustive assignment oracles. This phase extends
+modeling coverage; it does not alter the magic-square search tree or replace
+the profiling rule that kernel complexity must be justified by measurements.

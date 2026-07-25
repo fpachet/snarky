@@ -90,6 +90,99 @@ TARGET $integer
 The propagator computes exact reachable prefix and suffix sums. A candidate is
 retained only when the remaining variables can reach the complementary sum.
 
+### `LINEAR_SUM`
+
+```text
+CONSTRAINT capacity
+KIND LINEAR_SUM
+SCOPE SEQ[$coefficient $variable] ORDER BY $position
+FROM
+    ($expression term SEQ[$position $coefficient $variable])
+END_SCOPE
+OPERATOR LESS_EQUAL
+TARGET 40
+END
+```
+
+This constrains
+`coefficient[1] * variable[1] + ... + coefficient[n] * variable[n]`.
+Coefficients are signed, non-zero integers; variables are distinct and have
+integer `Number` domains. `OPERATOR` is `EQUAL`, `LESS_EQUAL`, or
+`GREATER_EQUAL`, and `TARGET` resolves to an integer. Exact reachable
+prefix/suffix sums establish GAC. For inequalities, an individual candidate
+has support precisely when the minimum or maximum reachable remainder can
+satisfy the bound.
+
+`SUM` remains the concise and bitset-optimized form for unit coefficients and
+equality. It is semantically equivalent to a `LINEAR_SUM` with every
+coefficient equal to one and `OPERATOR EQUAL`.
+
+### Binary comparisons
+
+```text
+CONSTRAINT precedes
+KIND LESS_THAN
+SCOPE $variable ORDER BY $position
+FROM
+    ($precedence endpoint SEQ[$position $variable])
+END_SCOPE
+END
+```
+
+`LESS_EQUAL`, `LESS_THAN`, and `NOT_EQUAL` each require exactly two ordered,
+distinct scoped variables. The first variable is the left operand. The
+ordered comparisons accept finite numeric `Number` candidates and establish
+GAC by retaining values with a supporting value on the other side.
+`NOT_EQUAL` compares arbitrary Snarky terms and removes a value when the
+opposite domain is fixed to that same value.
+
+### `ELEMENT`
+
+```text
+CONSTRAINT chosen_resource
+KIND ELEMENT
+SCOPE $array_variable ORDER BY $position
+FROM
+    ($resource_array member SEQ[$position $array_variable])
+END_SCOPE
+INDEX $index_variable
+VALUE $value_variable
+END
+```
+
+`ELEMENT` means
+`value_variable = array[index_variable]`. Index candidates are one-based
+integers; out-of-range indices are removed. An index remains only when its
+selected array domain intersects the value domain, and the value domain is
+restricted to values reachable through a surviving index. If the index is
+fixed, the selected array variable and value variable are intersected.
+
+The index, every array variable, and the value variable must be distinct.
+This explicit non-aliasing contract keeps the propagator exact and its
+behavior easy to inspect. Repeated array values are allowed; only the CSP
+variables themselves must differ.
+
+### `COUNT`
+
+```text
+CONSTRAINT minimum_red
+KIND COUNT
+SCOPE $variable
+FROM
+    ($variable kind colored_slot)
+END_SCOPE
+VALUE red
+OPERATOR GREATER_EQUAL
+TARGET 2
+END
+```
+
+`COUNT` constrains the number of scoped variables assigned the fixed `VALUE`.
+The operator is `EQUAL`, `LESS_EQUAL`, or `GREATER_EQUAL`; `TARGET` is a
+fixed integer, not another CSP variable. The propagator maintains the
+mandatory and possible occurrence interval and tests each candidate against
+the interval of the remaining variables, establishing GAC.
+
 ### `GCC`
 
 ```text

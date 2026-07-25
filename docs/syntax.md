@@ -202,6 +202,55 @@ TARGET $target
 ```
 
 ```text
+KIND LINEAR_SUM
+SCOPE SEQ[$coefficient $variable] ORDER BY $position
+FROM
+    ($expression term SEQ[$position $coefficient $variable])
+END_SCOPE
+OPERATOR LESS_EQUAL
+TARGET $target
+```
+
+`LINEAR_SUM` supports integer coefficients, integer candidate domains, and
+`EQUAL`, `LESS_EQUAL`, or `GREATER_EQUAL`. Coefficients must be non-zero and
+each grounded variable may occur only once.
+
+```text
+KIND LESS_EQUAL
+KIND LESS_THAN
+KIND NOT_EQUAL
+```
+
+Each binary comparison uses an ordered scope containing exactly two distinct
+variables. `LESS_EQUAL` and `LESS_THAN` require finite numeric `Number`
+domains. `NOT_EQUAL` accepts any finite terms.
+
+```text
+KIND ELEMENT
+SCOPE $array_variable ORDER BY $position
+FROM
+    ($array member SEQ[$position $array_variable])
+END_SCOPE
+INDEX $index_variable
+VALUE $value_variable
+```
+
+`ELEMENT` means `$value_variable = array[$index_variable]`; indices are
+one-based integers. The index, array variables, and value variable must all
+be distinct.
+
+```text
+KIND COUNT
+...
+VALUE $counted_value
+OPERATOR GREATER_EQUAL
+TARGET $integer
+```
+
+`COUNT` compares the number of scoped variables equal to `VALUE` with a fixed
+integer `TARGET`. Its operator is `EQUAL`, `LESS_EQUAL`, or `GREATER_EQUAL`.
+
+```text
 KIND GCC
 ...
 BOUNDS SEQ[$value $lower $upper]
@@ -232,6 +281,10 @@ END_SCOPE
 For `LEX_LESS_EQUAL`, every ordered scope row projects the corresponding
 left/right pair. The two grounded numeric variable sequences must have the
 same non-zero length.
+
+Clauses appear in the order shown above. `TARGET`, coefficients, bounds, and
+`COUNT` targets must ground to integer `Number` terms. Clause terms may be
+literals or variables bound by `FOR EACH`/`SCOPE` premises.
 
 The complete operational contract and examples are in
 [Persistent finite-domain constraints](persistent_constraints.md).

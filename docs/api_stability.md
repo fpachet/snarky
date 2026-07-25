@@ -46,6 +46,13 @@ instantiation and specialized constraint propagation. Their signatures and
 behavior may evolve between minor releases while Snarky is pre-1.0. They
 should be imported from their defining modules.
 
+The companion `csp_solver` package is currently experimental. Its public
+constraint models—including `AllDifferentConstraint`, `SumConstraint`,
+`LinearSumConstraint`, `BinaryComparisonConstraint`, `ElementConstraint`,
+`CountConstraint`, `GlobalCardinalityConstraint`, `TableConstraint`, and
+`LexLessEqualConstraint`—are exported from `csp_solver`, but are not part of
+Snarky's stable core API.
+
 ## Top-level transition
 
 Before version 0.1.0, the package root re-exported every public implementation

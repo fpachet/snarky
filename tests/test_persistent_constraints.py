@@ -6,9 +6,15 @@ from csp_solver.constraint_syntax import (
 )
 from csp_solver.persistent_constraints import (
     AllDifferentConstraint,
+    BinaryComparisonConstraint,
+    BinaryComparisonOperator,
     CandidateRemovalExplanation,
+    ConstraintOperator,
+    CountConstraint,
+    ElementConstraint,
     GlobalCardinalityConstraint,
     LexLessEqualConstraint,
+    LinearSumConstraint,
     PersistentConstraintPropagator,
     SumConstraint,
     TableConstraint,
@@ -162,6 +168,48 @@ def test_candidate_removal_explanations_are_rollback_aware() -> None:
     session.release(checkpoint)
     propagator(session)
 
+    assert propagator.removal_explanations(session) == ()
+
+
+def test_new_constraint_filtering_is_restored_by_rollback() -> None:
+    problem = Atom("rollback_comparison")
+    left, right = Atom("left"), Atom("right")
+    session = ForwardEngine(()).create_session(
+        _domain_facts(
+            problem,
+            {
+                left: (1, 2),
+                right: (2, 3),
+            },
+        )
+    )
+    constraint = BinaryComparisonConstraint(
+        Atom("left_before_right"),
+        left,
+        right,
+        BinaryComparisonOperator.LESS_THAN,
+    )
+    propagator = PersistentConstraintPropagator(problem, (constraint,))
+    propagator(session)
+    checkpoint = session.checkpoint()
+    session.retract(
+        Fact(Triple(right, CANDIDATE, Number(3))),
+        label="test-decision",
+    )
+
+    propagator(session)
+
+    assert Fact(Triple(left, CANDIDATE, Number(2))) not in session.facts
+    assert propagator.removal_explanations(session) == (
+        CandidateRemovalExplanation(left, Number(2), constraint.name),
+    )
+
+    session.rollback(checkpoint)
+    session.release(checkpoint)
+    propagator(session)
+
+    assert Fact(Triple(left, CANDIDATE, Number(2))) in session.facts
+    assert Fact(Triple(right, CANDIDATE, Number(3))) in session.facts
     assert propagator.removal_explanations(session) == ()
 
 
@@ -439,3 +487,203 @@ def test_fact_derived_lex_less_equal_accepts_paired_scope_projection() -> None:
             (second, third),
         ),
     )
+
+
+def test_fact_derived_templates_cover_the_practical_constraint_family() -> None:
+    model = Atom("model")
+    x, y = Atom("x"), Atom("y")
+    index, first, second, result = (
+        Atom("index"),
+        Atom("first"),
+        Atom("second"),
+        Atom("result"),
+    )
+    facts = (
+        Fact(
+            Triple(
+                model,
+                Atom("weighted"),
+                FiniteSequence((Number(1), Number(2), x)),
+            )
+        ),
+        Fact(
+            Triple(
+                model,
+                Atom("weighted"),
+                FiniteSequence((Number(2), Number(-1), y)),
+            )
+        ),
+        Fact(
+            Triple(
+                model,
+                Atom("pair"),
+                FiniteSequence((Number(1), x)),
+            )
+        ),
+        Fact(
+            Triple(
+                model,
+                Atom("pair"),
+                FiniteSequence((Number(2), y)),
+            )
+        ),
+        Fact(
+            Triple(
+                model,
+                Atom("array"),
+                FiniteSequence((Number(1), first)),
+            )
+        ),
+        Fact(
+            Triple(
+                model,
+                Atom("array"),
+                FiniteSequence((Number(2), second)),
+            )
+        ),
+    )
+    templates = parse_constraint_templates(
+        """
+        CONSTRAINT weighted_capacity
+        KIND LINEAR_SUM
+        SCOPE SEQ[$coefficient $variable] ORDER BY $position
+        FROM
+            (model weighted SEQ[$position $coefficient $variable])
+        END_SCOPE
+        OPERATOR LESS_EQUAL
+        TARGET 7
+        END
+
+        CONSTRAINT ordered_pair
+        KIND LESS_THAN
+        SCOPE $variable ORDER BY $position
+        FROM
+            (model pair SEQ[$position $variable])
+        END_SCOPE
+        END
+
+        CONSTRAINT two_ones
+        KIND COUNT
+        SCOPE $variable ORDER BY $position
+        FROM
+            (model pair SEQ[$position $variable])
+        END_SCOPE
+        VALUE 1
+        OPERATOR EQUAL
+        TARGET 2
+        END
+
+        CONSTRAINT selected_value
+        KIND ELEMENT
+        SCOPE $variable ORDER BY $position
+        FROM
+            (model array SEQ[$position $variable])
+        END_SCOPE
+        INDEX index
+        VALUE result
+        END
+        """
+    )
+
+    assert instantiate_constraint_templates(templates, facts) == (
+        LinearSumConstraint(
+            Atom("weighted_capacity"),
+            ((2, x), (-1, y)),
+            ConstraintOperator.LESS_EQUAL,
+            7,
+        ),
+        BinaryComparisonConstraint(
+            Atom("ordered_pair"),
+            x,
+            y,
+            BinaryComparisonOperator.LESS_THAN,
+        ),
+        CountConstraint(
+            Atom("two_ones"),
+            (x, y),
+            Number(1),
+            ConstraintOperator.EQUAL,
+            2,
+        ),
+        ElementConstraint(
+            Atom("selected_value"),
+            index,
+            (first, second),
+            result,
+        ),
+    )
+
+
+def test_new_constraints_propagate_together_before_search() -> None:
+    problem = Atom("practical_constraints")
+    x, y = Atom("x"), Atom("y")
+    index, first, second, result = (
+        Atom("index"),
+        Atom("first"),
+        Atom("second"),
+        Atom("result"),
+    )
+    count_left, count_right = Atom("count_left"), Atom("count_right")
+    red, blue = Atom("red"), Atom("blue")
+    numeric_facts = _domain_facts(
+        problem,
+        {
+            x: (1, 2),
+            y: (1, 2, 3),
+            index: (1,),
+            first: (5,),
+            second: (6,),
+            result: (5, 6),
+            count_left: (),
+            count_right: (),
+        },
+    )
+    facts = (
+        *numeric_facts,
+        Fact(Triple(count_left, CANDIDATE, red)),
+        Fact(Triple(count_left, CANDIDATE, blue)),
+        Fact(Triple(count_right, CANDIDATE, red)),
+    )
+    constraints = (
+        LinearSumConstraint(
+            Atom("sum_four"),
+            ((1, x), (1, y)),
+            ConstraintOperator.EQUAL,
+            4,
+        ),
+        BinaryComparisonConstraint(
+            Atom("increasing"),
+            x,
+            y,
+            BinaryComparisonOperator.LESS_THAN,
+        ),
+        ElementConstraint(
+            Atom("lookup"),
+            index,
+            (first, second),
+            result,
+        ),
+        CountConstraint(
+            Atom("both_red"),
+            (count_left, count_right),
+            red,
+            ConstraintOperator.GREATER_EQUAL,
+            2,
+        ),
+    )
+
+    result_set = solve_finite_csp(
+        FiniteCSP(problem, facts, {}, constraints=constraints)
+    )
+
+    assert result_set.status is ChoiceSearchStatus.SOLVED
+    assert assignment_from_solution(result_set.solutions[0], problem) == {
+        x: Number(1),
+        y: Number(3),
+        index: Number(1),
+        first: Number(5),
+        second: Number(6),
+        result: Number(5),
+        count_left: red,
+        count_right: red,
+    }

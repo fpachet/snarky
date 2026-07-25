@@ -132,9 +132,10 @@ therefore all observe the filtered state.
 The first persistent CSP layer is narrowing-only:
 
 - initial `candidate` facts define fixed base domains;
-- `AllDifferentConstraint`, `SumConstraint`, `GlobalCardinalityConstraint`,
-  `TableConstraint`, and `LexLessEqualConstraint` retract candidates without
-  branching;
+- `AllDifferentConstraint`, `SumConstraint`, `LinearSumConstraint`,
+  `BinaryComparisonConstraint`, `ElementConstraint`, `CountConstraint`,
+  `GlobalCardinalityConstraint`, `TableConstraint`, and
+  `LexLessEqualConstraint` retract candidates without branching;
 - ordinary rules can observe those retractions and derive other facts;
 - `CHOICE` adds a branch decision, after which propagation restarts;
 - rollback restores the decision, constraint reductions, and rule

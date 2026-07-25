@@ -27,8 +27,14 @@ from snarky.premises import Premise, validate_premise_bindings
 
 from .persistent_constraints import (
     AllDifferentConstraint,
+    BinaryComparisonConstraint,
+    BinaryComparisonOperator,
+    ConstraintOperator,
+    CountConstraint,
+    ElementConstraint,
     GlobalCardinalityConstraint,
     LexLessEqualConstraint,
+    LinearSumConstraint,
     PersistentConstraint,
     SumConstraint,
     TableConstraint,
@@ -43,8 +49,14 @@ _BOUNDS_RE = re.compile(r"BOUNDS\s+(?P<projection>.+)\Z")
 
 class PersistentConstraintKind(StrEnum):
     ALL_DIFFERENT = "ALL_DIFFERENT"
+    COUNT = "COUNT"
+    ELEMENT = "ELEMENT"
     GCC = "GCC"
+    LESS_EQUAL = "LESS_EQUAL"
+    LESS_THAN = "LESS_THAN"
+    LINEAR_SUM = "LINEAR_SUM"
     LEX_LESS_EQUAL = "LEX_LESS_EQUAL"
+    NOT_EQUAL = "NOT_EQUAL"
     SUM = "SUM"
     TABLE = "TABLE"
 
@@ -61,6 +73,9 @@ class PersistentConstraintTemplate:
     scope_order: Term | None
     scope: tuple[Premise, ...]
     target: Term | None = None
+    operator: ConstraintOperator | None = None
+    value: Term | None = None
+    index: Term | None = None
     bounds_projection: Term | None = None
     bounds: tuple[Premise, ...] = ()
     tuples_projection: Term | None = None
@@ -97,17 +112,73 @@ class PersistentConstraintTemplate:
                 "constraint scope uses unbound variables: "
                 + _variable_names(missing)
             )
-        if self.kind is PersistentConstraintKind.SUM:
+        ordered_kinds = {
+            PersistentConstraintKind.ELEMENT,
+            PersistentConstraintKind.LESS_EQUAL,
+            PersistentConstraintKind.LESS_THAN,
+            PersistentConstraintKind.LEX_LESS_EQUAL,
+            PersistentConstraintKind.NOT_EQUAL,
+            PersistentConstraintKind.TABLE,
+        }
+        if self.kind in ordered_kinds and self.scope_order is None:
+            raise ValueError(f"{self.kind} requires SCOPE ... ORDER BY ...")
+        target_kinds = {
+            PersistentConstraintKind.SUM,
+            PersistentConstraintKind.LINEAR_SUM,
+            PersistentConstraintKind.COUNT,
+        }
+        if self.kind in target_kinds:
             if self.target is None:
-                raise ValueError("SUM constraint template requires TARGET")
+                raise ValueError(
+                    f"{self.kind} constraint template requires TARGET"
+                )
             missing_target = variables_in(self.target) - scope_bound
             if missing_target:
                 raise ValueError(
-                    "SUM target uses unbound variables: "
+                    f"{self.kind} target uses unbound variables: "
                     + _variable_names(missing_target)
                 )
         elif self.target is not None:
             raise ValueError(f"{self.kind} does not accept TARGET")
+        operator_kinds = {
+            PersistentConstraintKind.LINEAR_SUM,
+            PersistentConstraintKind.COUNT,
+        }
+        if self.kind in operator_kinds:
+            if self.operator is None:
+                raise ValueError(
+                    f"{self.kind} constraint template requires OPERATOR"
+                )
+        elif self.operator is not None:
+            raise ValueError(f"{self.kind} does not accept OPERATOR")
+        value_kinds = {
+            PersistentConstraintKind.COUNT,
+            PersistentConstraintKind.ELEMENT,
+        }
+        if self.kind in value_kinds:
+            if self.value is None:
+                raise ValueError(
+                    f"{self.kind} constraint template requires VALUE"
+                )
+            missing_value = variables_in(self.value) - scope_bound
+            if missing_value:
+                raise ValueError(
+                    f"{self.kind} value uses unbound variables: "
+                    + _variable_names(missing_value)
+                )
+        elif self.value is not None:
+            raise ValueError(f"{self.kind} does not accept VALUE")
+        if self.kind is PersistentConstraintKind.ELEMENT:
+            if self.index is None:
+                raise ValueError("ELEMENT constraint template requires INDEX")
+            missing_index = variables_in(self.index) - scope_bound
+            if missing_index:
+                raise ValueError(
+                    "ELEMENT index uses unbound variables: "
+                    + _variable_names(missing_index)
+                )
+        elif self.index is not None:
+            raise ValueError(f"{self.kind} does not accept INDEX")
         if self.kind is PersistentConstraintKind.GCC:
             if self.bounds_projection is None or not bounds:
                 raise ValueError("GCC constraint template requires BOUNDS")
@@ -233,19 +304,41 @@ def parse_constraint_templates(
         scope = parse_premises("\n".join(scope_body))
 
         target: Term | None = None
+        operator: ConstraintOperator | None = None
+        value: Term | None = None
+        index: Term | None = None
         bounds_projection: Term | None = None
         bounds: tuple[Premise, ...] = ()
         tuples_projection: Term | None = None
         tuples: tuple[Premise, ...] = ()
         if kind is PersistentConstraintKind.SUM:
-            if position >= len(lines) or not lines[position].startswith(
-                "TARGET "
-            ):
-                raise ParseError(f"SUM constraint {name!r} is missing TARGET")
-            target = parse_term(
-                lines[position].removeprefix("TARGET ").strip()
+            target, position = _read_term_clause(
+                lines, position, "TARGET", kind, name
             )
-            position += 1
+        elif kind is PersistentConstraintKind.LINEAR_SUM:
+            operator, position = _read_operator_clause(
+                lines, position, kind, name
+            )
+            target, position = _read_term_clause(
+                lines, position, "TARGET", kind, name
+            )
+        elif kind is PersistentConstraintKind.COUNT:
+            value, position = _read_term_clause(
+                lines, position, "VALUE", kind, name
+            )
+            operator, position = _read_operator_clause(
+                lines, position, kind, name
+            )
+            target, position = _read_term_clause(
+                lines, position, "TARGET", kind, name
+            )
+        elif kind is PersistentConstraintKind.ELEMENT:
+            index, position = _read_term_clause(
+                lines, position, "INDEX", kind, name
+            )
+            value, position = _read_term_clause(
+                lines, position, "VALUE", kind, name
+            )
         elif kind is PersistentConstraintKind.GCC:
             if position >= len(lines):
                 raise ParseError(f"GCC constraint {name!r} is missing BOUNDS")
@@ -304,6 +397,9 @@ def parse_constraint_templates(
                     scope_order,
                     scope,
                     target,
+                    operator,
+                    value,
+                    index,
                     bounds_projection,
                     bounds,
                     tuples_projection,
@@ -350,7 +446,15 @@ def _instantiate_template(
     )
     grouped: dict[
         tuple[Term, ...],
-        list[tuple[Term | None, Term, Term | None]],
+        list[
+            tuple[
+                Term | None,
+                Term,
+                Term | None,
+                Term | None,
+                Term | None,
+            ]
+        ],
     ] = {}
     for activation in scope_activations:
         substitution = activation.substitution
@@ -369,7 +473,19 @@ def _instantiate_template(
             if template.target is not None
             else None
         )
-        grouped.setdefault(key, []).append((order, projection, target))
+        index = (
+            substitution.apply(template.index)
+            if template.index is not None
+            else None
+        )
+        value = (
+            substitution.apply(template.value)
+            if template.value is not None
+            else None
+        )
+        grouped.setdefault(key, []).append(
+            (order, projection, target, index, value)
+        )
 
     bounds_by_context: dict[
         tuple[Term, ...],
@@ -463,6 +579,100 @@ def _instantiate_template(
                     _integer(target, "SUM target"),
                 )
             )
+        elif template.kind is PersistentConstraintKind.LINEAR_SUM:
+            terms: list[tuple[int, Term]] = []
+            for _, projection, _, _, _ in rows:
+                if (
+                    not isinstance(projection, FiniteSequence)
+                    or len(projection.elements) != 2
+                ):
+                    raise ValueError(
+                        f"LINEAR_SUM template {template.name!r} SCOPE "
+                        "must project SEQ[coefficient variable]"
+                    )
+                coefficient, variable = projection.elements
+                terms.append(
+                    (
+                        _integer(coefficient, "LINEAR_SUM coefficient"),
+                        variable,
+                    )
+                )
+            targets = {row[2] for row in rows}
+            if len(targets) != 1:
+                raise ValueError(
+                    f"LINEAR_SUM template {template.name!r} has "
+                    "inconsistent targets"
+                )
+            target = next(iter(targets))
+            if target is None or template.operator is None:
+                raise AssertionError("validated LINEAR_SUM clause is absent")
+            output.append(
+                LinearSumConstraint(
+                    name,
+                    tuple(terms),
+                    template.operator,
+                    _integer(target, "LINEAR_SUM target"),
+                )
+            )
+        elif template.kind in {
+            PersistentConstraintKind.LESS_EQUAL,
+            PersistentConstraintKind.LESS_THAN,
+            PersistentConstraintKind.NOT_EQUAL,
+        }:
+            variables = tuple(dict.fromkeys(row[1] for row in rows))
+            if len(variables) != 2:
+                raise ValueError(
+                    f"{template.kind} template {template.name!r} requires "
+                    "exactly two scoped variables"
+                )
+            output.append(
+                BinaryComparisonConstraint(
+                    name,
+                    variables[0],
+                    variables[1],
+                    BinaryComparisonOperator(template.kind.value),
+                )
+            )
+        elif template.kind is PersistentConstraintKind.COUNT:
+            variables = tuple(dict.fromkeys(row[1] for row in rows))
+            targets = {row[2] for row in rows}
+            values = {row[4] for row in rows}
+            if len(targets) != 1 or len(values) != 1:
+                raise ValueError(
+                    f"COUNT template {template.name!r} has inconsistent "
+                    "VALUE or TARGET clauses"
+                )
+            target = next(iter(targets))
+            value = next(iter(values))
+            if (
+                target is None
+                or value is None
+                or template.operator is None
+            ):
+                raise AssertionError("validated COUNT clause is absent")
+            output.append(
+                CountConstraint(
+                    name,
+                    variables,
+                    value,
+                    template.operator,
+                    _integer(target, "COUNT target"),
+                )
+            )
+        elif template.kind is PersistentConstraintKind.ELEMENT:
+            array = tuple(dict.fromkeys(row[1] for row in rows))
+            indices = {row[3] for row in rows}
+            values = {row[4] for row in rows}
+            if len(indices) != 1 or len(values) != 1:
+                raise ValueError(
+                    f"ELEMENT template {template.name!r} has inconsistent "
+                    "INDEX or VALUE clauses"
+                )
+            index = next(iter(indices))
+            value = next(iter(values))
+            if index is None or value is None:
+                raise AssertionError("validated ELEMENT clause is absent")
+            output.append(ElementConstraint(name, index, array, value))
         elif template.kind is PersistentConstraintKind.GCC:
             variables = tuple(dict.fromkeys(row[1] for row in rows))
             output.append(
@@ -488,7 +698,7 @@ def _instantiate_template(
             )
         else:
             pairs: list[tuple[Term, Term]] = []
-            for _, projection, _ in rows:
+            for _, projection, _, _, _ in rows:
                 if (
                     not isinstance(projection, FiniteSequence)
                     or len(projection.elements) != 2
@@ -523,9 +733,55 @@ def _query(
 
 
 def _integer(term: Term, description: str) -> int:
-    if not isinstance(term, Number) or not isinstance(term.value, int):
+    if (
+        not isinstance(term, Number)
+        or isinstance(term.value, bool)
+        or not isinstance(term.value, int)
+    ):
         raise ValueError(f"{description} must resolve to an integer Number")
     return term.value
+
+
+def _read_term_clause(
+    lines: tuple[str, ...],
+    position: int,
+    clause: str,
+    kind: PersistentConstraintKind,
+    name: str,
+) -> tuple[Term, int]:
+    prefix = f"{clause} "
+    if position >= len(lines) or not lines[position].startswith(prefix):
+        raise ParseError(
+            f"{kind} constraint {name!r} is missing {clause}"
+        )
+    return parse_term(lines[position].removeprefix(prefix).strip()), position + 1
+
+
+def _read_operator_clause(
+    lines: tuple[str, ...],
+    position: int,
+    kind: PersistentConstraintKind,
+    name: str,
+) -> tuple[ConstraintOperator, int]:
+    term, position = _read_term_clause(
+        lines,
+        position,
+        "OPERATOR",
+        kind,
+        name,
+    )
+    if not isinstance(term, Atom):
+        raise ParseError(
+            f"{kind} constraint {name!r} OPERATOR must be an atom"
+        )
+    try:
+        return ConstraintOperator(term.name), position
+    except ValueError as error:
+        supported = ", ".join(operator.value for operator in ConstraintOperator)
+        raise ParseError(
+            f"{kind} constraint {name!r} has unsupported OPERATOR "
+            f"{term.name!r}; expected one of {supported}"
+        ) from error
 
 
 def _term_sort_key(term: Term | None) -> tuple[int, int | float | str]:

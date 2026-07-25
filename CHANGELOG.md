@@ -18,6 +18,8 @@ details are documented in [docs/versioning.md](docs/versioning.md).
 - Automated checks for local documentation links and distribution contents.
 - Fact-derived persistent constraint templates with `ALL_DIFFERENT`, `SUM`,
   `GCC`, and allowed `TABLE` propagation.
+- Persistent `LINEAR_SUM`, binary comparison, `ELEMENT`, and `COUNT`
+  templates with generalized arc-consistency filtering.
 - Joint constraint/rule fixed points during reversible `CHOICE` search.
 - Dependency-aware joint fixed-point scheduling and exact bitset filtering for
   bounded non-negative `SUM` constraints.

@@ -169,6 +169,30 @@ TARGET $target
 END
 ```
 
+The same persistent layer also provides weighted arithmetic, comparisons,
+indexing, and occurrence counting. For example:
+
+```text
+CONSTRAINT resource_capacity
+KIND LINEAR_SUM
+SCOPE SEQ[$coefficient $variable] ORDER BY $position
+FROM
+    ($resource term SEQ[$position $coefficient $variable])
+END_SCOPE
+OPERATOR LESS_EQUAL
+TARGET 40
+END
+```
+
+`LINEAR_SUM` generalizes `SUM` with signed, non-zero integer coefficients and
+the operators `EQUAL`, `LESS_EQUAL`, and `GREATER_EQUAL`. Binary
+`LESS_EQUAL`, `LESS_THAN`, and `NOT_EQUAL` constraints use an ordered
+two-variable scope. `ELEMENT` enforces a one-based array lookup, and `COUNT`
+compares the occurrences of one value with a fixed integer target. The full
+grammar is specified in [the syntax reference](../docs/syntax.md), with
+propagation contracts in
+[persistent constraints](../docs/persistent_constraints.md).
+
 There are no magic-square propagation rules. The reusable forward rules
 classify singleton domains, detect solved or contradictory problems, and
 produce explicit choices. Thus the model cleanly demonstrates the division of
