@@ -1,0 +1,45 @@
+{
+  "benchmark": "domain_tables_extraction",
+  "date": "2026-07-25",
+  "python": "3.13.11",
+  "platform": "macOS-15.7.7-arm64-arm-64bit-Mach-O",
+  "baseline_commit": "f35636f",
+  "current_commit": "326ea74",
+  "protocol": {
+    "series_order": [
+      "baseline",
+      "current",
+      "current",
+      "baseline"
+    ],
+    "repetitions_per_series": 15,
+    "summary": "mean of the two independently measured medians",
+    "same_interpreter_and_environment": true
+  },
+  "case": {
+    "name": "compact_table_sudoku_level_1",
+    "command": "python -c 'from benchmarks.compact_tables import measure; print(measure(1, 15, \"compact\"))'",
+    "baseline_medians_seconds": [
+      0.2145917500001815,
+      0.2156702079992101
+    ],
+    "current_medians_seconds": [
+      0.21377570799995738,
+      0.21352233300058288
+    ],
+    "baseline_summary_seconds": 0.2151309789996958,
+    "current_summary_seconds": 0.21364902050027013,
+    "delta_percent": -0.6888633642241571,
+    "logical_counters": {
+      "match_attempts": 49531,
+      "domain_bitset_intersections": 41174,
+      "domain_bitset_support_checks": 8318,
+      "domain_bitset_value_events": 346,
+      "domain_compact_join_rows": 19986,
+      "domain_delta_join_variants": 10,
+      "domain_delta_join_skips": 0,
+      "domain_rows_examined": 0
+    }
+  },
+  "conclusion": "Moving compact table definitions, branch-local masks, and projection bookkeeping to a focused module has no material runtime cost."
+}

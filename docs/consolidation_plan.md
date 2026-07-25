@@ -256,6 +256,17 @@ additions, delta partitioning, and all logical counters remain identical.
 The protocol is recorded in
 [`adaptive_fact_buckets_2026-07-25.json`](../benchmarks/results/adaptive_fact_buckets_2026-07-25.json).
 
+Compact extensional tables were extracted from `domain_filter.py` to
+`instantiation/domain_tables.py` at commit `326ea74`. The module now owns
+stable row slots, value-support bitsets, branch-local active masks, and
+incremental domain projections. Direct lifecycle tests cover filtering,
+ordered removal and addition, state reset, and shared-value projection
+counts. An interleaved 15-repetition comparison on compact-table Sudoku p1
+changed from 215.13 ms to 213.65 ms (-0.69%), with identical matching,
+bitset, compact-join, and delta counters. This is measurement noise rather
+than a material runtime change. Raw samples and the complete counters are in
+[`domain_tables_extraction_2026-07-25.json`](../benchmarks/results/domain_tables_extraction_2026-07-25.json).
+
 The `engine/forward.py` decomposition target is complete for C3. The next
 choice decomposition target is also complete: production, policies, frontier
 management, and traversal live in focused modules, while `choice.py` is a
@@ -271,5 +282,6 @@ hot-path dictionary references. Semi-naive delta planning and traversal now
 live in `instantiation/semi_naive_join.py`; the optimized path shares the
 compiled matching representation used by complete joins. The `indexed.py`
 decomposition target is complete, including the separately benchmarked
-high-churn bucket optimization. C3 now moves to `domain_filter.py`, beginning
-with compact table definitions and state.
+high-churn bucket optimization. The first `domain_filter.py` tranche is also
+complete: compact table definitions and state now live in
+`instantiation/domain_tables.py`. C3 continues with comparison propagators.
