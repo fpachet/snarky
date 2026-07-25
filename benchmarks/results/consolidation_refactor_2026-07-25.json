@@ -132,5 +132,40 @@
       }
     }
   },
-  "conclusion": "No material performance regression was observed."
+  "follow_up_after_choice_decomposition": {
+    "commit": "ae2358b",
+    "reference": "current summary at commit 2da2902",
+    "choice_harmonizer_four_positions": {
+      "repeat": 9,
+      "reference_seconds": 0.4996036454995192,
+      "median_seconds": 0.49773766700036504,
+      "delta_percent": -0.37349177011878343,
+      "logical_counters": {
+        "explored_nodes": 124,
+        "failed_branches": 0,
+        "solutions": 3
+      }
+    },
+    "tonal_harmonizer_symbolic_input": {
+      "repeat": 7,
+      "reference_seconds": 0.8356479584999761,
+      "median_seconds": 0.8352049169998281,
+      "delta_percent": -0.05301772063719401,
+      "logical_counters": {
+        "decisions": 3,
+        "solutions": 1
+      }
+    },
+    "tonal_harmonizer_object_round_trip": {
+      "repeat": 7,
+      "reference_seconds": 0.8501143959997535,
+      "median_seconds": 0.8534032080006,
+      "delta_percent": 0.38686699299790295,
+      "logical_counters": {
+        "decisions": 3,
+        "solutions": 1
+      }
+    }
+  },
+  "conclusion": "No material performance regression was observed through commit ae2358b."
 }

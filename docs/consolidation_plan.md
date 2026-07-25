@@ -217,9 +217,16 @@ noise rather than a material regression. Raw medians, commands, environment,
 and counters are recorded in
 [`consolidation_refactor_2026-07-25.json`](../benchmarks/results/consolidation_refactor_2026-07-25.json).
 
+After the policy and traversal extractions, commit `ae2358b` was checked
+again against the post-baseline reference. The four-position search changed
+by -0.37%, the tonal symbolic path by -0.05%, and the object round trip by
++0.39%, with identical search counters. The choice decomposition therefore
+has no material measured runtime cost.
+
 The `engine/forward.py` decomposition target is complete for C3. The next
-choice decomposition step is now complete: point-selection and
-alternative-ordering policies live in `choice_policies.py`, preserving all
-historical public import identities. The next tranche continues with
-traversal orchestration in `choice.py`, protected by the same mutable-state
-suite.
+choice decomposition target is also complete: production, policies, frontier
+management, and traversal live in focused modules, while `choice.py` is a
+26-line compatibility facade preserving every historical public import
+identity. The next tranche starts the decomposition of
+`instantiation/indexed.py`, beginning with fact indexing and protected by the
+same differential and performance suites.
