@@ -1,0 +1,85 @@
+CONSTRAINT prerequisite_order
+KIND LESS_THAN
+FOR EACH SEQ[$prerequisite]
+    ($prerequisite kind curriculum_prerequisite)
+END_FOR_EACH
+SCOPE $course_variable ORDER BY $position
+FROM
+    ($prerequisite member SEQ[$position $course_variable])
+END_SCOPE
+END
+
+CONSTRAINT period_membership
+KIND ELEMENT
+FOR EACH SEQ[$channel]
+    ($channel kind curriculum_membership_channel)
+    ($channel index $index)
+    ($channel value $value)
+END_FOR_EACH
+SCOPE $array_variable ORDER BY $position
+FROM
+    ($channel member SEQ[$position $array_variable])
+END_SCOPE
+INDEX $index
+VALUE $value
+END
+
+CONSTRAINT minimum_course_count
+KIND COUNT
+FOR EACH SEQ[$period]
+    ($period kind curriculum_period)
+    ($period number $period_number)
+    ($period minimum_courses $minimum)
+END_FOR_EACH
+SCOPE $course
+FROM
+    ($course kind curriculum_course)
+END_SCOPE
+VALUE $period_number
+OPERATOR GREATER_EQUAL
+TARGET $minimum
+END
+
+CONSTRAINT maximum_course_count
+KIND COUNT
+FOR EACH SEQ[$period]
+    ($period kind curriculum_period)
+    ($period number $period_number)
+    ($period maximum_courses $maximum)
+END_FOR_EACH
+SCOPE $course
+FROM
+    ($course kind curriculum_course)
+END_SCOPE
+VALUE $period_number
+OPERATOR LESS_EQUAL
+TARGET $maximum
+END
+
+CONSTRAINT minimum_period_load
+KIND LINEAR_SUM
+FOR EACH SEQ[$period]
+    ($period kind curriculum_period)
+    ($period minimum_credits $minimum)
+END_FOR_EACH
+SCOPE SEQ[$credits $membership] ORDER BY $position
+FROM
+    ($period load_term SEQ[$position $credits $membership])
+END_SCOPE
+OPERATOR GREATER_EQUAL
+TARGET $minimum
+END
+
+CONSTRAINT maximum_period_load
+KIND LINEAR_SUM
+FOR EACH SEQ[$period]
+    ($period kind curriculum_period)
+    ($period maximum_credits $maximum)
+END_FOR_EACH
+SCOPE SEQ[$credits $membership] ORDER BY $position
+FROM
+    ($period load_term SEQ[$position $credits $membership])
+END_SCOPE
+OPERATOR LESS_EQUAL
+TARGET $maximum
+END

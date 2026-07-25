@@ -1,0 +1,21 @@
+GROUP curriculum_reports
+    RULE report_scheduled_course
+    WHEN
+        ($course kind curriculum_course)
+        ($course value $period)
+    THEN
+        ADD ($course scheduled_in $period)
+    END
+
+    RULE report_satisfied_prerequisite
+    WHEN
+        ($prerequisite kind curriculum_prerequisite)
+        ($prerequisite before $required)
+        ($prerequisite after $course)
+        ($required value $required_period)
+        ($course value $course_period)
+        $required_period < $course_period
+    THEN
+        ADD ($prerequisite state satisfied)
+    END
+END_GROUP

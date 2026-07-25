@@ -1,0 +1,31 @@
+CONSTRAINT distinct_distances
+KIND ALL_DIFFERENT
+SCOPE $distance
+FROM
+    ($distance kind golomb_distance)
+END_SCOPE
+END
+
+CONSTRAINT ordered_marks
+KIND LESS_THAN
+FOR EACH SEQ[$ordering]
+    ($ordering kind golomb_ordering)
+END_FOR_EACH
+SCOPE $variable ORDER BY $position
+FROM
+    ($ordering member SEQ[$position $variable])
+END_SCOPE
+END
+
+CONSTRAINT distance_equation
+KIND LINEAR_SUM
+FOR EACH SEQ[$equation]
+    ($equation kind golomb_equation)
+END_FOR_EACH
+SCOPE SEQ[$coefficient $variable] ORDER BY $position
+FROM
+    ($equation term SEQ[$position $coefficient $variable])
+END_SCOPE
+OPERATOR EQUAL
+TARGET 0
+END

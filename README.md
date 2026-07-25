@@ -162,7 +162,7 @@ and the [Caseau historical comparison](docs/caseau_rules_constraints.md).
 
 | Project | Purpose |
 |---|---|
-| [Finite CSP](csp_solver/README.md) | N-queens, magic squares, and Sudoku through generic declarative choices and propagation |
+| [Finite CSP](csp_solver/README.md) | Classical puzzles, sequencing, scheduling, and coloring through declarative constraints, rules, and choices |
 | [Sudoku](sudoku/README.md) | progressive, explainable human techniques followed by explicit search |
 | [Four-part harmonizer](harmonizer/README.md) | SATB generation with tonal rules, contextual weights, and MuSES integration |
 | [Rulebase catalogue](rulebases/README.md) | executable pedagogical and historically motivated examples |

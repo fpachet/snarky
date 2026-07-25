@@ -1,0 +1,20 @@
+CONSTRAINT distinct_letters
+KIND ALL_DIFFERENT
+SCOPE $letter
+FROM
+    ($letter kind cryptarithm_letter)
+END_SCOPE
+END
+
+CONSTRAINT word_equation
+KIND LINEAR_SUM
+SCOPE SEQ[$coefficient $letter] ORDER BY $position
+FROM
+    ($term kind cryptarithm_term)
+    ($term position $position)
+    ($term coefficient $coefficient)
+    ($term letter $letter)
+END_SCOPE
+OPERATOR EQUAL
+TARGET 0
+END

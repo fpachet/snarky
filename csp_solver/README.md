@@ -63,8 +63,13 @@ the whole search. The initial practical constraint set is:
 ```python
 AllDifferentConstraint(Atom("name"), variables)
 SumConstraint(Atom("name"), variables, target)
+LinearSumConstraint(Atom("name"), weighted_terms, operator, target)
+BinaryComparisonConstraint(Atom("name"), left, right, operator)
+ElementConstraint(Atom("name"), index, array, value)
+CountConstraint(Atom("name"), variables, value, operator, target)
 GlobalCardinalityConstraint(Atom("name"), variables, bounds)
 TableConstraint(Atom("name"), variables, allowed_tuples)
+LexLessEqualConstraint(Atom("name"), left_sequence, right_sequence)
 ```
 
 They can also be created from N-independent `.constraints` declarations.
@@ -95,6 +100,77 @@ This is deliberately the narrowing-only model. Initial candidate facts define
 fixed base domains. Rules may derive ordinary facts and may impose additional
 restrictions, but adding candidate values during inference is not part of this
 semantics; that operation would require domain widening and recomputation.
+
+## Constraint-vocabulary examples
+
+Five executable models exercise the practical persistent constraints in
+recognizable combinations. Every model validates its projected solution
+independently of the solver.
+
+### SEND + MORE = MONEY
+
+```sh
+uv run python -m csp_solver.send_more_money
+```
+
+[`send_more_money.py`](send_more_money.py) combines one global
+`ALL_DIFFERENT` with the weighted equality
+
+```text
+1000*S + 91*E - 90*N + D - 9000*M - 900*O + 10*R - Y = 0
+```
+
+declared by [`send_more_money.constraints`](send_more_money.constraints).
+This is the smallest complete `LINEAR_SUM` example; exact propagation solves
+the default model without a choice.
+
+### Golomb ruler
+
+```sh
+uv run python -m csp_solver.golomb_ruler 5 11
+```
+
+[`golomb_ruler.py`](golomb_ruler.py) orders the marks with persistent
+`LESS_THAN`, defines every distance by a three-term `LINEAR_SUM`, and applies
+one `ALL_DIFFERENT` to all distances. The second argument is a feasibility
+bound on the final mark; optimization can be performed by decreasing that
+bound across runs.
+
+### Car sequencing
+
+```sh
+uv run python -m csp_solver.car_sequencing
+```
+
+[`car_sequencing.py`](car_sequencing.py) implements the standard ten-car,
+six-class instance. `GCC` enforces exact class demands, `ELEMENT` channels
+each selected class through each option table, and overlapping `COUNT`
+constraints impose every option's sliding-window capacity.
+
+### Balanced curriculum
+
+```sh
+uv run python -m csp_solver.balanced_curriculum
+```
+
+[`balanced_curriculum.py`](balanced_curriculum.py) uses `LESS_THAN` for
+prerequisites, `COUNT` for the number of courses per period, `ELEMENT` to
+channel period assignments into Boolean membership variables, and weighted
+`LINEAR_SUM` bounds for credit load. Forward rules then derive
+`scheduled_in` and satisfied-prerequisite report facts from the filtered
+assignments.
+
+### Balanced graph coloring
+
+```sh
+uv run python -m csp_solver.balanced_graph_coloring
+```
+
+[`balanced_graph_coloring.py`](balanced_graph_coloring.py) applies
+`NOT_EQUAL` to each edge and `GCC` to color-class sizes. Its forward rules
+derive explicit vertex-color and satisfied-edge facts. This is the smallest
+example in which persistent constraints establish the domains while
+application rules describe the resulting solution.
 
 ## N-queens
 

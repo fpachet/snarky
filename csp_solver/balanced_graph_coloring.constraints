@@ -1,0 +1,25 @@
+CONSTRAINT balanced_color_classes
+KIND GCC
+SCOPE $vertex
+FROM
+    ($vertex kind coloring_vertex)
+END_SCOPE
+BOUNDS SEQ[$color $lower $upper]
+FROM
+    ($bound kind coloring_bound)
+    ($bound color $color)
+    ($bound lower $lower)
+    ($bound upper $upper)
+END_BOUNDS
+END
+
+CONSTRAINT adjacent_colors_differ
+KIND NOT_EQUAL
+FOR EACH SEQ[$edge]
+    ($edge kind coloring_edge)
+END_FOR_EACH
+SCOPE $vertex ORDER BY $position
+FROM
+    ($edge member SEQ[$position $vertex])
+END_SCOPE
+END

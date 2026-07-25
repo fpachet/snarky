@@ -310,6 +310,23 @@ brute-force tuple oracle:
 4. fair scheduling orders reach the same closure;
 5. propagate, choose, and rollback restore the exact preceding state.
 
+## Executable examples
+
+The repository contains five focused models covering the complete practical
+vocabulary:
+
+| Model | Persistent constraints | Forward-rule role |
+|---|---|---|
+| [`SEND + MORE = MONEY`](../csp_solver/send_more_money.py) | `ALL_DIFFERENT`, `LINEAR_SUM` | generic assignment classification |
+| [`Golomb ruler`](../csp_solver/golomb_ruler.py) | `ALL_DIFFERENT`, `LESS_THAN`, `LINEAR_SUM` | generic search protocol |
+| [`Car sequencing`](../csp_solver/car_sequencing.py) | `GCC`, `ELEMENT`, `COUNT` | generic search protocol |
+| [`Balanced curriculum`](../csp_solver/balanced_curriculum.py) | `LESS_THAN`, `ELEMENT`, `COUNT`, `LINEAR_SUM` | schedule and prerequisite reports |
+| [`Balanced graph coloring`](../csp_solver/balanced_graph_coloring.py) | `NOT_EQUAL`, `GCC` | color and satisfied-edge reports |
+
+The lookup tables used by `ELEMENT` are represented by singleton-domain CSP
+variables. This gives the propagator one uniform variable-domain interface
+while keeping the tables declarative and visible in the fact model.
+
 ## References
 
 - Jean-Charles Régin, [*A Filtering Algorithm for Constraints of Difference

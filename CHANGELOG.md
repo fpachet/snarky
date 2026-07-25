@@ -20,6 +20,9 @@ details are documented in [docs/versioning.md](docs/versioning.md).
   `GCC`, and allowed `TABLE` propagation.
 - Persistent `LINEAR_SUM`, binary comparison, `ELEMENT`, and `COUNT`
   templates with generalized arc-consistency filtering.
+- Executable cryptarithm, Golomb-ruler, car-sequencing, balanced-curriculum,
+  and balanced-graph-coloring models covering the practical constraint
+  vocabulary and rule/constraint interaction.
 - Joint constraint/rule fixed points during reversible `CHOICE` search.
 - Dependency-aware joint fixed-point scheduling and exact bitset filtering for
   bounded non-negative `SUM` constraints.

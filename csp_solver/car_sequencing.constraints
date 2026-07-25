@@ -1,0 +1,44 @@
+CONSTRAINT class_demands
+KIND GCC
+SCOPE $slot
+FROM
+    ($slot kind car_slot)
+END_SCOPE
+BOUNDS SEQ[$class $lower $upper]
+FROM
+    ($bound kind car_class_demand)
+    ($bound class $class)
+    ($bound lower $lower)
+    ($bound upper $upper)
+END_BOUNDS
+END
+
+CONSTRAINT option_lookup
+KIND ELEMENT
+FOR EACH SEQ[$lookup]
+    ($lookup kind car_option_lookup)
+    ($lookup index $index)
+    ($lookup value $value)
+END_FOR_EACH
+SCOPE $array_variable ORDER BY $position
+FROM
+    ($lookup member SEQ[$position $array_variable])
+END_SCOPE
+INDEX $index
+VALUE $value
+END
+
+CONSTRAINT option_capacity
+KIND COUNT
+FOR EACH SEQ[$window]
+    ($window kind car_option_window)
+    ($window capacity $capacity)
+END_FOR_EACH
+SCOPE $flag ORDER BY $position
+FROM
+    ($window member SEQ[$position $flag])
+END_SCOPE
+VALUE 1
+OPERATOR LESS_EQUAL
+TARGET $capacity
+END

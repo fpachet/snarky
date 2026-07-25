@@ -1,0 +1,21 @@
+GROUP coloring_reports
+    RULE report_vertex_color
+    WHEN
+        ($vertex kind coloring_vertex)
+        ($vertex value $color)
+    THEN
+        ADD ($vertex assigned_color $color)
+    END
+
+    RULE report_satisfied_edge
+    WHEN
+        ($edge kind coloring_edge)
+        ($edge left $left)
+        ($edge right $right)
+        ($left value $left_color)
+        ($right value $right_color)
+        $left_color != $right_color
+    THEN
+        ADD ($edge state satisfied)
+    END
+END_GROUP
