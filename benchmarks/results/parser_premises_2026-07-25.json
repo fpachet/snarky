@@ -1,0 +1,74 @@
+{
+  "benchmark": "premise_parser_extraction_and_lazy_dispatch",
+  "date": "2026-07-25",
+  "python": "3.13.11",
+  "platform": "macOS-15.7.7-arm64-arm-64bit-Mach-O",
+  "previous_tranche_commit": "f948ef2",
+  "extraction_commit": "c683a63",
+  "optimized_commit": "51a8037",
+  "protocol": {
+    "series_order": [
+      "baseline",
+      "current",
+      "current",
+      "baseline"
+    ],
+    "command": "python -m benchmarks.parser_premises --width 400 --iterations 10 --repeat 21",
+    "summary": "mean of the two independently measured medians",
+    "same_interpreter_and_environment": true
+  },
+  "cases": {
+    "ordinary_block": {
+      "source_lines": 400,
+      "premises": 400,
+      "final_position": 400,
+      "baseline_medians_seconds": [
+        0.0026611917000991525,
+        0.0026538332998825354
+      ],
+      "current_medians_seconds": [
+        0.002444979199935915,
+        0.0024235625000073925
+      ],
+      "baseline_summary_seconds": 0.0026575124999908438,
+      "current_summary_seconds": 0.0024342708499716535,
+      "delta_percent": -8.400398869994385,
+      "speedup": 1.091707810583933
+    },
+    "mixed_block": {
+      "source_lines": 400,
+      "premises": 400,
+      "final_position": 400,
+      "baseline_medians_seconds": [
+        0.002475808399867674,
+        0.00245344169998134
+      ],
+      "current_medians_seconds": [
+        0.002276529099981417,
+        0.002295550000053481
+      ],
+      "baseline_summary_seconds": 0.002464625049924507,
+      "current_summary_seconds": 0.0022860395500174492,
+      "delta_percent": -7.245950044714833,
+      "speedup": 1.078120039482998
+    },
+    "sudoku_rulebase": {
+      "characters": 12444,
+      "groups": 9,
+      "rules": 18,
+      "baseline_medians_seconds": [
+        0.002062162500078557,
+        0.002042191700093099
+      ],
+      "current_medians_seconds": [
+        0.0019133750000037252,
+        0.0019198666999727721
+      ],
+      "baseline_summary_seconds": 0.002052177100085828,
+      "current_summary_seconds": 0.0019166208499882486,
+      "delta_percent": -6.605484979435261,
+      "speedup": 1.0707266907267605
+    }
+  },
+  "conclusion": "Arithmetic and premise parsing are isolated with historical function identities preserved. Prefix-gated specialized parsing avoids unnecessary regular-expression attempts and improves both synthetic blocks and the real Sudoku rulebase without changing logical output."
+}

@@ -335,6 +335,21 @@ Spinoza rulebase changes by -0.49%, all within noise outside the targeted
 case. Raw medians and logical controls are in
 [`parser_terms_2026-07-25.json`](../benchmarks/results/parser_terms_2026-07-25.json).
 
+Arithmetic expressions shared by `CONSTRAINT` premises and `LET` actions now
+live in `parser_arithmetic.py`, and the complete premise layer lives in
+`parser_premises.py`. The latter owns simple facts and comparisons, computed
+predicates, windows, compact and block existentials, and the count, unique,
+and collect aggregates. `parser.py` remains a 306-line compatibility facade
+and explicitly re-exports all historical parser functions. Direct tests cover
+precedence, recursive block boundaries, token positions, whitespace variants,
+fallbacks, and exact error families. Profiling exposed seven specialized
+regular expressions being attempted for every ordinary factual premise.
+Commit `51a8037` gates each expression by its possible prefix and computes
+nested-terminator state once per block. A 400-fact block improves by 8.40%, a
+400-line mixed block by 7.25%, and the combined Sudoku rulebase by 6.61% while
+still producing the same 9 groups and 18 rules. Raw medians are in
+[`parser_premises_2026-07-25.json`](../benchmarks/results/parser_premises_2026-07-25.json).
+
 The `engine/forward.py` decomposition target is complete for C3. The next
 choice decomposition target is also complete: production, policies, frontier
 management, and traversal live in focused modules, while `choice.py` is a
@@ -359,5 +374,5 @@ component construction. Adaptive selection now lives in
 `instantiation/adaptive_selection.py`, and populated branch cloning is
 explicit and isolated. The `domain_filter.py` decomposition target is
 complete. The lexical-analysis part of the `parser.py` decomposition is also
-complete, as is recursive term parsing. C3 continues with premise parsing,
-followed by action parsing.
+complete, as are recursive term parsing, shared arithmetic parsing, and
+premise parsing. C3 continues with action parsing, the final parser extraction.
