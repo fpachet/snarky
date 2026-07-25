@@ -1,0 +1,83 @@
+{
+  "benchmark": "parser_lexer_extraction_and_whitespace_optimization",
+  "date": "2026-07-25",
+  "python": "3.13.11",
+  "platform": "macOS-15.7.7-arm64-arm-64bit-Mach-O",
+  "previous_tranche_commit": "6eeca14",
+  "extraction_commit": "8354ef3",
+  "optimized_commit": "3c31338",
+  "protocol": {
+    "series_order": [
+      "baseline",
+      "current",
+      "current",
+      "baseline"
+    ],
+    "summary": "mean of the two independently measured medians",
+    "same_interpreter_and_environment": true
+  },
+  "cases": {
+    "wide_term_tokenization": {
+      "baseline_commit": "8354ef3",
+      "current_commit": "3c31338",
+      "command": "python -m benchmarks.parser_lexing --width 1000 --iterations 10 --repeat 21",
+      "input_characters": 9894,
+      "tokens": 1003,
+      "baseline_medians_seconds": [
+        0.0008865416000844561,
+        0.0008827915999063407
+      ],
+      "current_medians_seconds": [
+        0.0007113583000318613,
+        0.0007157624999308609
+      ],
+      "baseline_summary_seconds": 0.0008846665999953984,
+      "current_summary_seconds": 0.0007135603999813611,
+      "delta_percent": -19.3413202233392,
+      "speedup": 1.239792174591677
+    },
+    "wide_arithmetic_tokenization": {
+      "baseline_commit": "8354ef3",
+      "current_commit": "3c31338",
+      "command": "python -m benchmarks.parser_lexing --width 1000 --iterations 10 --repeat 21",
+      "input_characters": 12887,
+      "tokens": 1999,
+      "baseline_medians_seconds": [
+        0.0016760167000029469,
+        0.001645283399921027
+      ],
+      "current_medians_seconds": [
+        0.0012260792000233778,
+        0.0012211209001179667
+      ],
+      "baseline_summary_seconds": 0.0016606500499619869,
+      "current_summary_seconds": 0.0012236000500706723,
+      "delta_percent": -26.31800721056907,
+      "speedup": 1.3571837054649283
+    },
+    "sudoku_rulebase_control": {
+      "baseline_commit": "6eeca14",
+      "current_commit": "3c31338",
+      "input": "concatenation of sudoku/rules/*.rules",
+      "input_characters": 12444,
+      "parses_per_sample": 25,
+      "samples_per_series": 21,
+      "baseline_medians_seconds_per_parse": [
+        0.002050113320001401,
+        0.0020543566799460676
+      ],
+      "current_medians_seconds_per_parse": [
+        0.002064666680016671,
+        0.0020513349999964703
+      ],
+      "baseline_summary_seconds_per_parse": 0.002052234999973734,
+      "current_summary_seconds_per_parse": 0.0020580008400065707,
+      "delta_percent": 0.2809541808277638,
+      "logical_result": {
+        "groups": 9,
+        "rules": 18
+      }
+    }
+  },
+  "conclusion": "Lexical analysis is isolated with compatible errors and imports. Avoiding repeated suffix allocation materially improves wide token streams; the complete Sudoku rulebase control remains unchanged within measurement noise."
+}

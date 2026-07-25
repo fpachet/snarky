@@ -309,6 +309,18 @@ branch over 3,201 facts and one populated domain memory now succeeds in
 and propagation counters identical. The reproduction and measurements are in
 [`adaptive_selection_branching_2026-07-25.json`](../benchmarks/results/adaptive_selection_branching_2026-07-25.json).
 
+The first `parser.py` tranche is complete. Lexical analysis now lives in
+`parser_lexer.py`, while `parser.py` explicitly re-exports the historical
+`ParseError` object. Direct tests cover line normalization, term and arithmetic
+token streams, and the exact empty- and invalid-input error families.
+Profiling the extracted layer exposed repeated allocation of the remaining
+input suffix when checking for trailing whitespace. The allocation-free scan
+in commit `3c31338` reduces a 1,003-token term workload by 19.34% and a
+1,999-token arithmetic workload by 26.32%. Parsing the combined Sudoku
+rulebase changed by +0.28%, within run-to-run noise, and still produces the
+same 9 groups and 18 rules. The protocol and raw medians are recorded in
+[`parser_lexer_2026-07-25.json`](../benchmarks/results/parser_lexer_2026-07-25.json).
+
 The `engine/forward.py` decomposition target is complete for C3. The next
 choice decomposition target is also complete: production, policies, frontier
 management, and traversal live in focused modules, while `choice.py` is a
@@ -332,4 +344,6 @@ analysis now live in `instantiation/domain_planning.py`, including linear
 component construction. Adaptive selection now lives in
 `instantiation/adaptive_selection.py`, and populated branch cloning is
 explicit and isolated. The `domain_filter.py` decomposition target is
-complete. C3 continues with `parser.py`.
+complete. The lexical-analysis part of the `parser.py` decomposition is also
+complete. C3 continues with term parsing, followed by premise and action
+parsing.
