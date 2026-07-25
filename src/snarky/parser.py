@@ -29,6 +29,15 @@ from .parser_lexer import (
     _tokenize,
     _tokenize_arithmetic,
 )
+from .parser_terms import (
+    _parse_all,
+)
+from .parser_terms import (
+    _parse_term_tokens as _parse_term_tokens,
+)
+from .parser_terms import (
+    parse_term as parse_term,
+)
 from .premises import (
     BindPremise,
     CollectPremise,
@@ -45,9 +54,7 @@ from .premises import (
 )
 from .rules import Rule, RuleGroup
 from .terms import (
-    Atom,
     FiniteSequence,
-    FiniteSet,
     Number,
     Status,
     Term,
@@ -56,7 +63,6 @@ from .terms import (
 )
 
 _COMPARISONS = {operator.value: operator for operator in ComparisonOperator}
-_STATUSES = {status.value: status for status in Status}
 _LET_RE = re.compile(
     r"LET\s+(?P<variable>\$[^\s()'<>!=:+*/%-]+)\s*:=\s*(?P<expression>.+)\Z"
 )
@@ -109,14 +115,6 @@ _CHECK_RE = re.compile(
     r"CHECK\s+(?P<name>[A-Za-z_][A-Za-z0-9_]*)"
     r"\s+ARGS\s+(?P<arguments>SEQ\[.*\])\Z"
 )
-def parse_term(text: str) -> Term:
-    """Parse exactly one recursive term without using ``eval``."""
-
-    tokens = _tokenize(text)
-    term, position = _parse_term_tokens(tokens, 0)
-    if position != len(tokens):
-        raise ParseError(f"unexpected token {tokens[position].value!r}")
-    return term
 
 
 def parse_rules(
@@ -738,57 +736,6 @@ def _parse_arithmetic_primary(
             raise ParseError("unclosed arithmetic parenthesis")
         return expression, position + 1
     raise ParseError(f"expected an arithmetic operand, got {token.value!r}")
-
-
-def _parse_all(tokens: tuple[_Token, ...]) -> Term:
-    term, position = _parse_term_tokens(tokens, 0)
-    if position != len(tokens):
-        raise ParseError(f"unexpected token {tokens[position].value!r}")
-    return term
-
-
-def _parse_term_tokens(tokens: tuple[_Token, ...], position: int) -> tuple[Term, int]:
-    if position >= len(tokens):
-        raise ParseError("expected a term")
-    token = tokens[position]
-    if token.kind == "LPAREN":
-        subject, position = _parse_term_tokens(tokens, position + 1)
-        relation, position = _parse_term_tokens(tokens, position)
-        object_, position = _parse_term_tokens(tokens, position)
-        if position >= len(tokens) or tokens[position].kind != "RPAREN":
-            raise ParseError("a triple must contain exactly three terms")
-        return Triple(subject, relation, object_), position + 1
-    if token.kind == "LBRACKET":
-        elements: list[Term] = []
-        position += 1
-        while position < len(tokens) and tokens[position].kind != "RBRACKET":
-            element, position = _parse_term_tokens(tokens, position)
-            elements.append(element)
-        if position >= len(tokens):
-            raise ParseError("unclosed finite set")
-        return FiniteSet(tuple(elements)), position + 1
-    if (
-        token.kind == "ATOM"
-        and token.value == "SEQ"
-        and position + 1 < len(tokens)
-        and tokens[position + 1].kind == "LBRACKET"
-    ):
-        elements = []
-        position += 2
-        while position < len(tokens) and tokens[position].kind != "RBRACKET":
-            element, position = _parse_term_tokens(tokens, position)
-            elements.append(element)
-        if position >= len(tokens):
-            raise ParseError("unclosed finite sequence")
-        return FiniteSequence(tuple(elements)), position + 1
-    if token.kind == "VARIABLE":
-        return Variable(token.value[1:]), position + 1
-    if token.kind == "NUMBER":
-        value = float(token.value) if "." in token.value else int(token.value)
-        return Number(value), position + 1
-    if token.kind == "ATOM":
-        return _STATUSES.get(token.value, Atom(token.value)), position + 1
-    raise ParseError(f"expected a term, got {token.value!r}")
 
 
 def _top_level_operator(tokens: tuple[_Token, ...]) -> tuple[int, str] | None:
