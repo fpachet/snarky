@@ -35,6 +35,14 @@ _ARITH_TOKEN_RE = re.compile(
 )
 
 
+def _only_whitespace_remains(text: str, position: int) -> bool:
+    while position < len(text):
+        if not text[position].isspace():
+            return False
+        position += 1
+    return True
+
+
 def _normalized_lines(text: str) -> tuple[str, ...]:
     return tuple(
         line.strip()
@@ -47,7 +55,7 @@ def _tokenize_arithmetic(text: str) -> tuple[_Token, ...]:
     tokens: list[_Token] = []
     position = 0
     while position < len(text):
-        if not text[position:].strip():
+        if _only_whitespace_remains(text, position):
             break
         match = _ARITH_TOKEN_RE.match(text, position)
         if match is None:
@@ -70,7 +78,7 @@ def _tokenize(text: str) -> tuple[_Token, ...]:
     tokens: list[_Token] = []
     position = 0
     while position < len(text):
-        if not text[position:].strip():
+        if _only_whitespace_remains(text, position):
             break
         match = _TOKEN_RE.match(text, position)
         if match is None:
