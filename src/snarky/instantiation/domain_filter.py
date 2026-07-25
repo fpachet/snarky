@@ -19,6 +19,10 @@ from ..propagation import (
 from ..rules import Rule
 from ..substitutions import BindingFrame
 from ..terms import Term, Variable
+from .adaptive_selection import (
+    _AdaptiveFilterSelector,
+    _FilterAssessment,
+)
 from .base import Activation, FactDelta, InstantiationMetrics
 from .comparison_propagators import (
     DomainPropagator as DomainPropagator,
@@ -100,33 +104,19 @@ class ConstraintInstantiationStrategy(SemiNaiveInstantiationStrategy):
     ) -> None:
         if comparison_product_limit < 1:
             raise ValueError("comparison_product_limit must be positive")
-        if minimum_domain_rows < 1:
-            raise ValueError("minimum_domain_rows must be positive")
-        if minimum_bucket_ratio < 1:
-            raise ValueError("minimum_bucket_ratio must be at least one")
-        if not 0 <= minimum_candidate_reduction <= 1:
-            raise ValueError(
-                "minimum_candidate_reduction must be between zero and one"
-            )
-        if minimum_observed_speedup <= 0:
-            raise ValueError("minimum_observed_speedup must be positive")
-        if not 0 <= cost_probe_reduction_ceiling <= 1:
-            raise ValueError(
-                "cost_probe_reduction_ceiling must be between zero and one"
-            )
-        if minimum_cost_probe_uses < 1:
-            raise ValueError("minimum_cost_probe_uses must be positive")
+        self._adaptive_selector = _AdaptiveFilterSelector(
+            enabled=adaptive,
+            minimum_domain_rows=minimum_domain_rows,
+            minimum_bucket_ratio=minimum_bucket_ratio,
+            minimum_candidate_reduction=minimum_candidate_reduction,
+            minimum_observed_speedup=minimum_observed_speedup,
+            cost_probe_reduction_ceiling=cost_probe_reduction_ceiling,
+            minimum_cost_probe_uses=minimum_cost_probe_uses,
+        )
         if maximum_hall_size < 1:
             raise ValueError("maximum_hall_size must be positive")
         super().__init__()
         self.comparison_product_limit = comparison_product_limit
-        self.adaptive = adaptive
-        self.minimum_domain_rows = minimum_domain_rows
-        self.minimum_bucket_ratio = minimum_bucket_ratio
-        self.minimum_candidate_reduction = minimum_candidate_reduction
-        self.minimum_observed_speedup = minimum_observed_speedup
-        self.cost_probe_reduction_ceiling = cost_probe_reduction_ceiling
-        self.minimum_cost_probe_uses = minimum_cost_probe_uses
         self.use_propagation_queue = use_propagation_queue
         self.use_specialized_comparisons = use_specialized_comparisons
         self.use_incremental_domains = use_incremental_domains
@@ -139,9 +129,9 @@ class ConstraintInstantiationStrategy(SemiNaiveInstantiationStrategy):
             _BinaryArithmeticPropagator(),
         )
         self._domain_memories: dict[Rule, _DomainMemory] = {}
-        self._filter_decisions: dict[Rule, bool] = {}
-        self._filter_cost_ratios: dict[Rule, float] = {}
-        self._filter_use_counts: dict[Rule, int] = {}
+        self._filter_decisions = self._adaptive_selector.decisions
+        self._filter_cost_ratios = self._adaptive_selector.cost_ratios
+        self._filter_use_counts = self._adaptive_selector.use_counts
         self.last_propagation_results: dict[Rule, PropagationResult] = {}
 
     def instantiate(
@@ -156,41 +146,46 @@ class ConstraintInstantiationStrategy(SemiNaiveInstantiationStrategy):
             self.metrics.domain_filter_fallbacks += 1
             return super().instantiate(rule, facts, changes)
 
-        decision = self._filter_decisions.get(rule)
-        if self.adaptive and decision is False:
+        selector = self._adaptive_selector
+        decision = selector.decision(rule)
+        if selector.enabled and decision is False:
             self.metrics.domain_filter_fallbacks += 1
             return super().instantiate(rule, facts, changes)
+        comparisons_supported = True
         if (
-            self.adaptive
+            selector.enabled
             and decision is None
-            and (
-                (
-                    bool(plan.comparisons)
-                    and not all(
-                        self._has_propagator(comparison.premise)
-                        for comparison in plan.comparisons
-                    )
-                )
-                or (
-                    not plan.comparisons
-                    and (len(plan.tables) < 3 or not plan.cyclic)
-                )
-                or len(facts) * len(plan.tables)
-                < self.minimum_domain_rows
+            and plan.comparisons
+        ):
+            comparisons_supported = all(
+                self._has_propagator(comparison.premise)
+                for comparison in plan.comparisons
+            )
+        if (
+            selector.enabled
+            and decision is None
+            and not selector.accepts_shape(
+                plan,
+                len(facts),
+                comparisons_supported=comparisons_supported,
             )
         ):
-            self._filter_decisions[rule] = False
+            selector.reject(rule)
             self.metrics.domain_filter_rejections += 1
             self.metrics.domain_filter_fallbacks += 1
             return super().instantiate(rule, facts, changes)
 
         index = self._index_for(rule, facts, changes)
         if (
-            self.adaptive
+            selector.enabled
             and decision is None
-            and not self._static_filter_candidate(plan, index)
+            and not self._static_filter_candidate(
+                plan,
+                index,
+                comparisons_supported=comparisons_supported,
+            )
         ):
-            self._filter_decisions[rule] = False
+            selector.reject(rule)
             self.metrics.domain_filter_rejections += 1
             self.metrics.domain_filter_fallbacks += 1
             return super().instantiate(rule, facts, changes)
@@ -201,7 +196,7 @@ class ConstraintInstantiationStrategy(SemiNaiveInstantiationStrategy):
         filtered = self._filter_domains(plan, memory)
         self.last_propagation_results[rule] = filtered.propagation
         self.metrics.domain_filter_runs += 1
-        if self.adaptive and decision is None:
+        if selector.enabled and decision is None:
             row_count = sum(
                 len(rows) for rows in memory.tables.values()
             )
@@ -209,29 +204,24 @@ class ConstraintInstantiationStrategy(SemiNaiveInstantiationStrategy):
                 len(candidates)
                 for candidates in filtered.candidates.values()
             )
-            reduction = (
-                1 - retained / row_count if row_count else 0.0
+            assessment = selector.assess(
+                rule,
+                row_count=row_count,
+                retained_count=retained,
+                consistent=filtered.consistent,
             )
-            if not filtered.consistent:
-                self._filter_decisions[rule] = True
+            if assessment is _FilterAssessment.SELECT:
                 self.metrics.domain_filter_selections += 1
-                return ()
-            if reduction < self.minimum_candidate_reduction:
-                self._filter_decisions[rule] = False
+                if not filtered.consistent:
+                    return ()
+            elif assessment is _FilterAssessment.REJECT:
                 self.metrics.domain_filter_rejections += 1
                 self.metrics.domain_filter_fallbacks += 1
                 return super().instantiate(rule, facts, changes)
-            if reduction >= self.cost_probe_reduction_ceiling:
-                self._filter_decisions[rule] = True
-                self.metrics.domain_filter_selections += 1
-                decision = True
+            elif assessment is _FilterAssessment.PROBE:
+                probe_observed_cost = True
             else:
-                uses = self._filter_use_counts.get(rule, 0) + 1
-                self._filter_use_counts[rule] = uses
-                if uses >= self.minimum_cost_probe_uses:
-                    probe_observed_cost = True
-                else:
-                    self.metrics.domain_cost_probe_deferrals += 1
+                self.metrics.domain_cost_probe_deferrals += 1
         if not filtered.consistent:
             return ()
 
@@ -250,17 +240,14 @@ class ConstraintInstantiationStrategy(SemiNaiveInstantiationStrategy):
                 facts,
                 changes,
             )
-            observed_speedup = (
-                fallback_elapsed / filter_elapsed
-                if filter_elapsed
-                else float("inf")
-            )
-            self._filter_cost_ratios[rule] = observed_speedup
             self.metrics.domain_cost_probes += 1
             self.metrics.domain_filter_probe_seconds += filter_elapsed
             self.metrics.domain_fallback_probe_seconds += fallback_elapsed
-            selected = observed_speedup >= self.minimum_observed_speedup
-            self._filter_decisions[rule] = selected
+            selected = selector.record_probe(
+                rule,
+                filter_elapsed=filter_elapsed,
+                fallback_elapsed=fallback_elapsed,
+            )
             if selected:
                 self.metrics.domain_filter_selections += 1
             else:
@@ -293,9 +280,7 @@ class ConstraintInstantiationStrategy(SemiNaiveInstantiationStrategy):
         super().invalidate(removed)
         if not removed:
             self._domain_memories.clear()
-            self._filter_decisions.clear()
-            self._filter_cost_ratios.clear()
-            self._filter_use_counts.clear()
+            self._adaptive_selector.clear()
             self.last_propagation_results.clear()
 
     def fork_for_branch(self) -> ConstraintInstantiationStrategy:
@@ -307,25 +292,18 @@ class ConstraintInstantiationStrategy(SemiNaiveInstantiationStrategy):
         self,
         plan: _DomainPlan,
         index: FactIndex,
+        *,
+        comparisons_supported: bool,
     ) -> bool:
         frame = BindingFrame()
         sizes = tuple(
             len(index.candidates_compiled(table.premise, frame))
             for table in plan.tables
         )
-        if not sizes or sum(sizes) < self.minimum_domain_rows:
-            return False
-        if any(size == 0 for size in sizes):
-            return True
-        if plan.comparisons:
-            return all(
-                self._has_propagator(comparison.premise)
-                for comparison in plan.comparisons
-            )
-        return (
-            len(sizes) >= 3
-            and plan.cyclic
-            and max(sizes) / min(sizes) >= self.minimum_bucket_ratio
+        return self._adaptive_selector.accepts_tables(
+            plan,
+            sizes,
+            comparisons_supported=comparisons_supported,
         )
 
     def _has_propagator(self, premise: ComparisonPremise) -> bool:
