@@ -3,7 +3,6 @@
 from __future__ import annotations
 
 import re
-from dataclasses import dataclass
 
 from .actions import (
     Action,
@@ -22,6 +21,13 @@ from .expressions import (
     NumericExpression,
     UnaryArithmeticExpression,
     UnaryArithmeticOperator,
+)
+from .parser_lexer import ParseError as ParseError
+from .parser_lexer import (
+    _normalized_lines,
+    _Token,
+    _tokenize,
+    _tokenize_arithmetic,
 )
 from .premises import (
     BindPremise,
@@ -49,27 +55,6 @@ from .terms import (
     Variable,
 )
 
-
-class ParseError(ValueError):
-    """Raised when text does not conform to the supported DSL."""
-
-
-@dataclass(frozen=True, slots=True)
-class _Token:
-    kind: str
-    value: str
-
-
-_TOKEN_RE = re.compile(
-    r"\s*(?:"
-    r"(?P<LPAREN>\()|(?P<RPAREN>\))|"
-    r"(?P<LBRACKET>\[)|(?P<RBRACKET>\])|"
-    r"(?P<OP>==|!=|<=|>=|<|>)|(?P<QUOTE>')|"
-    r"(?P<VARIABLE>\$[^\s()\[\]'<>!=]+)|"
-    r"(?P<NUMBER>-?(?:\d+(?:\.\d*)?|\.\d+))|"
-    r"(?P<ATOM>[^\s()\[\]'<>!=]+)"
-    r")"
-)
 _COMPARISONS = {operator.value: operator for operator in ComparisonOperator}
 _STATUSES = {status.value: status for status in Status}
 _LET_RE = re.compile(
@@ -124,15 +109,6 @@ _CHECK_RE = re.compile(
     r"CHECK\s+(?P<name>[A-Za-z_][A-Za-z0-9_]*)"
     r"\s+ARGS\s+(?P<arguments>SEQ\[.*\])\Z"
 )
-_ARITH_TOKEN_RE = re.compile(
-    r"\s*(?:"
-    r"(?P<LPAREN>\()|(?P<RPAREN>\))|(?P<OP>[+*/%-])|"
-    r"(?P<VARIABLE>\$[^\s()+*/%-]+)|"
-    r"(?P<NUMBER>(?:\d+(?:\.\d*)?|\.\d+))"
-    r")"
-)
-
-
 def parse_term(text: str) -> Term:
     """Parse exactly one recursive term without using ``eval``."""
 
@@ -190,14 +166,6 @@ def parse_rule_groups(
         except ValueError as error:
             raise ParseError(str(error)) from error
     return tuple(groups)
-
-
-def _normalized_lines(text: str) -> tuple[str, ...]:
-    return tuple(
-        line.strip()
-        for line in text.splitlines()
-        if line.strip() and not line.lstrip().startswith("#")
-    )
 
 
 def _parse_rule_lines(
@@ -717,25 +685,6 @@ def _parse_fact_template(
     return entity, status
 
 
-def _tokenize_arithmetic(text: str) -> tuple[_Token, ...]:
-    tokens: list[_Token] = []
-    position = 0
-    while position < len(text):
-        if not text[position:].strip():
-            break
-        match = _ARITH_TOKEN_RE.match(text, position)
-        if match is None:
-            raise ParseError(f"invalid arithmetic token near {text[position:]!r}")
-        kind = match.lastgroup
-        if kind is None:
-            raise ParseError(f"invalid arithmetic token near {text[position:]!r}")
-        tokens.append(_Token(kind, match.group(kind)))
-        position = match.end()
-    if not tokens:
-        raise ParseError("expected an arithmetic expression")
-    return tuple(tokens)
-
-
 def _parse_arithmetic_sum(
     tokens: tuple[_Token, ...],
     position: int,
@@ -789,25 +738,6 @@ def _parse_arithmetic_primary(
             raise ParseError("unclosed arithmetic parenthesis")
         return expression, position + 1
     raise ParseError(f"expected an arithmetic operand, got {token.value!r}")
-
-
-def _tokenize(text: str) -> tuple[_Token, ...]:
-    tokens: list[_Token] = []
-    position = 0
-    while position < len(text):
-        if not text[position:].strip():
-            break
-        match = _TOKEN_RE.match(text, position)
-        if match is None:
-            raise ParseError(f"invalid token near {text[position:]!r}")
-        kind = match.lastgroup
-        if kind is None:
-            raise ParseError(f"invalid token near {text[position:]!r}")
-        tokens.append(_Token(kind, match.group(kind)))
-        position = match.end()
-    if not tokens:
-        raise ParseError("expected a term")
-    return tuple(tokens)
 
 
 def _parse_all(tokens: tuple[_Token, ...]) -> Term:
