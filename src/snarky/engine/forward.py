@@ -73,7 +73,12 @@ from .session_state import (
     SessionCheckpoint as SessionCheckpoint,
 )
 from .session_state import (
+    _checkpoint,
+    _release,
+    _rollback,
+    _set_fact_time_tag,
     _TimeTagMutation,
+    _validate_checkpoint,
 )
 
 
@@ -308,42 +313,7 @@ class InferenceSession:
         are nested and must be released in last-in, first-out order.
         """
 
-        self._next_checkpoint_token += 1
-        token = self._next_checkpoint_token
-        store_checkpoint = self._store.checkpoint()
-        provenance_checkpoint = self._provenance.checkpoint()
-        self._checkpoint_tokens.append(token)
-        return SessionCheckpoint(
-            owner=id(self),
-            token=token,
-            store=store_checkpoint,
-            provenance=provenance_checkpoint,
-            assumed_facts=frozenset(self._assumed_facts),
-            fired=frozenset(self._fired),
-            fired_supports=tuple(self._fired_supports.items()),
-            fired_activation_total=self._fired_activation_total,
-            derivation_count=len(self._derivations),
-            event_count=len(self._events),
-            agenda_selection_count=len(self._agenda_selections),
-            agenda_metrics=deepcopy(self.agenda_metrics),
-            agenda_memories=tuple(self._agenda_memories.items()),
-            previous_event_counts=tuple(
-                self._previous_event_counts.items()
-            ),
-            force_full_evaluation=frozenset(
-                self._force_full_evaluation
-            ),
-            groups=tuple(self._groups.items()),
-            negative_refraction_plan_count=len(
-                self._negative_refraction_plans
-            ),
-            cycles=self._cycles,
-            fresh_counters=tuple(self._fresh_counters.items()),
-            time_tag_trail_size=len(self._time_tag_trail),
-            next_time_tag=self._next_time_tag,
-            reserved_atom_names=frozenset(self._reserved_atom_names),
-            conflict_strategy=deepcopy(self.conflict_strategy),
-        )
+        return _checkpoint(self)
 
     def rollback(
         self,
@@ -357,79 +327,22 @@ class InferenceSession:
         may disable invalidation to preserve a detached branch template.
         """
 
-        self._validate_checkpoint(checkpoint)
-        self._store.rollback(checkpoint.store)
-        self._provenance.rollback(checkpoint.provenance)
-        while len(self._time_tag_trail) > checkpoint.time_tag_trail_size:
-            mutation = self._time_tag_trail.pop()
-            if mutation.had_value:
-                self._fact_time_tags[mutation.fact] = (
-                    mutation.previous_value
-                )
-            else:
-                self._fact_time_tags.pop(mutation.fact, None)
-        self._assumed_facts = set(checkpoint.assumed_facts)
-        self._fired = set(checkpoint.fired)
-        self._fired_supports = dict(checkpoint.fired_supports)
-        self._fired_activation_total = checkpoint.fired_activation_total
-        del self._derivations[checkpoint.derivation_count :]
-        del self._events[checkpoint.event_count :]
-        del self._agenda_selections[checkpoint.agenda_selection_count :]
-        self.agenda_metrics = deepcopy(checkpoint.agenda_metrics)
-        self._agenda_memories = dict(checkpoint.agenda_memories)
-        self._previous_event_counts = dict(
-            checkpoint.previous_event_counts
+        _rollback(
+            self,
+            checkpoint,
+            invalidate_strategy=invalidate_strategy,
         )
-        self._force_full_evaluation = set(
-            checkpoint.force_full_evaluation
-        )
-        self._groups = dict(checkpoint.groups)
-        del self._negative_refraction_plans[
-            checkpoint.negative_refraction_plan_count :
-        ]
-        self._cycles = checkpoint.cycles
-        self._fresh_counters = dict(checkpoint.fresh_counters)
-        self._next_time_tag = checkpoint.next_time_tag
-        self._reserved_atom_names = set(checkpoint.reserved_atom_names)
-        self.conflict_strategy = deepcopy(checkpoint.conflict_strategy)
-        if invalidate_strategy:
-            self.strategy.invalidate()
 
     def release(self, checkpoint: SessionCheckpoint) -> None:
         """Close the active checkpoint, retaining the current state."""
 
-        self._validate_checkpoint(checkpoint)
-        self._store.release(checkpoint.store)
-        self._provenance.release(checkpoint.provenance)
-        self._checkpoint_tokens.pop()
-        if not self._checkpoint_tokens:
-            self._time_tag_trail.clear()
+        _release(self, checkpoint)
 
     def _validate_checkpoint(self, checkpoint: SessionCheckpoint) -> None:
-        if (
-            checkpoint.owner != id(self)
-            or not self._checkpoint_tokens
-            or self._checkpoint_tokens[-1] != checkpoint.token
-            or checkpoint.derivation_count > len(self._derivations)
-            or checkpoint.event_count > len(self._events)
-            or checkpoint.time_tag_trail_size > len(self._time_tag_trail)
-        ):
-            raise ValueError("checkpoint is not the active session checkpoint")
+        _validate_checkpoint(self, checkpoint)
 
     def _set_fact_time_tag(self, fact: Fact, value: int | None) -> None:
-        previous = self._fact_time_tags.get(fact)
-        if self._checkpoint_tokens:
-            self._time_tag_trail.append(
-                _TimeTagMutation(
-                    fact,
-                    previous is not None,
-                    previous or 0,
-                )
-            )
-        if value is None:
-            self._fact_time_tags.pop(fact, None)
-        else:
-            self._fact_time_tags[fact] = value
+        _set_fact_time_tag(self, fact, value)
 
     def run_group(
         self,

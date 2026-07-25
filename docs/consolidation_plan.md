@@ -173,10 +173,10 @@ The first consolidation tranche establishes:
 - compatibility fallback for third-party strategies;
 - deterministic and Hypothesis-generated mutation and truth-maintenance
   sequences across naïve, indexed, and semi-naïve execution;
-- the first C3 extraction: checkpoint bookkeeping now lives in
-  `engine/session_state.py`, while incremental agenda memory, dependency
-  tracking, delta reduction, and conflict-set materialization live in
-  `engine/agenda.py`;
+- the first C3 extraction: checkpoint data, opening, rollback, release, and
+  time-tag trails now live in `engine/session_state.py`, while incremental
+  agenda memory, dependency tracking, delta reduction, and conflict-set
+  materialization live in `engine/agenda.py`;
 - rule-group modes, limits, results, and execution coordination now live in
   `engine/group_execution.py`, leaving `InferenceSession.run_group()` as the
   stable public facade;
