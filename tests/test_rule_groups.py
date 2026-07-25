@@ -1,5 +1,7 @@
 import pytest
 
+import snarky
+import snarky.engine as engine_api
 from snarky import (
     Fact,
     FactExists,
@@ -14,10 +16,31 @@ from snarky import (
     parse_term,
     when,
 )
+from snarky.engine import forward, group_execution
 
 
 def _fact(text: str) -> Fact:
     return Fact(parse_term(text), Status.VRAI)
+
+
+@pytest.mark.parametrize(
+    "name",
+    (
+        "EngineLimits",
+        "FactExists",
+        "GroupExecutionMode",
+        "GroupRunResult",
+        "GroupStopReason",
+        "InferenceLimitError",
+        "StopCondition",
+    ),
+)
+def test_group_execution_types_keep_public_import_paths(name: str) -> None:
+    public_type = getattr(snarky, name)
+
+    assert public_type is getattr(engine_api, name)
+    assert public_type is getattr(forward, name)
+    assert public_type is getattr(group_execution, name)
 
 
 def test_parse_named_rule_groups() -> None:

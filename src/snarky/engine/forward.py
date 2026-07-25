@@ -4,9 +4,7 @@ from __future__ import annotations
 
 from copy import deepcopy
 from dataclasses import dataclass
-from enum import StrEnum
 from functools import cache
-from typing import Protocol
 
 from ..actions import (
     Action,
@@ -48,7 +46,6 @@ from .agenda import (
     ActivationKey,
     _AgendaMemory,
     _evaluate_agenda,
-    _fact_delta,
 )
 from .conflict import (
     AgendaCandidate,
@@ -57,6 +54,30 @@ from .conflict import (
     ConflictResolutionStrategy,
 )
 from .events import FactMutationKind, InferenceEvent
+from .group_execution import (
+    EngineLimits as EngineLimits,
+)
+from .group_execution import (
+    FactExists as FactExists,
+)
+from .group_execution import (
+    GroupExecutionMode as GroupExecutionMode,
+)
+from .group_execution import (
+    GroupRunResult as GroupRunResult,
+)
+from .group_execution import (
+    GroupStopReason as GroupStopReason,
+)
+from .group_execution import (
+    InferenceLimitError as InferenceLimitError,
+)
+from .group_execution import (
+    StopCondition as StopCondition,
+)
+from .group_execution import (
+    _run_group,
+)
 from .provenance import Derivation, Provenance
 from .session_state import (
     SessionCheckpoint as SessionCheckpoint,
@@ -64,58 +85,6 @@ from .session_state import (
 from .session_state import (
     _TimeTagMutation,
 )
-
-
-class InferenceLimitError(RuntimeError):
-    """Raised when a configured execution guard is exceeded."""
-
-
-@dataclass(frozen=True, slots=True)
-class EngineLimits:
-    max_cycles: int = 1_000
-    max_facts: int = 100_000
-
-    def __post_init__(self) -> None:
-        if self.max_cycles < 1 or self.max_facts < 1:
-            raise ValueError("engine limits must be positive")
-
-
-class GroupExecutionMode(StrEnum):
-    """Ways to execute a rule group within a persistent session."""
-
-    SATURATE = "saturate"
-    ONE_CYCLE = "one_cycle"
-    FIRST_CHANGE = "first_change"
-    UNTIL = "until"
-
-
-class GroupStopReason(StrEnum):
-    """Reason why a rule-group invocation returned."""
-
-    FIXED_POINT = "fixed_point"
-    ONE_CYCLE = "one_cycle"
-    FIRST_CHANGE = "first_change"
-    CONDITION_MET = "condition_met"
-
-
-class StopCondition(Protocol):
-    """Condition evaluated against a persistent inference session."""
-
-    def __call__(self, session: InferenceSession, /) -> bool: ...
-
-
-@dataclass(frozen=True, slots=True)
-class FactExists:
-    """Stop when at least one fact matches a fact premise."""
-
-    premise: FactPremise
-
-    def __call__(self, session: InferenceSession, /) -> bool:
-        matcher = PatternMatcher()
-        return any(
-            self.premise.match(fact, EMPTY_SUBSTITUTION, matcher) is not None
-            for fact in session.facts
-        )
 
 
 @dataclass(frozen=True, slots=True)
@@ -128,36 +97,6 @@ class RunResult:
     provenance: Provenance
     events: tuple[InferenceEvent, ...] = ()
     agenda_selections: tuple[AgendaSelection, ...] = ()
-
-
-@dataclass(frozen=True, slots=True)
-class GroupRunResult:
-    """Observable result of one rule-group invocation."""
-
-    group_name: str
-    mode: GroupExecutionMode
-    facts: tuple[Fact, ...]
-    added_facts: tuple[Fact, ...]
-    derivations: tuple[Derivation, ...]
-    cycles: int
-    fired_activation_count: int
-    stop_reason: GroupStopReason
-    provenance: Provenance
-    removed_facts: tuple[Fact, ...] = ()
-    events: tuple[InferenceEvent, ...] = ()
-    agenda_selections: tuple[AgendaSelection, ...] = ()
-
-    @property
-    def changed(self) -> bool:
-        """Return whether this invocation mutated the working memory."""
-
-        return bool(self.events)
-
-    @property
-    def mutation_count(self) -> int:
-        """Return the number of effective additions and removals."""
-
-        return len(self.events)
 
 
 @dataclass(frozen=True, slots=True)
@@ -529,253 +468,7 @@ class InferenceSession:
     ) -> GroupRunResult:
         """Execute *group* according to *mode* while preserving session state."""
 
-        if mode is GroupExecutionMode.UNTIL and until is None:
-            raise ValueError("UNTIL mode requires a stop condition")
-        if mode is not GroupExecutionMode.UNTIL and until is not None:
-            raise ValueError("a stop condition is only valid in UNTIL mode")
-        registered = self._groups.get(group.name)
-        if registered is None:
-            self._groups[group.name] = group
-            self._register_negative_refraction_plans(group)
-        elif registered != group:
-            raise ValueError(
-                f"rule group {group.name!r} was already registered "
-                "with a different definition"
-            )
-
-        start_derivation_count = len(self._derivations)
-        start_event_count = len(self._events)
-        start_agenda_count = len(self._agenda_selections)
-        start_fired_count = self._fired_activation_total
-        if until is not None and until(self):
-            return self._group_result(
-                group,
-                mode,
-                start_derivation_count,
-                start_event_count,
-                start_agenda_count,
-                start_fired_count,
-                cycles=0,
-                stop_reason=GroupStopReason.CONDITION_MET,
-            )
-
-        if self.conflict_strategy is not None:
-            return self._run_group_with_conflict_resolution(
-                group,
-                mode,
-                until,
-                start_derivation_count,
-                start_event_count,
-                start_agenda_count,
-                start_fired_count,
-            )
-
-        for local_cycle in range(1, self.limits.max_cycles + 1):
-            self._cycles += 1
-            mutations_this_cycle = 0
-            for rule in group.rules:
-                facts_snapshot = self._store.facts
-                state_key = (group.name, rule.name)
-                previous_count = self._previous_event_counts.get(state_key)
-                delta = (
-                    None
-                    if (
-                        previous_count is None
-                        or state_key in self._force_full_evaluation
-                    )
-                    else _fact_delta(
-                        tuple(self._events[previous_count:]),
-                        facts_snapshot,
-                        revision=len(self._events),
-                    )
-                )
-                self._force_full_evaluation.discard(state_key)
-                self._previous_event_counts[state_key] = len(self._events)
-                for activation in self.strategy.instantiate(
-                    rule,
-                    facts_snapshot,
-                    delta,
-                ):
-                    if any(
-                        fact not in self._store
-                        for fact in activation.premise_facts
-                    ):
-                        continue
-                    key = ActivationKey(
-                        group.name,
-                        rule.name,
-                        activation.substitution.key,
-                    )
-                    if key in self._fired:
-                        continue
-                    self._fired.add(key)
-                    self._fired_supports[key] = activation.premise_facts
-                    self._fired_activation_total += 1
-                    outcome = self._fire_activation(
-                        group,
-                        rule,
-                        activation.substitution,
-                        activation.premise_facts,
-                    )
-                    mutations_this_cycle += outcome.mutation_count
-
-                    if until is not None and until(self):
-                        return self._group_result(
-                            group,
-                            mode,
-                            start_derivation_count,
-                            start_event_count,
-                            start_agenda_count,
-                            start_fired_count,
-                            cycles=local_cycle,
-                            stop_reason=GroupStopReason.CONDITION_MET,
-                        )
-                    if (
-                        mode is GroupExecutionMode.FIRST_CHANGE
-                        and outcome.mutation_count
-                    ):
-                        return self._group_result(
-                            group,
-                            mode,
-                            start_derivation_count,
-                            start_event_count,
-                            start_agenda_count,
-                            start_fired_count,
-                            cycles=local_cycle,
-                            stop_reason=GroupStopReason.FIRST_CHANGE,
-                        )
-
-            if mode is GroupExecutionMode.ONE_CYCLE:
-                return self._group_result(
-                    group,
-                    mode,
-                    start_derivation_count,
-                    start_event_count,
-                    start_agenda_count,
-                    start_fired_count,
-                    cycles=local_cycle,
-                    stop_reason=GroupStopReason.ONE_CYCLE,
-                )
-            if mutations_this_cycle == 0:
-                return self._group_result(
-                    group,
-                    mode,
-                    start_derivation_count,
-                    start_event_count,
-                    start_agenda_count,
-                    start_fired_count,
-                    cycles=local_cycle,
-                    stop_reason=GroupStopReason.FIXED_POINT,
-                )
-
-        raise InferenceLimitError(
-            f"rule group {group.name!r} did not stop after "
-            f"{self.limits.max_cycles} cycles"
-        )
-
-    def _run_group_with_conflict_resolution(
-        self,
-        group: RuleGroup,
-        mode: GroupExecutionMode,
-        until: StopCondition | None,
-        start_derivation_count: int,
-        start_event_count: int,
-        start_agenda_count: int,
-        start_fired_count: int,
-    ) -> GroupRunResult:
-        """Resolve one complete conflict set before every activation."""
-
-        assert self.conflict_strategy is not None
-        local_cycle = 0
-        while local_cycle < self.limits.max_cycles:
-            candidates = self._agenda_candidates(group)
-            if not candidates:
-                return self._group_result(
-                    group,
-                    mode,
-                    start_derivation_count,
-                    start_event_count,
-                    start_agenda_count,
-                    start_fired_count,
-                    cycles=local_cycle,
-                    stop_reason=GroupStopReason.FIXED_POINT,
-                )
-
-            selected = self.conflict_strategy.select(candidates)
-            local_cycle += 1
-            self._cycles += 1
-            key = ActivationKey(
-                group.name,
-                selected.rule.name,
-                selected.activation.substitution.key,
-            )
-            self._fired.add(key)
-            self._fired_supports[key] = selected.activation.premise_facts
-            self._fired_activation_total += 1
-            self._agenda_selections.append(
-                AgendaSelection(
-                    sequence=len(self._agenda_selections) + 1,
-                    strategy_name=self.conflict_strategy.name,
-                    rule_group=group.name,
-                    rule_name=selected.rule.name,
-                    substitution=selected.activation.substitution,
-                    premise_facts=selected.activation.premise_facts,
-                    focus_fact=selected.focus_fact,
-                    focus_time_tag=selected.focus_time_tag,
-                    lexicographic_time_tags=(
-                        selected.lexicographic_time_tags
-                    ),
-                    cycle=self._cycles,
-                )
-            )
-            outcome = self._fire_activation(
-                group,
-                selected.rule,
-                selected.activation.substitution,
-                selected.activation.premise_facts,
-            )
-
-            if until is not None and until(self):
-                return self._group_result(
-                    group,
-                    mode,
-                    start_derivation_count,
-                    start_event_count,
-                    start_agenda_count,
-                    start_fired_count,
-                    cycles=local_cycle,
-                    stop_reason=GroupStopReason.CONDITION_MET,
-                )
-            if (
-                mode is GroupExecutionMode.FIRST_CHANGE
-                and outcome.mutation_count
-            ):
-                return self._group_result(
-                    group,
-                    mode,
-                    start_derivation_count,
-                    start_event_count,
-                    start_agenda_count,
-                    start_fired_count,
-                    cycles=local_cycle,
-                    stop_reason=GroupStopReason.FIRST_CHANGE,
-                )
-            if mode is GroupExecutionMode.ONE_CYCLE:
-                return self._group_result(
-                    group,
-                    mode,
-                    start_derivation_count,
-                    start_event_count,
-                    start_agenda_count,
-                    start_fired_count,
-                    cycles=local_cycle,
-                    stop_reason=GroupStopReason.ONE_CYCLE,
-                )
-
-        raise InferenceLimitError(
-            f"rule group {group.name!r} did not stop after "
-            f"{self.limits.max_cycles} agenda selections"
-        )
+        return _run_group(self, group, mode, until)
 
     def _agenda_candidates(
         self,

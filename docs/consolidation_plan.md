@@ -176,7 +176,13 @@ The first consolidation tranche establishes:
 - the first C3 extraction: checkpoint bookkeeping now lives in
   `engine/session_state.py`, while incremental agenda memory, dependency
   tracking, delta reduction, and conflict-set materialization live in
-  `engine/agenda.py`; historical public import paths remain compatible.
+  `engine/agenda.py`;
+- rule-group modes, limits, results, and execution coordination now live in
+  `engine/group_execution.py`, leaving `InferenceSession.run_group()` as the
+  stable public facade.
+
+Historical public import paths remain compatible and are covered by identity
+tests.
 
 The next tranche continues the bounded decomposition of session execution in
 `engine/forward.py`, protected by the broader mutable-state suite.
