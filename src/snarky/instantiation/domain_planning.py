@@ -90,6 +90,9 @@ def _compile_domain_plan(rule: Rule) -> _DomainPlan:
         and constrained
         and all_variables <= fact_variables
     )
+    ordered_variables = tuple(
+        sorted(all_variables, key=lambda variable: variable.name)
+    )
     incidence: dict[Variable, list[_ConstraintKey]] = {
         variable: [] for variable in all_variables
     }
@@ -102,13 +105,10 @@ def _compile_domain_plan(rule: Rule) -> _DomainPlan:
     return _DomainPlan(
         tuple(tables),
         tuple(comparisons),
-        tuple(sorted(all_variables, key=lambda variable: variable.name)),
+        ordered_variables,
         tuple(
             (variable, tuple(incidence[variable]))
-            for variable in sorted(
-                all_variables,
-                key=lambda variable: variable.name,
-            )
+            for variable in ordered_variables
         ),
         _constraint_components(tables, comparisons, all_variables),
         _has_constraint_cycle(tables, comparisons),
@@ -127,9 +127,12 @@ def _constraint_components(
         *(comparison.variables for comparison in comparisons),
     )
     for scope in scopes:
-        scope_set = set(scope)
-        for variable in scope:
-            neighbors[variable].update(scope_set - {variable})
+        if not scope:
+            continue
+        root, *connected = scope
+        neighbors[root].update(connected)
+        for variable in connected:
+            neighbors[variable].add(root)
     component_by_variable: dict[Variable, frozenset[Variable]] = {}
     remaining = set(variables)
     while remaining:
