@@ -3,7 +3,8 @@
 Snarky est un moteur d’inférence symbolique en Python inspiré de SNARK, de
 Jean-Louis Laurière, et de BOOJUM, développé par Jean-Luc Dormoy. Il ne cherche
 pas à reproduire exactement BOOJUM : Snarky possède sa propre sémantique et
-sera notamment enrichi par du raisonnement sous contraintes.
+combine déjà règles symboliques, propagation de contraintes, choix pondérés
+et backtracking explicite.
 
 ## Pourquoi « Snarky » ?
 
@@ -12,10 +13,10 @@ sources d’inspiration du projet. Il constitue aussi un clin d’œil à Snarky
 Puppy, groupe emblématique de la fusion musicale.
 
 Cette idée de fusion décrit l’ambition de Snarky : faire coopérer dans un même
-moteur des langages de règles symboliques, des solveurs de contraintes tels
-qu’OR-Tools et, à terme, d’autres algorithmes d’inférence. Snarky ne désigne donc
-pas une réimplémentation de SNARK ou de BOOJUM, mais un moteur hybride qui en
-prolonge certains principes.
+moteur règles symboliques, filtrage de domaines, recherche et préférences
+probabilistes. Des solveurs externes tels qu’OR-Tools pourront rester des
+backends optionnels. Snarky ne désigne donc pas une réimplémentation de SNARK
+ou de BOOJUM, mais un moteur hybride qui en prolonge certains principes.
 
 L’objectif est de construire un moteur expressif, déterministe et testable,
 capable de manipuler :
@@ -26,12 +27,28 @@ capable de manipuler :
 - des triplets récursifs et des propositions utilisées comme objets ;
 - des statuts explicites tels que `VRAI`, `FAUX` et `INEXISTANT` ;
 - le chaînage avant récursif, la réfraction et la provenance des faits ;
+- les mutations réversibles, groupes de règles et traces explicables ;
+- les choix finis, les poids contextuels et le retour arrière ;
 - plusieurs stratégies d’instanciation, d’un matcher naïf de référence à des
   stratégies centrées sur les variables et la propagation de contraintes.
 
 Le projet ne prétend pas reproduire à l’identique le logiciel historique
 BOOJUM. Chaque fonctionnalité devra être qualifiée comme `HISTORICAL`,
 `INFERRED` ou `MODERN_EXTENSION`.
+
+## Ce que le projet démontre aujourd’hui
+
+| Démonstrateur | Capacités exercées |
+|---|---|
+| [Spinoza](spinoza/README.md) | corpus de l’Éthique III, règles d’ordre supérieur, provenance et explications |
+| [Sudoku](sudoku/README.md) | techniques humaines p1–p7, éliminations rejouables, puis `CHOICE` et backtracking |
+| [CSP fini](csp_solver/README.md) | N-reines extensionnel et intensionnel, propagation métier et recherche générique |
+| [Harmonisation SATB](harmonizer/README.md) | variables de notes, voicings engendrés par règles, contraintes musicales et probabilités contextuelles |
+| [Bases NéOpus](rulebases/README.md) | Fibonacci, Hanoï, singe et bananes, MuSES et autres reformulations historiques |
+
+Le cœur reste léger : Python 3.12+, PyYAML, aucun solveur externe obligatoire.
+La suite actuelle comporte 400 tests, avec des oracles naïfs, différentiels et
+applicatifs.
 
 ## Contraintes et filtrage du matching
 
@@ -92,7 +109,7 @@ les matchings de 9 à 22,5 % par rapport aux Compact-Tables initiales :
 
 `DomainStore` et `PropagationState` exposent également les réductions,
 contradictions, checkpoints et rollbacks des domaines et masques. Ce socle
-est désormais complété par une première recherche explicite
+est désormais complété par une recherche explicite
 `SessionChoiceSearch`. Voir
 [`docs/reversible_propagation.md`](docs/reversible_propagation.md) et
 [`benchmarks/README.md`](benchmarks/README.md).
@@ -129,7 +146,7 @@ sont séquentiels : les variables choisies par le premier sont visibles dans
 le suivant. Les actions déterministes placées après le dernier choix reprennent
 quand tous les faits cibles existent dans la branche.
 
-Le premier jalon fournit :
+La recherche fournit :
 
 - sélection MRV et ordre déterministe par poids ;
 - ordre probabiliste reproductible avec une graine ;
@@ -193,7 +210,7 @@ Voir
 
 Le dépôt contient un moteur Python semi-naïf par défaut, une stratégie naïve
 servant de référence sémantique, une stratégie indexée exhaustive et une
-première `ConstraintInstantiationStrategy`. Cette dernière conserve des
+`ConstraintInstantiationStrategy`. Cette dernière conserve des
 tables positives et des compteurs de projection par règle, maintient les
 domaines entre les cycles, filtre jusqu'au point fixe, puis laisse le matcher
 compilé produire les activations. Les suppressions réduisent l'état existant ;
@@ -266,7 +283,7 @@ les fenêtres, les choix de taille fixe et l'itération d'actions.
 Une session peut être copiée avec `fork()`. `HypothesisSearch` construit
 explicitement une recherche BFS ou DFS au-dessus de cette primitive, sans
 ajouter de retour arrière caché au chaînage avant. Une interface CSP/SAT et un
-solveur fini de référence fournissent également un premier couplage règles–
+solveur fini de référence fournissent également un couplage règles–
 contraintes.
 
 Une stratégie de conflit optionnelle `MEAConflictStrategy` permet de
@@ -320,13 +337,12 @@ Le contenu actuel comprend :
   reformulations issues de la thèse NéOpus,
   notamment Hanoï dérécursivé et les quatre reines engendrées entièrement par
   règles ;
-- [`csp_solver`](csp_solver/README.md), un solveur CSP binaire pédagogique :
-  variables, domaines, relations extensionnelles, propagation et
-  contradictions sont des faits et règles Snarky ; les quatre reines en sont
-  le premier oracle ;
-- [`harmonizer`](harmonizer/README.md), le premier incrément de l'harmoniseur
-  SATB : contraintes dures, propagation binaire, choix pondérés par des
-  marginales et recherche best-first ;
+- [`csp_solver`](csp_solver/README.md), le protocole `FiniteCSP` : variables,
+  domaines, contraintes extensionnelles ou intensionnelles, propagation
+  métier, `CHOICE` et backtracking ; N-reines et Sudoku en sont les oracles ;
+- [`harmonizer`](harmonizer/README.md), l'harmoniseur SATB à variables de
+  notes : voicings engendrés par règles, canalisation, transitions,
+  marginales contextuelles, recherche best-first et tirage pondéré ;
 - [`docs/semantics.md`](docs/semantics.md), les décisions sémantiques du moteur
   de référence ;
 - [`docs/arithmetic_actions.md`](docs/arithmetic_actions.md), la syntaxe et la
@@ -352,7 +368,7 @@ Le contenu actuel comprend :
 - [`docs/choice_backtracking_and_applications.md`](docs/choice_backtracking_and_applications.md),
   le cap architectural et l'état des deux applications de référence ;
 - [`docs/choice_search.md`](docs/choice_search.md), l'API, la sémantique et
-  les limites du premier pilote de choix/backtracking ;
+  les optimisations du pilote de choix/backtracking ;
 - [`docs/parallel_choice_search.md`](docs/parallel_choice_search.md), la piste
   différée d'un fork par processus suivi d'un DFS local sur trail, avec
   déterminisme, granularité et benchmarks requis ;
@@ -382,14 +398,15 @@ La base Fibonacci explicite utilise `LET $somme := $gauche + $droite` et ne
 reçoit qu’un fait racine : les sommes et les rangs des fils ne sont plus
 préchargés sous forme de tables.
 
-Les modifications partielles de faits et un ATMS complet restent à
-implémenter. L’adaptateur vers un solveur externe tel qu’OR-Tools reste
-optionnel et futur ; le backend fini portable valide déjà l’interface.
-Le choix MRV, le backtracking sur trail réversible et leurs deux applications
-d'intégration sont maintenant livrés. Les prochains paliers enrichiront le
-protocole déclaratif de choix, étudieront la restauration incrémentale des
-caches du matcher et étendront progressivement l'harmoniseur vers le profil
-`ROY_1998`. L’évaluation semi-naïve demeure le mode par défaut de
+Le choix MRV, le backtracking sur trail réversible, le CSP fini, le Sudoku
+hybride et l'harmoniseur note par note sont livrés. La priorité fonctionnelle
+est maintenant d'enrichir les connaissances musicales vers le profil
+`ROY_1998` : degrés, renversements, doublures, sensible et cadences. Les
+nogoods, le backjumping et la recherche parallèle restent différés jusqu'à ce
+qu'un profil établisse leur utilité. Les modifications partielles de faits et
+un ATMS complet restent également futurs. L'adaptateur vers un solveur externe
+tel qu'OR-Tools demeure optionnel ; le backend fini portable valide déjà
+l'interface. L’évaluation semi-naïve reste le mode par défaut de
 `ForwardEngine`.
 
 ## Démarrage rapide
@@ -574,13 +591,17 @@ du moteur et du corpus CLIPS original. Il contient :
 - les règles natives et leur chargeur ;
 - les fixtures natives vérifiées contre les sources CLIPS ;
 - l’orchestrateur et le rendu des explications ;
+- un mode hybride réutilisant ces mêmes faits et règles avec `FiniteCSP` ;
 - le [plan d’implémentation](sudoku/docs/implementation_plan.md), avec un
   critère d’acceptation pour chaque étape.
 
 La base native est exécutable : les sept grilles p1 à p7 sont résolues avec les
 familles de techniques annoncées par le corpus CLIPS, sans recherche
 exhaustive ni solveur externe. Chaque retrait de candidat est conservé dans
-une trace rejouable.
+une trace rejouable. En complément, la recherche générique peut volontairement
+limiter les techniques humaines : sur p2 avec les seuls Naked Singles, elle
+retrouve l'oracle en 11 nœuds, quatre backtracks et trois décisions sur le
+chemin solution.
 
 ## Plan de développement
 
@@ -637,10 +658,14 @@ une trace rejouable.
     registre, hiérarchie explicable, recherche par hypothèses, interface
     CSP/SAT et TMS positif optionnel.~~ Évaluer ces primitives sur les
     prochaines bases concrètes avant d'élargir leur DSL.
-19. ~~Ajouter `ChoicePoint`, MRV, choix pondérés, branches isolées,
-    backtracking et traces ; valider ce langage sur un solveur CSP des quatre
-    reines et un premier harmoniseur SATB. Raccorder ensuite le pilote DFS au
-    trail réversible.~~ Étendre progressivement le profil `ROY_1998`.
+19. ~~Ajouter `ChoicePoint`, MRV, choix pondérés et contextuels, branches
+    isolées, backtracking, traces et trail réversible ; valider ce langage sur
+    `FiniteCSP`, N-reines, le Sudoku hybride et un harmoniseur SATB note par
+    note.~~
+20. Étendre progressivement l'harmoniseur vers le profil `ROY_1998` :
+    degrés, renversements, doublures, sensible, cadences et préférences
+    stylistiques, puis profiler avant d'envisager nogoods, backjumping ou
+    recherche parallèle.
 
 La cible est Python 3.12 ou ultérieur, avec `pytest`, `ruff`, `mypy` et des
 tests différentiels. L’ajout de tests génératifs fondés sur Hypothesis reste
