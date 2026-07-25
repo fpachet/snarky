@@ -42,11 +42,11 @@ et les extensions modernes.
 | [Spinoza](spinoza/README.md) | corpus de l’Éthique III, règles d’ordre supérieur, provenance et explications |
 | [Sudoku](sudoku/README.md) | techniques humaines p1–p7, éliminations rejouables, puis `CHOICE` et backtracking |
 | [CSP fini](csp_solver/README.md) | N-reines extensionnel et intensionnel, propagation métier et recherche générique |
-| [Harmonisation SATB](harmonizer/README.md) | ligne MuSES donnée, degrés et renversements, variables SATB, progression/cadence, recherche pondérée et `Piece` à quatre voix |
+| [Harmonisation SATB](harmonizer/README.md) | ligne MuSES donnée, degrés et renversements, variables SATB, progression/cadence, exemples court et long, recherche pondérée et `Piece` à quatre voix |
 | [Bases NéOpus](rulebases/README.md) | Fibonacci, Hanoï, singe et bananes, MuSES et autres reformulations historiques |
 
 Le cœur reste léger : Python 3.12+, PyYAML, aucun solveur externe obligatoire.
-La suite standard fait passer 419 tests, avec des oracles naïfs, différentiels
+La suite standard fait passer 420 tests, avec des oracles naïfs, différentiels
 et applicatifs. Deux tests supplémentaires valident le codec et le pipeline
 d'harmonisation avec les vraies classes MuSES lorsque cette dépendance
 optionnelle est disponible.
@@ -574,8 +574,8 @@ ne recalcule qu'une règle et en réutilise 199. La médiane passe de 2,206 ms
 pour une construction froide à 0,572 ms pour la mise à jour incrémentale,
 soit ×3,86.
 
-La dernière exécution standard fait passer 419 tests et en ignore deux,
-conditionnés par l'installation de MuSES, en 22,19 s. Les anciennes références
+La dernière exécution standard fait passer 420 tests et en ignore deux,
+conditionnés par l'installation de MuSES, en 29,64 s. Les anciennes références
 étaient de 26,05 s avant la mise en cache du catalogue de provenance Spinoza
 et de 76,50 s avant les optimisations.
 

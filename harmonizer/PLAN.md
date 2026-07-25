@@ -65,6 +65,8 @@ Le jalon livre maintenant :
 - cadences parfaite, plagale, rompue et demi-cadence ;
 - rythme harmonique explicite par partage des variables d'accord ;
 - oracles ciblés et nouvelle baseline de performance.
+- exemple MuSES long de huit notes, `I–V–I–IV6–ii–ii–V7–I`, exporté en
+  MIDI et MusicXML.
 
 Restent les renversements de `V7`, autres septièmes, six-quatre de passage ou
 de pédale, exceptions complètes, tonalités, notes étrangères et métrique.

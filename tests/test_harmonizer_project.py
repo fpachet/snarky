@@ -271,6 +271,46 @@ def test_cadence_profiles_and_harmonic_rhythm_are_explicit() -> None:
     assert held.inversions[0] == held.inversions[1]
 
 
+def test_long_form_harmonization_uses_a_prolonged_predominant() -> None:
+    solution = harmonize_notes(
+        (72, 74, 76, 72, 65, 69, 71, 72),
+        harmonic_rhythm=(0, 1, 2, 3, 4, 4, 5, 6),
+        max_solutions=1,
+    )[0]
+
+    assert solution.chords == (
+        "degree_I",
+        "degree_V",
+        "degree_I",
+        "degree_IV",
+        "degree_ii",
+        "degree_ii",
+        "degree_V7",
+        "degree_I",
+    )
+    assert solution.harmonic_rhythm == (0, 1, 2, 3, 4, 4, 5, 6)
+    assert solution.inversions == (
+        "root",
+        "root",
+        "root",
+        "first",
+        "root",
+        "root",
+        "root",
+        "root",
+    )
+    assert solution.voicings == (
+        (72, 67, 64, 48),
+        (74, 67, 59, 43),
+        (76, 67, 60, 48),
+        (72, 65, 60, 45),
+        (65, 62, 57, 50),
+        (69, 62, 53, 50),
+        (71, 65, 62, 43),
+        (72, 64, 55, 48),
+    )
+
+
 def test_harmonic_rhythm_and_cadence_are_validated() -> None:
     with pytest.raises(ValueError, match="one slot number per note"):
         build_note_harmonizer_model((71, 72), harmonic_rhythm=(0,))

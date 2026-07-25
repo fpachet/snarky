@@ -290,6 +290,38 @@ L'exemple construit deux mesures de soprano
 - `harmonizer/generated/snarky_soprano_satb.mid` ;
 - `harmonizer/generated/snarky_soprano_satb.musicxml`.
 
+### Exemple long
+
+L'option `--long` construit quatre mesures de huit blanches :
+
+```sh
+PYTHONPATH=src:../muses/src python -m harmonizer.example_muses --long
+```
+
+Le soprano `C5–D5–E5–C5–F4–A4–B4–C5` produit :
+
+| Élément | Résultat |
+|---|---|
+| accords | `I–V–I–IV6–ii–ii–V7–I` |
+| soprano | `72 74 76 72 65 69 71 72` |
+| alto | `67 67 67 65 62 62 65 64` |
+| ténor | `64 59 60 60 57 53 62 55` |
+| basse | `48 43 48 45 50 50 43 48` |
+
+Le rythme harmonique `(0, 1, 2, 3, 4, 4, 5, 6)` fait des notes `F4–A4`
+un seul événement `ii` prolongé. Accord et renversement sont donc partagés,
+mais les règles choisissent deux distributions SATB différentes. La phrase
+termine par `V7–I`, avec sensible et septième résolues.
+
+Sur la machine de référence, la recherche symbolique prend environ 7,4 s et
+le trajet MuSES complet environ 7,7 s. Le petit exemple reste l'oracle rapide ;
+le long sert de démonstration d'intégration et de test de profondeur.
+
+Les exports correspondants sont :
+
+- [`generated/snarky_long_soprano_satb.mid`](generated/snarky_long_soprano_satb.mid) ;
+- [`generated/snarky_long_soprano_satb.musicxml`](generated/snarky_long_soprano_satb.musicxml).
+
 Le répertoire peut être remplacé avec
 `--output-directory /chemin/de/sortie`.
 
