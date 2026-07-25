@@ -1,0 +1,48 @@
+{
+  "benchmark": "comparison_propagators_extraction",
+  "date": "2026-07-25",
+  "python": "3.13.11",
+  "platform": "macOS-15.7.7-arm64-arm-64bit-Mach-O",
+  "baseline_commit": "ba90245",
+  "current_commit": "3c3989f",
+  "protocol": {
+    "series_order": [
+      "baseline",
+      "current",
+      "current",
+      "baseline"
+    ],
+    "repetitions_per_series": 31,
+    "summary": "mean of the two independently measured medians",
+    "same_interpreter_and_environment": true
+  },
+  "case": {
+    "name": "incremental_all_different_size_200",
+    "command": "python -c 'from benchmarks.global_constraints import measure; print(measure(\"all-different\", 200, 31, \"domain-incremental\"))'",
+    "baseline_medians_seconds": [
+      0.048029084000518196,
+      0.04834158300036506
+    ],
+    "current_medians_seconds": [
+      0.048436541999762994,
+      0.048621415999150486
+    ],
+    "baseline_summary_seconds": 0.04818533350044163,
+    "current_summary_seconds": 0.04852897899945674,
+    "delta_percent": 0.7131744745773272,
+    "logical_counters": {
+      "facts": 1391,
+      "activations": 1182,
+      "match_attempts": 5358,
+      "domain_filter_runs": 2,
+      "domain_global_revisions": 2,
+      "domain_global_value_checks": 4764,
+      "domain_bitset_intersections": 409,
+      "domain_bitset_support_checks": 406,
+      "domain_bitset_value_events": 3,
+      "domain_compact_join_rows": 5358,
+      "domain_delta_join_skips": 1
+    }
+  },
+  "conclusion": "Moving specialized simple, arithmetic, NVALUE, and ALL_DIFFERENT propagation to a focused module has no material runtime cost."
+}

@@ -267,6 +267,17 @@ bitset, compact-join, and delta counters. This is measurement noise rather
 than a material runtime change. Raw samples and the complete counters are in
 [`domain_tables_extraction_2026-07-25.json`](../benchmarks/results/domain_tables_extraction_2026-07-25.json).
 
+Specialized comparison propagation was extracted from `domain_filter.py` to
+`instantiation/comparison_propagators.py` at commit `3c3989f`. The public
+`DomainPropagator` protocol retains both its top-level and historical
+`domain_filter` import identities. Simple comparisons, binary arithmetic,
+`NVALUE`, and bounded Hall-set `ALL_DIFFERENT` filtering now form an
+independent 729-line module, leaving `domain_filter.py` at 1,227 lines.
+An interleaved 31-repetition `ALL_DIFFERENT` comparison changed from
+48.19 ms to 48.53 ms (+0.71%), with identical facts, activations, matching,
+global-propagation, compact-table, and delta counters. Raw samples are in
+[`comparison_propagators_extraction_2026-07-25.json`](../benchmarks/results/comparison_propagators_extraction_2026-07-25.json).
+
 The `engine/forward.py` decomposition target is complete for C3. The next
 choice decomposition target is also complete: production, policies, frontier
 management, and traversal live in focused modules, while `choice.py` is a
@@ -284,4 +295,6 @@ compiled matching representation used by complete joins. The `indexed.py`
 decomposition target is complete, including the separately benchmarked
 high-churn bucket optimization. The first `domain_filter.py` tranche is also
 complete: compact table definitions and state now live in
-`instantiation/domain_tables.py`. C3 continues with comparison propagators.
+`instantiation/domain_tables.py`, and specialized comparison propagation now
+lives in `instantiation/comparison_propagators.py`. C3 continues with domain
+planning.
