@@ -182,7 +182,9 @@ The first consolidation tranche establishes:
   stable public facade;
 - action staging, activation mutations, fresh-name reservation, and grounded
   truth-maintenance cascades now live in `engine/mutations.py`, with
-  `InferenceSession` retaining compatibility delegates.
+  `InferenceSession` retaining compatibility delegates;
+- negative-premise dependency planning, support expiry, and refraction
+  reconciliation now live in `engine/refraction.py`.
 
 Historical public import paths remain compatible and are covered by identity
 tests.
