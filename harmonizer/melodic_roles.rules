@@ -2,11 +2,30 @@
 # le contour et la métrique les rendent admissibles, puis la canalisation avec
 # l'accord et le voicing décide conjointement du rôle réellement sélectionné.
 
+GROUP classify_melodic_durations
+    # Dans le profil courant, les durées sont exprimées en noires. Une note
+    # courte ne dépasse ni une noire ni la durée de ses deux voisines.
+    RULE classify_contextually_short_note
+    WHEN
+        ($previous successor $position)
+        ($position successor $next)
+        ($previous note_duration $previous_duration)
+        ($position note_duration $current_duration)
+        ($next note_duration $next_duration)
+        CONSTRAINT $current_duration <= 1
+        CONSTRAINT $current_duration <= $previous_duration
+        CONSTRAINT $current_duration <= $next_duration
+    THEN
+        ADD ($position duration_role short)
+    END
+END_GROUP
+
 GROUP derive_melodic_roles
     RULE derive_ascending_passing_tone
     WHEN
         ($position given_voice soprano)
         ($position metric_strength weak)
+        ($position duration_role short)
         ($previous successor $position)
         ($position successor $next)
         ($previous soprano_variable $previous_variable)
@@ -27,6 +46,7 @@ GROUP derive_melodic_roles
     WHEN
         ($position given_voice soprano)
         ($position metric_strength weak)
+        ($position duration_role short)
         ($previous successor $position)
         ($position successor $next)
         ($previous soprano_variable $previous_variable)
@@ -47,6 +67,7 @@ GROUP derive_melodic_roles
     WHEN
         ($position given_voice soprano)
         ($position metric_strength weak)
+        ($position duration_role short)
         ($previous successor $position)
         ($position successor $next)
         ($previous soprano_variable $previous_variable)
@@ -66,6 +87,7 @@ GROUP derive_melodic_roles
     WHEN
         ($position given_voice soprano)
         ($position metric_strength weak)
+        ($position duration_role short)
         ($previous successor $position)
         ($position successor $next)
         ($previous soprano_variable $previous_variable)
@@ -104,6 +126,7 @@ GROUP derive_melodic_roles
     WHEN
         ($position given_voice soprano)
         ($position metric_strength weak)
+        ($position duration_role short)
         ($previous successor $position)
         ($position successor $next)
         ($previous soprano_variable $previous_variable)
@@ -123,6 +146,7 @@ GROUP derive_melodic_roles
     WHEN
         ($position given_voice soprano)
         ($position metric_strength weak)
+        ($position duration_role short)
         ($previous successor $position)
         ($position successor $next)
         ($previous soprano_variable $previous_variable)

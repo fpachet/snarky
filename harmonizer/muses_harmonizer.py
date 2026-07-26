@@ -172,6 +172,7 @@ def harmonize_temporal_collection(
         harmonic_plan=harmonic_plan,
         harmonic_plan_profile=harmonic_plan_profile,
         metric_strengths=metric,
+        note_durations=tuple(note.duration() for note in notes),
         source_facts=source_facts,
         source_notes=source_notes,
     )

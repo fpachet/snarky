@@ -88,6 +88,7 @@ def test_note_harmonizer_generates_and_chooses_individual_notes() -> None:
         (
             "preparation",
             (
+                "classify_melodic_durations",
                 "derive_melodic_roles",
                 "prepare_melodic_role_domains",
                 "derive_harmonic_plan",
@@ -483,6 +484,7 @@ def test_passing_tone_is_inferred_when_the_harmony_is_explicitly_held() -> None:
             "strong",
             "strong",
         ),
+        note_durations=(1.0, 1.0, 2.0, 1.0, 1.0, 2.0, 4.0, 4.0),
         harmonic_plan=("I", "I", "I", "I", "IV", "ii", "V", "I"),
         traversal=ChoiceTraversal.DEPTH_FIRST,
         max_solutions=1,
@@ -512,6 +514,34 @@ def test_passing_tone_is_inferred_when_the_harmony_is_explicitly_held() -> None:
     assert passing_voicing[0] % 12 == 2
     assert {pitch % 12 for pitch in passing_voicing[1:]} == {0, 4, 7}
     assert any(
+        event.rule_group == "derive_melodic_roles"
+        and event.rule_name == "derive_ascending_passing_tone"
+        for event in solution.inference_events
+    )
+
+
+def test_long_weak_step_is_harmonized_instead_of_called_passing() -> None:
+    melody = (72, 74, 76, 67, 65, 69, 71, 72)
+    solution = harmonize_notes(
+        melody,
+        metric_strengths=(
+            "strong",
+            "weak",
+            "strong",
+            "strong",
+            "strong",
+            "strong",
+            "strong",
+            "strong",
+        ),
+        note_durations=(1.0, 2.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0),
+        traversal=ChoiceTraversal.DEPTH_FIRST,
+        max_solutions=1,
+    )[0]
+
+    assert solution.chords[1] == "degree_V"
+    assert solution.melodic_roles[1] == "chord_tone"
+    assert not any(
         event.rule_group == "derive_melodic_roles"
         and event.rule_name == "derive_ascending_passing_tone"
         for event in solution.inference_events
@@ -623,6 +653,10 @@ def test_harmonic_rhythm_and_cadence_are_validated() -> None:
             (71, 72),
             metric_strengths=("strong", "medium"),  # type: ignore[arg-type]
         )
+    with pytest.raises(ValueError, match="one value per note"):
+        build_note_harmonizer_model((71, 72), note_durations=(1.0,))
+    with pytest.raises(ValueError, match="finite positive"):
+        build_note_harmonizer_model((71, 72), note_durations=(1.0, 0.0))
     with pytest.raises(ValueError, match="cadence must be"):
         build_note_harmonizer_model(
             (71, 72),

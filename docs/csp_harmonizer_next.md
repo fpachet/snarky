@@ -251,7 +251,10 @@ Le palier de rôles mélodiques est également livré. Le groupe
 et anticipations dans la soprano donnée. Chaque position possède une variable
 de rôle choisie avec l'accord ; la canalisation vérifie préparation,
 résolution, harmonie voisine et politique de complétude ou d'omission.
-La frontière MuSES traduit les débuts de notes en métrique forte/faible.
+La frontière MuSES traduit les débuts de notes en métrique forte/faible et
+leurs durées en faits numériques. Une règle séparée réserve passages,
+broderies et anticipations aux notes d'au plus une noire, non plus longues que
+leurs deux voisines.
 
 Ce palier ne soustrait aucune attaque au problème harmonique. Par défaut,
 chaque note reçoit ses variables d'accord, de rôle et de renversement et toutes

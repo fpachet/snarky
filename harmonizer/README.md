@@ -234,9 +234,20 @@ All policies are in rule premises and remain subject to the ordinary chord,
 inversion, transition, spacing, doubling, and voice-leading propagation.
 
 `metric_strengths` accepts one `strong` or `weak` value per note. The MuSES
-adapter derives these facts from note onsets and the time signature. The
-current hierarchy is deliberately binary; compound-meter accent levels,
-appoggiaturas, escape tones, and ornaments over `V7` remain future work.
+adapter derives these facts from note onsets and the time signature.
+`note_durations` accepts durations in quarter-note beats; MuSES supplies them
+from the source notes.
+
+Passing tones and neighbors must now be contextually short: at most one beat
+and no longer than either adjacent note. Anticipations use the same brevity
+test. Thus a weak, stepwise D may be a passing tone when short, but the same D
+is harmonized as a chord tone when lengthened. Suspensions are deliberately
+exempt because their identity depends on preparation, accent, and resolution,
+not brevity.
+
+The current metric hierarchy is deliberately binary; compound-meter accent
+levels, appoggiaturas, escape tones, and ornaments over `V7` remain future
+work.
 
 The eight-bar generated demonstration contains passing motion, upper and
 lower neighbors, a 4–3 suspension, and an anticipation:

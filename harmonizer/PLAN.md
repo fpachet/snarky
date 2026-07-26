@@ -85,6 +85,8 @@ Le jalon livre maintenant :
 - broderies supérieures et inférieures ;
 - suspensions préparées et résolues, anticipations ;
 - faits métriques forts/faibles dérivés des débuts MuSES ou fournis à l'API ;
+- faits de durée et classification déclarative des notes contextuellement
+  courtes ;
 - une variable CSP de rôle par note, choisie dans l'étape harmonique ;
 - canalisation bidirectionnelle rôle–accord–voicing et support harmonique
   précédent/suivant ;
@@ -93,6 +95,10 @@ Le jalon livre maintenant :
 - rôle et métrique sélectionnés exposés dans la solution ;
 - exemple MuSES de huit mesures couvrant les cinq rôles étrangers avec cinq
   ancrages harmoniques locaux, sans plan complet ni étiquette de rôle.
+
+Passages, broderies et anticipations exigent désormais une durée d'au plus une
+noire et non supérieure à celles des deux notes voisines. Une note conjointe
+faible mais longue reste donc une note structurelle à harmoniser.
 
 L'exemple MuSES de huit mesures harmonise désormais chaque attaque
 indépendamment. Sa première phrase parcourt toute la gamme ascendante de do

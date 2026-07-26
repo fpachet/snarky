@@ -167,6 +167,7 @@ def test_muses_line_becomes_a_four_voice_piece_through_rules() -> None:
     assert all(result.voice_facts)
     assert result.symbolic.inference_events
     assert result.symbolic.metric_strengths == ("strong", "weak")
+    assert result.symbolic.note_durations == (0.5, 1.5)
     assert any(
         event.rule_group == "import_muses_given_voice"
         for event in result.symbolic.inference_events

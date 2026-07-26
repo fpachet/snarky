@@ -383,6 +383,7 @@ def main() -> None:
     print("  chords  ", list(result.symbolic.chords))
     print("  inversions", list(result.symbolic.inversions))
     print("  metric strengths", list(result.symbolic.metric_strengths))
+    print("  note durations", list(result.symbolic.note_durations))
     print("  melodic roles", list(result.symbolic.melodic_roles))
     print(f"MIDI:     {midi_path}")
     print(f"MusicXML: {musicxml_path}")

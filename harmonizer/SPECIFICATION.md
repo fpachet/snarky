@@ -210,9 +210,19 @@ renversement, de verticalité et de conduite des voix. Ainsi, dans l'ouverture
 diatonique qui le contient) ; il n'est pas pré-étiqueté comme passage.
 
 Chaque position possède désormais une variable CSP `melodic_role_variable`
-et un fait métrique `metric_strength strong|weak`. Son domaine contient
-toujours `chord_tone`. Pour une soprano donnée, `derive_melodic_roles` examine
-les trois hauteurs consécutives et la métrique, puis peut ajouter :
+ainsi que les faits `metric_strength strong|weak` et `note_duration N`. Son
+domaine contient toujours `chord_tone`.
+
+`classify_melodic_durations` dérive :
+
+```text
+(note_position_1 duration_role short)
+```
+
+si la note ne dépasse pas une noire et n'est plus longue qu'aucune de ses deux
+voisines. Pour une soprano donnée, `derive_melodic_roles` examine ensuite les
+trois hauteurs consécutives, la métrique et cette classe de durée, puis peut
+ajouter :
 
 ```text
 (note_position_1 melodic_role_candidate passing_tone)
@@ -229,11 +239,11 @@ rôle avec l'accord ; ce n'est plus une étiquette calculée après la solution.
 La canalisation impose :
 
 - `chord_tone` : appartenance de la soprano à l'accord courant ;
-- passage ou broderie : métrique faible, mouvement conjoint approprié et même
-  accord disponible aux trois positions ;
+- passage ou broderie : note courte, métrique faible, mouvement conjoint
+  approprié et même accord disponible aux trois positions ;
 - suspension : métrique forte, préparation par note commune à l'accord
   précédent, nouvel accord maintenu jusqu'à la résolution descendante ;
-- anticipation : métrique faible, maintien de l'accord précédent et
+- anticipation : note courte, métrique faible, maintien de l'accord précédent et
   appartenance de la note à l'accord suivant.
 
 Pour passage, broderie et anticipation, alto–ténor–basse réalisent toutes les
@@ -244,9 +254,10 @@ et conduite des voix restent appliqués normalement.
 
 Le résultat expose un rôle par note dans `NoteHarmonization.melodic_roles`.
 `NoteHarmonization.metric_strengths` expose aussi les faits métriques.
-`metric_strengths` peut être fourni directement ; la frontière MuSES le
-déduit des débuts de notes et de la mesure. `V7` orné, appoggiatures,
-échappées et métrique hiérarchique restent hors de ce palier.
+`NoteHarmonization.note_durations` expose les durées. Les deux vecteurs peuvent
+être fournis directement ; la frontière MuSES les déduit des débuts et durées
+de notes ainsi que de la mesure. `V7` orné, appoggiatures, échappées et
+métrique hiérarchique restent hors de ce palier.
 
 ## Frontière MuSES
 

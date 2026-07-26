@@ -22,6 +22,7 @@ Its first phrase traverses the complete ascending C-major scale and is
 harmonized `I-V-I-IV-I-IV-V-I`; D is a normal chord tone of V and is subject
 to the same vertical and transition rules as every other note.
 The eight-bar `--roles` example derives strong/weak metric facts from its
-rhythm and selects passing tone, upper neighbor, lower neighbor, suspension,
-and anticipation roles. It supplies five local chord anchors, not a complete
-harmonic plan or any role labels.
+rhythm, classifies contextually short durations, and selects passing tone,
+upper neighbor, lower neighbor, suspension, and anticipation roles. It
+supplies five local chord anchors, not a complete harmonic plan or any role
+labels.
