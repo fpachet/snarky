@@ -94,13 +94,13 @@ MELODIC_ROLE_DURATIONS = (
 )
 MELODIC_ROLE_HARMONIC_PLAN: tuple[HarmonicPlanDegree | None, ...] = (
     None,
-    "I",
     None,
     None,
-    "I",
     None,
     None,
-    "I",
+    None,
+    None,
+    None,
     None,
     None,
     "V",

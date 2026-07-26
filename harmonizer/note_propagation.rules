@@ -147,30 +147,19 @@ GROUP maintain_note_voicing_channel
         REMOVE ($variable candidate $role)
     END
 
-    RULE remove_passing_or_neighbor_without_previous_harmony
+    # Passage, broderie et anticipation ne déclenchent pas une nouvelle
+    # attaque harmonique : les trois voix inférieures et l'accord continuent
+    # depuis la position précédente.
+    RULE remove_continuation_role_without_previous_voicing
     WHEN
         ($previous successor $position)
         ($position voicing_candidate SEQ[$chord $inversion $soprano $alto $tenor $bass])
         ($position voicing_melodic_role SEQ[$chord $inversion $soprano $alto $tenor $bass $role])
         $role != chord_tone
         $role != suspension
-        $role != anticipation
-        ($previous chord_variable $previous_chord_variable)
-        NOT EXISTS ($previous_chord_variable candidate $chord)
-    THEN
-        REMOVE ($position voicing_candidate SEQ[$chord $inversion $soprano $alto $tenor $bass])
-    END
-
-    RULE remove_passing_or_neighbor_without_next_harmony
-    WHEN
-        ($position successor $next)
-        ($position voicing_candidate SEQ[$chord $inversion $soprano $alto $tenor $bass])
-        ($position voicing_melodic_role SEQ[$chord $inversion $soprano $alto $tenor $bass $role])
-        $role != chord_tone
-        $role != suspension
-        $role != anticipation
-        ($next chord_variable $next_chord_variable)
-        NOT EXISTS ($next_chord_variable candidate $chord)
+        NOT EXISTS
+            ($previous voicing_candidate SEQ[$chord $previous_inversion $previous_soprano $alto $tenor $bass])
+        END_NOT_EXISTS
     THEN
         REMOVE ($position voicing_candidate SEQ[$chord $inversion $soprano $alto $tenor $bass])
     END
@@ -189,24 +178,16 @@ GROUP maintain_note_voicing_channel
         REMOVE ($position voicing_candidate SEQ[$chord $inversion $soprano $alto $tenor $bass])
     END
 
-    RULE remove_suspension_without_resolution_harmony
+    # Le nouvel accord entre avec la suspension puis reste tenu pendant sa
+    # résolution : l'accord et les trois voix inférieures sont identiques.
+    RULE remove_suspension_without_sustained_resolution_voicing
     WHEN
         ($position successor $next)
         ($position voicing_candidate SEQ[$chord $inversion $soprano $alto $tenor $bass])
         ($position voicing_melodic_role SEQ[$chord $inversion $soprano $alto $tenor $bass suspension])
-        ($next chord_variable $next_chord_variable)
-        NOT EXISTS ($next_chord_variable candidate $chord)
-    THEN
-        REMOVE ($position voicing_candidate SEQ[$chord $inversion $soprano $alto $tenor $bass])
-    END
-
-    RULE remove_anticipation_without_previous_harmony
-    WHEN
-        ($previous successor $position)
-        ($position voicing_candidate SEQ[$chord $inversion $soprano $alto $tenor $bass])
-        ($position voicing_melodic_role SEQ[$chord $inversion $soprano $alto $tenor $bass anticipation])
-        ($previous chord_variable $previous_chord_variable)
-        NOT EXISTS ($previous_chord_variable candidate $chord)
+        NOT EXISTS
+            ($next voicing_candidate SEQ[$chord $next_inversion $next_soprano $alto $tenor $bass])
+        END_NOT_EXISTS
     THEN
         REMOVE ($position voicing_candidate SEQ[$chord $inversion $soprano $alto $tenor $bass])
     END

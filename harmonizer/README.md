@@ -205,7 +205,7 @@ held = harmonize_notes(
         "strong", "weak", "strong", "strong",
         "strong", "strong", "strong", "strong",
     ),
-    harmonic_plan=("I", "I", "I", "I", "IV", "ii", "V", "I"),
+    harmonic_plan=("I", "I", "vi", "I", "IV", "ii", "V", "I"),
     traversal=ChoiceTraversal.DEPTH_FIRST,
     max_solutions=1,
 )[0]
@@ -215,23 +215,30 @@ assert held.melodic_roles[:3] == (
     "passing_tone",
     "chord_tone",
 )
+assert held.chords[:3] == ("degree_I", "degree_I", "degree_vi")
 ```
 
 The role channel enforces these meanings:
 
 - chord tone: the soprano belongs to the current chord;
-- passing or neighbor tone: a weak non-chord tone over the same harmony as
-  its two neighbors, with the appropriate stepwise contour;
+- passing or neighbor tone: a weak non-chord tone with the appropriate
+  stepwise contour; the preceding chord and exact lower-voice voicing remain
+  sounding through it, while the following structural note may receive a new
+  harmony;
 - suspension: a strong repeated pitch prepared in the previous chord,
-  dissonant over the new harmony, then resolved downward by step;
-- anticipation: a weak non-chord tone held into a following chord that
-  contains it.
+  dissonant over the new harmony, then resolved downward by step while the
+  lower voices sustain the resolution chord;
+- anticipation: a weak non-chord tone over the sustained preceding harmony,
+  held into a following chord that contains it.
 
 Passing tones, neighbors, and anticipations leave a complete triad in the
-three lower voices. A suspension instead omits its resolution class from the
-lower voices: the suspended pitch temporarily replaces that chord member.
-All policies are in rule premises and remain subject to the ordinary chord,
-inversion, transition, spacing, doubling, and voice-leading propagation.
+three lower voices. They reuse the exact previous alto, tenor, and bass
+pitches; the MuSES exporter consequently extends those notes instead of
+writing repeated attacks. A suspension instead omits its resolution class
+from the lower voices: the suspended pitch temporarily replaces that chord
+member. The exact lower voicing is held through the resolution. All policies
+are in rule premises and remain subject to the ordinary chord, inversion,
+transition, spacing, doubling, and voice-leading propagation.
 
 `metric_strengths` accepts one `strong` or `weak` value per note. The MuSES
 adapter derives these facts from note onsets and the time signature.
@@ -249,16 +256,18 @@ The current metric hierarchy is deliberately binary; compound-meter accent
 levels, appoggiaturas, escape tones, and ornaments over `V7` remain future
 work.
 
-The eight-bar generated demonstration contains passing motion, upper and
-lower neighbors, a 4–3 suspension, and an anticipation:
+The eight-bar generated demonstration harmonizes most soprano attacks,
+including its opening D as a chord tone of V. It also contains a lower
+neighbor, a 4–3 suspension, and an anticipation:
 
 ```sh
 uv run python -m harmonizer.example_muses --roles
 ```
 
-It supplies five local chord anchors but no melodic-role labels. Snarky
-derives all 18 role domains, infers the remaining harmony, and selects the
-complete SATB realization.
+It supplies only two local chord anchors, for the suspension and anticipation,
+and no melodic-role labels. Snarky derives all 18 role domains, infers the
+remaining harmony, and selects the complete SATB realization. The passing-tone
+and upper-neighbor paths remain covered by focused solver tests.
 
 Static note, chord, and inversion weights become contextual when the preceding
 choice is known. Best-first search returns deterministic high-scoring
@@ -377,9 +386,8 @@ Generated MIDI and MusicXML files are reproducible outputs under
 
 The model is restricted to C major and a focused tonal vocabulary. It does not
 yet cover all seventh chords and inversions, passing or pedal six-four chords,
-complete leading-tone exceptions, suspensions, anticipations, appoggiaturas,
-modulation, rests, musical meter in rule conditions, or lexicographic
-optimization.
+complete leading-tone exceptions, appoggiaturas, escape tones, modulation,
+rests, a multi-level metric hierarchy, or lexicographic optimization.
 
 The [specification](SPECIFICATION.md) and [project plan](PLAN.md) retain design
 detail. Benchmark protocols and machine-readable measurements are in

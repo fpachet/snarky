@@ -240,17 +240,23 @@ La canalisation impose :
 
 - `chord_tone` : appartenance de la soprano à l'accord courant ;
 - passage ou broderie : note courte, métrique faible, mouvement conjoint
-  approprié et même accord disponible aux trois positions ;
+  approprié, avec maintien de l'accord et du voicing exact des trois voix
+  inférieures depuis la position précédente ; la note structurelle suivante
+  peut recevoir un autre accord ;
 - suspension : métrique forte, préparation par note commune à l'accord
-  précédent, nouvel accord maintenu jusqu'à la résolution descendante ;
-- anticipation : note courte, métrique faible, maintien de l'accord précédent et
-  appartenance de la note à l'accord suivant.
+  précédent, nouvel accord et voicing inférieur maintenus jusqu'à la
+  résolution descendante ;
+- anticipation : note courte, métrique faible, maintien de l'accord et du
+  voicing inférieur précédents, et appartenance de la note à l'accord suivant.
 
 Pour passage, broderie et anticipation, alto–ténor–basse réalisent toutes les
-classes de la triade. Pour la suspension, ils réalisent exactement les deux
-autres classes et omettent celle de la résolution : la dissonance suspendue
-remplace temporairement ce membre. Ordre, espacements, renversement, doublures
-et conduite des voix restent appliqués normalement.
+classes de la triade et prolongent leurs hauteurs précédentes sans nouvelle
+attaque. Pour la suspension, ils réalisent exactement les deux autres classes
+et omettent celle de la résolution : la dissonance suspendue remplace
+temporairement ce membre. Le même voicing inférieur est prolongé pendant la
+résolution. L'export MuSES fusionne ces événements contigus en notes tenues.
+Ordre, espacements, renversement, doublures et conduite des voix restent
+appliqués normalement.
 
 Le résultat expose un rôle par note dans `NoteHarmonization.melodic_roles`.
 `NoteHarmonization.metric_strengths` expose aussi les faits métriques.

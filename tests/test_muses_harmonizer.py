@@ -8,6 +8,7 @@ from harmonizer import (
     harmonize_notes,
     harmonize_temporal_collection,
 )
+from snarky import ChoiceTraversal
 from snarky.integrations import (
     MusesTemporalCollectionCodec,
     MusesTemporalNoteCodec,
@@ -196,6 +197,39 @@ def test_muses_bass_line_is_preserved_in_the_bass_output() -> None:
     )[0]
 
     assert [note.pitch for note in result.piece.melodies[3].temporals] == [43, 48]
+
+
+def test_passing_tone_extends_the_sounding_lower_voice_notes() -> None:
+    factories, codec = _integration()
+    starts = (0.0, 1.0, 2.0, 4.0, 6.0, 8.0)
+    durations = (1.0, 1.0, 2.0, 2.0, 2.0, 2.0)
+    source = FakeTemporalCollection(
+        name="passing_subject",
+        temporals=tuple(
+            FakeTemporalNote(pitch, start, duration)
+            for pitch, start, duration in zip(
+                (72, 74, 76, 74, 71, 72),
+                starts,
+                durations,
+                strict=True,
+            )
+        ),
+        end_beat=10.0,
+    )
+
+    result = harmonize_temporal_collection(
+        source,
+        harmonic_plan=("I", "I", "vi", "ii", "V", "I"),
+        traversal=ChoiceTraversal.DEPTH_FIRST,
+        factories=factories,
+        codec=codec,
+    )[0]
+
+    assert result.symbolic.melodic_roles[1] == "passing_tone"
+    assert len(result.piece.melodies[0].temporals) == 6
+    for lower_voice in result.piece.melodies[1:]:
+        assert len(lower_voice.temporals) == 5
+        assert lower_voice.temporals[0].duration() == 2.0
 
 
 def test_muses_harmonizer_rejects_polyphonic_or_unsupported_input() -> None:

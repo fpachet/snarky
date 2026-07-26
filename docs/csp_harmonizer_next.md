@@ -250,18 +250,20 @@ Le palier de rôles mélodiques est également livré. Le groupe
 `derive_melodic_roles` reconnaît passages conjoints, broderies, suspensions
 et anticipations dans la soprano donnée. Chaque position possède une variable
 de rôle choisie avec l'accord ; la canalisation vérifie préparation,
-résolution, harmonie voisine et politique de complétude ou d'omission.
+résolution, maintien exact du voicing inférieur et politique de complétude ou
+d'omission.
 La frontière MuSES traduit les débuts de notes en métrique forte/faible et
 leurs durées en faits numériques. Une règle séparée réserve passages,
 broderies et anticipations aux notes d'au plus une noire, non plus longues que
 leurs deux voisines.
 
-Ce palier ne soustrait aucune attaque au problème harmonique. Par défaut,
-chaque note reçoit ses variables d'accord, de rôle et de renversement et toutes
-les règles s'appliquent normalement ; par exemple, D dans `C-D-E` peut être
-une note de l'accord de V. Si la métrique et les accords voisins le permettent,
-le même D peut aussi être choisi comme passage sur I sans partager
-physiquement la variable d'accord de ses voisines.
+Par défaut, chaque note reçoit ses variables d'accord, de rôle et de
+renversement et toutes les règles s'appliquent normalement ; par exemple, D
+dans `C-D-E` peut être une note de l'accord de V. Si la métrique et le contour
+le permettent, le même D peut aussi être choisi comme passage sur I : l'accord
+et les hauteurs exactes d'alto, ténor et basse de C restent alors tenus pendant
+D, sans nouvelle attaque, tandis que E reçoit une décision harmonique
+indépendante. L'export MuSES fusionne ces événements contigus en notes longues.
 
 Un mécanisme avancé de recherche ne sera ajouté que si ces règles produisent
 un profil et un oracle qui le justifient.

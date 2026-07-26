@@ -228,23 +228,13 @@ def _materialize_solution(
     voice_fact_sets: list[tuple[Fact, ...]] = []
     for voice_index, voice in enumerate(VOICE_NAMES):
         voice_name = cast(SATBVoice, voice.name)
-        notes = tuple(
-            factories.note(
-                voicing[voice_index],
-                source_note.start_beat,
-                source_note.duration(),
-                velocity=source_note.velocity,
-                midi_channel=(
-                    source_note.midi_channel
-                    if voice_name == given_voice
-                    else voice_index
-                ),
-            )
-            for source_note, voicing in zip(
-                source_notes,
-                solution.voicings,
-                strict=True,
-            )
+        notes = _materialize_voice_notes(
+            source_notes,
+            solution,
+            voice_index=voice_index,
+            voice_name=voice_name,
+            given_voice=given_voice,
+            factory=factories.note,
         )
         collection = factories.collection(
             name=voice_name,
@@ -276,6 +266,68 @@ def _materialize_solution(
         given_voice,
         source_facts,
         tuple(voice_fact_sets),
+    )
+
+
+def _materialize_voice_notes(
+    source_notes: tuple[TemporalNoteLike, ...],
+    solution: NoteHarmonization,
+    *,
+    voice_index: int,
+    voice_name: SATBVoice,
+    given_voice: SATBVoice,
+    factory: TemporalNoteFactory,
+) -> tuple[TemporalNoteLike, ...]:
+    """Preserve soprano attacks and merge sustained accompaniment spans."""
+
+    specifications: list[tuple[int, float, float, int, int]] = []
+    for index, (source_note, voicing) in enumerate(
+        zip(source_notes, solution.voicings, strict=True)
+    ):
+        pitch = voicing[voice_index]
+        start = float(source_note.start_beat)
+        end = float(source_note.end_beat)
+        channel = source_note.midi_channel if voice_name == given_voice else voice_index
+        continues_harmony = (
+            voice_name != given_voice
+            and index > 0
+            and (
+                solution.melodic_roles[index]
+                in {
+                    "passing_tone",
+                    "upper_neighbor",
+                    "lower_neighbor",
+                    "anticipation",
+                }
+                or solution.melodic_roles[index - 1] == "suspension"
+            )
+        )
+        if (
+            continues_harmony
+            and specifications
+            and specifications[-1][0] == pitch
+            and math.isclose(specifications[-1][2], start)
+        ):
+            previous = specifications[-1]
+            specifications[-1] = (
+                previous[0],
+                previous[1],
+                end,
+                previous[3],
+                previous[4],
+            )
+            continue
+        specifications.append((pitch, start, end, source_note.velocity, channel))
+
+    return tuple(
+        factory(
+            pitch,
+            start,
+            end - start,
+            velocity=velocity,
+            midi_channel=channel,
+        )
+        for pitch, start, end, velocity, channel in specifications
     )
 
 

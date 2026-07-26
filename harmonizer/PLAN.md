@@ -88,13 +88,17 @@ Le jalon livre maintenant :
 - faits de durée et classification déclarative des notes contextuellement
   courtes ;
 - une variable CSP de rôle par note, choisie dans l'étape harmonique ;
-- canalisation bidirectionnelle rôle–accord–voicing et support harmonique
-  précédent/suivant ;
+- canalisation bidirectionnelle rôle–accord–voicing, avec maintien exact du
+  voicing inférieur pour les rôles de continuation ;
 - triade complète sous passage, broderie ou anticipation ;
 - politique d'omission de la note de résolution sous une suspension ;
 - rôle et métrique sélectionnés exposés dans la solution ;
-- exemple MuSES de huit mesures couvrant les cinq rôles étrangers avec cinq
-  ancrages harmoniques locaux, sans plan complet ni étiquette de rôle.
+- fusion à l'export des voix inférieures tenues, sans réarticulation à chaque
+  note de soprano ;
+- exemple MuSES de huit mesures harmonisant la majorité des attaques et
+  illustrant broderie inférieure, suspension et anticipation avec deux
+  ancrages harmoniques locaux, sans plan complet ni étiquette de rôle ;
+- couverture ciblée par tests des passages et broderies supérieures.
 
 Passages, broderies et anticipations exigent désormais une durée d'au plus une
 noire et non supérieure à celles des deux notes voisines. Une note conjointe

@@ -548,6 +548,33 @@ def test_long_weak_step_is_harmonized_instead_of_called_passing() -> None:
     )
 
 
+def test_passing_tone_continues_previous_voicing_not_following_harmony() -> None:
+    solution = harmonize_notes(
+        (72, 74, 76, 74, 71, 72),
+        metric_strengths=(
+            "strong",
+            "weak",
+            "strong",
+            "strong",
+            "strong",
+            "strong",
+        ),
+        note_durations=(1.0, 1.0, 2.0, 2.0, 2.0, 2.0),
+        harmonic_plan=("I", "I", "vi", "ii", "V", "I"),
+        traversal=ChoiceTraversal.DEPTH_FIRST,
+        max_solutions=1,
+    )[0]
+
+    assert solution.melodic_roles[:3] == (
+        "chord_tone",
+        "passing_tone",
+        "chord_tone",
+    )
+    assert solution.chords[:3] == ("degree_I", "degree_I", "degree_vi")
+    assert solution.voicings[0][1:] == solution.voicings[1][1:]
+    assert solution.voicings[1][1:] != solution.voicings[2][1:]
+
+
 @pytest.mark.parametrize(
     ("melody", "expected_role"),
     (
