@@ -77,10 +77,11 @@ variables supplémentaires choisissent accord et renversement :
 ```
 
 La voix donnée devient un domaine singleton ; elle peut être soprano, alto,
-ténor ou basse. Une politique générique `PriorityMRVChoicePolicy` impose les
-positions temporelles puis applique MRV. Les mêmes règles `CHOICE` traitent
-les accords, renversements et notes parce que tous suivent le protocole de
-domaine fini.
+ténor ou basse. Une politique générique `PriorityMRVChoicePolicy` applique
+MRV à l'intérieur de l'étape courante. Le programme expose les `CHOICE` en
+deux étapes : accords d'abord, puis renversements et notes. L'absence de choix
+harmonique fait avancer vers la réalisation sans supprimer les points de
+retour harmoniques.
 
 ### Construction différée des voicings
 
@@ -92,11 +93,12 @@ Les règles écrivent explicitement :
 - `R-SPACING-001` à `003` par trois contraintes arithmétiques ;
 - l'appartenance des voix aux hauteurs de l'accord ;
 - la basse correspondant au renversement ;
-- la complétude de la triade par un prédicat calculé pur.
+- la complétude de la triade ou de `V7` par `NVALUE`.
 
-Le cas `C5–A4–B4–C5` produit respectivement 26, 30, 7 et 26 voicings avant
-propagation. Python construit le vocabulaire factuel indexé ; la règle effectue
-les jointures et décide quels sextuplets
+Le cas `C5–A4–B4–C5` produit `30, 30, 17, 30` voicings complets, puis
+`20, 24, 7, 20` après les règles verticales. La préparation de la forme
+parfaite conserve `3, 24, 5, 3` supports avant la recherche. Python construit
+le vocabulaire factuel indexé ; la règle effectue les jointures et décide quels sextuplets
 `accord–renversement–soprano–alto–ténor–basse` existent.
 
 ### Canalisation et transitions
@@ -107,17 +109,23 @@ les jointures et décide quels sextuplets
 - un accord, renversement ou note disparaît dès qu'aucun voicing ne le
   supporte.
 
-`note_transition.rules` recherche ensuite un support dans la position voisine.
-La conjonction est visible dans la règle :
+`voice_leading_conformance.rules` décrit chaque paire voisine, produit des
+faits `violates R-*`, puis classe les paires sans violation. Les règles
+arithmétiques couvrent :
 
 - progression de degrés autorisée ;
 - mouvement mélodique légal ;
 - absence de quintes, octaves et unissons parallèles ;
-- mouvement global légal.
+- mouvements directs vers les quintes et octaves aux voix extrêmes ;
+- résolution de la sensible, de la septième et du `I64`.
 
-Les opérations musicales élémentaires sont des `ComputedPredicate` enregistrés
-et purs. Elles testent un couple donné ; elles ne choisissent aucune valeur et
-ne pilotent ni propagation ni backtracking.
+`note_transition.rules` recherche ensuite un support légal dans la position
+voisine et joint explicitement le `voicing_candidate` encore vivant. Dans ce
+profil sans ajout de valeurs, la classification ground est préparée une fois ;
+la révision de support reste dans le point fixe de chaque branche. Une
+`CHOICE` retire des composantes, la canalisation retire les voicings, puis les
+supports sont révisés avant la décision suivante. Aucun `ComputedPredicate`
+musical n'est enregistré par ce modèle.
 
 ## Probabilités
 
@@ -167,6 +175,27 @@ problème. La frontière MuSES n'ajoute que 14,32 ms (`+1,6 %`). Face au premier
 squelette tonal à 962,38 ms, le filtrage des doublures réduit le temps de
 6,9 % et les nœuds de 14 à 8.
 
+### Mesure du catalogue de conformité déclaratif
+
+Après remplacement des callbacks musicaux par les faits de violation `R-*`,
+une mesure isolée du 25 juillet 2026 donne :
+
+| Cas | Préparation | Recherche | Faits préparés | Nœuds | Échecs |
+|---|---:|---:|---:|---:|---:|
+| 2 notes, cadence parfaite | 0,307 s | 0,059 s | 1 144 | 3 | 0 |
+| 4 notes, `I–ii–V7–I` | 0,984 s | 0,732 s | 4 547 | 8 | 0 |
+| 8 notes, rythme `0,1,2,3,4,4,5,6` | 4,428 s | 20,261 s | 14 096 | 57 | 3 |
+| 16 notes / 8 mesures, mélodie seule, étapes réversibles | 9,793 s | 9,752 s | — | 28 | 0 |
+
+La dernière ligne est une mesure indicative du 26 juillet 2026 après
+suppression du profil harmonique imposé. La préparation matérialise des
+chemins et paires de voix afin que chaque
+violation reste explicable. Classer ces paires une fois, puis joindre le
+candidat voisin vivant pendant la révision, ramène la recherche 8 notes de
+68,831 s à 20,261 s sans déplacer de règle musicale en Python. Le coût restant
+est celui du catalogue explicable et de ses faits de provenance ; il ne vise
+pas la performance d'un solveur d'harmonie spécialisé.
+
 ## Évaluation des mécanismes avancés
 
 ### Nogoods
@@ -201,7 +230,12 @@ Le modèle couvre désormais `I`, `ii`, `IV`, `V`, `V7`, `vi`, `vii°`,
 fondamentale/premier renversement, `I64` cadentiel, les règles de doublure du
 sous-ensemble, sensible et septième résolues, quatre profils cadentiels et un
 rythme harmonique explicite. Plusieurs notes d'un même événement partagent les
-mêmes variables harmoniques.
+mêmes variables harmoniques. Un plan harmonique optionnel ajoute un degré
+factuel par événement ; la règle `remove_chord_outside_harmonic_plan` filtre
+le domaine sans imposer les notes ni les renversements. Il n'est pas utilisé
+dans l'exemple étendu : les règles filtrent les accords depuis la soprano, la
+cadence et les relations `harmonic_successor`, puis l'étape `harmonic_plan`
+choisit `I–IV–I–IV–I–IV–ii–V–I` avant l'étape `satb_realization`.
 
 Le prochain travail reste :
 
@@ -209,7 +243,8 @@ Le prochain travail reste :
 2. six-quatre de passage, pédale et arpège ;
 3. exceptions complètes de sensible et de doublure ;
 4. notes étrangères, métrique, autres tonalités et modulations ;
-5. tests positif, négatif, limite et exception par identifiant stable.
+5. extension de la matrice positif/négatif/limite/exception déjà livrée pour
+   les identifiants du noyau.
 
 Un mécanisme avancé de recherche ne sera ajouté que si ces règles produisent
 un profil et un oracle qui le justifient.

@@ -2,6 +2,9 @@
 
 from __future__ import annotations
 
+from collections.abc import Mapping, Sequence
+
+from .choice_fixed_point import SessionPropagator
 from .computed import PredicateRegistry
 from .parser_actions import (
     _parse_action as _parse_action,
@@ -60,6 +63,7 @@ from .parser_terms import (
     parse_term as parse_term,
 )
 from .premises import Premise
+from .programs import RuleProgram, RuleStep
 from .rules import Rule, RuleGroup
 
 
@@ -129,6 +133,135 @@ def parse_rule_groups(
         except ValueError as error:
             raise ParseError(str(error)) from error
     return tuple(groups)
+
+
+def parse_rule_program(
+    text: str,
+    groups: Sequence[RuleGroup],
+    *,
+    constraints: Mapping[str, SessionPropagator] | None = None,
+) -> RuleProgram:
+    """Parse an inspectable orchestration manifest.
+
+    The manifest references rule groups parsed from ordinary ``.rules`` files.
+    Persistent propagators may be referenced by name when supplied through
+    ``constraints``.
+    """
+
+    lines = _normalized_lines(text)
+    if not lines:
+        raise ParseError("a rule program cannot be empty")
+    header = lines[0].split(maxsplit=1)
+    if len(header) != 2 or header[0] != "PROGRAM":
+        raise ParseError("a rule program must start with PROGRAM <name>")
+    if lines[-1] != "END_PROGRAM":
+        raise ParseError(f"program {header[1]!r} is missing END_PROGRAM")
+
+    group_catalogue = tuple(groups)
+    available_groups = {group.name: group for group in group_catalogue}
+    if len(available_groups) != len(group_catalogue):
+        raise ParseError("program group catalogue contains duplicate names")
+    available_constraints = dict(constraints or {})
+    preparation: list[RuleGroup] = []
+    choices: list[RuleGroup] = []
+    propagation: list[RuleGroup] = []
+    interpretation: list[RuleGroup] = []
+    steps: list[RuleStep] = []
+    position = 1
+    while position < len(lines) - 1:
+        line = lines[position]
+        if line.startswith("PREPARE "):
+            preparation.append(
+                _program_group(line.removeprefix("PREPARE "), available_groups)
+            )
+            position += 1
+            continue
+        if line.startswith("CHOOSE "):
+            choices.append(
+                _program_group(line.removeprefix("CHOOSE "), available_groups)
+            )
+            position += 1
+            continue
+        if line.startswith("PROPAGATE "):
+            propagation.append(
+                _program_group(line.removeprefix("PROPAGATE "), available_groups)
+            )
+            position += 1
+            continue
+        if line.startswith("INTERPRET "):
+            interpretation.append(
+                _program_group(line.removeprefix("INTERPRET "), available_groups)
+            )
+            position += 1
+            continue
+        if not line.startswith("STEP "):
+            raise ParseError(f"unexpected program directive {line!r}")
+        step_name = line.removeprefix("STEP ").strip()
+        if not step_name:
+            raise ParseError("STEP requires a name")
+        position += 1
+        step_groups: list[RuleGroup] = []
+        constraint_names: list[str] = []
+        propagators: list[SessionPropagator] = []
+        while position < len(lines) - 1 and lines[position] != "END_STEP":
+            directive = lines[position]
+            if directive.startswith("GROUP "):
+                step_groups.append(
+                    _program_group(
+                        directive.removeprefix("GROUP "),
+                        available_groups,
+                    )
+                )
+            elif directive.startswith("CONSTRAINT "):
+                constraint_name = directive.removeprefix("CONSTRAINT ").strip()
+                if constraint_name not in available_constraints:
+                    raise ParseError(
+                        f"unknown program constraint {constraint_name!r}"
+                    )
+                constraint_names.append(constraint_name)
+                propagators.append(available_constraints[constraint_name])
+            else:
+                raise ParseError(
+                    f"unexpected STEP directive {directive!r}"
+                )
+            position += 1
+        if position >= len(lines) - 1:
+            raise ParseError(f"step {step_name!r} is missing END_STEP")
+        position += 1
+        try:
+            steps.append(
+                RuleStep(
+                    step_name,
+                    tuple(step_groups),
+                    tuple(constraint_names),
+                    tuple(propagators),
+                )
+            )
+        except ValueError as error:
+            raise ParseError(str(error)) from error
+
+    try:
+        return RuleProgram(
+            name=header[1],
+            preparation_groups=tuple(preparation),
+            choice_groups=tuple(choices),
+            propagation_groups=tuple(propagation),
+            interpretation_groups=tuple(interpretation),
+            steps=tuple(steps),
+        )
+    except ValueError as error:
+        raise ParseError(str(error)) from error
+
+
+def _program_group(
+    name: str,
+    groups: Mapping[str, RuleGroup],
+) -> RuleGroup:
+    normalized = name.strip()
+    try:
+        return groups[normalized]
+    except KeyError as error:
+        raise ParseError(f"unknown program group {normalized!r}") from error
 
 
 def _parse_rule_lines(

@@ -2,7 +2,230 @@
 # positions structurelles. Cela rend le même groupe applicable aux cadences
 # parfaite, plagale, rompue et demi-cadence.
 
+GROUP derive_harmonic_plan
+    # La structure de cadence est dérivée de faits d'entrée, pas construite
+    # par le code Python du modèle.
+    RULE constrain_initial_harmony
+    WHEN
+        ($position phrase_role initial)
+    THEN
+        ADD ($position restrict_chord true)
+        ADD ($position allowed_form_chord degree_I)
+        ADD ($position restrict_inversion true)
+        ADD ($position allowed_form_inversion root)
+    END
+
+    RULE constrain_perfect_cadence_penultimate
+    WHEN
+        (roy_note_harmonization cadence perfect)
+        ($position phrase_role penultimate)
+    THEN
+        ADD ($position restrict_chord true)
+        ADD ($position allowed_form_chord degree_V)
+        ADD ($position allowed_form_chord degree_V7)
+        ADD ($position restrict_inversion true)
+        ADD ($position allowed_form_inversion root)
+    END
+
+    RULE constrain_plagal_cadence_penultimate
+    WHEN
+        (roy_note_harmonization cadence plagal)
+        ($position phrase_role penultimate)
+    THEN
+        ADD ($position restrict_chord true)
+        ADD ($position allowed_form_chord degree_IV)
+        ADD ($position restrict_inversion true)
+        ADD ($position allowed_form_inversion root)
+    END
+
+    RULE constrain_deceptive_cadence_penultimate
+    WHEN
+        (roy_note_harmonization cadence deceptive)
+        ($position phrase_role penultimate)
+    THEN
+        ADD ($position restrict_chord true)
+        ADD ($position allowed_form_chord degree_V)
+        ADD ($position allowed_form_chord degree_V7)
+        ADD ($position restrict_inversion true)
+        ADD ($position allowed_form_inversion root)
+    END
+
+    RULE constrain_tonic_cadence_final
+    WHEN
+        (roy_note_harmonization cadence $cadence)
+        ($position phrase_role final)
+        $cadence != deceptive
+        $cadence != half
+    THEN
+        ADD ($position restrict_chord true)
+        ADD ($position allowed_form_chord degree_I)
+        ADD ($position restrict_inversion true)
+        ADD ($position allowed_form_inversion root)
+    END
+
+    RULE constrain_deceptive_cadence_final
+    WHEN
+        (roy_note_harmonization cadence deceptive)
+        ($position phrase_role final)
+    THEN
+        ADD ($position restrict_chord true)
+        ADD ($position allowed_form_chord degree_vi)
+        ADD ($position restrict_inversion true)
+        ADD ($position allowed_form_inversion root)
+    END
+
+    RULE constrain_half_cadence_final
+    WHEN
+        (roy_note_harmonization cadence half)
+        ($position phrase_role final)
+    THEN
+        ADD ($position restrict_chord true)
+        ADD ($position allowed_form_chord degree_V)
+        ADD ($position allowed_form_chord degree_V7)
+        ADD ($position restrict_inversion true)
+        ADD ($position allowed_form_inversion root)
+    END
+
+    RULE derive_perfect_cadence_preparation
+    WHEN
+        (roy_note_harmonization cadence perfect)
+        ($earlier harmonic_successor $preparation)
+        ($preparation harmonic_successor $penultimate)
+        ($penultimate phrase_role penultimate)
+    THEN
+        ADD ($preparation phrase_role precadential)
+    END
+
+    RULE extend_harmonic_role_over_shared_slot
+    WHEN
+        ($representative phrase_role $role)
+        ($representative chord_variable $variable)
+        ($position chord_variable $variable)
+    THEN
+        ADD ($position phrase_role $role)
+    END
+
+    RULE seed_extended_tonal_arc
+    WHEN
+        ($problem harmonic_plan_profile extended_tonal_arc)
+        ($position phrase_role initial)
+    THEN
+        ADD ($position harmonic_plan_stage extended_0)
+        ADD ($position planned_chord degree_I)
+    END
+
+    RULE extend_tonal_arc_to_IV
+    WHEN
+        ($left harmonic_plan_stage extended_0)
+        ($left harmonic_successor $right)
+    THEN
+        ADD ($right harmonic_plan_stage extended_1)
+        ADD ($right planned_chord degree_IV)
+    END
+
+    RULE extend_tonal_arc_back_to_I
+    WHEN
+        ($left harmonic_plan_stage extended_1)
+        ($left harmonic_successor $right)
+    THEN
+        ADD ($right harmonic_plan_stage extended_2)
+        ADD ($right planned_chord degree_I)
+    END
+
+    RULE extend_tonal_arc_to_vi
+    WHEN
+        ($left harmonic_plan_stage extended_2)
+        ($left harmonic_successor $right)
+    THEN
+        ADD ($right harmonic_plan_stage extended_3)
+        ADD ($right planned_chord degree_vi)
+    END
+
+    RULE extend_tonal_arc_to_ii
+    WHEN
+        ($left harmonic_plan_stage extended_3)
+        ($left harmonic_successor $right)
+    THEN
+        ADD ($right harmonic_plan_stage extended_4)
+        ADD ($right planned_chord degree_ii)
+    END
+
+    RULE extend_tonal_arc_to_V
+    WHEN
+        ($left harmonic_plan_stage extended_4)
+        ($left harmonic_successor $right)
+    THEN
+        ADD ($right harmonic_plan_stage extended_5)
+        ADD ($right planned_chord degree_V)
+    END
+
+    RULE close_extended_tonal_arc_on_I
+    WHEN
+        ($left harmonic_plan_stage extended_5)
+        ($left harmonic_successor $right)
+    THEN
+        ADD ($right harmonic_plan_stage extended_6)
+        ADD ($right planned_chord degree_I)
+    END
+END_GROUP
+
 GROUP enforce_tonal_form
+    # La fonction est une conséquence lisible de l'accord sélectionné. Elle
+    # n'est ni un profil d'entrée ni un callback Python.
+    RULE classify_selected_tonic
+    WHEN
+        ($position chord_variable $variable)
+        ($variable value $chord)
+        $chord == degree_I
+    THEN
+        ADD ($position harmonic_function tonic)
+    END
+
+    RULE classify_selected_predominant
+    WHEN
+        ($position chord_variable $variable)
+        ($variable value $chord)
+        $chord != degree_I
+        $chord != degree_V
+        $chord != degree_V7
+        $chord != degree_vii
+    THEN
+        ADD ($position harmonic_function predominant)
+    END
+
+    RULE classify_selected_dominant
+    WHEN
+        ($position chord_variable $variable)
+        ($variable value $chord)
+        $chord != degree_I
+        $chord != degree_ii
+        $chord != degree_IV
+        $chord != degree_vi
+    THEN
+        ADD ($position harmonic_function dominant)
+    END
+
+    RULE reject_extended_tonal_arc_with_wrong_length
+    WHEN
+        ($problem harmonic_plan_profile extended_tonal_arc)
+        ($position phrase_role final)
+        NOT EXISTS ($position harmonic_plan_stage extended_6)
+        ($position chord_variable $variable)
+        ($variable candidate $chord)
+    THEN
+        REMOVE ($variable candidate $chord)
+    END
+
+    RULE remove_chord_outside_harmonic_plan
+    WHEN
+        ($position planned_chord $planned_chord)
+        ($position chord_variable $variable)
+        ($variable candidate $chord)
+        $chord != $planned_chord
+    THEN
+        REMOVE ($variable candidate $chord)
+    END
+
     RULE remove_chord_forbidden_by_form
     WHEN
         ($position restrict_chord true)

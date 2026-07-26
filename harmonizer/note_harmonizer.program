@@ -1,0 +1,17 @@
+# Orchestration déclarative inspirée des « étapes » de Laurière.
+PROGRAM note_harmonizer
+    STEP harmonic_plan
+        GROUP choose_harmonic_plan
+    END_STEP
+    STEP satb_realization
+        GROUP choose_satb_realization
+    END_STEP
+    PROPAGATE apply_harmonizer_decisions
+    PROPAGATE classify_csp_domains
+    PROPAGATE enforce_tonal_form
+    PROPAGATE maintain_note_voicing_channel
+    PROPAGATE update_contextual_note_weights
+    PROPAGATE propagate_note_harmonic_transitions
+    PROPAGATE classify_csp_problems
+    INTERPRET interpret_note_harmonization
+END_PROGRAM

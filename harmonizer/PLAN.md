@@ -53,7 +53,8 @@ Le jalon livre maintenant :
 - table de progressions fonctionnelles ;
 - forme initiale `I` et cadence finale `V → I` à l'état fondamental ;
 - marginales conditionnelles des accords ;
-- exemple MuSES `C5–A4–B4–C5` donnant `I–ii–V7–I`.
+- exemple MuSES `C5–A4–B4–C5` harmonisé depuis la ligne seule et oracle
+  ciblé `I–ii–V7–I` pour la septième de dominante.
 
 ## Jalon 3b — enrichissement tonal — premier palier livré
 
@@ -67,11 +68,21 @@ Le jalon livre maintenant :
 - oracles ciblés et nouvelle baseline de performance.
 - exemple MuSES long de huit notes, `I–V–I–IV6–ii–ii–V7–I`, exporté en
   MIDI et MusicXML.
+- programme à étapes réversibles : choix du plan harmonique, puis réalisation
+  SATB, avec retour possible vers un autre plan ;
+- exemple MuSES étendu de huit mesures et seize notes produisant
+  `I–IV–I–IV–I–IV–ii–V–I` depuis la seule soprano, le rythme et la cadence,
+  exporté en MIDI et MusicXML ;
+- complétude par `NVALUE` et doublures par `COUNT`, sans callback musical ;
+- faits de violation `R-*` pour mouvement, chevauchement, parallèles,
+  mouvements directs, sensible, septième et `I64` ;
+- tests positifs, négatifs, limites et exceptions du noyau de conformité.
 
 Restent les renversements de `V7`, autres septièmes, six-quatre de passage ou
 de pédale, exceptions complètes, tonalités, notes étrangères et métrique.
-Chaque extension stable `R-*` recevra ses cas positif, négatif, limite et
-exception.
+Chaque nouvelle extension stable `R-*` recevra ses cas positif, négatif,
+limite et exception sur le modèle de
+`tests/test_harmonizer_conformance.py`.
 
 ## Jalon 4 — préférences et probabilités — premier palier livré
 

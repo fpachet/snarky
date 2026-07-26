@@ -7,7 +7,14 @@ from harmonizer import (
     sample_harmonization,
 )
 from harmonizer.solver import build_harmonizer_model, harmonize
-from snarky import Atom, ChoiceTraversal, FiniteSequence, Number, Triple
+from snarky import (
+    Atom,
+    ChoiceEventKind,
+    ChoiceTraversal,
+    FiniteSequence,
+    Number,
+    Triple,
+)
 
 
 def test_first_harmonizer_returns_legal_weighted_satb_solutions() -> None:
@@ -76,13 +83,30 @@ def test_note_harmonizer_generates_and_chooses_individual_notes() -> None:
     model = build_note_harmonizer_model(melody)
     solutions = harmonize_notes(melody, max_solutions=3)
 
-    assert model.generated_voicings == (20, 24, 7, 20)
+    assert model.generated_voicings == (3, 24, 5, 3)
     assert model.program.manifest() == (
-        ("preparation", ("generate_candidate_voicings",)),
-        ("choice", ("apply_csp_choices",)),
+        (
+            "preparation",
+            (
+                "derive_harmonic_plan",
+                "prepare_harmonic_domains",
+                "generate_candidate_voicings",
+                "describe_candidate_voicings",
+                "enforce_vertical_conformance",
+                "prepare_tonal_form",
+                "prepare_note_voicing_channel",
+                "describe_satb_transitions",
+                "derive_satb_resolution_exceptions",
+                "detect_satb_transition_violations",
+                "classify_legal_satb_transitions",
+            ),
+        ),
+        ("step:harmonic_plan", ("choose_harmonic_plan",)),
+        ("step:satb_realization", ("choose_satb_realization",)),
         (
             "propagation",
             (
+                "apply_harmonizer_decisions",
                 "classify_csp_domains",
                 "enforce_tonal_form",
                 "maintain_note_voicing_channel",
@@ -102,26 +126,36 @@ def test_note_harmonizer_generates_and_chooses_individual_notes() -> None:
         for solution in solutions
     )
     assert all(
-        solution.chords[:2] == ("degree_I", "degree_ii")
+        solution.chords[0] == "degree_I"
+        and solution.chords[-2] in {"degree_V", "degree_V7"}
         and solution.chords[-1] == "degree_I"
         for solution in solutions
     )
     assert solutions[0].chords == (
         "degree_I",
-        "degree_ii",
-        "degree_V7",
+        "degree_IV",
+        "degree_V",
         "degree_I",
     )
     assert solutions[0].voicings == (
-        (72, 67, 64, 48),
-        (69, 65, 62, 50),
-        (71, 65, 62, 43),
         (72, 64, 55, 48),
+        (69, 65, 60, 41),
+        (71, 62, 50, 43),
+        (72, 64, 55, 36),
     )
     assert all(
-        decision.point.startswith("apply_csp_choices:choose_csp_value:")
+        decision.point.startswith(
+            (
+                "choose_harmonic_plan:choose_harmonic_chord:",
+                "choose_satb_realization:",
+            )
+        )
         for solution in solutions
         for decision in solution.decisions
+    )
+    assert all(
+        any(event.kind is ChoiceEventKind.STEP for event in solution.choice_events)
+        for solution in solutions
     )
     assert any(
         event.rule_group == "update_contextual_note_weights"
@@ -132,8 +166,8 @@ def test_note_harmonizer_generates_and_chooses_individual_notes() -> None:
         for event in solutions[0].inference_events
     )
     assert any(
-        event.rule_group == "enforce_tonal_form"
-        for event in solutions[0].inference_events
+        event.rule_group == "prepare_harmonic_domains"
+        for event in model.preparation_events
     )
     assert any(
         event.rule_group == "propagate_note_harmonic_transitions"
@@ -153,7 +187,13 @@ def test_contextual_weighted_sampling_is_seed_reproducible() -> None:
 
 def test_chord_choice_and_first_inversion_are_exposed_declaratively() -> None:
     melody = (72, 71)
-    solution = harmonize_notes(melody, cadence="half", max_solutions=1)[0]
+    solutions = harmonize_notes(melody, cadence="half", max_solutions=10)
+    solution = next(
+        item
+        for item in solutions
+        if item.inversions[0] == "first"
+        and item.chords[-1] == "degree_V"
+    )
 
     assert solution.chords == (
         "degree_IV",
@@ -186,7 +226,11 @@ def test_chord_choice_and_first_inversion_are_exposed_declaratively() -> None:
 
 
 def test_dominant_seventh_and_tendency_tones_resolve() -> None:
-    solution = harmonize_notes((72, 69, 71, 72), max_solutions=1)[0]
+    solution = harmonize_notes(
+        (72, 69, 71, 72),
+        harmonic_plan=("I", "ii", "V7", "I"),
+        max_solutions=1,
+    )[0]
 
     assert solution.chords[-2:] == ("degree_V7", "degree_I")
     dominant, tonic = solution.voicings[-2:]
@@ -199,10 +243,11 @@ def test_dominant_seventh_and_tendency_tones_resolve() -> None:
 
 
 def test_diminished_leading_tone_chord_has_legal_first_inversion_voicings() -> None:
-    model = build_note_harmonizer_model((71, 72))
-    candidates = []
-    for fact in model.csp.facts:
-        entity = fact.entity
+    model = build_note_harmonizer_model((71, 71), cadence="half")
+    generated = set()
+    removed_by_vertical_rules = set()
+    for event in model.preparation_events:
+        entity = event.fact.entity
         if (
             isinstance(entity, Triple)
             and entity.subject == model.positions[0]
@@ -210,7 +255,14 @@ def test_diminished_leading_tone_chord_has_legal_first_inversion_voicings() -> N
             and isinstance(entity.object, FiniteSequence)
             and entity.object.elements[0] == Atom("degree_vii")
         ):
-            candidates.append(entity.object.elements)
+            if event.rule_group == "generate_candidate_voicings":
+                generated.add(entity.object.elements)
+            if (
+                event.rule_group == "enforce_vertical_conformance"
+                and event.kind.value == "remove"
+            ):
+                removed_by_vertical_rules.add(entity.object.elements)
+    candidates = generated - removed_by_vertical_rules
 
     assert candidates
     for chord, inversion, *notes in candidates:
@@ -311,6 +363,85 @@ def test_long_form_harmonization_uses_a_prolonged_predominant() -> None:
     )
 
 
+def test_eight_bar_form_derives_a_plan_from_the_soprano_in_two_steps() -> None:
+    solution = harmonize_notes(
+        (67, 76, 69, 72, 72, 76, 65, 69, 67, 64, 69, 72, 74, 69, 71, 72),
+        harmonic_rhythm=(
+            0,
+            0,
+            1,
+            1,
+            2,
+            2,
+            3,
+            3,
+            4,
+            4,
+            5,
+            5,
+            6,
+            6,
+            7,
+            8,
+        ),
+        traversal=ChoiceTraversal.DEPTH_FIRST,
+        max_solutions=1,
+    )[0]
+
+    assert solution.chords == (
+        "degree_I",
+        "degree_I",
+        "degree_IV",
+        "degree_IV",
+        "degree_I",
+        "degree_I",
+        "degree_IV",
+        "degree_IV",
+        "degree_I",
+        "degree_I",
+        "degree_IV",
+        "degree_IV",
+        "degree_ii",
+        "degree_ii",
+        "degree_V",
+        "degree_I",
+    )
+    assert solution.voicings == (
+        (67, 60, 52, 48),
+        (76, 64, 55, 48),
+        (69, 65, 60, 41),
+        (72, 65, 57, 41),
+        (72, 64, 55, 36),
+        (76, 64, 55, 36),
+        (65, 60, 57, 41),
+        (69, 60, 53, 41),
+        (67, 60, 52, 36),
+        (64, 60, 55, 36),
+        (69, 60, 53, 41),
+        (72, 60, 57, 41),
+        (74, 65, 57, 38),
+        (69, 65, 57, 38),
+        (71, 62, 55, 43),
+        (72, 64, 55, 48),
+    )
+    assert any(
+        event.rule_group == "derive_harmonic_plan"
+        and event.rule_name == "constrain_perfect_cadence_penultimate"
+        for event in solution.inference_events
+    )
+    assert any(
+        event.kind is ChoiceEventKind.STEP
+        and event.detail == "harmonic_plan -> satb_realization"
+        for event in solution.choice_events
+    )
+    assert {
+        event.fact.entity.object
+        for event in solution.inference_events
+        if isinstance(event.fact.entity, Triple)
+        and event.fact.entity.relation == Atom("harmonic_function")
+    } == {Atom("tonic"), Atom("predominant"), Atom("dominant")}
+
+
 def test_harmonic_rhythm_and_cadence_are_validated() -> None:
     with pytest.raises(ValueError, match="one slot number per note"):
         build_note_harmonizer_model((71, 72), harmonic_rhythm=(0,))
@@ -322,4 +453,30 @@ def test_harmonic_rhythm_and_cadence_are_validated() -> None:
         build_note_harmonizer_model(
             (71, 72),
             cadence="unknown",  # type: ignore[arg-type]
+        )
+    with pytest.raises(ValueError, match="one chord label per harmonic slot"):
+        build_note_harmonizer_model(
+            (71, 72),
+            harmonic_plan=("V",),
+        )
+    with pytest.raises(ValueError, match="labels must be"):
+        build_note_harmonizer_model(
+            (71, 72),
+            harmonic_plan=("V", "unknown"),  # type: ignore[arg-type]
+        )
+    with pytest.raises(ValueError, match="mutually exclusive"):
+        build_note_harmonizer_model(
+            (71, 72),
+            harmonic_plan=("V", "I"),
+            harmonic_plan_profile="extended_tonal_arc",
+        )
+    with pytest.raises(ValueError, match="profile must be"):
+        build_note_harmonizer_model(
+            (71, 72),
+            harmonic_plan_profile="unknown",  # type: ignore[arg-type]
+        )
+    with pytest.raises(ValueError, match="no legal tonal SATB voicing"):
+        build_note_harmonizer_model(
+            (71, 72),
+            harmonic_plan_profile="extended_tonal_arc",
         )

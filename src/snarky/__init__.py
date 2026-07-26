@@ -31,6 +31,7 @@ from .choice import (
     ChoiceProvider,
     ChoiceSearchResult,
     ChoiceSearchStatus,
+    ChoiceSearchStep,
     ChoiceSolution,
     ChoiceTraversal,
     DomWdegChoicePolicy,
@@ -119,6 +120,7 @@ from .parser import (
     parse_arithmetic_expression,
     parse_premises,
     parse_rule_groups,
+    parse_rule_program,
     parse_rules,
     parse_term,
 )
@@ -148,7 +150,7 @@ from .premises import (
     nvalue,
     unique,
 )
-from .programs import RuleProgram
+from .programs import RuleProgram, RuleStep
 from .propagation import (
     DomainCheckpoint,
     DomainReduction,
@@ -211,6 +213,7 @@ _LEGACY_ALL = [
     "ChoiceProvider",
     "ChoiceSearchResult",
     "ChoiceSearchStatus",
+    "ChoiceSearchStep",
     "ChoiceSolution",
     "ChoiceTraversal",
     "ComparisonOperator",
@@ -287,6 +290,7 @@ _LEGACY_ALL = [
     "Rule",
     "RuleGroup",
     "RuleProgram",
+    "RuleStep",
     "RuleGroupTemplate",
     "SearchNode",
     "SearchStatus",
@@ -337,6 +341,7 @@ _LEGACY_ALL = [
     "nvalue",
     "parse_arithmetic_expression",
     "parse_premises",
+    "parse_rule_program",
     "parse_rule_groups",
     "parse_rules",
     "parse_term",

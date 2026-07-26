@@ -70,6 +70,7 @@ class ChoiceDecision:
 
 
 class ChoiceEventKind(StrEnum):
+    STEP = "step"
     CHOICE = "choice"
     DECISION = "decision"
     CONTRADICTION = "contradiction"
@@ -115,6 +116,22 @@ class ChoiceSearchResult:
     events: tuple[ChoiceEvent, ...]
 
 
+@dataclass(frozen=True, slots=True)
+class ChoiceSearchStep:
+    """One sequential fixed-point and choice phase of a search."""
+
+    name: str
+    groups: tuple[RuleGroup, ...]
+    choices: ChoiceProvider
+    propagators: tuple[SessionPropagator, ...] = ()
+
+    def __post_init__(self) -> None:
+        if not self.name:
+            raise ValueError("a choice-search step needs a name")
+        object.__setattr__(self, "groups", tuple(self.groups))
+        object.__setattr__(self, "propagators", tuple(self.propagators))
+
+
 @dataclass(slots=True)
 class _SearchNode:
     session: InferenceSession
@@ -126,6 +143,7 @@ class _SearchNode:
     incoming_variable: Term | None = None
     incoming_value: Term | None = None
     before_log_volume: float | None = None
+    step: int = 0
 
 
 @dataclass(slots=True)
@@ -219,7 +237,8 @@ class SessionChoiceSearch:
     reversible_depth_first: bool = True
     lazy_frontier: bool = True
     propagators: tuple[SessionPropagator, ...] = ()
-    _fixed_point: JointFixedPointScheduler = field(
+    steps: tuple[ChoiceSearchStep, ...] = ()
+    _fixed_points: tuple[JointFixedPointScheduler, ...] = field(
         init=False,
         repr=False,
         compare=False,
@@ -228,19 +247,29 @@ class SessionChoiceSearch:
     def __post_init__(self) -> None:
         object.__setattr__(self, "groups", tuple(self.groups))
         object.__setattr__(self, "propagators", tuple(self.propagators))
+        object.__setattr__(self, "steps", tuple(self.steps))
         if self.max_nodes < 1:
             raise ValueError("max_nodes must be positive")
         if self.max_solutions < 1:
             raise ValueError("max_solutions must be positive")
         if self.max_group_passes < 1:
             raise ValueError("max_group_passes must be positive")
+        names = tuple(step.name for step in self.steps)
+        if len(names) != len(set(names)):
+            raise ValueError("choice-search step names must be unique")
+        scheduled_steps = self.steps or (
+            ChoiceSearchStep("search", (), self.choices),
+        )
         object.__setattr__(
             self,
-            "_fixed_point",
-            JointFixedPointScheduler(
-                self.groups,
-                self.propagators,
-                maximum_rounds=self.max_group_passes,
+            "_fixed_points",
+            tuple(
+                JointFixedPointScheduler(
+                    (*self.groups, *step.groups),
+                    (*self.propagators, *step.propagators),
+                    maximum_rounds=self.max_group_passes,
+                )
+                for step in scheduled_steps
             ),
         )
 
@@ -256,7 +285,7 @@ class SessionChoiceSearch:
                 InstantiationStrategy,
             ]
         ] = []
-        best_seen: dict[frozenset[Fact], float] = {}
+        best_seen: dict[tuple[int, frozenset[Fact]], float] = {}
         solutions: list[ChoiceSolution] = []
         events: list[ChoiceEvent] = []
         failed = 0
@@ -351,6 +380,7 @@ class SessionChoiceSearch:
                             frame.point.variable,
                             alternative.value,
                             frame.before_log_volume,
+                            frame.parent.step,
                         )
                     )
                     next_order += 1
@@ -393,6 +423,7 @@ class SessionChoiceSearch:
                             item.point.variable,
                             alternative.value,
                             item.before_log_volume,
+                            item.parent.step,
                         )
                     )
                     next_order += 1
@@ -416,6 +447,7 @@ class SessionChoiceSearch:
                         item.point.variable,
                         item.alternative.value,
                         item.before_log_volume,
+                        item.parent.step,
                     )
                 else:
                     node = item
@@ -426,15 +458,16 @@ class SessionChoiceSearch:
                         point=node.incoming_point,
                         alternative=node.incoming_alternative,
                     )
-                self._propagate(node.session)
+                self._propagate(node.session, node.step)
                 state = frozenset(node.session.facts)
-                previous_score = best_seen.get(state)
+                state_key = (node.step, state)
+                previous_score = best_seen.get(state_key)
                 if (
                     previous_score is not None
                     and previous_score >= node.log_weight
                 ):
                     continue
-                best_seen[state] = node.log_weight
+                best_seen[state_key] = node.log_weight
                 explored += 1
 
                 if self.contradiction is not None and self.contradiction(
@@ -479,8 +512,21 @@ class SessionChoiceSearch:
                     record(ChoiceEventKind.SOLUTION, node)
                     continue
 
-                points = self.choices(node.session)
+                points = self._choices(node.session, node.step)
                 if not points:
+                    if node.step + 1 < self._step_count:
+                        previous_step = self._step_name(node.step)
+                        node.step += 1
+                        record(
+                            ChoiceEventKind.STEP,
+                            node,
+                            detail=(
+                                f"{previous_step} -> "
+                                f"{self._step_name(node.step)}"
+                            ),
+                        )
+                        pending.push(node)
+                        continue
                     failed += 1
                     self._observe_propagation(
                         node,
@@ -522,10 +568,12 @@ class SessionChoiceSearch:
                         random_source,
                         lambda alternative,
                         parent=node.session,
-                        selected=point: self._probe_alternative(
+                        selected=point,
+                        step=node.step: self._probe_alternative(
                             parent,
                             selected,
                             alternative,
+                            step,
                         ),
                     )
                 else:
@@ -606,6 +654,7 @@ class SessionChoiceSearch:
                         point.variable,
                         alternative.value,
                         current_log_volume,
+                        node.step,
                     )
                     next_order += 1
                     children.append(child)
@@ -693,6 +742,7 @@ class SessionChoiceSearch:
                 item.point.variable,
                 item.alternative.value,
                 item.before_log_volume,
+                item.parent.step,
             )
         return item
 
@@ -709,10 +759,25 @@ class SessionChoiceSearch:
             return "rollback reversible branch"
         return "discard isolated branch"
 
-    def _propagate(self, session: InferenceSession) -> None:
+    @property
+    def _step_count(self) -> int:
+        return len(self.steps) if self.steps else 1
+
+    def _step_name(self, step: int) -> str:
+        return self.steps[step].name if self.steps else "search"
+
+    def _choices(
+        self,
+        session: InferenceSession,
+        step: int,
+    ) -> tuple[ChoicePoint, ...]:
+        provider = self.steps[step].choices if self.steps else self.choices
+        return provider(session)
+
+    def _propagate(self, session: InferenceSession, step: int) -> None:
         """Reach a joint fixed point before testing the goal or choosing."""
 
-        self._fixed_point.run(session)
+        self._fixed_points[step].run(session)
 
     def _observe_failure(self, session: InferenceSession) -> None:
         observer = getattr(self.policy, "observe_failure", None)
@@ -751,13 +816,14 @@ class SessionChoiceSearch:
         session: InferenceSession,
         point: ChoicePoint,
         alternative: ChoiceAlternative,
+        step: int,
     ) -> tuple[bool, InferenceSession]:
         branch = self._fork(session)
         branch.assume(
             *alternative.facts,
             label=f"choice-probe:{point.name}/{alternative.name}",
         )
-        self._propagate(branch)
+        self._propagate(branch, step)
         contradiction = (
             self.contradiction is not None
             and self.contradiction(branch)

@@ -1,0 +1,300 @@
+# Conformité horizontale SATB.
+#
+# Une transition est un terme ground reliant deux positions et deux voicings.
+# Les règles ci-dessous lui attachent soit un identifiant `violates`, soit
+# l'état `legal`. Aucune règle musicale n'est cachée dans un prédicat Python.
+
+GROUP describe_satb_transitions
+    RULE expose_voice_paths_and_voice_pairs
+    WHEN
+        ($left successor $right)
+        ($left voicing_candidate SEQ[$source_chord $source_inversion $source_soprano $source_alto $source_tenor $source_bass])
+        ($right voicing_candidate SEQ[$target_chord $target_inversion $target_soprano $target_alto $target_tenor $target_bass])
+        BIND $transition := SEQ[$left SEQ[$source_chord $source_inversion $source_soprano $source_alto $source_tenor $source_bass] $right SEQ[$target_chord $target_inversion $target_soprano $target_alto $target_tenor $target_bass]]
+    THEN
+        ADD ($transition kind satb_transition)
+        ADD ($transition voice_path SEQ[soprano $source_soprano $target_soprano])
+        ADD ($transition voice_path SEQ[alto $source_alto $target_alto])
+        ADD ($transition voice_path SEQ[tenor $source_tenor $target_tenor])
+        ADD ($transition voice_path SEQ[bass $source_bass $target_bass])
+        ADD ($transition voice_pair SEQ[soprano alto $source_soprano $source_alto $target_soprano $target_alto])
+        ADD ($transition voice_pair SEQ[soprano tenor $source_soprano $source_tenor $target_soprano $target_tenor])
+        ADD ($transition voice_pair SEQ[soprano bass $source_soprano $source_bass $target_soprano $target_bass])
+        ADD ($transition voice_pair SEQ[alto tenor $source_alto $source_tenor $target_alto $target_tenor])
+        ADD ($transition voice_pair SEQ[alto bass $source_alto $source_bass $target_alto $target_bass])
+        ADD ($transition voice_pair SEQ[tenor bass $source_tenor $source_bass $target_tenor $target_bass])
+    END
+END_GROUP
+
+GROUP derive_satb_resolution_exceptions
+    RULE R_LEADING_002_deceptive_alto_exception
+    WHEN
+        (SEQ[$left SEQ[$source_chord $source_inversion $source_soprano $source_alto $source_tenor $source_bass] $right SEQ[degree_vi $target_inversion $target_soprano $target_alto $target_tenor $target_bass]] kind satb_transition)
+        BIND $transition := SEQ[$left SEQ[$source_chord $source_inversion $source_soprano $source_alto $source_tenor $source_bass] $right SEQ[degree_vi $target_inversion $target_soprano $target_alto $target_tenor $target_bass]]
+        ($transition voice_path SEQ[alto $source $target])
+        CONSTRAINT $target_soprano % 12 == 0
+    THEN
+        ADD ($transition resolution_exception alto)
+    END
+
+    RULE R_LEADING_002_deceptive_tenor_exception
+    WHEN
+        (SEQ[$left SEQ[$source_chord $source_inversion $source_soprano $source_alto $source_tenor $source_bass] $right SEQ[degree_vi $target_inversion $target_soprano $target_alto $target_tenor $target_bass]] kind satb_transition)
+        BIND $transition := SEQ[$left SEQ[$source_chord $source_inversion $source_soprano $source_alto $source_tenor $source_bass] $right SEQ[degree_vi $target_inversion $target_soprano $target_alto $target_tenor $target_bass]]
+        ($transition voice_path SEQ[tenor $source $target])
+        CONSTRAINT $target_alto % 12 == 0
+    THEN
+        ADD ($transition resolution_exception tenor)
+    END
+END_GROUP
+
+GROUP detect_satb_transition_violations
+    RULE R_PROGRESSION_001_disallowed_chord_successor
+    WHEN
+        (SEQ[$left SEQ[$source_chord $source_inversion $source_soprano $source_alto $source_tenor $source_bass] $right SEQ[$target_chord $target_inversion $target_soprano $target_alto $target_tenor $target_bass]] kind satb_transition)
+        BIND $transition := SEQ[$left SEQ[$source_chord $source_inversion $source_soprano $source_alto $source_tenor $source_bass] $right SEQ[$target_chord $target_inversion $target_soprano $target_alto $target_tenor $target_bass]]
+        NOT EXISTS ($source_chord allows_successor $target_chord)
+    THEN
+        ADD ($transition violates R-PROGRESSION-001)
+    END
+
+    RULE R_MELODY_001_more_than_an_octave_up
+    WHEN
+        ($transition voice_path SEQ[$voice $source $target])
+        CONSTRAINT $target - $source > 12
+    THEN
+        ADD ($transition violates R-MELODY-001)
+    END
+
+    RULE R_MELODY_001_more_than_an_octave_down
+    WHEN
+        ($transition voice_path SEQ[$voice $source $target])
+        CONSTRAINT $source - $target > 12
+    THEN
+        ADD ($transition violates R-MELODY-001)
+    END
+
+    RULE R_MELODY_002_augmented_fourth_or_diminished_fifth
+    WHEN
+        ($transition voice_path SEQ[$voice $source $target])
+        CONSTRAINT ($target - $source) % 12 == 6
+    THEN
+        ADD ($transition violates R-MELODY-002)
+    END
+
+    RULE R_OVERLAP_001_lower_voice_crosses_previous_upper
+    WHEN
+        ($transition voice_pair SEQ[$upper $lower $source_upper $source_lower $target_upper $target_lower])
+        ($upper adjacent_lower_voice $lower)
+        CONSTRAINT $target_lower > $source_upper
+    THEN
+        ADD ($transition violates R-OVERLAP-001)
+    END
+
+    RULE R_OVERLAP_001_upper_voice_crosses_previous_lower
+    WHEN
+        ($transition voice_pair SEQ[$upper $lower $source_upper $source_lower $target_upper $target_lower])
+        ($upper adjacent_lower_voice $lower)
+        CONSTRAINT $target_upper < $source_lower
+    THEN
+        ADD ($transition violates R-OVERLAP-001)
+    END
+
+    RULE R_PARALLEL_001_parallel_octaves_up
+    WHEN
+        ($transition voice_pair SEQ[$upper $lower $source_upper $source_lower $target_upper $target_lower])
+        CONSTRAINT ($source_upper - $source_lower) % 12 == 0
+        CONSTRAINT ($target_upper - $target_lower) % 12 == 0
+        CONSTRAINT $target_upper > $source_upper
+        CONSTRAINT $target_lower > $source_lower
+    THEN
+        ADD ($transition violates R-PARALLEL-001)
+    END
+
+    RULE R_PARALLEL_001_parallel_octaves_down
+    WHEN
+        ($transition voice_pair SEQ[$upper $lower $source_upper $source_lower $target_upper $target_lower])
+        CONSTRAINT ($source_upper - $source_lower) % 12 == 0
+        CONSTRAINT ($target_upper - $target_lower) % 12 == 0
+        CONSTRAINT $target_upper < $source_upper
+        CONSTRAINT $target_lower < $source_lower
+    THEN
+        ADD ($transition violates R-PARALLEL-001)
+    END
+
+    RULE R_PARALLEL_002_parallel_fifths_up
+    WHEN
+        ($transition voice_pair SEQ[$upper $lower $source_upper $source_lower $target_upper $target_lower])
+        CONSTRAINT ($source_upper - $source_lower) % 12 == 7
+        CONSTRAINT ($target_upper - $target_lower) % 12 == 7
+        CONSTRAINT $target_upper > $source_upper
+        CONSTRAINT $target_lower > $source_lower
+    THEN
+        ADD ($transition violates R-PARALLEL-002)
+    END
+
+    RULE R_PARALLEL_002_parallel_fifths_down
+    WHEN
+        ($transition voice_pair SEQ[$upper $lower $source_upper $source_lower $target_upper $target_lower])
+        CONSTRAINT ($source_upper - $source_lower) % 12 == 7
+        CONSTRAINT ($target_upper - $target_lower) % 12 == 7
+        CONSTRAINT $target_upper < $source_upper
+        CONSTRAINT $target_lower < $source_lower
+    THEN
+        ADD ($transition violates R-PARALLEL-002)
+    END
+
+    RULE R_DIRECT_001_hidden_octave_up
+    WHEN
+        ($transition voice_pair SEQ[$upper $lower $source_upper $source_lower $target_upper $target_lower])
+        ($upper direct_outer_voice $lower)
+        CONSTRAINT ($target_upper - $target_lower) % 12 == 0
+        CONSTRAINT $target_upper - $source_upper > 2
+        CONSTRAINT $target_lower > $source_lower
+    THEN
+        ADD ($transition violates R-DIRECT-001)
+    END
+
+    RULE R_DIRECT_001_hidden_octave_down
+    WHEN
+        ($transition voice_pair SEQ[$upper $lower $source_upper $source_lower $target_upper $target_lower])
+        ($upper direct_outer_voice $lower)
+        CONSTRAINT ($target_upper - $target_lower) % 12 == 0
+        CONSTRAINT $source_upper - $target_upper > 2
+        CONSTRAINT $target_lower < $source_lower
+    THEN
+        ADD ($transition violates R-DIRECT-001)
+    END
+
+    RULE R_DIRECT_002_hidden_fifth_up
+    WHEN
+        ($transition voice_pair SEQ[$upper $lower $source_upper $source_lower $target_upper $target_lower])
+        ($upper direct_outer_voice $lower)
+        CONSTRAINT ($target_upper - $target_lower) % 12 == 7
+        CONSTRAINT $target_upper - $source_upper > 2
+        CONSTRAINT $target_lower > $source_lower
+    THEN
+        ADD ($transition violates R-DIRECT-002)
+    END
+
+    RULE R_DIRECT_002_hidden_fifth_down
+    WHEN
+        ($transition voice_pair SEQ[$upper $lower $source_upper $source_lower $target_upper $target_lower])
+        ($upper direct_outer_voice $lower)
+        CONSTRAINT ($target_upper - $target_lower) % 12 == 7
+        CONSTRAINT $source_upper - $target_upper > 2
+        CONSTRAINT $target_lower < $source_lower
+    THEN
+        ADD ($transition violates R-DIRECT-002)
+    END
+
+    RULE R_GLOBAL_MOTION_001_all_four_voices_move_up
+    WHEN
+        (SEQ[$left SEQ[$source_chord $source_inversion $source_soprano $source_alto $source_tenor $source_bass] $right SEQ[$target_chord $target_inversion $target_soprano $target_alto $target_tenor $target_bass]] kind satb_transition)
+        BIND $transition := SEQ[$left SEQ[$source_chord $source_inversion $source_soprano $source_alto $source_tenor $source_bass] $right SEQ[$target_chord $target_inversion $target_soprano $target_alto $target_tenor $target_bass]]
+        CONSTRAINT $target_soprano > $source_soprano
+        CONSTRAINT $target_alto > $source_alto
+        CONSTRAINT $target_tenor > $source_tenor
+        CONSTRAINT $target_bass > $source_bass
+    THEN
+        ADD ($transition violates R-GLOBAL-MOTION-001)
+    END
+
+    RULE R_GLOBAL_MOTION_001_all_four_voices_move_down
+    WHEN
+        (SEQ[$left SEQ[$source_chord $source_inversion $source_soprano $source_alto $source_tenor $source_bass] $right SEQ[$target_chord $target_inversion $target_soprano $target_alto $target_tenor $target_bass]] kind satb_transition)
+        BIND $transition := SEQ[$left SEQ[$source_chord $source_inversion $source_soprano $source_alto $source_tenor $source_bass] $right SEQ[$target_chord $target_inversion $target_soprano $target_alto $target_tenor $target_bass]]
+        CONSTRAINT $target_soprano < $source_soprano
+        CONSTRAINT $target_alto < $source_alto
+        CONSTRAINT $target_tenor < $source_tenor
+        CONSTRAINT $target_bass < $source_bass
+    THEN
+        ADD ($transition violates R-GLOBAL-MOTION-001)
+    END
+
+    RULE R_LEADING_001_resolve_leading_tone_up
+    WHEN
+        (SEQ[$left SEQ[$source_chord $source_inversion $source_soprano $source_alto $source_tenor $source_bass] $right SEQ[$target_chord $target_inversion $target_soprano $target_alto $target_tenor $target_bass]] kind satb_transition)
+        BIND $transition := SEQ[$left SEQ[$source_chord $source_inversion $source_soprano $source_alto $source_tenor $source_bass] $right SEQ[$target_chord $target_inversion $target_soprano $target_alto $target_tenor $target_bass]]
+        ($source_chord resolves_leading_tone yes)
+        ($transition voice_path SEQ[$voice $source $target])
+        CONSTRAINT $source % 12 == 11
+        CONSTRAINT $target != $source + 1
+        NOT EXISTS ($transition resolution_exception $voice)
+    THEN
+        ADD ($transition violates R-LEADING-001)
+    END
+
+    RULE R_SEVENTH_001_resolve_F_down
+    WHEN
+        (SEQ[$left SEQ[$source_chord $source_inversion $source_soprano $source_alto $source_tenor $source_bass] $right SEQ[$target_chord $target_inversion $target_soprano $target_alto $target_tenor $target_bass]] kind satb_transition)
+        BIND $transition := SEQ[$left SEQ[$source_chord $source_inversion $source_soprano $source_alto $source_tenor $source_bass] $right SEQ[$target_chord $target_inversion $target_soprano $target_alto $target_tenor $target_bass]]
+        ($source_chord resolves_f_tendency yes)
+        ($transition voice_path SEQ[$voice $source $target])
+        CONSTRAINT $source % 12 == 5
+        CONSTRAINT $target != $source - 1
+    THEN
+        ADD ($transition violates R-SEVENTH-001)
+    END
+
+    RULE R_CAD64_002_resolve_only_to_dominant
+    WHEN
+        (SEQ[$left SEQ[$source_chord second $source_soprano $source_alto $source_tenor $source_bass] $right SEQ[$target_chord $target_inversion $target_soprano $target_alto $target_tenor $target_bass]] kind satb_transition)
+        BIND $transition := SEQ[$left SEQ[$source_chord second $source_soprano $source_alto $source_tenor $source_bass] $right SEQ[$target_chord $target_inversion $target_soprano $target_alto $target_tenor $target_bass]]
+        NOT EXISTS ($source_chord cadential_resolves_to $target_chord)
+    THEN
+        ADD ($transition violates R-CAD64-002)
+    END
+
+    RULE R_CAD64_003_resolve_to_root_position
+    WHEN
+        (SEQ[$left SEQ[degree_I second $source_soprano $source_alto $source_tenor $source_bass] $right SEQ[$target_chord $target_inversion $target_soprano $target_alto $target_tenor $target_bass]] kind satb_transition)
+        BIND $transition := SEQ[$left SEQ[degree_I second $source_soprano $source_alto $source_tenor $source_bass] $right SEQ[$target_chord $target_inversion $target_soprano $target_alto $target_tenor $target_bass]]
+        $target_inversion != root
+    THEN
+        ADD ($transition violates R-CAD64-003)
+    END
+
+    RULE R_CAD64_004_hold_the_bass
+    WHEN
+        (SEQ[$left SEQ[degree_I second $source_soprano $source_alto $source_tenor $source_bass] $right SEQ[$target_chord $target_inversion $target_soprano $target_alto $target_tenor $target_bass]] kind satb_transition)
+        BIND $transition := SEQ[$left SEQ[degree_I second $source_soprano $source_alto $source_tenor $source_bass] $right SEQ[$target_chord $target_inversion $target_soprano $target_alto $target_tenor $target_bass]]
+        CONSTRAINT $target_bass != $source_bass
+    THEN
+        ADD ($transition violates R-CAD64-004)
+    END
+
+    RULE R_CAD64_005_resolve_fourth_down_by_step
+    WHEN
+        (SEQ[$left SEQ[degree_I second $source_soprano $source_alto $source_tenor $source_bass] $right SEQ[$target_chord $target_inversion $target_soprano $target_alto $target_tenor $target_bass]] kind satb_transition)
+        BIND $transition := SEQ[$left SEQ[degree_I second $source_soprano $source_alto $source_tenor $source_bass] $right SEQ[$target_chord $target_inversion $target_soprano $target_alto $target_tenor $target_bass]]
+        ($transition voice_path SEQ[$voice $source $target])
+        ($voice kind upper_voice)
+        CONSTRAINT $source % 12 == 0
+        CONSTRAINT $target != $source - 1
+    THEN
+        ADD ($transition violates R-CAD64-005)
+    END
+
+    RULE R_CAD64_006_resolve_sixth_down_by_step
+    WHEN
+        (SEQ[$left SEQ[degree_I second $source_soprano $source_alto $source_tenor $source_bass] $right SEQ[$target_chord $target_inversion $target_soprano $target_alto $target_tenor $target_bass]] kind satb_transition)
+        BIND $transition := SEQ[$left SEQ[degree_I second $source_soprano $source_alto $source_tenor $source_bass] $right SEQ[$target_chord $target_inversion $target_soprano $target_alto $target_tenor $target_bass]]
+        ($transition voice_path SEQ[$voice $source $target])
+        ($voice kind upper_voice)
+        CONSTRAINT $source % 12 == 4
+        CONSTRAINT $target != $source - 2
+    THEN
+        ADD ($transition violates R-CAD64-006)
+    END
+END_GROUP
+
+GROUP classify_legal_satb_transitions
+    RULE transition_is_legal_when_no_named_rule_is_violated
+    WHEN
+        ($transition kind satb_transition)
+        NOT EXISTS ($transition violates $rule)
+    THEN
+        ADD ($transition state legal)
+    END
+END_GROUP

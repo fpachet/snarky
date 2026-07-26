@@ -58,6 +58,15 @@ The current vocabulary includes:
 - cadential `I64` resolutions;
 - explicit harmonic rhythm.
 
+In the note-by-note model, these are no longer opaque Python checks. Chord
+completeness uses `NVALUE`; doubling uses correlated `COUNT`; motion,
+overlap, parallels, direct outer-voice perfect intervals, tendency tones, and
+cadential six-four resolution produce named `R-*` violation facts in
+[`vertical_conformance.rules`](vertical_conformance.rules) and
+[`voice_leading_conformance.rules`](voice_leading_conformance.rules).
+`note_transition.rules` performs bidirectional support revision over the
+transitions that have no violation.
+
 Example:
 
 ```python
@@ -66,8 +75,8 @@ from harmonizer import harmonize_notes
 solution = harmonize_notes((72, 69, 71, 72), max_solutions=1)[0]
 assert solution.chords == (
     "degree_I",
-    "degree_ii",
-    "degree_V7",
+    "degree_IV",
+    "degree_V",
     "degree_I",
 )
 ```
@@ -77,13 +86,14 @@ The generated lines are:
 | Voice | MIDI pitches |
 |---|---|
 | soprano | `72 69 71 72` |
-| alto | `67 65 65 64` |
-| tenor | `64 62 62 55` |
-| bass | `48 50 43 48` |
+| alto | `64 65 62 64` |
+| tenor | `55 60 50 55` |
+| bass | `48 41 43 36` |
 
-The leading tone resolves upward and the seventh of `V7` resolves downward.
 Chord values are not copied from Python: form, vertical support, and
-transitions reduce their domains.
+transitions reduce their domains before the harmonic-plan step chooses among
+the remaining alternatives. A `V7` resolution can still be requested as a
+partial plan when testing that specific rule.
 
 A supplied bass can produce a cadential six-four:
 
@@ -117,6 +127,32 @@ held = harmonize_notes(
 assert held.chords[0] == held.chords[1]
 ```
 
+An optional harmonic plan can restrict those event variables with ordinary
+`planned_chord` facts. It specifies no SATB notes or inversions. It is useful
+as a test fixture or user constraint, but the extended example does not need
+one:
+
+```python
+from snarky import ChoiceTraversal
+
+extended = harmonize_notes(
+    (67, 76, 69, 72, 72, 76, 65, 69, 67, 64, 69, 72, 74, 69, 71, 72),
+    harmonic_rhythm=(0, 0, 1, 1, 2, 2, 3, 3, 4, 4, 5, 5, 6, 6, 7, 8),
+    traversal=ChoiceTraversal.DEPTH_FIRST,
+    max_solutions=1,
+)[0]
+```
+
+Python emits the soprano, harmonic-event links, cadence name, finite domains,
+and extensional tonal vocabulary. `derive_harmonic_plan` derives cadence and
+functional restrictions; vertical and transition rules filter the chord
+domains. The `harmonic_plan` step then chooses
+`I–IV–I–IV–I–IV–ii–V–I`, after which `satb_realization` chooses inversions
+and the 48 non-given pitches. A failure during realization can backtrack to a
+harmonic choice. Depth-first traversal is used because this example
+demonstrates one feasible realization rather than ranking a large best-first
+frontier.
+
 Static note, chord, and inversion weights become contextual when the preceding
 choice is known. Best-first search returns deterministic high-scoring
 realizations; reproducible weighted sampling is also available:
@@ -142,9 +178,50 @@ model = build_note_harmonizer_model()
 print(model.program.manifest())
 ```
 
-The manifest separates preparation, choice production, propagation, and
-interpretation. This makes the exact generic CSP and musical groups part of
-the reproducible model rather than hidden solver configuration.
+The manifest separates preparation, the sequential `harmonic_plan` and
+`satb_realization` steps, common propagation, and interpretation. It is parsed
+from [`note_harmonizer.program`](note_harmonizer.program), so the construction
+order is part of the model rather than hidden solver configuration.
+
+Preparation generates complete voicings, filters their vertical conformance,
+applies the structural cadence restrictions, and classifies each remaining
+ground transition once. This classification is value-invariant in the current
+“case 1” model: rules and choices remove domain values but never add new
+musical values. During search, each support query joins both a prepared legal
+transition and the current neighboring `voicing_candidate`; a removed
+candidate therefore cannot remain a support. This keeps transition revision
+inside the branch fixed point without recomputing the rule catalogue in every
+branch.
+
+## Python boundary and Snarky limits
+
+The note-by-note model keeps Python for finite model construction, not musical
+policy:
+
+- creating positions and CSP variables;
+- enumerating the finite C-major pitch/chord vocabulary and choice weights;
+- converting MuSES objects to facts and solutions back to objects;
+- launching search and decoding its selected values.
+
+Chord completeness, doubling, voice leading, tendency tones, cadence form,
+channeling, support revision, step-specific choices, and contradictions are
+rules or constraints. Python supplies `(problem cadence perfect)`; rules
+derive the corresponding initial, penultimate, final, and cadential
+restrictions. The compact complete-voicing oracle remains intentionally
+Python-backed as a differential reference.
+
+No current core SATB rule required a new engine feature. A few formulations
+are more verbose than their musical statement because Snarky currently has:
+
+- no reusable rule macros or parameterized user-defined relations;
+- no `ABS` arithmetic expression;
+- no logical disjunction inside one premise block.
+
+The rule base handles those cases with paired up/down rules and separate rules
+for fifths and octaves. This is an abstraction limitation, not an
+expressiveness blocker for finite SATB. More substantial future features need
+new *musical facts*—key and spelling, metric position, non-chord-tone role,
+and modulation state—rather than hidden Python predicates.
 
 ## Optional MuSES pipeline
 
@@ -180,6 +257,7 @@ With both repositories as siblings:
 python -m pip install -e ../muses
 uv run python -m harmonizer.example_muses
 uv run python -m harmonizer.example_muses --long
+uv run python -m harmonizer.example_muses --extended
 ```
 
 Generated MIDI and MusicXML files are reproducible outputs under

@@ -11,6 +11,7 @@ from snarky import (
     Atom,
     ChoicePolicy,
     ChoiceSearchResult,
+    ChoiceSearchStep,
     ChoiceSolution,
     ChoiceTraversal,
     DomWdegChoicePolicy,
@@ -24,6 +25,7 @@ from snarky import (
     PropagationGuidedChoicePolicy,
     RuleChoiceProvider,
     RuleGroup,
+    RuleProgram,
     SemiNaiveInstantiationStrategy,
     SessionChoiceSearch,
     Term,
@@ -276,26 +278,47 @@ def solve_finite_csp(
     reversible_depth_first: bool = True,
     lazy_frontier: bool = True,
     rule_groups: Sequence[RuleGroup] | None = None,
+    program: RuleProgram | None = None,
 ) -> ChoiceSearchResult:
     """Propagate and search a fact-encoded finite CSP using Snarky.
 
-    ``rule_groups`` makes orchestration explicit when supplied.  The default
-    remains the complete CSP library followed by the model groups for
+    ``rule_groups`` makes an unstaged orchestration explicit when supplied.
+    ``program`` may instead declare reversible sequential choice steps. The
+    default remains the complete CSP library followed by the model groups for
     compatibility.
     """
 
+    if rule_groups is not None and program is not None:
+        raise ValueError("rule_groups and program are mutually exclusive")
     selected_groups = (
-        (*_csp_groups(), *model.groups) if rule_groups is None else tuple(rule_groups)
+        (
+            (*_csp_groups(), *model.groups)
+            if rule_groups is None
+            else tuple(rule_groups)
+        )
+        if program is None
+        else (*program.propagation_groups, *program.interpretation_groups)
     )
     rule_provider = RuleChoiceProvider(selected_groups)
+    if program is not None and program.steps and rule_provider.choice_rules:
+        raise ValueError(
+            "a staged program must declare every CHOICE group inside a STEP"
+        )
     projection = FiniteDomainProjection()
-    optimized_finite_domain = _supports_compiled_finite_domain(
-        rule_provider
+    library = finite_csp_rule_library()
+    staged_finite_domain = (
+        program is not None
+        and bool(program.steps)
+        and library.domains in selected_groups
+        and library.problems in selected_groups
+    )
+    optimized_finite_domain = (
+        staged_finite_domain
+        or _supports_compiled_finite_domain(rule_provider)
     )
     propagation_groups = rule_provider.propagation_groups
     state_propagator: FiniteDomainStatePropagator | None = None
     if optimized_finite_domain:
-        library = finite_csp_rule_library()
         propagation_groups = tuple(
             group
             for group in propagation_groups
@@ -313,11 +336,27 @@ def solve_finite_csp(
             library.problems,
             projection,
         )
-    provider = (
-        FiniteDomainChoiceProvider(propagation_groups, projection)
-        if optimized_finite_domain
-        else rule_provider
-    )
+    search_steps: tuple[ChoiceSearchStep, ...] = ()
+    if program is not None and program.steps:
+        staged: list[ChoiceSearchStep] = []
+        for step in program.steps:
+            step_provider = RuleChoiceProvider(step.groups)
+            staged.append(
+                ChoiceSearchStep(
+                    step.name,
+                    step_provider.propagation_groups,
+                    step_provider,
+                    step.propagators,
+                )
+            )
+        search_steps = tuple(staged)
+        provider = rule_provider
+    else:
+        provider = (
+            FiniteDomainChoiceProvider(propagation_groups, projection)
+            if optimized_finite_domain
+            else rule_provider
+        )
     existing_weights = _existing_choice_weights(model.facts)
     weighted_facts = tuple(
         Fact(
@@ -380,7 +419,7 @@ def solve_finite_csp(
         selected_policy = LearnedImpactChoicePolicy(selected_policy)
 
     search = SessionChoiceSearch(
-        provider.propagation_groups,
+        propagation_groups,
         provider,
         lambda current: solved_fact in current.facts,
         lambda current: (
@@ -398,6 +437,7 @@ def solve_finite_csp(
             *((state_propagator,) if state_propagator is not None else ()),
             *((persistent_propagator,) if persistent_propagator is not None else ()),
         ),
+        steps=search_steps,
     )
     return search.solve(session)
 

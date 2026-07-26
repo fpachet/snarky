@@ -31,19 +31,21 @@ Le second incrément suit maintenant la section 5 de la spécification :
 | `R-ORDER-001` | comparaisons de `note_generation.rules` |
 | `R-SPACING-001..003` | contraintes arithmétiques de génération |
 | construction différée | groupe `generate_candidate_voicings` |
-| compatibilité verticale | triade ou `V7` complet, basse du renversement et règles de doublure |
+| compatibilité verticale | `NVALUE` pour la complétude, basse du renversement et règles `COUNT` de doublure |
 | canalisation | accord–renversement–notes–voicing dans `maintain_note_voicing_channel` |
-| progression fonctionnelle | table `allows_successor` révisée dans les deux directions |
+| progression fonctionnelle | table `allows_successor`, faits de violation, révision dans les deux directions |
 | forme | `I` initial ; cadence parfaite, plagale, rompue ou demi-cadence |
 | `R-CADENCE-004` | préparation sans `I`/`V`, sauf `I64` cadentiel |
-| `R-DOUBLING-001..007` | prédicat vertical pur appelé par la règle de génération |
-| `R-LEADING-001..004` | résolution de la sensible, avec exception intérieure `V→vi` |
-| `R-EXT-7CHORD-001..003` | `V7` complet, septième non doublée et résolution descendante |
-| `R-EXT-64-001` | `I64→V`, basse pédale, résolutions `6→5` et `4→3` |
+| `R-DOUBLING-001..007` | règles `vertical_conformance.rules`, sans prédicat Python |
+| `R-LEADING-001..002` | résolution de la sensible, avec exception intérieure `V→vi` explicite |
+| `R-EXT-7CHORD-001..003` | `V7` complet et `R-SEVENTH-001` descendant |
+| `R-EXT-64-001` | règles `R-CAD64-*` : `I64→V`, basse pédale, `6→5` et `4→3` |
 | rythme harmonique | plusieurs notes peuvent partager les mêmes variables harmoniques |
-| `R-MELODY-001/002` | prédicat `melodic_transition` dans la règle de support |
-| `R-PARALLEL-001/002` | prédicat `no_parallel_perfects` |
-| `R-GLOBAL-MOTION-001` | prédicat `legal_global_motion` |
+| `R-MELODY-001/002` | contraintes arithmétiques sur les faits `voice_path` |
+| `R-OVERLAP-001` | règles corrélées sur les paires de voix adjacentes |
+| `R-PARALLEL-001/002` | règles modulo 12 pour octaves/unissons et quintes |
+| `R-DIRECT-001/002` | mouvement direct des voix extrêmes vers octave ou quinte |
+| `R-GLOBAL-MOTION-001` | deux règles explicites, mouvement entièrement ascendant/descendant |
 | first fail | `PriorityMRVChoicePolicy` |
 | optimisation/échantillonnage | poids conditionnels des notes et accords |
 
@@ -52,9 +54,64 @@ renversements, doublures, résolutions et cadences, mais ne revendique pas
 encore le profil `ROY_1998`. Restent les accords de septième autres que `V7`,
 leurs renversements, les six-quatre non cadentiels, toutes les exceptions,
 les notes étrangères, la métrique, les modulations et la totalité du
-catalogue. Les prédicats calculés ne contiennent aucune recherche : ils
-évaluent une opération musicale élémentaire sur des termes ground fournis par
-une règle.
+catalogue. Dans le modèle note par note, aucun prédicat calculé ne porte une
+règle musicale : les faits ground, contraintes arithmétiques, agrégats et
+blocs existentiels constituent l'oracle de conformité lui-même.
+
+## Sémantique de conformité
+
+La génération verticale suit quatre étapes inspectables :
+
+1. `note_generation.rules` joint accord, renversement et quatre hauteurs ;
+2. `NVALUE` impose trois classes distinctes pour une triade ou quatre pour
+   `V7` ;
+3. `describe_candidate_voicings` expose un fait `tone` par voix ;
+4. les règles `R-DOUBLING-*`, `R-EXT-7CHORD-*` et `R-CAD64-*` retirent les
+   candidats non conformes.
+
+Une transition est représentée par :
+
+```text
+SEQ[
+  left SEQ[source_chord source_inversion S A T B]
+  right SEQ[target_chord target_inversion S A T B]
+]
+```
+
+Les règles en dérivent les chemins de voix et les six paires de voix, puis
+ajoutent `(transition violates R-...)`. Une règle de classification ajoute
+`(transition state legal)` seulement en l'absence de violation. La révision
+d'arc exige simultanément le `voicing_candidate` voisin courant et ce support
+légal. Cette jointure est essentielle : les descriptions calculées restent
+des connaissances sur une paire ground, mais un candidat retiré ne doit plus
+constituer un support de domaine.
+
+Dans ce profil « cas 1 », la légalité d'une paire ground ne dépend pas de
+l'état futur des domaines. Les groupes Snarky la calculent donc une fois
+pendant la préparation. Une `CHOICE` de note, accord ou renversement retire
+des voicings par canalisation ; la révision joint la relation légale préparée
+au `voicing_candidate` voisin encore présent, puis propage les retraits avant
+la décision suivante ou avant un retour arrière. Si des règles pouvaient
+ajouter de nouvelles valeurs de domaine, cette classification devrait revenir
+dans le point fixe dynamique.
+
+## Frontière d'expressivité observée
+
+Le noyau SATB livré ne nécessite aucune extension du moteur. `NVALUE`,
+`COUNT`, négation corrélée, séquences ground, modulo et comparaisons suffisent.
+Trois absences rendent cependant le catalogue plus répétitif :
+
+- pas de macros de règles paramétrées par voix ou paire de voix ;
+- pas d'expression arithmétique `ABS` ;
+- pas de disjonction logique dans une prémisse.
+
+Le catalogue emploie donc des règles séparées pour les directions montante et
+descendante ainsi que pour quintes et octaves. Il ne s'agit pas d'un blocage
+sémantique sur des domaines finis. En revanche, tonalités multiples,
+orthographe enharmonique, métrique, notes étrangères et modulation exigent
+d'abord un vocabulaire musical explicite. Les préférences `SHOULD` avec
+optimisation lexicographique ne sont pas encore une construction native :
+les poids actuels ordonnent les choix sans relâcher une règle `MUST`.
 
 ## Vocabulaire tonal exécutable
 
@@ -89,6 +146,54 @@ au début. Pour la cadence parfaite, l'événement pré-cadentiel refuse `I` et
 `V`, sauf `I64`. `harmonic_rhythm` associe chaque note à un événement :
 deux notes du même événement partagent les mêmes variables d'accord et de
 renversement, tandis que leurs voicings restent distincts.
+
+`harmonic_plan` peut en outre fournir un degré ou `None` par événement. Python
+ne fait que traduire les étiquettes `I`, `ii`, `IV`, `V`, `V7`, `vi`, `vii°`
+en faits :
+
+```text
+(note_position_0 planned_chord degree_I)
+```
+
+La règle `remove_chord_outside_harmonic_plan` effectue la restriction du
+domaine. Le plan n'impose ni renversement ni note SATB et peut donc servir de
+squelette partiel. Il doit rester compatible avec le profil cadentiel.
+
+Le cas nominal n'a besoin ni de `harmonic_plan` ni d'un profil prédéterminé.
+Python ajoute la cadence demandée comme donnée :
+
+```text
+(roy_note_harmonization cadence perfect)
+```
+
+ainsi que les rôles structurels et relations `harmonic_successor`. Le groupe
+`derive_harmonic_plan` déduit les restrictions initiales et cadentielles. La
+canalisation verticale et les transitions filtrent ensuite les domaines
+d'accord à partir de la soprano ; les règles classent chaque accord sélectionné
+comme `tonic`, `predominant` ou `dominant`.
+
+Le programme est découpé en deux étapes déclaratives dans
+`note_harmonizer.program` :
+
+```text
+STEP harmonic_plan
+    GROUP choose_harmonic_plan
+END_STEP
+STEP satb_realization
+    GROUP choose_satb_realization
+END_STEP
+```
+
+La première étape choisit uniquement les accords encore ambigus. Son point
+fixe atteint, la seconde choisit renversements et hauteurs. Le passage d'une
+étape à l'autre n'est pas un engagement irréversible : une contradiction SATB
+peut restaurer la branche et essayer un autre accord. L'exemple de huit
+mesures et seize notes obtient ainsi `I–IV–I–IV–I–IV–ii–V–I` depuis la
+soprano, le rythme harmonique et la cadence seuls.
+
+Le profil historique `extended_tonal_arc` reste accepté comme contrainte
+optionnelle de compatibilité et comme oracle ciblé ; il n'est plus utilisé par
+l'exemple principal.
 
 ## Frontière MuSES
 

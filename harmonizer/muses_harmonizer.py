@@ -13,7 +13,7 @@ from dataclasses import dataclass
 from importlib import import_module
 from typing import Protocol, cast
 
-from snarky import Atom, Fact, Number, Status, Term, Triple
+from snarky import Atom, ChoiceTraversal, Fact, Number, Status, Term, Triple
 from snarky.integrations import (
     MusesTemporalCollectionCodec,
     MusesTemporalNoteCodec,
@@ -28,6 +28,8 @@ from snarky.integrations.muses import (
 from .note_solver import (
     VOICE_NAMES,
     Cadence,
+    HarmonicPlanDegree,
+    HarmonicPlanProfile,
     NoteHarmonization,
     SATBVoice,
     _note_harmonization,
@@ -115,7 +117,10 @@ def harmonize_temporal_collection(
     given_voice: SATBVoice = "soprano",
     cadence: Cadence = "perfect",
     harmonic_rhythm: tuple[int, ...] | None = None,
+    harmonic_plan: tuple[HarmonicPlanDegree | None, ...] | None = None,
+    harmonic_plan_profile: HarmonicPlanProfile | None = None,
     max_solutions: int = 1,
+    traversal: ChoiceTraversal = ChoiceTraversal.BEST_FIRST,
     seed: int = 0,
     identity: Atom = DEFAULT_SOURCE_IDENTITY,
     codec: MusesTemporalCollectionCodec | None = None,
@@ -156,12 +161,15 @@ def harmonize_temporal_collection(
         given_voice=given_voice,
         cadence=cadence,
         harmonic_rhythm=harmonic_rhythm,
+        harmonic_plan=harmonic_plan,
+        harmonic_plan_profile=harmonic_plan_profile,
         source_facts=source_facts,
         source_notes=source_notes,
     )
     search = solve_note_harmonizer(
         model,
         max_solutions=max_solutions,
+        traversal=traversal,
         seed=seed,
     )
     symbolic = tuple(

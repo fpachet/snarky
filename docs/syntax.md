@@ -51,6 +51,36 @@ END_GROUP
 evaluated in textual order, so a comparison may use only variables already
 bound by preceding premises.
 
+## Programs and sequential steps
+
+`parse_rule_program()` reads a manifest that references named rule groups:
+
+```text
+PROGRAM satb_harmonizer
+    PREPARE generate_voicings
+    STEP harmonic_plan
+        GROUP choose_harmonic_plan
+    END_STEP
+    STEP satb_realization
+        GROUP choose_satb_realization
+        CONSTRAINT voice_ranges
+    END_STEP
+    PROPAGATE maintain_channels
+    INTERPRET expose_solution
+END_PROGRAM
+```
+
+`PREPARE`, `PROPAGATE`, and `INTERPRET` each name one group; repeat a
+directive to include several groups. `GROUP` inside a `STEP` names the rules
+whose `CHOICE` actions are visible in that step. `CONSTRAINT` names a
+session propagator supplied to the parser's constraint catalogue.
+
+A step reaches the joint rules/constraints fixed point before exposing its
+choices. When it has no remaining choice, execution advances to the next
+step. This is not a commit: checkpoints created by earlier steps remain on
+the search trail, so failure in a later step can backtrack into an earlier
+one. An unstaged program may continue to use `CHOOSE group_name`.
+
 ## Premises
 
 ### Facts, focus, and comparisons

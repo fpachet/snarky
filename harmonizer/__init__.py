@@ -8,6 +8,8 @@ from .muses_harmonizer import (
 )
 from .note_solver import (
     Cadence,
+    HarmonicPlanDegree,
+    HarmonicPlanProfile,
     NoteHarmonization,
     NoteHarmonizerModel,
     SATBVoice,
@@ -27,6 +29,8 @@ __all__ = [
     "Harmonization",
     "HarmonizerModel",
     "Cadence",
+    "HarmonicPlanDegree",
+    "HarmonicPlanProfile",
     "MusesFactories",
     "MusesHarmonization",
     "NoteHarmonization",

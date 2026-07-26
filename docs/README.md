@@ -14,6 +14,7 @@ should not be mechanically mixed with English sections.
 - [Architecture](architecture.md)
 - [Textual syntax](syntax.md)
 - [Reference semantics](semantics.md)
+- [Rule programs and sequential steps](rule_programs.md)
 - [Persistent finite-domain constraints](persistent_constraints.md)
 - [Finite-CSP solver optimization plan](solver_optimization_plan.md)
 - [LORE, LAURE, CLAIRE, and Snarky](caseau_rules_constraints.md)

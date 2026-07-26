@@ -1,0 +1,95 @@
+# Conformité verticale SATB. Les faits `tone` rendent les comptages de
+# doublures explicites ; chaque suppression porte l'identifiant stable de la
+# règle musicale qui la motive.
+
+GROUP describe_candidate_voicings
+    RULE expose_candidate_chord_tones
+    WHEN
+        ($position voicing_candidate SEQ[$chord $inversion $soprano $alto $tenor $bass])
+        ($soprano pitch_class $soprano_class)
+        ($alto pitch_class $alto_class)
+        ($tenor pitch_class $tenor_class)
+        ($bass pitch_class $bass_class)
+        BIND $voicing := SEQ[$chord $inversion $soprano $alto $tenor $bass]
+    THEN
+        ADD ($voicing tone SEQ[soprano $soprano_class])
+        ADD ($voicing tone SEQ[alto $alto_class])
+        ADD ($voicing tone SEQ[tenor $tenor_class])
+        ADD ($voicing tone SEQ[bass $bass_class])
+    END
+END_GROUP
+
+GROUP enforce_vertical_conformance
+    RULE R_DOUBLING_002_never_double_the_leading_tone
+    WHEN
+        ($position voicing_candidate $voicing)
+        COUNT >= 2
+            ($voicing tone SEQ[$voice 11])
+        END_COUNT
+    THEN
+        REMOVE ($position voicing_candidate $voicing)
+    END
+
+    RULE R_EXT_7CHORD_003_use_all_four_members_of_V7
+    WHEN
+        ($position voicing_candidate SEQ[degree_V7 $inversion $soprano $alto $tenor $bass])
+        BIND $voicing := SEQ[degree_V7 $inversion $soprano $alto $tenor $bass]
+        ($voicing tone SEQ[$voice $pitch_class])
+        COUNT >= 2
+            ($voicing tone SEQ[$other_voice $pitch_class])
+        END_COUNT
+    THEN
+        REMOVE ($position voicing_candidate $voicing)
+    END
+
+    RULE R_DOUBLING_004_005_root_third_exception_is_soprano_alto_only
+    WHEN
+        ($position voicing_candidate SEQ[$chord root $soprano $alto $tenor $bass])
+        BIND $voicing := SEQ[$chord root $soprano $alto $tenor $bass]
+        ($chord exceptional_root_third $third)
+        COUNT >= 2
+            ($voicing tone SEQ[$voice $third])
+        END_COUNT
+        NOT EXISTS
+            ($voicing tone SEQ[soprano $third])
+            ($voicing tone SEQ[alto $third])
+        END_NOT_EXISTS
+    THEN
+        REMOVE ($position voicing_candidate $voicing)
+    END
+
+    RULE R_DOUBLING_006_first_inversion_alto_must_not_double_bass
+    WHEN
+        ($position voicing_candidate SEQ[$chord first $soprano $alto $tenor $bass])
+        BIND $voicing := SEQ[$chord first $soprano $alto $tenor $bass]
+        ($voicing tone SEQ[alto $bass_class])
+        ($voicing tone SEQ[bass $bass_class])
+    THEN
+        REMOVE ($position voicing_candidate $voicing)
+    END
+
+    RULE R_DOUBLING_007_selected_first_inversion_bass_is_unique
+    WHEN
+        ($position voicing_candidate SEQ[$chord first $soprano $alto $tenor $bass])
+        BIND $voicing := SEQ[$chord first $soprano $alto $tenor $bass]
+        ($chord first_inversion_bass_unique yes)
+        ($voicing tone SEQ[bass $bass_class])
+        COUNT >= 2
+            ($voicing tone SEQ[$voice $bass_class])
+        END_COUNT
+    THEN
+        REMOVE ($position voicing_candidate $voicing)
+    END
+
+    RULE R_CAD64_001_double_the_cadential_bass
+    WHEN
+        ($position voicing_candidate SEQ[degree_I second $soprano $alto $tenor $bass])
+        BIND $voicing := SEQ[degree_I second $soprano $alto $tenor $bass]
+        ($voicing tone SEQ[bass $bass_class])
+        COUNT == 1
+            ($voicing tone SEQ[$voice $bass_class])
+        END_COUNT
+    THEN
+        REMOVE ($position voicing_candidate $voicing)
+    END
+END_GROUP

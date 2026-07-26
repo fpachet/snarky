@@ -50,9 +50,15 @@ CLAIRE**, not “CLAURE.”
 | Propagation after a choice | Rules and constraints react to the hypothesis |
 | Session checkpoint and rollback | Open/extended backtracking |
 | Rule-derived facts restored with the branch | Consequences of rules and methods removed on backtracking |
+| Sequential `RuleStep` fixed points | Laurière's *étapes* of rule/constraint execution |
 
 The comparison is architectural rather than an assertion that the two
 languages have identical syntax or domain semantics.
+
+Snarky's steps are deliberately search-reversible. Completing a harmonic-plan
+step does not commit its choices: a contradiction during SATB realization can
+return to an earlier harmonic choice. This preserves the single search tree
+and avoids the incompleteness of solving each phase independently.
 
 ## Snarky's current formulation
 

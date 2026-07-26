@@ -222,6 +222,28 @@ are explicit inputs.
 Independent finite and SAT constraint solvers can return assignments as facts,
 but do not mutate an inference session implicitly.
 
+### Sequential rule-program steps
+
+A `RuleProgram` may partition choice production into ordered `RuleStep`
+objects. Each step contains ordinary rule groups and may contain named
+session propagators. `SessionChoiceSearch` gives a staged program this
+operational semantics:
+
+1. saturate the common groups and the current step's groups/constraints;
+2. reject a contradiction or accept a goal in that stable state;
+3. expose only the current step's `CHOICE` actions;
+4. branch normally when a choice exists;
+5. otherwise advance to the next step without discarding earlier choice
+   frames;
+6. treat “no choice and no goal” as a dead end only in the final step.
+
+The step index is branch-local and part of duplicate-state detection.
+Rollback restores the session state and returns through step boundaries in
+the same way that it returns through any other later inference. Steps
+therefore guide the order in which an object is constructed; they do not
+weaken constraints, make deterministic propagation branch, or commit a
+partial solution.
+
 ## Conflict resolution
 
 Without a conflict strategy, rules and activations execute deterministically

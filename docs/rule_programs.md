@@ -33,6 +33,40 @@ Les phases ont la sémantique suivante :
 `manifest()` rend la composition sérialisable pour les tests, traces et outils
 de visualisation.
 
+## Étapes séquentielles et réversibles
+
+Une simple liste de groupes ne suffit pas lorsqu'une application doit d'abord
+construire un objet abstrait, puis le réaliser. `RuleStep` reprend la notion
+d'« étape » de Laurière :
+
+```text
+PROGRAM satb_harmonizer
+    PREPARE generate_candidate_voicings
+    STEP harmonic_plan
+        GROUP choose_harmonic_plan
+    END_STEP
+    STEP satb_realization
+        GROUP choose_satb_realization
+    END_STEP
+    PROPAGATE maintain_note_voicing_channel
+    INTERPRET interpret_note_harmonization
+END_PROGRAM
+```
+
+`parse_rule_program()` résout les noms de groupes dans un catalogue. Une ligne
+`CONSTRAINT nom` peut également référencer un propagateur de session fourni au
+parseur. La syntaxe décrit donc l'orchestration sans enfouir l'ordre des phases
+dans le solveur applicatif.
+
+À chaque nœud, les groupes communs et ceux de l'étape courante alternent avec
+ses contraintes jusqu'au point fixe. Seuls les `CHOICE` de cette étape sont
+alors visibles. Leur absence fait avancer à l'étape suivante.
+
+Ce passage n'est pas un *commit*. Les points de choix de `harmonic_plan`
+restent dans le trail : si `satb_realization` aboutit à une contradiction, la
+recherche revient essayer un autre plan harmonique. La séparation guide donc
+l'ordre de construction sans rendre la recherche incomplète.
+
 ## `CHOICE` ne dépend pas du CSP
 
 `RuleProgram` et `CHOICE` appartiennent au cœur Snarky. Une base peut choisir
@@ -77,10 +111,14 @@ preparation
   import_muses_given_voice
   generate_candidate_voicings
 
-choice
-  apply_csp_choices
+step:harmonic_plan
+  choose_harmonic_plan
+
+step:satb_realization
+  choose_satb_realization
 
 propagation
+  apply_harmonizer_decisions
   classify_csp_domains
   enforce_tonal_form
   maintain_note_voicing_channel
@@ -92,12 +130,13 @@ interpretation
   interpret_note_harmonization
 ```
 
-Cela représente dix groupes et trente-trois règles. Le groupe
+Le groupe
 `propagate_binary_constraints`, auparavant ajouté implicitement, n'est plus
 chargé : le modèle musical ne construit aucun fait `binary_constraint`.
 
-Le programme conserve une seule mémoire de faits. Les catégories rendent
-l'orchestration visible ; elles ne créent pas de magasins ni de moteurs
-séparés. Une décision CSP retire des candidats, les règles musicales retirent
-alors les voicings sans support, puis la classification générique détecte les
+Le programme conserve une seule mémoire de faits et un seul arbre de
+recherche. L'étape harmonique choisit uniquement les variables d'accord ;
+l'étape SATB choisit les renversements et hauteurs encore indéterminés. Une
+décision retire des candidats, les règles musicales retirent alors les
+voicings sans support, puis la classification générique détecte les
 singletons, contradictions ou solutions.
