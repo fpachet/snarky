@@ -1,0 +1,234 @@
+# Bach rule induction
+
+Ce dossier est le point d'entrée du projet de recherche visant à extraire des
+règles lisibles des chorals de Bach, à les compiler pour Snarky et à les
+comparer à CHORAL et DeepBach.
+
+Le projet est volontairement séparé du prototype
+[`harmonizer/`](../README.md) : les règles apprises n'entreront dans
+l'harmoniseur principal qu'après validation, avec une provenance et des tests
+explicites.
+
+## Objectif expérimental
+
+Comparer sur les mêmes pièces et la même tâche :
+
+| ID | Système |
+|---|---|
+| `S0` | harmoniseur Snarky expert actuel |
+| `S1` | Snarky enrichi de règles induites |
+| `E0` | règles historiques de CHORAL reconstruites |
+| `D0-legacy` | [DeepBach historique](../../../deepbach-reference/README.md), poids et code figés |
+| `D0-modern` | port DeepBach maintenu et validé différentiellement |
+| `H0` | combinaison DeepBach–Snarky |
+
+La première tâche commune est l'harmonisation SATB d'un soprano imposé, avec
+rythme, métrique, fermatas et métadonnées tonales contrôlés.
+
+## Hypothèse centrale
+
+Une part substantielle de la connaissance des chorals pourrait être comprimée
+dans une petite base de règles intelligibles, locales et indépendantes,
+conservant l'essentiel de la qualité musicale. Les informations de contexte
+plus étendues — tonalité, métrique, phase de phrase, cadence ou rôle
+structurel — sont représentées par des faits de statut explicites et testables.
+Une règle consulte ces faits dans un voisinage borné, mais n'appelle jamais une
+autre règle et ne dépend pas de l'ordre d'application.
+
+Le résultat principal sera une frontière qualité–complexité : qualité tenue à
+part en fonction du nombre de faits, de règles et de conditions. La complexité
+des faits de statut est comptée afin de ne pas cacher le problème dans des
+features opaques. Une conclusion négative — qualité exigeant beaucoup de
+clauses, des règles non locales ou des statuts inintelligibles — répondrait elle
+aussi à la question scientifique.
+
+## État expérimental au 26 juillet 2026
+
+Les fondations reproductibles sont en place :
+
+- le manifeste historique Music21 3.1.0 reproduit les 352 chorals et les
+  2 503 transpositions de l'article DeepBach ;
+- un partage déterministe par pièce réserve 246 chorals au train, 53 à la
+  validation et 53 à un test encore scellé ;
+- la baseline DeepBach Keras historique génère de nouveau des chorals dans le
+  projet frère `deepbach-reference` ;
+- l'appendice B de CHORAL est couvert sur 78 pages par 1 293 unités sources,
+  775 cartes structurées et 7 tables ; la structure passe le validateur, mais
+  389 unités restent explicitement en revue philologique ;
+- un [premier POC différentiable](experiments/differentiable_rules_poc/) a
+  extrait 20 350 décisions de soprano et appris des clauses depuis des
+  hauteurs numériques.
+
+Le POC retrouve sans noms musicologiques l'évitement des sauts supérieurs à
+l'octave, une abstraction locale de mouvement de même signe entre soprano et
+basse, puis les répétitions fortement évitées des classes numériques `0` et
+`7`. Après dévoilement, celles-ci correspondent aux octaves/unissons et aux
+quintes parallèles.
+
+Les scores de validation de ces deux patrons sont `z = -4,410` et
+`z = -4,715`. Ils deviennent positifs dans le contrôle où les choix sont
+mélangés à l'intérieur de chaque pièce. Le [rapport
+d'analyse](experiments/differentiable_rules_poc/ANALYSIS.md) conserve aussi les
+limites : 52 clauses restent actives, le mouvement direct n'est pas encore
+isolé des pénalités générales de saut et aucune obligation tonale n'est encore
+identifiable avec ce vocabulaire.
+
+## Organisation
+
+```text
+bach_rule_induction/
+├── README.md             point d'entrée et état du chantier
+├── PLAN.md               protocole scientifique complet
+├── sources/              audits de DeepBach et de CHORAL
+├── corpus/               manifeste, partitions et transformations
+├── features/             registre des descripteurs musicaux
+├── rules/                RuleCards et règles Snarky induites
+├── baselines/            adaptateurs S0, E0, D0 et H0
+└── experiments/          configurations, sorties et métriques
+```
+
+Les partitions ou modèles externes volumineux ne doivent pas être recopiés
+ici. Ils restent dans `third_party/` ou dans le cache ignoré du projet frère
+[`deepbach-reference/`](../../../deepbach-reference/README.md) ; ce dossier ne
+conserve que leurs manifestes, empreintes, licences et transformations
+reproductibles.
+
+## Plan d'action
+
+### Phase 0 — sources et protocole
+
+État : en cours.
+
+- [x] copier et auditer le dépôt DeepBach, ses poids et son cache ;
+- [x] conserver le rapport IBM RC 12628 et inventorier CHORAL ;
+- [x] rédiger le protocole général ;
+- [ ] trancher les décisions ouvertes minimales : unité temporelle, corpus,
+      critères d'exclusion et tâche exacte.
+
+### Phase 1 — corpus canonique
+
+- [x] extraire les identifiants du corpus historique `music21` ;
+- [x] vérifier les 352 pièces et 2 503 transpositions annoncées par l'article
+      DeepBach ;
+- [x] produire un manifeste avec empreinte, inclusion et motif d'exclusion ;
+- regrouper doublons, variantes et transpositions ;
+- [x] figer un premier partage déterministe par pièce avant toute augmentation ;
+- convertir chaque pièce vers une représentation SATB commune et testée.
+
+Livrable : `corpus/manifest.yaml`, les trois listes d'identifiants et des tests
+de conservation notes–voix–rythme–fermata.
+
+### Phase 2 — vocabulaire musical
+
+- inventorier les faits déjà exposés par l'harmoniseur ;
+- définir les features tonales, métriques, cadentielles et contrapuntiques ;
+- associer définition, type, provenance et tests à chaque feature ;
+- représenter explicitement les informations manquantes révélées par les
+  erreurs de DeepBach.
+
+Livrable : registre versionné dans `features/`.
+
+### Phase 3 — règles humaines et CHORAL
+
+- choisir dix règles pédagogiques comme formulations parentes ;
+- [x] produire l'extraction structurée complète de CHORAL avec références de
+      page et provenance ;
+- revoir manuellement les unités et cartes signalées à faible confiance ;
+- mesurer support, exceptions et dépendance au contexte dans Bach ;
+- exprimer les variantes comme `MUST`, `NORMALLY`, `PREFER` ou `OBSERVED`.
+
+Livrable : premières RuleCards vérifiées dans `rules/`.
+
+### Phase 4 — induction et compilation Snarky
+
+- [x] implémenter un premier énumérateur de patrons interprétables et bornés ;
+- [x] lancer une première redécouverte aveugle sur sauts et parallèles ;
+- [x] guider la recherche et les poids par gradient conditionnel avec L1 ;
+- [x] exécuter un contrôle nul par mélange intra-pièce ;
+- remplacer la présélection marginale par une génération de colonnes
+  réellement résiduelle ;
+- tracer la frontière qualité–complexité sous plusieurs budgets ;
+- sélectionner les règles par support, gain, stabilité et coût descriptif ;
+- mesurer effets marginaux, ablations, redondances et interactions résiduelles ;
+- enrichir les faits de statut sans introduire de dépendances entre règles ;
+- valider sur un sous-ensemble non consulté pendant la découverte ;
+- compiler les règles retenues en `R-LEARNED-*` ;
+- vérifier chaque règle sur exemples, contre-exemples et cas limites.
+
+Livrable : baseline `S1` reproductible.
+
+Le premier résultat attendu n'est pas une règle nouvelle, mais le benchmark
+[`rules/KNOWN_RULE_RECOVERY.md`](rules/KNOWN_RULE_RECOVERY.md) : le mineur doit
+retrouver des sauts, chevauchements, parallèles et mouvements directs sans
+accéder aux règles de référence pendant l'apprentissage.
+
+La méthode d'induction est décrite dans
+[`rules/INDUCTION_ALGORITHM.md`](rules/INDUCTION_ALGORITHM.md) : les notes
+candidates d'une même position forment un groupe de décision, un beam search
+génère des clauses courtes, puis un MaxEnt conditionnel sparse sélectionne une
+base additive par génération de colonnes.
+
+La boucle interne est :
+
+```text
+chercher → valider → expliquer → compiler → tester
+→ diagnostiquer → modifier minimalement → sélectionner → recommencer
+```
+
+Elle s'exécute sur `train` et `validation` jusqu'à stabilisation du coude de la
+frontière qualité–complexité. Elle ne vise pas zéro erreur. Les faits, règles,
+seuils et métriques sont ensuite gelés avant l'unique ouverture du test final.
+
+### Phase 5 — baseline DeepBach
+
+- [x] démarrer `D0-legacy` dans un environnement isolé et sans réseau ;
+- [x] enregistrer des sorties de référence avec graines fixes ;
+- porter l'inférence vers `D0-modern` ;
+- comparer les distributions et sorties des deux versions ;
+- réentraîner sur le partage commun uniquement après validation du port.
+
+Livrable : adaptateur DeepBach versionné et test différentiel.
+
+### Phase 6 — désaccords et systèmes hybrides
+
+- générer plusieurs harmonisations par soprano sans sélection manuelle ;
+- auditer toutes les sorties avec Snarky ;
+- classifier violations, règles manquantes et features manquantes ;
+- construire des paires minimales ;
+- tester rejet, réparation, masquage et ordre des choix Snarky par DeepBach.
+
+Livrable : atlas des désaccords et comparaison `S0/S1/E0/D0/H0`.
+
+### Phase 7 — évaluation et publication
+
+- ouvrir le test final après gel du vocabulaire et des métriques ;
+- mesurer correction, fidélité stylistique, nouveauté, stabilité et coût ;
+- organiser une écoute en aveugle ;
+- publier règles, statistiques, exemples, exceptions et résultats négatifs.
+
+Livrable : traité exécutable de règles fondées sur corpus.
+
+## Prochain sprint
+
+Le premier sprint de provenance est terminé. L'ordre de travail immédiat est
+désormais :
+
+1. regrouper les doublons et variantes avant de geler le partage canonique ;
+2. généraliser l'export du POC aux quatre voix et à une représentation SATB
+   commune ;
+3. implémenter la génération de colonnes sur résidus et une pénalisation de
+   complexité plus sévère ;
+4. comparer formellement les clauses `0` et `7` aux oracles Snarky ;
+5. ajouter les faits tonals minimaux pour rechercher la première obligation ;
+6. revoir les cartes CHORAL à faible confiance pertinentes pour ces familles ;
+7. compiler les premières règles stables en `R-LEARNED-*`.
+
+La définition exhaustive des lots, métriques, risques et critères de sortie se
+trouve dans [`PLAN.md`](PLAN.md).
+
+## Sources déjà acquises
+
+- [`sources/DEEPBACH.md`](sources/DEEPBACH.md) : audit du dépôt, des
+  environnements et des ressources ;
+- [`sources/CHORAL.md`](sources/CHORAL.md) : source primaire, organisation et
+  protocole de reconstruction des règles d'Ebcioğlu.

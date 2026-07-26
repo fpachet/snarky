@@ -1,0 +1,248 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://local.invalid/choral/choral_items.schema.json",
+  "title": "CHORAL Appendix B public extraction records",
+  "description": "Schema for public source metadata, interpretation cards, and table metadata. Full source transcription is intentionally excluded.",
+  "oneOf": [
+    {"$ref": "#/$defs/source_metadata"},
+    {"$ref": "#/$defs/card"},
+    {"$ref": "#/$defs/table"}
+  ],
+  "$defs": {
+    "sha256": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{64}$"
+    },
+    "id_array": {
+      "type": "array",
+      "items": {"type": "string"},
+      "uniqueItems": true
+    },
+    "section_path": {
+      "type": "array",
+      "items": {"type": "string", "minLength": 1},
+      "minItems": 1
+    },
+    "source_location": {
+      "type": "object",
+      "required": ["pdf_pages", "printed_pages", "section_path"],
+      "properties": {
+        "pdf_pages": {
+          "type": "array",
+          "items": {"type": "integer", "minimum": 243, "maximum": 320},
+          "minItems": 1
+        },
+        "printed_pages": {
+          "type": "array",
+          "items": {"type": "integer", "minimum": 234, "maximum": 311},
+          "minItems": 1
+        },
+        "section_path": {"$ref": "#/$defs/section_path"}
+      },
+      "additionalProperties": false
+    },
+    "source_metadata": {
+      "type": "object",
+      "required": [
+        "source_unit_id",
+        "document_order",
+        "pdf_page",
+        "printed_page",
+        "section_path",
+        "unit_kind",
+        "unit_index_on_page",
+        "source_bbox",
+        "correction_status",
+        "transcription_uncertainties",
+        "corrected_text_sha256",
+        "derived_card_ids",
+        "short_source_cue",
+        "notes"
+      ],
+      "properties": {
+        "source_unit_id": {"type": "string", "pattern": "^CHORAL-B-P[0-9]{4}-U[0-9]{3}$"},
+        "document_order": {"type": "integer", "minimum": 1},
+        "pdf_page": {"type": "integer", "minimum": 243, "maximum": 320},
+        "printed_page": {"type": "integer", "minimum": 234, "maximum": 311},
+        "section_path": {"$ref": "#/$defs/section_path"},
+        "unit_kind": {
+          "enum": ["heading", "paragraph", "definition", "example", "table", "table_entry", "footnote", "other"]
+        },
+        "unit_index_on_page": {"type": "integer", "minimum": 1},
+        "source_bbox": {
+          "type": "array",
+          "items": {"type": "integer", "minimum": 0},
+          "minItems": 4,
+          "maxItems": 4
+        },
+        "correction_status": {"enum": ["raw_ocr", "ocr_checked", "visually_verified", "needs_review"]},
+        "transcription_uncertainties": {"type": "array"},
+        "corrected_text_sha256": {"$ref": "#/$defs/sha256"},
+        "derived_card_ids": {"$ref": "#/$defs/id_array"},
+        "short_source_cue": {"type": "string", "maxLength": 160},
+        "notes": {"type": "string"}
+      },
+      "additionalProperties": false
+    },
+    "card": {
+      "type": "object",
+      "required": [
+        "card_id",
+        "source_unit_ids",
+        "source_location",
+        "source_classification",
+        "title",
+        "faithful_paraphrase",
+        "atomic_statement",
+        "semantics",
+        "formalization",
+        "choral_system_role",
+        "snarky_assessment",
+        "quality",
+        "short_source_cue"
+      ],
+      "properties": {
+        "card_id": {"type": "string", "pattern": "^CHORAL-CARD-[0-9]{4}$"},
+        "source_unit_ids": {"$ref": "#/$defs/id_array"},
+        "source_location": {"$ref": "#/$defs/source_location"},
+        "source_classification": {
+          "type": "object",
+          "required": ["explicit_label", "normalized_kind"],
+          "properties": {
+            "explicit_label": {"type": ["string", "null"]},
+            "normalized_kind": {
+              "enum": ["production_rule", "hard_constraint", "heuristic", "preference", "definition", "procedure", "diagnostic", "search_control"]
+            }
+          },
+          "additionalProperties": false
+        },
+        "title": {"type": "string", "minLength": 1},
+        "faithful_paraphrase": {"type": "string", "minLength": 1, "maxLength": 1200},
+        "atomic_statement": {"type": "string", "minLength": 1, "maxLength": 1200},
+        "semantics": {
+          "type": "object",
+          "required": ["view", "scope", "conditions", "conclusion_or_action", "exceptions", "strength", "polarity"],
+          "properties": {
+            "view": {
+              "type": "array",
+              "items": {"enum": ["melodic", "harmonic", "voice_leading", "contrapuntal", "tonal", "cadential", "metrical", "rhythmic", "spacing", "doubling", "chord_spelling", "chord_progression", "ornamentation", "phrase_structure", "search_control", "representation", "other"]},
+              "minItems": 1,
+              "uniqueItems": true
+            },
+            "scope": {
+              "type": "object",
+              "required": ["voices", "temporal_window", "harmonic_context", "metrical_context"],
+              "properties": {
+                "voices": {"type": "array", "items": {"type": "string"}},
+                "temporal_window": {"type": "string"},
+                "harmonic_context": {"type": ["string", "null"]},
+                "metrical_context": {"type": ["string", "null"]}
+              },
+              "additionalProperties": false
+            },
+            "conditions": {"type": "array", "items": {"type": "string"}},
+            "conclusion_or_action": {"type": "array", "items": {"type": "string"}, "minItems": 1},
+            "exceptions": {"type": "array", "items": {"type": "string"}},
+            "strength": {"enum": ["hard", "prefer", "procedural", "descriptive", "normally"]},
+            "polarity": {"enum": ["require", "prohibit", "prefer", "avoid", "select", "execute", "describe"]}
+          },
+          "additionalProperties": false
+        },
+        "formalization": {
+          "type": "object",
+          "required": ["variables", "predicates", "antecedent", "consequent", "quantification", "required_status_facts", "dependencies_on_other_cards"],
+          "properties": {
+            "variables": {"type": "array", "items": {"type": "string"}},
+            "predicates": {"type": "array", "items": {"type": "string"}},
+            "antecedent": {"type": ["string", "null"]},
+            "consequent": {"type": ["string", "null"]},
+            "quantification": {"type": ["string", "null"]},
+            "required_status_facts": {"type": "array", "items": {"type": "string"}},
+            "dependencies_on_other_cards": {"$ref": "#/$defs/id_array"}
+          },
+          "additionalProperties": false
+        },
+        "choral_system_role": {
+          "type": "object",
+          "required": ["phase", "working_memory_inputs", "working_memory_outputs", "search_or_control_effect"],
+          "properties": {
+            "phase": {"type": "string"},
+            "working_memory_inputs": {"type": "array", "items": {"type": "string"}},
+            "working_memory_outputs": {"type": "array", "items": {"type": "string"}},
+            "search_or_control_effect": {"type": ["string", "null"]}
+          },
+          "additionalProperties": false
+        },
+        "snarky_assessment": {
+          "type": "object",
+          "required": ["representability", "required_existing_features", "required_new_features", "required_state", "obstacle", "candidate_snarky_form"],
+          "properties": {
+            "representability": {
+              "enum": ["direct", "requires_new_local_feature", "requires_new_status_fact", "requires_extended_temporal_window", "global_or_search_dependent", "procedural_not_declarative"]
+            },
+            "required_existing_features": {"type": "array"},
+            "required_new_features": {"type": "array"},
+            "required_state": {"type": "array"},
+            "obstacle": {"type": ["string", "null"]},
+            "candidate_snarky_form": {"type": ["string", "null"]}
+          },
+          "additionalProperties": false
+        },
+        "quality": {
+          "type": "object",
+          "required": ["interpretation_confidence", "transcription_verified", "atomicity_verified", "provenance_verified", "needs_domain_review", "ambiguities", "review_notes"],
+          "properties": {
+            "interpretation_confidence": {"enum": ["low", "medium", "high"]},
+            "transcription_verified": {"type": "boolean"},
+            "atomicity_verified": {"type": "boolean"},
+            "provenance_verified": {"type": "boolean"},
+            "needs_domain_review": {"type": "boolean"},
+            "ambiguities": {"type": "array", "items": {"type": "string"}},
+            "review_notes": {"type": "string"}
+          },
+          "additionalProperties": false
+        },
+        "short_source_cue": {"type": "string", "maxLength": 160}
+      },
+      "additionalProperties": false
+    },
+    "table": {
+      "type": "object",
+      "required": [
+        "table_id",
+        "pdf_pages",
+        "printed_pages",
+        "title",
+        "columns",
+        "role",
+        "expected_entry_count",
+        "source_unit_ids",
+        "private_transcription_sha256",
+        "raw_ocr_locations",
+        "corrected_transcription_location",
+        "referencing_card_ids",
+        "derived_card_ids",
+        "transcription_status",
+        "notes"
+      ],
+      "properties": {
+        "table_id": {"type": "string", "pattern": "^CHORAL-TABLE-P[0-9]{4}-T[0-9]{2}$"},
+        "pdf_pages": {"type": "array", "items": {"type": "integer", "minimum": 243, "maximum": 320}, "minItems": 1},
+        "printed_pages": {"type": "array", "items": {"type": "integer", "minimum": 234, "maximum": 311}, "minItems": 1},
+        "title": {"type": "string"},
+        "columns": {"type": "array", "items": {"type": "string"}, "minItems": 1},
+        "role": {"type": "string"},
+        "expected_entry_count": {"type": ["integer", "null"], "minimum": 0},
+        "source_unit_ids": {"$ref": "#/$defs/id_array"},
+        "private_transcription_sha256": {"$ref": "#/$defs/sha256"},
+        "raw_ocr_locations": {"type": "array", "items": {"type": "string"}, "minItems": 1},
+        "corrected_transcription_location": {"type": "string"},
+        "referencing_card_ids": {"$ref": "#/$defs/id_array"},
+        "derived_card_ids": {"$ref": "#/$defs/id_array"},
+        "transcription_status": {"enum": ["raw_ocr", "ocr_checked", "visually_verified", "needs_review"]},
+        "notes": {"type": "string"}
+      },
+      "additionalProperties": false
+    }
+  }
+}
