@@ -9,6 +9,7 @@ With the optional MuSES sibling project installed:
 uv run python -m harmonizer.example_muses
 uv run python -m harmonizer.example_muses --long
 uv run python -m harmonizer.example_muses --diatonic
+uv run python -m harmonizer.example_muses --roles
 uv run python -m harmonizer.example_muses --extended
 ```
 
@@ -20,3 +21,7 @@ The eight-bar `--diatonic` example gives every note its own harmonic decision.
 Its first phrase traverses the complete ascending C-major scale and is
 harmonized `I-V-I-IV-I-IV-V-I`; D is a normal chord tone of V and is subject
 to the same vertical and transition rules as every other note.
+The eight-bar `--roles` example derives strong/weak metric facts from its
+rhythm and selects passing tone, upper neighbor, lower neighbor, suspension,
+and anticipation roles. It supplies five local chord anchors, not a complete
+harmonic plan or any role labels.

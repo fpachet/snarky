@@ -44,10 +44,12 @@ GROUP generate_candidate_voicings
     # inférieures doivent alors énoncer seules les trois classes de l'accord.
     # V7 reste exclu de ce premier palier : quatre classes ne tiennent pas dans
     # alto–ténor–basse sans définir explicitement une politique d'omission.
-    RULE generate_ornamental_soprano_voicing
+    RULE generate_passing_or_neighbor_soprano_voicing
     WHEN
         ($position given_voice soprano)
         ($position melodic_role_candidate $role)
+        $role != suspension
+        $role != anticipation
         ($position chord_variable $chord_variable)
         ($position inversion_variable $inversion_variable)
         ($position soprano_variable $soprano_variable)
@@ -81,5 +83,95 @@ GROUP generate_candidate_voicings
     THEN
         ADD ($position voicing_candidate SEQ[$chord $inversion $soprano $alto $tenor $bass])
         ADD ($position voicing_melodic_role SEQ[$chord $inversion $soprano $alto $tenor $bass $role])
+    END
+
+    # La suspension remplace temporairement sa note de résolution dans
+    # l'accord. Les trois voix inférieures réalisent donc les deux autres
+    # classes de la triade, sans doubler la classe qui arrivera à la soprano.
+    RULE generate_suspension_soprano_voicing
+    WHEN
+        ($position given_voice soprano)
+        ($position melodic_role_candidate suspension)
+        ($position successor $next)
+        ($next soprano_variable $next_soprano_variable)
+        ($next_soprano_variable candidate $resolution)
+        ($position chord_variable $chord_variable)
+        ($position inversion_variable $inversion_variable)
+        ($position soprano_variable $soprano_variable)
+        ($position alto_variable $alto_variable)
+        ($position tenor_variable $tenor_variable)
+        ($position bass_variable $bass_variable)
+        ($chord_variable candidate $chord)
+        ($inversion_variable candidate $inversion)
+        ($chord allows_inversion $inversion)
+        ($soprano_variable candidate $soprano)
+        ($alto_variable candidate $alto)
+        ($tenor_variable candidate $tenor)
+        ($bass_variable candidate $bass)
+        NOT EXISTS
+            ($chord voice_pitch SEQ[soprano $soprano])
+        END_NOT_EXISTS
+        ($chord voice_pitch SEQ[alto $alto])
+        ($chord voice_pitch SEQ[tenor $tenor])
+        ($chord inversion_bass_pitch SEQ[$inversion $bass])
+        ($chord chord_cardinality 3)
+        ($resolution pitch_class $resolution_class)
+        ($alto pitch_class $alto_class)
+        ($tenor pitch_class $tenor_class)
+        ($bass pitch_class $bass_class)
+        $alto_class != $resolution_class
+        $tenor_class != $resolution_class
+        $bass_class != $resolution_class
+        $soprano > $alto
+        $alto > $tenor
+        $tenor > $bass
+        CONSTRAINT $soprano - $alto <= 12
+        CONSTRAINT $alto - $tenor <= 12
+        CONSTRAINT $tenor - $bass <= 19
+        NVALUE 2 OF SEQ[$alto_class $tenor_class $bass_class]
+    THEN
+        ADD ($position voicing_candidate SEQ[$chord $inversion $soprano $alto $tenor $bass])
+        ADD ($position voicing_melodic_role SEQ[$chord $inversion $soprano $alto $tenor $bass suspension])
+    END
+
+    # L'anticipation est ajoutée au-dessus d'une triade encore complète :
+    # elle appartient à l'accord suivant, pas à l'accord courant.
+    RULE generate_anticipation_soprano_voicing
+    WHEN
+        ($position given_voice soprano)
+        ($position melodic_role_candidate anticipation)
+        ($position chord_variable $chord_variable)
+        ($position inversion_variable $inversion_variable)
+        ($position soprano_variable $soprano_variable)
+        ($position alto_variable $alto_variable)
+        ($position tenor_variable $tenor_variable)
+        ($position bass_variable $bass_variable)
+        ($chord_variable candidate $chord)
+        ($inversion_variable candidate $inversion)
+        ($chord allows_inversion $inversion)
+        ($soprano_variable candidate $soprano)
+        ($alto_variable candidate $alto)
+        ($tenor_variable candidate $tenor)
+        ($bass_variable candidate $bass)
+        NOT EXISTS
+            ($chord voice_pitch SEQ[soprano $soprano])
+        END_NOT_EXISTS
+        ($chord voice_pitch SEQ[alto $alto])
+        ($chord voice_pitch SEQ[tenor $tenor])
+        ($chord inversion_bass_pitch SEQ[$inversion $bass])
+        ($chord chord_cardinality 3)
+        ($alto pitch_class $alto_class)
+        ($tenor pitch_class $tenor_class)
+        ($bass pitch_class $bass_class)
+        $soprano > $alto
+        $alto > $tenor
+        $tenor > $bass
+        CONSTRAINT $soprano - $alto <= 12
+        CONSTRAINT $alto - $tenor <= 12
+        CONSTRAINT $tenor - $bass <= 19
+        NVALUE 3 OF SEQ[$alto_class $tenor_class $bass_class]
+    THEN
+        ADD ($position voicing_candidate SEQ[$chord $inversion $soprano $alto $tenor $bass])
+        ADD ($position voicing_melodic_role SEQ[$chord $inversion $soprano $alto $tenor $bass anticipation])
     END
 END_GROUP

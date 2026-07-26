@@ -8,6 +8,7 @@ selected cadence before the solution is reconstructed as a MuSES Piece.
 
 from __future__ import annotations
 
+import math
 from collections.abc import Iterable, Sequence
 from dataclasses import dataclass
 from importlib import import_module
@@ -30,6 +31,7 @@ from .note_solver import (
     Cadence,
     HarmonicPlanDegree,
     HarmonicPlanProfile,
+    MetricStrength,
     NoteHarmonization,
     SATBVoice,
     _note_harmonization,
@@ -119,6 +121,7 @@ def harmonize_temporal_collection(
     harmonic_rhythm: tuple[int, ...] | None = None,
     harmonic_plan: tuple[HarmonicPlanDegree | None, ...] | None = None,
     harmonic_plan_profile: HarmonicPlanProfile | None = None,
+    metric_strengths: tuple[MetricStrength, ...] | None = None,
     max_solutions: int = 1,
     traversal: ChoiceTraversal = ChoiceTraversal.BEST_FIRST,
     seed: int = 0,
@@ -156,6 +159,11 @@ def harmonize_temporal_collection(
         raise ValueError("MuSES fact snapshot and collection length disagree")
 
     pitches = tuple(note.pitch for note in notes)
+    metric = (
+        _metric_strengths(notes, time_signature)
+        if metric_strengths is None
+        else metric_strengths
+    )
     model = build_note_harmonizer_model(
         pitches,
         given_voice=given_voice,
@@ -163,6 +171,7 @@ def harmonize_temporal_collection(
         harmonic_rhythm=harmonic_rhythm,
         harmonic_plan=harmonic_plan,
         harmonic_plan_profile=harmonic_plan_profile,
+        metric_strengths=metric,
         source_facts=source_facts,
         source_notes=source_notes,
     )
@@ -285,6 +294,37 @@ def _validated_notes(
         if current.start_beat < previous.end_beat:
             raise ValueError("the given SATB line must be monophonic")
     return tuple(notes)
+
+
+def _metric_strengths(
+    notes: tuple[TemporalNoteLike, ...],
+    time_signature: str,
+) -> tuple[MetricStrength, ...]:
+    """Translate note onsets into strong/weak facts for simple meters."""
+
+    try:
+        numerator_text, denominator_text = time_signature.split("/", maxsplit=1)
+        numerator = int(numerator_text)
+        denominator = int(denominator_text)
+    except (AttributeError, ValueError) as error:
+        raise ValueError(
+            "time_signature must have the form numerator/denominator"
+        ) from error
+    if numerator <= 0 or denominator <= 0:
+        raise ValueError("time_signature values must be positive")
+    measure_quarters = numerator * 4 / denominator
+    if measure_quarters <= 0:
+        raise ValueError("time_signature must define a positive measure")
+    secondary_accent = measure_quarters / 2
+    strengths: list[MetricStrength] = []
+    for note in notes:
+        offset = float(note.start_beat) % measure_quarters
+        strong = math.isclose(offset, 0.0) or math.isclose(
+            offset,
+            secondary_accent,
+        )
+        strengths.append("strong" if strong else "weak")
+    return tuple(strengths)
 
 
 def _ordered_note_identities(

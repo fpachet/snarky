@@ -39,9 +39,11 @@ The extensional transition table remains available as a differential oracle.
 
 ### Note-by-note tonal model
 
-The main model gives each harmonic event six finite-domain variables:
+The main model gives each note seven finite-domain variables:
 
 - chord degree among `I`, `ii`, `IV`, `V`, `V7`, `vi`, and `vii°`;
+- melodic role among chord tone, passing tone, upper/lower neighbor,
+  suspension, and anticipation;
 - root, first, or permitted second inversion;
 - soprano, alto, tenor, and bass pitches.
 
@@ -52,12 +54,13 @@ support, produce choices, and interpret the result.
 The current vocabulary includes:
 
 - strict order, spacing, chord completeness, inversion bass, and doubling;
-- soprano chord tones, passing tones, and upper/lower neighbor tones;
+- soprano chord tones, passing tones, upper/lower neighbors, suspensions,
+  and anticipations;
 - functional progression and four cadence profiles;
 - melodic bounds, overlap, forbidden parallels, and direct motion;
 - leading-tone and dominant-seventh resolution;
 - cadential `I64` resolutions;
-- explicit harmonic rhythm.
+- explicit harmonic rhythm and strong/weak metric facts.
 
 In the note-by-note model, these are no longer opaque Python checks. Chord
 completeness uses `NVALUE`; doubling uses correlated `COUNT`; motion,
@@ -68,12 +71,12 @@ cadential six-four resolution produce named `R-*` violation facts in
 `note_transition.rules` performs bidirectional support revision over the
 transitions that have no violation.
 
-Passing and neighbor shapes are recognized in
+Passing, neighbor, suspension, and anticipation shapes are recognized in
 [`melodic_roles.rules`](melodic_roles.rules) from the local
-previous–current–next contour. Ornamentation is considered only on a
-continuation inside an explicitly shared harmonic event. Otherwise every
-soprano attack is harmonized independently. No Python callback labels the
-note.
+previous–current–next contour and metric strength. The rules add admissible
+values to a melodic-role CSP variable; they do not label the note after the
+fact. Chord, role, inversion, and SATB support are then propagated jointly.
+No Python callback decides the role.
 
 Example:
 
@@ -188,17 +191,21 @@ transition, inversion, spacing, doubling, and voice-leading rules apply
 exactly as at the other positions. A pitch is not intrinsically a non-chord
 tone; that role is relative to the selected harmony.
 
-## Explicitly held harmony and non-chord tones
+## Metric-aware melodic roles
 
-`harmonic_rhythm` is an explicit modeling decision. Repeating a slot means
-that its notes share one chord variable. Only in that case can the current
-first-stage rules derive passing or neighbor motion over a genuinely held
-harmony:
+Every note has a `melodic_role` variable whose initial domain contains
+`chord_tone`. Declarative contour and metric rules may add other candidates.
+For example, a weak D between C and E admits `passing_tone`. A partial harmonic
+plan can establish the local tonic context without stating the role:
 
 ```python
 held = harmonize_notes(
     (72, 74, 76, 67, 65, 69, 71, 72),
-    harmonic_rhythm=(0, 0, 1, 1, 2, 2, 3, 4),
+    metric_strengths=(
+        "strong", "weak", "strong", "strong",
+        "strong", "strong", "strong", "strong",
+    ),
+    harmonic_plan=("I", "I", "I", "I", "IV", "ii", "V", "I"),
     traversal=ChoiceTraversal.DEPTH_FIRST,
     max_solutions=1,
 )[0]
@@ -210,17 +217,37 @@ assert held.melodic_roles[:3] == (
 )
 ```
 
-The rules derive ascending and descending passing motion and upper or lower
-neighbor motion. A chord-tone voicing requires all four voices to belong to
-the chord. For an ornamental soprano over an explicitly held triad, alto,
-tenor, and bass must contain all three chord classes themselves. Ornamentation
-over `V7` is intentionally rejected in this first version: three lower voices
-cannot state all four chord classes without an explicit omission policy.
+The role channel enforces these meanings:
 
-This is harmonic-role inference rather than unrestricted dissonance. The
-current eligibility fact identifies continuation inside a harmonic event;
-full beat-strength analysis, suspensions, anticipations, appoggiaturas, and
-accented passing tones remain future work.
+- chord tone: the soprano belongs to the current chord;
+- passing or neighbor tone: a weak non-chord tone over the same harmony as
+  its two neighbors, with the appropriate stepwise contour;
+- suspension: a strong repeated pitch prepared in the previous chord,
+  dissonant over the new harmony, then resolved downward by step;
+- anticipation: a weak non-chord tone held into a following chord that
+  contains it.
+
+Passing tones, neighbors, and anticipations leave a complete triad in the
+three lower voices. A suspension instead omits its resolution class from the
+lower voices: the suspended pitch temporarily replaces that chord member.
+All policies are in rule premises and remain subject to the ordinary chord,
+inversion, transition, spacing, doubling, and voice-leading propagation.
+
+`metric_strengths` accepts one `strong` or `weak` value per note. The MuSES
+adapter derives these facts from note onsets and the time signature. The
+current hierarchy is deliberately binary; compound-meter accent levels,
+appoggiaturas, escape tones, and ornaments over `V7` remain future work.
+
+The eight-bar generated demonstration contains passing motion, upper and
+lower neighbors, a 4–3 suspension, and an anticipation:
+
+```sh
+uv run python -m harmonizer.example_muses --roles
+```
+
+It supplies five local chord anchors but no melodic-role labels. Snarky
+derives all 18 role domains, infers the remaining harmony, and selects the
+complete SATB realization.
 
 Static note, chord, and inversion weights become contextual when the preceding
 choice is known. Best-first search returns deterministic high-scoring
@@ -328,6 +355,7 @@ python -m pip install -e ../muses
 uv run python -m harmonizer.example_muses
 uv run python -m harmonizer.example_muses --long
 uv run python -m harmonizer.example_muses --diatonic
+uv run python -m harmonizer.example_muses --roles
 uv run python -m harmonizer.example_muses --extended
 ```
 

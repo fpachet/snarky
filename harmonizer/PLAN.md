@@ -78,16 +78,21 @@ Le jalon livre maintenant :
   mouvements directs, sensible, septième et `I64` ;
 - tests positifs, négatifs, limites et exceptions du noyau de conformité.
 
-## Jalon 3c — notes étrangères mélodiques — premier palier livré
+## Jalon 3c — rôles mélodiques conjoints — livré
 
 - analyse déclarative du contour précédent–courant–suivant ;
 - passages ascendants et descendants conjoints ;
 - broderies supérieures et inférieures ;
-- restriction aux continuations d'un événement harmonique ;
-- réalisation complète de la triade par alto–ténor–basse lorsque la soprano
-  est étrangère ;
-- rôle sélectionné exposé dans la solution et oracle ciblé sur un accord
-  explicitement tenu.
+- suspensions préparées et résolues, anticipations ;
+- faits métriques forts/faibles dérivés des débuts MuSES ou fournis à l'API ;
+- une variable CSP de rôle par note, choisie dans l'étape harmonique ;
+- canalisation bidirectionnelle rôle–accord–voicing et support harmonique
+  précédent/suivant ;
+- triade complète sous passage, broderie ou anticipation ;
+- politique d'omission de la note de résolution sous une suspension ;
+- rôle et métrique sélectionnés exposés dans la solution ;
+- exemple MuSES de huit mesures couvrant les cinq rôles étrangers avec cinq
+  ancrages harmoniques locaux, sans plan complet ni étiquette de rôle.
 
 L'exemple MuSES de huit mesures harmonise désormais chaque attaque
 indépendamment. Sa première phrase parcourt toute la gamme ascendante de do
@@ -96,7 +101,7 @@ mêmes contraintes que les autres notes. Une note étrangère n'est jamais
 déduite de sa seule hauteur ; elle est relative à un accord explicitement
 prolongé.
 
-Suite musicale : force métrique explicite, suspensions et anticipations, puis
+Suite musicale : hiérarchie métrique, appoggiatures et échappées, puis
 politique d'omission pour les accords de quatre sons.
 
 Restent aussi les renversements de `V7`, autres septièmes, six-quatre de

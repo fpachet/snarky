@@ -1,12 +1,12 @@
-# Analyse locale de la soprano donnée. Une note ornementale n'est envisagée
-# que sur la continuation d'un événement harmonique ; les règles utilisent le
-# contour précédent–courant–suivant sans callback Python.
+# Analyse locale de la soprano donnée. Les rôles sont des candidats CSP :
+# le contour et la métrique les rendent admissibles, puis la canalisation avec
+# l'accord et le voicing décide conjointement du rôle réellement sélectionné.
 
 GROUP derive_melodic_roles
     RULE derive_ascending_passing_tone
     WHEN
         ($position given_voice soprano)
-        ($position harmonic_event_role continuation)
+        ($position metric_strength weak)
         ($previous successor $position)
         ($position successor $next)
         ($previous soprano_variable $previous_variable)
@@ -26,7 +26,7 @@ GROUP derive_melodic_roles
     RULE derive_descending_passing_tone
     WHEN
         ($position given_voice soprano)
-        ($position harmonic_event_role continuation)
+        ($position metric_strength weak)
         ($previous successor $position)
         ($position successor $next)
         ($previous soprano_variable $previous_variable)
@@ -46,7 +46,7 @@ GROUP derive_melodic_roles
     RULE derive_upper_neighbor_tone
     WHEN
         ($position given_voice soprano)
-        ($position harmonic_event_role continuation)
+        ($position metric_strength weak)
         ($previous successor $position)
         ($position successor $next)
         ($previous soprano_variable $previous_variable)
@@ -65,7 +65,7 @@ GROUP derive_melodic_roles
     RULE derive_lower_neighbor_tone
     WHEN
         ($position given_voice soprano)
-        ($position harmonic_event_role continuation)
+        ($position metric_strength weak)
         ($previous successor $position)
         ($position successor $next)
         ($previous soprano_variable $previous_variable)
@@ -79,5 +79,72 @@ GROUP derive_melodic_roles
         CONSTRAINT $previous_pitch - $current_pitch <= 2
     THEN
         ADD ($position melodic_role_candidate lower_neighbor)
+    END
+
+    RULE derive_suspension
+    WHEN
+        ($position given_voice soprano)
+        ($position metric_strength strong)
+        ($previous successor $position)
+        ($position successor $next)
+        ($previous soprano_variable $previous_variable)
+        ($position soprano_variable $current_variable)
+        ($next soprano_variable $next_variable)
+        ($previous_variable candidate $previous_pitch)
+        ($current_variable candidate $current_pitch)
+        ($next_variable candidate $next_pitch)
+        $previous_pitch == $current_pitch
+        CONSTRAINT $current_pitch - $next_pitch >= 1
+        CONSTRAINT $current_pitch - $next_pitch <= 2
+    THEN
+        ADD ($position melodic_role_candidate suspension)
+    END
+
+    RULE derive_ascending_anticipation
+    WHEN
+        ($position given_voice soprano)
+        ($position metric_strength weak)
+        ($previous successor $position)
+        ($position successor $next)
+        ($previous soprano_variable $previous_variable)
+        ($position soprano_variable $current_variable)
+        ($next soprano_variable $next_variable)
+        ($previous_variable candidate $previous_pitch)
+        ($current_variable candidate $current_pitch)
+        ($next_variable candidate $next_pitch)
+        $current_pitch == $next_pitch
+        CONSTRAINT $current_pitch - $previous_pitch >= 1
+        CONSTRAINT $current_pitch - $previous_pitch <= 2
+    THEN
+        ADD ($position melodic_role_candidate anticipation)
+    END
+
+    RULE derive_descending_anticipation
+    WHEN
+        ($position given_voice soprano)
+        ($position metric_strength weak)
+        ($previous successor $position)
+        ($position successor $next)
+        ($previous soprano_variable $previous_variable)
+        ($position soprano_variable $current_variable)
+        ($next soprano_variable $next_variable)
+        ($previous_variable candidate $previous_pitch)
+        ($current_variable candidate $current_pitch)
+        ($next_variable candidate $next_pitch)
+        $current_pitch == $next_pitch
+        CONSTRAINT $previous_pitch - $current_pitch >= 1
+        CONSTRAINT $previous_pitch - $current_pitch <= 2
+    THEN
+        ADD ($position melodic_role_candidate anticipation)
+    END
+END_GROUP
+
+GROUP prepare_melodic_role_domains
+    RULE admit_derived_melodic_role
+    WHEN
+        ($position melodic_role_variable $variable)
+        ($position melodic_role_candidate $role)
+    THEN
+        ADD ($variable candidate $role)
     END
 END_GROUP

@@ -16,6 +16,20 @@ GROUP choose_harmonic_plan
             ($variable choice_weight SEQ[$chosen $weight])
         END_CHOICE
     END
+
+    RULE choose_melodic_role
+    WHEN
+        ($problem kind csp_problem)
+        ($problem variable $variable)
+        ($variable kind melodic_role)
+        NOT EXISTS ($variable value $assigned)
+    THEN
+        CHOICE ($variable decision $chosen) WEIGHT $weight
+        FROM
+            ($variable candidate $chosen)
+            ($variable choice_weight SEQ[$chosen $weight])
+        END_CHOICE
+    END
 END_GROUP
 
 GROUP choose_satb_realization

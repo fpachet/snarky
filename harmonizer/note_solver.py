@@ -6,7 +6,7 @@ import math
 from dataclasses import dataclass
 from functools import cache
 from pathlib import Path
-from typing import Literal
+from typing import Literal, cast
 
 from csp_solver.solver import (
     CANDIDATE,
@@ -80,6 +80,17 @@ GIVEN_VOICE = Atom("given_voice")
 HARMONIC_EVENT_ROLE = Atom("harmonic_event_role")
 ONSET = Atom("onset")
 CONTINUATION = Atom("continuation")
+METRIC_STRENGTH = Atom("metric_strength")
+STRONG = Atom("strong")
+WEAK = Atom("weak")
+MELODIC_ROLE_VARIABLE = Atom("melodic_role_variable")
+MELODIC_ROLE = Atom("melodic_role")
+CHORD_TONE = Atom("chord_tone")
+PASSING_TONE = Atom("passing_tone")
+UPPER_NEIGHBOR = Atom("upper_neighbor")
+LOWER_NEIGHBOR = Atom("lower_neighbor")
+SUSPENSION = Atom("suspension")
+ANTICIPATION = Atom("anticipation")
 SELECTED_MELODIC_ROLE = Atom("selected_melodic_role")
 RESTRICT_INVERSION = Atom("restrict_inversion")
 ALLOWED_FORM_INVERSION = Atom("allowed_form_inversion")
@@ -159,6 +170,7 @@ type SATBVoice = Literal["soprano", "alto", "tenor", "bass"]
 type Cadence = Literal["perfect", "plagal", "deceptive", "half"]
 type HarmonicPlanDegree = Literal["I", "ii", "IV", "V", "V7", "vi", "vii°"]
 type HarmonicPlanProfile = Literal["extended_tonal_arc"]
+type MetricStrength = Literal["strong", "weak"]
 
 
 @dataclass(frozen=True, slots=True)
@@ -170,11 +182,13 @@ class NoteHarmonizerModel:
     positions: tuple[Atom, ...]
     variables: tuple[tuple[Atom, Atom, Atom, Atom], ...]
     harmonic_variables: tuple[tuple[Atom, Atom], ...]
+    melodic_role_variables: tuple[Atom, ...]
     choice_priorities: dict[Term, int]
     generated_voicings: tuple[int, ...]
     given_voice: SATBVoice
     cadence: Cadence
     harmonic_rhythm: tuple[int, ...]
+    metric_strengths: tuple[MetricStrength, ...]
     preparation_events: tuple[InferenceEvent, ...]
 
 
@@ -188,6 +202,7 @@ class NoteHarmonization:
     melodic_roles: tuple[str, ...]
     cadence: Cadence
     harmonic_rhythm: tuple[int, ...]
+    metric_strengths: tuple[MetricStrength, ...]
     log_weight: float
     decisions: tuple[ChoiceDecision, ...]
     choice_events: tuple[ChoiceEvent, ...]
@@ -202,6 +217,7 @@ def build_note_harmonizer_model(
     harmonic_rhythm: tuple[int, ...] | None = None,
     harmonic_plan: tuple[HarmonicPlanDegree | None, ...] | None = None,
     harmonic_plan_profile: HarmonicPlanProfile | None = None,
+    metric_strengths: tuple[MetricStrength, ...] | None = None,
     source_facts: tuple[Fact, ...] = (),
     source_notes: tuple[Atom, ...] = (),
 ) -> NoteHarmonizerModel:
@@ -223,6 +239,7 @@ def build_note_harmonizer_model(
         raise ValueError("source note identities must be unique")
     imported_line = bool(source_notes)
     rhythm = _normalized_harmonic_rhythm(len(melody), harmonic_rhythm)
+    metric = _normalized_metric_strengths(len(melody), metric_strengths)
     harmonic_positions = tuple(rhythm.index(slot) for slot in range(max(rhythm) + 1))
     plan = _normalized_harmonic_plan(len(harmonic_positions), harmonic_plan)
     profile = _normalized_harmonic_plan_profile(
@@ -247,8 +264,9 @@ def build_note_harmonizer_model(
         )
         for slot in range(len(harmonic_positions))
     )
-    harmonic_variables = tuple(
-        slot_harmonic_variables[slot] for slot in rhythm
+    harmonic_variables = tuple(slot_harmonic_variables[slot] for slot in rhythm)
+    melodic_role_variables = tuple(
+        Atom(f"note_{index}_melodic_role") for index in range(len(melody))
     )
     facts: list[Fact] = [
         Fact(Triple(PROBLEM, KIND, CSP_PROBLEM)),
@@ -295,8 +313,8 @@ def build_note_harmonizer_model(
                 Fact(Triple(inversion_variable, POSITION, position)),
             )
         )
-        choice_priorities[chord_variable] = first_position * 6
-        choice_priorities[inversion_variable] = first_position * 6 + 1
+        choice_priorities[chord_variable] = first_position * 7
+        choice_priorities[inversion_variable] = first_position * 7 + 2
 
         chord_weights = _static_chord_weights(first_position)
         for chord in CHORDS:
@@ -359,8 +377,19 @@ def build_note_harmonizer_model(
                 for chord in CHORDS
             )
 
-    for index, (position, position_variables, harmonic_pair) in enumerate(
-        zip(positions, variables, harmonic_variables, strict=True)
+    for index, (
+        position,
+        position_variables,
+        harmonic_pair,
+        melodic_role_variable,
+    ) in enumerate(
+        zip(
+            positions,
+            variables,
+            harmonic_variables,
+            melodic_role_variables,
+            strict=True,
+        )
     ):
         chord_variable, inversion_variable = harmonic_pair
         facts.extend(
@@ -371,17 +400,46 @@ def build_note_harmonizer_model(
                     Triple(
                         position,
                         HARMONIC_EVENT_ROLE,
-                        (
-                            ONSET
-                            if index in harmonic_positions
-                            else CONTINUATION
-                        ),
+                        (ONSET if index in harmonic_positions else CONTINUATION),
                     )
                 ),
+                Fact(Triple(position, METRIC_STRENGTH, Atom(metric[index]))),
                 Fact(Triple(position, CHORD_VARIABLE, chord_variable)),
                 Fact(Triple(position, INVERSION_VARIABLE, inversion_variable)),
+                Fact(
+                    Triple(
+                        position,
+                        MELODIC_ROLE_VARIABLE,
+                        melodic_role_variable,
+                    )
+                ),
+                Fact(Triple(PROBLEM, VARIABLE, melodic_role_variable)),
+                Fact(Triple(melodic_role_variable, KIND, CSP_VARIABLE)),
+                Fact(Triple(melodic_role_variable, KIND, MELODIC_ROLE)),
+                Fact(Triple(melodic_role_variable, POSITION, position)),
+                Fact(Triple(melodic_role_variable, CANDIDATE, CHORD_TONE)),
             )
         )
+        choice_priorities[melodic_role_variable] = index * 7 + 1
+        role_weights = {
+            CHORD_TONE: 0.70,
+            PASSING_TONE: 0.10,
+            UPPER_NEIGHBOR: 0.04,
+            LOWER_NEIGHBOR: 0.04,
+            SUSPENSION: 0.07,
+            ANTICIPATION: 0.05,
+        }
+        for role, weight in role_weights.items():
+            facts.append(
+                Fact(
+                    Triple(
+                        melodic_role_variable,
+                        CHOICE_WEIGHT,
+                        FiniteSequence((role, Number(weight))),
+                    )
+                )
+            )
+            weights[(melodic_role_variable, role)] = weight
 
         for voice_index, (voice, relation, variable) in enumerate(
             zip(
@@ -396,7 +454,7 @@ def build_note_harmonizer_model(
                 if voice_index == given_voice_index
                 else DIATONIC_VOICE_POOLS[voice_index]
             )
-            choice_priorities[variable] = index * 6 + voice_index + 2
+            choice_priorities[variable] = index * 7 + voice_index + 3
             facts.extend(
                 (
                     Fact(Triple(PROBLEM, VARIABLE, variable)),
@@ -476,9 +534,7 @@ def build_note_harmonizer_model(
         harmonic_positions,
         cadence,
     )
-    representative_positions = tuple(
-        positions[index] for index in harmonic_positions
-    )
+    representative_positions = tuple(positions[index] for index in harmonic_positions)
     facts.extend(
         Fact(Triple(left, HARMONIC_SUCCESSOR, right))
         for left, right in zip(
@@ -528,11 +584,13 @@ def build_note_harmonizer_model(
         positions,
         variables,
         harmonic_variables,
+        melodic_role_variables,
         choice_priorities,
         generated_counts,
         given_voice,
         cadence,
         rhythm,
+        metric,
         preparation_events,
     )
 
@@ -561,6 +619,22 @@ def _normalized_harmonic_rhythm(
     return rhythm
 
 
+def _normalized_metric_strengths(
+    note_count: int,
+    metric_strengths: tuple[MetricStrength, ...] | None,
+) -> tuple[MetricStrength, ...]:
+    strengths = (
+        tuple(cast(MetricStrength, "strong") for _ in range(note_count))
+        if metric_strengths is None
+        else metric_strengths
+    )
+    if len(strengths) != note_count:
+        raise ValueError("metric_strengths must contain one value per note")
+    if any(strength not in {"strong", "weak"} for strength in strengths):
+        raise ValueError("metric strengths must be strong or weak")
+    return strengths
+
+
 def _normalized_harmonic_plan(
     slot_count: int,
     harmonic_plan: tuple[HarmonicPlanDegree | None, ...] | None,
@@ -568,9 +642,7 @@ def _normalized_harmonic_plan(
     if harmonic_plan is None:
         return (None,) * slot_count
     if len(harmonic_plan) != slot_count:
-        raise ValueError(
-            "harmonic_plan must contain one chord label per harmonic slot"
-        )
+        raise ValueError("harmonic_plan must contain one chord label per harmonic slot")
     chord_by_label = {
         "I": DEGREE_I,
         "ii": DEGREE_II,
@@ -582,8 +654,7 @@ def _normalized_harmonic_plan(
     }
     try:
         return tuple(
-            None if label is None else chord_by_label[label]
-            for label in harmonic_plan
+            None if label is None else chord_by_label[label] for label in harmonic_plan
         )
     except KeyError as error:
         raise ValueError(
@@ -602,9 +673,7 @@ def _normalized_harmonic_plan_profile(
     if harmonic_plan_profile is None:
         return None
     if harmonic_plan_profile != "extended_tonal_arc":
-        raise ValueError(
-            "harmonic_plan_profile must be extended_tonal_arc or None"
-        )
+        raise ValueError("harmonic_plan_profile must be extended_tonal_arc or None")
     return Atom(harmonic_plan_profile)
 
 
@@ -615,14 +684,10 @@ def _add_form_facts(
     cadence: Cadence,
 ) -> None:
     if cadence not in {"perfect", "plagal", "deceptive", "half"}:
-        raise ValueError(
-            "cadence must be perfect, plagal, deceptive, or half"
-        )
+        raise ValueError("cadence must be perfect, plagal, deceptive, or half")
     facts.append(Fact(Triple(PROBLEM, CADENCE, Atom(cadence))))
 
-    representative_positions = tuple(
-        positions[index] for index in harmonic_positions
-    )
+    representative_positions = tuple(positions[index] for index in harmonic_positions)
     if len(representative_positions) >= 3:
         initial = representative_positions[0]
         facts.append(Fact(Triple(initial, PHRASE_ROLE, INITIAL)))
@@ -643,6 +708,7 @@ def harmonize_notes(
     harmonic_rhythm: tuple[int, ...] | None = None,
     harmonic_plan: tuple[HarmonicPlanDegree | None, ...] | None = None,
     harmonic_plan_profile: HarmonicPlanProfile | None = None,
+    metric_strengths: tuple[MetricStrength, ...] | None = None,
     max_solutions: int = 3,
     traversal: ChoiceTraversal = ChoiceTraversal.BEST_FIRST,
     seed: int = 0,
@@ -656,6 +722,7 @@ def harmonize_notes(
         harmonic_rhythm=harmonic_rhythm,
         harmonic_plan=harmonic_plan,
         harmonic_plan_profile=harmonic_plan_profile,
+        metric_strengths=metric_strengths,
     )
     result = solve_note_harmonizer(
         model,
@@ -677,6 +744,7 @@ def sample_harmonization(
     harmonic_rhythm: tuple[int, ...] | None = None,
     harmonic_plan: tuple[HarmonicPlanDegree | None, ...] | None = None,
     harmonic_plan_profile: HarmonicPlanProfile | None = None,
+    metric_strengths: tuple[MetricStrength, ...] | None = None,
     seed: int = 0,
 ) -> NoteHarmonization:
     """Sample one feasible harmonization from contextual note marginals."""
@@ -688,6 +756,7 @@ def sample_harmonization(
         harmonic_rhythm=harmonic_rhythm,
         harmonic_plan=harmonic_plan,
         harmonic_plan_profile=harmonic_plan_profile,
+        metric_strengths=metric_strengths,
     )
     result = solve_note_harmonizer(
         model,
@@ -754,6 +823,7 @@ def _note_harmonization(
         melodic_roles,
         model.cadence,
         model.harmonic_rhythm,
+        model.metric_strengths,
         solution.log_weight,
         solution.decisions,
         result.events,
@@ -886,16 +956,8 @@ def _chord_transition_weights(previous: Atom) -> dict[Atom, float]:
 
 def _harmonic_vocabulary_facts() -> tuple[Fact, ...]:
     facts: list[Fact] = []
-    for pitch in sorted(
-        {
-            pitch
-            for pool in DIATONIC_VOICE_POOLS
-            for pitch in pool
-        }
-    ):
-        facts.append(
-            Fact(Triple(Number(pitch), PITCH_CLASS, Number(pitch % 12)))
-        )
+    for pitch in sorted({pitch for pool in DIATONIC_VOICE_POOLS for pitch in pool}):
+        facts.append(Fact(Triple(Number(pitch), PITCH_CLASS, Number(pitch % 12))))
     for chord, pitch_classes in CHORD_PITCH_CLASSES.items():
         facts.extend(
             (
@@ -974,8 +1036,7 @@ def _harmonic_vocabulary_facts() -> tuple[Fact, ...]:
         )
     )
     facts.extend(
-        Fact(Triple(voice, KIND, Atom("upper_voice")))
-        for voice in VOICE_NAMES[:3]
+        Fact(Triple(voice, KIND, Atom("upper_voice"))) for voice in VOICE_NAMES[:3]
     )
     return tuple(facts)
 
@@ -1061,13 +1122,9 @@ def _note_harmonizer_program(*, import_muses: bool) -> RuleProgram:
         *_voice_leading_conformance_groups(),
     )
     preparation = (
-        (*_muses_input_groups(), *conformance)
-        if import_muses
-        else conformance
+        (*_muses_input_groups(), *conformance) if import_muses else conformance
     )
-    search_manifest = Path(__file__).with_name(
-        "note_harmonizer.program"
-    ).read_text()
+    search_manifest = Path(__file__).with_name("note_harmonizer.program").read_text()
     parsed = parse_rule_program(
         search_manifest,
         (
@@ -1082,11 +1139,7 @@ def _note_harmonizer_program(*, import_muses: bool) -> RuleProgram:
         ),
     )
     return RuleProgram(
-        name=(
-            "muses_note_harmonizer"
-            if import_muses
-            else parsed.name
-        ),
+        name=("muses_note_harmonizer" if import_muses else parsed.name),
         preparation_groups=preparation,
         propagation_groups=parsed.propagation_groups,
         interpretation_groups=parsed.interpretation_groups,

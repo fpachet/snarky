@@ -110,6 +110,7 @@ entrée MuSES, son manifeste est :
 preparation
   import_muses_given_voice
   derive_melodic_roles
+  prepare_melodic_role_domains
   derive_harmonic_plan
   generate_candidate_voicings
 
@@ -137,8 +138,8 @@ Le groupe
 chargé : le modèle musical ne construit aucun fait `binary_constraint`.
 
 Le programme conserve une seule mémoire de faits et un seul arbre de
-recherche. L'étape harmonique choisit uniquement les variables d'accord ;
-l'étape SATB choisit les renversements et hauteurs encore indéterminés. Une
-décision retire des candidats, les règles musicales retirent alors les
-voicings sans support, puis la classification générique détecte les
+recherche. L'étape harmonique choisit les variables d'accord et de rôle
+mélodique ; l'étape SATB choisit les renversements et hauteurs encore
+indéterminés. Une décision retire des candidats, les règles musicales retirent
+alors les voicings sans support, puis la classification générique détecte les
 singletons, contradictions ou solutions.

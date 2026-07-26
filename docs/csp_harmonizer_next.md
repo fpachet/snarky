@@ -246,18 +246,19 @@ Le prochain travail reste :
 5. extension de la matrice positif/négatif/limite/exception déjà livrée pour
    les identifiants du noyau.
 
-Un premier palier de notes étrangères est également livré. Le groupe
-`derive_melodic_roles` reconnaît passages conjoints et broderies dans la
-soprano donnée. Une note ornementale peut sortir de la triade si les trois
-voix inférieures en réalisent toutes les classes. `V7`, suspensions et
-dissonances accentuées attendent respectivement une politique d'omission, une
-sémantique de préparation/résolution et une force métrique explicite.
+Le palier de rôles mélodiques est également livré. Le groupe
+`derive_melodic_roles` reconnaît passages conjoints, broderies, suspensions
+et anticipations dans la soprano donnée. Chaque position possède une variable
+de rôle choisie avec l'accord ; la canalisation vérifie préparation,
+résolution, harmonie voisine et politique de complétude ou d'omission.
+La frontière MuSES traduit les débuts de notes en métrique forte/faible.
 
 Ce palier ne soustrait aucune attaque au problème harmonique. Par défaut,
-chaque note reçoit ses propres variables d'accord et de renversement et toutes
+chaque note reçoit ses variables d'accord, de rôle et de renversement et toutes
 les règles s'appliquent normalement ; par exemple, D dans `C-D-E` peut être
-une note de l'accord de V. L'interprétation ornementale n'est ouverte que si
-le client impose explicitement un événement harmonique partagé.
+une note de l'accord de V. Si la métrique et les accords voisins le permettent,
+le même D peut aussi être choisi comme passage sur I sans partager
+physiquement la variable d'accord de ses voisines.
 
 Un mécanisme avancé de recherche ne sera ajouté que si ces règles produisent
 un profil et un oracle qui le justifient.

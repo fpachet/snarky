@@ -87,9 +87,10 @@ def test_note_harmonizer_generates_and_chooses_individual_notes() -> None:
     assert model.program.manifest() == (
         (
             "preparation",
-                (
-                    "derive_melodic_roles",
-                    "derive_harmonic_plan",
+            (
+                "derive_melodic_roles",
+                "prepare_melodic_role_domains",
+                "derive_harmonic_plan",
                 "prepare_harmonic_domains",
                 "generate_candidate_voicings",
                 "describe_candidate_voicings",
@@ -126,10 +127,7 @@ def test_note_harmonizer_generates_and_chooses_individual_notes() -> None:
         tuple(voicing[0] for voicing in solution.voicings) == melody
         for solution in solutions
     )
-    assert all(
-        set(solution.melodic_roles) == {"chord_tone"}
-        for solution in solutions
-    )
+    assert all(set(solution.melodic_roles) == {"chord_tone"} for solution in solutions)
     assert all(
         solution.chords[0] == "degree_I"
         and solution.chords[-2] in {"degree_V", "degree_V7"}
@@ -196,8 +194,7 @@ def test_chord_choice_and_first_inversion_are_exposed_declaratively() -> None:
     solution = next(
         item
         for item in solutions
-        if item.inversions[0] == "first"
-        and item.chords[-1] == "degree_V"
+        if item.inversions[0] == "first" and item.chords[-1] == "degree_V"
     )
 
     assert solution.chords == (
@@ -476,7 +473,17 @@ def test_passing_tone_is_inferred_when_the_harmony_is_explicitly_held() -> None:
     melody = (72, 74, 76, 67, 65, 69, 71, 72)
     solution = harmonize_notes(
         melody,
-        harmonic_rhythm=(0, 0, 1, 1, 2, 2, 3, 4),
+        metric_strengths=(
+            "strong",
+            "weak",
+            "strong",
+            "strong",
+            "strong",
+            "strong",
+            "strong",
+            "strong",
+        ),
+        harmonic_plan=("I", "I", "I", "I", "IV", "ii", "V", "I"),
         traversal=ChoiceTraversal.DEPTH_FIRST,
         max_solutions=1,
     )[0]
@@ -487,7 +494,7 @@ def test_passing_tone_is_inferred_when_the_harmony_is_explicitly_held() -> None:
         "degree_I",
         "degree_I",
         "degree_IV",
-        "degree_IV",
+        "degree_ii",
         "degree_V",
         "degree_I",
     )
@@ -524,7 +531,16 @@ def test_neighbor_tone_candidates_are_generated_declaratively(
 ) -> None:
     model = build_note_harmonizer_model(
         melody,
-        harmonic_rhythm=(0, 0, 1, 1, 2, 2, 3, 4),
+        metric_strengths=(
+            "strong",
+            "weak",
+            "strong",
+            "strong",
+            "strong",
+            "strong",
+            "strong",
+            "strong",
+        ),
     )
 
     assert any(
@@ -537,6 +553,62 @@ def test_neighbor_tone_candidates_are_generated_declaratively(
     )
 
 
+@pytest.mark.parametrize(
+    ("melody", "metric_strengths", "harmonic_plan", "expected_role"),
+    (
+        (
+            (72, 72, 71, 72, 65, 69, 71, 72),
+            (
+                "weak",
+                "strong",
+                "weak",
+                "strong",
+                "strong",
+                "strong",
+                "strong",
+                "strong",
+            ),
+            ("I", "V", "V", "I", "IV", "ii", "V", "I"),
+            "suspension",
+        ),
+        (
+            (72, 71, 71, 72, 65, 69, 71, 72),
+            (
+                "strong",
+                "weak",
+                "strong",
+                "strong",
+                "strong",
+                "strong",
+                "strong",
+                "strong",
+            ),
+            ("I", "I", "V", "I", "IV", "ii", "V", "I"),
+            "anticipation",
+        ),
+    ),
+)
+def test_accented_roles_are_chosen_with_declarative_harmonic_support(
+    melody: tuple[int, ...],
+    metric_strengths: tuple[str, ...],
+    harmonic_plan: tuple[str, ...],
+    expected_role: str,
+) -> None:
+    solution = harmonize_notes(
+        melody,
+        metric_strengths=metric_strengths,  # type: ignore[arg-type]
+        harmonic_plan=harmonic_plan,  # type: ignore[arg-type]
+        traversal=ChoiceTraversal.DEPTH_FIRST,
+        max_solutions=1,
+    )[0]
+
+    assert solution.melodic_roles[1] == expected_role
+    assert any(
+        event.rule_group == "derive_melodic_roles" and expected_role in event.rule_name
+        for event in solution.inference_events
+    )
+
+
 def test_harmonic_rhythm_and_cadence_are_validated() -> None:
     with pytest.raises(ValueError, match="one slot number per note"):
         build_note_harmonizer_model((71, 72), harmonic_rhythm=(0,))
@@ -544,6 +616,13 @@ def test_harmonic_rhythm_and_cadence_are_validated() -> None:
         build_note_harmonizer_model((72, 71, 72), harmonic_rhythm=(0, 2, 2))
     with pytest.raises(ValueError, match="at least two harmonic slots"):
         build_note_harmonizer_model((71, 72), harmonic_rhythm=(0, 0))
+    with pytest.raises(ValueError, match="one value per note"):
+        build_note_harmonizer_model((71, 72), metric_strengths=("strong",))
+    with pytest.raises(ValueError, match="strong or weak"):
+        build_note_harmonizer_model(
+            (71, 72),
+            metric_strengths=("strong", "medium"),  # type: ignore[arg-type]
+        )
     with pytest.raises(ValueError, match="cadence must be"):
         build_note_harmonizer_model(
             (71, 72),

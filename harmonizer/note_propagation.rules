@@ -3,6 +3,18 @@
 # voicing perdant l'une de ses six composantes est retiré.
 
 GROUP maintain_note_voicing_channel
+    RULE remove_voicing_without_melodic_role
+    WHEN
+        ($position voicing_candidate SEQ[$chord $inversion $soprano $alto $tenor $bass])
+        ($position melodic_role_variable $variable)
+        NOT EXISTS
+            ($position voicing_melodic_role SEQ[$chord $inversion $soprano $alto $tenor $bass $role])
+            ($variable candidate $role)
+        END_NOT_EXISTS
+    THEN
+        REMOVE ($position voicing_candidate SEQ[$chord $inversion $soprano $alto $tenor $bass])
+    END
+
     RULE remove_voicing_without_chord
     WHEN
         ($position voicing_candidate SEQ[$chord $inversion $soprano $alto $tenor $bass])
@@ -122,6 +134,96 @@ GROUP maintain_note_voicing_channel
     THEN
         REMOVE ($variable candidate $bass)
     END
+
+    RULE remove_unsupported_melodic_role
+    WHEN
+        ($position melodic_role_variable $variable)
+        ($variable candidate $role)
+        NOT EXISTS
+            ($position voicing_candidate SEQ[$chord $inversion $soprano $alto $tenor $bass])
+            ($position voicing_melodic_role SEQ[$chord $inversion $soprano $alto $tenor $bass $role])
+        END_NOT_EXISTS
+    THEN
+        REMOVE ($variable candidate $role)
+    END
+
+    RULE remove_passing_or_neighbor_without_previous_harmony
+    WHEN
+        ($previous successor $position)
+        ($position voicing_candidate SEQ[$chord $inversion $soprano $alto $tenor $bass])
+        ($position voicing_melodic_role SEQ[$chord $inversion $soprano $alto $tenor $bass $role])
+        $role != chord_tone
+        $role != suspension
+        $role != anticipation
+        ($previous chord_variable $previous_chord_variable)
+        NOT EXISTS ($previous_chord_variable candidate $chord)
+    THEN
+        REMOVE ($position voicing_candidate SEQ[$chord $inversion $soprano $alto $tenor $bass])
+    END
+
+    RULE remove_passing_or_neighbor_without_next_harmony
+    WHEN
+        ($position successor $next)
+        ($position voicing_candidate SEQ[$chord $inversion $soprano $alto $tenor $bass])
+        ($position voicing_melodic_role SEQ[$chord $inversion $soprano $alto $tenor $bass $role])
+        $role != chord_tone
+        $role != suspension
+        $role != anticipation
+        ($next chord_variable $next_chord_variable)
+        NOT EXISTS ($next_chord_variable candidate $chord)
+    THEN
+        REMOVE ($position voicing_candidate SEQ[$chord $inversion $soprano $alto $tenor $bass])
+    END
+
+    RULE remove_suspension_without_preparation
+    WHEN
+        ($previous successor $position)
+        ($position voicing_candidate SEQ[$chord $inversion $soprano $alto $tenor $bass])
+        ($position voicing_melodic_role SEQ[$chord $inversion $soprano $alto $tenor $bass suspension])
+        ($previous chord_variable $previous_chord_variable)
+        NOT EXISTS
+            ($previous_chord_variable candidate $previous_chord)
+            ($previous_chord voice_pitch SEQ[soprano $soprano])
+        END_NOT_EXISTS
+    THEN
+        REMOVE ($position voicing_candidate SEQ[$chord $inversion $soprano $alto $tenor $bass])
+    END
+
+    RULE remove_suspension_without_resolution_harmony
+    WHEN
+        ($position successor $next)
+        ($position voicing_candidate SEQ[$chord $inversion $soprano $alto $tenor $bass])
+        ($position voicing_melodic_role SEQ[$chord $inversion $soprano $alto $tenor $bass suspension])
+        ($next chord_variable $next_chord_variable)
+        NOT EXISTS ($next_chord_variable candidate $chord)
+    THEN
+        REMOVE ($position voicing_candidate SEQ[$chord $inversion $soprano $alto $tenor $bass])
+    END
+
+    RULE remove_anticipation_without_previous_harmony
+    WHEN
+        ($previous successor $position)
+        ($position voicing_candidate SEQ[$chord $inversion $soprano $alto $tenor $bass])
+        ($position voicing_melodic_role SEQ[$chord $inversion $soprano $alto $tenor $bass anticipation])
+        ($previous chord_variable $previous_chord_variable)
+        NOT EXISTS ($previous_chord_variable candidate $chord)
+    THEN
+        REMOVE ($position voicing_candidate SEQ[$chord $inversion $soprano $alto $tenor $bass])
+    END
+
+    RULE remove_anticipation_without_target_harmony
+    WHEN
+        ($position successor $next)
+        ($position voicing_candidate SEQ[$chord $inversion $soprano $alto $tenor $bass])
+        ($position voicing_melodic_role SEQ[$chord $inversion $soprano $alto $tenor $bass anticipation])
+        ($next chord_variable $next_chord_variable)
+        NOT EXISTS
+            ($next_chord_variable candidate $next_chord)
+            ($next_chord voice_pitch SEQ[soprano $soprano])
+        END_NOT_EXISTS
+    THEN
+        REMOVE ($position voicing_candidate SEQ[$chord $inversion $soprano $alto $tenor $bass])
+    END
 END_GROUP
 
 # La même règle contextuelle traite notes et accords : le prédécesseur fixe
@@ -176,13 +278,8 @@ GROUP interpret_note_harmonization
 
     RULE expose_selected_melodic_role
     WHEN
-        ($position selected_chord $chord)
-        ($position selected_inversion $inversion)
-        ($position soprano $soprano)
-        ($position alto $alto)
-        ($position tenor $tenor)
-        ($position bass $bass)
-        ($position voicing_melodic_role SEQ[$chord $inversion $soprano $alto $tenor $bass $role])
+        ($position melodic_role_variable $variable)
+        ($variable value $role)
     THEN
         ADD ($position selected_melodic_role $role)
     END

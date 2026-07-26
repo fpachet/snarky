@@ -209,38 +209,44 @@ renversement, de verticalité et de conduite des voix. Ainsi, dans l'ouverture
 `C5-D5-E5`, le D peut être une note d'accord de V (ou d'un autre accord
 diatonique qui le contient) ; il n'est pas pré-étiqueté comme passage.
 
-Chaque position expose désormais `harmonic_event_role onset|continuation`.
-Pour une soprano donnée, `derive_melodic_roles` examine les trois hauteurs
-consécutives et peut produire :
+Chaque position possède désormais une variable CSP `melodic_role_variable`
+et un fait métrique `metric_strength strong|weak`. Son domaine contient
+toujours `chord_tone`. Pour une soprano donnée, `derive_melodic_roles` examine
+les trois hauteurs consécutives et la métrique, puis peut ajouter :
 
 ```text
 (note_position_1 melodic_role_candidate passing_tone)
 (note_position_1 melodic_role_candidate upper_neighbor)
 (note_position_1 melodic_role_candidate lower_neighbor)
+(note_position_1 melodic_role_candidate suspension)
+(note_position_1 melodic_role_candidate anticipation)
 ```
 
-Les quatre règles couvrent passage ascendant/descendant et broderie
-supérieure/inférieure. Elles exigent des mouvements conjoints de un ou deux
-demi-tons et n'utilisent aucun prédicat Python.
+`prepare_melodic_role_domains` transforme ces analyses en candidats de la
+variable. `choose_melodic_role`, dans l'étape `harmonic_plan`, choisit donc le
+rôle avec l'accord ; ce n'est plus une étiquette calculée après la solution.
 
-Les rôles étrangers ne sont envisagés que lorsque `harmonic_rhythm` indique
-explicitement qu'un accord est tenu sur plusieurs notes.
-`generate_legal_tonal_voicing` conserve la sémantique historique pour
-`chord_tone`. `generate_ornamental_soprano_voicing` accepte alors une soprano
-étrangère à une triade si :
+La canalisation impose :
 
-- son rôle local a été dérivé ;
-- elle occupe une continuation de l'événement harmonique ;
-- alto, ténor et basse appartiennent à l'accord ;
-- ces trois voix contiennent exactement ses trois classes ;
-- ordre, espacements, renversement et règles de conduite restent satisfaits.
+- `chord_tone` : appartenance de la soprano à l'accord courant ;
+- passage ou broderie : métrique faible, mouvement conjoint approprié et même
+  accord disponible aux trois positions ;
+- suspension : métrique forte, préparation par note commune à l'accord
+  précédent, nouvel accord maintenu jusqu'à la résolution descendante ;
+- anticipation : métrique faible, maintien de l'accord précédent et
+  appartenance de la note à l'accord suivant.
+
+Pour passage, broderie et anticipation, alto–ténor–basse réalisent toutes les
+classes de la triade. Pour la suspension, ils réalisent exactement les deux
+autres classes et omettent celle de la résolution : la dissonance suspendue
+remplace temporairement ce membre. Ordre, espacements, renversement, doublures
+et conduite des voix restent appliqués normalement.
 
 Le résultat expose un rôle par note dans `NoteHarmonization.melodic_roles`.
-`V7` orné est exclu pour l'instant : il faudra décider quel membre peut être
-omis. Les suspensions demanderont en plus préparation, maintien à travers un
-changement d'accord et résolution. Une véritable hiérarchie métrique devra
-remplacer l'approximation actuelle « onset/continuation » avant d'ajouter
-appoggiatures et dissonances accentuées.
+`NoteHarmonization.metric_strengths` expose aussi les faits métriques.
+`metric_strengths` peut être fourni directement ; la frontière MuSES le
+déduit des débuts de notes et de la mesure. `V7` orné, appoggiatures,
+échappées et métrique hiérarchique restent hors de ce palier.
 
 ## Frontière MuSES
 
@@ -254,6 +260,10 @@ pour chaque note source associée à une variable Snarky, il transforme
 `muses_pitch` en `candidate`. La hauteur donnée n'est donc pas injectée dans le
 domaine par une boucle Python cachée. Le reste de la base ne dépend pas de
 MuSES et conserve son modèle factuel.
+
+La frontière traduit également les débuts de notes en faits métriques
+`strong|weak` d'après la signature temporelle. Cette traduction ne choisit
+aucun rôle : les candidats et leurs compatibilités restent déclaratifs.
 
 Après résolution, chaque tuple SATB fournit une hauteur à chacune des quatre
 voix. Les attributs temporels positionnels de la ligne source sont recopiés,
