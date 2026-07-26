@@ -173,4 +173,17 @@ GROUP interpret_note_harmonization
     THEN
         ADD (roy_note_harmonization result harmonized)
     END
+
+    RULE expose_selected_melodic_role
+    WHEN
+        ($position selected_chord $chord)
+        ($position selected_inversion $inversion)
+        ($position soprano $soprano)
+        ($position alto $alto)
+        ($position tenor $tenor)
+        ($position bass $bass)
+        ($position voicing_melodic_role SEQ[$chord $inversion $soprano $alto $tenor $bass $role])
+    THEN
+        ADD ($position selected_melodic_role $role)
+    END
 END_GROUP

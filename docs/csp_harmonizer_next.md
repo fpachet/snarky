@@ -242,9 +242,16 @@ Le prochain travail reste :
 1. renversements de `V7` et autres accords de septième ;
 2. six-quatre de passage, pédale et arpège ;
 3. exceptions complètes de sensible et de doublure ;
-4. notes étrangères, métrique, autres tonalités et modulations ;
+4. autres catégories de notes étrangères, métrique, tonalités et modulations ;
 5. extension de la matrice positif/négatif/limite/exception déjà livrée pour
    les identifiants du noyau.
+
+Un premier palier de notes étrangères est également livré. Le groupe
+`derive_melodic_roles` reconnaît passages conjoints et broderies dans la
+soprano donnée. Une note ornementale peut sortir de la triade si les trois
+voix inférieures en réalisent toutes les classes. `V7`, suspensions et
+dissonances accentuées attendent respectivement une politique d'omission, une
+sémantique de préparation/résolution et une force métrique explicite.
 
 Un mécanisme avancé de recherche ne sera ajouté que si ces règles produisent
 un profil et un oracle qui le justifient.

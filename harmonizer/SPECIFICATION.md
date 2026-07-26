@@ -53,20 +53,22 @@ Ce jalon couvre maintenant un sous-ensemble substantiel des degrés,
 renversements, doublures, résolutions et cadences, mais ne revendique pas
 encore le profil `ROY_1998`. Restent les accords de septième autres que `V7`,
 leurs renversements, les six-quatre non cadentiels, toutes les exceptions,
-les notes étrangères, la métrique, les modulations et la totalité du
-catalogue. Dans le modèle note par note, aucun prédicat calculé ne porte une
-règle musicale : les faits ground, contraintes arithmétiques, agrégats et
-blocs existentiels constituent l'oracle de conformité lui-même.
+les suspensions et autres dissonances, la métrique, les modulations et la
+totalité du catalogue. Dans le modèle note par note, aucun prédicat calculé ne
+porte une règle musicale : les faits ground, contraintes arithmétiques,
+agrégats et blocs existentiels constituent l'oracle de conformité lui-même.
 
 ## Sémantique de conformité
 
 La génération verticale suit quatre étapes inspectables :
 
-1. `note_generation.rules` joint accord, renversement et quatre hauteurs ;
-2. `NVALUE` impose trois classes distinctes pour une triade ou quatre pour
-   `V7` ;
-3. `describe_candidate_voicings` expose un fait `tone` par voix ;
-4. les règles `R-DOUBLING-*`, `R-EXT-7CHORD-*` et `R-CAD64-*` retirent les
+1. `melodic_roles.rules` analyse le contour de la soprano donnée ;
+2. `note_generation.rules` joint accord, renversement, rôle et quatre
+   hauteurs ;
+3. `NVALUE` impose la complétude aux quatre voix pour un accord normal ou aux
+   trois voix inférieures pour une triade sous soprano ornementale ;
+4. `describe_candidate_voicings` expose un fait `tone` par voix ;
+5. les règles `R-DOUBLING-*`, `R-EXT-7CHORD-*` et `R-CAD64-*` retirent les
    candidats non conformes.
 
 Une transition est représentée par :
@@ -108,7 +110,7 @@ Trois absences rendent cependant le catalogue plus répétitif :
 Le catalogue emploie donc des règles séparées pour les directions montante et
 descendante ainsi que pour quintes et octaves. Il ne s'agit pas d'un blocage
 sémantique sur des domaines finis. En revanche, tonalités multiples,
-orthographe enharmonique, métrique, notes étrangères et modulation exigent
+orthographe enharmonique, force métrique, suspensions et modulation exigent
 d'abord un vocabulaire musical explicite. Les préférences `SHOULD` avec
 optimisation lexicographique ne sont pas encore une construction native :
 les poids actuels ordonnent les choix sans relâcher une règle `MUST`.
@@ -194,6 +196,39 @@ soprano, le rythme harmonique et la cadence seuls.
 Le profil historique `extended_tonal_arc` reste accepté comme contrainte
 optionnelle de compatibilité et comme oracle ciblé ; il n'est plus utilisé par
 l'exemple principal.
+
+## Notes étrangères de la soprano
+
+Chaque position expose désormais `harmonic_event_role onset|continuation`.
+Pour une soprano donnée, `derive_melodic_roles` examine les trois hauteurs
+consécutives et peut produire :
+
+```text
+(note_position_1 melodic_role_candidate passing_tone)
+(note_position_1 melodic_role_candidate upper_neighbor)
+(note_position_1 melodic_role_candidate lower_neighbor)
+```
+
+Les quatre règles couvrent passage ascendant/descendant et broderie
+supérieure/inférieure. Elles exigent des mouvements conjoints de un ou deux
+demi-tons et n'utilisent aucun prédicat Python.
+
+`generate_legal_tonal_voicing` conserve la sémantique historique pour
+`chord_tone`. `generate_ornamental_soprano_voicing` accepte une soprano
+étrangère à une triade si :
+
+- son rôle local a été dérivé ;
+- elle occupe une continuation de l'événement harmonique ;
+- alto, ténor et basse appartiennent à l'accord ;
+- ces trois voix contiennent exactement ses trois classes ;
+- ordre, espacements, renversement et règles de conduite restent satisfaits.
+
+Le résultat expose un rôle par note dans `NoteHarmonization.melodic_roles`.
+`V7` orné est exclu pour l'instant : il faudra décider quel membre peut être
+omis. Les suspensions demanderont en plus préparation, maintien à travers un
+changement d'accord et résolution. Une véritable hiérarchie métrique devra
+remplacer l'approximation actuelle « onset/continuation » avant d'ajouter
+appoggiatures et dissonances accentuées.
 
 ## Frontière MuSES
 

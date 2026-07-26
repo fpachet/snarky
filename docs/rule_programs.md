@@ -109,6 +109,8 @@ entrée MuSES, son manifeste est :
 ```text
 preparation
   import_muses_given_voice
+  derive_melodic_roles
+  derive_harmonic_plan
   generate_candidate_voicings
 
 step:harmonic_plan

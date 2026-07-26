@@ -52,6 +52,7 @@ support, produce choices, and interpret the result.
 The current vocabulary includes:
 
 - strict order, spacing, chord completeness, inversion bass, and doubling;
+- soprano chord tones, passing tones, and upper/lower neighbor tones;
 - functional progression and four cadence profiles;
 - melodic bounds, overlap, forbidden parallels, and direct motion;
 - leading-tone and dominant-seventh resolution;
@@ -66,6 +67,11 @@ cadential six-four resolution produce named `R-*` violation facts in
 [`voice_leading_conformance.rules`](voice_leading_conformance.rules).
 `note_transition.rules` performs bidirectional support revision over the
 transitions that have no violation.
+
+Passing and neighbor shapes are recognized in
+[`melodic_roles.rules`](melodic_roles.rules) from the local
+previous–current–next contour. Ornamentation is considered only on a
+continuation inside a harmonic event. No Python callback labels the note.
 
 Example:
 
@@ -153,6 +159,38 @@ harmonic choice. Depth-first traversal is used because this example
 demonstrates one feasible realization rather than ranking a large best-first
 frontier.
 
+## Non-chord tones in the soprano
+
+The ornamented example begins `C5–D5–E5`. The D belongs to the same tonic
+event as the preceding C but is not a member of the tonic triad:
+
+```python
+ornamented = harmonize_notes(
+    (72, 74, 76, 67, 65, 69, 71, 72),
+    harmonic_rhythm=(0, 0, 1, 1, 2, 2, 3, 4),
+    traversal=ChoiceTraversal.DEPTH_FIRST,
+    max_solutions=1,
+)[0]
+
+assert ornamented.melodic_roles[:3] == (
+    "chord_tone",
+    "passing_tone",
+    "chord_tone",
+)
+```
+
+The rules derive ascending and descending passing motion and upper or lower
+neighbor motion. A chord-tone voicing still requires all four voices to
+belong to the chord. For an ornamental soprano over a triad, alto, tenor, and
+bass must contain all three chord classes themselves. Ornamentation over `V7`
+is intentionally rejected in this first version: three lower voices cannot
+state all four chord classes without an explicit omission policy.
+
+This is harmonic-role inference rather than unrestricted dissonance. The
+current eligibility fact identifies continuation inside a harmonic event;
+full beat-strength analysis, suspensions, anticipations, appoggiaturas, and
+accented passing tones remain future work.
+
 Static note, chord, and inversion weights become contextual when the preceding
 choice is known. Best-first search returns deterministic high-scoring
 realizations; reproducible weighted sampling is also available:
@@ -203,9 +241,10 @@ policy:
 - converting MuSES objects to facts and solutions back to objects;
 - launching search and decoding its selected values.
 
-Chord completeness, doubling, voice leading, tendency tones, cadence form,
-channeling, support revision, step-specific choices, and contradictions are
-rules or constraints. Python supplies `(problem cadence perfect)`; rules
+Chord completeness, doubling, voice leading, melodic-role analysis, tendency
+tones, cadence form, channeling, support revision, step-specific choices, and
+contradictions are rules or constraints. Python supplies
+`(problem cadence perfect)` and structural harmonic-event positions; rules
 derive the corresponding initial, penultimate, final, and cadential
 restrictions. The compact complete-voicing oracle remains intentionally
 Python-backed as a differential reference.
@@ -220,7 +259,7 @@ are more verbose than their musical statement because Snarky currently has:
 The rule base handles those cases with paired up/down rules and separate rules
 for fifths and octaves. This is an abstraction limitation, not an
 expressiveness blocker for finite SATB. More substantial future features need
-new *musical facts*—key and spelling, metric position, non-chord-tone role,
+new *musical facts*—key and spelling, metric strength, suspension preparation,
 and modulation state—rather than hidden Python predicates.
 
 ## Optional MuSES pipeline
@@ -257,6 +296,7 @@ With both repositories as siblings:
 python -m pip install -e ../muses
 uv run python -m harmonizer.example_muses
 uv run python -m harmonizer.example_muses --long
+uv run python -m harmonizer.example_muses --ornamented
 uv run python -m harmonizer.example_muses --extended
 ```
 
@@ -267,8 +307,9 @@ Generated MIDI and MusicXML files are reproducible outputs under
 
 The model is restricted to C major and a focused tonal vocabulary. It does not
 yet cover all seventh chords and inversions, passing or pedal six-four chords,
-complete leading-tone exceptions, non-chord tones, modulation, rests, musical
-meter in rule conditions, or lexicographic optimization.
+complete leading-tone exceptions, suspensions, anticipations, appoggiaturas,
+modulation, rests, musical meter in rule conditions, or lexicographic
+optimization.
 
 The [specification](SPECIFICATION.md) and [project plan](PLAN.md) retain design
 detail. Benchmark protocols and machine-readable measurements are in

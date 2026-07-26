@@ -37,5 +37,49 @@ GROUP generate_candidate_voicings
         NVALUE $cardinality OF SEQ[$soprano_class $alto_class $tenor_class $bass_class]
     THEN
         ADD ($position voicing_candidate SEQ[$chord $inversion $soprano $alto $tenor $bass])
+        ADD ($position voicing_melodic_role SEQ[$chord $inversion $soprano $alto $tenor $bass chord_tone])
+    END
+
+    # Une soprano ornementale peut être étrangère à une triade. Les trois voix
+    # inférieures doivent alors énoncer seules les trois classes de l'accord.
+    # V7 reste exclu de ce premier palier : quatre classes ne tiennent pas dans
+    # alto–ténor–basse sans définir explicitement une politique d'omission.
+    RULE generate_ornamental_soprano_voicing
+    WHEN
+        ($position given_voice soprano)
+        ($position melodic_role_candidate $role)
+        ($position chord_variable $chord_variable)
+        ($position inversion_variable $inversion_variable)
+        ($position soprano_variable $soprano_variable)
+        ($position alto_variable $alto_variable)
+        ($position tenor_variable $tenor_variable)
+        ($position bass_variable $bass_variable)
+        ($chord_variable candidate $chord)
+        ($inversion_variable candidate $inversion)
+        ($chord allows_inversion $inversion)
+        ($soprano_variable candidate $soprano)
+        ($alto_variable candidate $alto)
+        ($tenor_variable candidate $tenor)
+        ($bass_variable candidate $bass)
+        NOT EXISTS
+            ($chord voice_pitch SEQ[soprano $soprano])
+        END_NOT_EXISTS
+        ($chord voice_pitch SEQ[alto $alto])
+        ($chord voice_pitch SEQ[tenor $tenor])
+        ($chord inversion_bass_pitch SEQ[$inversion $bass])
+        ($chord chord_cardinality 3)
+        ($alto pitch_class $alto_class)
+        ($tenor pitch_class $tenor_class)
+        ($bass pitch_class $bass_class)
+        $soprano > $alto
+        $alto > $tenor
+        $tenor > $bass
+        CONSTRAINT $soprano - $alto <= 12
+        CONSTRAINT $alto - $tenor <= 12
+        CONSTRAINT $tenor - $bass <= 19
+        NVALUE 3 OF SEQ[$alto_class $tenor_class $bass_class]
+    THEN
+        ADD ($position voicing_candidate SEQ[$chord $inversion $soprano $alto $tenor $bass])
+        ADD ($position voicing_melodic_role SEQ[$chord $inversion $soprano $alto $tenor $bass $role])
     END
 END_GROUP

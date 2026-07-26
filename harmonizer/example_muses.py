@@ -14,6 +14,8 @@ from .muses_harmonizer import MusesHarmonization, harmonize_temporal_collection
 from .note_solver import HarmonicPlanDegree
 
 LONG_HARMONIC_RHYTHM = (0, 1, 2, 3, 4, 4, 5, 6)
+ORNAMENTED_MELODY = (72, 74, 76, 67, 65, 69, 71, 72)
+ORNAMENTED_HARMONIC_RHYTHM = (0, 0, 1, 1, 2, 2, 3, 4)
 EXTENDED_MELODY = (
     67,
     76,
@@ -114,19 +116,51 @@ def build_extended_example_soprano() -> TemporalCollection:
     )
 
 
+def build_ornamented_example_soprano() -> TemporalCollection:
+    """Return a four-measure soprano beginning with C-D-E passing motion."""
+
+    return TemporalCollection(
+        name="soprano_ornamented_donne",
+        temporals=tuple(
+            TemporalNote(
+                pitch,
+                index * 2.0,
+                2.0,
+                velocity=70 + index,
+                midi_channel=0,
+            )
+            for index, pitch in enumerate(ORNAMENTED_MELODY)
+        ),
+        instrument="choir",
+        program_change=52,
+        melody_type="melody",
+        end_beat=16.0,
+    )
+
+
 def generate_example(
     output_directory: Path,
     *,
     long_form: bool = False,
     extended_form: bool = False,
+    ornamented_form: bool = False,
 ) -> tuple[MusesHarmonization, Path, Path]:
     """Run Snarky and write both formats through the MuSES API."""
 
-    if long_form and extended_form:
-        raise ValueError("long_form and extended_form are mutually exclusive")
+    if sum((long_form, extended_form, ornamented_form)) > 1:
+        raise ValueError(
+            "long_form, extended_form, and ornamented_form are mutually exclusive"
+        )
     harmonic_rhythm: tuple[int, ...] | None
     harmonic_plan: tuple[HarmonicPlanDegree | None, ...] | None
-    if extended_form:
+    if ornamented_form:
+        soprano = build_ornamented_example_soprano()
+        stem = "snarky_ornamented_soprano_satb"
+        harmonic_rhythm = ORNAMENTED_HARMONIC_RHYTHM
+        harmonic_plan = None
+        traversal = ChoiceTraversal.DEPTH_FIRST
+        title = "Soprano with passing tone harmonized by Snarky"
+    elif extended_form:
         soprano = build_extended_example_soprano()
         stem = "snarky_extended_soprano_satb"
         harmonic_rhythm = EXTENDED_HARMONIC_RHYTHM
@@ -180,6 +214,11 @@ def main() -> None:
         help="generate the four-measure, eight-note example",
     )
     form.add_argument(
+        "--ornamented",
+        action="store_true",
+        help="generate the four-measure example with a passing tone",
+    )
+    form.add_argument(
         "--extended",
         action="store_true",
         help="generate the eight-measure, sixteen-note melody-only example",
@@ -189,6 +228,7 @@ def main() -> None:
         arguments.output_directory,
         long_form=arguments.long,
         extended_form=arguments.extended,
+        ornamented_form=arguments.ornamented,
     )
 
     print(f"{result.piece.title}:")
@@ -197,6 +237,7 @@ def main() -> None:
         print(f"  {voice.name:8s} {pitches}")
     print("  chords  ", list(result.symbolic.chords))
     print("  inversions", list(result.symbolic.inversions))
+    print("  melodic roles", list(result.symbolic.melodic_roles))
     print(f"MIDI:     {midi_path}")
     print(f"MusicXML: {musicxml_path}")
     print(

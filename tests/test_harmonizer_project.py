@@ -87,8 +87,9 @@ def test_note_harmonizer_generates_and_chooses_individual_notes() -> None:
     assert model.program.manifest() == (
         (
             "preparation",
-            (
-                "derive_harmonic_plan",
+                (
+                    "derive_melodic_roles",
+                    "derive_harmonic_plan",
                 "prepare_harmonic_domains",
                 "generate_candidate_voicings",
                 "describe_candidate_voicings",
@@ -123,6 +124,10 @@ def test_note_harmonizer_generates_and_chooses_individual_notes() -> None:
     assert len(solutions) == 3
     assert all(
         tuple(voicing[0] for voicing in solution.voicings) == melody
+        for solution in solutions
+    )
+    assert all(
+        set(solution.melodic_roles) == {"chord_tone"}
         for solution in solutions
     )
     assert all(
@@ -440,6 +445,71 @@ def test_eight_bar_form_derives_a_plan_from_the_soprano_in_two_steps() -> None:
         if isinstance(event.fact.entity, Triple)
         and event.fact.entity.relation == Atom("harmonic_function")
     } == {Atom("tonic"), Atom("predominant"), Atom("dominant")}
+
+
+def test_passing_tone_is_inferred_and_lower_voices_complete_the_triad() -> None:
+    melody = (72, 74, 76, 67, 65, 69, 71, 72)
+    solution = harmonize_notes(
+        melody,
+        harmonic_rhythm=(0, 0, 1, 1, 2, 2, 3, 4),
+        traversal=ChoiceTraversal.DEPTH_FIRST,
+        max_solutions=1,
+    )[0]
+
+    assert solution.chords == (
+        "degree_I",
+        "degree_I",
+        "degree_I",
+        "degree_I",
+        "degree_IV",
+        "degree_IV",
+        "degree_V",
+        "degree_I",
+    )
+    assert solution.melodic_roles == (
+        "chord_tone",
+        "passing_tone",
+        "chord_tone",
+        "chord_tone",
+        "chord_tone",
+        "chord_tone",
+        "chord_tone",
+        "chord_tone",
+    )
+    passing_voicing = solution.voicings[1]
+    assert passing_voicing[0] % 12 == 2
+    assert {pitch % 12 for pitch in passing_voicing[1:]} == {0, 4, 7}
+    assert any(
+        event.rule_group == "derive_melodic_roles"
+        and event.rule_name == "derive_ascending_passing_tone"
+        for event in solution.inference_events
+    )
+
+
+@pytest.mark.parametrize(
+    ("melody", "expected_role"),
+    (
+        ((72, 74, 72, 76, 65, 69, 71, 72), "upper_neighbor"),
+        ((76, 74, 76, 67, 65, 69, 71, 72), "lower_neighbor"),
+    ),
+)
+def test_neighbor_tone_candidates_are_generated_declaratively(
+    melody: tuple[int, ...],
+    expected_role: str,
+) -> None:
+    model = build_note_harmonizer_model(
+        melody,
+        harmonic_rhythm=(0, 0, 1, 1, 2, 2, 3, 4),
+    )
+
+    assert any(
+        isinstance(fact.entity, Triple)
+        and fact.entity.subject == model.positions[1]
+        and fact.entity.relation == Atom("voicing_melodic_role")
+        and isinstance(fact.entity.object, FiniteSequence)
+        and fact.entity.object.elements[-1] == Atom(expected_role)
+        for fact in model.csp.facts
+    )
 
 
 def test_harmonic_rhythm_and_cadence_are_validated() -> None:

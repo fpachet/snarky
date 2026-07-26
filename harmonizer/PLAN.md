@@ -78,11 +78,23 @@ Le jalon livre maintenant :
   mouvements directs, sensible, septième et `I64` ;
 - tests positifs, négatifs, limites et exceptions du noyau de conformité.
 
-Restent les renversements de `V7`, autres septièmes, six-quatre de passage ou
-de pédale, exceptions complètes, tonalités, notes étrangères et métrique.
-Chaque nouvelle extension stable `R-*` recevra ses cas positif, négatif,
-limite et exception sur le modèle de
-`tests/test_harmonizer_conformance.py`.
+## Jalon 3c — notes étrangères mélodiques — premier palier livré
+
+- analyse déclarative du contour précédent–courant–suivant ;
+- passages ascendants et descendants conjoints ;
+- broderies supérieures et inférieures ;
+- restriction aux continuations d'un événement harmonique ;
+- réalisation complète de la triade par alto–ténor–basse lorsque la soprano
+  est étrangère ;
+- rôle sélectionné exposé dans la solution et exemple MuSES `C–D–E`.
+
+Suite musicale : force métrique explicite, suspensions et anticipations, puis
+politique d'omission pour les accords de quatre sons.
+
+Restent aussi les renversements de `V7`, autres septièmes, six-quatre de
+passage ou de pédale, exceptions complètes et tonalités multiples. Chaque
+nouvelle extension stable `R-*` recevra ses cas positif, négatif, limite et
+exception sur le modèle de `tests/test_harmonizer_conformance.py`.
 
 ## Jalon 4 — préférences et probabilités — premier palier livré
 
@@ -93,6 +105,6 @@ ou calibré sur corpus.
 
 ## Jalon 5 — `FOUR_PART_COMPLETE`
 
-Ajouter les six-quatre non cadentiels, les autres accords de septième, notes
-étrangères, métrique et modulations uniquement après validation du profil
-historique.
+Ajouter les six-quatre non cadentiels, les autres accords de septième, autres
+catégories de notes étrangères, métrique et modulations uniquement après
+validation du profil historique.

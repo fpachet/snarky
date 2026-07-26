@@ -76,6 +76,11 @@ PLANNED_CHORD = Atom("planned_chord")
 HARMONIC_PLAN_PROFILE = Atom("harmonic_plan_profile")
 HARMONIC_SUCCESSOR = Atom("harmonic_successor")
 CADENCE = Atom("cadence")
+GIVEN_VOICE = Atom("given_voice")
+HARMONIC_EVENT_ROLE = Atom("harmonic_event_role")
+ONSET = Atom("onset")
+CONTINUATION = Atom("continuation")
+SELECTED_MELODIC_ROLE = Atom("selected_melodic_role")
 RESTRICT_INVERSION = Atom("restrict_inversion")
 ALLOWED_FORM_INVERSION = Atom("allowed_form_inversion")
 ROOT_INVERSION = Atom("root")
@@ -180,6 +185,7 @@ class NoteHarmonization:
     voicings: tuple[PitchVoicing, ...]
     chords: tuple[str, ...]
     inversions: tuple[str, ...]
+    melodic_roles: tuple[str, ...]
     cadence: Cadence
     harmonic_rhythm: tuple[int, ...]
     log_weight: float
@@ -360,6 +366,18 @@ def build_note_harmonizer_model(
         facts.extend(
             (
                 Fact(Triple(position, KIND, HARMONIC_POSITION)),
+                Fact(Triple(position, GIVEN_VOICE, VOICE_NAMES[given_voice_index])),
+                Fact(
+                    Triple(
+                        position,
+                        HARMONIC_EVENT_ROLE,
+                        (
+                            ONSET
+                            if index in harmonic_positions
+                            else CONTINUATION
+                        ),
+                    )
+                ),
                 Fact(Triple(position, CHORD_VARIABLE, chord_variable)),
                 Fact(Triple(position, INVERSION_VARIABLE, inversion_variable)),
             )
@@ -725,10 +743,15 @@ def _note_harmonization(
     inversions = tuple(
         _atom_name(assignment[inversion]) for _, inversion in model.harmonic_variables
     )
+    melodic_roles = tuple(
+        _selected_melodic_role(solution.session, position)
+        for position in model.positions
+    )
     return NoteHarmonization(
         tuple(voicings),
         chords,
         inversions,
+        melodic_roles,
         model.cadence,
         model.harmonic_rhythm,
         solution.log_weight,
@@ -748,6 +771,25 @@ def _atom_name(term: Term) -> str:
     if not isinstance(term, Atom):
         raise TypeError("expected an atom value")
     return term.name
+
+
+def _selected_melodic_role(
+    session: InferenceSession,
+    position: Atom,
+) -> str:
+    roles = {
+        fact.entity.object
+        for fact in session.facts
+        if isinstance(fact.entity, Triple)
+        and fact.entity.subject == position
+        and fact.entity.relation == SELECTED_MELODIC_ROLE
+    }
+    if len(roles) != 1:
+        raise ValueError(
+            f"expected one selected melodic role for {position.name}, "
+            f"found {len(roles)}"
+        )
+    return _atom_name(next(iter(roles)))
 
 
 def _static_marginal(
@@ -983,6 +1025,12 @@ def _note_choice_groups() -> tuple[RuleGroup, ...]:
 
 
 @cache
+def _melodic_role_groups() -> tuple[RuleGroup, ...]:
+    path = Path(__file__).with_name("melodic_roles.rules")
+    return parse_rule_groups(path.read_text())
+
+
+@cache
 def _muses_input_groups() -> tuple[RuleGroup, ...]:
     path = Path(__file__).with_name("muses_input.rules")
     return parse_rule_groups(path.read_text())
@@ -994,6 +1042,7 @@ def _note_harmonizer_program(*, import_muses: bool) -> RuleProgram:
     musical = {group.name: group for group in _note_harmonizer_groups()}
     choice_groups = _note_choice_groups()
     conformance = (
+        *_melodic_role_groups(),
         musical["derive_harmonic_plan"],
         RuleGroup(
             "prepare_harmonic_domains",

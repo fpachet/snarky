@@ -1,0 +1,83 @@
+# Analyse locale de la soprano donnée. Une note ornementale n'est envisagée
+# que sur la continuation d'un événement harmonique ; les règles utilisent le
+# contour précédent–courant–suivant sans callback Python.
+
+GROUP derive_melodic_roles
+    RULE derive_ascending_passing_tone
+    WHEN
+        ($position given_voice soprano)
+        ($position harmonic_event_role continuation)
+        ($previous successor $position)
+        ($position successor $next)
+        ($previous soprano_variable $previous_variable)
+        ($position soprano_variable $current_variable)
+        ($next soprano_variable $next_variable)
+        ($previous_variable candidate $previous_pitch)
+        ($current_variable candidate $current_pitch)
+        ($next_variable candidate $next_pitch)
+        CONSTRAINT $current_pitch - $previous_pitch >= 1
+        CONSTRAINT $current_pitch - $previous_pitch <= 2
+        CONSTRAINT $next_pitch - $current_pitch >= 1
+        CONSTRAINT $next_pitch - $current_pitch <= 2
+    THEN
+        ADD ($position melodic_role_candidate passing_tone)
+    END
+
+    RULE derive_descending_passing_tone
+    WHEN
+        ($position given_voice soprano)
+        ($position harmonic_event_role continuation)
+        ($previous successor $position)
+        ($position successor $next)
+        ($previous soprano_variable $previous_variable)
+        ($position soprano_variable $current_variable)
+        ($next soprano_variable $next_variable)
+        ($previous_variable candidate $previous_pitch)
+        ($current_variable candidate $current_pitch)
+        ($next_variable candidate $next_pitch)
+        CONSTRAINT $previous_pitch - $current_pitch >= 1
+        CONSTRAINT $previous_pitch - $current_pitch <= 2
+        CONSTRAINT $current_pitch - $next_pitch >= 1
+        CONSTRAINT $current_pitch - $next_pitch <= 2
+    THEN
+        ADD ($position melodic_role_candidate passing_tone)
+    END
+
+    RULE derive_upper_neighbor_tone
+    WHEN
+        ($position given_voice soprano)
+        ($position harmonic_event_role continuation)
+        ($previous successor $position)
+        ($position successor $next)
+        ($previous soprano_variable $previous_variable)
+        ($position soprano_variable $current_variable)
+        ($next soprano_variable $next_variable)
+        ($previous_variable candidate $previous_pitch)
+        ($current_variable candidate $current_pitch)
+        ($next_variable candidate $next_pitch)
+        $previous_pitch == $next_pitch
+        CONSTRAINT $current_pitch - $previous_pitch >= 1
+        CONSTRAINT $current_pitch - $previous_pitch <= 2
+    THEN
+        ADD ($position melodic_role_candidate upper_neighbor)
+    END
+
+    RULE derive_lower_neighbor_tone
+    WHEN
+        ($position given_voice soprano)
+        ($position harmonic_event_role continuation)
+        ($previous successor $position)
+        ($position successor $next)
+        ($previous soprano_variable $previous_variable)
+        ($position soprano_variable $current_variable)
+        ($next soprano_variable $next_variable)
+        ($previous_variable candidate $previous_pitch)
+        ($current_variable candidate $current_pitch)
+        ($next_variable candidate $next_pitch)
+        $previous_pitch == $next_pitch
+        CONSTRAINT $previous_pitch - $current_pitch >= 1
+        CONSTRAINT $previous_pitch - $current_pitch <= 2
+    THEN
+        ADD ($position melodic_role_candidate lower_neighbor)
+    END
+END_GROUP
