@@ -164,25 +164,29 @@ frontier.
 ## Every soprano note receives a harmonic decision
 
 By default, every soprano attack has its own chord and inversion variables.
-For example, the opening `C5–D5–E5` is not preclassified as tonic with a
-passing note:
+For example, an ascending C-major scale is not preclassified as tonic with
+passing notes:
 
 ```python
 diatonic = harmonize_notes(
-    (72, 74, 76, 67, 65, 69, 71, 72),
+    (60, 62, 64, 65, 67, 69, 71, 72),
     traversal=ChoiceTraversal.DEPTH_FIRST,
     max_solutions=1,
 )[0]
 
-assert diatonic.chords[:3] == ("degree_I", "degree_V", "degree_I")
-assert diatonic.melodic_roles[:3] == ("chord_tone",) * 3
+assert diatonic.chords == (
+    "degree_I", "degree_V", "degree_I", "degree_IV",
+    "degree_I", "degree_IV", "degree_V", "degree_I",
+)
+assert diatonic.melodic_roles == ("chord_tone",) * 8
 ```
 
-Thus D is harmonized normally in C major: it receives the complete chord
-domain, the solver selects V, and all vertical, transition, inversion, spacing,
-doubling, and voice-leading rules apply exactly as at the other positions.
-A pitch is not intrinsically a non-chord tone; that role is relative to the
-selected harmony.
+The eight-bar generated example begins with this complete scale and follows it
+with an eight-note cadential phrase. Thus D is harmonized normally in C major:
+it receives the complete chord domain, the solver selects V, and all vertical,
+transition, inversion, spacing, doubling, and voice-leading rules apply
+exactly as at the other positions. A pitch is not intrinsically a non-chord
+tone; that role is relative to the selected harmony.
 
 ## Explicitly held harmony and non-chord tones
 

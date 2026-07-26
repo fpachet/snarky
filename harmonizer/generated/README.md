@@ -16,6 +16,7 @@ Use `--output-directory` to write elsewhere. The source inputs are the example
 constructors and declarative rule modules, not files in this directory.
 The eight-bar `--extended` example supplies only the soprano, harmonic rhythm,
 and cadence; its harmonic plan is selected in Snarky's first program step.
-The `--diatonic` example gives every note its own harmonic decision. Its
-opening `C-D-E` is harmonized `I-V-I`; D is a normal chord tone of V and is
-subject to the same vertical and transition rules as every other note.
+The eight-bar `--diatonic` example gives every note its own harmonic decision.
+Its first phrase traverses the complete ascending C-major scale and is
+harmonized `I-V-I-IV-I-IV-V-I`; D is a normal chord tone of V and is subject
+to the same vertical and transition rules as every other note.

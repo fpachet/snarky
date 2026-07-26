@@ -448,19 +448,25 @@ def test_eight_bar_form_derives_a_plan_from_the_soprano_in_two_steps() -> None:
 
 
 def test_each_diatonic_note_receives_an_independent_harmonic_decision() -> None:
-    melody = (72, 74, 76, 67, 65, 69, 71, 72)
+    melody = (60, 62, 64, 65, 67, 69, 71, 72)
     solution = harmonize_notes(
         melody,
         traversal=ChoiceTraversal.DEPTH_FIRST,
         max_solutions=1,
     )[0]
 
-    assert solution.chords[:3] == ("degree_I", "degree_V", "degree_I")
-    assert solution.melodic_roles[:3] == (
-        "chord_tone",
-        "chord_tone",
-        "chord_tone",
+    assert {pitch % 12 for pitch in melody} == {0, 2, 4, 5, 7, 9, 11}
+    assert solution.chords == (
+        "degree_I",
+        "degree_V",
+        "degree_I",
+        "degree_IV",
+        "degree_I",
+        "degree_IV",
+        "degree_V",
+        "degree_I",
     )
+    assert solution.melodic_roles == ("chord_tone",) * len(melody)
     d_voicing = solution.voicings[1]
     assert d_voicing[0] % 12 == 2
     assert {pitch % 12 for pitch in d_voicing} == {2, 7, 11}

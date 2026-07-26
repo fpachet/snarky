@@ -14,7 +14,24 @@ from .muses_harmonizer import MusesHarmonization, harmonize_temporal_collection
 from .note_solver import HarmonicPlanDegree
 
 LONG_HARMONIC_RHYTHM = (0, 1, 2, 3, 4, 4, 5, 6)
-DIATONIC_MELODY = (72, 74, 76, 67, 65, 69, 71, 72)
+DIATONIC_MELODY = (
+    60,
+    62,
+    64,
+    65,
+    67,
+    69,
+    71,
+    72,
+    76,
+    74,
+    72,
+    69,
+    65,
+    69,
+    71,
+    72,
+)
 EXTENDED_MELODY = (
     67,
     76,
@@ -116,7 +133,7 @@ def build_extended_example_soprano() -> TemporalCollection:
 
 
 def build_diatonic_example_soprano() -> TemporalCollection:
-    """Return a four-measure soprano with one harmonic decision per note."""
+    """Return an eight-measure soprano using every C-major scale degree."""
 
     return TemporalCollection(
         name="soprano_diatonic_donne",
@@ -133,7 +150,7 @@ def build_diatonic_example_soprano() -> TemporalCollection:
         instrument="choir",
         program_change=52,
         melody_type="melody",
-        end_beat=16.0,
+        end_beat=32.0,
     )
 
 
@@ -218,7 +235,7 @@ def main() -> None:
         dest="diatonic",
         action="store_true",
         help=(
-            "generate the four-measure example with one harmony per note "
+            "generate the eight-measure C-major example with one harmony per note "
             "(--ornamented is a compatibility alias)"
         ),
     )
