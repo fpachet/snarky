@@ -145,9 +145,12 @@ canalisation maintiennent les supports dans les deux directions.
 La forme est paramétrée par `cadence` : `perfect`, `plagal`, `deceptive` ou
 `half`. À partir de trois événements harmoniques, elle ajoute `I` fondamental
 au début. Pour la cadence parfaite, l'événement pré-cadentiel refuse `I` et
-`V`, sauf `I64`. `harmonic_rhythm` associe chaque note à un événement :
-deux notes du même événement partagent les mêmes variables d'accord et de
-renversement, tandis que leurs voicings restent distincts.
+`V`, sauf `I64`. Par défaut, chaque attaque de la soprano reçoit ses propres
+variables d'accord et de renversement. `harmonic_rhythm` peut explicitement
+associer plusieurs notes au même événement : elles partagent alors les mêmes
+variables d'accord et de renversement, tandis que leurs voicings restent
+distincts. Ce partage est une contrainte fournie par l'utilisateur, et non une
+analyse implicite des notes mélodiques.
 
 `harmonic_plan` peut en outre fournir un degré ou `None` par événement. Python
 ne fait que traduire les étiquettes `I`, `ii`, `IV`, `V`, `V7`, `vi`, `vii°`
@@ -197,7 +200,14 @@ Le profil historique `extended_tonal_arc` reste accepté comme contrainte
 optionnelle de compatibilité et comme oracle ciblé ; il n'est plus utilisé par
 l'exemple principal.
 
-## Notes étrangères de la soprano
+## Harmonisation de chaque note et notes étrangères
+
+Une hauteur n'est pas étrangère en elle-même : son rôle dépend de l'accord
+choisi. Sans `harmonic_rhythm`, chaque note de la soprano reçoit le domaine
+harmonique complet et traverse les mêmes règles de choix d'accord, de
+renversement, de verticalité et de conduite des voix. Ainsi, dans l'ouverture
+`C5-D5-E5`, le D peut être une note d'accord de V (ou d'un autre accord
+diatonique qui le contient) ; il n'est pas pré-étiqueté comme passage.
 
 Chaque position expose désormais `harmonic_event_role onset|continuation`.
 Pour une soprano donnée, `derive_melodic_roles` examine les trois hauteurs
@@ -213,8 +223,10 @@ Les quatre règles couvrent passage ascendant/descendant et broderie
 supérieure/inférieure. Elles exigent des mouvements conjoints de un ou deux
 demi-tons et n'utilisent aucun prédicat Python.
 
+Les rôles étrangers ne sont envisagés que lorsque `harmonic_rhythm` indique
+explicitement qu'un accord est tenu sur plusieurs notes.
 `generate_legal_tonal_voicing` conserve la sémantique historique pour
-`chord_tone`. `generate_ornamental_soprano_voicing` accepte une soprano
+`chord_tone`. `generate_ornamental_soprano_voicing` accepte alors une soprano
 étrangère à une triade si :
 
 - son rôle local a été dérivé ;

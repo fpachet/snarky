@@ -447,7 +447,26 @@ def test_eight_bar_form_derives_a_plan_from_the_soprano_in_two_steps() -> None:
     } == {Atom("tonic"), Atom("predominant"), Atom("dominant")}
 
 
-def test_passing_tone_is_inferred_and_lower_voices_complete_the_triad() -> None:
+def test_each_diatonic_note_receives_an_independent_harmonic_decision() -> None:
+    melody = (72, 74, 76, 67, 65, 69, 71, 72)
+    solution = harmonize_notes(
+        melody,
+        traversal=ChoiceTraversal.DEPTH_FIRST,
+        max_solutions=1,
+    )[0]
+
+    assert solution.chords[:3] == ("degree_I", "degree_V", "degree_I")
+    assert solution.melodic_roles[:3] == (
+        "chord_tone",
+        "chord_tone",
+        "chord_tone",
+    )
+    d_voicing = solution.voicings[1]
+    assert d_voicing[0] % 12 == 2
+    assert {pitch % 12 for pitch in d_voicing} == {2, 7, 11}
+
+
+def test_passing_tone_is_inferred_when_the_harmony_is_explicitly_held() -> None:
     melody = (72, 74, 76, 67, 65, 69, 71, 72)
     solution = harmonize_notes(
         melody,

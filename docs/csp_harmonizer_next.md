@@ -253,5 +253,11 @@ voix inférieures en réalisent toutes les classes. `V7`, suspensions et
 dissonances accentuées attendent respectivement une politique d'omission, une
 sémantique de préparation/résolution et une force métrique explicite.
 
+Ce palier ne soustrait aucune attaque au problème harmonique. Par défaut,
+chaque note reçoit ses propres variables d'accord et de renversement et toutes
+les règles s'appliquent normalement ; par exemple, D dans `C-D-E` peut être
+une note de l'accord de V. L'interprétation ornementale n'est ouverte que si
+le client impose explicitement un événement harmonique partagé.
+
 Un mécanisme avancé de recherche ne sera ajouté que si ces règles produisent
 un profil et un oracle qui le justifient.

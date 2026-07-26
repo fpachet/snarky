@@ -86,7 +86,13 @@ Le jalon livre maintenant :
 - restriction aux continuations d'un événement harmonique ;
 - réalisation complète de la triade par alto–ténor–basse lorsque la soprano
   est étrangère ;
-- rôle sélectionné exposé dans la solution et exemple MuSES `C–D–E`.
+- rôle sélectionné exposé dans la solution et oracle ciblé sur un accord
+  explicitement tenu.
+
+L'exemple MuSES `C–D–E` harmonise désormais chaque attaque indépendamment :
+le D reçoit le même domaine et les mêmes contraintes que les autres notes et
+la solution commence par `I–V–I`. Une note étrangère n'est jamais déduite de
+sa seule hauteur ; elle est relative à un accord explicitement prolongé.
 
 Suite musicale : force métrique explicite, suspensions et anticipations, puis
 politique d'omission pour les accords de quatre sons.

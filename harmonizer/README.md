@@ -71,7 +71,9 @@ transitions that have no violation.
 Passing and neighbor shapes are recognized in
 [`melodic_roles.rules`](melodic_roles.rules) from the local
 previous–current–next contour. Ornamentation is considered only on a
-continuation inside a harmonic event. No Python callback labels the note.
+continuation inside an explicitly shared harmonic event. Otherwise every
+soprano attack is harmonized independently. No Python callback labels the
+note.
 
 Example:
 
@@ -159,20 +161,45 @@ harmonic choice. Depth-first traversal is used because this example
 demonstrates one feasible realization rather than ranking a large best-first
 frontier.
 
-## Non-chord tones in the soprano
+## Every soprano note receives a harmonic decision
 
-The ornamented example begins `C5–D5–E5`. The D belongs to the same tonic
-event as the preceding C but is not a member of the tonic triad:
+By default, every soprano attack has its own chord and inversion variables.
+For example, the opening `C5–D5–E5` is not preclassified as tonic with a
+passing note:
 
 ```python
-ornamented = harmonize_notes(
+diatonic = harmonize_notes(
+    (72, 74, 76, 67, 65, 69, 71, 72),
+    traversal=ChoiceTraversal.DEPTH_FIRST,
+    max_solutions=1,
+)[0]
+
+assert diatonic.chords[:3] == ("degree_I", "degree_V", "degree_I")
+assert diatonic.melodic_roles[:3] == ("chord_tone",) * 3
+```
+
+Thus D is harmonized normally in C major: it receives the complete chord
+domain, the solver selects V, and all vertical, transition, inversion, spacing,
+doubling, and voice-leading rules apply exactly as at the other positions.
+A pitch is not intrinsically a non-chord tone; that role is relative to the
+selected harmony.
+
+## Explicitly held harmony and non-chord tones
+
+`harmonic_rhythm` is an explicit modeling decision. Repeating a slot means
+that its notes share one chord variable. Only in that case can the current
+first-stage rules derive passing or neighbor motion over a genuinely held
+harmony:
+
+```python
+held = harmonize_notes(
     (72, 74, 76, 67, 65, 69, 71, 72),
     harmonic_rhythm=(0, 0, 1, 1, 2, 2, 3, 4),
     traversal=ChoiceTraversal.DEPTH_FIRST,
     max_solutions=1,
 )[0]
 
-assert ornamented.melodic_roles[:3] == (
+assert held.melodic_roles[:3] == (
     "chord_tone",
     "passing_tone",
     "chord_tone",
@@ -180,11 +207,11 @@ assert ornamented.melodic_roles[:3] == (
 ```
 
 The rules derive ascending and descending passing motion and upper or lower
-neighbor motion. A chord-tone voicing still requires all four voices to
-belong to the chord. For an ornamental soprano over a triad, alto, tenor, and
-bass must contain all three chord classes themselves. Ornamentation over `V7`
-is intentionally rejected in this first version: three lower voices cannot
-state all four chord classes without an explicit omission policy.
+neighbor motion. A chord-tone voicing requires all four voices to belong to
+the chord. For an ornamental soprano over an explicitly held triad, alto,
+tenor, and bass must contain all three chord classes themselves. Ornamentation
+over `V7` is intentionally rejected in this first version: three lower voices
+cannot state all four chord classes without an explicit omission policy.
 
 This is harmonic-role inference rather than unrestricted dissonance. The
 current eligibility fact identifies continuation inside a harmonic event;
@@ -296,7 +323,7 @@ With both repositories as siblings:
 python -m pip install -e ../muses
 uv run python -m harmonizer.example_muses
 uv run python -m harmonizer.example_muses --long
-uv run python -m harmonizer.example_muses --ornamented
+uv run python -m harmonizer.example_muses --diatonic
 uv run python -m harmonizer.example_muses --extended
 ```
 
