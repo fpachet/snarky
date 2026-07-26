@@ -93,6 +93,7 @@ LOWER_NEIGHBOR = Atom("lower_neighbor")
 SUSPENSION = Atom("suspension")
 ANTICIPATION = Atom("anticipation")
 SELECTED_MELODIC_ROLE = Atom("selected_melodic_role")
+CONTINUES_VOICE_FROM = Atom("continues_voice_from")
 RESTRICT_INVERSION = Atom("restrict_inversion")
 ALLOWED_FORM_INVERSION = Atom("allowed_form_inversion")
 ROOT_INVERSION = Atom("root")
@@ -195,6 +196,15 @@ class NoteHarmonizerModel:
 
 
 @dataclass(frozen=True, slots=True)
+class VoiceContinuation:
+    """A rule-derived instruction to sustain one voice across two positions."""
+
+    position: int
+    voice: SATBVoice
+    previous_position: int
+
+
+@dataclass(frozen=True, slots=True)
 class NoteHarmonization:
     """One result with search and rule-level explanatory traces."""
 
@@ -202,6 +212,7 @@ class NoteHarmonization:
     chords: tuple[str, ...]
     inversions: tuple[str, ...]
     melodic_roles: tuple[str, ...]
+    voice_continuations: tuple[VoiceContinuation, ...]
     cadence: Cadence
     harmonic_rhythm: tuple[int, ...]
     metric_strengths: tuple[MetricStrength, ...]
@@ -851,11 +862,13 @@ def _note_harmonization(
         _selected_melodic_role(solution.session, position)
         for position in model.positions
     )
+    voice_continuations = _voice_continuations(solution.session, model.positions)
     return NoteHarmonization(
         tuple(voicings),
         chords,
         inversions,
         melodic_roles,
+        voice_continuations,
         model.cadence,
         model.harmonic_rhythm,
         model.metric_strengths,
@@ -896,6 +909,55 @@ def _selected_melodic_role(
             f"found {len(roles)}"
         )
     return _atom_name(next(iter(roles)))
+
+
+def _voice_continuations(
+    session: InferenceSession,
+    positions: tuple[Atom, ...],
+) -> tuple[VoiceContinuation, ...]:
+    position_indexes = {position: index for index, position in enumerate(positions)}
+    voice_indexes = {voice: index for index, voice in enumerate(VOICE_NAMES)}
+    continuations: set[VoiceContinuation] = set()
+    for fact in session.facts:
+        if (
+            not isinstance(fact.entity, Triple)
+            or fact.entity.relation != CONTINUES_VOICE_FROM
+        ):
+            continue
+        position = fact.entity.subject
+        payload = fact.entity.object
+        if (
+            not isinstance(position, Atom)
+            or position not in position_indexes
+            or not isinstance(payload, FiniteSequence)
+            or len(payload.elements) != 2
+        ):
+            raise ValueError("invalid continues_voice_from fact")
+        voice, previous = payload.elements
+        if (
+            not isinstance(voice, Atom)
+            or not isinstance(previous, Atom)
+            or voice not in voice_indexes
+            or previous not in position_indexes
+        ):
+            raise ValueError("invalid continues_voice_from fact")
+        position_index = position_indexes[position]
+        previous_index = position_indexes[previous]
+        if previous_index != position_index - 1:
+            raise ValueError("voice continuation must reference the previous position")
+        continuations.add(
+            VoiceContinuation(
+                position=position_index,
+                voice=cast(SATBVoice, voice.name),
+                previous_position=previous_index,
+            )
+        )
+    return tuple(
+        sorted(
+            continuations,
+            key=lambda item: (item.position, voice_indexes[Atom(item.voice)]),
+        )
+    )
 
 
 def _static_marginal(

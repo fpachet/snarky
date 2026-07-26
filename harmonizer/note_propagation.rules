@@ -264,4 +264,44 @@ GROUP interpret_note_harmonization
     THEN
         ADD ($position selected_melodic_role $role)
     END
+
+    # Une tenue est un résultat symbolique explicite, indépendant du nom que
+    # l'adaptateur de sortie donne au rôle mélodique. Passage, broderie et
+    # anticipation prolongent les voix inférieures depuis la position
+    # précédente lorsque leur hauteur sélectionnée est identique.
+    RULE expose_lower_voice_continuation
+    WHEN
+        ($previous successor $position)
+        ($position melodic_role_variable $role_variable)
+        ($role_variable value $role)
+        $role != chord_tone
+        $role != suspension
+        ($previous_variable position $previous)
+        ($previous_variable voice $voice)
+        ($previous_variable value $pitch)
+        ($current_variable position $position)
+        ($current_variable voice $voice)
+        ($current_variable value $pitch)
+        $voice != soprano
+    THEN
+        ADD ($position continues_voice_from SEQ[$voice $previous])
+    END
+
+    # L'accord nouveau est déjà présent sous la suspension ; ses voix
+    # inférieures restent tenues pendant la note de résolution.
+    RULE expose_suspension_resolution_continuation
+    WHEN
+        ($previous successor $position)
+        ($previous melodic_role_variable $role_variable)
+        ($role_variable value suspension)
+        ($previous_variable position $previous)
+        ($previous_variable voice $voice)
+        ($previous_variable value $pitch)
+        ($current_variable position $position)
+        ($current_variable voice $voice)
+        ($current_variable value $pitch)
+        $voice != soprano
+    THEN
+        ADD ($position continues_voice_from SEQ[$voice $previous])
+    END
 END_GROUP

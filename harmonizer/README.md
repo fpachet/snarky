@@ -233,12 +233,15 @@ The role channel enforces these meanings:
 
 Passing tones, neighbors, and anticipations leave a complete triad in the
 three lower voices. They reuse the exact previous alto, tenor, and bass
-pitches; the MuSES exporter consequently extends those notes instead of
-writing repeated attacks. A suspension instead omits its resolution class
-from the lower voices: the suspended pitch temporarily replaces that chord
-member. The exact lower voicing is held through the resolution. All policies
-are in rule premises and remain subject to the ordinary chord, inversion,
-transition, spacing, doubling, and voice-leading propagation.
+pitches. Interpretation derives one `continues_voice_from` fact per sustained
+voice and exposes it as a `VoiceContinuation`; the MuSES exporter consumes
+those facts instead of inspecting role names. It consequently extends the
+notes instead of writing repeated attacks. Without such a fact, an equal
+adjacent pitch is rearticulated. A suspension instead omits its resolution
+class from the lower voices: the suspended pitch temporarily replaces that
+chord member. The exact lower voicing is held through the resolution. All
+policies are in rule premises and remain subject to the ordinary chord,
+inversion, transition, spacing, doubling, and voice-leading propagation.
 
 `metric_strengths` accepts one `strong` or `weak` value per note. The MuSES
 adapter derives these facts from note onsets and the time signature.

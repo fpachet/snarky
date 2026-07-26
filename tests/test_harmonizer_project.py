@@ -2,6 +2,7 @@ import pytest
 
 from csp_solver.solver import solve_binary_csp
 from harmonizer import (
+    VoiceContinuation,
     build_note_harmonizer_model,
     harmonize_notes,
     sample_harmonization,
@@ -573,6 +574,16 @@ def test_passing_tone_continues_previous_voicing_not_following_harmony() -> None
     assert solution.chords[:3] == ("degree_I", "degree_I", "degree_vi")
     assert solution.voicings[0][1:] == solution.voicings[1][1:]
     assert solution.voicings[1][1:] != solution.voicings[2][1:]
+    assert solution.voice_continuations == (
+        VoiceContinuation(position=1, voice="alto", previous_position=0),
+        VoiceContinuation(position=1, voice="tenor", previous_position=0),
+        VoiceContinuation(position=1, voice="bass", previous_position=0),
+    )
+    assert {
+        event.rule_name
+        for event in solution.inference_events
+        if event.rule_group == "interpret_note_harmonization"
+    } >= {"expose_lower_voice_continuation"}
 
 
 @pytest.mark.parametrize(
@@ -660,6 +671,15 @@ def test_accented_roles_are_chosen_with_declarative_harmonic_support(
     )[0]
 
     assert solution.melodic_roles[1] == expected_role
+    continuation_position = 2 if expected_role == "suspension" else 1
+    assert {
+        (continuation.position, continuation.voice, continuation.previous_position)
+        for continuation in solution.voice_continuations
+    } == {
+        (continuation_position, "alto", continuation_position - 1),
+        (continuation_position, "tenor", continuation_position - 1),
+        (continuation_position, "bass", continuation_position - 1),
+    }
     assert any(
         event.rule_group == "derive_melodic_roles" and expected_role in event.rule_name
         for event in solution.inference_events

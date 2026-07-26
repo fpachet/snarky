@@ -25,7 +25,8 @@ The eight-bar `--roles` example derives strong/weak metric facts from its
 rhythm and classifies contextually short durations. Most notes receive their
 own harmony: in particular, the opening D is a chord tone of V. The selected
 non-chord roles are a lower neighbor, a suspension, and an anticipation.
-Their unchanged lower voices are exported as sustained notes rather than
-repeated attacks. The example supplies two local chord anchors, not a complete
-harmonic plan or any role labels; passing tones and upper neighbors are
-covered by focused tests.
+Rules expose their unchanged lower voices through `continues_voice_from`
+facts; those voices are exported as sustained notes rather than repeated
+attacks. The example supplies two local chord anchors, not a complete harmonic
+plan or any role labels; passing tones and upper neighbors are covered by
+focused tests.

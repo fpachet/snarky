@@ -265,5 +265,12 @@ et les hauteurs exactes d'alto, ténor et basse de C restent alors tenus pendant
 D, sans nouvelle attaque, tandis que E reçoit une décision harmonique
 indépendante. L'export MuSES fusionne ces événements contigus en notes longues.
 
+La décision attaque/tenue est elle aussi déclarative. Le groupe
+`interpret_note_harmonization` dérive des faits `continues_voice_from` par
+voix et la solution les expose comme `VoiceContinuation`. L'adaptateur MuSES
+ne consulte aucun nom de rôle : il valide la position précédente, la
+contiguïté et l'égalité des hauteurs, puis calcule les durées et sérialise le
+résultat. Sans ce fait, deux hauteurs identiques restent deux attaques.
+
 Un mécanisme avancé de recherche ne sera ajouté que si ces règles produisent
 un profil et un oracle qui le justifient.

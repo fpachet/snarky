@@ -280,6 +280,11 @@ def _materialize_voice_notes(
 ) -> tuple[TemporalNoteLike, ...]:
     """Preserve soprano attacks and merge sustained accompaniment spans."""
 
+    continuation_sources = {
+        continuation.position: continuation.previous_position
+        for continuation in solution.voice_continuations
+        if continuation.voice == voice_name
+    }
     specifications: list[tuple[int, float, float, int, int]] = []
     for index, (source_note, voicing) in enumerate(
         zip(source_notes, solution.voicings, strict=True)
@@ -288,26 +293,14 @@ def _materialize_voice_notes(
         start = float(source_note.start_beat)
         end = float(source_note.end_beat)
         channel = source_note.midi_channel if voice_name == given_voice else voice_index
-        continues_harmony = (
-            voice_name != given_voice
-            and index > 0
-            and (
-                solution.melodic_roles[index]
-                in {
-                    "passing_tone",
-                    "upper_neighbor",
-                    "lower_neighbor",
-                    "anticipation",
-                }
-                or solution.melodic_roles[index - 1] == "suspension"
-            )
-        )
-        if (
-            continues_harmony
-            and specifications
-            and specifications[-1][0] == pitch
-            and math.isclose(specifications[-1][2], start)
-        ):
+        continuation_source = continuation_sources.get(index)
+        if continuation_source is not None:
+            if continuation_source != index - 1:
+                raise ValueError("voice continuation must reference the previous note")
+            if not specifications or specifications[-1][0] != pitch:
+                raise ValueError("a continued voice must preserve its pitch")
+            if not math.isclose(specifications[-1][2], start):
+                raise ValueError("a continued voice must join contiguous notes")
             previous = specifications[-1]
             specifications[-1] = (
                 previous[0],

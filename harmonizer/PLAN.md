@@ -104,6 +104,26 @@ Passages, broderies et anticipations exigent désormais une durée d'au plus une
 noire et non supérieure à celles des deux notes voisines. Une note conjointe
 faible mais longue reste donc une note structurelle à harmoniser.
 
+### Attaques et tenues déclaratives — livré
+
+La décision musicale « attaquer ou prolonger » est exposée par le programme
+Snarky sous forme de faits par voix, par exemple :
+
+```text
+(position_1 continues_voice_from SEQ[alto position_0])
+```
+
+Les règles les dérivent pour passage, broderie, anticipation et résolution de
+suspension lorsque les hauteurs sélectionnées sont identiques. La solution les
+expose comme `VoiceContinuation(position, voice, previous_position)`.
+L'adaptateur MuSES ne consulte plus `melodic_roles` : il consomme uniquement
+ces continuations, vérifie position précédente, égalité de hauteur et
+contiguïté, puis calcule la durée et sérialise MIDI/MusicXML.
+
+Deux hauteurs adjacentes identiques restent donc réarticulées en l'absence de
+fait de continuation. Les règles décident seules de la réarticulation ou de la
+tenue ; Python ne réalise que la projection temporelle du résultat symbolique.
+
 L'exemple MuSES de huit mesures harmonise désormais chaque attaque
 indépendamment. Sa première phrase parcourt toute la gamme ascendante de do
 majeur et reçoit `I–V–I–IV–I–IV–V–I`. Le D reçoit le même domaine et les

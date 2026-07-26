@@ -1,13 +1,16 @@
 from collections.abc import Iterable, Sequence
+from dataclasses import replace
 from pathlib import Path
 
 import pytest
 
 from harmonizer import (
     MusesFactories,
+    VoiceContinuation,
     harmonize_notes,
     harmonize_temporal_collection,
 )
+from harmonizer.muses_harmonizer import _materialize_voice_notes
 from snarky import ChoiceTraversal
 from snarky.integrations import (
     MusesTemporalCollectionCodec,
@@ -226,10 +229,65 @@ def test_passing_tone_extends_the_sounding_lower_voice_notes() -> None:
     )[0]
 
     assert result.symbolic.melodic_roles[1] == "passing_tone"
+    assert result.symbolic.voice_continuations == (
+        VoiceContinuation(position=1, voice="alto", previous_position=0),
+        VoiceContinuation(position=1, voice="tenor", previous_position=0),
+        VoiceContinuation(position=1, voice="bass", previous_position=0),
+    )
     assert len(result.piece.melodies[0].temporals) == 6
     for lower_voice in result.piece.melodies[1:]:
         assert len(lower_voice.temporals) == 5
         assert lower_voice.temporals[0].duration() == 2.0
+
+
+def test_materializer_obeys_continuation_facts_not_melodic_role_names() -> None:
+    factories, codec = _integration()
+    source = FakeTemporalCollection(
+        name="passing_subject",
+        temporals=tuple(
+            FakeTemporalNote(pitch, start, duration)
+            for pitch, start, duration in zip(
+                (72, 74, 76, 74, 71, 72),
+                (0.0, 1.0, 2.0, 4.0, 6.0, 8.0),
+                (1.0, 1.0, 2.0, 2.0, 2.0, 2.0),
+                strict=True,
+            )
+        ),
+        end_beat=10.0,
+    )
+    result = harmonize_temporal_collection(
+        source,
+        harmonic_plan=("I", "I", "vi", "ii", "V", "I"),
+        traversal=ChoiceTraversal.DEPTH_FIRST,
+        factories=factories,
+        codec=codec,
+    )[0]
+
+    relabeled = replace(
+        result.symbolic,
+        melodic_roles=("chord_tone",) * len(source.temporals),
+    )
+    sustained = _materialize_voice_notes(
+        tuple(source.temporals),
+        relabeled,
+        voice_index=1,
+        voice_name="alto",
+        given_voice="soprano",
+        factory=factories.note,
+    )
+    rearticulated = _materialize_voice_notes(
+        tuple(source.temporals),
+        replace(relabeled, voice_continuations=()),
+        voice_index=1,
+        voice_name="alto",
+        given_voice="soprano",
+        factory=factories.note,
+    )
+
+    assert len(sustained) == 5
+    assert sustained[0].duration() == 2.0
+    assert len(rearticulated) == 6
+    assert [note.duration() for note in rearticulated[:2]] == [1.0, 1.0]
 
 
 def test_muses_harmonizer_rejects_polyphonic_or_unsupported_input() -> None:

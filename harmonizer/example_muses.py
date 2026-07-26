@@ -385,6 +385,17 @@ def main() -> None:
     print("  metric strengths", list(result.symbolic.metric_strengths))
     print("  note durations", list(result.symbolic.note_durations))
     print("  melodic roles", list(result.symbolic.melodic_roles))
+    print(
+        "  voice continuations",
+        [
+            (
+                continuation.voice,
+                continuation.previous_position,
+                continuation.position,
+            )
+            for continuation in result.symbolic.voice_continuations
+        ],
+    )
     print(f"MIDI:     {midi_path}")
     print(f"MusicXML: {musicxml_path}")
     print(

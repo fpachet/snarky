@@ -288,6 +288,23 @@ les collections sont encodées puis décodées par le même codec et assemblées
 dans une `Piece`. Cette reconstruction est un snapshot de solution, pas une
 mutation de la collection d'entrée.
 
+Le groupe d'interprétation dérive des faits de solution explicites :
+
+```text
+(position_1 continues_voice_from SEQ[alto position_0])
+(position_1 continues_voice_from SEQ[tenor position_0])
+(position_1 continues_voice_from SEQ[bass position_0])
+```
+
+Ils sont exposés sous forme de
+`VoiceContinuation(position, voice, previous_position)` avec la solution.
+La frontière Python ne consulte pas `melodic_roles` : elle vérifie seulement
+que les événements liés désignent des positions successives, sont contigus et
+de même hauteur, calcule `end - start`, puis sérialise les notes. En l'absence
+de fait, deux hauteurs identiques sont réarticulées. Le choix sémantique
+attaque/tenue appartient ainsi entièrement à Snarky ; l'arithmétique
+temporelle et l'écriture des formats restent dans l'adaptateur.
+
 Ce premier contrat considère que les quatre voix partagent le même rythme.
 Il refuse une ligne polyphonique ou une durée non positive et limite le
 raisonnement au vocabulaire C majeur du noyau courant.
