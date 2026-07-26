@@ -101,6 +101,18 @@ fixed base domains. Rules may derive ordinary facts and may impose additional
 restrictions, but adding candidate values during inference is not part of this
 semantics; that operation would require domain widening and recomputation.
 
+## Historical lineage
+
+This cooperation between finite-domain constraints, rules, choices, and
+backtracking converges toward Yves Caseau's LAURE and later CLAIRE work; Snarky
+does not claim the general combination as novel. LAURE is the closest
+precedent for rules and constraints cooperating on shared objects during
+hypothesis-driven search. CLAIRE continued the lineage through a tight
+integration of sets, compiled rules, and search.
+
+See the [LORE, LAURE, CLAIRE, and Snarky comparison](../docs/caseau_rules_constraints.md)
+for primary references and a point-by-point operational comparison.
+
 ## Constraint-vocabulary examples
 
 Five executable models exercise the practical persistent constraints in

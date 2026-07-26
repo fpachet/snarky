@@ -158,11 +158,38 @@ Fact-derived `.constraints` templates keep global scopes independent of
 problem size. See [persistent constraints](docs/persistent_constraints.md)
 and the [Caseau historical comparison](docs/caseau_rules_constraints.md).
 
+### Related work: Yves Caseau's LAURE and CLAIRE
+
+Snarky's convergence of persistent constraint filtering, forward rules,
+explicit choices, propagation, and reversible search has a direct historical
+precedent in Yves Caseau's work and is not presented here as a new general
+architecture. LAURE allowed rules, constraints, and methods to cooperate over
+the same objects; rules could guide constraint resolution, and consequences
+participated in backtracking. CLAIRE subsequently integrated sets, compiled
+rules, and search as expressive algorithm-building primitives.
+
+Primary references:
+
+- Yves Caseau, [*Rule-aided constraint resolution in
+  LAURE*](https://doi.org/10.1007/BFb0013534), PDK 1991, pp. 237–256;
+- Yves Caseau, [*Constraint satisfaction with an object-oriented knowledge
+  representation language*](https://doi.org/10.1007/BF00872107), *Applied
+  Intelligence* 4(2), 1994, pp. 157–184;
+- Yves Caseau, François-Xavier Josset, and François Laburthe,
+  [*CLAIRE: combining sets, search and rules to better express
+  algorithms*](https://doi.org/10.1017/S1471068401001363), *Theory and
+  Practice of Logic Programming* 2(6), 2002, pp. 769–805.
+
+The detailed [LORE → LAURE → CLAIRE comparison](docs/caseau_rules_constraints.md)
+maps these precedents to Snarky's current fixed-point, `CHOICE`, checkpoint,
+and rollback semantics and identifies where the present project may still
+contribute.
+
 ## Research applications
 
 | Project | Purpose |
 |---|---|
-| [Finite CSP](csp_solver/README.md) | Classical puzzles, sequencing, scheduling, and coloring through declarative constraints, rules, and choices |
+| [Finite CSP](csp_solver/README.md) | Classical puzzles, sequencing, scheduling, coloring, and reproducible CSP benchmarks through declarative constraints, rules, and choices |
 | [Sudoku](sudoku/README.md) | progressive, explainable human techniques followed by explicit search |
 | [Four-part harmonizer](harmonizer/README.md) | SATB generation with tonal rules, contextual weights, and MuSES integration |
 | [Rulebase catalogue](rulebases/README.md) | executable pedagogical and historically motivated examples |
@@ -171,6 +198,13 @@ and the [Caseau historical comparison](docs/caseau_rules_constraints.md).
 Spinoza intentionally remains in French because its corpus, formalization, and
 reports are tied to French primary material. Publication-facing engine and
 application documentation is in English.
+
+The finite-CSP catalogue includes executable SEND + MORE = MONEY, Golomb
+ruler, car-sequencing, balanced-curriculum, balanced graph-coloring,
+N-queens, magic-square, Latin-square, and hybrid Sudoku models. These examples
+exercise `ALL_DIFFERENT`, `SUM`, `LINEAR_SUM`, comparisons, `ELEMENT`,
+`COUNT`, `GCC`, `TABLE`, and `LEX_LESS_EQUAL` in practical combinations. See
+the [finite-CSP guide](csp_solver/README.md) for formulations and commands.
 
 ## Documentation
 
@@ -201,6 +235,26 @@ Run the cross-rulebase benchmark:
 ```sh
 uv run python -m benchmarks.rulebase_suite --repeat 7
 ```
+
+The classical-CSP benchmark validates and measures magic squares, Latin
+squares, and constraints-only versus rules-plus-constraints Sudoku:
+
+```sh
+uv run python -m benchmarks.classical_csp --repeat 3
+uv run python -m benchmarks.classical_csp \
+  --magic-sizes 6 7 --only-magic --repeat 3 \
+  --magic-dom-wdeg-only
+```
+
+It reports timing together with nodes, failures, depth, and propagation
+counters. Recorded runs compare dependency scheduling, incremental domains,
+dom/wdeg, learned-impact value ordering, propagation-guided ordering, and
+lexicographic symmetry breaking. Start with the
+[classical CSP results](benchmarks/results/classical_csp_learned_impact_2026-07-25.json)
+and the
+[magic-square search results](benchmarks/results/magic_square_learned_impact_2026-07-25.json);
+the complete dated archive remains under
+[`benchmarks/results/`](benchmarks/results/).
 
 See [benchmarks/README.md](benchmarks/README.md) for protocols, interpretation,
 and the historical result files. Performance figures are environment-specific;

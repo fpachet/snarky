@@ -302,6 +302,13 @@ The manifest separates preparation, the sequential `harmonic_plan` and
 from [`note_harmonizer.program`](note_harmonizer.program), so the construction
 order is part of the model rather than hidden solver configuration.
 
+This staged cooperation of rules, constraints, choices, propagation, and
+reversible search is in the lineage of Yves Caseau's LAURE and CLAIRE systems,
+not a claim of architectural novelty. The
+[historical comparison](../docs/caseau_rules_constraints.md) gives the primary
+references and maps LAURE's hypotheses and extended backtracking to Snarky's
+`CHOICE`, checkpoints, and branch-local rule consequences.
+
 Preparation generates complete voicings, filters their vertical conformance,
 applies the structural cadence restrictions, and classifies each remaining
 ground transition once. This classification is value-invariant in the current
@@ -340,8 +347,10 @@ are more verbose than their musical statement because Snarky currently has:
 The rule base handles those cases with paired up/down rules and separate rules
 for fifths and octaves. This is an abstraction limitation, not an
 expressiveness blocker for finite SATB. More substantial future features need
-new *musical facts*—key and spelling, metric strength, suspension preparation,
-and modulation state—rather than hidden Python predicates.
+new *musical facts*—key and spelling, a multi-level metric hierarchy,
+appoggiatura and escape-tone context, and modulation state—rather than hidden
+Python predicates. Binary metric strength and suspension
+preparation/resolution are already declarative in the current model.
 
 ## Optional MuSES pipeline
 
