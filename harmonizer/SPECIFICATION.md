@@ -210,8 +210,11 @@ renversement, de verticalité et de conduite des voix. Ainsi, dans l'ouverture
 diatonique qui le contient) ; il n'est pas pré-étiqueté comme passage.
 
 Chaque position possède désormais une variable CSP `melodic_role_variable`
-ainsi que les faits `metric_strength strong|weak` et `note_duration N`. Son
-domaine contient toujours `chord_tone`.
+ainsi que les faits `metric_level 0|1|2|3` et `note_duration N`. Les niveaux
+désignent respectivement subdivision, pulsation ordinaire, accent secondaire
+et temps principal de mesure. `classify_metric_levels` en déduit la vue de
+compatibilité `metric_strength strong|weak`. Le domaine du rôle contient
+toujours `chord_tone`.
 
 `classify_melodic_durations` dérive :
 
@@ -230,6 +233,8 @@ ajouter :
 (note_position_1 melodic_role_candidate lower_neighbor)
 (note_position_1 melodic_role_candidate suspension)
 (note_position_1 melodic_role_candidate anticipation)
+(note_position_1 melodic_role_candidate appoggiatura)
+(note_position_1 melodic_role_candidate escape_tone)
 ```
 
 `prepare_melodic_role_domains` transforme ces analyses en candidats de la
@@ -247,23 +252,39 @@ La canalisation impose :
   précédent, nouvel accord et voicing inférieur maintenus jusqu'à la
   résolution descendante ;
 - anticipation : note courte, métrique faible, maintien de l'accord et du
-  voicing inférieur précédents, et appartenance de la note à l'accord suivant.
+  voicing inférieur précédents, et appartenance de la note à l'accord suivant ;
+- appoggiature : saut vers une dissonance sur un accent principal de niveau 3,
+  puis résolution conjointe opposée sur un membre du même accord ;
+- échappée : arrivée conjointe sur une note courte de niveau 0 ou 1, puis saut
+  dans la direction opposée, avec maintien de l'accord précédent.
 
-Pour passage, broderie et anticipation, alto–ténor–basse réalisent toutes les
-classes de la triade et prolongent leurs hauteurs précédentes sans nouvelle
-attaque. Pour la suspension, ils réalisent exactement les deux autres classes
-et omettent celle de la résolution : la dissonance suspendue remplace
-temporairement ce membre. Le même voicing inférieur est prolongé pendant la
-résolution. L'export MuSES fusionne ces événements contigus en notes tenues.
+`describe_melodic_role_policies` associe déclarativement chaque rôle à une
+politique d'accompagnement (`new_attack`, `continue_previous` ou
+`continue_resolution`) et à une politique de voix inférieures
+(`complete_triad` ou `omit_resolution`). Les règles de canalisation utilisent
+ces propriétés et ne contiennent donc pas une énumération fermée des noms de
+rôle.
+
+Pour passage, broderie, anticipation et échappée, alto–ténor–basse réalisent
+toutes les classes de la triade et prolongent leurs hauteurs précédentes sans
+nouvelle attaque. Pour suspension et appoggiature, ils réalisent exactement
+les deux autres classes et omettent celle de la résolution : la dissonance
+remplace temporairement ce membre. Le même voicing inférieur est prolongé
+pendant la résolution. L'export MuSES fusionne ces événements contigus en notes tenues.
 Ordre, espacements, renversement, doublures et conduite des voix restent
 appliqués normalement.
 
 Le résultat expose un rôle par note dans `NoteHarmonization.melodic_roles`.
-`NoteHarmonization.metric_strengths` expose aussi les faits métriques.
-`NoteHarmonization.note_durations` expose les durées. Les deux vecteurs peuvent
-être fournis directement ; la frontière MuSES les déduit des débuts et durées
-de notes ainsi que de la mesure. `V7` orné, appoggiatures, échappées et
-métrique hiérarchique restent hors de ce palier.
+`NoteHarmonization.metric_levels` expose les quatre niveaux et
+`metric_strengths` leur projection binaire. `note_durations` expose les durées.
+Un profil `metric_levels` peut être fourni directement ; l'ancien profil
+`metric_strengths` reste compatible, mais les deux sont exclusifs. MuSES
+calcule la position métrique hiérarchique depuis les débuts de notes, la mesure
+et ses groupes de pulsations. La frontière ne recopie que
+`MetricPosition.accent_level` dans les faits Snarky ; elle ne contient plus
+d'algorithme métrique parallèle. L'ornementation de `V7` reste hors de ce
+palier car trois voix inférieures ne peuvent en énoncer les quatre classes sans
+politique d'omission.
 
 ## Frontière MuSES
 

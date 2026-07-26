@@ -191,7 +191,7 @@ contribute.
 |---|---|
 | [Finite CSP](csp_solver/README.md) | Classical puzzles, sequencing, scheduling, coloring, and reproducible CSP benchmarks through declarative constraints, rules, and choices |
 | [Sudoku](sudoku/README.md) | progressive, explainable human techniques followed by explicit search |
-| [Four-part harmonizer](harmonizer/README.md) | SATB generation with tonal rules, contextual weights, and MuSES integration |
+| [Four-part harmonizer](harmonizer/README.md) | SATB generation with tonal rules, hierarchical metre, declarative melodic roles, and MuSES integration |
 | [Rulebase catalogue](rulebases/README.md) | executable pedagogical and historically motivated examples |
 | [Spinoza](spinoza/README.md) | French-language formalization of Part III of the *Ethics* |
 

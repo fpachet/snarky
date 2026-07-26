@@ -10,7 +10,7 @@ from harmonizer import (
     harmonize_notes,
     harmonize_temporal_collection,
 )
-from harmonizer.muses_harmonizer import _materialize_voice_notes
+from harmonizer.muses_harmonizer import _materialize_voice_notes, _metric_levels
 from snarky import ChoiceTraversal
 from snarky.integrations import (
     MusesTemporalCollectionCodec,
@@ -81,6 +81,11 @@ class FakePiece:
         self.tempo = tempo
 
 
+class FakeMetricPosition:
+    def __init__(self, accent_level: int) -> None:
+        self.accent_level = accent_level
+
+
 def _integration() -> tuple[
     MusesFactories,
     MusesTemporalCollectionCodec,
@@ -137,6 +142,7 @@ def test_muses_line_becomes_a_four_voice_piece_through_rules() -> None:
     result = harmonize_temporal_collection(
         source,
         given_voice="soprano",
+        metric_levels=(3, 1),
         factories=factories,
         codec=codec,
         piece_name="generated_satb",
@@ -171,6 +177,7 @@ def test_muses_line_becomes_a_four_voice_piece_through_rules() -> None:
     assert all(result.voice_facts)
     assert result.symbolic.inference_events
     assert result.symbolic.metric_strengths == ("strong", "weak")
+    assert result.symbolic.metric_levels == (3, 1)
     assert result.symbolic.note_durations == (0.5, 1.5)
     assert any(
         event.rule_group == "import_muses_given_voice"
@@ -180,6 +187,73 @@ def test_muses_line_becomes_a_four_voice_piece_through_rules() -> None:
         event.rule_group == "generate_candidate_voicings"
         for event in result.symbolic.inference_events
     )
+
+
+def test_muses_metric_translation_preserves_four_hierarchical_levels() -> None:
+    notes = tuple(
+        FakeTemporalNote(72, start, 0.25)
+        for start in (0.0, 0.5, 1.0, 2.0)
+    )
+    calls: list[tuple[tuple[FakeTemporalNote, ...], str]] = []
+
+    def metric_positions(
+        received_notes: Iterable[FakeTemporalNote],
+        time_signature: str,
+    ) -> tuple[FakeMetricPosition, ...]:
+        note_tuple = tuple(received_notes)
+        calls.append((note_tuple, time_signature))
+        return tuple(
+            FakeMetricPosition(level)
+            for level in (3, 0, 1, 2)
+        )
+
+    assert _metric_levels(
+        notes,
+        "4/4",
+        metric_positions_function=metric_positions,
+    ) == (3, 0, 1, 2)
+    assert calls == [(notes, "4/4")]
+
+
+def test_muses_metric_translation_validates_the_external_projection() -> None:
+    notes = tuple(FakeTemporalNote(72, start, 0.25) for start in (0.0, 1.0))
+
+    def wrong_count(
+        received_notes: Iterable[FakeTemporalNote],
+        time_signature: str,
+    ) -> tuple[FakeMetricPosition, ...]:
+        del received_notes, time_signature
+        return (FakeMetricPosition(3),)
+
+    def invalid_level(
+        received_notes: Iterable[FakeTemporalNote],
+        time_signature: str,
+    ) -> tuple[FakeMetricPosition, ...]:
+        del received_notes, time_signature
+        return (FakeMetricPosition(3), FakeMetricPosition(4))
+
+    with pytest.raises(ValueError, match="note count"):
+        _metric_levels(
+            notes,
+            "4/4",
+            metric_positions_function=wrong_count,
+        )
+    with pytest.raises(ValueError, match="integers from 0 to 3"):
+        _metric_levels(
+            notes,
+            "4/4",
+            metric_positions_function=invalid_level,
+        )
+
+
+def test_real_muses_metric_projection_when_optional_dependency_is_available() -> None:
+    pytest.importorskip("muses")
+    notes = tuple(
+        FakeTemporalNote(72, start, 0.25)
+        for start in (0.0, 0.5, 1.0, 2.0)
+    )
+
+    assert _metric_levels(notes, "4/4") == (3, 0, 1, 2)
 
 
 def test_muses_bass_line_is_preserved_in_the_bass_output() -> None:
@@ -195,6 +269,7 @@ def test_muses_bass_line_is_preserved_in_the_bass_output() -> None:
     result = harmonize_temporal_collection(
         source,
         given_voice="bass",
+        metric_levels=(3, 1),
         factories=factories,
         codec=codec,
     )[0]
@@ -223,6 +298,7 @@ def test_passing_tone_extends_the_sounding_lower_voice_notes() -> None:
     result = harmonize_temporal_collection(
         source,
         harmonic_plan=("I", "I", "vi", "ii", "V", "I"),
+        metric_levels=(3, 1, 2, 3, 2, 3),
         traversal=ChoiceTraversal.DEPTH_FIRST,
         factories=factories,
         codec=codec,
@@ -258,6 +334,7 @@ def test_materializer_obeys_continuation_facts_not_melodic_role_names() -> None:
     result = harmonize_temporal_collection(
         source,
         harmonic_plan=("I", "I", "vi", "ii", "V", "I"),
+        metric_levels=(3, 1, 2, 3, 2, 3),
         traversal=ChoiceTraversal.DEPTH_FIRST,
         factories=factories,
         codec=codec,

@@ -89,6 +89,8 @@ def test_note_harmonizer_generates_and_chooses_individual_notes() -> None:
         (
             "preparation",
             (
+                "describe_melodic_role_policies",
+                "classify_metric_levels",
                 "classify_melodic_durations",
                 "derive_melodic_roles",
                 "prepare_melodic_role_domains",
@@ -583,7 +585,182 @@ def test_passing_tone_continues_previous_voicing_not_following_harmony() -> None
         event.rule_name
         for event in solution.inference_events
         if event.rule_group == "interpret_note_harmonization"
-    } >= {"expose_lower_voice_continuation"}
+    } >= {"expose_previous_accompaniment_continuation"}
+
+
+@pytest.mark.parametrize(
+    (
+        "melody",
+        "harmonic_plan",
+        "metric_levels",
+        "expected_role",
+        "continuation_position",
+        "derivation_rule",
+    ),
+    (
+        (
+            (67, 72, 71, 72, 65, 69, 71, 72),
+            ("I", "V", "V", "I", "IV", "ii", "V", "I"),
+            (2, 3, 1, 2, 2, 2, 2, 2),
+            "appoggiatura",
+            2,
+            "derive_upper_appoggiatura",
+        ),
+        (
+            (72, 74, 67, 72, 65, 69, 71, 72),
+            ("I", "I", "V", "I", "IV", "ii", "V", "I"),
+            (2, 1, 2, 2, 2, 2, 2, 2),
+            "escape_tone",
+            1,
+            "derive_upper_escape_tone",
+        ),
+    ),
+)
+def test_new_non_chord_roles_are_derived_and_channeled_declaratively(
+    melody: tuple[int, ...],
+    harmonic_plan: tuple[str, ...],
+    metric_levels: tuple[int, ...],
+    expected_role: str,
+    continuation_position: int,
+    derivation_rule: str,
+) -> None:
+    solution = harmonize_notes(
+        melody,
+        harmonic_plan=harmonic_plan,  # type: ignore[arg-type]
+        metric_levels=metric_levels,  # type: ignore[arg-type]
+        note_durations=(1.0, 1.0, 2.0, 2.0, 2.0, 2.0, 2.0, 2.0),
+        traversal=ChoiceTraversal.DEPTH_FIRST,
+        max_solutions=1,
+    )[0]
+
+    assert solution.melodic_roles[1] == expected_role
+    assert {
+        (continuation.position, continuation.voice, continuation.previous_position)
+        for continuation in solution.voice_continuations
+    } == {
+        (continuation_position, "alto", continuation_position - 1),
+        (continuation_position, "tenor", continuation_position - 1),
+        (continuation_position, "bass", continuation_position - 1),
+    }
+    assert any(
+        event.rule_group == "derive_melodic_roles"
+        and event.rule_name == derivation_rule
+        for event in solution.inference_events
+    )
+
+
+def test_appoggiatura_is_relative_to_metric_level_and_selected_harmony() -> None:
+    melody = (67, 72, 71, 72, 65, 69, 71, 72)
+    unaccented = build_note_harmonizer_model(
+        melody,
+        metric_levels=(2, 2, 1, 2, 2, 2, 2, 2),
+    )
+
+    assert not any(
+        isinstance(fact.entity, Triple)
+        and fact.entity.subject == unaccented.positions[1]
+        and fact.entity.relation == Atom("melodic_role_candidate")
+        and fact.entity.object == Atom("appoggiatura")
+        for fact in unaccented.csp.facts
+    )
+
+    consonant = harmonize_notes(
+        melody,
+        harmonic_plan=("I", "I", "V", "I", "IV", "ii", "V", "I"),
+        metric_levels=(2, 3, 1, 2, 2, 2, 2, 2),
+        traversal=ChoiceTraversal.DEPTH_FIRST,
+        max_solutions=1,
+    )[0]
+
+    assert consonant.melodic_roles[1] == "chord_tone"
+    assert consonant.chords[1] == "degree_I"
+
+
+@pytest.mark.parametrize(
+    ("melody", "metric_levels", "role", "derivation_rule"),
+    (
+        (
+            (72, 65, 67, 72, 65, 69, 71, 72),
+            (2, 3, 1, 2, 2, 2, 2, 2),
+            "appoggiatura",
+            "derive_lower_appoggiatura",
+        ),
+        (
+            (67, 65, 72, 72, 65, 69, 71, 72),
+            (2, 1, 2, 2, 2, 2, 2, 2),
+            "escape_tone",
+            "derive_lower_escape_tone",
+        ),
+    ),
+)
+def test_lower_direction_new_role_candidates_are_derived(
+    melody: tuple[int, ...],
+    metric_levels: tuple[int, ...],
+    role: str,
+    derivation_rule: str,
+) -> None:
+    model = build_note_harmonizer_model(
+        melody,
+        metric_levels=metric_levels,  # type: ignore[arg-type]
+    )
+
+    assert any(
+        isinstance(fact.entity, Triple)
+        and fact.entity.subject == model.positions[1]
+        and fact.entity.relation == Atom("melodic_role_candidate")
+        and fact.entity.object == Atom(role)
+        for fact in model.csp.facts
+    )
+    assert any(
+        event.rule_group == "derive_melodic_roles"
+        and event.rule_name == derivation_rule
+        for event in model.preparation_events
+    )
+
+
+def test_long_escape_shape_is_harmonized_as_a_chord_tone() -> None:
+    solution = harmonize_notes(
+        (72, 74, 67, 72, 65, 69, 71, 72),
+        harmonic_plan=("I", "ii", "V", "I", "IV", "ii", "V", "I"),
+        metric_levels=(2, 1, 2, 2, 2, 2, 2, 2),
+        note_durations=(1.0, 2.0, 2.0, 2.0, 2.0, 2.0, 2.0, 2.0),
+        traversal=ChoiceTraversal.DEPTH_FIRST,
+        max_solutions=1,
+    )[0]
+
+    assert solution.melodic_roles[1] == "chord_tone"
+    assert solution.chords[1] == "degree_ii"
+
+
+def test_melodic_role_behavior_is_exposed_as_declarative_policy_facts() -> None:
+    model = build_note_harmonizer_model((71, 72))
+    policies = {
+        (
+            fact.entity.subject,
+            fact.entity.relation,
+            fact.entity.object,
+        )
+        for fact in model.csp.facts
+        if isinstance(fact.entity, Triple)
+        and fact.entity.relation
+        in {Atom("accompaniment_policy"), Atom("lower_voice_policy")}
+    }
+
+    assert (
+        Atom("appoggiatura"),
+        Atom("accompaniment_policy"),
+        Atom("continue_resolution"),
+    ) in policies
+    assert (
+        Atom("escape_tone"),
+        Atom("accompaniment_policy"),
+        Atom("continue_previous"),
+    ) in policies
+    assert (
+        Atom("appoggiatura"),
+        Atom("lower_voice_policy"),
+        Atom("omit_resolution"),
+    ) in policies
 
 
 @pytest.mark.parametrize(
@@ -699,6 +876,19 @@ def test_harmonic_rhythm_and_cadence_are_validated() -> None:
         build_note_harmonizer_model(
             (71, 72),
             metric_strengths=("strong", "medium"),  # type: ignore[arg-type]
+        )
+    with pytest.raises(ValueError, match="one value per note"):
+        build_note_harmonizer_model((71, 72), metric_levels=(3,))
+    with pytest.raises(ValueError, match="integers from 0 to 3"):
+        build_note_harmonizer_model(
+            (71, 72),
+            metric_levels=(3, 4),  # type: ignore[arg-type]
+        )
+    with pytest.raises(ValueError, match="mutually exclusive"):
+        build_note_harmonizer_model(
+            (71, 72),
+            metric_strengths=("strong", "strong"),
+            metric_levels=(3, 3),
         )
     with pytest.raises(ValueError, match="one value per note"):
         build_note_harmonizer_model((71, 72), note_durations=(1.0,))

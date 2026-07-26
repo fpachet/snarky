@@ -135,6 +135,7 @@ def run(repeat: int) -> dict[str, Any]:
     def object_bridge() -> tuple[int, int]:
         solutions = harmonize_temporal_collection(
             source,
+            metric_levels=(3, 1, 2, 1),
             factories=factories,
             codec=codec,
             max_solutions=1,

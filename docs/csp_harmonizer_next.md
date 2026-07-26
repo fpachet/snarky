@@ -242,20 +242,28 @@ Le prochain travail reste :
 1. renversements de `V7` et autres accords de septième ;
 2. six-quatre de passage, pédale et arpège ;
 3. exceptions complètes de sensible et de doublure ;
-4. autres catégories de notes étrangères, métrique, tonalités et modulations ;
+4. ornements sur accords de quatre sons, tonalités et modulations ;
 5. extension de la matrice positif/négatif/limite/exception déjà livrée pour
    les identifiants du noyau.
 
 Le palier de rôles mélodiques est également livré. Le groupe
-`derive_melodic_roles` reconnaît passages conjoints, broderies, suspensions
-et anticipations dans la soprano donnée. Chaque position possède une variable
-de rôle choisie avec l'accord ; la canalisation vérifie préparation,
-résolution, maintien exact du voicing inférieur et politique de complétude ou
-d'omission.
-La frontière MuSES traduit les débuts de notes en métrique forte/faible et
-leurs durées en faits numériques. Une règle séparée réserve passages,
-broderies et anticipations aux notes d'au plus une noire, non plus longues que
-leurs deux voisines.
+`derive_melodic_roles` reconnaît passages conjoints, broderies, suspensions,
+anticipations, appoggiatures et échappées dans la soprano donnée. Chaque
+position possède une variable de rôle choisie avec l'accord ; la canalisation
+vérifie préparation, résolution et maintien exact du voicing inférieur.
+`describe_melodic_role_policies` associe chaque catégorie aux politiques
+`continue_previous` ou `continue_resolution`, puis `complete_triad` ou
+`omit_resolution`. Les règles de canalisation restent génériques quand une
+nouvelle catégorie partage un comportement existant.
+
+L'API générique `muses.metric_positions` analyse les débuts de notes et fournit
+les niveaux métriques `0..3`. La frontière Snarky projette uniquement
+`MetricPosition.accent_level` et les durées en faits numériques ; elle ne
+réimplémente pas la structure de la mesure. Snarky dérive ensuite la projection
+forte/faible. Une règle séparée réserve passages, broderies, anticipations et
+échappées aux notes d'au plus une noire, non plus longues que leurs deux
+voisines. Les appoggiatures exigent l'accent principal de niveau 3 ; les
+suspensions acceptent les niveaux forts 2–3.
 
 Par défaut, chaque note reçoit ses variables d'accord, de rôle et de
 renversement et toutes les règles s'appliquent normalement ; par exemple, D

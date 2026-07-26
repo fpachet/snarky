@@ -31,6 +31,8 @@ details are documented in [docs/versioning.md](docs/versioning.md).
   reusable `ALL_DIFFERENT` matchings.
 - Parameterized magic-square and Latin-square models plus a classical CSP
   benchmark and a persistent-constraint/forward-rule Sudoku hybrid.
+- Four-level metric profiles, appoggiatura and escape-tone analysis, and
+  declarative accompaniment/voicing policies in the SATB harmonizer.
 
 ### Changed
 
@@ -46,6 +48,8 @@ details are documented in [docs/versioning.md](docs/versioning.md).
   text, generated music, and benchmark records are excluded.
 - Made generated MIDI and MusicXML local reproducible outputs instead of
   tracked source files.
+- Delegated hierarchical metre analysis in the optional MuSES harmonizer
+  bridge to `muses.metric_positions`, removing its duplicate meter algorithm.
 
 ### Compatibility
 

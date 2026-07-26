@@ -2,6 +2,55 @@
 # le contour et la métrique les rendent admissibles, puis la canalisation avec
 # l'accord et le voicing décide conjointement du rôle réellement sélectionné.
 
+GROUP describe_melodic_role_policies
+    # Les comportements harmoniques sont des faits déclaratifs. Les règles de
+    # canalisation restent ainsi génériques quand un nouveau rôle est ajouté.
+    RULE describe_melodic_role_policies
+    WHEN
+        (roy_note_harmonization kind csp_problem)
+    THEN
+        ADD (chord_tone accompaniment_policy new_attack)
+
+        ADD (passing_tone accompaniment_policy continue_previous)
+        ADD (upper_neighbor accompaniment_policy continue_previous)
+        ADD (lower_neighbor accompaniment_policy continue_previous)
+        ADD (anticipation accompaniment_policy continue_previous)
+        ADD (escape_tone accompaniment_policy continue_previous)
+
+        ADD (suspension accompaniment_policy continue_resolution)
+        ADD (appoggiatura accompaniment_policy continue_resolution)
+
+        ADD (passing_tone lower_voice_policy complete_triad)
+        ADD (upper_neighbor lower_voice_policy complete_triad)
+        ADD (lower_neighbor lower_voice_policy complete_triad)
+        ADD (anticipation lower_voice_policy complete_triad)
+        ADD (escape_tone lower_voice_policy complete_triad)
+
+        ADD (suspension lower_voice_policy omit_resolution)
+        ADD (appoggiatura lower_voice_policy omit_resolution)
+    END
+END_GROUP
+
+GROUP classify_metric_levels
+    # 0 = subdivision, 1 = pulsation ordinaire, 2 = accent secondaire,
+    # 3 = temps fort de mesure. strong/weak reste une vue de compatibilité.
+    RULE classify_strong_metric_level
+    WHEN
+        ($position metric_level $level)
+        CONSTRAINT $level >= 2
+    THEN
+        ADD ($position metric_strength strong)
+    END
+
+    RULE classify_weak_metric_level
+    WHEN
+        ($position metric_level $level)
+        CONSTRAINT $level <= 1
+    THEN
+        ADD ($position metric_strength weak)
+    END
+END_GROUP
+
 GROUP classify_melodic_durations
     # Dans le profil courant, les durées sont exprimées en noires. Une note
     # courte ne dépasse ni une noire ni la durée de ses deux voisines.
@@ -24,7 +73,8 @@ GROUP derive_melodic_roles
     RULE derive_ascending_passing_tone
     WHEN
         ($position given_voice soprano)
-        ($position metric_strength weak)
+        ($position metric_level $level)
+        CONSTRAINT $level <= 1
         ($position duration_role short)
         ($previous successor $position)
         ($position successor $next)
@@ -45,7 +95,8 @@ GROUP derive_melodic_roles
     RULE derive_descending_passing_tone
     WHEN
         ($position given_voice soprano)
-        ($position metric_strength weak)
+        ($position metric_level $level)
+        CONSTRAINT $level <= 1
         ($position duration_role short)
         ($previous successor $position)
         ($position successor $next)
@@ -66,7 +117,8 @@ GROUP derive_melodic_roles
     RULE derive_upper_neighbor_tone
     WHEN
         ($position given_voice soprano)
-        ($position metric_strength weak)
+        ($position metric_level $level)
+        CONSTRAINT $level <= 1
         ($position duration_role short)
         ($previous successor $position)
         ($position successor $next)
@@ -86,7 +138,8 @@ GROUP derive_melodic_roles
     RULE derive_lower_neighbor_tone
     WHEN
         ($position given_voice soprano)
-        ($position metric_strength weak)
+        ($position metric_level $level)
+        CONSTRAINT $level <= 1
         ($position duration_role short)
         ($previous successor $position)
         ($position successor $next)
@@ -106,7 +159,8 @@ GROUP derive_melodic_roles
     RULE derive_suspension
     WHEN
         ($position given_voice soprano)
-        ($position metric_strength strong)
+        ($position metric_level $level)
+        CONSTRAINT $level >= 2
         ($previous successor $position)
         ($position successor $next)
         ($previous soprano_variable $previous_variable)
@@ -125,7 +179,8 @@ GROUP derive_melodic_roles
     RULE derive_ascending_anticipation
     WHEN
         ($position given_voice soprano)
-        ($position metric_strength weak)
+        ($position metric_level $level)
+        CONSTRAINT $level <= 1
         ($position duration_role short)
         ($previous successor $position)
         ($position successor $next)
@@ -145,7 +200,8 @@ GROUP derive_melodic_roles
     RULE derive_descending_anticipation
     WHEN
         ($position given_voice soprano)
-        ($position metric_strength weak)
+        ($position metric_level $level)
+        CONSTRAINT $level <= 1
         ($position duration_role short)
         ($previous successor $position)
         ($position successor $next)
@@ -160,6 +216,96 @@ GROUP derive_melodic_roles
         CONSTRAINT $previous_pitch - $current_pitch <= 2
     THEN
         ADD ($position melodic_role_candidate anticipation)
+    END
+
+    # Appoggiature supérieure : saut ascendant vers un temps principal,
+    # puis résolution descendante conjointe.
+    RULE derive_upper_appoggiatura
+    WHEN
+        ($position given_voice soprano)
+        ($position metric_level $level)
+        CONSTRAINT $level >= 3
+        ($previous successor $position)
+        ($position successor $next)
+        ($previous soprano_variable $previous_variable)
+        ($position soprano_variable $current_variable)
+        ($next soprano_variable $next_variable)
+        ($previous_variable candidate $previous_pitch)
+        ($current_variable candidate $current_pitch)
+        ($next_variable candidate $next_pitch)
+        CONSTRAINT $current_pitch - $previous_pitch >= 3
+        CONSTRAINT $current_pitch - $next_pitch >= 1
+        CONSTRAINT $current_pitch - $next_pitch <= 2
+    THEN
+        ADD ($position melodic_role_candidate appoggiatura)
+    END
+
+    # Appoggiature inférieure : saut descendant vers un temps principal,
+    # puis résolution ascendante conjointe.
+    RULE derive_lower_appoggiatura
+    WHEN
+        ($position given_voice soprano)
+        ($position metric_level $level)
+        CONSTRAINT $level >= 3
+        ($previous successor $position)
+        ($position successor $next)
+        ($previous soprano_variable $previous_variable)
+        ($position soprano_variable $current_variable)
+        ($next soprano_variable $next_variable)
+        ($previous_variable candidate $previous_pitch)
+        ($current_variable candidate $current_pitch)
+        ($next_variable candidate $next_pitch)
+        CONSTRAINT $previous_pitch - $current_pitch >= 3
+        CONSTRAINT $next_pitch - $current_pitch >= 1
+        CONSTRAINT $next_pitch - $current_pitch <= 2
+    THEN
+        ADD ($position melodic_role_candidate appoggiatura)
+    END
+
+    # Échappée supérieure : arrivée ascendante conjointe sur temps faible,
+    # puis saut descendant dans la direction opposée.
+    RULE derive_upper_escape_tone
+    WHEN
+        ($position given_voice soprano)
+        ($position metric_level $level)
+        CONSTRAINT $level <= 1
+        ($position duration_role short)
+        ($previous successor $position)
+        ($position successor $next)
+        ($previous soprano_variable $previous_variable)
+        ($position soprano_variable $current_variable)
+        ($next soprano_variable $next_variable)
+        ($previous_variable candidate $previous_pitch)
+        ($current_variable candidate $current_pitch)
+        ($next_variable candidate $next_pitch)
+        CONSTRAINT $current_pitch - $previous_pitch >= 1
+        CONSTRAINT $current_pitch - $previous_pitch <= 2
+        CONSTRAINT $current_pitch - $next_pitch >= 3
+    THEN
+        ADD ($position melodic_role_candidate escape_tone)
+    END
+
+    # Échappée inférieure : arrivée descendante conjointe sur temps faible,
+    # puis saut ascendant dans la direction opposée.
+    RULE derive_lower_escape_tone
+    WHEN
+        ($position given_voice soprano)
+        ($position metric_level $level)
+        CONSTRAINT $level <= 1
+        ($position duration_role short)
+        ($previous successor $position)
+        ($position successor $next)
+        ($previous soprano_variable $previous_variable)
+        ($position soprano_variable $current_variable)
+        ($next soprano_variable $next_variable)
+        ($previous_variable candidate $previous_pitch)
+        ($current_variable candidate $current_pitch)
+        ($next_variable candidate $next_pitch)
+        CONSTRAINT $previous_pitch - $current_pitch >= 1
+        CONSTRAINT $previous_pitch - $current_pitch <= 2
+        CONSTRAINT $next_pitch - $current_pitch >= 3
+    THEN
+        ADD ($position melodic_role_candidate escape_tone)
     END
 END_GROUP
 

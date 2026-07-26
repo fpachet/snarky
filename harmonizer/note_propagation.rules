@@ -147,16 +147,14 @@ GROUP maintain_note_voicing_channel
         REMOVE ($variable candidate $role)
     END
 
-    # Passage, broderie et anticipation ne déclenchent pas une nouvelle
-    # attaque harmonique : les trois voix inférieures et l'accord continuent
-    # depuis la position précédente.
-    RULE remove_continuation_role_without_previous_voicing
+    # Les rôles décrits par continue_previous prolongent exactement l'accord
+    # et les trois voix inférieures depuis la position précédente.
+    RULE remove_previous_continuation_without_previous_voicing
     WHEN
         ($previous successor $position)
         ($position voicing_candidate SEQ[$chord $inversion $soprano $alto $tenor $bass])
         ($position voicing_melodic_role SEQ[$chord $inversion $soprano $alto $tenor $bass $role])
-        $role != chord_tone
-        $role != suspension
+        ($role accompaniment_policy continue_previous)
         NOT EXISTS
             ($previous voicing_candidate SEQ[$chord $previous_inversion $previous_soprano $alto $tenor $bass])
         END_NOT_EXISTS
@@ -178,13 +176,14 @@ GROUP maintain_note_voicing_channel
         REMOVE ($position voicing_candidate SEQ[$chord $inversion $soprano $alto $tenor $bass])
     END
 
-    # Le nouvel accord entre avec la suspension puis reste tenu pendant sa
-    # résolution : l'accord et les trois voix inférieures sont identiques.
-    RULE remove_suspension_without_sustained_resolution_voicing
+    # Les rôles décrits par continue_resolution font entrer le nouvel accord
+    # sous la dissonance et le maintiennent pendant la résolution.
+    RULE remove_resolution_continuation_without_resolution_voicing
     WHEN
         ($position successor $next)
         ($position voicing_candidate SEQ[$chord $inversion $soprano $alto $tenor $bass])
-        ($position voicing_melodic_role SEQ[$chord $inversion $soprano $alto $tenor $bass suspension])
+        ($position voicing_melodic_role SEQ[$chord $inversion $soprano $alto $tenor $bass $role])
+        ($role accompaniment_policy continue_resolution)
         NOT EXISTS
             ($next voicing_candidate SEQ[$chord $next_inversion $next_soprano $alto $tenor $bass])
         END_NOT_EXISTS
@@ -265,17 +264,14 @@ GROUP interpret_note_harmonization
         ADD ($position selected_melodic_role $role)
     END
 
-    # Une tenue est un résultat symbolique explicite, indépendant du nom que
-    # l'adaptateur de sortie donne au rôle mélodique. Passage, broderie et
-    # anticipation prolongent les voix inférieures depuis la position
-    # précédente lorsque leur hauteur sélectionnée est identique.
-    RULE expose_lower_voice_continuation
+    # Une tenue est un résultat symbolique explicite piloté par la propriété
+    # déclarative du rôle, jamais par son nom dans l'adaptateur de sortie.
+    RULE expose_previous_accompaniment_continuation
     WHEN
         ($previous successor $position)
         ($position melodic_role_variable $role_variable)
         ($role_variable value $role)
-        $role != chord_tone
-        $role != suspension
+        ($role accompaniment_policy continue_previous)
         ($previous_variable position $previous)
         ($previous_variable voice $voice)
         ($previous_variable value $pitch)
@@ -287,13 +283,14 @@ GROUP interpret_note_harmonization
         ADD ($position continues_voice_from SEQ[$voice $previous])
     END
 
-    # L'accord nouveau est déjà présent sous la suspension ; ses voix
-    # inférieures restent tenues pendant la note de résolution.
-    RULE expose_suspension_resolution_continuation
+    # L'accord nouveau est déjà présent sous la dissonance ; ses voix
+    # inférieures restent tenues pendant la résolution.
+    RULE expose_resolution_accompaniment_continuation
     WHEN
         ($previous successor $position)
         ($previous melodic_role_variable $role_variable)
-        ($role_variable value suspension)
+        ($role_variable value $role)
+        ($role accompaniment_policy continue_resolution)
         ($previous_variable position $previous)
         ($previous_variable voice $voice)
         ($previous_variable value $pitch)

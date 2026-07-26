@@ -43,7 +43,7 @@ The main model gives each note seven finite-domain variables:
 
 - chord degree among `I`, `ii`, `IV`, `V`, `V7`, `vi`, and `vii°`;
 - melodic role among chord tone, passing tone, upper/lower neighbor,
-  suspension, and anticipation;
+  suspension, anticipation, appoggiatura, and escape tone;
 - root, first, or permitted second inversion;
 - soprano, alto, tenor, and bass pitches.
 
@@ -55,12 +55,12 @@ The current vocabulary includes:
 
 - strict order, spacing, chord completeness, inversion bass, and doubling;
 - soprano chord tones, passing tones, upper/lower neighbors, suspensions,
-  and anticipations;
+  anticipations, appoggiaturas, and escape tones;
 - functional progression and four cadence profiles;
 - melodic bounds, overlap, forbidden parallels, and direct motion;
 - leading-tone and dominant-seventh resolution;
 - cadential `I64` resolutions;
-- explicit harmonic rhythm and strong/weak metric facts.
+- explicit harmonic rhythm and four-level metric facts.
 
 In the note-by-note model, these are no longer opaque Python checks. Chord
 completeness uses `NVALUE`; doubling uses correlated `COUNT`; motion,
@@ -71,9 +71,10 @@ cadential six-four resolution produce named `R-*` violation facts in
 `note_transition.rules` performs bidirectional support revision over the
 transitions that have no violation.
 
-Passing, neighbor, suspension, and anticipation shapes are recognized in
+Passing, neighbor, suspension, anticipation, appoggiatura, and escape-tone
+shapes are recognized in
 [`melodic_roles.rules`](melodic_roles.rules) from the local
-previous–current–next contour and metric strength. The rules add admissible
+previous–current–next contour, duration, and metric level. The rules add admissible
 values to a melodic-role CSP variable; they do not label the note after the
 fact. Chord, role, inversion, and SATB support are then propagated jointly.
 No Python callback decides the role.
@@ -229,48 +230,72 @@ The role channel enforces these meanings:
   dissonant over the new harmony, then resolved downward by step while the
   lower voices sustain the resolution chord;
 - anticipation: a weak non-chord tone over the sustained preceding harmony,
-  held into a following chord that contains it.
+  held into a following chord that contains it;
+- appoggiatura: a leap to a non-chord tone on a principal accent, followed by
+  stepwise resolution in the opposite direction while the resolution harmony
+  sounds below it;
+- escape tone: a short weak-beat non-chord tone approached by step and left by
+  an opposite-direction leap while the preceding harmony remains sounding.
 
-Passing tones, neighbors, and anticipations leave a complete triad in the
-three lower voices. They reuse the exact previous alto, tenor, and bass
-pitches. Interpretation derives one `continues_voice_from` fact per sustained
-voice and exposes it as a `VoiceContinuation`; the MuSES exporter consumes
-those facts instead of inspecting role names. It consequently extends the
-notes instead of writing repeated attacks. Without such a fact, an equal
-adjacent pitch is rearticulated. A suspension instead omits its resolution
-class from the lower voices: the suspended pitch temporarily replaces that
-chord member. The exact lower voicing is held through the resolution. All
-policies are in rule premises and remain subject to the ordinary chord,
-inversion, transition, spacing, doubling, and voice-leading propagation.
+The rule base describes behavior through reusable facts, rather than
+enumerating role names in the channeling rules:
 
-`metric_strengths` accepts one `strong` or `weak` value per note. The MuSES
-adapter derives these facts from note onsets and the time signature.
+```text
+(escape_tone accompaniment_policy continue_previous)
+(appoggiatura accompaniment_policy continue_resolution)
+(escape_tone lower_voice_policy complete_triad)
+(appoggiatura lower_voice_policy omit_resolution)
+```
+
+Passing tones, neighbors, anticipations, and escape tones therefore leave a
+complete triad in the three lower voices and reuse the exact previous alto,
+tenor, and bass pitches. Suspensions and appoggiaturas instead omit the
+resolution class below the dissonance and hold the resolution voicing.
+Interpretation derives one `continues_voice_from` fact per sustained voice and
+exposes it as a `VoiceContinuation`; the MuSES exporter consumes those facts
+instead of inspecting role names. It consequently extends notes instead of
+writing repeated attacks. Without such a fact, an equal adjacent pitch is
+rearticulated. All policies remain subject to the ordinary chord, inversion,
+transition, spacing, doubling, and voice-leading propagation.
+
+`metric_levels` accepts one integer from 0 through 3 per note:
+
+| Level | Meaning |
+|---:|---|
+| 3 | measure downbeat / principal accent |
+| 2 | secondary accent or compound-meter beat group |
+| 1 | ordinary denominator-beat onset |
+| 0 | subdivision |
+
+MuSES derives these levels from note onsets and the time signature through its
+generic `metric_positions` API. The adapter only projects each returned
+`MetricPosition.accent_level` into a Snarky fact. Snarky then derives the
+compatibility view `metric_strength strong|weak`: levels 2–3 are strong and
+0–1 weak. The older
+`metric_strengths` input remains accepted and maps `strong` to level 2 and
+`weak` to level 1; callers must provide at most one of the two profiles.
 `note_durations` accepts durations in quarter-note beats; MuSES supplies them
 from the source notes.
 
-Passing tones and neighbors must now be contextually short: at most one beat
-and no longer than either adjacent note. Anticipations use the same brevity
-test. Thus a weak, stepwise D may be a passing tone when short, but the same D
-is harmonized as a chord tone when lengthened. Suspensions are deliberately
-exempt because their identity depends on preparation, accent, and resolution,
-not brevity.
+Passing tones, neighbors, anticipations, and escape tones must be contextually
+short: at most one beat and no longer than either adjacent note. Thus a weak,
+stepwise D may be ornamental when short, but the same D is harmonized as a
+chord tone when lengthened. Suspensions and appoggiaturas are deliberately
+exempt because their identity depends on accent and resolution, not brevity.
+Appoggiaturas require level 3; suspensions accept levels 2–3.
 
-The current metric hierarchy is deliberately binary; compound-meter accent
-levels, appoggiaturas, escape tones, and ornaments over `V7` remain future
-work.
-
-The eight-bar generated demonstration harmonizes most soprano attacks,
-including its opening D as a chord tone of V. It also contains a lower
-neighbor, a 4–3 suspension, and an anticipation:
+The eight-bar generated demonstration uses every pitch class in C major. A D
+on a weak beat is selected as an escape tone over I; later, an accented C is
+selected as an appoggiatura over V and resolves to B:
 
 ```sh
 uv run python -m harmonizer.example_muses --roles
 ```
 
-It supplies only two local chord anchors, for the suspension and anticipation,
-and no melodic-role labels. Snarky derives all 18 role domains, infers the
-remaining harmony, and selects the complete SATB realization. The passing-tone
-and upper-neighbor paths remain covered by focused solver tests.
+It supplies only those two local chord anchors and no melodic-role labels.
+Snarky derives all 16 role domains, infers the remaining harmony, and selects
+the complete SATB realization. Passing tones, neighbors, suspensions, and
+anticipations remain covered by focused solver tests.
 
 Static note, chord, and inversion weights become contextual when the preceding
 choice is known. Best-first search returns deterministic high-scoring
@@ -347,10 +372,10 @@ are more verbose than their musical statement because Snarky currently has:
 The rule base handles those cases with paired up/down rules and separate rules
 for fifths and octaves. This is an abstraction limitation, not an
 expressiveness blocker for finite SATB. More substantial future features need
-new *musical facts*—key and spelling, a multi-level metric hierarchy,
-appoggiatura and escape-tone context, and modulation state—rather than hidden
-Python predicates. Binary metric strength and suspension
-preparation/resolution are already declarative in the current model.
+new *musical facts*—key and spelling, ornament policy for seventh chords, and
+modulation state—rather than hidden Python predicates. Hierarchical metric
+levels and the preparation/resolution behavior of all current melodic roles
+are already declarative in the current model.
 
 ## Optional MuSES pipeline
 
@@ -398,8 +423,8 @@ Generated MIDI and MusicXML files are reproducible outputs under
 
 The model is restricted to C major and a focused tonal vocabulary. It does not
 yet cover all seventh chords and inversions, passing or pedal six-four chords,
-complete leading-tone exceptions, appoggiaturas, escape tones, modulation,
-rests, a multi-level metric hierarchy, or lexicographic optimization.
+complete leading-tone exceptions, ornaments over four-note chords, modulation,
+rests, syncopation-aware metric reinterpretation, or lexicographic optimization.
 
 The [specification](SPECIFICATION.md) and [project plan](PLAN.md) retain design
 detail. Benchmark protocols and machine-readable measurements are in

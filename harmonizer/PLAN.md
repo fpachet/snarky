@@ -113,9 +113,10 @@ Snarky sous forme de faits par voix, par exemple :
 (position_1 continues_voice_from SEQ[alto position_0])
 ```
 
-Les règles les dérivent pour passage, broderie, anticipation et résolution de
-suspension lorsque les hauteurs sélectionnées sont identiques. La solution les
-expose comme `VoiceContinuation(position, voice, previous_position)`.
+Les règles les dérivent pour passage, broderie, anticipation, échappée,
+suspension et appoggiature lorsque les hauteurs sélectionnées sont identiques.
+La solution les expose comme
+`VoiceContinuation(position, voice, previous_position)`.
 L'adaptateur MuSES ne consulte plus `melodic_roles` : il consomme uniquement
 ces continuations, vérifie position précédente, égalité de hauteur et
 contiguïté, puis calcule la durée et sérialise MIDI/MusicXML.
@@ -124,15 +125,36 @@ Deux hauteurs adjacentes identiques restent donc réarticulées en l'absence de
 fait de continuation. Les règles décident seules de la réarticulation ou de la
 tenue ; Python ne réalise que la projection temporelle du résultat symbolique.
 
-L'exemple MuSES de huit mesures harmonise désormais chaque attaque
-indépendamment. Sa première phrase parcourt toute la gamme ascendante de do
-majeur et reçoit `I–V–I–IV–I–IV–V–I`. Le D reçoit le même domaine et les
-mêmes contraintes que les autres notes. Une note étrangère n'est jamais
-déduite de sa seule hauteur ; elle est relative à un accord explicitement
-prolongé.
+L'exemple MuSES de huit mesures couvre toutes les classes de hauteur de do
+majeur. Le D faible est une échappée sur I ; le C accentué est une
+appoggiature de V résolue sur B. Une note étrangère n'est jamais déduite de sa
+seule hauteur : le contour et le niveau métrique ajoutent un candidat, puis
+l'accord et le voicing sélectionnés décident si ce candidat est réalisable.
 
-Suite musicale : hiérarchie métrique, appoggiatures et échappées, puis
-politique d'omission pour les accords de quatre sons.
+## Jalon 3d — métrique hiérarchique et politiques de rôle — livré
+
+- niveaux métriques `0..3` : subdivision, pulsation, accent secondaire et
+  temps principal de mesure ;
+- dérivation Snarky de la vue forte/faible, avec compatibilité de l'ancienne
+  API binaire ;
+- consommation de `muses.metric_positions` pour les niveaux, y compris les
+  groupes de pulsations des mesures composées, sans second calcul dans
+  l'adaptateur Snarky ;
+- appoggiatures supérieures et inférieures, attaquées par saut au niveau 3 et
+  résolues par mouvement conjoint opposé ;
+- échappées supérieures et inférieures, courtes aux niveaux 0–1, approchées par
+  mouvement conjoint et quittées par saut opposé ;
+- faits de politique `accompaniment_policy` et `lower_voice_policy` séparant
+  la catégorie musicale de son comportement de canalisation ;
+- règles génériques de maintien depuis l'accord précédent ou vers l'accord de
+  résolution, sans tests négatifs énumérant les rôles connus ;
+- cas positifs, négatifs, limites métriques et ambiguïtés harmoniques ;
+- exemple MuSES de huit mesures couvrant toutes les classes de hauteur de do
+  majeur, une échappée et une appoggiature, avec seulement deux ancrages
+  harmoniques locaux et aucune étiquette de rôle.
+
+Suite musicale : politique d'omission pour les accords de quatre sons, retards
+ascendants et autres ornements, puis contexte de tonalité et modulation.
 
 Restent aussi les renversements de `V7`, autres septièmes, six-quatre de
 passage ou de pédale, exceptions complètes et tonalités multiples. Chaque
