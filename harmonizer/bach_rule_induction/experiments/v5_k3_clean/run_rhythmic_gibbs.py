@@ -54,11 +54,26 @@ def _randomize_mutable_segments(
     register_logits: np.ndarray,
     candidate_min: int,
     seed: int,
+    tonal_logits: np.ndarray | None = None,
+    tonic_pc: int | None = None,
+    mode: int | None = None,
 ) -> np.ndarray:
     result = blocks.copy()
     generator = np.random.default_rng(seed)
     candidates = np.arange(candidate_min, candidate_min + register_logits.shape[1])
-    probabilities = np.exp(register_logits)
+    scores = register_logits.copy()
+    if tonal_logits is not None:
+        if tonic_pc is None or mode is None:
+            raise ValueError("Tonal initialization requires tonic and mode")
+        relative = (candidates - tonic_pc) % 12
+        if tonal_logits.shape == (2, 12):
+            scores += tonal_logits[mode, relative][None, :]
+        elif tonal_logits.shape == (4, 2, 12):
+            scores += tonal_logits[:, mode, relative]
+        else:
+            raise ValueError("Unexpected tonal-logit shape")
+    scores -= scores.max(axis=1, keepdims=True)
+    probabilities = np.exp(scores)
     probabilities /= probabilities.sum(axis=1, keepdims=True)
     for start, end, voice in _mutable_segments(attacks, fixed):
         result[start:end, voice] = generator.choice(
@@ -82,10 +97,17 @@ def _materialize_score(
     score_path: Path,
     lattice: k3.RhythmicLattice,
     generated_blocks: np.ndarray,
+    *,
+    title: str,
+    composer: str,
 ) -> Any:
-    from music21 import converter
+    from music21 import converter, metadata
 
     score = copy.deepcopy(converter.parse(score_path))
+    if score.metadata is None:
+        score.metadata = metadata.Metadata()
+    score.metadata.title = title
+    score.metadata.composer = composer
     parts = {part.partName: part for part in score.parts}
     if set(parts) != set(k3.VOICE_NAMES):
         raise ValueError(f"Unexpected score parts: {tuple(parts)}")
@@ -95,6 +117,103 @@ def _materialize_score(
             time = _note_at_offset(lattice.offsets, onset)
             element.pitch.midi = int(generated_blocks[time, voice])
     return score
+
+
+def _source_score_metadata(score: Any) -> dict[str, Any]:
+    from music21 import key, meter, tempo
+
+    declared_keys = list(score.parts[0].recurse().getElementsByClass(key.Key))
+    signatures = list(score.parts[0].recurse().getElementsByClass(meter.TimeSignature))
+    marks = list(score.recurse().getElementsByClass(tempo.MetronomeMark))
+    if len(declared_keys) != 1 or len(signatures) != 1:
+        raise ValueError("Expected one declared key and time signature")
+    declared = declared_keys[0]
+    key_signature = declared.tonic.name + ("m" if declared.mode == "minor" else "")
+    bpm = float(marks[0].number) if marks and marks[0].number else 120.0
+    return {
+        "key_signature": key_signature,
+        "time_signature": signatures[0].ratioString,
+        "tempo_microseconds": int(round(60_000_000 / bpm)),
+    }
+
+
+def _materialize_muses_piece(
+    lattice: k3.RhythmicLattice,
+    generated_blocks: np.ndarray,
+    *,
+    title: str,
+    composer: str,
+    score_metadata: dict[str, Any],
+) -> Any:
+    try:
+        from muses.base.temporals import Piece, TemporalCollection, TemporalNote
+    except ModuleNotFoundError as exc:
+        raise ModuleNotFoundError(
+            "MuSES is required for canonical V5.5 export; "
+            "install the sibling project with `pip install -e ../muses`."
+        ) from exc
+
+    collections = []
+    for voice, name in enumerate(k3.VOICE_NAMES):
+        notes = []
+        for start, end, segment_voice in k3.attack_segments(lattice.attacks):
+            if segment_voice != voice:
+                continue
+            start_offset = float(lattice.offsets[start])
+            end_offset = (
+                lattice.end_offset
+                if end == lattice.size
+                else float(lattice.offsets[end])
+            )
+            notes.append(
+                TemporalNote(
+                    int(generated_blocks[start, voice]),
+                    start_offset,
+                    end_offset - start_offset,
+                    velocity=72,
+                    midi_channel=voice,
+                )
+            )
+        collections.append(
+            TemporalCollection(
+                name=name,
+                temporals=notes,
+                instrument="choir",
+                program_change=52,
+                melody_type=name.lower(),
+                end_beat=lattice.end_offset,
+            )
+        )
+    return Piece(
+        name="k3_learned_choral",
+        title=title,
+        composer=composer,
+        melodies=collections,
+        ticks_per_beat=480,
+        time_signature=score_metadata["time_signature"],
+        key_signature=score_metadata["key_signature"],
+        tempo=score_metadata["tempo_microseconds"],
+    )
+
+
+def _write_muses_exports(
+    piece: Any,
+    musicxml_path: Path,
+    midi_path: Path,
+) -> None:
+    from muses.io import MusicXMLClef, write_musicxml
+
+    piece.save_midi(midi_path)
+    write_musicxml(
+        piece,
+        musicxml_path,
+        part_clefs=(
+            MusicXMLClef("G", 2),
+            MusicXMLClef("G", 2),
+            MusicXMLClef("F", 4),
+            MusicXMLClef("F", 4),
+        ),
+    )
 
 
 def _duration_histograms(score: Any) -> dict[str, dict[str, int]]:
@@ -156,7 +275,7 @@ def _markdown(result: dict[str, Any]) -> str:
     generation = result["generation"]
     comparison = result["comparison"]
     lines = [
-        "# V5.5 — génération K3 sur rythme polyphonique réel",
+        f"# {result['experiment']['id']} — génération sur rythme polyphonique réel",
         "",
         "## Protocole",
         "",
@@ -216,7 +335,13 @@ def _markdown(result: dict[str, Any]) -> str:
             "",
             "- Le rythme est ici conservé, pas encore généré.",
             "- Le diagnostic de passage n'est pas une analyse harmonique.",
-            "- Le catalogue actuel ne possède ni tonalité locale ni degré d'échelle.",
+            (
+                "- La tonalité utilisée reste la tonalité globale déclarée ; les "
+                "tonicisations locales et degrés orthographiés restent absents."
+                if result["experiment"]["tonal_context"]
+                else "- Le catalogue actuel ne possède ni tonalité locale ni degré "
+                "d'échelle."
+            ),
             "- Les règles pondérées sont évaluées par le moteur K3 Python ; leur",
             "  compilation dans une base Snarky apprise reste le jalon suivant.",
             "",
@@ -241,6 +366,7 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--output", type=Path, default=DEFAULT_OUTPUT)
     parser.add_argument("--report", type=Path, default=DEFAULT_REPORT)
     parser.add_argument("--generated-directory", type=Path, default=DEFAULT_GENERATED)
+    parser.add_argument("--stem")
     return parser.parse_args()
 
 
@@ -255,6 +381,11 @@ def main() -> int:
     candidate_min = int(corpus["candidate_min"])
     candidate_max = int(corpus["candidate_max"])
     register_logits = np.asarray(model["register_logits"], dtype=np.float64)
+    tonal_logits = (
+        None
+        if model.get("tonal_logits") is None
+        else np.asarray(model["tonal_logits"], dtype=np.float64)
+    )
     features = [k3.feature_from_model_record(rule) for rule in model["rules"]]
     weights = np.asarray([rule["weight"] for rule in model["rules"]])
     lattice = k3.extract_piece_lattice(args.score, args.piece_id)
@@ -272,6 +403,9 @@ def main() -> int:
         register_logits,
         candidate_min,
         args.seed,
+        tonal_logits,
+        lattice.tonic_pc,
+        lattice.mode,
     )
     generated = k3.rhythmic_gibbs_sample(
         initial,
@@ -285,33 +419,67 @@ def main() -> int:
         sweeps=args.sweeps,
         seed=args.seed,
         temperature=args.temperature,
+        tonal_logits=tonal_logits,
+        tonic_pc=lattice.tonic_pc,
+        mode=lattice.mode,
+        metric_levels=lattice.metric_levels,
     )
     from music21 import converter
 
     source_score = converter.parse(args.score)
-    score = _materialize_score(args.score, lattice, generated)
+    title = f"{args.piece_id} — génération K3 apprise"
+    composer = "Snarky / MuSES"
+    source_metadata = _source_score_metadata(source_score)
+    score = _materialize_score(
+        args.score,
+        lattice,
+        generated,
+        title=title,
+        composer=composer,
+    )
+    muses_piece = _materialize_muses_piece(
+        lattice,
+        generated,
+        title=title,
+        composer=composer,
+        score_metadata=source_metadata,
+    )
     args.generated_directory.mkdir(parents=True, exist_ok=True)
-    stem = f"v5_5_{Path(args.score).stem}_seed_{args.seed}"
+    source_version = str(payload.get("experiment", {}).get("id", "")).split("-", 1)[0]
+    version = (
+        source_version.lower()
+        if tonal_logits is not None and source_version
+        else "v5_5"
+    )
+    stem = args.stem or f"{version}_{Path(args.score).stem}_seed_{args.seed}"
     musicxml_path = args.generated_directory / f"{stem}.musicxml"
     midi_path = args.generated_directory / f"{stem}.mid"
-    score.write("musicxml", fp=musicxml_path)
-    score.write("midi", fp=midi_path)
+    source_layout_path = args.generated_directory / f"{stem}_source_layout.musicxml"
+    _write_muses_exports(muses_piece, musicxml_path, midi_path)
+    score.write("musicxml", fp=source_layout_path)
     segments = k3.attack_segments(lattice.attacks)
     result = {
         "experiment": {
-            "id": "V5.5-K3-RHYTHMIC-GIBBS",
+            "id": (
+                f"{source_version}-K3-CONTEXTUAL-RHYTHMIC-GIBBS"
+                if tonal_logits is not None
+                else "V5.5-K3-RHYTHMIC-GIBBS"
+            ),
             "status": "EXPLORATORY",
             "test_loaded": False,
             "source_split": split,
             "learned_pitch_rules": len(features),
             "rhythm_generated": False,
             "rhythm_preserved_from_source": True,
+            "tonal_context": tonal_logits is not None,
         },
         "source": {
             "piece_id": args.piece_id,
             "score": str(args.score.resolve()),
             "vertical_blocks": lattice.size,
             "end_offset_quarters": lattice.end_offset,
+            "tonic_pc": lattice.tonic_pc,
+            "mode": "minor" if lattice.mode else "major",
             "attack_counts": {
                 name: int(lattice.attacks[:, voice].sum())
                 for voice, name in enumerate(k3.VOICE_NAMES)
@@ -335,6 +503,10 @@ def main() -> int:
             "duration_histograms_quarters": _duration_histograms(score),
             "musicxml": str(musicxml_path.resolve()),
             "midi": str(midi_path.resolve()),
+            "source_layout_musicxml": str(source_layout_path.resolve()),
+            "exporter": "MuSES",
+            "source_layout_exporter": "music21",
+            "composer": composer,
         },
         "comparison": {
             "source_short_stepwise": _short_stepwise_counts(source_score),
@@ -353,6 +525,7 @@ def main() -> int:
     print(f"[k3-rhythm] wrote {args.report}", flush=True)
     print(f"[k3-rhythm] wrote {musicxml_path}", flush=True)
     print(f"[k3-rhythm] wrote {midi_path}", flush=True)
+    print(f"[k3-rhythm] wrote {source_layout_path}", flush=True)
     return 0
 
 

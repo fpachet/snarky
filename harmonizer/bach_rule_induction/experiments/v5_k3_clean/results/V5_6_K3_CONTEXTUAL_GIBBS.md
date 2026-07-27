@@ -1,4 +1,4 @@
-# V5.5-K3-RHYTHMIC-GIBBS — génération sur rythme polyphonique réel
+# V5.6-K3-CONTEXTUAL-RHYTHMIC-GIBBS — génération sur rythme polyphonique réel
 
 ## Protocole
 
@@ -6,7 +6,7 @@
 - Soprano, grille d'attaques et tenues fixés.
 - Alto, ténor et basse rééchantillonnés par segments d'attaque.
 - `12` balayages Gibbs, graine `5517`.
-- `12` règles K3 apprises, sans règle historique.
+- `18` règles K3 apprises, sans règle historique.
 - Test fermé non chargé.
 
 ## Résultat structurel
@@ -38,15 +38,16 @@ approchée et quittée dans la même direction par demi-ton ou ton.
 | Voix | Bach | Généré |
 |---|---:|---:|
 | Soprano | 16 | 16 |
-| Alto | 13 | 7 |
-| Tenor | 16 | 6 |
-| Bass | 36 | 15 |
+| Alto | 13 | 6 |
+| Tenor | 16 | 10 |
+| Bass | 36 | 19 |
 
 ## Limites
 
 - Le rythme est ici conservé, pas encore généré.
 - Le diagnostic de passage n'est pas une analyse harmonique.
-- Le catalogue actuel ne possède ni tonalité locale ni degré d'échelle.
+- La tonalité utilisée reste la tonalité globale déclarée ; les tonicisations
+  locales et degrés orthographiés restent absents.
 - Les règles pondérées sont évaluées par le moteur K3 Python ; leur
   compilation dans une base Snarky apprise reste le jalon suivant.
 

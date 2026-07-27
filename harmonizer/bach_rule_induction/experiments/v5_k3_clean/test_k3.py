@@ -93,6 +93,77 @@ def test_adjacent_step_sizes_propagate_holds() -> None:
     assert sizes[0, candidate - data.candidate_min] == expected
 
 
+def test_contextual_features_distinguish_key_and_attacked_repetition() -> None:
+    data = _dataset()
+    data.tonic_pcs = np.asarray([0, 2], dtype=np.int8)
+    data.modes = np.asarray([0, 1], dtype=np.int8)
+    data.metric_levels = np.asarray([3, 0], dtype=np.int8)
+
+    relative = k3.feature_mask(
+        data,
+        k3.FeatureSpec("tonic_relative_class_mode", -1, value=9, second_value=0),
+    )
+    repeated = k3.feature_mask(
+        data,
+        k3.FeatureSpec("attacked_repeat_from_previous", -1),
+    )
+    bass_repeated = k3.feature_mask(
+        data,
+        k3.FeatureSpec("attacked_repeat_from_previous", 3),
+    )
+
+    assert relative[0, 69 - data.candidate_min]
+    assert not relative[1, 71 - data.candidate_min]
+    assert repeated[0, 67 - data.candidate_min]
+    assert repeated[1, 64 - data.candidate_min]
+    assert not bass_repeated.any()
+
+
+def test_voice_tonal_baseline_has_one_distribution_per_voice_and_mode() -> None:
+    data = _dataset()
+    data.tonic_pcs = np.asarray([0, 2], dtype=np.int8)
+    data.modes = np.asarray([0, 1], dtype=np.int8)
+    data.metric_levels = np.asarray([3, 0], dtype=np.int8)
+
+    logits = k3.learn_voice_tonal_logits(data)
+    scores = k3.contextual_base_scores(
+        data,
+        k3.learn_register_logits(data),
+        logits,
+    )
+
+    assert logits.shape == (4, 2, 12)
+    assert scores.shape == (data.size, data.candidate_pitches.size)
+
+
+def test_contextual_vertical_signatures_are_candidate_dependent() -> None:
+    data = _dataset().take(np.asarray([0]))
+    data.tonic_pcs = np.asarray([0], dtype=np.int8)
+    data.modes = np.asarray([0], dtype=np.int8)
+    data.metric_levels = np.asarray([3], dtype=np.int8)
+
+    signatures = k3.central_tonic_pcset_signatures(data)
+
+    expected = sum(1 << pitch_class for pitch_class in {0, 2, 6, 9})
+    assert signatures[0, 72 - data.candidate_min] == expected
+    assert signatures[0, 71 - data.candidate_min] != expected
+
+
+def test_context_survives_dataset_round_trip(tmp_path: Path) -> None:
+    data = _dataset()
+    data.tonic_pcs = np.asarray([0, 2], dtype=np.int8)
+    data.modes = np.asarray([0, 1], dtype=np.int8)
+    data.metric_levels = np.asarray([3, 0], dtype=np.int8)
+    path = tmp_path / "context.npz"
+
+    k3.save_k3_dataset(path, data)
+    loaded = k3.load_k3_dataset(path)
+
+    assert np.array_equal(loaded.tonic_pcs, data.tonic_pcs)
+    assert np.array_equal(loaded.modes, data.modes)
+    assert np.array_equal(loaded.metric_levels, data.metric_levels)
+
+
 def test_ablation_removes_exactly_one_rule_column() -> None:
     matrix = np.arange(2 * 3 * 4).reshape(2, 3, 4)
 

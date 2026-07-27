@@ -192,7 +192,7 @@ polyphoniques distincts. Il ne génère pas encore le rythme lui-même. Il rév�
 aussi une lacune attendue du vocabulaire initial : aucune feature ne représente
 la tonalité locale ou le degré d'échelle.
 
-## Protocole V5.6 proposé pour apprendre le rythme
+## Protocole ultérieur proposé pour apprendre le rythme
 
 La prochaine expérience quantifie chaque choral à la double-croche, comme
 DeepBach, avec le domaine local :
@@ -215,3 +215,66 @@ découverte comme configuration statistique avant de recevoir, après gel, le
 nom de « note de passage ». Les règles et poids gelés seront ensuite compilés
 dans la base `S-K3-LEARNED` de Snarky ; V5.5 utilise encore directement
 l'évaluateur K3 Python.
+
+## Boucle contextuelle V5.6–V5.7
+
+L'inspection de la première partition V5.5 a révélé trois défauts audibles et
+visibles : chromatisme non contrôlé, sonorités verticales incohérentes et
+répétitions attaquées fréquentes à la basse. Ces observations ont été
+converties en mesures, puis en extensions minimales du vocabulaire :
+
+- tonique et mode globaux déclarés par la partition ;
+- distribution des classes relatives à la tonique, d'abord par mode puis par
+  voix et mode ;
+- fingerprint de l'ensemble vertical relativement à la basse ou à la tonique ;
+- nombre de classes distinctes, conditionnable par niveau métrique ;
+- répétition attaquée distinguée d'une tenue et spécialisable par voix.
+
+La réinduction V5.6 repart d'une base vide avec 950 prédicats. Après la règle
+générale de mouvement, elle sélectionne spontanément :
+
+```text
+{0,4,7} relatif à la basse
+{0,3,7} relatif à la basse
+{0,3,8} relatif à la basse
+```
+
+Les étiquettes « triade majeure », « triade mineure » et « triade majeure au
+premier renversement » ne sont appliquées qu'après gel. Avec 18 règles, la NLL
+validation atteint `1,150282`, contre `1,449123` pour V5.5.
+
+L'analyse résiduelle montre ensuite que la répétition attaquée générale est
+trop grossière : Bach répète légitimement les voix supérieures, alors que la
+basse du choral diagnostique ne répète aucune de ses attaques rapides. V5.7
+ajoute seulement la voix au statut et réinduit encore depuis zéro. La clause
+numérique `attacked_repeat_from_previous(v3)` entre au rang 19 avec :
+
+- z de sélection `-41,235` ;
+- poids `-1,588788` ;
+- facteur d'odds isolé `0,204`.
+
+Sur le même soprano, le même rythme, la même graine et douze balayages :
+
+| Mesure | Bach | V5.5 | V5.6 | V5.7 |
+|---|---:|---:|---:|---:|
+| répétitions attaquées basse | 0 | 20 | 19 | 7 |
+| attaques tonalement rares | 0,68 % | 7,88 % | 3,08 % | 3,42 % |
+| blocs triadiques | 45,92 % | 25,51 % | 52,04 % | 47,96 % |
+| blocs structurels sélectionnés | 52,04 % | 25,51 % | 65,31 % | 62,24 % |
+| blocs à deux classes | 2,04 % | 5,10 % | 1,02 % | 0,00 % |
+
+Ces taux génératifs sur un choral du train sont diagnostiques. Ils ne
+remplacent ni une campagne multi-pièces ni l'ouverture finale du test.
+
+## Frontière MusicXML et MuSES
+
+Le corpus historique est distribué sous forme `.mxl`. MuSES ne possède pas
+encore d'import MusicXML round-trip ; music21 reste donc l'adaptateur de lecture
+à la frontière du corpus. Il permet également une vue optionnelle conservant
+mesures, fermatas et autres détails de la notation source.
+
+Le résultat généré canonique est désormais reconstruit comme une `Piece` MuSES
+et exporté par MuSES en MIDI et MusicXML. Son titre et son compositeur valent
+explicitement `Snarky / MuSES`. La vue conservant la mise en page historique
+porte le suffixe `_source_layout` et corrige les mêmes métadonnées. music21
+n'est ni le modèle, ni le générateur, ni l'auteur de la partition.

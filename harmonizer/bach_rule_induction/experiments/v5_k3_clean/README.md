@@ -15,6 +15,10 @@ Le dossier ne charge aucun fichier de `rules/` ni aucun manifeste de
 - `run_k3_null_max_calibration.py` : calibration familiale de la première règle ;
 - `run_rhythmic_gibbs.py` : génération des hauteurs sur une grille polyphonique
   réelle d'attaques et de tenues ;
+- `run_contextual_induction.py` : réinduction depuis zéro avec tonalité,
+  métrique, répétitions attaquées et fingerprints verticaux ;
+- `run_contextual_generation_comparison.py` : comparaison contrôlée
+  Bach/V5.5/V5.6/V5.7 sur le même soprano et le même rythme ;
 - `results/` : artefacts et rapports reproductibles.
 
 `V5.0` conserve le premier catalogue spécialisé, qui a appris huit variantes
@@ -35,6 +39,12 @@ Résultats principaux :
   calibration de la première découverte contre le maximum des faux signaux ;
 - [`V5_5_K3_RHYTHMIC_GIBBS.md`](results/V5_5_K3_RHYTHMIC_GIBBS.md), premier
   choral avec croches, doubles-croches et tenues par voix ;
+- [`V5_6_K3_CONTEXTUAL_REINDUCTION.md`](results/V5_6_K3_CONTEXTUAL_REINDUCTION.md),
+  redécouverte numérique des principales sonorités triadiques ;
+- [`V5_7_K3_CONTEXTUAL_REINDUCTION.md`](results/V5_7_K3_CONTEXTUAL_REINDUCTION.md),
+  raffinement tonal et répétition attaquée par voix ;
+- [`V5_7_CONTEXTUAL_GENERATION_COMPARISON.md`](results/V5_7_CONTEXTUAL_GENERATION_COMPARISON.md),
+  mesure avant/après des défauts observés dans la partition ;
 - `v5_1_k3_compact_model.json`, modèle complet pour le Gibbs.
 
 Le protocole complet est

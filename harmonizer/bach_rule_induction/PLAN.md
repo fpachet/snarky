@@ -59,6 +59,22 @@ spécialisée de rang 11 et apprendre le rythme. Le Gibbs respecte désormais le
 tenues réelles d'un squelette polyphonique et produit MusicXML/MIDI avec durées
 distinctes ; il ne choisit pas encore lui-même `ATTACK/HOLD`.
 
+### 1.0.1 Boucle générative contextuelle exécutée
+
+- [x] convertir les chromaticismes observés en statut tonal explicite ;
+- [x] apprendre une distribution relative à la tonique par voix et mode ;
+- [x] énumérer mécaniquement les fingerprints verticaux sans noms d'accords ;
+- [x] redécouvrir les ensembles `{0,4,7}`, `{0,3,7}` et `{0,3,8}` ;
+- [x] distinguer une répétition attaquée d'une tenue ;
+- [x] identifier automatiquement l'évitement spécialisé à la basse ;
+- [x] comparer Bach, V5.5, V5.6 et V5.7 à rythme et graine identiques ;
+- [x] utiliser MuSES comme exporteur canonique et music21 comme adaptateur
+      d'import ou de mise en page source seulement.
+
+Le prochain résidu génératif est l'excès d'attaques tonalement rares. Il doit
+être confirmé sur plusieurs chorals train/validation avant tout nouvel ajout
+de feature. La génération libre du rythme vient ensuite.
+
 Deux résultats scientifiques distincts sont recherchés :
 
 1. **compression explicable** : déterminer quelle qualité d'harmonisation une

@@ -26,6 +26,9 @@ class K3Dataset:
     attacks: np.ndarray
     candidate_min: int
     candidate_max: int
+    tonic_pcs: np.ndarray | None = None
+    modes: np.ndarray | None = None
+    metric_levels: np.ndarray | None = None
 
     @property
     def size(self) -> int:
@@ -53,6 +56,11 @@ class K3Dataset:
             attacks=self.attacks[indices],
             candidate_min=self.candidate_min,
             candidate_max=self.candidate_max,
+            tonic_pcs=(None if self.tonic_pcs is None else self.tonic_pcs[indices]),
+            modes=None if self.modes is None else self.modes[indices],
+            metric_levels=(
+                None if self.metric_levels is None else self.metric_levels[indices]
+            ),
         )
 
     def with_domain(self, candidate_min: int, candidate_max: int) -> K3Dataset:
@@ -69,6 +77,9 @@ class K3Dataset:
             attacks=self.attacks,
             candidate_min=candidate_min,
             candidate_max=candidate_max,
+            tonic_pcs=self.tonic_pcs,
+            modes=self.modes,
+            metric_levels=self.metric_levels,
         )
 
 
@@ -81,6 +92,9 @@ class RhythmicLattice:
     blocks: np.ndarray
     attacks: np.ndarray
     end_offset: float
+    tonic_pc: int
+    mode: int
+    metric_levels: np.ndarray
 
     @property
     def size(self) -> int:
@@ -198,6 +212,9 @@ def extract_piece_k3(score_path: Path, piece_id: str) -> list[tuple[Any, ...]]:
                         voice_index,
                         tuple(map(tuple, kernel_blocks)),
                         tuple(map(tuple, kernel_attacks)),
+                        lattice.tonic_pc,
+                        lattice.mode,
+                        int(lattice.metric_levels[index]),
                     )
                 )
     return rows
@@ -206,22 +223,52 @@ def extract_piece_k3(score_path: Path, piece_id: str) -> list[tuple[Any, ...]]:
 def extract_piece_lattice(score_path: Path, piece_id: str) -> RhythmicLattice:
     """Extract every complete vertical state without collapsing held notes."""
 
-    from music21 import converter
+    from music21 import converter, key
 
     score = converter.parse(score_path)
     parts = {part.partName: part for part in score.parts}
     if set(parts) != set(VOICE_NAMES):
         raise ValueError(f"{piece_id}: unexpected parts {tuple(parts)}")
     events = [_part_events(parts[name]) for name in VOICE_NAMES]
+    declarations = []
+    for name in VOICE_NAMES:
+        keys = list(parts[name].recurse().getElementsByClass(key.Key))
+        if len(keys) != 1 or keys[0].mode not in {"major", "minor"}:
+            raise ValueError(f"{piece_id}: expected one declared major/minor key")
+        declarations.append((int(keys[0].tonic.pitchClass), keys[0].mode))
+    if len(set(declarations)) != 1:
+        raise ValueError(f"{piece_id}: inconsistent keys across parts")
+    tonic_pc, mode_name = declarations[0]
+    mode = 0 if mode_name == "major" else 1
+
+    strengths: dict[float, float] = {}
+    for name in VOICE_NAMES:
+        for element in parts[name].flatten().notesAndRests:
+            offset = float(element.offset)
+            strengths[offset] = max(
+                strengths.get(offset, 0.0),
+                float(element.beatStrength),
+            )
     offsets = sorted({event[0] for voice_events in events for event in voice_events})
     blocks: list[tuple[int, ...]] = []
     attacks: list[tuple[bool, ...]] = []
     valid_offsets: list[float] = []
+    metric_levels = []
     for offset in offsets:
         block = tuple(_sounding_pitch(voice_events, offset) for voice_events in events)
         if any(pitch is None for pitch in block):
             continue
         valid_offsets.append(offset)
+        strength = strengths[offset]
+        metric_levels.append(
+            3
+            if strength >= 1.0
+            else 2
+            if strength >= 0.5
+            else 1
+            if strength >= 0.25
+            else 0
+        )
         blocks.append(tuple(int(pitch) for pitch in block))
         attacks.append(
             tuple(
@@ -240,6 +287,9 @@ def extract_piece_lattice(score_path: Path, piece_id: str) -> RhythmicLattice:
         blocks=np.asarray(blocks, dtype=np.int16),
         attacks=np.asarray(attacks, dtype=bool),
         end_offset=float(end_offset),
+        tonic_pc=tonic_pc,
+        mode=mode,
+        metric_levels=np.asarray(metric_levels, dtype=np.int8),
     )
 
 
@@ -270,6 +320,9 @@ def build_k3_dataset(
         attacks=np.asarray(columns[4], dtype=bool),
         candidate_min=candidate_min,
         candidate_max=candidate_max,
+        tonic_pcs=np.asarray(columns[5], dtype=np.int8),
+        modes=np.asarray(columns[6], dtype=np.int8),
+        metric_levels=np.asarray(columns[7], dtype=np.int8),
     )
 
 
@@ -282,6 +335,15 @@ def save_k3_dataset(path: Path, dataset: K3Dataset) -> None:
         voice_indices=dataset.voice_indices,
         blocks=dataset.blocks,
         attacks=dataset.attacks,
+        **(
+            {}
+            if dataset.tonic_pcs is None
+            else {
+                "tonic_pcs": dataset.tonic_pcs,
+                "modes": dataset.modes,
+                "metric_levels": dataset.metric_levels,
+            }
+        ),
     )
 
 
@@ -296,6 +358,9 @@ def load_k3_dataset(path: Path) -> K3Dataset:
         attacks=archive["attacks"],
         candidate_min=int(blocks.min()),
         candidate_max=int(blocks.max()),
+        tonic_pcs=archive.get("tonic_pcs", None),
+        modes=archive.get("modes", None),
+        metric_levels=archive.get("metric_levels", None),
     )
 
 
@@ -503,10 +568,121 @@ def adjacent_step_sizes(dataset: K3Dataset) -> np.ndarray:
     )
 
 
+def _context_array(
+    values: np.ndarray | None,
+    name: str,
+) -> np.ndarray:
+    if values is None:
+        raise ValueError(f"Contextual K3 feature requires {name}")
+    return values
+
+
+def central_tonic_pcset_signatures(dataset: K3Dataset) -> np.ndarray:
+    """Return tonic-relative 12-bit pitch-class sets for every candidate."""
+
+    tonics = _context_array(dataset.tonic_pcs, "tonic_pcs")[:, None]
+    candidates = dataset.candidate_pitches[None, :]
+    voices = dataset.voice_indices
+    signatures = np.zeros(
+        (dataset.size, dataset.candidate_pitches.size),
+        dtype=np.int16,
+    )
+    for voice in range(4):
+        pitches = np.where(
+            (voices == voice)[:, None],
+            candidates,
+            dataset.blocks[:, 1, voice, None],
+        )
+        relative = (pitches - tonics) % 12
+        signatures |= np.left_shift(1, relative).astype(np.int16)
+    return signatures
+
+
+def central_bass_pcset_signatures(dataset: K3Dataset) -> np.ndarray:
+    """Return bass-relative 12-bit pitch-class sets for every candidate."""
+
+    candidates = dataset.candidate_pitches[None, :]
+    voices = dataset.voice_indices
+    reference = np.where(
+        (voices == 3)[:, None],
+        candidates,
+        dataset.blocks[:, 1, 3, None],
+    )
+    signatures = np.zeros(
+        (dataset.size, dataset.candidate_pitches.size),
+        dtype=np.int16,
+    )
+    for voice in range(4):
+        pitches = np.where(
+            (voices == voice)[:, None],
+            candidates,
+            dataset.blocks[:, 1, voice, None],
+        )
+        relative = (pitches - reference) % 12
+        signatures |= np.left_shift(1, relative).astype(np.int16)
+    return signatures
+
+
+def _contextual_feature_mask(
+    dataset: K3Dataset,
+    feature: FeatureSpec,
+    candidates: np.ndarray,
+) -> np.ndarray:
+    rows = np.arange(dataset.size)
+    voices = dataset.voice_indices
+    previous = dataset.blocks[rows, 0, voices, None]
+    if feature.kind == "attacked_repeat_from_previous":
+        applies = (
+            np.ones(dataset.size, dtype=bool)
+            if feature.target_voice == -1
+            else voices == feature.target_voice
+        )
+        return applies[:, None] & (candidates == previous)
+    value = feature.value
+    if value is None:
+        raise ValueError(f"Feature {feature.key} has no numeric value")
+    if feature.kind in {
+        "tonic_relative_class",
+        "tonic_relative_class_mode",
+    }:
+        tonics = _context_array(dataset.tonic_pcs, "tonic_pcs")[:, None]
+        mask = (candidates - tonics) % 12 == value
+        if feature.kind == "tonic_relative_class_mode":
+            modes = _context_array(dataset.modes, "modes")
+            mask &= modes[:, None] == feature.second_value
+        return mask
+    if feature.kind in {
+        "central_distinct_pc_count",
+        "central_distinct_pc_count_metric",
+    }:
+        signatures = central_tonic_pcset_signatures(dataset)
+        lookup = np.asarray([index.bit_count() for index in range(4096)])
+        mask = lookup[signatures] == value
+        if feature.kind == "central_distinct_pc_count_metric":
+            levels = _context_array(dataset.metric_levels, "metric_levels")
+            mask &= levels[:, None] == feature.second_value
+        return mask
+    if feature.kind == "central_tonic_pcset":
+        return central_tonic_pcset_signatures(dataset) == value
+    if feature.kind == "central_bass_pcset":
+        return central_bass_pcset_signatures(dataset) == value
+    raise ValueError(f"Unknown contextual K3 feature: {feature.kind}")
+
+
 def feature_mask(dataset: K3Dataset, feature: FeatureSpec) -> np.ndarray:
     """Evaluate one feature for every candidate in every opportunity."""
 
     candidates = dataset.candidate_pitches[None, :]
+    if feature.kind in {
+        "attacked_repeat_from_previous",
+        "tonic_relative_class",
+        "tonic_relative_class_mode",
+        "central_distinct_pc_count",
+        "central_distinct_pc_count_metric",
+        "central_tonic_pcset",
+        "central_bass_pcset",
+    }:
+        return _contextual_feature_mask(dataset, feature, candidates)
     row_voice = dataset.voice_indices
     if feature.target_voice == -1:
         return _universal_feature_mask(dataset, feature, candidates)
@@ -661,6 +837,123 @@ def learn_register_logits(dataset: K3Dataset, alpha: float = 0.5) -> np.ndarray:
     return logits
 
 
+def learn_tonal_logits(dataset: K3Dataset, alpha: float = 0.5) -> np.ndarray:
+    """Learn tonic-relative pitch-class priors separately by declared mode."""
+
+    tonics = _context_array(dataset.tonic_pcs, "tonic_pcs")
+    modes = _context_array(dataset.modes, "modes")
+    relative = (dataset.chosen_pitches - tonics) % 12
+    logits = np.empty((2, 12), dtype=np.float64)
+    for mode in range(2):
+        counts = np.full(12, alpha, dtype=np.float64)
+        np.add.at(counts, relative[modes == mode], 1.0)
+        logits[mode] = np.log(counts / counts.sum())
+    return logits
+
+
+def learn_voice_tonal_logits(
+    dataset: K3Dataset,
+    alpha: float = 0.5,
+) -> np.ndarray:
+    """Learn tonic-relative pitch classes by voice and declared mode."""
+
+    tonics = _context_array(dataset.tonic_pcs, "tonic_pcs")
+    modes = _context_array(dataset.modes, "modes")
+    relative = (dataset.chosen_pitches - tonics) % 12
+    logits = np.empty((4, 2, 12), dtype=np.float64)
+    for voice in range(4):
+        for mode in range(2):
+            counts = np.full(12, alpha, dtype=np.float64)
+            rows = (dataset.voice_indices == voice) & (modes == mode)
+            np.add.at(counts, relative[rows], 1.0)
+            logits[voice, mode] = np.log(counts / counts.sum())
+    return logits
+
+
+def contextual_base_scores(
+    dataset: K3Dataset,
+    register_logits: np.ndarray,
+    tonal_logits: np.ndarray,
+) -> np.ndarray:
+    """Combine voice register and declared-key-relative categorical baselines."""
+
+    tonics = _context_array(dataset.tonic_pcs, "tonic_pcs")[:, None]
+    modes = _context_array(dataset.modes, "modes")
+    relative = (dataset.candidate_pitches[None, :] - tonics) % 12
+    if tonal_logits.shape == (2, 12):
+        tonal = tonal_logits[
+            modes[:, None],
+            relative,
+        ]
+    elif tonal_logits.shape == (4, 2, 12):
+        tonal = tonal_logits[
+            dataset.voice_indices[:, None],
+            modes[:, None],
+            relative,
+        ]
+    else:
+        raise ValueError("Tonal logits must have shape (2, 12) or (4, 2, 12)")
+    return register_logits[dataset.voice_indices] + tonal
+
+
+def contextual_feature_catalogue(
+    dataset: K3Dataset,
+    *,
+    minimum_support: int = 100,
+    minimum_piece_support: int = 10,
+    voice_specific_repeats: bool = False,
+) -> tuple[FeatureSpec, ...]:
+    """Generate readable context features and observed vertical fingerprints."""
+
+    _context_array(dataset.tonic_pcs, "tonic_pcs")
+    _context_array(dataset.modes, "modes")
+    _context_array(dataset.metric_levels, "metric_levels")
+    features = [FeatureSpec("attacked_repeat_from_previous", -1)]
+    if voice_specific_repeats:
+        features.extend(
+            FeatureSpec("attacked_repeat_from_previous", voice) for voice in range(4)
+        )
+    features.extend(
+        FeatureSpec("central_distinct_pc_count", -1, value=count)
+        for count in range(1, 5)
+    )
+    features.extend(
+        FeatureSpec(
+            "central_distinct_pc_count_metric",
+            -1,
+            value=count,
+            second_value=level,
+            complexity=2,
+        )
+        for count in range(1, 5)
+        for level in range(4)
+    )
+    rows = np.arange(dataset.size)
+    chosen = dataset.chosen_indices
+    signature_families = (
+        ("central_tonic_pcset", central_tonic_pcset_signatures(dataset)),
+        ("central_bass_pcset", central_bass_pcset_signatures(dataset)),
+    )
+    for kind, signatures in signature_families:
+        observed = signatures[rows, chosen]
+        for signature in np.unique(observed):
+            support = observed == signature
+            if int(support.sum()) < minimum_support:
+                continue
+            if int(np.unique(dataset.piece_ids[support]).size) < minimum_piece_support:
+                continue
+            features.append(
+                FeatureSpec(
+                    kind,
+                    -1,
+                    value=int(signature),
+                    complexity=3,
+                )
+            )
+    unique = {feature.key: feature for feature in features}
+    return tuple(unique[key] for key in sorted(unique))
+
+
 def feature_matrix(
     dataset: K3Dataset,
     features: Sequence[FeatureSpec],
@@ -681,8 +974,16 @@ def probabilities(
     register_logits: np.ndarray,
     matrix: np.ndarray | None = None,
     weights: np.ndarray | None = None,
+    *,
+    base_scores: np.ndarray | None = None,
 ) -> np.ndarray:
-    scores = register_logits[dataset.voice_indices].copy()
+    scores = (
+        register_logits[dataset.voice_indices].copy()
+        if base_scores is None
+        else np.asarray(base_scores, dtype=np.float64).copy()
+    )
+    if scores.shape != (dataset.size, dataset.candidate_pitches.size):
+        raise ValueError("Base scores do not match the K3 decision matrix")
     if matrix is not None and weights is not None and weights.size:
         scores += np.tensordot(matrix, weights, axes=([2], [0]))
     scores -= scores.max(axis=1, keepdims=True)
@@ -695,8 +996,16 @@ def conditional_nll(
     register_logits: np.ndarray,
     matrix: np.ndarray | None = None,
     weights: np.ndarray | None = None,
+    *,
+    base_scores: np.ndarray | None = None,
 ) -> float:
-    probs = probabilities(dataset, register_logits, matrix, weights)
+    probs = probabilities(
+        dataset,
+        register_logits,
+        matrix,
+        weights,
+        base_scores=base_scores,
+    )
     chosen = probs[np.arange(dataset.size), dataset.chosen_indices]
     return float(-np.log(np.maximum(chosen, 1e-12)).mean())
 
@@ -747,6 +1056,8 @@ def fit_weights(
     l1: float,
     max_steps: int,
     learning_rate: float,
+    train_base_scores: np.ndarray | None = None,
+    validation_base_scores: np.ndarray | None = None,
 ) -> tuple[np.ndarray, dict[str, Any]]:
     """Fit signed K3 rule weights with Adam and proximal L1 shrinkage."""
 
@@ -758,7 +1069,13 @@ def fit_weights(
     best_validation = math.inf
     history = []
     for step in range(1, max_steps + 1):
-        probs = probabilities(train, register_logits, train_matrix, weights)
+        probs = probabilities(
+            train,
+            register_logits,
+            train_matrix,
+            weights,
+            base_scores=train_base_scores,
+        )
         probs[np.arange(train.size), train.chosen_indices] -= 1.0
         gradient = (
             np.einsum("ncr,nc->r", train_matrix, probs, optimize=True) / train.size
@@ -772,9 +1089,19 @@ def fit_weights(
             np.abs(weights) - learning_rate * l1, 0.0
         )
         if step == 1 or step % 10 == 0 or step == max_steps:
-            train_nll = conditional_nll(train, register_logits, train_matrix, weights)
+            train_nll = conditional_nll(
+                train,
+                register_logits,
+                train_matrix,
+                weights,
+                base_scores=train_base_scores,
+            )
             validation_nll = conditional_nll(
-                validation, register_logits, validation_matrix, weights
+                validation,
+                register_logits,
+                validation_matrix,
+                weights,
+                base_scores=validation_base_scores,
             )
             history.append(
                 {
@@ -878,6 +1205,9 @@ def _decision_dataset(
     central_times: Sequence[int],
     candidate_min: int,
     candidate_max: int,
+    tonic_pc: int | None = None,
+    mode: int | None = None,
+    metric_levels: np.ndarray | None = None,
 ) -> K3Dataset | None:
     decisions = [
         (time, voice)
@@ -905,6 +1235,20 @@ def _decision_dataset(
         ),
         candidate_min=candidate_min,
         candidate_max=candidate_max,
+        tonic_pcs=(
+            None
+            if tonic_pc is None
+            else np.full(len(decisions), tonic_pc, dtype=np.int8)
+        ),
+        modes=(None if mode is None else np.full(len(decisions), mode, dtype=np.int8)),
+        metric_levels=(
+            None
+            if metric_levels is None
+            else np.asarray(
+                [metric_levels[time] for time, _ in decisions],
+                dtype=np.int8,
+            )
+        ),
     )
 
 
@@ -918,6 +1262,10 @@ def _state_energy(
     register_logits: np.ndarray,
     features: Sequence[FeatureSpec],
     weights: np.ndarray,
+    tonal_logits: np.ndarray | None = None,
+    tonic_pc: int | None = None,
+    mode: int | None = None,
+    metric_levels: np.ndarray | None = None,
 ) -> float:
     dataset = _decision_dataset(
         blocks,
@@ -925,6 +1273,9 @@ def _state_energy(
         central_times,
         candidate_min,
         candidate_max,
+        tonic_pc,
+        mode,
+        metric_levels,
     )
     if dataset is None:
         return 0.0
@@ -933,7 +1284,15 @@ def _state_energy(
     ):
         return -math.inf
     rows = np.arange(dataset.size)
-    score = register_logits[dataset.voice_indices, dataset.chosen_indices]
+    if tonal_logits is None:
+        score = register_logits[dataset.voice_indices, dataset.chosen_indices]
+    else:
+        base_scores = contextual_base_scores(
+            dataset,
+            register_logits,
+            tonal_logits,
+        )
+        score = base_scores[rows, dataset.chosen_indices]
     if features:
         matrix = feature_matrix(dataset, features)
         score += matrix[rows, dataset.chosen_indices] @ weights
@@ -953,6 +1312,10 @@ def rhythmic_gibbs_sample(
     sweeps: int,
     seed: int,
     temperature: float = 1.0,
+    tonal_logits: np.ndarray | None = None,
+    tonic_pc: int | None = None,
+    mode: int | None = None,
+    metric_levels: np.ndarray | None = None,
 ) -> np.ndarray:
     """Sample attack pitches while preserving every per-voice hold span.
 
@@ -975,6 +1338,13 @@ def rhythmic_gibbs_sample(
         raise ValueError("Register logits do not match the declared pitch domain")
     if len(features) != weights.size:
         raise ValueError("One learned weight is required per K3 feature")
+    if tonal_logits is not None and (
+        tonal_logits.shape not in {(2, 12), (4, 2, 12)}
+        or tonic_pc is None
+        or mode is None
+        or metric_levels is None
+    ):
+        raise ValueError("Tonal sampling requires key, mode and metric context")
     segments = attack_segments(attack_grid)
     for start, end, voice in segments:
         if not np.all(blocks[start:end, voice] == blocks[start, voice]):
@@ -1009,6 +1379,10 @@ def rhythmic_gibbs_sample(
                     register_logits=register_logits,
                     features=features,
                     weights=weights,
+                    tonal_logits=tonal_logits,
+                    tonic_pc=tonic_pc,
+                    mode=mode,
+                    metric_levels=metric_levels,
                 )
             blocks[start:end, voice] = previous
             scores /= scale
