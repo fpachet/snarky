@@ -4,6 +4,7 @@ from __future__ import annotations
 
 from collections.abc import Sequence
 from dataclasses import dataclass
+from functools import cache
 
 from ..computed import ComputedPremise
 from ..facts import Fact
@@ -26,6 +27,7 @@ from ..terms import (
     Term,
     Variable,
     is_ground,
+    variables_in,
 )
 from .base import (
     Activation,
@@ -88,6 +90,27 @@ class _RuleMemory:
 class _PartialState:
     substitution: Substitution
     supports: tuple[Fact, ...]
+
+
+@dataclass(slots=True)
+class _PartialStateLookup:
+    variables: tuple[Variable, ...]
+    buckets: dict[tuple[Term, ...], list[_PartialState]]
+
+
+@dataclass(slots=True)
+class _SemiNaivePositiveMemory:
+    levels: list[list[_PartialState]]
+    keys: list[
+        set[
+            tuple[
+                tuple[tuple[str, Term], ...],
+                tuple[Fact, ...],
+            ]
+        ]
+    ]
+    lookups: list[_PartialStateLookup | None]
+    state_count: int
 
 
 class IndexedInstantiationStrategy:
@@ -1649,12 +1672,19 @@ class SemiNaiveInstantiationStrategy(IndexedInstantiationStrategy):
         *,
         partial_join_limit: int = 2_048,
         use_event_rules: bool = True,
+        use_partial_join_memory: bool = True,
     ) -> None:
         super().__init__(
             matcher,
             partial_join_limit=partial_join_limit,
         )
         self.use_event_rules = use_event_rules
+        self.use_partial_join_memory = use_partial_join_memory
+        self._semi_naive_positive_memories: dict[
+            Rule, _SemiNaivePositiveMemory
+        ] = {}
+        self._semi_naive_partial_pending: set[Rule] = set()
+        self._semi_naive_partial_disabled: set[Rule] = set()
 
     def fork_for_branch(self) -> SemiNaiveInstantiationStrategy:
         """Return a clean semi-naïve strategy seeded from the current index."""
@@ -1663,10 +1693,20 @@ class SemiNaiveInstantiationStrategy(IndexedInstantiationStrategy):
             self.matcher,
             partial_join_limit=self.partial_join_limit,
             use_event_rules=self.use_event_rules,
+            use_partial_join_memory=self.use_partial_join_memory,
         )
         if self._index is not None:
             branch._index = self._index.clone(metrics=branch.metrics)
         return branch
+
+    def invalidate(self, removed: frozenset[Fact] = frozenset()) -> None:
+        """Invalidate indexes and discard partial memories on a full reset."""
+
+        super().invalidate(removed)
+        if not removed:
+            self._semi_naive_positive_memories.clear()
+            self._semi_naive_partial_pending.clear()
+            self._semi_naive_partial_disabled.clear()
 
     def instantiate(
         self,
@@ -1695,6 +1735,25 @@ class SemiNaiveInstantiationStrategy(IndexedInstantiationStrategy):
             return tuple(activations)
 
         index = self._index_for(facts, changes)
+        if self._can_use_semi_naive_positive_memory(rule):
+            if (
+                rule in self._semi_naive_positive_memories
+                or rule in self._semi_naive_partial_pending
+            ):
+                partial_activations = (
+                    self._instantiate_semi_naive_positive_memory(
+                        rule,
+                        index,
+                        changes,
+                    )
+                )
+                if partial_activations is not None:
+                    self.metrics.activations_produced += len(
+                        partial_activations
+                    )
+                    return partial_activations
+            else:
+                self._semi_naive_partial_pending.add(rule)
         if (
             changes is None
             or changes.removed
@@ -1713,6 +1772,374 @@ class SemiNaiveInstantiationStrategy(IndexedInstantiationStrategy):
         self.metrics.activations_produced += len(activations)
         return tuple(activations)
 
+    def _can_use_semi_naive_positive_memory(self, rule: Rule) -> bool:
+        if (
+            not self.use_partial_join_memory
+            or rule in self._semi_naive_partial_disabled
+        ):
+            return False
+        return _has_reusable_positive_prefix(rule)
+
+    def _instantiate_semi_naive_positive_memory(
+        self,
+        rule: Rule,
+        index: FactIndex,
+        delta: FactDelta | None,
+    ) -> tuple[Activation, ...] | None:
+        memory = self._semi_naive_positive_memories.get(rule)
+        if memory is None or delta is None:
+            built = self._build_semi_naive_positive_memory(rule, index)
+            if built is None:
+                self._disable_semi_naive_positive_memory(rule)
+                return None
+            memory, activations = built
+            self._semi_naive_positive_memories[rule] = memory
+            self._semi_naive_partial_pending.discard(rule)
+            self.metrics.partial_join_builds += 1
+            if delta is None:
+                return activations
+            if not delta.added:
+                return ()
+            added = frozenset(delta.added)
+            return tuple(
+                activation
+                for activation in activations
+                if not added.isdisjoint(activation.premise_facts)
+            )
+        if not delta.changed:
+            self.metrics.activation_cache_hits += 1
+            return ()
+        updated_activations = self._update_semi_naive_positive_memory(
+            rule,
+            index,
+            memory,
+            delta,
+        )
+        if updated_activations is None:
+            self._disable_semi_naive_positive_memory(rule)
+            return None
+        self.metrics.partial_join_updates += 1
+        return updated_activations
+
+    def _disable_semi_naive_positive_memory(self, rule: Rule) -> None:
+        self._semi_naive_positive_memories.pop(rule, None)
+        self._semi_naive_partial_pending.discard(rule)
+        self._semi_naive_partial_disabled.add(rule)
+        self.metrics.partial_join_bypasses += 1
+
+    def _build_semi_naive_positive_memory(
+        self,
+        rule: Rule,
+        index: FactIndex,
+    ) -> tuple[
+        _SemiNaivePositiveMemory,
+        tuple[Activation, ...],
+    ] | None:
+        compiled_premises = compile_rule(rule).block.premises
+        premises = tuple(
+            premise
+            for premise in compiled_premises
+            if isinstance(
+                premise,
+                (CompiledFactPremise, CompiledComparisonPremise),
+            )
+        )
+        if len(premises) != len(compiled_premises):
+            raise TypeError("partial memory requires a positive rule")
+        levels: list[list[_PartialState]] = [
+            [_PartialState(EMPTY_SUBSTITUTION, ())]
+        ]
+        keys = [{_partial_state_key(levels[0][0])}]
+        state_count = 1
+        for premise in premises[:-1]:
+            states = list(
+                self._advance_positive_states(
+                    tuple(levels[-1]),
+                    premise,
+                    index,
+                    max_states=(
+                        self.partial_join_limit - state_count + 1
+                        if isinstance(premise, CompiledFactPremise)
+                        else None
+                    ),
+                )
+            )
+            if isinstance(premise, CompiledFactPremise):
+                state_count += len(states)
+            if state_count > self.partial_join_limit:
+                return None
+            levels.append(states)
+            keys.append({_partial_state_key(state) for state in states})
+        memory = _SemiNaivePositiveMemory(
+            levels=levels,
+            keys=keys,
+            lookups=[
+                self._build_partial_state_lookup(level, premise)
+                if isinstance(premise, CompiledFactPremise)
+                else None
+                for level, premise in zip(
+                    levels,
+                    premises,
+                    strict=True,
+                )
+            ],
+            state_count=state_count,
+        )
+        final_states = self._advance_positive_states(
+            tuple(levels[-1]),
+            premises[-1],
+            index,
+        )
+        return memory, self._activations_from_partial_states(
+            final_states,
+            index,
+        )
+
+    def _update_semi_naive_positive_memory(
+        self,
+        rule: Rule,
+        index: FactIndex,
+        memory: _SemiNaivePositiveMemory,
+        delta: FactDelta,
+    ) -> tuple[Activation, ...] | None:
+        compiled_premises = compile_rule(rule).block.premises
+        premises = tuple(
+            premise
+            for premise in compiled_premises
+            if isinstance(
+                premise,
+                (CompiledFactPremise, CompiledComparisonPremise),
+            )
+        )
+        if len(premises) != len(compiled_premises):
+            raise TypeError("partial memory requires a positive rule")
+        if delta.removed:
+            for position, level in enumerate(memory.levels):
+                retained = [
+                    state
+                    for state in level
+                    if delta.removed.isdisjoint(state.supports)
+                ]
+                removed_count = len(level) - len(retained)
+                if not removed_count:
+                    continue
+                memory.levels[position] = retained
+                memory.keys[position] = {
+                    _partial_state_key(state) for state in retained
+                }
+                if (
+                    position == 0
+                    or isinstance(
+                        premises[position - 1],
+                        CompiledFactPremise,
+                    )
+                ):
+                    memory.state_count -= removed_count
+                self.metrics.activation_cache_filtered += removed_count
+                premise = premises[position]
+                memory.lookups[position] = (
+                    self._build_partial_state_lookup(retained, premise)
+                    if isinstance(premise, CompiledFactPremise)
+                    else None
+                )
+        if not delta.added:
+            self.metrics.activation_cache_hits += 1
+            return self._all_semi_naive_positive_activations(
+                premises,
+                memory,
+                index,
+            )
+
+        new_prefixes: tuple[_PartialState, ...] = ()
+        final_states: tuple[_PartialState, ...] = ()
+        for position, premise in enumerate(premises):
+            current = tuple(memory.levels[position])
+            generated: list[_PartialState] = []
+            if isinstance(premise, CompiledComparisonPremise):
+                generated.extend(
+                    state
+                    for state in new_prefixes
+                    if premise.source.evaluate(state.substitution)
+                )
+            elif isinstance(premise, CompiledFactPremise):
+                generated.extend(
+                    self._advance_positive_fact_states(
+                        new_prefixes,
+                        premise,
+                        index,
+                    )
+                )
+                generated.extend(
+                    self._advance_positive_fact_states_from_delta(
+                        current,
+                        premise,
+                        delta.added,
+                        memory.lookups[position],
+                    )
+                )
+            else:
+                raise TypeError(
+                    f"non-positive compiled premise: {premise!r}"
+                )
+
+            if position == len(premises) - 1:
+                unique_final: dict[
+                    tuple[
+                        tuple[tuple[str, Term], ...],
+                        tuple[Fact, ...],
+                    ],
+                    _PartialState,
+                ] = {}
+                for state in generated:
+                    unique_final.setdefault(_partial_state_key(state), state)
+                final_states = tuple(unique_final.values())
+                break
+
+            next_keys = memory.keys[position + 1]
+            unique_new: list[_PartialState] = []
+            for state in generated:
+                key = _partial_state_key(state)
+                if key not in next_keys:
+                    next_keys.add(key)
+                    unique_new.append(state)
+            new_prefixes = tuple(unique_new)
+            if not new_prefixes:
+                continue
+            memory.levels[position + 1].extend(new_prefixes)
+            if isinstance(premise, CompiledFactPremise):
+                memory.state_count += len(new_prefixes)
+            if memory.state_count > self.partial_join_limit:
+                return None
+            next_premise = premises[position + 1]
+            if isinstance(next_premise, CompiledFactPremise):
+                lookup = memory.lookups[position + 1]
+                if lookup is None:
+                    memory.lookups[position + 1] = (
+                        self._build_partial_state_lookup(
+                            memory.levels[position + 1],
+                            next_premise,
+                        )
+                    )
+                else:
+                    self._extend_partial_state_lookup(
+                        lookup,
+                        new_prefixes,
+                    )
+        if delta.removed:
+            return self._all_semi_naive_positive_activations(
+                premises,
+                memory,
+                index,
+            )
+        return self._activations_from_partial_states(final_states, index)
+
+    def _all_semi_naive_positive_activations(
+        self,
+        premises: tuple[
+            CompiledFactPremise | CompiledComparisonPremise,
+            ...,
+        ],
+        memory: _SemiNaivePositiveMemory,
+        index: FactIndex,
+    ) -> tuple[Activation, ...]:
+        final_states = self._advance_positive_states(
+            tuple(memory.levels[-1]),
+            premises[-1],
+            index,
+        )
+        return self._activations_from_partial_states(final_states, index)
+
+    def _build_partial_state_lookup(
+        self,
+        states: Sequence[_PartialState],
+        premise: CompiledFactPremise,
+    ) -> _PartialStateLookup | None:
+        if not states:
+            return None
+        premise_variables = (
+            variables_in(premise.source.entity)
+            | variables_in(premise.source.status)
+        )
+        variables = tuple(
+            sorted(
+                (
+                    variable
+                    for variable in premise_variables
+                    if variable in states[0].substitution
+                ),
+                key=lambda variable: variable.name,
+            )
+        )
+        lookup = _PartialStateLookup(variables, {})
+        self._extend_partial_state_lookup(lookup, states)
+        return lookup
+
+    @staticmethod
+    def _extend_partial_state_lookup(
+        lookup: _PartialStateLookup,
+        states: Sequence[_PartialState],
+    ) -> None:
+        for state in states:
+            key = tuple(
+                state.substitution.apply(variable)
+                for variable in lookup.variables
+            )
+            lookup.buckets.setdefault(key, []).append(state)
+
+    def _advance_positive_fact_states_from_delta(
+        self,
+        states: Sequence[_PartialState],
+        premise: CompiledFactPremise,
+        candidates: Sequence[Fact],
+        lookup: _PartialStateLookup | None,
+    ) -> tuple[_PartialState, ...]:
+        if not states or not candidates:
+            return ()
+        output: list[_PartialState] = []
+        for fact in candidates:
+            candidate_frame = BindingFrame()
+            self.metrics.candidate_facts += 1
+            self.metrics.match_attempts += 1
+            if not premise.match(
+                fact.entity,
+                fact.status,
+                candidate_frame,
+            ):
+                continue
+            selected = (
+                states
+                if lookup is None
+                else lookup.buckets.get(
+                    tuple(
+                        candidate_frame.apply(variable)
+                        for variable in lookup.variables
+                    ),
+                    (),
+                )
+            )
+            self.metrics.candidate_facts += len(selected)
+            for state in selected:
+                output.append(
+                    _PartialState(
+                        state.substitution.extend(
+                            candidate_frame.freeze().items()
+                        ),
+                        (*state.supports, fact),
+                    )
+                )
+        return tuple(output)
+
+    @staticmethod
+    def _activations_from_partial_states(
+        states: Sequence[_PartialState],
+        index: FactIndex,
+    ) -> tuple[Activation, ...]:
+        activations = [
+            Activation(state.substitution, state.supports)
+            for state in states
+        ]
+        return tuple(sorted(activations, key=index.activation_order))
+
 
 def _normalize_delta(
     delta: FactDelta | tuple[Fact, ...] | None,
@@ -1720,6 +2147,28 @@ def _normalize_delta(
     if delta is None or isinstance(delta, FactDelta):
         return delta
     return FactDelta(added=delta)
+
+
+@cache
+def _has_reusable_positive_prefix(rule: Rule) -> bool:
+    """Return whether a comparison blocks a later fact from reordering."""
+
+    premises = compile_rule(rule).block.premises
+    if not all(
+        isinstance(
+            premise,
+            (CompiledFactPremise, CompiledComparisonPremise),
+        )
+        for premise in premises
+    ):
+        return False
+    seen_comparison = False
+    for premise in premises:
+        if isinstance(premise, CompiledComparisonPremise):
+            seen_comparison = True
+        elif seen_comparison:
+            return True
+    return False
 
 
 def _partial_state_key(

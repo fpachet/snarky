@@ -17,6 +17,7 @@ from snarky import (
     Fact,
     FactMutationKind,
     ForwardEngine,
+    Rule,
     SemiNaiveInstantiationStrategy,
     Triple,
     parse_rules,
@@ -28,6 +29,20 @@ JOIN_RULES = parse_rules(
     WHEN
         ($group left $left)
         ($group right $right)
+        ($left compatible $right)
+    THEN
+        ADD ($left paired $right)
+    END
+    """
+)
+
+BARRIER_JOIN_RULES = parse_rules(
+    """
+    RULE compatible_pair_after_filter
+    WHEN
+        ($group left $left)
+        ($group right $right)
+        $left != $right
         ($left compatible $right)
     THEN
         ADD ($left paired $right)
@@ -133,6 +148,9 @@ def _summarize(samples: list[dict[str, Any]]) -> dict[str, Any]:
         "activations_produced",
         "rule_evaluations",
         "rule_skips",
+        "partial_join_builds",
+        "partial_join_updates",
+        "partial_join_bypasses",
     )
     stable = {counter: samples[0][counter] for counter in counters}
     for sample in samples[1:]:
@@ -205,6 +223,15 @@ def measure_cold(
                     session.agenda_metrics.rule_recomputations
                 ),
                 "rule_skips": session.agenda_metrics.rule_reuses,
+                "partial_join_builds": (
+                    strategy.metrics.partial_join_builds
+                ),
+                "partial_join_updates": (
+                    strategy.metrics.partial_join_updates
+                ),
+                "partial_join_bypasses": (
+                    strategy.metrics.partial_join_bypasses
+                ),
             }
         )
     return _summarize(samples)
@@ -214,6 +241,9 @@ def measure_streamed(
     group_count: int,
     width: int,
     repeat: int,
+    *,
+    rules: tuple[Rule, ...] = JOIN_RULES,
+    use_partial_join_memory: bool = True,
 ) -> dict[str, Any]:
     """Measure one compatibility addition and saturation per valid pair."""
 
@@ -222,9 +252,11 @@ def measure_streamed(
     expected = expected_output_facts(group_count, width)
     samples: list[dict[str, Any]] = []
     for _ in range(repeat):
-        strategy = SemiNaiveInstantiationStrategy()
+        strategy = SemiNaiveInstantiationStrategy(
+            use_partial_join_memory=use_partial_join_memory,
+        )
         engine = ForwardEngine(
-            JOIN_RULES,
+            rules,
             strategy=strategy,
             limits=EngineLimits(
                 max_facts=(
@@ -282,6 +314,15 @@ def measure_streamed(
                 "rule_skips": (
                     session.agenda_metrics.rule_reuses - before_skips
                 ),
+                "partial_join_builds": (
+                    strategy.metrics.partial_join_builds
+                ),
+                "partial_join_updates": (
+                    strategy.metrics.partial_join_updates
+                ),
+                "partial_join_bypasses": (
+                    strategy.metrics.partial_join_bypasses
+                ),
             }
         )
     return _summarize(samples)
@@ -291,6 +332,8 @@ def run(
     group_counts: tuple[int, ...],
     width: int,
     repeat: int,
+    *,
+    barrier_group_counts: tuple[int, ...] = (),
 ) -> dict[str, Any]:
     """Run the requested conjunction cases and return a JSON-ready result."""
 
@@ -310,6 +353,10 @@ def run(
                 "cold and streamed memories are checked against the exact "
                 "expected output set"
             ),
+            "barrier": (
+                "the optional A/B inserts a bound comparison before the "
+                "last fact premise"
+            ),
         },
         "repeat": repeat,
         "python": platform.python_version(),
@@ -326,6 +373,27 @@ def run(
             }
             for group_count in group_counts
         ],
+        "barrier_results": [
+            {
+                "group_count": group_count,
+                "width": width,
+                "expected_outputs": group_count * width * width,
+                "memory": measure_streamed(
+                    group_count,
+                    width,
+                    repeat,
+                    rules=BARRIER_JOIN_RULES,
+                ),
+                "generic": measure_streamed(
+                    group_count,
+                    width,
+                    repeat,
+                    rules=BARRIER_JOIN_RULES,
+                    use_partial_join_memory=False,
+                ),
+            }
+            for group_count in barrier_group_counts
+        ],
     }
 
 
@@ -339,6 +407,12 @@ def main() -> None:
     )
     parser.add_argument("--width", type=int, default=8)
     parser.add_argument("--repeat", type=int, default=5)
+    parser.add_argument(
+        "--barrier-groups",
+        nargs="*",
+        type=int,
+        default=(),
+    )
     parser.add_argument("--output", type=Path)
     arguments = parser.parse_args()
     if arguments.repeat < 1:
@@ -347,8 +421,15 @@ def main() -> None:
         parser.error("--width must be positive")
     if any(group_count < 1 for group_count in arguments.groups):
         parser.error("--groups must be positive")
+    if any(group_count < 1 for group_count in arguments.barrier_groups):
+        parser.error("--barrier-groups must be positive")
     rendered = json.dumps(
-        run(tuple(arguments.groups), arguments.width, arguments.repeat),
+        run(
+            tuple(arguments.groups),
+            arguments.width,
+            arguments.repeat,
+            barrier_group_counts=tuple(arguments.barrier_groups),
+        ),
         indent=2,
     )
     if arguments.output is None:

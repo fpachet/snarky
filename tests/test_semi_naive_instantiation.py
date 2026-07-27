@@ -67,11 +67,140 @@ def test_multi_fact_rule_uses_generic_delta_join() -> None:
 
 
 def test_event_rule_setting_is_preserved_across_branch_forks() -> None:
-    strategy = SemiNaiveInstantiationStrategy(use_event_rules=False)
+    strategy = SemiNaiveInstantiationStrategy(
+        use_event_rules=False,
+        use_partial_join_memory=False,
+    )
 
     branch = strategy.fork_for_branch()
 
     assert branch.use_event_rules is False
+    assert branch.use_partial_join_memory is False
+
+
+def test_partial_memory_matches_generic_across_add_and_remove() -> None:
+    rule = parse_rules(
+        """
+        RULE compatible_after_filter
+        WHEN
+            ($group left $left)
+            ($group right $right)
+            $left != $right
+            ($left compatible $right)
+        THEN
+            ADD ($left paired_with $right)
+        END
+        """
+    )[0]
+    left = Fact(parse_term("(group left a)"))
+    first_right = Fact(parse_term("(group right b1)"))
+    second_right = Fact(parse_term("(group right b2)"))
+    first_edge = Fact(parse_term("(a compatible b1)"))
+    second_edge = Fact(parse_term("(a compatible b2)"))
+    facts = (left, first_right, second_right)
+    memory = SemiNaiveInstantiationStrategy()
+    generic = SemiNaiveInstantiationStrategy(
+        use_partial_join_memory=False,
+    )
+
+    assert memory.instantiate(rule, facts) == generic.instantiate(rule, facts)
+    facts = (*facts, first_edge)
+    first_delta = FactDelta(added=(first_edge,), revision=1)
+    assert memory.instantiate(rule, facts, first_delta) == (
+        generic.instantiate(rule, facts, first_delta)
+    )
+    facts = (*facts, second_edge)
+    second_delta = FactDelta(added=(second_edge,), revision=2)
+    assert memory.instantiate(rule, facts, second_delta) == (
+        generic.instantiate(rule, facts, second_delta)
+    )
+
+    memory.invalidate(frozenset((first_right,)))
+    generic.invalidate(frozenset((first_right,)))
+    facts = tuple(fact for fact in facts if fact != first_right)
+    removal = FactDelta(
+        removed=frozenset((first_right,)),
+        revision=3,
+    )
+    assert memory.instantiate(rule, facts, removal) == (
+        generic.instantiate(rule, facts, removal)
+    )
+    assert memory.metrics.partial_join_builds == 1
+    assert memory.metrics.partial_join_updates == 2
+
+
+def test_partial_memory_keeps_comparison_levels_outside_state_budget() -> None:
+    rule = parse_rules(
+        """
+        RULE compatible_after_filter
+        WHEN
+            ($group left $left)
+            ($group right only_right)
+            $left != only_right
+            ($left compatible only_right)
+        THEN
+            ADD ($left accepted yes)
+        END
+        """
+    )[0]
+    first_left = Fact(parse_term("(group left first)"))
+    second_left = Fact(parse_term("(group left second)"))
+    right = Fact(parse_term("(group right only_right)"))
+    first_edge = Fact(parse_term("(first compatible only_right)"))
+    second_edge = Fact(parse_term("(second compatible only_right)"))
+    strategy = SemiNaiveInstantiationStrategy(partial_join_limit=5)
+    facts = (first_left, second_left, right)
+
+    assert strategy.instantiate(rule, facts) == ()
+    facts = (*facts, first_edge)
+    assert len(
+        strategy.instantiate(
+            rule,
+            facts,
+            FactDelta(added=(first_edge,), revision=1),
+        )
+    ) == 1
+    facts = (*facts, second_edge)
+    assert len(
+        strategy.instantiate(
+            rule,
+            facts,
+            FactDelta(added=(second_edge,), revision=2),
+        )
+    ) == 1
+    assert strategy.metrics.partial_join_builds == 1
+    assert strategy.metrics.partial_join_bypasses == 0
+
+
+def test_partial_memory_falls_back_when_prefix_exceeds_budget() -> None:
+    rule = parse_rules(
+        """
+        RULE compatible_after_filter
+        WHEN
+            ($group left $left)
+            ($group right $right)
+            $left != $right
+            ($left compatible $right)
+        THEN
+            ADD ($left paired_with $right)
+        END
+        """
+    )[0]
+    left = Fact(parse_term("(group left a)"))
+    right = Fact(parse_term("(group right b)"))
+    edge = Fact(parse_term("(a compatible b)"))
+    strategy = SemiNaiveInstantiationStrategy(partial_join_limit=1)
+
+    assert strategy.instantiate(rule, (left, right)) == ()
+    activations = strategy.instantiate(
+        rule,
+        (left, right, edge),
+        FactDelta(added=(edge,), revision=1),
+    )
+
+    assert len(activations) == 1
+    assert strategy.metrics.partial_join_builds == 0
+    assert strategy.metrics.partial_join_bypasses == 1
 
 
 def test_delta_variants_are_unique_and_restore_naive_order() -> None:
