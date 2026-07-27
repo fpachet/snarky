@@ -10,6 +10,7 @@ import time
 from collections.abc import Callable
 from typing import Any
 
+from benchmarks.support import PROJECT_ROOT, git_commit, git_dirty
 from csp_solver.four_queens import solve_n_queens
 
 
@@ -75,6 +76,8 @@ def run(sizes: tuple[int, ...], repeat: int) -> dict[str, Any]:
         "python": platform.python_version(),
         "platform": platform.platform(),
         "repeat": repeat,
+        "snarky_commit": git_commit(PROJECT_ROOT),
+        "snarky_dirty": git_dirty(PROJECT_ROOT),
         "results": results,
     }
 

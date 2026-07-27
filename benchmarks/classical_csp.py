@@ -10,6 +10,7 @@ import time
 from collections.abc import Callable
 from typing import Any
 
+from benchmarks.support import PROJECT_ROOT, git_commit, git_dirty
 from csp_solver.latin_square import (
     latin_square_facts,
     latin_square_from_solution,
@@ -165,6 +166,8 @@ def run(
         "python": platform.python_version(),
         "platform": platform.platform(),
         "repeat": repeat,
+        "snarky_commit": git_commit(PROJECT_ROOT),
+        "snarky_dirty": git_dirty(PROJECT_ROOT),
         "magic_symmetry_breaking": magic_symmetry_breaking,
         "magic_propagation_guided": magic_propagation_guided,
         "magic_dom_wdeg_only": magic_dom_wdeg_only,

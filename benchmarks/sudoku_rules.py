@@ -9,6 +9,7 @@ import statistics
 from time import perf_counter
 from typing import Any
 
+from benchmarks.support import PROJECT_ROOT, git_commit, git_dirty
 from snarky import (
     AdaptiveInstantiationStrategy,
     ConstraintInstantiationStrategy,
@@ -120,6 +121,8 @@ def main() -> None:
                 "repeat": arguments.repeat,
                 "python": platform.python_version(),
                 "platform": platform.platform(),
+                "snarky_commit": git_commit(PROJECT_ROOT),
+                "snarky_dirty": git_dirty(PROJECT_ROOT),
                 "levels": results,
             },
             indent=2,

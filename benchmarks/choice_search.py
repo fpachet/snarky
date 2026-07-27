@@ -10,6 +10,7 @@ import time
 from collections.abc import Callable
 from typing import Any
 
+from benchmarks.support import PROJECT_ROOT, git_commit, git_dirty
 from csp_solver.four_queens import solve_four_queens
 from csp_solver.solver import solve_binary_csp
 from harmonizer.solver import build_harmonizer_model
@@ -84,6 +85,8 @@ def run(repeat: int) -> dict[str, Any]:
         "python": platform.python_version(),
         "platform": platform.platform(),
         "repeat": repeat,
+        "snarky_commit": git_commit(PROJECT_ROOT),
+        "snarky_dirty": git_dirty(PROJECT_ROOT),
         "four_queens": _measure(queens, repeat),
         "harmonizer_two_positions": _measure(harmony, repeat),
         "harmonizer_four_positions": _measure(

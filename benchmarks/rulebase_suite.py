@@ -9,6 +9,7 @@ import statistics
 import time
 from typing import Any
 
+from benchmarks.support import PROJECT_ROOT, git_commit, git_dirty
 from rulebases.runner import run_scenario
 from snarky import (
     AdaptiveInstantiationStrategy,
@@ -169,6 +170,8 @@ def main() -> None:
                 "repeat": arguments.repeat,
                 "python": platform.python_version(),
                 "platform": platform.platform(),
+                "snarky_commit": git_commit(PROJECT_ROOT),
+                "snarky_dirty": git_dirty(PROJECT_ROOT),
                 "results": results,
             },
             indent=2,
