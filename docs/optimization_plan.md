@@ -782,8 +782,8 @@ facile à comprendre et à vérifier.
 
 ## Phase 11 — Réactivité événementielle et conjonctions
 
-**État : ordonnanceur par dépendances et première spécialisation
-événementielle livrés.**
+**État : ordonnanceur par dépendances, spécialisation événementielle et
+mémoires partielles bornées livrés.**
 
 La comparaison avec le test Talarian de CLAIRE4 a isolé un coût qui n'était
 pas visible dans les anciennes applications par lots : après chaque mutation,
@@ -815,7 +815,8 @@ Les optimisations suivantes sont ordonnées ainsi :
    de comparaisons** ;
 2. intégrer au chemin incrémental par défaut des mémoires de joints partiels
    pour les règles à plusieurs prémisses, sans matérialiser les produits dont
-   la cardinalité dépasserait le budget existant ;
+   la cardinalité dépasserait le budget existant — **livré pour les préfixes
+   positifs séparés d'une prémisse factuelle ultérieure par une comparaison** ;
 3. remplacer les ensembles de règles affectées par des tableaux ou bitsets si
    le profil confirme encore leur coût ;
 4. réduire les objets temporaires des substitutions, événements et actions,
@@ -861,6 +862,32 @@ Les 607 tests passent (3 ignorés). Les sorties exactes de
 six cas mesurés ; les 33 cas de `rulebase_suite` conservent leurs compteurs
 logiques, avec un ratio médian de ×1,03 et un pire écart temporel observé
 inférieur à 5 %, compatible avec le bruit de mesure.
+
+La deuxième tranche cible uniquement les conjonctions que la jointure
+semi-naïve ne peut pas réordonner à travers une comparaison. Elle attend une
+deuxième évaluation avant de matérialiser le préfixe, indexe les états partiels
+par variables partagées et compte seulement les états réellement créés dans
+le budget. Les exécutions froides, les conjonctions déjà réordonnables et les
+préfixes dépassant `partial_join_limit` conservent le chemin générique.
+`use_partial_join_memory=False` fournit le témoin A/B.
+
+Le benchmark ajoute une comparaison booléenne déjà liée avant la dernière
+prémisse factuelle. Sur le commit `1d1dc5e`, Python 3.13.11/macOS ARM64 et
+trois répétitions :
+
+| Groupes | Générique | Mémoire partielle | Gain |
+| ---: | ---: | ---: | ---: |
+| 2 | 0,1089 s | 0,0087 s | ×12,6 |
+| 5 | 0,6467 s | 0,0211 s | ×30,6 |
+| 10 | 2,6207 s | 0,0430 s | ×60,9 |
+| 25 | 16,0718 s | 0,1209 s | ×132,9 |
+
+À 25 groupes, les tentatives de correspondance passent de 2 881 600 à
+6 598 pour 1 600 sorties identiques. Sur la conjonction sans barrière, aucune
+mémoire n'est construite et les compteurs restent à 4 800, 19 200 et 48 000
+tentatives pour 25, 100 et 250 groupes. Les tests différentiels couvrent les
+ajouts, suppressions, limites de budget et forks ; la suite complète compte
+610 succès et 3 tests ignorés.
 
 ## Prochaine tranche concrète
 

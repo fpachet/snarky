@@ -64,3 +64,18 @@ checkout, and five runs for 100, 1,000, and 5,000 Talarian frames:
 Both records retain identical firings, outputs, checksums, rule evaluations,
 and skips. The specialization improves median inference time by ×1.49,
 ×1.46, and ×1.47 respectively.
+
+## Bounded partial-join memory — 2026-07-27
+
+[`incremental_conjunctions_partial_memory_2026-07-27.json`](incremental_conjunctions_partial_memory_2026-07-27.json)
+uses commit `1d1dc5e`, Python 3.13.11, a clean checkout, and three runs per
+case. It contains:
+
+- the original cold and streamed conjunction guards at 25, 100, and 250
+  groups, where the new memory deliberately remains inactive;
+- a direct memory/generic A/B at 2, 5, 10, and 25 groups for a bound
+  comparison that prevents the last fact premise from being reordered.
+
+The A/B retains identical facts, firings, outputs, rule evaluations, and
+skips. Median speedups are ×12.6, ×30.6, ×60.9, and ×132.9. At 25 groups,
+match attempts fall from 2,881,600 to 6,598.

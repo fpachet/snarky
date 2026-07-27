@@ -66,6 +66,9 @@ uv run python -m benchmarks.claire_talarian_filter \
   --disable-event-rules
 uv run python -m benchmarks.incremental_conjunctions \
   --groups 25 100 250 --width 8 --repeat 5
+uv run python -m benchmarks.incremental_conjunctions \
+  --groups 25 100 250 --barrier-groups 2 5 10 25 \
+  --width 8 --repeat 3
 uv run python -m benchmarks.choice_search --repeat 5
 uv run python -m benchmarks.choice_trail --repeat 3
 uv run python -m benchmarks.choice_formulations --repeat 3
