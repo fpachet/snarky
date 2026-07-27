@@ -850,12 +850,12 @@ Sur Python 3.13.11/macOS ARM64, cinq répétitions donnent :
 
 | Frames | Générique | Événementiel | Gain |
 | ---: | ---: | ---: | ---: |
-| 100 | 0,0544 s | 0,0363 s | ×1,50 |
-| 1 000 | 0,5803 s | 0,3884 s | ×1,49 |
-| 5 000 | 4,3095 s | 2,4682 s | ×1,75 |
+| 100 | 0,0547 s | 0,0367 s | ×1,49 |
+| 1 000 | 0,5776 s | 0,3944 s | ×1,46 |
+| 5 000 | 3,7042 s | 2,5174 s | ×1,47 |
 
 À 5 000 frames, la baseline archivée avant ce chantier était de 4,6347 s :
-le gain cumulé atteint donc ×1,88, à peu de chose de la cible indicative ×2.
+le gain cumulé atteint donc ×1,84, à peu de chose de la cible indicative ×2.
 Les 607 tests passent (3 ignorés). Les sorties exactes de
 `incremental_conjunctions` sont inchangées et sa médiane s'améliore dans les
 six cas mesurés ; les 33 cas de `rulebase_suite` conservent leurs compteurs

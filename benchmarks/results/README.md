@@ -50,3 +50,17 @@ Application and search guards:
 Every payload records its exact commit and `snarky_dirty=false`. Each runner
 also checks its logical outputs or stable search counters before emitting the
 timings.
+
+## Simple event-rule specialization — 2026-07-27
+
+The direct A/B comparison uses commit `02ac84e`, Python 3.13.11, a clean
+checkout, and five runs for 100, 1,000, and 5,000 Talarian frames:
+
+- [`claire_talarian_filter_event_rules_2026-07-27.json`](claire_talarian_filter_event_rules_2026-07-27.json)
+  — specialization enabled;
+- [`claire_talarian_filter_event_rules_disabled_2026-07-27.json`](claire_talarian_filter_event_rules_disabled_2026-07-27.json)
+  — identical Snarky workload through the generic semi-naïve path.
+
+Both records retain identical firings, outputs, checksums, rule evaluations,
+and skips. The specialization improves median inference time by ×1.49,
+×1.46, and ×1.47 respectively.
