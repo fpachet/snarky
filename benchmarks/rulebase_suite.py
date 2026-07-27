@@ -22,6 +22,7 @@ SCENARIOS = (
     "constraints/global",
     "small/factorial_explicit",
     "small/combinations_foreach",
+    "small/triangle_closure",
     "thesis/equality_transitivity",
     "thesis/tomorrow_date",
     "thesis/petri_net",
@@ -92,6 +93,13 @@ def measure(
         "activations": final_result.fired_activation_count,
         "cycles": final_result.cycles,
         "match_attempts": metrics.match_attempts,
+        "factorized_event_evaluations": (
+            metrics.factorized_event_evaluations
+        ),
+        "factorized_event_candidates": (
+            metrics.factorized_event_candidates
+        ),
+        "factorized_event_lookups": metrics.factorized_event_lookups,
         "domain_filter_runs": metrics.domain_filter_runs,
         "domain_filter_fallbacks": metrics.domain_filter_fallbacks,
         "domain_filter_selections": metrics.domain_filter_selections,
