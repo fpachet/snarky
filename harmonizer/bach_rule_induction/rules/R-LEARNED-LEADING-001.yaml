@@ -58,11 +58,28 @@ refinements:
   candidate_count: 7
   null_selected_count: 0
   status: CANDIDATE_REFINEMENT
+  family_calibration:
+    experiment: v3_4_tonal_family_calibration
+    permutations: 49
+    statistic: min(train_residual_z, validation_residual_z)
+    empirically_retained_count: 1
+    retained_context:
+      mode: major
+      voice: alto
+      source_bass_class: 2
+      target_bass_class: 4
+      train_resolutions: [47, 54]
+      validation_resolutions: [19, 19]
+      joint_min_z: 8.049982992711689
+      empirical_fwer_p: 0.02
+    lifecycle: CANDIDATE_PENDING_HARMONIC_AUDIT
 provenance:
   experiment: experiments/differentiable_rules_poc/results/v3_1_global_tonal_tendency.json
   refinement_experiment: experiments/differentiable_rules_poc/results/v3_3_mode_stratified_leading_tone.json
   analysis: experiments/differentiable_rules_poc/V3_1_ANALYSIS.md
   refinement_analysis: experiments/differentiable_rules_poc/V3_3_ANALYSIS.md
+  family_calibration: experiments/differentiable_rules_poc/results/v3_4_tonal_family_calibration.json
+  family_calibration_analysis: experiments/differentiable_rules_poc/V3_4_ANALYSIS.md
 snarky_rule:
   file: ../voice_leading_conformance.rules
   rule_id: R-LEADING-001

@@ -315,6 +315,25 @@ progressions harmoniques usuelles. Voir
 [`V3_2_ANALYSIS.md`](V3_2_ANALYSIS.md) et
 [`V3_3_ANALYSIS.md`](V3_3_ANALYSIS.md).
 
+## POC V3.4 — calibration de la famille complète
+
+Le V3.4 répète 49 fois le pipeline nul, baseline et scan des 864 clauses
+compris :
+
+```sh
+../deepbach-reference/.venv/bin/python \
+  harmonizer/bach_rule_induction/experiments/differentiable_rules_poc/\
+run_tonal_family_calibration.py
+```
+
+Pour chaque permutation, il conserve le maximum de
+`min(z_train, z_validation)` parmi toutes les clauses suffisamment supportées.
+Le quantile nul à 95 % vaut `4,817` et le maximum `6,205`. Une seule clause
+authentique survit : `majeur + alto + basse 2→4`, avec `p FWER = 0,02`.
+
+Voir [`V3_4_ANALYSIS.md`](V3_4_ANALYSIS.md) et le
+[`rapport canonique`](results/V3_4_TONAL_FAMILY_CALIBRATION_REPORT.md).
+
 ## Interprétation prudente
 
 Une valeur conditionnelle extrême est une hypothèse de règle, pas une preuve

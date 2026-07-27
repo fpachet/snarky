@@ -166,6 +166,45 @@ def test_case_audit_separates_modes_and_outcomes() -> None:
     ]
 
 
+def test_family_calibration_uses_maximum_joint_replication_statistic() -> None:
+    def record(name, train_z, validation_z, train_rate=0.8, validation_rate=0.8):
+        return {
+            "mode": "major",
+            "subject_voice_index": 0,
+            "subject_voice": name,
+            "source_bass_class": 7,
+            "target_bass_class": 0,
+            "train": {
+                "testable_opportunities": 40,
+                "observed_rate": train_rate,
+                "z_score": train_z,
+            },
+            "validation": {
+                "testable_opportunities": 10,
+                "observed_rate": validation_rate,
+                "z_score": validation_z,
+            },
+        }
+
+    summary = refinement.family_calibration_summary(
+        [
+            record("train-only", 20.0, 1.0),
+            record("replicated", 4.0, 3.0),
+            record("low-rate", 9.0, 8.0, validation_rate=0.4),
+        ],
+        min_train_support=20,
+        min_validation_support=8,
+        min_train_confirmation=0.65,
+        min_validation_confirmation=0.65,
+        min_train_z=3.0,
+        min_validation_z=2.0,
+    )
+    assert summary["maximum_supported"]["subject_voice"] == "low-rate"
+    assert summary["maximum_confirmation_gated"]["subject_voice"] == "replicated"
+    assert summary["maximum_confirmation_gated"]["joint_min_z"] == 3.0
+    assert summary["threshold_passing_candidate_count"] == 1
+
+
 def test_canonical_refinement_artifacts_keep_test_sealed() -> None:
     v2 = json.loads(
         (ROOT / "results/v3_2_leading_tone_refinement.json").read_text(

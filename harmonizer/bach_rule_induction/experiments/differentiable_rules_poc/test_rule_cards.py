@@ -134,6 +134,11 @@ def test_leading_tone_candidate_card_matches_canonical_experiments() -> None:
             / "results/v3_3_mode_stratified_leading_tone_null.json"
         ).read_text(encoding="utf-8")
     )
+    calibration = json.loads(
+        (
+            EXPERIMENT_ROOT / "results/v3_4_tonal_family_calibration.json"
+        ).read_text(encoding="utf-8")
+    )
     card = yaml.safe_load(
         (RULES_ROOT / "R-LEARNED-LEADING-001.yaml").read_text(encoding="utf-8")
     )
@@ -152,3 +157,8 @@ def test_leading_tone_candidate_card_matches_canonical_experiments() -> None:
         == source_class["validation"]["z_score"]
     )
     assert card["refinements"]["candidate_count"] == 7
+    retained = card["refinements"]["family_calibration"]["retained_context"]
+    assert retained["empirical_fwer_p"] == 0.02
+    assert retained["joint_min_z"] == calibration["candidate_results"][0][
+        "joint_min_z"
+    ]

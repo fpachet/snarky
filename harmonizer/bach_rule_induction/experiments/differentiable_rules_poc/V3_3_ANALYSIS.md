@@ -59,7 +59,7 @@ Les sept clauses restent `CANDIDATE_REFINEMENT` :
 - les seuils et le budget doivent être gelés avant le test final ;
 - aucune règle n'est encore compilée dans l'harmoniseur de production.
 
-La prochaine étape est une calibration par maxima de permutations répétées,
-puis une ablation conjointe des clauses tonales. Si les clauses survivent, une
-RuleCard séparera la formulation numérique apprise de son interprétation
-harmonique.
+Le [V3.4](V3_4_ANALYSIS.md) a depuis effectué cette calibration sur 49
+permutations complètes. Une seule des sept clauses survit à 5 % après
+correction familiale : `majeur + alto + basse 2→4`, avec `p = 0,02`. Les six
+autres restent des hypothèses descriptives.

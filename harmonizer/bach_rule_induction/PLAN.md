@@ -828,8 +828,10 @@ possède une définition musicale testée.
       retrouver la tendance ascendante de la classe `11`.
 - [x] Utiliser les exceptions pour séparer par mode un proxy de résolution
       trompeuse `V→VI`.
-- [ ] Calibrer les 864 raffinements tonals par maxima sur plusieurs
-      permutations indépendantes.
+- [x] Calibrer les 864 raffinements tonals sur les maxima de 49 permutations
+      indépendantes ; une clause survit à `p FWER = 0,02`.
+- [ ] Auditer indépendamment le contenu harmonique de cette clause avant sa
+      compilation.
 - [ ] Ajouter ensuite les faits harmoniques nécessaires aux résolutions et
       doublures.
 - [x] Comparer sémantiquement les clauses de mouvement direct aux oracles

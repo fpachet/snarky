@@ -177,6 +177,81 @@ def select_refinements(
     return selected[:budget]
 
 
+def candidate_identity(record: dict[str, Any]) -> dict[str, Any]:
+    return {
+        "mode": record["mode"],
+        "subject_voice_index": record["subject_voice_index"],
+        "subject_voice": record["subject_voice"],
+        "source_bass_class": record["source_bass_class"],
+        "target_bass_class": record["target_bass_class"],
+    }
+
+
+def family_calibration_summary(
+    records: list[dict[str, Any]],
+    min_train_support: int,
+    min_validation_support: int,
+    min_train_confirmation: float,
+    min_validation_confirmation: float,
+    min_train_z: float,
+    min_validation_z: float,
+) -> dict[str, Any]:
+    """Summarize the maximum joint statistic searched across the whole family."""
+
+    supported = [
+        record
+        for record in records
+        if record["train"]["testable_opportunities"] >= min_train_support
+        and record["validation"]["testable_opportunities"]
+        >= min_validation_support
+    ]
+    confirmation_gated = [
+        record
+        for record in supported
+        if record["train"]["observed_rate"] >= min_train_confirmation
+        and record["validation"]["observed_rate"]
+        >= min_validation_confirmation
+    ]
+    threshold_passing = [
+        record
+        for record in confirmation_gated
+        if record["train"]["z_score"] >= min_train_z
+        and record["validation"]["z_score"] >= min_validation_z
+    ]
+
+    def maximum(rows: list[dict[str, Any]]) -> dict[str, Any] | None:
+        if not rows:
+            return None
+        record = max(
+            rows,
+            key=lambda item: min(
+                item["train"]["z_score"],
+                item["validation"]["z_score"],
+            ),
+        )
+        return {
+            **candidate_identity(record),
+            "joint_min_z": min(
+                record["train"]["z_score"],
+                record["validation"]["z_score"],
+            ),
+            "train_z": record["train"]["z_score"],
+            "validation_z": record["validation"]["z_score"],
+            "train_observed_rate": record["train"]["observed_rate"],
+            "validation_observed_rate": record["validation"]["observed_rate"],
+        }
+
+    return {
+        "statistic": "min(train_residual_z, validation_residual_z)",
+        "candidate_count": len(records),
+        "supported_candidate_count": len(supported),
+        "confirmation_gated_candidate_count": len(confirmation_gated),
+        "threshold_passing_candidate_count": len(threshold_passing),
+        "maximum_supported": maximum(supported),
+        "maximum_confirmation_gated": maximum(confirmation_gated),
+    }
+
+
 def interpretation(record: dict[str, Any]) -> str:
     triple = (
         record["subject_voice_index"],
@@ -600,6 +675,15 @@ def main() -> int:
         "model": {
             "selected_refinements": selected,
             "all_candidate_count": len(scan),
+            "family_calibration": family_calibration_summary(
+                scan,
+                args.min_train_support,
+                args.min_validation_support,
+                args.min_train_confirmation,
+                args.min_validation_confirmation,
+                args.min_train_z,
+                args.min_validation_z,
+            ),
             "reference_rule_id": "R-LEADING-001",
             "semantic_status": "CANDIDATE_REFINEMENT",
         },

@@ -59,3 +59,9 @@ classes de basse source/cible, puis le mode. Ils isolent sept contextes
 lisibles, dont des proxys de `vii°6→I`, `V4/2→I6`, `V→i`, `V→VI` et `V→III`.
 Le contrôle permuté n'en retient aucun ; ces clauses restent candidates jusqu'à
 la calibration familiale répétée.
+
+Le huitième incrément répète le contrôle nul 49 fois en réajustant les
+baselines à chaque fois. Le maximum familial nul atteint `6,205`. Seul le
+contexte `majeur + alto + basse 2→4` dépasse les 49 maxima (`p = 0,02`) ;
+les six autres raffinements sont rétrogradés au statut d'hypothèses
+descriptives.

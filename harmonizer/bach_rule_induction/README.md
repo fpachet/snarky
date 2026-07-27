@@ -124,6 +124,12 @@ contre aucun dans le contrôle nul. Il distingue notamment le patron mineur
 assimilable à `V→VI`, vérifié 25/25 fois au train et 11/11 en validation, de
 son homologue majeur qui ne résout jamais dans les occurrences observées.
 
+Le [POC V3.4](experiments/differentiable_rules_poc/V3_4_ANALYSIS.md) corrige
+ensuite la recherche multiple par le maximum de 49 permutations complètes.
+Les maxima nuls atteignent `6,205`. Une seule des sept clauses V3.3 reste
+significative au niveau familial : `majeur + alto + basse 2→4`, proxy de
+`vii°6→I6`, avec `min-z = 8,050` et `p FWER = 0,02`.
+
 ## Organisation
 
 ```text
@@ -205,7 +211,8 @@ Livrable : premières RuleCards vérifiées dans `rules/`.
 - enrichir les faits de statut sans introduire de dépendances entre règles ;
 - [x] définir un premier statut tonal global et redécouvrir la classe `11` ;
 - [x] utiliser les exceptions pour proposer `global_key_mode` comme feature ;
-- calibrer les familles tonales par maxima de permutations répétées ;
+- [x] calibrer la première famille tonale sur 49 maxima de permutations ;
+- auditer harmoniquement la seule clause survivante avant compilation ;
 - valider sur un sous-ensemble non consulté pendant la découverte ;
 - compiler les règles retenues en `R-LEARNED-*` ;
 - vérifier chaque règle sur exemples, contre-exemples et cas limites.
