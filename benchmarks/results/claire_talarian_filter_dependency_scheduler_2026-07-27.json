@@ -1,0 +1,442 @@
+{
+  "benchmark": "claire_talarian_filter",
+  "protocol": {
+    "frames": "N independent frames",
+    "rules": 10,
+    "input_facts_per_frame": 10,
+    "expected_rule_firings_per_frame": 10,
+    "expected_outputs_per_frame": 10,
+    "scheduling": "one input update followed by saturation",
+    "dependency_scheduling": "only rules affected by each fact mutation are evaluated",
+    "timing_scope": {
+      "snarky": "ten assume-and-run_group updates per frame",
+      "claire": "ten rule-triggering slot updates per frame"
+    },
+    "preparation_scope": {
+      "snarky": "input fact construction and empty session creation",
+      "claire": "FILTER_FRAME object construction"
+    }
+  },
+  "repeat": 5,
+  "python": "3.13.11",
+  "platform": "macOS-15.7.7-arm64-arm-64bit-Mach-O",
+  "snarky_commit": "84f7b578b12fd60bfc1c96c8ed66c68203b31bfb",
+  "snarky_dirty": false,
+  "results": [
+    {
+      "size": 100,
+      "snarky": {
+        "median_seconds": 0.07120070801465772,
+        "min_seconds": 0.06809341599000618,
+        "max_seconds": 0.0743640000000596,
+        "median_rule_firings_per_second": 14044.804158325718,
+        "median_preparation_seconds": 0.005130167002789676,
+        "min_preparation_seconds": 0.0033902920258697122,
+        "max_preparation_seconds": 0.005958374997135252,
+        "rule_firings": 1000,
+        "outputs": 1000,
+        "checksum": 4000,
+        "match_attempts": 1000,
+        "candidate_facts": 1000,
+        "activations_produced": 1000,
+        "rule_evaluations": 1009,
+        "rule_skips": 18991,
+        "runs": [
+          {
+            "seconds": 0.07291529199574143,
+            "preparation_seconds": 0.0033902920258697122,
+            "rule_firings": 1000,
+            "outputs": 1000,
+            "checksum": 4000,
+            "match_attempts": 1000,
+            "candidate_facts": 1000,
+            "activations_produced": 1000,
+            "rule_evaluations": 1009,
+            "rule_skips": 18991
+          },
+          {
+            "seconds": 0.06809341599000618,
+            "preparation_seconds": 0.003744791989447549,
+            "rule_firings": 1000,
+            "outputs": 1000,
+            "checksum": 4000,
+            "match_attempts": 1000,
+            "candidate_facts": 1000,
+            "activations_produced": 1000,
+            "rule_evaluations": 1009,
+            "rule_skips": 18991
+          },
+          {
+            "seconds": 0.07120070801465772,
+            "preparation_seconds": 0.005149416974745691,
+            "rule_firings": 1000,
+            "outputs": 1000,
+            "checksum": 4000,
+            "match_attempts": 1000,
+            "candidate_facts": 1000,
+            "activations_produced": 1000,
+            "rule_evaluations": 1009,
+            "rule_skips": 18991
+          },
+          {
+            "seconds": 0.07023700000718236,
+            "preparation_seconds": 0.005958374997135252,
+            "rule_firings": 1000,
+            "outputs": 1000,
+            "checksum": 4000,
+            "match_attempts": 1000,
+            "candidate_facts": 1000,
+            "activations_produced": 1000,
+            "rule_evaluations": 1009,
+            "rule_skips": 18991
+          },
+          {
+            "seconds": 0.0743640000000596,
+            "preparation_seconds": 0.005130167002789676,
+            "rule_firings": 1000,
+            "outputs": 1000,
+            "checksum": 4000,
+            "match_attempts": 1000,
+            "candidate_facts": 1000,
+            "activations_produced": 1000,
+            "rule_evaluations": 1009,
+            "rule_skips": 18991
+          }
+        ]
+      },
+      "claire_interpreted": {
+        "median_seconds": 0.001754,
+        "min_seconds": 0.001737,
+        "max_seconds": 0.002006,
+        "median_rule_firings_per_second": 570125.4275940707,
+        "median_preparation_seconds": 7.5e-05,
+        "min_preparation_seconds": 7.3e-05,
+        "max_preparation_seconds": 8e-05,
+        "rule_firings": 1000,
+        "outputs": 1000,
+        "checksum": 4000,
+        "runs": [
+          {
+            "size": 100,
+            "rule_firings": 1000,
+            "outputs": 1000,
+            "checksum": 4000,
+            "preparation_seconds": 8e-05,
+            "seconds": 0.001737
+          },
+          {
+            "size": 100,
+            "rule_firings": 1000,
+            "outputs": 1000,
+            "checksum": 4000,
+            "preparation_seconds": 7.5e-05,
+            "seconds": 0.002006
+          },
+          {
+            "size": 100,
+            "rule_firings": 1000,
+            "outputs": 1000,
+            "checksum": 4000,
+            "preparation_seconds": 7.3e-05,
+            "seconds": 0.001754
+          },
+          {
+            "size": 100,
+            "rule_firings": 1000,
+            "outputs": 1000,
+            "checksum": 4000,
+            "preparation_seconds": 8e-05,
+            "seconds": 0.001864
+          },
+          {
+            "size": 100,
+            "rule_firings": 1000,
+            "outputs": 1000,
+            "checksum": 4000,
+            "preparation_seconds": 7.5e-05,
+            "seconds": 0.00174
+          }
+        ]
+      }
+    },
+    {
+      "size": 1000,
+      "snarky": {
+        "median_seconds": 0.7685130840109196,
+        "min_seconds": 0.7271245830052067,
+        "max_seconds": 0.8344698340224568,
+        "median_rule_firings_per_second": 13012.14020691665,
+        "median_preparation_seconds": 0.04906450002454221,
+        "min_preparation_seconds": 0.03914037501090206,
+        "max_preparation_seconds": 0.18964075000258163,
+        "rule_firings": 10000,
+        "outputs": 10000,
+        "checksum": 40000,
+        "match_attempts": 10000,
+        "candidate_facts": 10000,
+        "activations_produced": 10000,
+        "rule_evaluations": 10009,
+        "rule_skips": 189991,
+        "runs": [
+          {
+            "seconds": 0.7685130840109196,
+            "preparation_seconds": 0.03914037501090206,
+            "rule_firings": 10000,
+            "outputs": 10000,
+            "checksum": 40000,
+            "match_attempts": 10000,
+            "candidate_facts": 10000,
+            "activations_produced": 10000,
+            "rule_evaluations": 10009,
+            "rule_skips": 189991
+          },
+          {
+            "seconds": 0.8252277910069097,
+            "preparation_seconds": 0.04338737498619594,
+            "rule_firings": 10000,
+            "outputs": 10000,
+            "checksum": 40000,
+            "match_attempts": 10000,
+            "candidate_facts": 10000,
+            "activations_produced": 10000,
+            "rule_evaluations": 10009,
+            "rule_skips": 189991
+          },
+          {
+            "seconds": 0.7615736670268234,
+            "preparation_seconds": 0.04906450002454221,
+            "rule_firings": 10000,
+            "outputs": 10000,
+            "checksum": 40000,
+            "match_attempts": 10000,
+            "candidate_facts": 10000,
+            "activations_produced": 10000,
+            "rule_evaluations": 10009,
+            "rule_skips": 189991
+          },
+          {
+            "seconds": 0.7271245830052067,
+            "preparation_seconds": 0.1358175830100663,
+            "rule_firings": 10000,
+            "outputs": 10000,
+            "checksum": 40000,
+            "match_attempts": 10000,
+            "candidate_facts": 10000,
+            "activations_produced": 10000,
+            "rule_evaluations": 10009,
+            "rule_skips": 189991
+          },
+          {
+            "seconds": 0.8344698340224568,
+            "preparation_seconds": 0.18964075000258163,
+            "rule_firings": 10000,
+            "outputs": 10000,
+            "checksum": 40000,
+            "match_attempts": 10000,
+            "candidate_facts": 10000,
+            "activations_produced": 10000,
+            "rule_evaluations": 10009,
+            "rule_skips": 189991
+          }
+        ]
+      },
+      "claire_interpreted": {
+        "median_seconds": 0.017921,
+        "min_seconds": 0.017507,
+        "max_seconds": 0.024101,
+        "median_rule_firings_per_second": 558004.5756375203,
+        "median_preparation_seconds": 0.000696,
+        "min_preparation_seconds": 0.000687,
+        "max_preparation_seconds": 0.000756,
+        "rule_firings": 10000,
+        "outputs": 10000,
+        "checksum": 40000,
+        "runs": [
+          {
+            "size": 1000,
+            "rule_firings": 10000,
+            "outputs": 10000,
+            "checksum": 40000,
+            "preparation_seconds": 0.00072,
+            "seconds": 0.017921
+          },
+          {
+            "size": 1000,
+            "rule_firings": 10000,
+            "outputs": 10000,
+            "checksum": 40000,
+            "preparation_seconds": 0.000687,
+            "seconds": 0.024101
+          },
+          {
+            "size": 1000,
+            "rule_firings": 10000,
+            "outputs": 10000,
+            "checksum": 40000,
+            "preparation_seconds": 0.000696,
+            "seconds": 0.018368
+          },
+          {
+            "size": 1000,
+            "rule_firings": 10000,
+            "outputs": 10000,
+            "checksum": 40000,
+            "preparation_seconds": 0.000692,
+            "seconds": 0.017574
+          },
+          {
+            "size": 1000,
+            "rule_firings": 10000,
+            "outputs": 10000,
+            "checksum": 40000,
+            "preparation_seconds": 0.000756,
+            "seconds": 0.017507
+          }
+        ]
+      }
+    },
+    {
+      "size": 5000,
+      "snarky": {
+        "median_seconds": 4.634741665999172,
+        "min_seconds": 3.9874539589800406,
+        "max_seconds": 5.000003834022209,
+        "median_rule_firings_per_second": 10788.087795012161,
+        "median_preparation_seconds": 0.2737222909927368,
+        "min_preparation_seconds": 0.22773833299288526,
+        "max_preparation_seconds": 0.4720276670122985,
+        "rule_firings": 50000,
+        "outputs": 50000,
+        "checksum": 200000,
+        "match_attempts": 50000,
+        "candidate_facts": 50000,
+        "activations_produced": 50000,
+        "rule_evaluations": 50009,
+        "rule_skips": 949991,
+        "runs": [
+          {
+            "seconds": 4.4857217090029735,
+            "preparation_seconds": 0.4720276670122985,
+            "rule_firings": 50000,
+            "outputs": 50000,
+            "checksum": 200000,
+            "match_attempts": 50000,
+            "candidate_facts": 50000,
+            "activations_produced": 50000,
+            "rule_evaluations": 50009,
+            "rule_skips": 949991
+          },
+          {
+            "seconds": 4.828187832987169,
+            "preparation_seconds": 0.2810010420216713,
+            "rule_firings": 50000,
+            "outputs": 50000,
+            "checksum": 200000,
+            "match_attempts": 50000,
+            "candidate_facts": 50000,
+            "activations_produced": 50000,
+            "rule_evaluations": 50009,
+            "rule_skips": 949991
+          },
+          {
+            "seconds": 5.000003834022209,
+            "preparation_seconds": 0.25358908300404437,
+            "rule_firings": 50000,
+            "outputs": 50000,
+            "checksum": 200000,
+            "match_attempts": 50000,
+            "candidate_facts": 50000,
+            "activations_produced": 50000,
+            "rule_evaluations": 50009,
+            "rule_skips": 949991
+          },
+          {
+            "seconds": 4.634741665999172,
+            "preparation_seconds": 0.2737222909927368,
+            "rule_firings": 50000,
+            "outputs": 50000,
+            "checksum": 200000,
+            "match_attempts": 50000,
+            "candidate_facts": 50000,
+            "activations_produced": 50000,
+            "rule_evaluations": 50009,
+            "rule_skips": 949991
+          },
+          {
+            "seconds": 3.9874539589800406,
+            "preparation_seconds": 0.22773833299288526,
+            "rule_firings": 50000,
+            "outputs": 50000,
+            "checksum": 200000,
+            "match_attempts": 50000,
+            "candidate_facts": 50000,
+            "activations_produced": 50000,
+            "rule_evaluations": 50009,
+            "rule_skips": 949991
+          }
+        ]
+      },
+      "claire_interpreted": {
+        "median_seconds": 0.086983,
+        "min_seconds": 0.086419,
+        "max_seconds": 0.090096,
+        "median_rule_firings_per_second": 574824.9657979145,
+        "median_preparation_seconds": 0.003491,
+        "min_preparation_seconds": 0.003363,
+        "max_preparation_seconds": 0.004141,
+        "rule_firings": 50000,
+        "outputs": 50000,
+        "checksum": 200000,
+        "runs": [
+          {
+            "size": 5000,
+            "rule_firings": 50000,
+            "outputs": 50000,
+            "checksum": 200000,
+            "preparation_seconds": 0.004141,
+            "seconds": 0.090096
+          },
+          {
+            "size": 5000,
+            "rule_firings": 50000,
+            "outputs": 50000,
+            "checksum": 200000,
+            "preparation_seconds": 0.003491,
+            "seconds": 0.086419
+          },
+          {
+            "size": 5000,
+            "rule_firings": 50000,
+            "outputs": 50000,
+            "checksum": 200000,
+            "preparation_seconds": 0.003363,
+            "seconds": 0.086572
+          },
+          {
+            "size": 5000,
+            "rule_firings": 50000,
+            "outputs": 50000,
+            "checksum": 200000,
+            "preparation_seconds": 0.003388,
+            "seconds": 0.089785
+          },
+          {
+            "size": 5000,
+            "rule_firings": 50000,
+            "outputs": 50000,
+            "checksum": 200000,
+            "preparation_seconds": 0.003753,
+            "seconds": 0.086983
+          }
+        ]
+      }
+    }
+  ],
+  "claire": {
+    "root": "/Users/francoispachet/IdeaProjects/CLAIRE4",
+    "binary": "/Users/francoispachet/IdeaProjects/CLAIRE4/interpreter/macos/claire4",
+    "commit": "25b14968e1eef80269d56af418eda7d2ccd88cbf",
+    "dirty": false,
+    "mode": "interpreted"
+  }
+}

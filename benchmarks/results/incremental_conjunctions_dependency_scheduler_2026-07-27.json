@@ -1,0 +1,452 @@
+{
+  "benchmark": "incremental_conjunctions",
+  "protocol": {
+    "premises": "($group left $left), ($group right $right), ($left compatible $right)",
+    "expected_outputs": "group_count * width^2",
+    "cold": "one saturation over all input facts",
+    "streamed": "one compatibility addition followed by saturation",
+    "logical_equivalence": "cold and streamed memories are checked against the exact expected output set"
+  },
+  "repeat": 5,
+  "python": "3.13.11",
+  "platform": "macOS-15.7.7-arm64-arm-64bit-Mach-O",
+  "snarky_commit": "84f7b578b12fd60bfc1c96c8ed66c68203b31bfb",
+  "snarky_dirty": false,
+  "results": [
+    {
+      "group_count": 25,
+      "width": 8,
+      "expected_outputs": 1600,
+      "cold": {
+        "median_seconds": 0.0484060829912778,
+        "min_seconds": 0.04587724999873899,
+        "max_seconds": 0.05316441701143049,
+        "outputs": 1600,
+        "facts": 3600,
+        "fired_activations": 1600,
+        "match_attempts": 3400,
+        "candidate_facts": 3400,
+        "activations_produced": 1600,
+        "rule_evaluations": 1,
+        "rule_skips": 1,
+        "runs": [
+          {
+            "seconds": 0.0484060829912778,
+            "outputs": 1600,
+            "facts": 3600,
+            "fired_activations": 1600,
+            "match_attempts": 3400,
+            "candidate_facts": 3400,
+            "activations_produced": 1600,
+            "rule_evaluations": 1,
+            "rule_skips": 1
+          },
+          {
+            "seconds": 0.05316441701143049,
+            "outputs": 1600,
+            "facts": 3600,
+            "fired_activations": 1600,
+            "match_attempts": 3400,
+            "candidate_facts": 3400,
+            "activations_produced": 1600,
+            "rule_evaluations": 1,
+            "rule_skips": 1
+          },
+          {
+            "seconds": 0.046907917014323175,
+            "outputs": 1600,
+            "facts": 3600,
+            "fired_activations": 1600,
+            "match_attempts": 3400,
+            "candidate_facts": 3400,
+            "activations_produced": 1600,
+            "rule_evaluations": 1,
+            "rule_skips": 1
+          },
+          {
+            "seconds": 0.049582374980673194,
+            "outputs": 1600,
+            "facts": 3600,
+            "fired_activations": 1600,
+            "match_attempts": 3400,
+            "candidate_facts": 3400,
+            "activations_produced": 1600,
+            "rule_evaluations": 1,
+            "rule_skips": 1
+          },
+          {
+            "seconds": 0.04587724999873899,
+            "outputs": 1600,
+            "facts": 3600,
+            "fired_activations": 1600,
+            "match_attempts": 3400,
+            "candidate_facts": 3400,
+            "activations_produced": 1600,
+            "rule_evaluations": 1,
+            "rule_skips": 1
+          }
+        ]
+      },
+      "streamed": {
+        "median_seconds": 0.15057999998680316,
+        "min_seconds": 0.13291499999468215,
+        "max_seconds": 0.16243108300841413,
+        "outputs": 1600,
+        "facts": 3600,
+        "fired_activations": 1600,
+        "match_attempts": 4800,
+        "candidate_facts": 4800,
+        "activations_produced": 1600,
+        "rule_evaluations": 1600,
+        "rule_skips": 1600,
+        "runs": [
+          {
+            "seconds": 0.16243108300841413,
+            "outputs": 1600,
+            "facts": 3600,
+            "fired_activations": 1600,
+            "match_attempts": 4800,
+            "candidate_facts": 4800,
+            "activations_produced": 1600,
+            "rule_evaluations": 1600,
+            "rule_skips": 1600
+          },
+          {
+            "seconds": 0.14277799997944385,
+            "outputs": 1600,
+            "facts": 3600,
+            "fired_activations": 1600,
+            "match_attempts": 4800,
+            "candidate_facts": 4800,
+            "activations_produced": 1600,
+            "rule_evaluations": 1600,
+            "rule_skips": 1600
+          },
+          {
+            "seconds": 0.13291499999468215,
+            "outputs": 1600,
+            "facts": 3600,
+            "fired_activations": 1600,
+            "match_attempts": 4800,
+            "candidate_facts": 4800,
+            "activations_produced": 1600,
+            "rule_evaluations": 1600,
+            "rule_skips": 1600
+          },
+          {
+            "seconds": 0.16091633299947716,
+            "outputs": 1600,
+            "facts": 3600,
+            "fired_activations": 1600,
+            "match_attempts": 4800,
+            "candidate_facts": 4800,
+            "activations_produced": 1600,
+            "rule_evaluations": 1600,
+            "rule_skips": 1600
+          },
+          {
+            "seconds": 0.15057999998680316,
+            "outputs": 1600,
+            "facts": 3600,
+            "fired_activations": 1600,
+            "match_attempts": 4800,
+            "candidate_facts": 4800,
+            "activations_produced": 1600,
+            "rule_evaluations": 1600,
+            "rule_skips": 1600
+          }
+        ]
+      }
+    },
+    {
+      "group_count": 100,
+      "width": 8,
+      "expected_outputs": 6400,
+      "cold": {
+        "median_seconds": 0.2534187079872936,
+        "min_seconds": 0.18639970797812566,
+        "max_seconds": 0.29386937501840293,
+        "outputs": 6400,
+        "facts": 14400,
+        "fired_activations": 6400,
+        "match_attempts": 13600,
+        "candidate_facts": 13600,
+        "activations_produced": 6400,
+        "rule_evaluations": 1,
+        "rule_skips": 1,
+        "runs": [
+          {
+            "seconds": 0.2534187079872936,
+            "outputs": 6400,
+            "facts": 14400,
+            "fired_activations": 6400,
+            "match_attempts": 13600,
+            "candidate_facts": 13600,
+            "activations_produced": 6400,
+            "rule_evaluations": 1,
+            "rule_skips": 1
+          },
+          {
+            "seconds": 0.29386937501840293,
+            "outputs": 6400,
+            "facts": 14400,
+            "fired_activations": 6400,
+            "match_attempts": 13600,
+            "candidate_facts": 13600,
+            "activations_produced": 6400,
+            "rule_evaluations": 1,
+            "rule_skips": 1
+          },
+          {
+            "seconds": 0.18639970797812566,
+            "outputs": 6400,
+            "facts": 14400,
+            "fired_activations": 6400,
+            "match_attempts": 13600,
+            "candidate_facts": 13600,
+            "activations_produced": 6400,
+            "rule_evaluations": 1,
+            "rule_skips": 1
+          },
+          {
+            "seconds": 0.255293916008668,
+            "outputs": 6400,
+            "facts": 14400,
+            "fired_activations": 6400,
+            "match_attempts": 13600,
+            "candidate_facts": 13600,
+            "activations_produced": 6400,
+            "rule_evaluations": 1,
+            "rule_skips": 1
+          },
+          {
+            "seconds": 0.2003342079988215,
+            "outputs": 6400,
+            "facts": 14400,
+            "fired_activations": 6400,
+            "match_attempts": 13600,
+            "candidate_facts": 13600,
+            "activations_produced": 6400,
+            "rule_evaluations": 1,
+            "rule_skips": 1
+          }
+        ]
+      },
+      "streamed": {
+        "median_seconds": 0.6825155830010772,
+        "min_seconds": 0.5689512920216657,
+        "max_seconds": 0.697446833975846,
+        "outputs": 6400,
+        "facts": 14400,
+        "fired_activations": 6400,
+        "match_attempts": 19200,
+        "candidate_facts": 19200,
+        "activations_produced": 6400,
+        "rule_evaluations": 6400,
+        "rule_skips": 6400,
+        "runs": [
+          {
+            "seconds": 0.5796090420044493,
+            "outputs": 6400,
+            "facts": 14400,
+            "fired_activations": 6400,
+            "match_attempts": 19200,
+            "candidate_facts": 19200,
+            "activations_produced": 6400,
+            "rule_evaluations": 6400,
+            "rule_skips": 6400
+          },
+          {
+            "seconds": 0.6825155830010772,
+            "outputs": 6400,
+            "facts": 14400,
+            "fired_activations": 6400,
+            "match_attempts": 19200,
+            "candidate_facts": 19200,
+            "activations_produced": 6400,
+            "rule_evaluations": 6400,
+            "rule_skips": 6400
+          },
+          {
+            "seconds": 0.697446833975846,
+            "outputs": 6400,
+            "facts": 14400,
+            "fired_activations": 6400,
+            "match_attempts": 19200,
+            "candidate_facts": 19200,
+            "activations_produced": 6400,
+            "rule_evaluations": 6400,
+            "rule_skips": 6400
+          },
+          {
+            "seconds": 0.5689512920216657,
+            "outputs": 6400,
+            "facts": 14400,
+            "fired_activations": 6400,
+            "match_attempts": 19200,
+            "candidate_facts": 19200,
+            "activations_produced": 6400,
+            "rule_evaluations": 6400,
+            "rule_skips": 6400
+          },
+          {
+            "seconds": 0.6929393750033341,
+            "outputs": 6400,
+            "facts": 14400,
+            "fired_activations": 6400,
+            "match_attempts": 19200,
+            "candidate_facts": 19200,
+            "activations_produced": 6400,
+            "rule_evaluations": 6400,
+            "rule_skips": 6400
+          }
+        ]
+      }
+    },
+    {
+      "group_count": 250,
+      "width": 8,
+      "expected_outputs": 16000,
+      "cold": {
+        "median_seconds": 0.7796104169974569,
+        "min_seconds": 0.6075319579977077,
+        "max_seconds": 0.9718095830176026,
+        "outputs": 16000,
+        "facts": 36000,
+        "fired_activations": 16000,
+        "match_attempts": 34000,
+        "candidate_facts": 34000,
+        "activations_produced": 16000,
+        "rule_evaluations": 1,
+        "rule_skips": 1,
+        "runs": [
+          {
+            "seconds": 0.6075319579977077,
+            "outputs": 16000,
+            "facts": 36000,
+            "fired_activations": 16000,
+            "match_attempts": 34000,
+            "candidate_facts": 34000,
+            "activations_produced": 16000,
+            "rule_evaluations": 1,
+            "rule_skips": 1
+          },
+          {
+            "seconds": 0.9373920409998391,
+            "outputs": 16000,
+            "facts": 36000,
+            "fired_activations": 16000,
+            "match_attempts": 34000,
+            "candidate_facts": 34000,
+            "activations_produced": 16000,
+            "rule_evaluations": 1,
+            "rule_skips": 1
+          },
+          {
+            "seconds": 0.7191652500187047,
+            "outputs": 16000,
+            "facts": 36000,
+            "fired_activations": 16000,
+            "match_attempts": 34000,
+            "candidate_facts": 34000,
+            "activations_produced": 16000,
+            "rule_evaluations": 1,
+            "rule_skips": 1
+          },
+          {
+            "seconds": 0.9718095830176026,
+            "outputs": 16000,
+            "facts": 36000,
+            "fired_activations": 16000,
+            "match_attempts": 34000,
+            "candidate_facts": 34000,
+            "activations_produced": 16000,
+            "rule_evaluations": 1,
+            "rule_skips": 1
+          },
+          {
+            "seconds": 0.7796104169974569,
+            "outputs": 16000,
+            "facts": 36000,
+            "fired_activations": 16000,
+            "match_attempts": 34000,
+            "candidate_facts": 34000,
+            "activations_produced": 16000,
+            "rule_evaluations": 1,
+            "rule_skips": 1
+          }
+        ]
+      },
+      "streamed": {
+        "median_seconds": 1.7860668339999393,
+        "min_seconds": 1.5821169580158312,
+        "max_seconds": 2.028787084011128,
+        "outputs": 16000,
+        "facts": 36000,
+        "fired_activations": 16000,
+        "match_attempts": 48000,
+        "candidate_facts": 48000,
+        "activations_produced": 16000,
+        "rule_evaluations": 16000,
+        "rule_skips": 16000,
+        "runs": [
+          {
+            "seconds": 1.5821169580158312,
+            "outputs": 16000,
+            "facts": 36000,
+            "fired_activations": 16000,
+            "match_attempts": 48000,
+            "candidate_facts": 48000,
+            "activations_produced": 16000,
+            "rule_evaluations": 16000,
+            "rule_skips": 16000
+          },
+          {
+            "seconds": 1.9799469160207082,
+            "outputs": 16000,
+            "facts": 36000,
+            "fired_activations": 16000,
+            "match_attempts": 48000,
+            "candidate_facts": 48000,
+            "activations_produced": 16000,
+            "rule_evaluations": 16000,
+            "rule_skips": 16000
+          },
+          {
+            "seconds": 1.7860668339999393,
+            "outputs": 16000,
+            "facts": 36000,
+            "fired_activations": 16000,
+            "match_attempts": 48000,
+            "candidate_facts": 48000,
+            "activations_produced": 16000,
+            "rule_evaluations": 16000,
+            "rule_skips": 16000
+          },
+          {
+            "seconds": 2.028787084011128,
+            "outputs": 16000,
+            "facts": 36000,
+            "fired_activations": 16000,
+            "match_attempts": 48000,
+            "candidate_facts": 48000,
+            "activations_produced": 16000,
+            "rule_evaluations": 16000,
+            "rule_skips": 16000
+          },
+          {
+            "seconds": 1.7381372499803547,
+            "outputs": 16000,
+            "facts": 36000,
+            "fired_activations": 16000,
+            "match_attempts": 48000,
+            "candidate_facts": 48000,
+            "activations_produced": 16000,
+            "rule_evaluations": 16000,
+            "rule_skips": 16000
+          }
+        ]
+      }
+    }
+  ]
+}
