@@ -81,13 +81,24 @@ La source est l'archive officielle `music21-3.1.0.tar.gz` conservée dans le
 projet frère `deepbach-reference`. Seules les 352 pièces incluses dans le
 manifeste historique sont analysées.
 
-Le partage déterministe, réalisé avant tout événement, est :
+Le partage historique du V1, réalisé avant tout événement, est :
 
 - 246 chorals d'apprentissage ;
 - 53 chorals de validation ;
 - 53 chorals de test scellé.
 
 Le POC ne lit aucune métrique du test sans l'option explicite `--open-test`.
+
+Un audit ultérieur a trouvé six groupes de mélodies identiques traversant ce
+partage. Le V2 canonique utilise donc
+[`results/splits.variant-safe.json`](results/splits.variant-safe.json) :
+
+- 251 chorals d'apprentissage ;
+- 50 chorals de validation ;
+- 51 chorals de test scellé.
+
+Le nouveau test est un sous-ensemble du test historique : aucune pièce déjà
+exposée en train ou validation n'y a été ajoutée.
 
 ## Exécution
 
@@ -128,6 +139,10 @@ recherche une clause à la fois sur le résidu conditionnel du catalogue courant
 ```sh
 ../deepbach-reference/.venv/bin/python \
   harmonizer/bach_rule_induction/experiments/differentiable_rules_poc/\
+audit_variants.py
+
+../deepbach-reference/.venv/bin/python \
+  harmonizer/bach_rule_induction/experiments/differentiable_rules_poc/\
 run_column_generation.py
 ```
 
@@ -138,7 +153,7 @@ Le contrôle nul et la branche limitée aux évitements sont :
   harmonizer/bach_rule_induction/experiments/differentiable_rules_poc/\
 run_column_generation.py \
   --null-shuffle \
-  --output-stem v2_null
+  --output-stem v2_variant_safe_null
 
 ../deepbach-reference/.venv/bin/python \
   harmonizer/bach_rule_induction/experiments/differentiable_rules_poc/\
@@ -147,7 +162,9 @@ run_column_generation.py \
   --output-stem v2_avoid
 ```
 
-Le V2 ne contient aucune option d'ouverture du test scellé. Son
+Par défaut, le V2 charge le partage groupé et produit `v2_variant_safe`. Il
+effectue aussi 1 000 réplications bootstrap par classe en rééchantillonnant des
+chorals entiers. Il ne contient aucune option d'ouverture du test scellé. Son
 [`V2_ANALYSIS.md`](V2_ANALYSIS.md) montre que les classes `0` et `7` sont les
 seules retenues dans la famille des arrivées après saut en même direction. Les
 formules obtenues sont équivalentes aux règles Snarky de mouvement direct sur
@@ -155,10 +172,70 @@ formules obtenues sont équivalentes aux règles Snarky de mouvement direct sur
 
 Sorties principales :
 
-- [`results/V2_RESULT_REPORT.md`](results/V2_RESULT_REPORT.md) ;
-- [`results/V2_NULL_REPORT.md`](results/V2_NULL_REPORT.md) ;
+- [`results/VARIANT_AUDIT.md`](results/VARIANT_AUDIT.md) ;
+- [`results/V2_VARIANT_SAFE_REPORT.md`](results/V2_VARIANT_SAFE_REPORT.md) ;
+- [`results/V2_VARIANT_SAFE_NULL_REPORT.md`](results/V2_VARIANT_SAFE_NULL_REPORT.md) ;
 - [`results/V2_AVOID_REPORT.md`](results/V2_AVOID_REPORT.md) ;
-- les trois fichiers JSON correspondants.
+- les fichiers JSON correspondants.
+
+Les anciens rapports `V2_RESULT` et `V2_NULL` sont conservés pour provenance,
+mais leur partage contient les fuites par variantes documentées par l'audit.
+Les clauses canoniques retenues sont publiées dans
+[`rules/R-LEARNED-DIRECT-001.yaml`](../../rules/R-LEARNED-DIRECT-001.yaml) et
+[`rules/R-LEARNED-DIRECT-002.yaml`](../../rules/R-LEARNED-DIRECT-002.yaml).
+
+## POC V2.2 — contraintes locales dans les quatre voix
+
+Le troisième incrément construit des décisions pour soprano, alto, ténor et
+basse, puis scanne uniformément les douze classes mélodiques et neuf seuils
+d'espacement entre voix adjacentes :
+
+```sh
+../deepbach-reference/.venv/bin/python \
+  harmonizer/bach_rule_induction/experiments/differentiable_rules_poc/\
+run_satb_level_a.py
+
+../deepbach-reference/.venv/bin/python \
+  harmonizer/bach_rule_induction/experiments/differentiable_rules_poc/\
+run_satb_level_a.py \
+  --null-shuffle \
+  --output-stem v2_2_satb_level_a_null
+```
+
+Le gradient résiduel filtre les candidates. Un budget d'une règle par famille
+et une encoche locale relativement aux valeurs numériques voisines empêchent
+de transformer toute rareté en interdiction. Le corpus authentique retient la
+classe mélodique `6` et la frontière d'overlap `0`; le contrôle permuté ne
+retient rien. Les deux formules sont équivalentes aux règles cachées
+`R-MELODY-002` et `R-OVERLAP-001` sur les domaines finis testés.
+
+Voir [`V2_2_ANALYSIS.md`](V2_2_ANALYSIS.md), les rapports
+[`V2_2_SATB_LEVEL_A_REPORT.md`](results/V2_2_SATB_LEVEL_A_REPORT.md) et
+[`V2_2_SATB_LEVEL_A_NULL_REPORT.md`](results/V2_2_SATB_LEVEL_A_NULL_REPORT.md).
+
+## POC V2.3 — parallèles dans les six paires de voix
+
+Le V2.3 recherche le même patron de répétition d'intervalle dans les six
+paires SATB, avec un budget de deux règles :
+
+```sh
+../deepbach-reference/.venv/bin/python \
+  harmonizer/bach_rule_induction/experiments/differentiable_rules_poc/\
+run_satb_parallels.py
+
+../deepbach-reference/.venv/bin/python \
+  harmonizer/bach_rule_induction/experiments/differentiable_rules_poc/\
+run_satb_parallels.py \
+  --null-shuffle \
+  --output-stem v2_3_satb_parallels_null
+```
+
+Les classes `0` et `7` sont seules retenues ; le contrôle nul ne retient
+aucune classe. Les deux formules sont équivalentes à `R-PARALLEL-001/002` sur
+1 130 364 états locaux valides par classe.
+
+Voir [`V2_3_ANALYSIS.md`](V2_3_ANALYSIS.md) et le
+[`rapport canonique`](results/V2_3_SATB_PARALLELS_REPORT.md).
 
 ## Interprétation prudente
 

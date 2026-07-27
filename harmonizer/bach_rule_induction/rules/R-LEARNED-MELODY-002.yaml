@@ -1,0 +1,67 @@
+schema_version: 1
+id: R-LEARNED-MELODY-002
+title: Évitement de la classe mélodique numérique 6
+lifecycle: SUPPORTED
+status: NORMALLY
+statement: >
+  Dans chacune des quatre voix, éviter un mouvement dont l'intervalle absolu
+  appartient à la classe 6 modulo 12.
+scope:
+  voices: [soprano, alto, tenor, bass]
+  window: [previous_attack, current_attack]
+  corpus: music21-3.1.0-deepbach-352
+  split: variant-safe-251-50-51
+conditions:
+  - abs(candidate_pitch - previous_pitch) % 12 == 6
+conclusion:
+  kind: avoid
+normalized_clause: abs(candidate_pitch - previous_pitch) % 12 == 6
+selection:
+  family: absolute_melodic_interval_mod12
+  numeric_values_tested: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11]
+  family_rule_budget: 1
+  local_log_rate_contrast_max: -0.75
+statistics:
+  train:
+    pieces: 251
+    testable_opportunities: 68491
+    observed_rate: 0.0037961191981428217
+    model_expected_rate: 0.012517107564080483
+    residual_z: -21.729209606643554
+    local_log_rate_contrast: -1.4426761709518194
+    bootstrap_replicates: 1000
+    bootstrap_z_95: [-23.421259426332714, -20.093651316111178]
+    bootstrap_negative_fraction: 1.0
+  validation:
+    pieces: 50
+    testable_opportunities: 13249
+    observed_rate: 0.0029436183862933053
+    model_expected_rate: 0.012429554842891986
+    residual_z: -10.42170917917547
+    local_log_rate_contrast: -1.666748367309813
+    bootstrap_replicates: 1000
+    bootstrap_z_95: [-11.613915945257196, -9.307444844437315]
+    bootstrap_negative_fraction: 1.0
+  test:
+    opened: false
+null_control:
+  selected: false
+  train_local_log_rate_contrast: -0.5272762553686873
+  validation_local_log_rate_contrast: -0.49131940988845535
+semantic_comparison:
+  reference_rule_id: R-MELODY-002
+  voice_range_states_tested: 1993
+  mismatches: 0
+  classification: RECOVERED_EQUIVALENT
+provenance:
+  experiment: experiments/differentiable_rules_poc/results/v2_2_satb_level_a.json
+  analysis: experiments/differentiable_rules_poc/V2_2_ANALYSIS.md
+  variant_audit: experiments/differentiable_rules_poc/results/VARIANT_AUDIT.md
+snarky_rule:
+  file: ../voice_leading_conformance.rules
+  rule_id: R-MELODY-002
+  action: reuse_existing_equivalent
+exceptions:
+  status: pending_case_audit
+bach_examples: []
+deepbach_counterexamples: []

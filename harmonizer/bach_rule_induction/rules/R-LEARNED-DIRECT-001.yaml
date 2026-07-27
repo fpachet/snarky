@@ -1,0 +1,65 @@
+schema_version: 1
+id: R-LEARNED-DIRECT-001
+title: Mouvement direct vers l'octave ou l'unisson
+lifecycle: SUPPORTED
+status: NORMALLY
+statement: >
+  Entre les voix extrêmes, éviter d'atteindre une octave ou un unisson par
+  mouvement de même direction lorsque le soprano procède par un saut de plus
+  de deux demi-tons.
+scope:
+  voices: [soprano, bass]
+  window: [previous_attack, current_attack]
+  corpus: music21-3.1.0-deepbach-352
+  split: variant-safe-251-50-51
+conditions:
+  - target_outer_interval_mod12 == 0
+  - abs(soprano_delta_semitones) > 2
+  - learned_same_nonzero_sign(soprano_delta, bass_delta)
+conclusion:
+  kind: avoid
+normalized_clause: >
+  abs(candidate_s-current_b)%12 == 0 AND
+  abs(candidate_s-prev_s) > 2 AND
+  LEARNED_PREDICATE_001 == true
+statistics:
+  fitted_weight: -1.3449735667372813
+  train:
+    pieces: 251
+    testable_opportunities: 8682
+    observed_rate: 0.0047224141902787375
+    model_expected_rate: 0.011949302797659558
+    residual_z: -6.290654525947862
+    bootstrap_replicates: 1000
+    bootstrap_z_95: [-7.977034961108868, -4.263873390794322]
+    bootstrap_negative_fraction: 1.0
+  validation:
+    pieces: 50
+    testable_opportunities: 1640
+    observed_rate: 0.003048780487804878
+    model_expected_rate: 0.013492444582462366
+    residual_z: -3.741274440218525
+    bootstrap_replicates: 1000
+    bootstrap_z_95: [-4.743274305124197, -2.572492255606233]
+    bootstrap_negative_fraction: 1.0
+  test:
+    opened: false
+null_control:
+  selected: false
+semantic_comparison:
+  reference_rule_id: R-DIRECT-001
+  valid_outer_voice_states_tested: 301401
+  mismatches: 0
+  classification: RECOVERED_EQUIVALENT
+provenance:
+  experiment: experiments/differentiable_rules_poc/results/v2_variant_safe.json
+  analysis: experiments/differentiable_rules_poc/V2_ANALYSIS.md
+  variant_audit: experiments/differentiable_rules_poc/results/VARIANT_AUDIT.md
+snarky_rule:
+  file: ../voice_leading_conformance.rules
+  rule_id: R-DIRECT-001
+  action: reuse_existing_equivalent
+exceptions:
+  status: pending_case_audit
+bach_examples: []
+deepbach_counterexamples: []

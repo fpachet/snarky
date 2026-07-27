@@ -740,7 +740,8 @@ distincte ; l'explication ne doit pas influencer l'écoute aveugle.
 
 - [ ] Définir précisément la première tâche d'harmonisation.
 - [ ] Fixer corpus, filtres, licence et identifiants.
-- [ ] Publier le partage train/validation/test.
+- [x] Publier un partage train/validation/test groupé par variantes exactes de
+      soprano, sans promouvoir d'ancienne donnée exposée dans le test.
 - [x] Archiver la source DeepBach, ses branches, ses poids et son cache avec
       leurs empreintes.
 - [ ] Choisir la reproduction DeepBach et figer son environnement.
@@ -781,7 +782,14 @@ fiche testée.
 - [ ] Comparer plusieurs vocabulaires de faits avec les mêmes règles locales.
 - [ ] Mesurer ablations, redondances et interactions résiduelles.
 - [ ] Vérifier qu'aucune règle ne dépend de l'ordre ni d'une autre règle.
-- [ ] Exporter les `RuleCard`.
+- [x] Exporter les deux premières `RuleCard` de mouvement direct avec
+      provenance, bootstrap et équivalence Snarky.
+- [x] Exporter aussi les `RuleCard` du triton mélodique et de l'overlap avec
+      provenance, contrôle nul, bootstrap et équivalence Snarky.
+- [x] Exporter les deux `RuleCard` de parallèles généralisées aux six paires
+      de voix.
+- [ ] Généraliser automatiquement l'export de `RuleCard` à toute famille
+      retenue.
 
 **Critère de sortie :** une campagne déterministe produit la même frontière et
 le même catalogue à partir du même manifeste et de la même configuration ;
@@ -798,14 +806,25 @@ possède une définition musicale testée.
 - [x] Retrouver sur `validation` les patrons numériques correspondant aux
       octaves/unissons et quintes parallèles.
 - [x] Exécuter un contrôle nul par mélange des choix à l'intérieur des pièces.
-- [ ] Étendre l'expérience aux voix intérieures et au chevauchement.
+- [x] Auditer les variantes exactes : dix groupes dupliqués, six traversées
+      supprimées, partage canonique `251/50/51`.
+- [x] Mesurer la stabilité des mouvements directs par 1 000 bootstraps de
+      chorals entiers sur train et validation.
+- [x] Étendre l'expérience aux quatre voix et au chevauchement adjacent.
+- [x] Récupérer la classe mélodique `6` et le seuil d'overlap `0` avec un
+      budget d'une règle par famille et un contraste local de forme.
+- [x] Récupérer les classes parallèles `0` et `7` dans les six paires de voix,
+      avec zéro sélection dans le contrôle permuté.
 - [x] Isoler le mouvement direct des coûts généraux du saut et du mouvement
       semblable par génération de colonnes résiduelle.
 - [ ] Ajouter ensuite les faits tonals pour les résolutions et doublures.
 - [x] Comparer sémantiquement les clauses de mouvement direct aux oracles
       Snarky sur un domaine local fini : zéro désaccord sur 301 401 états
       valides par classe.
-- [ ] Étendre la comparaison sémantique aux autres familles récupérées.
+- [x] Comparer le triton et l'overlap aux oracles Snarky : zéro désaccord sur
+      1 993 et 534 050 états locaux.
+- [x] Comparer les parallèles aux oracles Snarky : zéro désaccord sur
+      1 130 364 états locaux par classe.
 - [ ] Classer chaque cible comme équivalente, raffinée, plus faible,
       contredite, non identifiable ou non retrouvée.
 - [ ] Ne lancer la recherche de règles inédites qu'après publication de ce

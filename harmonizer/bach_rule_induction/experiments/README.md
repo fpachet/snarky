@@ -28,4 +28,17 @@ Le second incrément ajoute une véritable génération de colonnes sur le rési
 du modèle courant. Il isole ensuite les classes numériques `0` et `7` dans la
 famille des arrivées après saut en même direction. La comparaison postérieure
 sur un domaine local fini classe les deux clauses comme équivalentes aux règles
-Snarky de mouvement direct ; le contrôle mélangé ne les sélectionne pas.
+Snarky de mouvement direct ; le contrôle mélangé ne les sélectionne pas. Un
+audit postérieur regroupe les variantes exactes de soprano, produit un partage
+canonique `251/50/51` sans fuite détectée et confirme le résultat par 1 000
+bootstraps de pièces.
+
+Le troisième incrément couvre les quatre voix et les paires adjacentes. Un
+contraste local de taux distingue une classe ou une frontière singulière d'une
+simple pente de rareté. Il récupère la classe mélodique `6` et le seuil
+d'overlap `0`; le contrôle permuté ne sélectionne aucune des deux familles.
+
+Le quatrième incrément recherche les parallèles dans les six paires SATB. Un
+budget de deux règles sur les douze classes retient `0` et `7`, contre aucune
+classe dans le contrôle nul. Les formules sont équivalentes aux deux règles
+Snarky de référence sur 1 130 364 états valides par classe.

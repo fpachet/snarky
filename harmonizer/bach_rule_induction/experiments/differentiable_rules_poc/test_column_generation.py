@@ -1,7 +1,9 @@
 from __future__ import annotations
 
 import importlib.util
+import json
 import sys
+import tempfile
 from pathlib import Path
 
 import numpy as np
@@ -41,6 +43,24 @@ def test_baseline_uses_only_generic_main_effects() -> None:
     assert not any("direct" in label or "fifth" in label for label in labels)
 
 
+def test_explicit_grouped_split_is_loaded_and_validated() -> None:
+    piece_ids = ["a", "b", "c"]
+    payload = {
+        "strategy": "grouped",
+        "grouped_split": {
+            "train": ["a"],
+            "validation": ["b"],
+            "test": ["c"],
+        },
+    }
+    with tempfile.TemporaryDirectory() as directory:
+        path = Path(directory) / "splits.json"
+        path.write_text(json.dumps(payload), encoding="utf-8")
+        splits, metadata = column.load_experiment_splits(piece_ids, 1729, path)
+    assert splits == payload["grouped_split"]
+    assert metadata["strategy"] == "grouped"
+
+
 def test_uniform_residual_statistic_matches_marginal_direction() -> None:
     opportunities = synthetic_opportunities()
     atoms = base.atoms(include_derived=True)
@@ -62,6 +82,35 @@ def test_uniform_residual_statistic_matches_marginal_direction() -> None:
     assert statistic.gradient < 0
     assert statistic.z_score < 0
     assert statistic.approximate_nll_gain > 0
+
+
+def test_piece_bootstrap_is_deterministic() -> None:
+    opportunities = synthetic_opportunities()
+    atoms = base.atoms(include_derived=True)
+    masks = base.atom_masks(opportunities, atoms)
+    probabilities = column.probability_matrix(
+        opportunities, [], masks, np.asarray([], dtype=np.float64)
+    )
+    clause = base.Clause((base.Atom("target_interval_mod12", 0),))
+    first = column.bootstrap_residual_clause_by_piece(
+        clause,
+        opportunities,
+        masks,
+        probabilities,
+        replicates=100,
+        seed=123,
+    )
+    second = column.bootstrap_residual_clause_by_piece(
+        clause,
+        opportunities,
+        masks,
+        probabilities,
+        replicates=100,
+        seed=123,
+    )
+    assert first == second
+    assert first["piece_count"] == 2
+    assert 0 <= first["negative_fraction"] <= 1
 
 
 def test_residual_vanishes_when_model_matches_empirical_choice() -> None:

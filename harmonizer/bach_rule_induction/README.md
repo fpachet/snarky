@@ -42,14 +42,15 @@ features opaques. Une conclusion négative — qualité exigeant beaucoup de
 clauses, des règles non locales ou des statuts inintelligibles — répondrait elle
 aussi à la question scientifique.
 
-## État expérimental au 26 juillet 2026
+## État expérimental au 27 juillet 2026
 
 Les fondations reproductibles sont en place :
 
 - le manifeste historique Music21 3.1.0 reproduit les 352 chorals et les
   2 503 transpositions de l'article DeepBach ;
-- un partage déterministe par pièce réserve 246 chorals au train, 53 à la
-  validation et 53 à un test encore scellé ;
+- un audit a regroupé dix familles de mélodies identiques et supprimé six
+  traversées entre partitions ; le partage canonique réserve désormais
+  251 chorals au train, 50 à la validation et 51 à un test encore scellé ;
 - la baseline DeepBach Keras historique génère de nouveau des chorals dans le
   projet frère `deepbach-reference` ;
 - l'appendice B de CHORAL est couvert sur 78 pages par 1 293 unités sources,
@@ -75,11 +76,26 @@ sélectionne exactement les classes `0` et `7` pour les arrivées après saut en
 même direction. Les deux clauses ont des poids négatifs, améliorent la
 validation et sont extensionnellement équivalentes à `R-DIRECT-001/002` sur
 301 401 états locaux valides par classe. Le contrôle mélangé ne sélectionne
-aucune classe. Le catalogue passe de 52 clauses actives dans le V1 à 34 dans le
-V2, avec une NLL de validation de `1,625642`.
+aucune classe. Sur le partage sans fuite, le catalogue passe de 52 clauses
+actives dans le V1 à 34 dans le V2, avec une NLL de validation de `1,624531`.
+Le bootstrap groupé conserve un signe négatif sur validation dans 100 % des
+réplications pour `0` et 99,6 % pour `7`.
 
-Le test final reste scellé. Le bootstrap groupé, les voix intérieures, le
-chevauchement et les premières obligations tonales restent à traiter.
+Le [POC V2.2](experiments/differentiable_rules_poc/V2_2_ANALYSIS.md) étend
+ensuite la tâche aux quatre voix. Avec un budget d'une règle par famille et un
+contraste local contre les valeurs numériques voisines, il sélectionne la
+classe mélodique `6` et la frontière d'overlap `0`. Le même sélecteur ne retient
+rien après permutation des choix dans chaque voix et chaque choral. Les deux
+formules sont équivalentes à `R-MELODY-002` et `R-OVERLAP-001` sur 1 993 et
+534 050 états locaux testés.
+
+Le [POC V2.3](experiments/differentiable_rules_poc/V2_3_ANALYSIS.md) a depuis
+généralisé les parallèles aux six paires de voix. Il retient exactement les
+classes `0` et `7`, contre aucune dans le contrôle permuté, et retrouve
+`R-PARALLEL-001/002` sans désaccord sur 1 130 364 états par classe.
+
+Le test final reste scellé. Les premières obligations tonales restent à
+traiter.
 
 ## Organisation
 
@@ -119,7 +135,8 @@ reproductibles.
 - [x] vérifier les 352 pièces et 2 503 transpositions annoncées par l'article
       DeepBach ;
 - [x] produire un manifeste avec empreinte, inclusion et motif d'exclusion ;
-- regrouper doublons, variantes et transpositions ;
+- [x] regrouper les variantes exactes de soprano avant le partage canonique ;
+- auditer ensuite les variantes mélodiques proches ;
 - [x] figer un premier partage déterministe par pièce avant toute augmentation ;
 - convertir chaque pièce vers une représentation SATB commune et testée.
 
@@ -153,8 +170,8 @@ Livrable : premières RuleCards vérifiées dans `rules/`.
 - [x] lancer une première redécouverte aveugle sur sauts et parallèles ;
 - [x] guider la recherche et les poids par gradient conditionnel avec L1 ;
 - [x] exécuter un contrôle nul par mélange intra-pièce ;
-- remplacer la présélection marginale par une génération de colonnes
-  réellement résiduelle ;
+- [x] remplacer la présélection marginale par une génération de colonnes
+      réellement résiduelle ;
 - tracer la frontière qualité–complexité sous plusieurs budgets ;
 - sélectionner les règles par support, gain, stabilité et coût descriptif ;
 - mesurer effets marginaux, ablations, redondances et interactions résiduelles ;
@@ -221,15 +238,14 @@ Livrable : traité exécutable de règles fondées sur corpus.
 Le premier sprint de provenance est terminé. L'ordre de travail immédiat est
 désormais :
 
-1. regrouper les doublons et variantes avant de geler le partage canonique ;
-2. généraliser l'export du POC aux quatre voix et à une représentation SATB
-   commune ;
-3. implémenter la génération de colonnes sur résidus et une pénalisation de
-   complexité plus sévère ;
-4. comparer formellement les clauses `0` et `7` aux oracles Snarky ;
+1. préenregistrer les seuils d'encoche, budgets et le partage groupé ;
+2. réaliser l'ablation conjointe des familles de niveau A récupérées ;
+3. dédupliquer les paires lors des attaques simultanées et mesurer la
+   sensibilité ;
+4. extraire et analyser les exceptions authentiques comme exemples musicaux ;
 5. ajouter les faits tonals minimaux pour rechercher la première obligation ;
 6. revoir les cartes CHORAL à faible confiance pertinentes pour ces familles ;
-7. compiler les premières règles stables en `R-LEARNED-*`.
+7. auditer les variantes mélodiques proches avant d'ouvrir le test.
 
 La définition exhaustive des lots, métriques, risques et critères de sortie se
 trouve dans [`PLAN.md`](PLAN.md).

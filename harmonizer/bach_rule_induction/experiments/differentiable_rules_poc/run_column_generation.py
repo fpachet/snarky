@@ -10,6 +10,7 @@ column at a time. The sealed test split is never loaded or evaluated.
 from __future__ import annotations
 
 import argparse
+import json
 import math
 import sys
 from dataclasses import dataclass
@@ -39,6 +40,43 @@ class ResidualStatistic:
     column_score: float
 
 
+def load_experiment_splits(
+    included_piece_ids: list[str],
+    seed: int,
+    splits_path: Path | None,
+) -> tuple[dict[str, list[str]], dict[str, Any]]:
+    """Load an explicit split or reproduce the historical deterministic one."""
+
+    if splits_path is None:
+        splits = base.deterministic_splits(included_piece_ids, seed)
+        metadata = {
+            "strategy": "historical_deterministic_piece_split",
+            "source": None,
+        }
+    else:
+        payload = json.loads(splits_path.read_text(encoding="utf-8"))
+        source = payload.get("grouped_split", payload)
+        splits = {name: list(source[name]) for name in ("train", "validation", "test")}
+        metadata = {
+            "strategy": payload.get("strategy", "explicit_split"),
+            "source": str(splits_path.resolve()),
+        }
+
+    flattened = [
+        piece_id
+        for name in ("train", "validation", "test")
+        for piece_id in splits[name]
+    ]
+    expected = set(included_piece_ids)
+    if len(flattened) != len(set(flattened)):
+        raise ValueError("Experiment split contains duplicate piece IDs")
+    if set(flattened) != expected:
+        missing = sorted(expected - set(flattened))
+        extra = sorted(set(flattened) - expected)
+        raise ValueError(f"Experiment split mismatch: missing={missing}, extra={extra}")
+    return splits, metadata
+
+
 def baseline_clauses() -> list[base.Clause]:
     """Return generic main effects learned before interaction discovery."""
 
@@ -54,6 +92,10 @@ def baseline_clauses() -> list[base.Clause]:
     )
     clauses.append(base.Clause((base.Atom("learned_same_nonzero_sign", 1),)))
     return clauses
+
+
+def default_variant_safe_splits_path() -> Path:
+    return base.experiment_root() / "results/splits.variant-safe.json"
 
 
 def probability_matrix(
@@ -415,6 +457,97 @@ def scan_clauses(
     return records
 
 
+def bootstrap_residual_clause_by_piece(
+    clause: base.Clause,
+    opportunities: base.Opportunities,
+    masks: dict[base.Atom, np.ndarray],
+    probabilities: np.ndarray,
+    replicates: int,
+    seed: int,
+) -> dict[str, Any]:
+    """Cluster-bootstrap one fixed residual statistic by whole chorals."""
+
+    if replicates <= 0:
+        return {
+            "replicates": 0,
+            "piece_count": int(np.unique(opportunities.piece_ids).shape[0]),
+        }
+
+    mask = base.clause_mask(clause, masks)
+    rows = np.arange(opportunities.size)
+    chosen = mask[rows, opportunities.chosen_indices].astype(np.float64)
+    expected = np.sum(probabilities * mask, axis=1)
+    residual = chosen - expected
+    variance = expected * (1.0 - expected)
+    piece_ids = np.unique(opportunities.piece_ids)
+    residual_by_piece = np.asarray(
+        [residual[opportunities.piece_ids == piece_id].sum() for piece_id in piece_ids],
+        dtype=np.float64,
+    )
+    variance_by_piece = np.asarray(
+        [variance[opportunities.piece_ids == piece_id].sum() for piece_id in piece_ids],
+        dtype=np.float64,
+    )
+    generator = np.random.default_rng(seed)
+    sampled = generator.integers(
+        0,
+        piece_ids.shape[0],
+        size=(replicates, piece_ids.shape[0]),
+    )
+    residual_sums = residual_by_piece[sampled].sum(axis=1)
+    variance_sums = variance_by_piece[sampled].sum(axis=1)
+    z_scores = residual_sums / np.sqrt(np.maximum(variance_sums, 1e-12))
+    quantiles = np.quantile(z_scores, [0.025, 0.5, 0.975])
+    return {
+        "replicates": replicates,
+        "piece_count": int(piece_ids.shape[0]),
+        "z_p025": float(quantiles[0]),
+        "z_median": float(quantiles[1]),
+        "z_p975": float(quantiles[2]),
+        "negative_fraction": float(np.mean(z_scores < 0)),
+        "below_minus_two_fraction": float(np.mean(z_scores <= -2)),
+    }
+
+
+def bootstrap_direct_arrival_scan(
+    clauses: list[base.Clause],
+    train: base.Opportunities,
+    validation: base.Opportunities,
+    train_masks: dict[base.Atom, np.ndarray],
+    validation_masks: dict[base.Atom, np.ndarray],
+    train_probabilities: np.ndarray,
+    validation_probabilities: np.ndarray,
+    replicates: int,
+    seed: int,
+) -> list[dict[str, Any]]:
+    """Bootstrap all numeric classes under identical settings."""
+
+    records = []
+    for interval_class, clause in enumerate(clauses):
+        records.append(
+            {
+                "numeric_class": interval_class,
+                "train": bootstrap_residual_clause_by_piece(
+                    clause,
+                    train,
+                    train_masks,
+                    train_probabilities,
+                    replicates,
+                    seed + 2 * interval_class,
+                ),
+                "validation": bootstrap_residual_clause_by_piece(
+                    clause,
+                    validation,
+                    validation_masks,
+                    validation_probabilities,
+                    replicates,
+                    seed + 2 * interval_class + 1,
+                ),
+            }
+        )
+    return records
+
+
 def select_direct_family_classes(
     scan: list[dict[str, Any]],
     train_z_threshold: float,
@@ -631,6 +764,22 @@ def run_column_generation(
         args.complexity_penalty,
         args.redundancy_penalty,
     )
+    bootstrap_before_refinement = bootstrap_direct_arrival_scan(
+        direct_clauses,
+        train,
+        validation,
+        train_masks,
+        validation_masks,
+        probability_matrix(train, active_clauses, train_masks, active_weights),
+        probability_matrix(
+            validation,
+            active_clauses,
+            validation_masks,
+            active_weights,
+        ),
+        args.bootstrap_replicates,
+        args.seed + 20_000,
+    )
     active_keys = {clause.key for clause in active_clauses}
     selected_family_classes = select_direct_family_classes(
         scan_before_refinement,
@@ -738,6 +887,7 @@ def run_column_generation(
             compare_direct_clause_to_reference(interval_class)
             for interval_class in family_refinement["candidate_classes"]
         ],
+        "direct_arrival_bootstrap_before_refinement": (bootstrap_before_refinement),
         "direct_arrival_scan_before_refinement": scan_before_refinement,
         "direct_arrival_scan": scan,
     }
@@ -765,6 +915,7 @@ def markdown_report(result: dict[str, Any]) -> str:
             f"- Validation : {corpus['validation_pieces']} pièces / "
             f"{corpus['validation_opportunities']} décisions."
         ),
+        (f"- Partage : `{result['experiment']['split_strategy']}`."),
         "- Le jeu de test reste scellé et n'est pas chargé par ce programme.",
         (
             "- Contrôle nul : choix mélangés à l'intérieur des pièces."
@@ -838,6 +989,35 @@ def markdown_report(result: dict[str, Any]) -> str:
             f"{after['residual_validation']['z_score']:.3f} |"
         )
 
+    lines.extend(
+        [
+            "",
+            "## Bootstrap groupé par choral avant raffinement",
+            "",
+            "Chaque réplication rééchantillonne des pièces entières avec remise.",
+            "",
+            "| Classe | Train z médian [2,5 % ; 97,5 %] | "
+            "Validation z médian [2,5 % ; 97,5 %] | "
+            "P(z val. < 0) |",
+            "|---:|---:|---:|---:|",
+        ]
+    )
+    for record in model["direct_arrival_bootstrap_before_refinement"]:
+        train_bootstrap = record["train"]
+        validation_bootstrap = record["validation"]
+        if not train_bootstrap["replicates"]:
+            continue
+        lines.append(
+            f"| {record['numeric_class']} | "
+            f"{train_bootstrap['z_median']:.3f} "
+            f"[{train_bootstrap['z_p025']:.3f} ; "
+            f"{train_bootstrap['z_p975']:.3f}] | "
+            f"{validation_bootstrap['z_median']:.3f} "
+            f"[{validation_bootstrap['z_p025']:.3f} ; "
+            f"{validation_bootstrap['z_p975']:.3f}] | "
+            f"{validation_bootstrap['negative_fraction']:.3f} |"
+        )
+
     refinement = model["direct_family_refinement"]
     lines.extend(
         [
@@ -892,6 +1072,12 @@ def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--archive", type=Path, default=base.default_archive_path())
     parser.add_argument("--manifest", type=Path, default=base.default_manifest_path())
+    parser.add_argument(
+        "--splits",
+        type=Path,
+        default=default_variant_safe_splits_path(),
+        help="explicit split JSON; accepts the grouped variant-audit format",
+    )
     parser.add_argument("--seed", type=int, default=1729)
     parser.add_argument("--candidate-min", type=int, default=60)
     parser.add_argument("--candidate-max", type=int, default=81)
@@ -918,8 +1104,9 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--report-candidates", type=int, default=20)
     parser.add_argument("--family-train-z", type=float, default=-3.0)
     parser.add_argument("--family-validation-z", type=float, default=-2.0)
+    parser.add_argument("--bootstrap-replicates", type=int, default=1000)
     parser.add_argument("--null-shuffle", action="store_true")
-    parser.add_argument("--output-stem", default="v2_result")
+    parser.add_argument("--output-stem", default="v2_variant_safe")
     parser.add_argument("--results-dir", type=Path)
     return parser.parse_args()
 
@@ -941,8 +1128,10 @@ def main() -> int:
         )
 
     manifest, included_pieces = base.load_included_pieces(manifest_path)
-    splits = base.deterministic_splits(
-        [piece["id"] for piece in included_pieces], args.seed
+    splits, split_metadata = load_experiment_splits(
+        [piece["id"] for piece in included_pieces],
+        args.seed,
+        args.splits.resolve() if args.splits is not None else None,
     )
     selected_pieces = included_pieces
     cache_suffix = "full"
@@ -1006,6 +1195,8 @@ def main() -> int:
             "l1": args.l1,
             "family_train_z": args.family_train_z,
             "family_validation_z": args.family_validation_z,
+            "bootstrap_replicates": args.bootstrap_replicates,
+            "split_strategy": split_metadata["strategy"],
         },
         "runtime": {
             "python": sys.version,
@@ -1017,6 +1208,7 @@ def main() -> int:
             "archive_sha256": actual_hash,
             "manifest": str(manifest_path),
             "manifest_schema_version": manifest["schema_version"],
+            "split": split_metadata["source"],
         },
         "corpus": {
             "pieces_total": len(available),

@@ -56,27 +56,33 @@ queues négatives sont proposées.
 ## Corpus et séparation
 
 - 352 chorals et 20 350 décisions disponibles ;
-- train : 246 pièces et 14 436 décisions ;
-- validation : 53 pièces et 3 029 décisions ;
-- test : 53 pièces toujours scellées ;
+- train : 251 pièces et 14 744 décisions ;
+- validation : 50 pièces et 2 807 décisions ;
+- test : 51 pièces toujours scellées ;
 - 22 candidates de soprano par décision, hauteurs MIDI `60..81`.
 
-Le programme V2 ne possède volontairement aucune option permettant d'ouvrir le
-test.
+L'audit du premier partage `246/53/53` a détecté dix groupes de mélodies de
+soprano identiques, dont six traversaient plusieurs partitions. Le partage
+canonique regroupe désormais les variantes exactes de rythme et de contour
+mélodique. Six pièces ont été déplacées vers une partition déjà exposée, sans
+promouvoir aucune ancienne pièce de train ou validation dans le nouveau test.
+Le rapport [`results/VARIANT_AUDIT.md`](results/VARIANT_AUDIT.md) conserve le
+détail. Le programme V2 ne possède aucune option permettant d'ouvrir le test.
 
 ## Qualité et parcimonie
 
 | Modèle | NLL validation | Clauses actives |
 |---|---:|---:|
-| Socle de main effects | 1,736939 | 20 après élagage |
-| Meilleur préfixe de 12 colonnes | 1,628203 | 32 |
-| Après raffinement direct | 1,625642 | 34 |
-| Contrôle nul final | 2,643938 | 30 |
+| Socle de main effects | 1,731060 | 20 après élagage |
+| Meilleur préfixe de 12 colonnes | 1,626783 | 32 |
+| Après raffinement direct | 1,624531 | 34 |
+| Contrôle nul final | 2,648323 | 31 |
 
 Le V1 conservait 52 clauses actives pour une NLL de validation de `1,970562`.
-La comparaison porte sur la même tâche et le même partage, mais le V2 dispose
-d'un socle numérique plus systématique. Le gain ne doit donc pas être attribué
-à la seule génération de colonnes ; l'ablation du socle reste à faire.
+La comparaison avec le V1 porte sur la même tâche, mais le V2 canonique utilise
+le partage corrigé et un socle numérique plus systématique. Le gain ne doit
+donc pas être attribué à la seule génération de colonnes ; l'ablation du socle
+reste à faire.
 
 ## Isolement du mouvement direct
 
@@ -84,8 +90,8 @@ Avant le raffinement de famille, les résidus sont :
 
 | Classe | z train marginal | z validation marginal | z train résiduel | z validation résiduel |
 |---:|---:|---:|---:|---:|
-| 0 | -18,335 | -8,715 | -6,239 | -3,889 |
-| 7 | -14,804 | -7,444 | -3,161 | -2,491 |
+| 0 | -18,512 | -8,368 | -6,291 | -3,741 |
+| 7 | -15,037 | -7,134 | -3,319 | -2,345 |
 
 Les autres classes peuvent avoir un résidu important sur train, mais ne
 franchissent pas simultanément les seuils identiques :
@@ -101,11 +107,26 @@ spécifique à ces deux valeurs. Après ajustement conjoint :
 | Classe | Poids |
 |---:|---:|
 | 0 | -1,345 |
-| 7 | -0,568 |
+| 7 | -0,590 |
 
-Leur ajout réduit la NLL de validation de `1,628718` à `1,625642`. Après
+Leur ajout réduit la NLL de validation de `1,627234` à `1,624531`. Après
 ajustement, leurs résidus se rapprochent de zéro, ce qui est le comportement
 attendu d'une colonne expliquant l'effet.
+
+## Stabilité par bootstrap de chorals
+
+Le bootstrap rééchantillonne 1 000 fois les pièces entières, et non les
+événements isolés.
+
+| Classe | Train z médian [95 %] | Validation z médian [95 %] | P(z validation < 0) |
+|---:|---:|---:|---:|
+| 0 | -6,273 [-7,977 ; -4,264] | -3,792 [-4,743 ; -2,572] | 1,000 |
+| 7 | -3,438 [-5,525 ; -0,920] | -2,373 [-3,775 ; -0,703] | 0,996 |
+
+L'effet de la classe `0` est très stable et reste sous `-2` dans 99,7 % des
+réplications de validation. La classe `7` garde un signe négatif presque
+constant, mais son amplitude est plus variable : 68,8 % des réplications
+restent sous `-2`.
 
 ## Comparaison postérieure avec Snarky
 
@@ -131,11 +152,12 @@ mais détruit les relations locales.
 
 | Classe | z train résiduel | z validation résiduel |
 |---:|---:|---:|
-| 0 | -1,871 | -0,840 |
-| 7 | +2,434 | -0,157 |
+| 0 | +0,754 | -0,383 |
+| 7 | +1,424 | -0,032 |
 
 Aucune classe ne franchit les deux seuils et aucun raffinement direct n'est
-ajouté.
+ajouté. Les intervalles bootstrap de validation traversent largement zéro :
+`[-2,107 ; +1,523]` pour `0` et `[-1,837 ; +1,839]` pour `7`.
 
 ### Recherche limitée aux évitements
 
@@ -164,6 +186,8 @@ pourquoi il faut distinguer les deux familles malgré leur recouvrement.
 6. Le premier critère de redécouverte atteint désormais quatre familles du
    niveau A : grand saut, octaves parallèles, quintes parallèles et mouvements
    directs.
+7. Le résultat survit à la suppression des fuites par variantes et au
+   bootstrap groupé par pièce.
 
 ## Limites
 
@@ -174,8 +198,8 @@ pourquoi il faut distinguer les deux familles malgré leur recouvrement.
    `0` et `7`, elles, ne sont pas privilégiées.
 3. Les seuils de raffinement sont sélectionnés au stade exploratoire. Ils
    doivent être préenregistrés avant toute ouverture du test.
-4. Le bootstrap par pièce et le regroupement des variantes de chorals restent
-   à implémenter.
+4. Le regroupement actuel détecte les variantes exactes de soprano ; une
+   proximité mélodique graduelle pourrait révéler d'autres familles.
 5. Les douze interactions générales retenues comprennent plusieurs
    préférences encore sans interprétation musicale.
 6. Seules les voix extrêmes sont modélisées et les candidates ne sont pas
@@ -185,14 +209,17 @@ pourquoi il faut distinguer les deux familles malgré leur recouvrement.
 8. Le test final reste fermé : le résultat est confirmé sur validation, mais
    pas encore gelé.
 
-## Prochaine expérience
+## Expérience suivante
 
-Le POC V2.2 doit étendre le même moteur aux quatre voix et aux paires
-adjacentes pour rechercher le chevauchement, le triton mélodique et les
-parallèles intérieures. Avant cela, il faut :
+Le [POC V2.2](V2_2_ANALYSIS.md) a depuis étendu le moteur aux quatre voix. Il
+récupère la classe mélodique `6` et la frontière d'overlap `0`, absentes du
+contrôle permuté après ajout d'un critère d'encoche locale. Les deux résultats
+possèdent une `RuleCard` et sont équivalents aux oracles Snarky sur les domaines
+finis testés.
 
-1. préenregistrer les seuils et budgets du V2 ;
-2. ajouter un bootstrap groupé par choral ;
-3. regrouper les variantes d'une même mélodie avant le partage ;
-4. compiler les deux règles retrouvées en `RuleCard`, en pointant vers les
-   règles Snarky déjà équivalentes plutôt qu'en les dupliquant.
+Le prochain incrément doit appliquer le même protocole aux parallèles dans les
+six paires de voix, puis :
+
+1. préenregistrer les seuils et budgets avant toute ouverture du test ;
+2. auditer les variantes mélodiques proches, et pas seulement identiques ;
+3. produire une ablation conjointe des familles de niveau A.
