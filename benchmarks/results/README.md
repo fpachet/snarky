@@ -79,3 +79,26 @@ case. It contains:
 The A/B retains identical facts, firings, outputs, rule evaluations, and
 skips. Median speedups are ×12.6, ×30.6, ×60.9, and ×132.9. At 25 groups,
 match attempts fall from 2,881,600 to 6,598.
+
+## Common CLAIRE triangle closure — 2026-07-27
+
+The common three-premise workload is archived in:
+
+- [`claire_triangle_closure_2026-07-27.json`](claire_triangle_closure_2026-07-27.json)
+  — five clean runs of both Snarky and interpreted CLAIRE4;
+- [`claire_triangle_closure_partial_memory_disabled_2026-07-27.json`](claire_triangle_closure_partial_memory_disabled_2026-07-27.json)
+  — three clean Snarky runs through the generic semi-naïve path.
+
+Every group prepares 16 membership relations, then streams 64 closing edges.
+Both engines validate 64 rule firings and outputs per group plus the same hub
+checksum. With partial memory, Snarky's median is 0.0081, 0.0214, 0.0467, and
+0.1431 seconds for 2, 5, 10, and 25 groups. Interpreted CLAIRE4 takes 0.000345,
+0.001059, 0.002920, and 0.013240 seconds, so the observed cross-engine gap
+narrows from ×23.4 to ×10.8 as the combinatorial workload grows.
+
+Disabling partial memory raises Snarky's corresponding medians to 0.1089,
+0.6423, 2.5315, and 16.2327 seconds. At 25 groups, the optimization therefore
+gives a ×113.5 internal gain and reduces match attempts from 2,881,600 to
+6,598. The CLAIRE rule is a natural event-demon formulation that scans the
+instantiated hubs; this is a language-level comparison, not a claim that both
+runtimes use the same physical join strategy.

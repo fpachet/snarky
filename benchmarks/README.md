@@ -43,6 +43,7 @@ chord-generating harmonizer measure different workloads.
 |---|---|
 | `claire_n_queens` | normalized N-Queens comparison with CLAIRE4 |
 | `claire_talarian_filter` | normalized Talarian rule-filter comparison with CLAIRE4 |
+| `claire_triangle_closure` | streamed multi-premise triangle closure with CLAIRE4 |
 | `incremental_conjunctions` | cold and streamed three-premise joins |
 | `choice_search` | CSP and harmonizer integration across search traversals |
 | `choice_trail` | lazy forked DFS versus reversible-trail DFS on N-queens |
@@ -64,6 +65,11 @@ uv run python -m benchmarks.claire_talarian_filter \
 uv run python -m benchmarks.claire_talarian_filter \
   --engine snarky --sizes 100 1000 5000 --repeat 5 \
   --disable-event-rules
+uv run python -m benchmarks.claire_triangle_closure \
+  --groups 2 5 10 25 --repeat 5
+uv run python -m benchmarks.claire_triangle_closure \
+  --engine snarky --groups 2 5 10 25 --repeat 3 \
+  --disable-partial-join-memory
 uv run python -m benchmarks.incremental_conjunctions \
   --groups 25 100 250 --width 8 --repeat 5
 uv run python -m benchmarks.incremental_conjunctions \
@@ -125,6 +131,25 @@ multi-relation join or a RETE-style partial-match network.
 Snarky's event-rule specialization is enabled by default;
 `--disable-event-rules` runs the same workload through the generic
 semi-naïve path for a direct A/B comparison.
+
+`claire_triangle_closure` exercises a genuinely combinatorial rule. Each
+group contains one hub, eight left nodes, and eight right nodes. Membership
+relations are prepared first; the timed phase streams all 64 left-to-right
+edges per group, with one saturation after every edge. A result exists only
+when the hub-to-left, hub-to-right, and left-to-right premises agree. Both
+implementations validate the exact firing count, output count, and checksum
+of the owning hubs.
+
+The natural CLAIRE formulation attaches a demon to additions in each left
+node's `outgoing` set, then scans the instantiated hubs to test the other two
+premises. Snarky keeps the rule declarative and uses its bounded partial-join
+memory automatically. Consequently this comparison is useful precisely
+because the storage strategies differ: CLAIRE has much lower per-event
+overhead, while Snarky's retained prefix avoids recomputing the combinatorial
+join. The runner reports no automatic cross-engine speedup ratio.
+`--disable-partial-join-memory` provides the identical Snarky workload through
+the generic semi-naïve path. The archived sizes stop at 25 groups so the
+retained prefix remains below the configured memory budget.
 
 ### Constraint filtering and propagation
 

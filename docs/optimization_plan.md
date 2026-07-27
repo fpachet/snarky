@@ -824,10 +824,12 @@ Les optimisations suivantes sont ordonnées ainsi :
 5. ne déplacer la boucle critique vers mypyc, Cython ou Rust qu'après
    épuisement des spécialisations algorithmiques en Python.
 
-Deux baselines complémentaires rendent cette phase mesurable :
+Trois baselines complémentaires rendent cette phase mesurable :
 
 - `claire_talarian_filter` mesure le coût minimal de déclenchement
   événementiel, avec `rule_evaluations` et `rule_skips` ;
+- `claire_triangle_closure` compare avec CLAIRE4 une vraie conjonction de
+  trois prémisses alimentée comme un flux d'arcs ;
 - `incremental_conjunctions` mesure une jointure de trois prémisses en mode
   froid puis comme flux d'ajouts, en vérifiant l'ensemble exact des sorties.
 
@@ -888,6 +890,30 @@ mémoire n'est construite et les compteurs restent à 4 800, 19 200 et 48 000
 tentatives pour 25, 100 et 250 groupes. Les tests différentiels couvrent les
 ajouts, suppressions, limites de budget et forks ; la suite complète compte
 610 succès et 3 tests ignorés.
+
+Le benchmark commun `claire_triangle_closure` confirme le même mécanisme dans
+une formulation idiomatique pour chaque langage. Un groupe prépare un hub,
+huit nœuds gauches et huit nœuds droits, puis ajoute 64 arcs ; chaque arc
+ferme exactement un triangle. Les deux moteurs vérifient le nombre de
+déclenchements, les sorties et le checksum des hubs. Sur le commit `1487602`,
+avec cinq répétitions pour le parcours optimisé :
+
+| Groupes | Snarky | CLAIRE4 interprété | Écart |
+| ---: | ---: | ---: | ---: |
+| 2 | 0,0081 s | 0,000345 s | ×23,4 |
+| 5 | 0,0214 s | 0,001059 s | ×20,2 |
+| 10 | 0,0467 s | 0,002920 s | ×16,0 |
+| 25 | 0,1431 s | 0,013240 s | ×10,8 |
+
+CLAIRE conserve un avantage important de coût constant, mais l'écart diminue
+quand le nombre de groupes croît : son demon événementiel naturel parcourt
+les instances de hubs à chaque ajout, alors que Snarky réutilise le préfixe
+de jointure mémorisé. Le témoin Snarky sans mémoire atteint 16,2327 s à
+25 groupes, soit un gain interne ×113,5 pour la mémoire et une chute de
+2 881 600 à 6 598 tentatives. Les tailles archivées restent volontairement
+sous le budget de matérialisation du préfixe ; au-delà, le repli générique est
+correct mais ce protocole devient très lent. La suite propre après ajout du
+benchmark compte 617 succès et 3 tests ignorés.
 
 ## Prochaine tranche concrète
 
