@@ -3,6 +3,7 @@ from __future__ import annotations
 from pathlib import Path
 
 import k3
+import local_tonality
 import numpy as np
 import run_k3_ablation as ablation
 import run_k3_null_max_calibration as calibration
@@ -241,6 +242,51 @@ def test_context_survives_dataset_round_trip(tmp_path: Path) -> None:
     assert np.array_equal(loaded.tonic_pcs, data.tonic_pcs)
     assert np.array_equal(loaded.modes, data.modes)
     assert np.array_equal(loaded.metric_levels, data.metric_levels)
+
+
+def test_local_tonality_collapses_simultaneous_voice_decisions() -> None:
+    data = _dataset()
+    data.piece_ids[:] = "p1"
+    data.offsets[:] = np.asarray([0, 1, 2], dtype=np.float32)
+    data.tonic_pcs = np.asarray([0, 0], dtype=np.int8)
+    data.modes = np.asarray([0, 0], dtype=np.int8)
+    data.metric_levels = np.asarray([3, 3], dtype=np.int8)
+
+    sequences = local_tonality.state_sequences(data)
+
+    assert len(sequences) == 1
+    assert sequences[0].offsets.size == 1
+    assert sequences[0].histograms.sum() == 16
+
+
+def test_local_tonality_posterior_is_normalized() -> None:
+    sequence = local_tonality.LocalTonalSequence(
+        piece_id="p1",
+        offsets=np.asarray([1.0, 2.0]),
+        histograms=np.asarray(
+            [
+                [4, 0, 0, 0, 4, 0, 0, 4, 0, 0, 0, 0],
+                [4, 0, 0, 0, 4, 0, 0, 4, 0, 0, 0, 0],
+            ],
+            dtype=np.float64,
+        ),
+        global_tonic=0,
+        mode=0,
+    )
+    profiles = np.full((2, 12), 0.01)
+    profiles[:, [0, 4, 7]] = np.asarray([0.3, 0.2, 0.4])
+    profiles /= profiles.sum(axis=1, keepdims=True)
+
+    inference = local_tonality.infer_sequence(
+        sequence,
+        profiles,
+        stay_probability=0.9,
+        global_start_probability=0.8,
+    )
+
+    assert np.allclose(inference.posterior.sum(axis=1), 1.0)
+    assert np.isfinite(inference.log_evidence)
+    assert np.array_equal(inference.map_tonics, [0, 0])
 
 
 def test_ablation_removes_exactly_one_rule_column() -> None:

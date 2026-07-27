@@ -30,6 +30,10 @@ Le dossier ne charge aucun fichier de `rules/` ni aucun manifeste de
   BWV 108.6 ;
 - `run_generative_residual_audit.py` : second tour sur les licences restantes
   et les interactions avec les empreintes verticales locales ;
+- `local_tonality.py` : HMM transposable et apprentissage EM d'un statut tonal
+  latent à partir des noyaux K3 ;
+- `run_local_tonality_poc.py` : ajustement train et évaluation tenue à part ;
+- `run_local_tonality_sensitivity.py` : robustesse à la persistance du statut ;
 - `results/` : artefacts et rapports reproductibles.
 
 `V5.0` conserve le premier catalogue spécialisé, qui a appris huit variantes
@@ -68,6 +72,10 @@ Résultats principaux :
   promotion expérimentale de V5.9 après validation multi-chorals ;
 - [`V5_10_GENERATIVE_RESIDUAL_AUDIT.md`](results/V5_10_GENERATIVE_RESIDUAL_AUDIT.md),
   clôture négative des licences simples et verticales ;
+- [`V5_11_LOCAL_TONALITY_HMM.md`](results/V5_11_LOCAL_TONALITY_HMM.md),
+  validation du statut tonal latent ;
+- [`V5_11_LOCAL_TONALITY_SENSITIVITY.md`](results/V5_11_LOCAL_TONALITY_SENSITIVITY.md),
+  robustesse à trois probabilités de persistance ;
 - `v5_1_k3_compact_model.json`, modèle complet pour le Gibbs.
 
 Le protocole complet est

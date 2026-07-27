@@ -120,8 +120,8 @@ apprendre des licences positives et un statut de tonalité locale.
 - [x] ajouter 22 interactions rares × empreinte verticale relative à la basse ;
 - [x] constater qu'aucune licence positive ne dépasse à la fois `+0,5` point
       et `z=2` ;
-- [ ] apprendre un statut tonal local latent sur les trois blocs ;
-- [ ] tester si ce statut explique les chromaticismes authentiques que les
+- [x] apprendre un statut tonal local latent sur les trois blocs ;
+- [x] tester si ce statut explique les chromaticismes authentiques que les
       empreintes instantanées ne distinguent pas.
 
 La meilleure licence simple est la broderie rare d'alto en majeur
@@ -130,6 +130,27 @@ La meilleure licence simple est la broderie rare d'alto en majeur
 (`+0,335` point, `z=1,82`). Ces signaux sont plausibles mais insuffisamment
 stables. Le prochain statut doit donc représenter une référence tonale locale
 persistante, et non seulement une sonorité centrale.
+
+### 1.0.5 Statut tonal latent V5.11
+
+- [x] dédupliquer les attaques simultanées en 23 950 états train ;
+- [x] apprendre par EM un HMM à douze références transposables ;
+- [x] limiter chaque émission aux trois blocs K3 ;
+- [x] tenir la validation entièrement hors de l'ajustement ;
+- [x] comparer à un profil global MLE propre ;
+- [x] obtenir un gain d'évidence validation de `+1,380406` par état ;
+- [x] reclasser `80,96 %` des choix globalement rares comme localement communs ;
+- [x] vérifier la robustesse pour des persistances `0,85`, `0,92` et `0,97`.
+
+À la persistance centrale `0,92`, 33,38 % des états diffèrent de la tonique
+globale, mais seulement 9,52 % des transitions changent de statut. L'entropie
+postérieure normalisée vaut `0,030` : le HMM n'est pas indéterminé. Le taux
+rare des 13 202 décisions de validation passe opérationnellement de `3,780 %`
+avec référence globale à `1,242 %` avec référence locale.
+
+Le statut peut désormais entrer dans le langage de règles. Pour la génération,
+il faudra échantillonner alternativement les notes et les états latents afin de
+ne jamais utiliser les voix authentiques cachées comme contexte.
 
 Deux résultats scientifiques distincts sont recherchés :
 

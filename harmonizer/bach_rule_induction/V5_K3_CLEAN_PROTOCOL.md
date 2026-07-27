@@ -379,6 +379,47 @@ latent**. L'émission restera limitée aux trois blocs K3 ; la persistance du
 statut sera une transition locale entre noyaux adjacents. Aucun nom d'accord
 ni étiquette de modulation ne sera injecté.
 
+## Statut tonal latent V5.11
+
+Le POC instancie douze états transposables dans un HMM non supervisé. Une
+observation est l'histogramme des classes de hauteur des trois blocs K3, avec
+un poids double pour le bloc central. L'état initial est ancré probabilistiquement
+sur la tonique déclarée ; une transition locale favorise la persistance.
+Les profils d'émission majeur et mineur sont appris par EM sur 251 chorals du
+train. La validation ne sert jamais à ajuster les profils.
+
+La comparaison utilise un vrai baseline global MLE distinct. Sur 50 chorals de
+validation :
+
+| Mesure | Valeur |
+|---|---:|
+| gain de log-évidence par état | +1,380406 |
+| états différents de la tonique globale | 33,38 % |
+| changements de statut adjacents | 9,52 % |
+| entropie postérieure normalisée | 0,030 |
+| choix globalement rares reclassifiés | 80,96 % |
+| taux rare avec référence locale | 1,242 % |
+
+La sensibilité est faible : pour des persistances `0,85`, `0,92` et `0,97`,
+le gain d'évidence reste entre `+1,346` et `+1,380`, tandis que 77,96 % à
+81,76 % des choix globalement rares deviennent localement communs.
+
+« Tonique locale » reste un nom opérationnel. Sans vérité terrain
+musicologique, l'état peut représenter un centre ou une racine harmonique
+locale. Sa valeur immédiate est statistique : il explique une grande partie
+de ce que la référence globale appelait chromatique.
+
+Pour intégrer ce statut au générateur sans fuite, les voix cachées de Bach ne
+doivent jamais servir à l'inférer. Le prochain sampler devra alterner :
+
+```text
+notes | statuts locaux
+statuts locaux | notes générées courantes
+```
+
+Cette mise à jour bloquée conserve des règles locales lisibles tout en rendant
+la tonalité locale endogène à la génération.
+
 ## Frontière MusicXML et MuSES
 
 Le corpus historique est distribué sous forme `.mxl`. MuSES ne possède pas
