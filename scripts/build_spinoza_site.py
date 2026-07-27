@@ -83,12 +83,76 @@ AFFECT_FAMILIES = (
     (44, 48, "Désirs par objet"),
 )
 
+APPUHN_PART_URLS = {
+    1: (
+        "https://fr.wikisource.org/wiki/"
+        "Éthique_(Appuhn,_1913)/Première_partie_:_De_Dieu"
+    ),
+    2: (
+        "https://fr.wikisource.org/wiki/"
+        "Éthique_(Appuhn,_1913)/Deuxième_partie_:_De_la_nature_et_de_l’origine_de_l’âme"
+    ),
+    3: (
+        "https://fr.wikisource.org/wiki/"
+        "Éthique_(Appuhn,_1913)/Troisième_partie_:_De_l’origine_et_de_la_nature_des_affections"
+    ),
+    4: (
+        "https://fr.wikisource.org/wiki/"
+        "Éthique_(Appuhn,_1913)/Quatrième_partie_:_De_la_servitude_de_l’homme"
+    ),
+    5: (
+        "https://fr.wikisource.org/wiki/"
+        "Éthique_(Appuhn,_1913)/Cinquième_partie_:_De_la_liberté_de_l’homme"
+    ),
+}
+
 
 def _load_yaml(path: Path) -> dict[str, Any]:
     loaded = yaml.safe_load(path.read_text(encoding="utf-8"))
     if not isinstance(loaded, dict):
         raise ValueError(f"{path}: expected a mapping")
     return loaded
+
+
+def _roman_number(number: int) -> str:
+    pairs = (
+        (50, "L"),
+        (40, "XL"),
+        (10, "X"),
+        (9, "IX"),
+        (5, "V"),
+        (4, "IV"),
+        (1, "I"),
+    )
+    result = []
+    for value, numeral in pairs:
+        while number >= value:
+            result.append(numeral)
+            number -= value
+    return "".join(result)
+
+
+def _external_reference_url(reference: str) -> str | None:
+    part_match = re.match(r"^E([1-5])", reference)
+    if part_match is None:
+        return None
+    url = APPUHN_PART_URLS[int(part_match.group(1))]
+    proposition_match = re.match(r"^E[1-5]P(\d{1,2})", reference)
+    if proposition_match is not None:
+        proposition = _roman_number(int(proposition_match.group(1)))
+        return f"{url}#PROPOSITION_{proposition}"
+    if re.match(r"^E[1-5]D\d+", reference):
+        return f"{url}#DÉFINITIONS"
+    if re.match(r"^E[1-5]POST\d+", reference):
+        return f"{url}#POSTULATS"
+    return url
+
+
+def _is_internal_site_reference(reference: str) -> bool:
+    return bool(
+        re.match(r"^E3P\d{2}", reference)
+        or re.match(r"^E3DA(?:-GENERAL|\d{2})(?:-EXP)?", reference)
+    )
 
 
 def _family(index: int) -> str:
@@ -443,6 +507,15 @@ def build_payload(project_root: Path = PROJECT_ROOT) -> dict[str, Any]:
         Atom,
         Triple,
     )
+    reference_ids = {
+        reference for unit in all_units for reference in unit.get("dependencies", [])
+    } | {reference for rule in rules for reference in rule["sources"]}
+    reference_links = {
+        reference: url
+        for reference in sorted(reference_ids)
+        if not _is_internal_site_reference(reference)
+        if (url := _external_reference_url(reference)) is not None
+    }
 
     return {
         "meta": {
@@ -468,6 +541,7 @@ def build_payload(project_root: Path = PROJECT_ROOT) -> dict[str, Any]:
         "explanations": explanations,
         "rules": rules,
         "rule_graph": rule_graph,
+        "reference_links": reference_links,
         "families": [
             {"start": start, "end": end, "label": label}
             for start, end, label in AFFECT_FAMILIES

@@ -95,6 +95,11 @@ def test_static_model_contains_the_complete_executable_ethics_iii() -> None:
             *payload["explanations"],
         ]
     )
+    assert payload["reference_links"]["E2P11C"].endswith("#PROPOSITION_XI")
+    assert payload["reference_links"]["E2P23"].endswith("#PROPOSITION_XXIII")
+    assert payload["reference_links"]["E1D7"].endswith("#DÉFINITIONS")
+    assert payload["reference_links"]["E2POST3"].endswith("#POSTULATS")
+    assert "E3P09S" not in payload["reference_links"]
 
 
 def test_rule_graph_predicate_index_matches_rule_inputs_and_outputs() -> None:

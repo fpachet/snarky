@@ -779,6 +779,23 @@ details.text-section p {
   background: var(--green);
 }
 
+.dependency-list a.external-reference {
+  gap: 0.35rem;
+  border-style: dashed;
+}
+
+.external-reference span {
+  color: var(--red);
+  font-family: var(--sans);
+  font-size: 0.78rem;
+  font-weight: 800;
+}
+
+.external-reference:hover span,
+.external-reference:focus-visible span {
+  color: #f3d6cc;
+}
+
 .source-file-link {
   color: var(--red);
   font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;

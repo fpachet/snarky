@@ -192,8 +192,10 @@ function referenceItem(reference) {
   const canonicalId =
     propositionMatch?.[0] ?? explanationMatch?.[0] ?? affectMatch?.[0] ?? reference;
   const href = unitHref(canonicalId);
-  return href
-    ? `<li><a href="${href}">${escapeHtml(reference)}</a></li>`
+  if (href) return `<li><a href="${href}">${escapeHtml(reference)}</a></li>`;
+  const externalHref = model.reference_links?.[reference];
+  return externalHref
+    ? `<li><a class="external-reference" href="${escapeHtml(externalHref)}" rel="external" aria-label="${escapeHtml(reference)} — ouvrir le texte Appuhn sur Wikisource">${escapeHtml(reference)} <span aria-hidden="true">↗</span></a></li>`
     : `<li><span class="rule-chip">${escapeHtml(reference)}</span></li>`;
 }
 
