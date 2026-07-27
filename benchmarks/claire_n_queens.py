@@ -19,6 +19,9 @@ from benchmarks.claire_support import (
     git_commit as _git_commit,
 )
 from benchmarks.claire_support import (
+    git_dirty as _git_dirty,
+)
+from benchmarks.claire_support import (
     resolve_claire_binary,
     resolve_claire_root,
 )
@@ -343,6 +346,7 @@ def run(
         "python": platform.python_version(),
         "platform": platform.platform(),
         "snarky_commit": _git_commit(PROJECT_ROOT),
+        "snarky_dirty": _git_dirty(PROJECT_ROOT),
         "results": results,
     }
     if selected_root is not None and selected_binary is not None:
@@ -350,6 +354,7 @@ def run(
             "root": str(selected_root),
             "binary": str(selected_binary),
             "commit": _git_commit(selected_root),
+            "dirty": _git_dirty(selected_root),
             "mode": "interpreted",
         }
     return payload

@@ -27,6 +27,10 @@ For an optimization comparison:
 5. verify facts, solutions, ordering, events, and relevant search counters;
 6. store the raw result file rather than copying only a headline number.
 
+Machine-readable results must also record whether each measured Git checkout
+was dirty. A commit hash alone is not sufficient provenance when uncommitted
+engine changes may affect the timing.
+
 Do not combine results produced for different problem definitions. For
 example, a two-position fixed-chord harmonizer and a four-position
 chord-generating harmonizer measure different workloads.
@@ -39,6 +43,7 @@ chord-generating harmonizer measure different workloads.
 |---|---|
 | `claire_n_queens` | normalized N-Queens comparison with CLAIRE4 |
 | `claire_talarian_filter` | normalized Talarian rule-filter comparison with CLAIRE4 |
+| `incremental_conjunctions` | cold and streamed three-premise joins |
 | `choice_search` | CSP and harmonizer integration across search traversals |
 | `choice_trail` | lazy forked DFS versus reversible-trail DFS on N-queens |
 | `choice_formulations` | extensional versus intensional N-queens and harmony transitions |
@@ -56,6 +61,8 @@ uv run python -m benchmarks.claire_n_queens \
   --sizes 8 10 12 14 --repeat 3
 uv run python -m benchmarks.claire_talarian_filter \
   --sizes 100 1000 5000 --repeat 3
+uv run python -m benchmarks.incremental_conjunctions \
+  --groups 25 100 250 --width 8 --repeat 5
 uv run python -m benchmarks.choice_search --repeat 5
 uv run python benchmarks/choice_trail.py --repeat 3
 uv run python benchmarks/choice_formulations.py --repeat 3
@@ -104,7 +111,10 @@ reported separately (input-fact construction plus an empty session for
 Snarky, object construction for CLAIRE). The semantic workload and incremental
 scheduling are normalized, but the engines' storage models differ, so the
 runner reports inference throughput without calculating a cross-engine
-speedup ratio.
+speedup ratio. In particular, CLAIRE compiles these rules as event demons:
+the slot update binds the object and value, then the remaining comparison is a
+direct Boolean test. This benchmark therefore does not measure a general
+multi-relation join or a RETE-style partial-match network.
 
 ### Constraint filtering and propagation
 

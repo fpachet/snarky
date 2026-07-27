@@ -13,7 +13,7 @@ from ..substitutions import Substitution
 
 @dataclass(slots=True)
 class AgendaMetrics:
-    """Counters for incremental conflict-set maintenance."""
+    """Counters for dependency-driven rule and conflict-set maintenance."""
 
     rebuilds: int = 0
     rule_recomputations: int = 0

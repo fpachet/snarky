@@ -134,7 +134,7 @@ class IndexedInstantiationStrategy:
         delta: FactDelta | tuple[Fact, ...] | None = None,
     ) -> tuple[Activation, ...]:
         changes = _normalize_delta(delta)
-        index = self._index_for(rule, facts, changes)
+        index = self._index_for(facts, changes)
         positive_rule = self._is_positive_compiled_rule(rule)
         if (
             positive_rule
@@ -179,6 +179,15 @@ class IndexedInstantiationStrategy:
             return
         self._pending_removed.update(removed)
         self._invalidate_query_memories((), removed)
+
+    def synchronize(
+        self,
+        facts: Sequence[Fact],
+        delta: FactDelta,
+    ) -> None:
+        """Consume fact changes without instantiating an unrelated rule."""
+
+        self._index_for(facts, delta)
 
     def fork_for_branch(self) -> IndexedInstantiationStrategy:
         """Return a clean strategy seeded from the current immutable index."""
@@ -511,11 +520,9 @@ class IndexedInstantiationStrategy:
 
     def _index_for(
         self,
-        rule: Rule,
         facts: Sequence[Fact],
         delta: FactDelta | None,
     ) -> FactIndex:
-        del rule
         if delta is not None:
             self._apply_query_delta(delta)
         if delta is not None and delta.removed:
@@ -1649,7 +1656,7 @@ class SemiNaiveInstantiationStrategy(IndexedInstantiationStrategy):
         delta: FactDelta | tuple[Fact, ...] | None = None,
     ) -> tuple[Activation, ...]:
         changes = _normalize_delta(delta)
-        index = self._index_for(rule, facts, changes)
+        index = self._index_for(facts, changes)
         if (
             changes is None
             or changes.removed

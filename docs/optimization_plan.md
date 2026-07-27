@@ -19,7 +19,7 @@ Les optimisations doivent préserver les propriétés suivantes :
 - provenance vérifiable ;
 - point fixe identique à celui du moteur naïf.
 
-## État au 25 juillet 2026
+## État au 27 juillet 2026
 
 | Phase | État | Résultat ou prochaine étape |
 |---|---|---|
@@ -34,6 +34,7 @@ Les optimisations doivent préserver les propriétés suivantes :
 | 8 — Provenance configurable | Différée | La provenance complète reste la référence ; attendre un profil mémoire dominant |
 | 9 — Instanciation centrée variables | Terminée pour le socle | Domaines, Compact-Tables, propagateurs, MRV et recherche explicite livrés |
 | 10 — Raisonnement par contraintes | Backend fini livré | `ConstraintSolver`, `FiniteCSP` et réinjection factuelle disponibles ; backend externe optionnel |
+| 11 — Réactivité événementielle | Ordonnanceur livré ; compilation à faire | Sélection des seules règles dépendantes, puis spécialisation des règles chaudes et joints partiels incrémentaux |
 
 L'extension fonctionnelle `LET` est terminée : Fibonacci utilise désormais
 l'arithmétique native du moteur et ne dépend plus de tables de sommes et de
@@ -778,6 +779,62 @@ L'ordre suivi pour construire le socle était :
 Le moteur naïf doit rester simple tout au long de ce travail. Sa lenteur est
 acceptable : sa fonction principale est de fournir un résultat de référence
 facile à comprendre et à vérifier.
+
+## Phase 11 — Réactivité événementielle et conjonctions
+
+**État : ordonnanceur par dépendances livré ; spécialisations à faire.**
+
+La comparaison avec le test Talarian de CLAIRE4 a isolé un coût qui n'était
+pas visible dans les anciennes applications par lots : après chaque mutation,
+le balayage historique réinstanciait toutes les règles du groupe, même
+lorsque leur relation d'entrée n'avait pas changé. Le moteur dispose désormais
+d'un index conservatif des dépendances factuelles. Les prémisses imbriquées
+dans `EXISTS`, `NOT EXISTS`, `COUNT`, `UNIQUE` et `COLLECT` sont incluses ;
+les dépendances non déterminables statiquement restent génériques.
+
+Sur le protocole commun de dix règles indépendantes, cette tranche réduit le
+nombre d'évaluations à `10N + 9` pour `10N` activations. À 5 000 frames,
+Snarky évalue 50 009 règles et évite 949 991 positions de balayage. La médiane
+d'inférence passe de 11,03 s avant ordonnanceur à 4,22 s sur la machine de
+développement. CLAIRE4 interprété reste à 0,092 s grâce à ses demons
+procéduraux directement attachés aux écritures d'attribut.
+
+Un profil `cProfile` sur 10 000 activations attribue encore environ 44 % du
+temps mesuré à l'instanciation et aux jointures génériques, 20 % au
+déclenchement et à la préparation des actions, et une part significative à la
+gestion des deltas, index et dépendances. Les hashes structurels sont déjà
+précalculés ; la piste résiduelle concerne donc des identifiants plus compacts,
+pas une nouvelle mémorisation des mêmes hashes.
+
+Les optimisations suivantes sont ordonnées ainsi :
+
+1. compiler les règles monotones simples en gestionnaires événementiels
+   spécialisés, indexés par relation, avec repli automatique vers le moteur
+   générique ;
+2. intégrer au chemin incrémental par défaut des mémoires de joints partiels
+   pour les règles à plusieurs prémisses, sans matérialiser les produits dont
+   la cardinalité dépasserait le budget existant ;
+3. remplacer les ensembles de règles affectées par des tableaux ou bitsets si
+   le profil confirme encore leur coût ;
+4. réduire les objets temporaires des substitutions, événements et actions,
+   puis envisager des identifiants entiers internés pour les termes chauds ;
+5. ne déplacer la boucle critique vers mypyc, Cython ou Rust qu'après
+   épuisement des spécialisations algorithmiques en Python.
+
+Deux baselines complémentaires rendent cette phase mesurable :
+
+- `claire_talarian_filter` mesure le coût minimal de déclenchement
+  événementiel, avec `rule_evaluations` et `rule_skips` ;
+- `incremental_conjunctions` mesure une jointure de trois prémisses en mode
+  froid puis comme flux d'ajouts, en vérifiant l'ensemble exact des sorties.
+
+Une optimisation de cette phase n'est acceptée que si les faits, activations,
+événements, cycles et résultats différentiels restent identiques. Les
+résultats bruts doivent contenir le commit, l'état propre ou modifié des
+checkouts, la plateforme, les échantillons individuels et les compteurs
+logiques. La cible indicative du premier compilateur événementiel est un gain
+d'au moins ×2 sur Talarian sans régression sur `incremental_conjunctions` ni
+sur `rulebase_suite`.
 
 ## Prochaine tranche concrète
 

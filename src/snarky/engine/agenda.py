@@ -4,6 +4,7 @@ from __future__ import annotations
 
 from collections.abc import Sequence
 from dataclasses import dataclass
+from functools import cache
 
 from ..facts import Fact
 from ..instantiation import (
@@ -173,6 +174,7 @@ def _evaluate_agenda(
     return updated_memory, tuple(candidates)
 
 
+@cache
 def _build_rule_dependency_index(
     group: RuleGroup,
 ) -> _RuleDependencyIndex:

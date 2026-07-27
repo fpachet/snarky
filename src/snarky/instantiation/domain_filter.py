@@ -226,7 +226,7 @@ class ConstraintInstantiationStrategy(SemiNaiveInstantiationStrategy):
             self.metrics.domain_filter_fallbacks += 1
             return super().instantiate(rule, facts, changes)
 
-        index = self._index_for(rule, facts, changes)
+        index = self._index_for(facts, changes)
         if (
             selector.enabled
             and decision is None

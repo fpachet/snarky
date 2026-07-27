@@ -61,3 +61,24 @@ def git_commit(repository: Path) -> str | None:
         text=True,
     )
     return completed.stdout.strip() or None
+
+
+def git_dirty(repository: Path) -> bool | None:
+    """Return whether *repository* has tracked or untracked changes."""
+
+    completed = subprocess.run(
+        (
+            "git",
+            "-C",
+            str(repository),
+            "status",
+            "--porcelain",
+            "--untracked-files=normal",
+        ),
+        check=False,
+        capture_output=True,
+        text=True,
+    )
+    if completed.returncode != 0:
+        return None
+    return bool(completed.stdout.strip())

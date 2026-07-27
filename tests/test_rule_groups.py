@@ -148,6 +148,31 @@ def test_one_cycle_can_resume_the_same_group_later() -> None:
     assert second.stop_reason is GroupStopReason.ONE_CYCLE
 
 
+def test_one_cycle_at_known_fixed_point_keeps_one_cycle_result() -> None:
+    (group,) = parse_rule_groups(
+        """
+        GROUP idle
+            RULE never_ready
+            WHEN
+                ready
+            THEN
+                ADD done
+            END
+        END_GROUP
+        """
+    )
+    session = ForwardEngine(()).create_session(())
+    session.run_group(group)
+
+    result = session.run_group(
+        group,
+        mode=GroupExecutionMode.ONE_CYCLE,
+    )
+
+    assert result.cycles == 1
+    assert result.stop_reason is GroupStopReason.ONE_CYCLE
+
+
 def test_first_change_stops_after_one_atomic_activation() -> None:
     rules = parse_rules(
         """

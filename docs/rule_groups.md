@@ -85,6 +85,15 @@ Un « cycle » est un balayage des règles dans leur ordre de déclaration. Une
 règle située plus loin dans le groupe voit les faits ajoutés par les règles
 précédentes pendant le même cycle.
 
+Le balayage est logique, pas nécessairement physique. Le moteur indexe les
+relations lues par chaque règle et ne réinstancie, après une mutation, que les
+règles qui dépendent du fait ajouté ou retiré. Une règle touchée située plus
+loin est évaluée dans le cycle courant ; une règle déjà dépassée est reportée
+au cycle suivant. Les prémisses imbriquées dans `EXISTS`, `NOT EXISTS`,
+`COUNT`, `UNIQUE` et `COLLECT` participent elles aussi à cet index. Les règles
+dont la dépendance ne peut pas être déterminée statiquement restent des
+dépendances génériques et sont donc toujours réévaluées.
+
 Une `ConflictResolutionStrategy` explicite remplace ce balayage par un agenda :
 le moteur maintient les activations, en sélectionne une, l’exécute puis
 réévalue les règles touchées. Avec `MEAConflictStrategy`, la prémisse `FOCUS`

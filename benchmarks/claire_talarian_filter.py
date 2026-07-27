@@ -16,6 +16,7 @@ from typing import Any
 from benchmarks.claire_support import (
     PROJECT_ROOT,
     git_commit,
+    git_dirty,
     resolve_claire_binary,
     resolve_claire_root,
 )
@@ -213,6 +214,10 @@ def measure_snarky(size: int, repeat: int) -> dict[str, Any]:
             "match_attempts": strategy.metrics.match_attempts,
             "candidate_facts": strategy.metrics.candidate_facts,
             "activations_produced": strategy.metrics.activations_produced,
+            "rule_evaluations": (
+                session.agenda_metrics.rule_recomputations
+            ),
+            "rule_skips": session.agenda_metrics.rule_reuses,
         }
         validate_metrics(size, sample)
         samples.append(sample)
@@ -225,6 +230,8 @@ def measure_snarky(size: int, repeat: int) -> dict[str, Any]:
             "match_attempts",
             "candidate_facts",
             "activations_produced",
+            "rule_evaluations",
+            "rule_skips",
         ),
     )
 
@@ -311,6 +318,9 @@ def run(
             "expected_rule_firings_per_frame": 10,
             "expected_outputs_per_frame": 10,
             "scheduling": "one input update followed by saturation",
+            "dependency_scheduling": (
+                "only rules affected by each fact mutation are evaluated"
+            ),
             "timing_scope": {
                 "snarky": "ten assume-and-run_group updates per frame",
                 "claire": "ten rule-triggering slot updates per frame",
@@ -324,6 +334,7 @@ def run(
         "python": platform.python_version(),
         "platform": platform.platform(),
         "snarky_commit": git_commit(PROJECT_ROOT),
+        "snarky_dirty": git_dirty(PROJECT_ROOT),
         "results": results,
     }
     if selected_root is not None and selected_binary is not None:
@@ -331,6 +342,7 @@ def run(
             "root": str(selected_root),
             "binary": str(selected_binary),
             "commit": git_commit(selected_root),
+            "dirty": git_dirty(selected_root),
             "mode": "interpreted",
         }
     return payload
@@ -352,23 +364,28 @@ def main() -> None:
     )
     parser.add_argument("--claire-root", type=Path)
     parser.add_argument("--claire-binary", type=Path)
+    parser.add_argument("--output", type=Path)
     arguments = parser.parse_args()
     if arguments.repeat < 1:
         parser.error("--repeat must be positive")
     if any(size < 1 for size in arguments.sizes):
         parser.error("--sizes must be positive")
-    print(
-        json.dumps(
-            run(
-                tuple(arguments.sizes),
-                arguments.repeat,
-                engine=arguments.engine,
-                claire_root=arguments.claire_root,
-                claire_binary=arguments.claire_binary,
-            ),
-            indent=2,
-        )
+    rendered = json.dumps(
+        run(
+            tuple(arguments.sizes),
+            arguments.repeat,
+            engine=arguments.engine,
+            claire_root=arguments.claire_root,
+            claire_binary=arguments.claire_binary,
+        ),
+        indent=2,
     )
+    if arguments.output is None:
+        print(rendered)
+    else:
+        arguments.output.parent.mkdir(parents=True, exist_ok=True)
+        arguments.output.write_text(f"{rendered}\n", encoding="utf-8")
+        print(arguments.output)
 
 
 if __name__ == "__main__":
