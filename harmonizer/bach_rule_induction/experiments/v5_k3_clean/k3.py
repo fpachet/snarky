@@ -73,6 +73,21 @@ class K3Dataset:
 
 
 @dataclass(frozen=True)
+class RhythmicLattice:
+    """Sounding SATB states and per-voice attacks on the union onset grid."""
+
+    piece_id: str
+    offsets: np.ndarray
+    blocks: np.ndarray
+    attacks: np.ndarray
+    end_offset: float
+
+    @property
+    def size(self) -> int:
+        return int(self.offsets.size)
+
+
+@dataclass(frozen=True)
 class FeatureSpec:
     """One generated numeric predicate over a K3 decision."""
 
@@ -168,6 +183,29 @@ def _sounding_pitch(
 def extract_piece_k3(score_path: Path, piece_id: str) -> list[tuple[Any, ...]]:
     """Extract attack-centered decisions on consecutive vertical states."""
 
+    lattice = extract_piece_lattice(score_path, piece_id)
+    rows: list[tuple[Any, ...]] = []
+    for index in range(1, lattice.size - 1):
+        kernel_blocks = lattice.blocks[index - 1 : index + 2]
+        kernel_attacks = lattice.attacks[index - 1 : index + 2]
+        kernel_offsets = lattice.offsets[index - 1 : index + 2]
+        for voice_index, is_attack in enumerate(lattice.attacks[index]):
+            if is_attack:
+                rows.append(
+                    (
+                        piece_id,
+                        tuple(kernel_offsets),
+                        voice_index,
+                        tuple(map(tuple, kernel_blocks)),
+                        tuple(map(tuple, kernel_attacks)),
+                    )
+                )
+    return rows
+
+
+def extract_piece_lattice(score_path: Path, piece_id: str) -> RhythmicLattice:
+    """Extract every complete vertical state without collapsing held notes."""
+
     from music21 import converter
 
     score = converter.parse(score_path)
@@ -191,28 +229,18 @@ def extract_piece_k3(score_path: Path, piece_id: str) -> list[tuple[Any, ...]]:
                 for voice_events in events
             )
         )
-
-    rows: list[tuple[Any, ...]] = []
-    for index in range(1, len(blocks) - 1):
-        kernel_blocks = (blocks[index - 1], blocks[index], blocks[index + 1])
-        kernel_attacks = (attacks[index - 1], attacks[index], attacks[index + 1])
-        kernel_offsets = (
-            valid_offsets[index - 1],
-            valid_offsets[index],
-            valid_offsets[index + 1],
-        )
-        for voice_index, is_attack in enumerate(attacks[index]):
-            if is_attack:
-                rows.append(
-                    (
-                        piece_id,
-                        kernel_offsets,
-                        voice_index,
-                        kernel_blocks,
-                        kernel_attacks,
-                    )
-                )
-    return rows
+    if len(blocks) < 3:
+        raise ValueError(f"{piece_id}: fewer than three complete vertical states")
+    end_offset = min(max(end for _, end, _ in voice_events) for voice_events in events)
+    if end_offset <= valid_offsets[-1]:
+        raise ValueError(f"{piece_id}: invalid final sounding span")
+    return RhythmicLattice(
+        piece_id=piece_id,
+        offsets=np.asarray(valid_offsets, dtype=np.float32),
+        blocks=np.asarray(blocks, dtype=np.int16),
+        attacks=np.asarray(attacks, dtype=bool),
+        end_offset=float(end_offset),
+    )
 
 
 def build_k3_dataset(
@@ -820,4 +848,173 @@ def gibbs_sample(
             probs = np.exp(scores)
             probs /= probs.sum()
             blocks[time, voice] = generator.choice(candidate_pitches, p=probs)
+    return blocks
+
+
+def attack_segments(attacks: np.ndarray) -> tuple[tuple[int, int, int], ...]:
+    """Return ``(start, end, voice)`` spans controlled by each attack."""
+
+    attack_grid = np.asarray(attacks, dtype=bool)
+    if attack_grid.ndim != 2 or attack_grid.shape[1] != 4:
+        raise ValueError("Expected attacks with shape (time, 4)")
+    if attack_grid.shape[0] < 3:
+        raise ValueError("K3 rhythmic sampling requires at least three blocks")
+    if not attack_grid[0].all():
+        raise ValueError("Every voice must attack in the first lattice block")
+    segments = []
+    for voice in range(4):
+        starts = np.flatnonzero(attack_grid[:, voice])
+        ends = np.concatenate((starts[1:], np.asarray([attack_grid.shape[0]])))
+        segments.extend(
+            (int(start), int(end), voice)
+            for start, end in zip(starts, ends, strict=True)
+        )
+    return tuple(sorted(segments))
+
+
+def _decision_dataset(
+    blocks: np.ndarray,
+    attacks: np.ndarray,
+    central_times: Sequence[int],
+    candidate_min: int,
+    candidate_max: int,
+) -> K3Dataset | None:
+    decisions = [
+        (time, voice)
+        for time in central_times
+        if 0 < time < blocks.shape[0] - 1
+        for voice in range(4)
+        if attacks[time, voice]
+    ]
+    if not decisions:
+        return None
+    return K3Dataset(
+        piece_ids=np.full(len(decisions), "generation"),
+        offsets=np.asarray(
+            [[time - 1, time, time + 1] for time, _ in decisions],
+            dtype=np.float32,
+        ),
+        voice_indices=np.asarray([voice for _, voice in decisions], dtype=np.int8),
+        blocks=np.asarray(
+            [blocks[time - 1 : time + 2] for time, _ in decisions],
+            dtype=np.int16,
+        ),
+        attacks=np.asarray(
+            [attacks[time - 1 : time + 2] for time, _ in decisions],
+            dtype=bool,
+        ),
+        candidate_min=candidate_min,
+        candidate_max=candidate_max,
+    )
+
+
+def _state_energy(
+    blocks: np.ndarray,
+    attacks: np.ndarray,
+    central_times: Sequence[int],
+    *,
+    candidate_min: int,
+    candidate_max: int,
+    register_logits: np.ndarray,
+    features: Sequence[FeatureSpec],
+    weights: np.ndarray,
+) -> float:
+    dataset = _decision_dataset(
+        blocks,
+        attacks,
+        central_times,
+        candidate_min,
+        candidate_max,
+    )
+    if dataset is None:
+        return 0.0
+    if np.any(dataset.chosen_indices < 0) or np.any(
+        dataset.chosen_indices >= dataset.candidate_pitches.size
+    ):
+        return -math.inf
+    rows = np.arange(dataset.size)
+    score = register_logits[dataset.voice_indices, dataset.chosen_indices]
+    if features:
+        matrix = feature_matrix(dataset, features)
+        score += matrix[rows, dataset.chosen_indices] @ weights
+    return float(score.sum())
+
+
+def rhythmic_gibbs_sample(
+    initial_blocks: np.ndarray,
+    attacks: np.ndarray,
+    fixed: np.ndarray,
+    *,
+    candidate_min: int,
+    candidate_max: int,
+    register_logits: np.ndarray,
+    features: Sequence[FeatureSpec],
+    weights: np.ndarray,
+    sweeps: int,
+    seed: int,
+    temperature: float = 1.0,
+) -> np.ndarray:
+    """Sample attack pitches while preserving every per-voice hold span.
+
+    A sampled attack controls its pitch until the next attack in that voice.
+    Candidate scores sum every attack-centred K3 energy whose kernel intersects
+    the changed span.
+    """
+
+    blocks = np.asarray(initial_blocks, dtype=np.int16).copy()
+    attack_grid = np.asarray(attacks, dtype=bool)
+    fixed_mask = np.asarray(fixed, dtype=bool)
+    if (
+        blocks.ndim != 2
+        or blocks.shape[1] != 4
+        or attack_grid.shape != blocks.shape
+        or fixed_mask.shape != blocks.shape
+    ):
+        raise ValueError("Expected blocks, attacks and fixed with shape (time, 4)")
+    if register_logits.shape != (4, candidate_max - candidate_min + 1):
+        raise ValueError("Register logits do not match the declared pitch domain")
+    if len(features) != weights.size:
+        raise ValueError("One learned weight is required per K3 feature")
+    segments = attack_segments(attack_grid)
+    for start, end, voice in segments:
+        if not np.all(blocks[start:end, voice] == blocks[start, voice]):
+            raise ValueError("A held span changes pitch before its next attack")
+    mutable = [
+        segment
+        for segment in segments
+        if not fixed_mask[segment[0] : segment[1], segment[2]].any()
+    ]
+    if not mutable:
+        return blocks
+    generator = np.random.default_rng(seed)
+    candidates = np.arange(candidate_min, candidate_max + 1, dtype=np.int16)
+    scale = max(temperature, 1e-6)
+    for _ in range(sweeps):
+        generator.shuffle(mutable)
+        for start, end, voice in mutable:
+            affected_times = range(
+                max(1, start - 1),
+                min(blocks.shape[0] - 2, end) + 1,
+            )
+            previous = blocks[start:end, voice].copy()
+            scores = np.empty(candidates.size, dtype=np.float64)
+            for index, candidate in enumerate(candidates):
+                blocks[start:end, voice] = candidate
+                scores[index] = _state_energy(
+                    blocks,
+                    attack_grid,
+                    affected_times,
+                    candidate_min=candidate_min,
+                    candidate_max=candidate_max,
+                    register_logits=register_logits,
+                    features=features,
+                    weights=weights,
+                )
+            blocks[start:end, voice] = previous
+            scores /= scale
+            scores -= scores.max()
+            probabilities = np.exp(scores)
+            probabilities /= probabilities.sum()
+            selected = generator.choice(candidates, p=probabilities)
+            blocks[start:end, voice] = selected
     return blocks

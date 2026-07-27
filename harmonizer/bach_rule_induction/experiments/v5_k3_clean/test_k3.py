@@ -178,6 +178,52 @@ def test_gibbs_sampler_is_deterministic_and_preserves_fixed_cells() -> None:
     assert np.array_equal(first[:, 0], blocks[:, 0])
 
 
+def test_attack_segments_cover_holds_until_the_next_attack() -> None:
+    attacks = np.ones((5, 4), dtype=bool)
+    attacks[2, 1] = False
+    attacks[3, 1] = False
+
+    voice_one = [segment for segment in k3.attack_segments(attacks) if segment[2] == 1]
+
+    assert voice_one == [(0, 1, 1), (1, 4, 1), (4, 5, 1)]
+
+
+def test_rhythmic_gibbs_changes_one_attack_and_its_whole_hold() -> None:
+    blocks = np.asarray(
+        [
+            [62, 60, 60, 60],
+            [62, 60, 60, 60],
+            [62, 60, 60, 60],
+            [62, 61, 60, 60],
+            [62, 61, 60, 60],
+        ],
+        dtype=np.int16,
+    )
+    attacks = np.ones_like(blocks, dtype=bool)
+    attacks[2, 1] = False
+    fixed = np.ones_like(blocks, dtype=bool)
+    fixed[1:3, 1] = False
+    logits = np.zeros((4, 3), dtype=np.float64)
+    logits[1] = (-100.0, -100.0, 0.0)
+
+    generated = k3.rhythmic_gibbs_sample(
+        blocks,
+        attacks,
+        fixed,
+        candidate_min=60,
+        candidate_max=62,
+        register_logits=logits,
+        features=(),
+        weights=np.asarray([], dtype=np.float64),
+        sweeps=1,
+        seed=3,
+    )
+
+    assert np.array_equal(generated[1:3, 1], [62, 62])
+    assert generated[3, 1] == 61
+    assert np.array_equal(generated[:, 0], blocks[:, 0])
+
+
 def test_clean_induction_source_has_no_rule_base_dependency() -> None:
     source = (Path(__file__).parent / "run_induction.py").read_text(encoding="utf-8")
 

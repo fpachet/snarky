@@ -55,7 +55,9 @@ gain de validation positif après réapprentissage des onze autres. La première
 colonne est aussi validée contre le maximum de 49 contrôles permutés sur tout
 le catalogue. Avant toute promotion de la base complète, il reste à calibrer
 le processus séquentiel entier sous permutations, auditer la clause
-spécialisée de rang 11 et étendre le Gibbs aux tenues réelles.
+spécialisée de rang 11 et apprendre le rythme. Le Gibbs respecte désormais les
+tenues réelles d'un squelette polyphonique et produit MusicXML/MIDI avec durées
+distinctes ; il ne choisit pas encore lui-même `ATTACK/HOLD`.
 
 Deux résultats scientifiques distincts sont recherchés :
 

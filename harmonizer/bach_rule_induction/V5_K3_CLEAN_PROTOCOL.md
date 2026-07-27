@@ -164,3 +164,54 @@ Cette conclusion protège uniquement la première colonne, évaluée avant tout
 choix adaptatif antérieur. Elle ne doit pas être étendue aux onze colonnes
 résiduelles. Leur contrôle exige de rejouer sous chaque permutation la
 sélection et le réajustement séquentiels complets.
+
+## Génération temporelle V5.5
+
+La grille dense du premier diagnostic est remplacée par l'union des attaques
+des quatre voix d'un choral réel. Chaque cellule contient un indicateur
+`ATTACK` ou `HOLD`. Une variable générative correspond à une attaque et
+contrôle la hauteur de tous ses blocs de tenue jusqu'à l'attaque suivante.
+
+Lorsqu'une hauteur change, le sampler additionne les énergies de toutes les
+décisions centrées sur une attaque dont le K3 intersecte la durée modifiée.
+Cette sémantique évite de compter une blanche comme quatre noires répétées et
+conserve les interactions avec les attaques des autres voix.
+
+Le premier diagnostic utilise `bach/bwv108.6`, appartenant au train :
+
+- `98` blocs verticaux ;
+- `292` segments d'attaque, dont `223` rééchantillonnés ;
+- soprano et rythme polyphonique fixés ;
+- `100` cellules de tenue ;
+- durées de `0,25`, `0,5`, `1` et `2` noires dans la partition produite ;
+- cohérence des tenues exacte et aucun croisement de voix observé ;
+- MusicXML et MIDI relus avec quatre parties.
+
+Ce jalon démontre la génération de hauteurs apprises sur des rythmes
+polyphoniques distincts. Il ne génère pas encore le rythme lui-même. Il révèle
+aussi une lacune attendue du vocabulaire initial : aucune feature ne représente
+la tonalité locale ou le degré d'échelle.
+
+## Protocole V5.6 proposé pour apprendre le rythme
+
+La prochaine expérience quantifie chaque choral à la double-croche, comme
+DeepBach, avec le domaine local :
+
+```text
+ATTACK(pitch) | HOLD | REST
+```
+
+Pour isoler les sources de gain, l'induction sera effectuée en trois étapes :
+
+1. hauteurs de Bach fixées, apprendre `ATTACK/HOLD` selon voix, position
+   métrique et K3 ;
+2. rythme fixé, réapprendre les hauteurs avec tonalité locale et degré
+   d'échelle comme statuts explicites ;
+3. sampler conjointement rythme et hauteur, puis mesurer séparément NLL
+   rythmique, NLL de hauteur et qualité des partitions entières.
+
+Une note courte en mouvement conjoint de même direction pourra ainsi être
+découverte comme configuration statistique avant de recevoir, après gel, le
+nom de « note de passage ». Les règles et poids gelés seront ensuite compilés
+dans la base `S-K3-LEARNED` de Snarky ; V5.5 utilise encore directement
+l'évaluateur K3 Python.

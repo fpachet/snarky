@@ -13,6 +13,8 @@ Le dossier ne charge aucun fichier de `rules/` ni aucun manifeste de
 - `run_gibbs_diagnostic.py` : génération dense avec le modèle appris ;
 - `run_k3_ablation.py` : retrait d'une règle et réajustement des autres ;
 - `run_k3_null_max_calibration.py` : calibration familiale de la première règle ;
+- `run_rhythmic_gibbs.py` : génération des hauteurs sur une grille polyphonique
+  réelle d'attaques et de tenues ;
 - `results/` : artefacts et rapports reproductibles.
 
 `V5.0` conserve le premier catalogue spécialisé, qui a appris huit variantes
@@ -31,6 +33,8 @@ Résultats principaux :
   conditionnelle de chaque règle après réajustement des onze autres ;
 - [`V5_4_K3_FIRST_COLUMN_NULL_MAX.md`](results/V5_4_K3_FIRST_COLUMN_NULL_MAX.md),
   calibration de la première découverte contre le maximum des faux signaux ;
+- [`V5_5_K3_RHYTHMIC_GIBBS.md`](results/V5_5_K3_RHYTHMIC_GIBBS.md), premier
+  choral avec croches, doubles-croches et tenues par voix ;
 - `v5_1_k3_compact_model.json`, modèle complet pour le Gibbs.
 
 Le protocole complet est
