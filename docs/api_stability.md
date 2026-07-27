@@ -42,16 +42,22 @@ Compatibility can depend on the corresponding optional integration.
 ## Experimental API
 
 Experimental names represent active research, including adaptive
-instantiation and specialized constraint propagation. Their signatures and
-behavior may evolve between minor releases while Snarky is pre-1.0. They
-should be imported from their defining modules.
+instantiation, selected search policies, and specialized propagation
+strategies. Their signatures and behavior may evolve between minor releases
+while Snarky is pre-1.0. They should be imported from their defining modules.
 
-The companion `csp_solver` package is currently experimental. Its public
-constraint models—including `AllDifferentConstraint`, `SumConstraint`,
-`LinearSumConstraint`, `BinaryComparisonConstraint`, `ElementConstraint`,
-`CountConstraint`, `GlobalCardinalityConstraint`, `TableConstraint`, and
+The persistent finite-domain constraints themselves are not experimental in
+the sense of being unverified: their propagation semantics are documented and
+covered by unit, differential-oracle, rollback, and backtracking tests.
+
+The public API of the companion `csp_solver` package is nevertheless
+provisional before 1.0. Its constraint models—including
+`AllDifferentConstraint`, `SumConstraint`, `LinearSumConstraint`,
+`BinaryComparisonConstraint`, `ElementConstraint`, `CountConstraint`,
+`GlobalCardinalityConstraint`, `TableConstraint`, and
 `LexLessEqualConstraint`—are exported from `csp_solver`, but are not part of
-Snarky's stable core API.
+Snarky's stable core API. Their import paths and signatures may therefore
+evolve between minor releases.
 
 ## Top-level transition
 

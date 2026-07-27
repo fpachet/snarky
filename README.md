@@ -5,8 +5,9 @@ Jean-Louis Laurière's SNARK and Jean-Luc Dormoy's BOOJUM. It combines
 production rules, recursive terms, finite-domain propagation, explicit
 weighted choices, and reversible search in one explainable runtime.
 
-Snarky is a research prototype: its core semantics and compatibility boundary
-are tested, while adaptive propagation and some search policies remain
+Snarky is a research prototype: its core inference and finite-domain
+constraint semantics are extensively tested. Adaptive strategy selection,
+selected search policies, and the pre-1.0 `csp_solver` public API remain
 experimental.
 
 ## Why Snarky?
