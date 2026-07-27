@@ -42,3 +42,12 @@ Le quatrième incrément recherche les parallèles dans les six paires SATB. Un
 budget de deux règles sur les douze classes retient `0` et `7`, contre aucune
 classe dans le contrôle nul. Les formules sont équivalentes aux deux règles
 Snarky de référence sur 1 130 364 états valides par classe.
+
+Le cinquième incrément ajuste conjointement les sept règles récupérées. Elles
+améliorent la NLL de validation de `0,068188`, soit environ 10,8 fois le gain
+du contrôle permuté. Une neutralisation à poids fixes attribue l'essentiel du
+gain propre aux deux règles de parallèles.
+
+Le sixième incrément réentraîne le modèle après retrait de chaque groupe.
+Toutes les pénalités authentiques restent positives ; celle des parallèles
+atteint `0,051384` et tombe à environ zéro dans le contrôle permuté.

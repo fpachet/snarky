@@ -237,6 +237,43 @@ aucune classe. Les deux formules sont équivalentes à `R-PARALLEL-001/002` sur
 Voir [`V2_3_ANALYSIS.md`](V2_3_ANALYSIS.md) et le
 [`rapport canonique`](results/V2_3_SATB_PARALLELS_REPORT.md).
 
+## POC V2.4 — ablation conjointe
+
+Les sept règles de niveau A sont ensuite ajustées dans un même catalogue :
+
+```sh
+../deepbach-reference/.venv/bin/python \
+  harmonizer/bach_rule_induction/experiments/differentiable_rules_poc/\
+run_satb_ablation.py
+```
+
+Elles réduisent ensemble la NLL de validation de `1,355250` à `1,287062`.
+Neutraliser n'importe laquelle des sept colonnes augmente la perte ; les
+octaves et quintes parallèles ont les contributions propres les plus fortes.
+Le contrôle permuté ne gagne que `0,006307`, contre `0,068188` sur les chorals.
+
+Voir [`V2_4_ANALYSIS.md`](V2_4_ANALYSIS.md) et le
+[`rapport d'ablation`](results/V2_4_SATB_ABLATION_REPORT.md).
+
+## POC V2.5 — ablation réajustée par groupe
+
+Le V2.5 retire chaque famille puis réestime depuis zéro tous les poids
+restants :
+
+```sh
+../deepbach-reference/.venv/bin/python \
+  harmonizer/bach_rule_induction/experiments/differentiable_rules_poc/\
+run_satb_group_refit.py
+```
+
+Après compensation, les pénalités de validation restent positives :
+`+0,051384` pour les parallèles, `+0,008753` pour la mélodie, `+0,005419`
+pour l'overlap et `+0,000997` pour les mouvements directs. Dans le contrôle,
+la pénalité des parallèles est pratiquement nulle.
+
+Voir [`V2_5_ANALYSIS.md`](V2_5_ANALYSIS.md) et le
+[`rapport canonique`](results/V2_5_SATB_GROUP_REFIT_REPORT.md).
+
 ## Interprétation prudente
 
 Une valeur conditionnelle extrême est une hypothèse de règle, pas une preuve

@@ -1,0 +1,775 @@
+{
+  "corpus": {
+    "pieces_total": 352,
+    "test_opened": false,
+    "test_pieces_reserved": 51,
+    "train_opportunities": 68491,
+    "train_pieces": 251,
+    "validation_opportunities": 13249,
+    "validation_pieces": 50
+  },
+  "experiment": {
+    "ablation_kind": "fixed_fitted_weight_zeroing",
+    "name": "differentiable_rules_poc_v2_4_joint_ablation",
+    "null_shuffle": false,
+    "rule_ids": [
+      "R-MELODY-001",
+      "R-MELODY-002",
+      "R-OVERLAP-001",
+      "R-PARALLEL-001",
+      "R-PARALLEL-002",
+      "R-DIRECT-001",
+      "R-DIRECT-002"
+    ],
+    "seed": 1729,
+    "split_strategy": "exact_soprano_contour_and_rhythm_conservative_grouping",
+    "test_opened": false
+  },
+  "model": {
+    "baseline_train_nll": 1.3451111925800345,
+    "baseline_validation_nll": 1.3552498541017313,
+    "fixed_weight_zeroing_ablation": [
+      {
+        "ablated_validation_nll": 1.31550514873277,
+        "rule_id": "R-PARALLEL-001",
+        "validation_nll_penalty": 0.028443476049112792
+      },
+      {
+        "ablated_validation_nll": 1.3121221709147817,
+        "rule_id": "R-PARALLEL-002",
+        "validation_nll_penalty": 0.02506049823112444
+      },
+      {
+        "ablated_validation_nll": 1.2947584791535265,
+        "rule_id": "R-OVERLAP-001",
+        "validation_nll_penalty": 0.007696806469869255
+      },
+      {
+        "ablated_validation_nll": 1.2929324161025078,
+        "rule_id": "R-MELODY-002",
+        "validation_nll_penalty": 0.005870743418850521
+      },
+      {
+        "ablated_validation_nll": 1.2899788547884516,
+        "rule_id": "R-MELODY-001",
+        "validation_nll_penalty": 0.0029171821047944135
+      },
+      {
+        "ablated_validation_nll": 1.2878975998478237,
+        "rule_id": "R-DIRECT-002",
+        "validation_nll_penalty": 0.0008359271641664723
+      },
+      {
+        "ablated_validation_nll": 1.2875628511438095,
+        "rule_id": "R-DIRECT-001",
+        "validation_nll_penalty": 0.0005011784601522962
+      }
+    ],
+    "full_train_nll": 1.2828530651488612,
+    "full_validation_nll": 1.2870616726836572,
+    "validation_nll_gain": 0.06818818141807403,
+    "voice_models": [
+      {
+        "ablated_validation_nll": {
+          "R-DIRECT-001": 1.227616173322031,
+          "R-DIRECT-002": 1.2291961824347792,
+          "R-MELODY-001": 1.226605134656161,
+          "R-MELODY-002": 1.2309590299809994,
+          "R-OVERLAP-001": 1.2341355666527223,
+          "R-PARALLEL-001": 1.2449185250755046,
+          "R-PARALLEL-002": 1.2372417297887393
+        },
+        "baseline_feature_count": 67,
+        "baseline_fit": {
+          "best_validation_nll": 1.275431468112613,
+          "history": [
+            {
+              "active_weights": 0,
+              "step": 1,
+              "train_nll": 2.893921800139471,
+              "validation_nll": 2.894333109432071
+            },
+            {
+              "active_weights": 66,
+              "step": 10,
+              "train_nll": 1.8871787737604957,
+              "validation_nll": 1.8854362050705948
+            },
+            {
+              "active_weights": 66,
+              "step": 20,
+              "train_nll": 1.5652885395890799,
+              "validation_nll": 1.5700550708170184
+            },
+            {
+              "active_weights": 67,
+              "step": 30,
+              "train_nll": 1.4275366978438748,
+              "validation_nll": 1.4381447352700905
+            },
+            {
+              "active_weights": 66,
+              "step": 40,
+              "train_nll": 1.3673379971722637,
+              "validation_nll": 1.3799285368556382
+            },
+            {
+              "active_weights": 66,
+              "step": 50,
+              "train_nll": 1.3303247363056356,
+              "validation_nll": 1.3433534785914214
+            },
+            {
+              "active_weights": 62,
+              "step": 60,
+              "train_nll": 1.3051323827569747,
+              "validation_nll": 1.3186893220531175
+            },
+            {
+              "active_weights": 65,
+              "step": 70,
+              "train_nll": 1.2885915673805697,
+              "validation_nll": 1.3022325718562728
+            },
+            {
+              "active_weights": 65,
+              "step": 80,
+              "train_nll": 1.2769333219686176,
+              "validation_nll": 1.2899692013356183
+            },
+            {
+              "active_weights": 65,
+              "step": 90,
+              "train_nll": 1.2685858166383404,
+              "validation_nll": 1.2814081995435398
+            },
+            {
+              "active_weights": 65,
+              "step": 100,
+              "train_nll": 1.2623139281784448,
+              "validation_nll": 1.275431468112613
+            }
+          ],
+          "l1": 0.001
+        },
+        "baseline_train_nll": 1.2623139281784448,
+        "baseline_validation_nll": 1.275431468112613,
+        "full_fit": {
+          "best_validation_nll": 1.2252506181319496,
+          "history": [
+            {
+              "active_weights": 0,
+              "step": 1,
+              "train_nll": 2.8769109538975597,
+              "validation_nll": 2.8766880405354156
+            },
+            {
+              "active_weights": 72,
+              "step": 10,
+              "train_nll": 1.8207032052558587,
+              "validation_nll": 1.8180199610259127
+            },
+            {
+              "active_weights": 72,
+              "step": 20,
+              "train_nll": 1.5015319642202554,
+              "validation_nll": 1.504883102982316
+            },
+            {
+              "active_weights": 72,
+              "step": 30,
+              "train_nll": 1.3710801555857077,
+              "validation_nll": 1.3799476263149333
+            },
+            {
+              "active_weights": 74,
+              "step": 40,
+              "train_nll": 1.314053112388525,
+              "validation_nll": 1.324961705558487
+            },
+            {
+              "active_weights": 73,
+              "step": 50,
+              "train_nll": 1.2788023084219446,
+              "validation_nll": 1.290304075108663
+            },
+            {
+              "active_weights": 69,
+              "step": 60,
+              "train_nll": 1.25497189863126,
+              "validation_nll": 1.267211399557912
+            },
+            {
+              "active_weights": 69,
+              "step": 70,
+              "train_nll": 1.2390013229971903,
+              "validation_nll": 1.2516136761643037
+            },
+            {
+              "active_weights": 71,
+              "step": 80,
+              "train_nll": 1.2274961921604166,
+              "validation_nll": 1.2397755789646399
+            },
+            {
+              "active_weights": 72,
+              "step": 90,
+              "train_nll": 1.2190415455980248,
+              "validation_nll": 1.2313280551428276
+            },
+            {
+              "active_weights": 71,
+              "step": 100,
+              "train_nll": 1.2125450314259032,
+              "validation_nll": 1.2252506181319496
+            }
+          ],
+          "l1": 0.001
+        },
+        "full_train_nll": 1.2125450314259032,
+        "full_validation_nll": 1.2252506181319496,
+        "rule_weights": {
+          "R-DIRECT-001": -1.1384081451296304,
+          "R-DIRECT-002": -0.9624822827826056,
+          "R-MELODY-001": -0.9906539375135018,
+          "R-MELODY-002": -1.263732904599267,
+          "R-OVERLAP-001": -1.1060539075523297,
+          "R-PARALLEL-001": -2.28804982913917,
+          "R-PARALLEL-002": -2.232274033711864
+        },
+        "train_opportunities": 14731,
+        "validation_opportunities": 2807,
+        "voice": "Soprano"
+      },
+      {
+        "ablated_validation_nll": {
+          "R-DIRECT-001": 1.2289802070561864,
+          "R-DIRECT-002": 1.2289802070561864,
+          "R-MELODY-001": 1.2296393362440574,
+          "R-MELODY-002": 1.23359503433199,
+          "R-OVERLAP-001": 1.241144083333917,
+          "R-PARALLEL-001": 1.2442480114071548,
+          "R-PARALLEL-002": 1.2495843231254273
+        },
+        "baseline_feature_count": 67,
+        "baseline_fit": {
+          "best_validation_nll": 1.2767889175548623,
+          "history": [
+            {
+              "active_weights": 0,
+              "step": 1,
+              "train_nll": 2.779749048847662,
+              "validation_nll": 2.776398446634359
+            },
+            {
+              "active_weights": 66,
+              "step": 10,
+              "train_nll": 1.7363916413019669,
+              "validation_nll": 1.7252670759402835
+            },
+            {
+              "active_weights": 66,
+              "step": 20,
+              "train_nll": 1.5035564629140659,
+              "validation_nll": 1.4925753918654852
+            },
+            {
+              "active_weights": 64,
+              "step": 30,
+              "train_nll": 1.4060138834054325,
+              "validation_nll": 1.3981217969737343
+            },
+            {
+              "active_weights": 64,
+              "step": 40,
+              "train_nll": 1.3590275714452906,
+              "validation_nll": 1.3556638096982272
+            },
+            {
+              "active_weights": 65,
+              "step": 50,
+              "train_nll": 1.3286938992639143,
+              "validation_nll": 1.3276794445244278
+            },
+            {
+              "active_weights": 64,
+              "step": 60,
+              "train_nll": 1.3097887694643195,
+              "validation_nll": 1.3093026967949155
+            },
+            {
+              "active_weights": 63,
+              "step": 70,
+              "train_nll": 1.2974234632632642,
+              "validation_nll": 1.296960141496721
+            },
+            {
+              "active_weights": 64,
+              "step": 80,
+              "train_nll": 1.2883049710206842,
+              "validation_nll": 1.2882084101270184
+            },
+            {
+              "active_weights": 63,
+              "step": 90,
+              "train_nll": 1.2817289906167895,
+              "validation_nll": 1.281920777896509
+            },
+            {
+              "active_weights": 64,
+              "step": 100,
+              "train_nll": 1.2767414746354835,
+              "validation_nll": 1.2767889175548623
+            }
+          ],
+          "l1": 0.001
+        },
+        "baseline_train_nll": 1.2767414746354835,
+        "baseline_validation_nll": 1.2767889175548623,
+        "full_fit": {
+          "best_validation_nll": 1.2289802070561864,
+          "history": [
+            {
+              "active_weights": 0,
+              "step": 1,
+              "train_nll": 2.7604970373922506,
+              "validation_nll": 2.7566269923685582
+            },
+            {
+              "active_weights": 71,
+              "step": 10,
+              "train_nll": 1.6885628521745282,
+              "validation_nll": 1.675018888157735
+            },
+            {
+              "active_weights": 71,
+              "step": 20,
+              "train_nll": 1.4617008101696947,
+              "validation_nll": 1.4470326638511466
+            },
+            {
+              "active_weights": 71,
+              "step": 30,
+              "train_nll": 1.3648051032498492,
+              "validation_nll": 1.3531440383448992
+            },
+            {
+              "active_weights": 70,
+              "step": 40,
+              "train_nll": 1.317931579671568,
+              "validation_nll": 1.310224329906311
+            },
+            {
+              "active_weights": 70,
+              "step": 50,
+              "train_nll": 1.287033007486485,
+              "validation_nll": 1.2814828764107558
+            },
+            {
+              "active_weights": 68,
+              "step": 60,
+              "train_nll": 1.2676770580826824,
+              "validation_nll": 1.2628147263291487
+            },
+            {
+              "active_weights": 68,
+              "step": 70,
+              "train_nll": 1.2548923082679997,
+              "validation_nll": 1.250129564718538
+            },
+            {
+              "active_weights": 69,
+              "step": 80,
+              "train_nll": 1.245443466280097,
+              "validation_nll": 1.2409518198968466
+            },
+            {
+              "active_weights": 69,
+              "step": 90,
+              "train_nll": 1.23853749825482,
+              "validation_nll": 1.2343285877297667
+            },
+            {
+              "active_weights": 69,
+              "step": 100,
+              "train_nll": 1.233254847929198,
+              "validation_nll": 1.2289802070561864
+            }
+          ],
+          "l1": 0.001
+        },
+        "full_train_nll": 1.233254847929198,
+        "full_validation_nll": 1.2289802070561864,
+        "rule_weights": {
+          "R-DIRECT-001": 0.0,
+          "R-DIRECT-002": 0.0,
+          "R-MELODY-001": -0.8979101106178422,
+          "R-MELODY-002": -1.1721021695968357,
+          "R-OVERLAP-001": -0.824218343808777,
+          "R-PARALLEL-001": -2.442492876653706,
+          "R-PARALLEL-002": -2.367078002512111
+        },
+        "train_opportunities": 17741,
+        "validation_opportunities": 3457,
+        "voice": "Alto"
+      },
+      {
+        "ablated_validation_nll": {
+          "R-DIRECT-001": 1.278537004606361,
+          "R-DIRECT-002": 1.278537004606361,
+          "R-MELODY-001": 1.2794412530705594,
+          "R-MELODY-002": 1.2845575060430658,
+          "R-OVERLAP-001": 1.284680465489781,
+          "R-PARALLEL-001": 1.3071761818295853,
+          "R-PARALLEL-002": 1.303312278478603
+        },
+        "baseline_feature_count": 69,
+        "baseline_fit": {
+          "best_validation_nll": 1.343047442203535,
+          "history": [
+            {
+              "active_weights": 0,
+              "step": 1,
+              "train_nll": 2.8753542129072427,
+              "validation_nll": 2.878078125679283
+            },
+            {
+              "active_weights": 69,
+              "step": 10,
+              "train_nll": 1.8441708451909649,
+              "validation_nll": 1.8710099175143504
+            },
+            {
+              "active_weights": 68,
+              "step": 20,
+              "train_nll": 1.5766739442406636,
+              "validation_nll": 1.6126629505927625
+            },
+            {
+              "active_weights": 69,
+              "step": 30,
+              "train_nll": 1.4616434526559448,
+              "validation_nll": 1.4918937955197662
+            },
+            {
+              "active_weights": 68,
+              "step": 40,
+              "train_nll": 1.4124639752838246,
+              "validation_nll": 1.436215590997864
+            },
+            {
+              "active_weights": 68,
+              "step": 50,
+              "train_nll": 1.3799169216834164,
+              "validation_nll": 1.4032907756789637
+            },
+            {
+              "active_weights": 67,
+              "step": 60,
+              "train_nll": 1.3577298085220304,
+              "validation_nll": 1.3832660594535826
+            },
+            {
+              "active_weights": 65,
+              "step": 70,
+              "train_nll": 1.342305286098693,
+              "validation_nll": 1.3684774196750122
+            },
+            {
+              "active_weights": 64,
+              "step": 80,
+              "train_nll": 1.3311635079170951,
+              "validation_nll": 1.357152400322988
+            },
+            {
+              "active_weights": 63,
+              "step": 90,
+              "train_nll": 1.322847002855181,
+              "validation_nll": 1.3490228053554196
+            },
+            {
+              "active_weights": 63,
+              "step": 100,
+              "train_nll": 1.3164921967676226,
+              "validation_nll": 1.343047442203535
+            }
+          ],
+          "l1": 0.001
+        },
+        "baseline_train_nll": 1.3164921967676226,
+        "baseline_validation_nll": 1.343047442203535,
+        "full_fit": {
+          "best_validation_nll": 1.278537004606361,
+          "history": [
+            {
+              "active_weights": 0,
+              "step": 1,
+              "train_nll": 2.858316133952058,
+              "validation_nll": 2.860888819581362
+            },
+            {
+              "active_weights": 74,
+              "step": 10,
+              "train_nll": 1.8001968320454838,
+              "validation_nll": 1.8233135764058475
+            },
+            {
+              "active_weights": 73,
+              "step": 20,
+              "train_nll": 1.5328959640297428,
+              "validation_nll": 1.5601340036836435
+            },
+            {
+              "active_weights": 74,
+              "step": 30,
+              "train_nll": 1.4173710656638134,
+              "validation_nll": 1.4362261079670167
+            },
+            {
+              "active_weights": 73,
+              "step": 40,
+              "train_nll": 1.3664079801162548,
+              "validation_nll": 1.3773915591195407
+            },
+            {
+              "active_weights": 73,
+              "step": 50,
+              "train_nll": 1.3317718974534616,
+              "validation_nll": 1.3417633768570967
+            },
+            {
+              "active_weights": 72,
+              "step": 60,
+              "train_nll": 1.3084697932765883,
+              "validation_nll": 1.3204550264742199
+            },
+            {
+              "active_weights": 68,
+              "step": 70,
+              "train_nll": 1.2923606159384131,
+              "validation_nll": 1.3050814312994574
+            },
+            {
+              "active_weights": 69,
+              "step": 80,
+              "train_nll": 1.2807050588671451,
+              "validation_nll": 1.2934194281634033
+            },
+            {
+              "active_weights": 69,
+              "step": 90,
+              "train_nll": 1.2719770163466921,
+              "validation_nll": 1.284890413416753
+            },
+            {
+              "active_weights": 69,
+              "step": 100,
+              "train_nll": 1.2652917799311691,
+              "validation_nll": 1.278537004606361
+            }
+          ],
+          "l1": 0.001
+        },
+        "full_train_nll": 1.2652917799311691,
+        "full_validation_nll": 1.278537004606361,
+        "rule_weights": {
+          "R-DIRECT-001": 0.0,
+          "R-DIRECT-002": 0.0,
+          "R-MELODY-001": -0.9020030793728797,
+          "R-MELODY-002": -0.8831346496621301,
+          "R-OVERLAP-001": -0.5576615293189433,
+          "R-PARALLEL-001": -2.5784997226535857,
+          "R-PARALLEL-002": -2.1321587885662705
+        },
+        "train_opportunities": 18066,
+        "validation_opportunities": 3447,
+        "voice": "Tenor"
+      },
+      {
+        "ablated_validation_nll": {
+          "R-DIRECT-001": 1.4011588427411052,
+          "R-DIRECT-002": 1.4011588427411052,
+          "R-MELODY-001": 1.4094833378695384,
+          "R-MELODY-002": 1.408239634474088,
+          "R-OVERLAP-001": 1.4050615867954368,
+          "R-PARALLEL-001": 1.449248089732169,
+          "R-PARALLEL-002": 1.4412206551646698
+        },
+        "baseline_feature_count": 70,
+        "baseline_fit": {
+          "best_validation_nll": 1.5071298374050277,
+          "history": [
+            {
+              "active_weights": 0,
+              "step": 1,
+              "train_nll": 3.0162875315829267,
+              "validation_nll": 3.0201440477425203
+            },
+            {
+              "active_weights": 68,
+              "step": 10,
+              "train_nll": 2.097414446180751,
+              "validation_nll": 2.1234963843988828
+            },
+            {
+              "active_weights": 67,
+              "step": 20,
+              "train_nll": 1.8210735497545754,
+              "validation_nll": 1.8430434095941326
+            },
+            {
+              "active_weights": 68,
+              "step": 30,
+              "train_nll": 1.7018836681543412,
+              "validation_nll": 1.7227020464441483
+            },
+            {
+              "active_weights": 67,
+              "step": 40,
+              "train_nll": 1.6349435866049027,
+              "validation_nll": 1.6501311172320583
+            },
+            {
+              "active_weights": 69,
+              "step": 50,
+              "train_nll": 1.5943453928176452,
+              "validation_nll": 1.6026308838077516
+            },
+            {
+              "active_weights": 69,
+              "step": 60,
+              "train_nll": 1.5655160418466063,
+              "validation_nll": 1.5712690815204
+            },
+            {
+              "active_weights": 69,
+              "step": 70,
+              "train_nll": 1.5446609294674993,
+              "validation_nll": 1.5476150588974356
+            },
+            {
+              "active_weights": 70,
+              "step": 80,
+              "train_nll": 1.5293369315635092,
+              "validation_nll": 1.5293473449239994
+            },
+            {
+              "active_weights": 69,
+              "step": 90,
+              "train_nll": 1.5179438389408393,
+              "validation_nll": 1.516751206587596
+            },
+            {
+              "active_weights": 70,
+              "step": 100,
+              "train_nll": 1.5094104431955933,
+              "validation_nll": 1.5071298374050277
+            }
+          ],
+          "l1": 0.001
+        },
+        "baseline_train_nll": 1.5094104431955933,
+        "baseline_validation_nll": 1.5071298374050277,
+        "full_fit": {
+          "best_validation_nll": 1.4011588427411052,
+          "history": [
+            {
+              "active_weights": 0,
+              "step": 1,
+              "train_nll": 3.0044471417202905,
+              "validation_nll": 3.008127941288825
+            },
+            {
+              "active_weights": 74,
+              "step": 10,
+              "train_nll": 2.043846154011375,
+              "validation_nll": 2.0678101157368647
+            },
+            {
+              "active_weights": 73,
+              "step": 20,
+              "train_nll": 1.7513207135730728,
+              "validation_nll": 1.771069896256889
+            },
+            {
+              "active_weights": 74,
+              "step": 30,
+              "train_nll": 1.6191456976873437,
+              "validation_nll": 1.636488587552701
+            },
+            {
+              "active_weights": 73,
+              "step": 40,
+              "train_nll": 1.5443850984776808,
+              "validation_nll": 1.5548627395235164
+            },
+            {
+              "active_weights": 73,
+              "step": 50,
+              "train_nll": 1.4989685184256503,
+              "validation_nll": 1.5031834063925615
+            },
+            {
+              "active_weights": 72,
+              "step": 60,
+              "train_nll": 1.467215727199588,
+              "validation_nll": 1.4688968205700772
+            },
+            {
+              "active_weights": 73,
+              "step": 70,
+              "train_nll": 1.4447287716888186,
+              "validation_nll": 1.4435838901172708
+            },
+            {
+              "active_weights": 73,
+              "step": 80,
+              "train_nll": 1.4283595214591975,
+              "validation_nll": 1.4245943424185024
+            },
+            {
+              "active_weights": 73,
+              "step": 90,
+              "train_nll": 1.416264583347412,
+              "validation_nll": 1.4112280995767368
+            },
+            {
+              "active_weights": 74,
+              "step": 100,
+              "train_nll": 1.407227364442002,
+              "validation_nll": 1.4011588427411052
+            }
+          ],
+          "l1": 0.001
+        },
+        "full_train_nll": 1.407227364442002,
+        "full_validation_nll": 1.4011588427411052,
+        "rule_weights": {
+          "R-DIRECT-001": 0.0,
+          "R-DIRECT-002": 0.0,
+          "R-MELODY-001": -1.150146667631962,
+          "R-MELODY-002": -0.9897600811649956,
+          "R-OVERLAP-001": -0.5307541505352648,
+          "R-PARALLEL-001": -2.7768871768740415,
+          "R-PARALLEL-002": -2.5621178185968247
+        },
+        "train_opportunities": 17953,
+        "validation_opportunities": 3538,
+        "voice": "Bass"
+      }
+    ]
+  },
+  "runtime": {
+    "music21": "9.7.1",
+    "numpy": "2.5.1",
+    "python": "3.13.11 | packaged by Anaconda, Inc. | (main, Dec 10 2025, 21:21:08) [Clang 20.1.8 ]"
+  },
+  "schema_version": 1,
+  "source": {
+    "archive": "/Users/francoispachet/IdeaProjects/deepbach-reference/resources/cache/music21-3.1.0.tar.gz",
+    "archive_sha256": "73a33407459e59fc5cfa7ea268088e5e10db9354e01ceceb2295d56373b937d2",
+    "manifest": "/Users/francoispachet/IdeaProjects/boojum/harmonizer/bach_rule_induction/corpus/manifest.music21-3.1.0.json",
+    "manifest_schema_version": 1,
+    "split": "/Users/francoispachet/IdeaProjects/boojum/harmonizer/bach_rule_induction/experiments/differentiable_rules_poc/results/splits.variant-safe.json"
+  }
+}

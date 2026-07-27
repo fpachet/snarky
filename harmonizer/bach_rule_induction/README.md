@@ -97,6 +97,19 @@ classes `0` et `7`, contre aucune dans le contrôle permuté, et retrouve
 Le test final reste scellé. Les premières obligations tonales restent à
 traiter.
 
+Le [POC V2.4](experiments/differentiable_rules_poc/V2_4_ANALYSIS.md) réunit
+enfin les sept règles récupérées dans un même modèle. Le catalogue améliore la
+NLL de validation de `0,068188`, contre `0,006307` dans le contrôle permuté.
+Chaque règle porte encore une contribution positive lorsque son poids est
+neutralisé, les deux parallèles dominant l'ablation.
+
+Le [POC V2.5](experiments/differentiable_rules_poc/V2_5_ANALYSIS.md) réentraîne
+ensuite le modèle après retrait de chaque groupe. Aucun groupe n'est totalement
+compensé : les pénalités restent positives pour les parallèles (`0,051384`),
+la mélodie (`0,008753`), l'overlap (`0,005419`) et les mouvements directs
+(`0,000997`). Le contrôle permuté ramène la contribution des parallèles à
+environ zéro.
+
 ## Organisation
 
 ```text
@@ -239,7 +252,7 @@ Le premier sprint de provenance est terminé. L'ordre de travail immédiat est
 désormais :
 
 1. préenregistrer les seuils d'encoche, budgets et le partage groupé ;
-2. réaliser l'ablation conjointe des familles de niveau A récupérées ;
+2. définir et tester les faits de tonalité locale et de degré mélodique ;
 3. dédupliquer les paires lors des attaques simultanées et mesurer la
    sensibilité ;
 4. extraire et analyser les exceptions authentiques comme exemples musicaux ;

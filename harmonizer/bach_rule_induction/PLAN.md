@@ -781,6 +781,11 @@ fiche testée.
 - [ ] Tracer la frontière qualité–complexité et sélectionner son coude.
 - [ ] Comparer plusieurs vocabulaires de faits avec les mêmes règles locales.
 - [ ] Mesurer ablations, redondances et interactions résiduelles.
+- [x] Mesurer une première ablation conjointe à poids fixes : les sept règles
+      ont une pénalité positive et le gain authentique vaut 10,8 fois celui du
+      contrôle permuté.
+- [x] Réajuster les autres poids après ablation des groupes mélodie, overlap,
+      parallèles et direct ; tous gardent une pénalité positive sur validation.
 - [ ] Vérifier qu'aucune règle ne dépend de l'ordre ni d'une autre règle.
 - [x] Exporter les deux premières `RuleCard` de mouvement direct avec
       provenance, bootstrap et équivalence Snarky.
