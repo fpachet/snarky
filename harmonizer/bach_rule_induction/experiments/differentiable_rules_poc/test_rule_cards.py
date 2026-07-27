@@ -139,6 +139,12 @@ def test_leading_tone_candidate_card_matches_canonical_experiments() -> None:
             EXPERIMENT_ROOT / "results/v3_4_tonal_family_calibration.json"
         ).read_text(encoding="utf-8")
     )
+    harmonic_audit = json.loads(
+        (
+            EXPERIMENT_ROOT
+            / "results/v3_5_selected_tonal_harmonic_audit.json"
+        ).read_text(encoding="utf-8")
+    )
     card = yaml.safe_load(
         (RULES_ROOT / "R-LEARNED-LEADING-001.yaml").read_text(encoding="utf-8")
     )
@@ -162,3 +168,9 @@ def test_leading_tone_candidate_card_matches_canonical_experiments() -> None:
     assert retained["joint_min_z"] == calibration["candidate_results"][0][
         "joint_min_z"
     ]
+    card_audit = card["refinements"]["harmonic_audit"]
+    result_audit = harmonic_audit["audits"][0]
+    assert card_audit["classification"] == result_audit["classification"]
+    assert card_audit["train"]["exact_progressions"][0] == result_audit[
+        "train"
+    ]["exact_progression_matches"]

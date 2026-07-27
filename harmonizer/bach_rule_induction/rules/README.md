@@ -42,4 +42,6 @@ de sensible reste `CANDIDATE` : elle est statistiquement stable, mais son
 contexte global n'est pas encore équivalent à la prémisse harmonique de
 `R-LEADING-001`. Parmi ses sept raffinements V3.3, seul
 `majeur + alto + basse 2→4` survit à la calibration de 49 maxima nuls
-(`p FWER = 0,02`) ; il attend encore son audit harmonique indépendant.
+(`p FWER = 0,02`). Son audit harmonique trouve un noyau `vii°6→I6` sans
+exception observée, mais seulement partiellement équivalent à la clause
+numérique ; les deux formulations attendent une ablation comparative.

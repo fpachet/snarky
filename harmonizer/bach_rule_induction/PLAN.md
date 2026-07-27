@@ -830,8 +830,11 @@ possède une définition musicale testée.
       trompeuse `V→VI`.
 - [x] Calibrer les 864 raffinements tonals sur les maxima de 49 permutations
       indépendantes ; une clause survit à `p FWER = 0,02`.
-- [ ] Auditer indépendamment le contenu harmonique de cette clause avant sa
-      compilation.
+- [x] Auditer indépendamment le contenu harmonique de cette clause : le noyau
+      `vii°6→I6` est sans exception observée mais seulement partiellement
+      équivalent au proxy numérique.
+- [ ] Comparer par ablation le proxy numérique et sa spécialisation harmonique
+      exacte.
 - [ ] Ajouter ensuite les faits harmoniques nécessaires aux résolutions et
       doublures.
 - [x] Comparer sémantiquement les clauses de mouvement direct aux oracles

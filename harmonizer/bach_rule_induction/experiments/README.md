@@ -65,3 +65,8 @@ baselines à chaque fois. Le maximum familial nul atteint `6,205`. Seul le
 contexte `majeur + alto + basse 2→4` dépasse les 49 maxima (`p = 0,02`) ;
 les six autres raffinements sont rétrogradés au statut d'hypothèses
 descriptives.
+
+Le neuvième incrément inspecte les ensembles complets de classes sans les
+réintroduire dans la sélection. Le noyau exact `vii°6→I6` résout 41/41 fois au
+train et 12/12 en validation, mais ne couvre que 76 % et 63 % de la clause.
+L'interprétation est donc classée `PITCH_CLASS_PROXY_PARTIAL`.

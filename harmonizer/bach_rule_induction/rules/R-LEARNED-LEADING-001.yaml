@@ -73,6 +73,23 @@ refinements:
       joint_min_z: 8.049982992711689
       empirical_fwer_p: 0.02
     lifecycle: CANDIDATE_PENDING_HARMONIC_AUDIT
+  harmonic_audit:
+    experiment: v3_5_selected_tonal_harmonic_audit
+    classification: PITCH_CLASS_PROXY_PARTIAL
+    hypothesized_progression: vii°6_to_I6
+    train:
+      exact_progressions: [41, 54]
+      exact_progression_resolutions: [41, 41]
+      nonexact_progression_resolutions: [6, 13]
+      fisher_exact_greater_p: 0.000009689410355337104
+    validation:
+      exact_progressions: [12, 19]
+      exact_progression_resolutions: [12, 12]
+      nonexact_progression_resolutions: [7, 7]
+    conclusion: >
+      La progression vii°6 vers I6 forme un noyau sans exception observée,
+      mais n'est pas équivalente à la clause chromatique plus large.
+    lifecycle: CANDIDATE_PENDING_JOINT_ABLATION
 provenance:
   experiment: experiments/differentiable_rules_poc/results/v3_1_global_tonal_tendency.json
   refinement_experiment: experiments/differentiable_rules_poc/results/v3_3_mode_stratified_leading_tone.json
@@ -80,6 +97,8 @@ provenance:
   refinement_analysis: experiments/differentiable_rules_poc/V3_3_ANALYSIS.md
   family_calibration: experiments/differentiable_rules_poc/results/v3_4_tonal_family_calibration.json
   family_calibration_analysis: experiments/differentiable_rules_poc/V3_4_ANALYSIS.md
+  harmonic_audit: experiments/differentiable_rules_poc/results/v3_5_selected_tonal_harmonic_audit.json
+  harmonic_audit_analysis: experiments/differentiable_rules_poc/V3_5_ANALYSIS.md
 snarky_rule:
   file: ../voice_leading_conformance.rules
   rule_id: R-LEADING-001

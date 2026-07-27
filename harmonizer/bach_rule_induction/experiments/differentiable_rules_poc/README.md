@@ -334,6 +334,25 @@ authentique survit : `majeur + alto + basse 2→4`, avec `p FWER = 0,02`.
 Voir [`V3_4_ANALYSIS.md`](V3_4_ANALYSIS.md) et le
 [`rapport canonique`](results/V3_4_TONAL_FAMILY_CALIBRATION_REPORT.md).
 
+## POC V3.5 — audit harmonique sans fuite de features
+
+Le V3.5 inspecte les ensembles complets des quatre voix seulement après la
+calibration :
+
+```sh
+../deepbach-reference/.venv/bin/python \
+  harmonizer/bach_rule_induction/experiments/differentiable_rules_poc/\
+run_selected_tonal_harmonic_audit.py
+```
+
+Le noyau exact `{2,5,11}→{0,4,7}`, interprété comme `vii°6→I6`, apparaît
+41 fois au train et 12 fois en validation, sans exception de résolution.
+Cependant, il ne couvre pas toute la clause numérique : le proxy est
+`PITCH_CLASS_PROXY_PARTIAL`.
+
+Voir [`V3_5_ANALYSIS.md`](V3_5_ANALYSIS.md) et le
+[`rapport canonique`](results/V3_5_SELECTED_TONAL_HARMONIC_AUDIT_REPORT.md).
+
 ## Interprétation prudente
 
 Une valeur conditionnelle extrême est une hypothèse de règle, pas une preuve

@@ -130,6 +130,12 @@ Les maxima nuls atteignent `6,205`. Une seule des sept clauses V3.3 reste
 significative au niveau familial : `majeur + alto + basse 2→4`, proxy de
 `vii°6→I6`, avec `min-z = 8,050` et `p FWER = 0,02`.
 
+Le [POC V3.5](experiments/differentiable_rules_poc/V3_5_ANALYSIS.md) vérifie
+ensuite cette étiquette sur les quatre voix. La progression exacte
+`vii°6→I6` couvre 41/54 contextes train et 12/19 validation, tous résolus.
+Elle constitue donc un noyau net, mais non une équivalence : la clause apprise
+englobe aussi des accords de dominante ou des états ornés sur la même basse.
+
 ## Organisation
 
 ```text
@@ -212,7 +218,8 @@ Livrable : premières RuleCards vérifiées dans `rules/`.
 - [x] définir un premier statut tonal global et redécouvrir la classe `11` ;
 - [x] utiliser les exceptions pour proposer `global_key_mode` comme feature ;
 - [x] calibrer la première famille tonale sur 49 maxima de permutations ;
-- auditer harmoniquement la seule clause survivante avant compilation ;
+- [x] auditer harmoniquement la seule clause survivante ;
+- comparer par ablation la clause chromatique et son noyau `vii°6→I6` ;
 - valider sur un sous-ensemble non consulté pendant la découverte ;
 - compiler les règles retenues en `R-LEARNED-*` ;
 - vérifier chaque règle sur exemples, contre-exemples et cas limites.
