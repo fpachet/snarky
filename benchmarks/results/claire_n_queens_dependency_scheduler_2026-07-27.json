@@ -1,0 +1,744 @@
+{
+  "benchmark": "claire_n_queens",
+  "protocol": {
+    "goal": "first_solution",
+    "variable_order": "minimum_remaining_values",
+    "value_order": "ascending",
+    "singleton_propagation": true,
+    "claire_table_dimension": "exact_size",
+    "timing_scope": {
+      "snarky": "prepared SessionChoiceSearch.solve only",
+      "claire": "queens search after source and table loading"
+    }
+  },
+  "repeat": 3,
+  "python": "3.13.11",
+  "platform": "macOS-15.7.7-arm64-arm-64bit-Mach-O",
+  "snarky_commit": "ccce61bb710e47353d49a66c5082a58c2d8de1f6",
+  "snarky_dirty": false,
+  "results": [
+    {
+      "size": 8,
+      "snarky": {
+        "median_seconds": 0.2637665410002228,
+        "min_seconds": 0.2599732920061797,
+        "max_seconds": 0.3305526670010295,
+        "solution": [
+          1,
+          5,
+          8,
+          6,
+          3,
+          7,
+          2,
+          4
+        ],
+        "explored_nodes": 16,
+        "failed_branches": 10,
+        "solution_decisions": 3,
+        "runs": [
+          {
+            "seconds": 0.3305526670010295,
+            "preparation_seconds": 0.0011814580066129565,
+            "solution": [
+              1,
+              5,
+              8,
+              6,
+              3,
+              7,
+              2,
+              4
+            ],
+            "explored_nodes": 16,
+            "failed_branches": 10,
+            "solution_decisions": 3
+          },
+          {
+            "seconds": 0.2637665410002228,
+            "preparation_seconds": 0.0006382080027833581,
+            "solution": [
+              1,
+              5,
+              8,
+              6,
+              3,
+              7,
+              2,
+              4
+            ],
+            "explored_nodes": 16,
+            "failed_branches": 10,
+            "solution_decisions": 3
+          },
+          {
+            "seconds": 0.2599732920061797,
+            "preparation_seconds": 0.00046216699411161244,
+            "solution": [
+              1,
+              5,
+              8,
+              6,
+              3,
+              7,
+              2,
+              4
+            ],
+            "explored_nodes": 16,
+            "failed_branches": 10,
+            "solution_decisions": 3
+          }
+        ],
+        "median_preparation_seconds": 0.0006382080027833581,
+        "min_preparation_seconds": 0.00046216699411161244,
+        "max_preparation_seconds": 0.0011814580066129565
+      },
+      "claire_interpreted": {
+        "median_seconds": 0.001785,
+        "min_seconds": 0.00178,
+        "max_seconds": 0.001901,
+        "solution": [
+          1,
+          5,
+          8,
+          6,
+          3,
+          7,
+          2,
+          4
+        ],
+        "branch_attempts": 41,
+        "failed_branches": 37,
+        "rule_firings": 321,
+        "candidate_removals": 225,
+        "runs": [
+          {
+            "size": 8,
+            "branch_attempts": 41,
+            "failed_branches": 37,
+            "rule_firings": 321,
+            "candidate_removals": 225,
+            "solved": true,
+            "solution": [
+              1,
+              5,
+              8,
+              6,
+              3,
+              7,
+              2,
+              4
+            ],
+            "seconds": 0.001785
+          },
+          {
+            "size": 8,
+            "branch_attempts": 41,
+            "failed_branches": 37,
+            "rule_firings": 321,
+            "candidate_removals": 225,
+            "solved": true,
+            "solution": [
+              1,
+              5,
+              8,
+              6,
+              3,
+              7,
+              2,
+              4
+            ],
+            "seconds": 0.001901
+          },
+          {
+            "size": 8,
+            "branch_attempts": 41,
+            "failed_branches": 37,
+            "rule_firings": 321,
+            "candidate_removals": 225,
+            "solved": true,
+            "solution": [
+              1,
+              5,
+              8,
+              6,
+              3,
+              7,
+              2,
+              4
+            ],
+            "seconds": 0.00178
+          }
+        ]
+      }
+    },
+    {
+      "size": 10,
+      "snarky": {
+        "median_seconds": 0.4011197079962585,
+        "min_seconds": 0.3553169580118265,
+        "max_seconds": 0.4134621249977499,
+        "solution": [
+          1,
+          3,
+          6,
+          9,
+          7,
+          10,
+          4,
+          2,
+          5,
+          8
+        ],
+        "explored_nodes": 13,
+        "failed_branches": 4,
+        "solution_decisions": 6,
+        "runs": [
+          {
+            "seconds": 0.3553169580118265,
+            "preparation_seconds": 0.000858915998833254,
+            "solution": [
+              1,
+              3,
+              6,
+              9,
+              7,
+              10,
+              4,
+              2,
+              5,
+              8
+            ],
+            "explored_nodes": 13,
+            "failed_branches": 4,
+            "solution_decisions": 6
+          },
+          {
+            "seconds": 0.4134621249977499,
+            "preparation_seconds": 0.0006718749937135726,
+            "solution": [
+              1,
+              3,
+              6,
+              9,
+              7,
+              10,
+              4,
+              2,
+              5,
+              8
+            ],
+            "explored_nodes": 13,
+            "failed_branches": 4,
+            "solution_decisions": 6
+          },
+          {
+            "seconds": 0.4011197079962585,
+            "preparation_seconds": 0.0007010420085862279,
+            "solution": [
+              1,
+              3,
+              6,
+              9,
+              7,
+              10,
+              4,
+              2,
+              5,
+              8
+            ],
+            "explored_nodes": 13,
+            "failed_branches": 4,
+            "solution_decisions": 6
+          }
+        ],
+        "median_preparation_seconds": 0.0007010420085862279,
+        "min_preparation_seconds": 0.0006718749937135726,
+        "max_preparation_seconds": 0.000858915998833254
+      },
+      "claire_interpreted": {
+        "median_seconds": 0.001244,
+        "min_seconds": 0.001227,
+        "max_seconds": 0.001292,
+        "solution": [
+          1,
+          3,
+          6,
+          9,
+          7,
+          10,
+          4,
+          2,
+          5,
+          8
+        ],
+        "branch_attempts": 21,
+        "failed_branches": 15,
+        "rule_firings": 150,
+        "candidate_removals": 161,
+        "runs": [
+          {
+            "size": 10,
+            "branch_attempts": 21,
+            "failed_branches": 15,
+            "rule_firings": 150,
+            "candidate_removals": 161,
+            "solved": true,
+            "solution": [
+              1,
+              3,
+              6,
+              9,
+              7,
+              10,
+              4,
+              2,
+              5,
+              8
+            ],
+            "seconds": 0.001292
+          },
+          {
+            "size": 10,
+            "branch_attempts": 21,
+            "failed_branches": 15,
+            "rule_firings": 150,
+            "candidate_removals": 161,
+            "solved": true,
+            "solution": [
+              1,
+              3,
+              6,
+              9,
+              7,
+              10,
+              4,
+              2,
+              5,
+              8
+            ],
+            "seconds": 0.001244
+          },
+          {
+            "size": 10,
+            "branch_attempts": 21,
+            "failed_branches": 15,
+            "rule_firings": 150,
+            "candidate_removals": 161,
+            "solved": true,
+            "solution": [
+              1,
+              3,
+              6,
+              9,
+              7,
+              10,
+              4,
+              2,
+              5,
+              8
+            ],
+            "seconds": 0.001227
+          }
+        ]
+      }
+    },
+    {
+      "size": 12,
+      "snarky": {
+        "median_seconds": 1.3946365840092767,
+        "min_seconds": 1.391080500005046,
+        "max_seconds": 1.4784347500244621,
+        "solution": [
+          1,
+          3,
+          5,
+          11,
+          8,
+          10,
+          12,
+          4,
+          2,
+          7,
+          9,
+          6
+        ],
+        "explored_nodes": 46,
+        "failed_branches": 26,
+        "solution_decisions": 6,
+        "runs": [
+          {
+            "seconds": 1.4784347500244621,
+            "preparation_seconds": 0.0011457910004537553,
+            "solution": [
+              1,
+              3,
+              5,
+              11,
+              8,
+              10,
+              12,
+              4,
+              2,
+              7,
+              9,
+              6
+            ],
+            "explored_nodes": 46,
+            "failed_branches": 26,
+            "solution_decisions": 6
+          },
+          {
+            "seconds": 1.391080500005046,
+            "preparation_seconds": 0.0010234999936074018,
+            "solution": [
+              1,
+              3,
+              5,
+              11,
+              8,
+              10,
+              12,
+              4,
+              2,
+              7,
+              9,
+              6
+            ],
+            "explored_nodes": 46,
+            "failed_branches": 26,
+            "solution_decisions": 6
+          },
+          {
+            "seconds": 1.3946365840092767,
+            "preparation_seconds": 0.0009403750009369105,
+            "solution": [
+              1,
+              3,
+              5,
+              11,
+              8,
+              10,
+              12,
+              4,
+              2,
+              7,
+              9,
+              6
+            ],
+            "explored_nodes": 46,
+            "failed_branches": 26,
+            "solution_decisions": 6
+          }
+        ],
+        "median_preparation_seconds": 0.0010234999936074018,
+        "min_preparation_seconds": 0.0009403750009369105,
+        "max_preparation_seconds": 0.0011457910004537553
+      },
+      "claire_interpreted": {
+        "median_seconds": 0.004432,
+        "min_seconds": 0.004415,
+        "max_seconds": 0.004532,
+        "solution": [
+          1,
+          3,
+          5,
+          11,
+          8,
+          10,
+          12,
+          4,
+          2,
+          7,
+          9,
+          6
+        ],
+        "branch_attempts": 85,
+        "failed_branches": 78,
+        "rule_firings": 674,
+        "candidate_removals": 596,
+        "runs": [
+          {
+            "size": 12,
+            "branch_attempts": 85,
+            "failed_branches": 78,
+            "rule_firings": 674,
+            "candidate_removals": 596,
+            "solved": true,
+            "solution": [
+              1,
+              3,
+              5,
+              11,
+              8,
+              10,
+              12,
+              4,
+              2,
+              7,
+              9,
+              6
+            ],
+            "seconds": 0.004415
+          },
+          {
+            "size": 12,
+            "branch_attempts": 85,
+            "failed_branches": 78,
+            "rule_firings": 674,
+            "candidate_removals": 596,
+            "solved": true,
+            "solution": [
+              1,
+              3,
+              5,
+              11,
+              8,
+              10,
+              12,
+              4,
+              2,
+              7,
+              9,
+              6
+            ],
+            "seconds": 0.004532
+          },
+          {
+            "size": 12,
+            "branch_attempts": 85,
+            "failed_branches": 78,
+            "rule_firings": 674,
+            "candidate_removals": 596,
+            "solved": true,
+            "solution": [
+              1,
+              3,
+              5,
+              11,
+              8,
+              10,
+              12,
+              4,
+              2,
+              7,
+              9,
+              6
+            ],
+            "seconds": 0.004432
+          }
+        ]
+      }
+    },
+    {
+      "size": 14,
+      "snarky": {
+        "median_seconds": 1.5860494999797083,
+        "min_seconds": 1.5777067909948528,
+        "max_seconds": 1.7200432919780724,
+        "solution": [
+          1,
+          3,
+          5,
+          12,
+          9,
+          4,
+          13,
+          11,
+          14,
+          7,
+          2,
+          6,
+          8,
+          10
+        ],
+        "explored_nodes": 37,
+        "failed_branches": 17,
+        "solution_decisions": 10,
+        "runs": [
+          {
+            "seconds": 1.5777067909948528,
+            "preparation_seconds": 0.0016282500000670552,
+            "solution": [
+              1,
+              3,
+              5,
+              12,
+              9,
+              4,
+              13,
+              11,
+              14,
+              7,
+              2,
+              6,
+              8,
+              10
+            ],
+            "explored_nodes": 37,
+            "failed_branches": 17,
+            "solution_decisions": 10
+          },
+          {
+            "seconds": 1.7200432919780724,
+            "preparation_seconds": 0.0012177500175312161,
+            "solution": [
+              1,
+              3,
+              5,
+              12,
+              9,
+              4,
+              13,
+              11,
+              14,
+              7,
+              2,
+              6,
+              8,
+              10
+            ],
+            "explored_nodes": 37,
+            "failed_branches": 17,
+            "solution_decisions": 10
+          },
+          {
+            "seconds": 1.5860494999797083,
+            "preparation_seconds": 0.0012322080146986991,
+            "solution": [
+              1,
+              3,
+              5,
+              12,
+              9,
+              4,
+              13,
+              11,
+              14,
+              7,
+              2,
+              6,
+              8,
+              10
+            ],
+            "explored_nodes": 37,
+            "failed_branches": 17,
+            "solution_decisions": 10
+          }
+        ],
+        "median_preparation_seconds": 0.0012322080146986991,
+        "min_preparation_seconds": 0.0012177500175312161,
+        "max_preparation_seconds": 0.0016282500000670552
+      },
+      "claire_interpreted": {
+        "median_seconds": 0.004121,
+        "min_seconds": 0.004083,
+        "max_seconds": 0.00419,
+        "solution": [
+          1,
+          3,
+          5,
+          12,
+          9,
+          4,
+          13,
+          11,
+          14,
+          7,
+          2,
+          6,
+          8,
+          10
+        ],
+        "branch_attempts": 66,
+        "failed_branches": 56,
+        "rule_firings": 567,
+        "candidate_removals": 527,
+        "runs": [
+          {
+            "size": 14,
+            "branch_attempts": 66,
+            "failed_branches": 56,
+            "rule_firings": 567,
+            "candidate_removals": 527,
+            "solved": true,
+            "solution": [
+              1,
+              3,
+              5,
+              12,
+              9,
+              4,
+              13,
+              11,
+              14,
+              7,
+              2,
+              6,
+              8,
+              10
+            ],
+            "seconds": 0.004121
+          },
+          {
+            "size": 14,
+            "branch_attempts": 66,
+            "failed_branches": 56,
+            "rule_firings": 567,
+            "candidate_removals": 527,
+            "solved": true,
+            "solution": [
+              1,
+              3,
+              5,
+              12,
+              9,
+              4,
+              13,
+              11,
+              14,
+              7,
+              2,
+              6,
+              8,
+              10
+            ],
+            "seconds": 0.00419
+          },
+          {
+            "size": 14,
+            "branch_attempts": 66,
+            "failed_branches": 56,
+            "rule_firings": 567,
+            "candidate_removals": 527,
+            "solved": true,
+            "solution": [
+              1,
+              3,
+              5,
+              12,
+              9,
+              4,
+              13,
+              11,
+              14,
+              7,
+              2,
+              6,
+              8,
+              10
+            ],
+            "seconds": 0.004083
+          }
+        ]
+      }
+    }
+  ],
+  "claire": {
+    "root": "/Users/francoispachet/IdeaProjects/CLAIRE4",
+    "binary": "/Users/francoispachet/IdeaProjects/CLAIRE4/interpreter/macos/claire4",
+    "commit": "25b14968e1eef80269d56af418eda7d2ccd88cbf",
+    "dirty": false,
+    "mode": "interpreted"
+  }
+}

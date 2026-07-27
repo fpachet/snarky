@@ -64,8 +64,8 @@ uv run python -m benchmarks.claire_talarian_filter \
 uv run python -m benchmarks.incremental_conjunctions \
   --groups 25 100 250 --width 8 --repeat 5
 uv run python -m benchmarks.choice_search --repeat 5
-uv run python benchmarks/choice_trail.py --repeat 3
-uv run python benchmarks/choice_formulations.py --repeat 3
+uv run python -m benchmarks.choice_trail --repeat 3
+uv run python -m benchmarks.choice_formulations --repeat 3
 uv run python -m benchmarks.classical_csp --repeat 3
 uv run python -m benchmarks.classical_csp \
   --magic-sizes 6 --only-magic --repeat 3
@@ -79,8 +79,9 @@ uv run python -m benchmarks.classical_csp \
   --magic-sizes 6 7 --only-magic --repeat 3 \
   --magic-dom-wdeg-only
 uv run python -m benchmarks.csp_harmonizer_next --repeat 5
-uv run python -m benchmarks.sudoku_rules --levels 1 6 7 --repeat 5
-uv run python benchmarks/fibonacci_explicit.py --repeat 7
+uv run python -m benchmarks.sudoku_rules \
+  --levels 1 2 3 4 5 6 7 --repeat 5
+uv run python -m benchmarks.fibonacci_explicit --repeat 7
 ```
 
 `claire_n_queens` expects a CLAIRE4 checkout in the sibling directory
