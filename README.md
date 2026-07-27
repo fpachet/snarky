@@ -117,8 +117,9 @@ facts = (
 result = ForwardEngine(rules).run(facts)
 ```
 
-The default engine uses semi-naive instantiation. The naive strategy remains
-the executable semantic reference and a useful diagnostic oracle.
+The default engine uses semi-naive instantiation. A separate exhaustive
+strategy remains the executable semantic reference and a useful diagnostic
+oracle.
 
 For streamed positive conjunctions, the default strategy can compile an
 added fact into the anchor of a factorized event join. If every comparison
@@ -236,8 +237,9 @@ imports remain compatible during the 0.1 series.
 
 ## Reproducibility and performance
 
-Correctness tests compare optimized strategies with the naive reference across
-mutation, negation, search, propagation, and application scenarios.
+Correctness tests compare optimized strategies with the executable reference
+implementation across mutation, negation, search, propagation, and
+application scenarios.
 Microbenchmarks are separate from tests and write machine-readable results
 under `benchmarks/results/`.
 
