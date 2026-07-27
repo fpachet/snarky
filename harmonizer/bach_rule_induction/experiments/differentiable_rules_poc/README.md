@@ -95,7 +95,7 @@ partage. Le V2 canonique utilise donc
 
 - 251 chorals d'apprentissage ;
 - 50 chorals de validation ;
-- 51 chorals de test scellé.
+- 51 chorals de test, restés scellés jusqu'au protocole V3.8.
 
 Le nouveau test est un sous-ensemble du test historique : aucune pièce déjà
 exposée en train ou validation n'y a été ajoutée.
@@ -408,6 +408,45 @@ Voir [`V3_7_ANALYSIS.md`](V3_7_ANALYSIS.md), le
 le
 [`protocole de test gelé`](FROZEN_V3_8_TEST_PROTOCOL.json).
 
+## POC V3.8 — ouverture unique du test
+
+Après publication du gel, l'évaluation confirmatoire est exécutée par :
+
+```sh
+../deepbach-reference/.venv/bin/python \
+  harmonizer/bach_rule_induction/experiments/differentiable_rules_poc/\
+run_frozen_harmonic_test.py
+```
+
+Les trois critères sont satisfaits. `graded_exact` gagne `0,004414` NLL sur les
+51 chorals de test, sa borne bootstrap est positive et il conserve `99,964 %`
+du gain du modèle à deux poids.
+
+Voir [`V3_8_ANALYSIS.md`](V3_8_ANALYSIS.md) et le
+[`rapport`](results/V3_8_FROZEN_HARMONIC_TEST_REPORT.md).
+
+## POC V3.9 — Snarky et DeepBach
+
+La règle est compilée dans
+[`learned_tonal_resolution.rules`](../../rules/learned_tonal_resolution.rules).
+Les deux niveaux dérivés correspondent à l'oracle numérique sur les 256 états
+abstraits locaux.
+
+Deux générations DeepBach canoniques ne contiennent aucune opportunité du
+contexte rare. Une sonde conditionnelle sur les 12 contextes Bach montre
+cependant que DeepBach classe la résolution première 12/12 fois, avec une
+probabilité moyenne de `0,9246`. Il préfère également la résolution dans les
+deux exceptions de Bach.
+
+La seconde génération est reproductible dans le projet frère avec
+`--length 160 --updates 20000 --batch-size 16 --seed 1`. Les deux audits sont
+exécutés par `run_deepbach_tonal_audit.py` et
+`run_deepbach_conditional_probe.py`.
+
+Voir [`V3_9_ANALYSIS.md`](V3_9_ANALYSIS.md), le
+[`rapport des générations`](results/V3_9_DEEPBACH_TONAL_AUDIT_REPORT.md) et la
+[`sonde conditionnelle`](results/V3_9_DEEPBACH_CONDITIONAL_PROBE_REPORT.md).
+
 ## Interprétation prudente
 
 Une valeur conditionnelle extrême est une hypothèse de règle, pas une preuve
@@ -420,5 +459,6 @@ normative. Le rapport distingue :
 - le support en opportunités et en pièces ;
 - la stabilité entre train et validation.
 
-Le test final reste fermé tant que le vocabulaire, les pénalités et les
-critères de sélection ne sont pas gelés.
+Le test final est resté fermé jusqu'au gel du vocabulaire, des pénalités et des
+critères de V3.8. Son ouverture unique est désormais enregistrée ; toute
+nouvelle famille devra disposer d'un nouveau protocole confirmatoire.

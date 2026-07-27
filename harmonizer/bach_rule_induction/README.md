@@ -50,7 +50,8 @@ Les fondations reproductibles sont en place :
   2 503 transpositions de l'article DeepBach ;
 - un audit a regroupé dix familles de mélodies identiques et supprimé six
   traversées entre partitions ; le partage canonique réserve désormais
-  251 chorals au train, 50 à la validation et 51 à un test encore scellé ;
+  251 chorals au train, 50 à la validation et 51 au test, ouvert une seule
+  fois après le gel V3.7 ;
 - la baseline DeepBach Keras historique génère de nouveau des chorals dans le
   projet frère `deepbach-reference` ;
 - l'appendice B de CHORAL est couvert sur 78 pages par 1 293 unités sources,
@@ -94,7 +95,8 @@ généralisé les parallèles aux six paires de voix. Il retient exactement les
 classes `0` et `7`, contre aucune dans le contrôle permuté, et retrouve
 `R-PARALLEL-001/002` sans désaccord sur 1 130 364 états par classe.
 
-Le test final reste scellé.
+À ce stade historique du POC, le test final restait scellé ; il n'a été ouvert
+qu'en V3.8 après publication du protocole.
 
 Le [POC V2.4](experiments/differentiable_rules_poc/V2_4_ANALYSIS.md) réunit
 enfin les sept règles récupérées dans un même modèle. Le catalogue améliore la
@@ -151,6 +153,18 @@ poids libres et réduit le coût descriptif de 240 à 144 bits. Aucun modèle
 n'est sélectionné dans le contrôle nul. La feature et les critères du test
 final sont désormais gelés dans
 [`FROZEN_V3_8_TEST_PROTOCOL.json`](experiments/differentiable_rules_poc/FROZEN_V3_8_TEST_PROTOCOL.json).
+
+Le [POC V3.8](experiments/differentiable_rules_poc/V3_8_ANALYSIS.md) ouvre
+ensuite le test une seule fois. `graded_exact` gagne `0,004414` NLL, avec un
+intervalle bootstrap `[0,001248 ; 0,008493]`, et conserve `99,964 %` du gain
+des deux poids : les trois critères gelés sont satisfaits.
+
+Enfin, le [POC V3.9](experiments/differentiable_rules_poc/V3_9_ANALYSIS.md)
+compile le statut en Snarky et le compare à DeepBach. La compilation correspond
+à l'oracle sur 256 états abstraits. DeepBach classe la résolution première dans
+les 12 contextes Bach sondés, mais préfère aussi la règle dans les deux
+exceptions authentiques ; cela confirme qu'il faut conserver une préférence
+graduée et non une obligation dure.
 
 ## Organisation
 
@@ -238,8 +252,8 @@ Livrable : premières RuleCards vérifiées dans `rules/`.
 - [x] comparer par ablation la clause chromatique et son noyau `vii°6→I6` ;
 - [x] compresser la hiérarchie par validation croisée groupée et geler la
       formulation `graded_exact` avant le test ;
-- valider sur un sous-ensemble non consulté pendant la découverte ;
-- compiler les règles retenues en `R-LEARNED-*` ;
+- [x] valider sur un sous-ensemble non consulté pendant la découverte ;
+- [x] compiler la première obligation retenue en `R-LEARNED-*` et Snarky ;
 - vérifier chaque règle sur exemples, contre-exemples et cas limites.
 
 Livrable : baseline `S1` reproductible.
@@ -288,7 +302,8 @@ Livrable : atlas des désaccords et comparaison `S0/S1/E0/D0/H0`.
 
 ### Phase 7 — évaluation et publication
 
-- ouvrir le test final après gel du vocabulaire et des métriques ;
+- [x] ouvrir le test final après gel du vocabulaire et des métriques pour la
+      première règle tonale ;
 - mesurer correction, fidélité stylistique, nouveauté, stabilité et coût ;
 - organiser une écoute en aveugle ;
 - publier règles, statistiques, exemples, exceptions et résultats négatifs.

@@ -13,7 +13,8 @@ Elle enregistrera notamment :
 - sorties brutes, métriques et classification des désaccords.
 
 Le jeu de test final reste fermé jusqu'au gel des features, règles et métriques
-principales.
+principales. Pour la première règle tonale, ce gel et l'ouverture unique sont
+documentés par les POC V3.7 et V3.8.
 
 ## Premier POC différentiable
 
@@ -83,3 +84,10 @@ croisée groupée en cinq plis. Un statut ordinal `0/1/2`, appris avec un seul
 poids, conserve `99,96 %` du gain du modèle à deux poids. Son coût descriptif
 passe de 240 à 144 bits et le sélecteur ne retient rien sur les réponses
 mélangées. Cette formulation est gelée avant le test final.
+
+Le douzième incrément ouvre une fois les 51 chorals de test. Le statut gagne
+`0,004414` NLL, sa borne bootstrap reste positive et il conserve `99,964 %` du
+gain des deux poids libres. Le treizième incrément le compile en Snarky sans
+désaccord sur 256 états abstraits, puis montre que DeepBach préfère lui aussi
+la résolution dans les 12 contextes sondés — y compris dans les deux
+exceptions choisies par Bach.

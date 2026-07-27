@@ -42,3 +42,15 @@ def test_acceptance_requires_all_frozen_criteria() -> None:
     assert frozen.acceptance_decision(records, protocol)["accepted"] is True
     records["graded_exact"]["bootstrap_vs_baseline"]["gain_p025"] = -0.01
     assert frozen.acceptance_decision(records, protocol)["accepted"] is False
+
+
+def test_canonical_frozen_test_passes_every_preregistered_criterion() -> None:
+    result = json.loads(
+        (ROOT / "results/v3_8_frozen_harmonic_test.json").read_text(
+            encoding="utf-8"
+        )
+    )
+    assert result["experiment"]["test_opened"] is True
+    assert result["acceptance"]["accepted"] is True
+    assert all(result["acceptance"]["criteria"].values())
+    assert result["acceptance"]["gain_retention_vs_both"] >= 0.99

@@ -841,6 +841,13 @@ possède une définition musicale testée.
       ordinal à un poids.
 - [x] Geler le modèle, les hyperparamètres et les critères confirmatoires avant
       toute ouverture des 51 chorals de test.
+- [x] Ouvrir le test une seule fois : les trois critères sont satisfaits et le
+      statut gradué conserve 99,964 % du gain des deux poids.
+- [x] Compiler le statut local en Snarky et vérifier ses 256 états abstraits
+      sans désaccord.
+- [x] Auditer deux générations DeepBach puis sonder conditionnellement les 12
+      contextes du test ; documenter le support nul des générations libres et
+      les deux exceptions où DeepBach préfère la norme au choix de Bach.
 - [ ] Ajouter ensuite les faits harmoniques nécessaires aux autres résolutions
       et aux doublures.
 - [x] Comparer sémantiquement les clauses de mouvement direct aux oracles
@@ -890,6 +897,10 @@ fiche empirique.
 ### Lot 5 — banc DeepBach
 
 - [x] Reproduire une baseline DeepBach historique versionnée.
+- [x] Produire une seconde génération canonique et auditer la première règle
+      tonale confirmée.
+- [x] Comparer les probabilités conditionnelles DeepBach dans les contextes
+      Bach sans les utiliser pour réajuster la règle.
 - [x] Générer des sorties canoniques à graines fixes.
 - [ ] Générer un nombre fixé d'échantillons par entrée du banc commun.
 - [ ] Auditer automatiquement toutes les sorties avec Snarky.

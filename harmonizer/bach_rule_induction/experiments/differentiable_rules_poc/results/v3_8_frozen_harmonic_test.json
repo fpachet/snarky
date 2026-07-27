@@ -1,0 +1,367 @@
+{
+  "acceptance": {
+    "accepted": true,
+    "criteria": {
+      "bootstrap_gain_p025_above_zero": true,
+      "minimum_gain_retention_vs_both": true,
+      "selected_nll_below_baseline": true
+    },
+    "gain_retention_vs_both": 0.999641674226829,
+    "no_retuning_after_test": true
+  },
+  "corpus": {
+    "discovery_alto_opportunities": 21198,
+    "discovery_pieces": 301,
+    "test_alto_opportunities": 3224,
+    "test_pieces": 51
+  },
+  "coverage": {
+    "discovery": {
+      "TONAL_DOMINANT_CORE_TO_TONIC_CORE": {
+        "conclusion_chosen": 66,
+        "conclusion_rate": 0.9428571428571428,
+        "opportunities": 70,
+        "piece_support": 36
+      },
+      "TONAL_EXACT_VII6_TO_I6": {
+        "conclusion_chosen": 53,
+        "conclusion_rate": 0.9636363636363636,
+        "opportunities": 55,
+        "piece_support": 28
+      },
+      "TONAL_PROXY_MAJOR_ALTO_BASS_2_TO_4": {
+        "conclusion_chosen": 66,
+        "conclusion_rate": 0.9041095890410958,
+        "opportunities": 73,
+        "piece_support": 39
+      },
+      "TONAL_VII_CORE_TO_TONIC_CORE": {
+        "conclusion_chosen": 62,
+        "conclusion_rate": 0.9393939393939394,
+        "opportunities": 66,
+        "piece_support": 34
+      }
+    },
+    "test": {
+      "TONAL_DOMINANT_CORE_TO_TONIC_CORE": {
+        "conclusion_chosen": 10,
+        "conclusion_rate": 0.9090909090909091,
+        "opportunities": 11,
+        "piece_support": 8
+      },
+      "TONAL_EXACT_VII6_TO_I6": {
+        "conclusion_chosen": 9,
+        "conclusion_rate": 1.0,
+        "opportunities": 9,
+        "piece_support": 6
+      },
+      "TONAL_PROXY_MAJOR_ALTO_BASS_2_TO_4": {
+        "conclusion_chosen": 10,
+        "conclusion_rate": 0.8333333333333334,
+        "opportunities": 12,
+        "piece_support": 8
+      },
+      "TONAL_VII_CORE_TO_TONIC_CORE": {
+        "conclusion_chosen": 10,
+        "conclusion_rate": 0.9090909090909091,
+        "opportunities": 11,
+        "piece_support": 8
+      }
+    }
+  },
+  "experiment": {
+    "name": "differentiable_rules_poc_v3_8_frozen_test",
+    "seed": 1729,
+    "split_strategy": "exact_soprano_contour_and_rhythm_conservative_grouping",
+    "test_opened": true,
+    "test_opening": "single_frozen_evaluation"
+  },
+  "models": {
+    "baseline": {
+      "discovery_nll": 1.2760022598568,
+      "fit": {
+        "best_validation_nll": 1.2760022598568,
+        "history": [
+          {
+            "active_weights": 0,
+            "step": 1,
+            "train_nll": 2.777951769262961,
+            "validation_nll": 2.777951769262961
+          },
+          {
+            "active_weights": 67,
+            "step": 10,
+            "train_nll": 1.7322468046670283,
+            "validation_nll": 1.7322468046670283
+          },
+          {
+            "active_weights": 67,
+            "step": 20,
+            "train_nll": 1.5009776651073825,
+            "validation_nll": 1.5009776651073825
+          },
+          {
+            "active_weights": 66,
+            "step": 30,
+            "train_nll": 1.4041947380949207,
+            "validation_nll": 1.4041947380949207
+          },
+          {
+            "active_weights": 64,
+            "step": 40,
+            "train_nll": 1.3578631423664533,
+            "validation_nll": 1.3578631423664533
+          },
+          {
+            "active_weights": 66,
+            "step": 50,
+            "train_nll": 1.3278695819627993,
+            "validation_nll": 1.3278695819627993
+          },
+          {
+            "active_weights": 65,
+            "step": 60,
+            "train_nll": 1.3090159549507014,
+            "validation_nll": 1.3090159549507014
+          },
+          {
+            "active_weights": 63,
+            "step": 70,
+            "train_nll": 1.2967017494970774,
+            "validation_nll": 1.2967017494970774
+          },
+          {
+            "active_weights": 64,
+            "step": 80,
+            "train_nll": 1.2875887213673738,
+            "validation_nll": 1.2875887213673738
+          },
+          {
+            "active_weights": 65,
+            "step": 90,
+            "train_nll": 1.2810016792113064,
+            "validation_nll": 1.2810016792113064
+          },
+          {
+            "active_weights": 66,
+            "step": 100,
+            "train_nll": 1.2760022598568,
+            "validation_nll": 1.2760022598568
+          }
+        ],
+        "l1": 0.001
+      },
+      "rule_ids": [],
+      "rule_weights": [],
+      "test_nll": 1.2340338326599323
+    },
+    "both": {
+      "bootstrap_vs_baseline": {
+        "gain_median": 0.004239530996269402,
+        "gain_p025": 0.001277558165452319,
+        "gain_p975": 0.008480754931071446,
+        "piece_count": 51,
+        "positive_fraction": 0.9996,
+        "replicates": 10000
+      },
+      "discovery_nll": 1.2716453574781714,
+      "fit": {
+        "best_validation_nll": 1.2716453574781714,
+        "history": [
+          {
+            "active_weights": 0,
+            "step": 1,
+            "train_nll": 2.7777428598930367,
+            "validation_nll": 2.7777428598930367
+          },
+          {
+            "active_weights": 69,
+            "step": 10,
+            "train_nll": 1.7304387005432478,
+            "validation_nll": 1.7304387005432478
+          },
+          {
+            "active_weights": 69,
+            "step": 20,
+            "train_nll": 1.497993761505982,
+            "validation_nll": 1.497993761505982
+          },
+          {
+            "active_weights": 68,
+            "step": 30,
+            "train_nll": 1.4008055753901878,
+            "validation_nll": 1.4008055753901878
+          },
+          {
+            "active_weights": 66,
+            "step": 40,
+            "train_nll": 1.3542001187130974,
+            "validation_nll": 1.3542001187130974
+          },
+          {
+            "active_weights": 68,
+            "step": 50,
+            "train_nll": 1.3239792169440778,
+            "validation_nll": 1.3239792169440778
+          },
+          {
+            "active_weights": 66,
+            "step": 60,
+            "train_nll": 1.3049538037723396,
+            "validation_nll": 1.3049538037723396
+          },
+          {
+            "active_weights": 65,
+            "step": 70,
+            "train_nll": 1.2925182260458403,
+            "validation_nll": 1.2925182260458403
+          },
+          {
+            "active_weights": 66,
+            "step": 80,
+            "train_nll": 1.283325228720983,
+            "validation_nll": 1.283325228720983
+          },
+          {
+            "active_weights": 67,
+            "step": 90,
+            "train_nll": 1.2766824738744609,
+            "validation_nll": 1.2766824738744609
+          },
+          {
+            "active_weights": 67,
+            "step": 100,
+            "train_nll": 1.2716453574781714,
+            "validation_nll": 1.2716453574781714
+          }
+        ],
+        "l1": 0.001
+      },
+      "rule_ids": [
+        "TONAL_PROXY_MAJOR_ALTO_BASS_2_TO_4",
+        "TONAL_EXACT_VII6_TO_I6"
+      ],
+      "rule_weights": [
+        1.9982695397712824,
+        2.050523151733709
+      ],
+      "test_gain_vs_baseline": 0.0044154533592888345,
+      "test_nll": 1.2296183793006434
+    },
+    "graded_exact": {
+      "bootstrap_vs_baseline": {
+        "gain_median": 0.004179632598389006,
+        "gain_p025": 0.0012480540361452161,
+        "gain_p975": 0.008492962352908359,
+        "piece_count": 51,
+        "positive_fraction": 0.9995,
+        "replicates": 10000
+      },
+      "discovery_nll": 1.271646187910628,
+      "fit": {
+        "best_validation_nll": 1.271646187910628,
+        "history": [
+          {
+            "active_weights": 0,
+            "step": 1,
+            "train_nll": 2.777742859500378,
+            "validation_nll": 2.777742859500378
+          },
+          {
+            "active_weights": 68,
+            "step": 10,
+            "train_nll": 1.73043869708505,
+            "validation_nll": 1.73043869708505
+          },
+          {
+            "active_weights": 68,
+            "step": 20,
+            "train_nll": 1.4979937594185726,
+            "validation_nll": 1.4979937594185726
+          },
+          {
+            "active_weights": 67,
+            "step": 30,
+            "train_nll": 1.4008056068970391,
+            "validation_nll": 1.4008056068970391
+          },
+          {
+            "active_weights": 65,
+            "step": 40,
+            "train_nll": 1.3542002259600736,
+            "validation_nll": 1.3542002259600736
+          },
+          {
+            "active_weights": 67,
+            "step": 50,
+            "train_nll": 1.3239793858797342,
+            "validation_nll": 1.3239793858797342
+          },
+          {
+            "active_weights": 65,
+            "step": 60,
+            "train_nll": 1.3049540364083867,
+            "validation_nll": 1.3049540364083867
+          },
+          {
+            "active_weights": 64,
+            "step": 70,
+            "train_nll": 1.2925185595587216,
+            "validation_nll": 1.2925185595587216
+          },
+          {
+            "active_weights": 65,
+            "step": 80,
+            "train_nll": 1.2833256905914288,
+            "validation_nll": 1.2833256905914288
+          },
+          {
+            "active_weights": 66,
+            "step": 90,
+            "train_nll": 1.2766831016578686,
+            "validation_nll": 1.2766831016578686
+          },
+          {
+            "active_weights": 66,
+            "step": 100,
+            "train_nll": 1.271646187910628,
+            "validation_nll": 1.271646187910628
+          }
+        ],
+        "l1": 0.001
+      },
+      "rule_ids": [
+        "GRADED(TONAL_PROXY_MAJOR_ALTO_BASS_2_TO_4+TONAL_EXACT_VII6_TO_I6)"
+      ],
+      "rule_weights": [
+        2.0214869830878857
+      ],
+      "test_gain_vs_baseline": 0.004413871188549967,
+      "test_nll": 1.2296199614713823
+    }
+  },
+  "runtime": {
+    "music21": "9.7.1",
+    "numpy": "2.5.1",
+    "python": "3.13.11 | packaged by Anaconda, Inc. | (main, Dec 10 2025, 21:21:08) [Clang 20.1.8 ]"
+  },
+  "schema_version": 1,
+  "source": {
+    "archive": "/Users/francoispachet/IdeaProjects/deepbach-reference/resources/cache/music21-3.1.0.tar.gz",
+    "archive_sha256": "73a33407459e59fc5cfa7ea268088e5e10db9354e01ceceb2295d56373b937d2",
+    "manifest": "/Users/francoispachet/IdeaProjects/boojum/harmonizer/bach_rule_induction/corpus/manifest.music21-3.1.0.json",
+    "manifest_schema_version": 1,
+    "protocol": "/Users/francoispachet/IdeaProjects/boojum/harmonizer/bach_rule_induction/experiments/differentiable_rules_poc/FROZEN_V3_8_TEST_PROTOCOL.json",
+    "protocol_sha256": "603e234c6346540834553a75dff56ec2270dd0377d4264354b462364341b620a",
+    "split": "/Users/francoispachet/IdeaProjects/boojum/harmonizer/bach_rule_induction/experiments/differentiable_rules_poc/results/splits.variant-safe.json"
+  },
+  "tonal_status_audit": {
+    "key_changes_detected": 0,
+    "mode_counts": {
+      "major": 176,
+      "minor": 176
+    },
+    "pieces_audited": 352,
+    "pieces_with_one_consistent_key": 352
+  }
+}

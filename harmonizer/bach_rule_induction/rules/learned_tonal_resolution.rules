@@ -1,0 +1,47 @@
+# Compilation Snarky de R-LEARNED-LEADING-001.
+#
+# Les faits d'entrée sont locaux à une transition et à une candidate d'alto.
+# L'absence de `learned_tonal_resolution_strength` représente le niveau 0.
+
+GROUP derive_learned_tonal_resolution_components
+    RULE R_LEARNED_LEADING_001_numeric_proxy_component
+    WHEN
+        ($candidate global_key_mode major)
+        ($candidate subject_voice alto)
+        ($candidate source_relative_class 11)
+        ($candidate source_bass_relative_class 2)
+        ($candidate target_bass_relative_class 4)
+        ($candidate motion_interval 1)
+    THEN
+        ADD ($candidate tonal_resolution_component numeric_proxy)
+    END
+
+    RULE R_LEARNED_LEADING_001_exact_harmonic_bonus
+    WHEN
+        ($candidate tonal_resolution_component numeric_proxy)
+        ($candidate source_harmonic_status exact_vii6)
+        ($candidate target_harmonic_status exact_I6)
+    THEN
+        ADD ($candidate tonal_resolution_component exact_harmonic_bonus)
+    END
+END_GROUP
+
+GROUP classify_learned_tonal_resolution_strength
+    RULE R_LEARNED_LEADING_001_strength_two
+    WHEN
+        ($candidate tonal_resolution_component numeric_proxy)
+        ($candidate tonal_resolution_component exact_harmonic_bonus)
+    THEN
+        ADD ($candidate learned_tonal_resolution_strength 2)
+    END
+
+    RULE R_LEARNED_LEADING_001_strength_one
+    WHEN
+        ($candidate tonal_resolution_component numeric_proxy)
+        NOT EXISTS
+            ($candidate tonal_resolution_component exact_harmonic_bonus)
+        END_EXISTS
+    THEN
+        ADD ($candidate learned_tonal_resolution_strength 1)
+    END
+END_GROUP

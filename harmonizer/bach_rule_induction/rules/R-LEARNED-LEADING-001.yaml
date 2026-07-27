@@ -1,7 +1,7 @@
 schema_version: 1
 id: R-LEARNED-LEADING-001
 title: Tendance ascendante de la classe tonale globale 11
-lifecycle: CANDIDATE
+lifecycle: SUPPORTED
 status: NORMALLY
 statement: >
   Lorsqu'une voix porte la classe située un demi-ton sous la tonique globale,
@@ -43,7 +43,12 @@ statistics:
     bootstrap_z_95: [14.2193426555035, 20.10606943595229]
     bootstrap_positive_fraction: 1.0
   test:
-    opened: false
+    opened: true
+    protocol: FROZEN_V3_8_TEST_PROTOCOL
+    pieces: 51
+    opened_once: true
+    accepted: true
+    nll_gain: 0.004413871188549967
 null_control:
   selected: false
   reason: local_peak_below_threshold
@@ -143,7 +148,39 @@ refinements:
     conclusion: >
       Une seule force graduée représente la règle locale et son renforcement
       harmonique presque sans perte. Les niveaux sont locaux et imbriqués.
-    lifecycle: FROZEN_PENDING_TEST
+    lifecycle: SUPPORTED_ON_FROZEN_TEST
+  frozen_test:
+    experiment: v3_8_frozen_harmonic_test
+    prior_freeze_commit: b635d6a
+    test_pieces: 51
+    proxy_coverage: [10, 12]
+    exact_coverage: [9, 9]
+    baseline_nll: 1.2340338326599323
+    graded_exact_nll: 1.2296199614713823
+    nll_gain: 0.004413871188549967
+    bootstrap_gain_95:
+      - 0.0012480540361452161
+      - 0.008492962352908359
+    gain_retention_vs_two_weights: 0.999641674226829
+    learned_weight: 2.0214869830878857
+    accepted: true
+    no_retuning_after_test: true
+  deepbach_audit:
+    experiment: v3_9_deepbach_conditional_probe
+    free_generations:
+      count: 2
+      eligible_alto_attacks: 101
+      proxy_opportunities: 0
+    conditional_probe:
+      contexts: 12
+      mean_resolution_probability: 0.9245715538660685
+      top_choice_resolution: [12, 12]
+      exact_context_mean_probability: 0.9350665079222785
+      nonexact_context_mean_probability: 0.8930866916974386
+    interpretation: >
+      DeepBach connaît fortement la préférence mais l'applique aussi aux deux
+      exceptions de Bach. Cela soutient une préférence graduée, non une
+      obligation dure.
 provenance:
   experiment: experiments/differentiable_rules_poc/results/v3_1_global_tonal_tendency.json
   refinement_experiment: experiments/differentiable_rules_poc/results/v3_3_mode_stratified_leading_tone.json
@@ -160,12 +197,29 @@ provenance:
   harmonic_compression_null: experiments/differentiable_rules_poc/results/v3_7_harmonic_feature_compression_null.json
   harmonic_compression_analysis: experiments/differentiable_rules_poc/V3_7_ANALYSIS.md
   frozen_test_protocol: experiments/differentiable_rules_poc/FROZEN_V3_8_TEST_PROTOCOL.json
+  frozen_test: experiments/differentiable_rules_poc/results/v3_8_frozen_harmonic_test.json
+  frozen_test_analysis: experiments/differentiable_rules_poc/V3_8_ANALYSIS.md
+  deepbach_generation_audit: experiments/differentiable_rules_poc/results/v3_9_deepbach_tonal_audit.json
+  deepbach_conditional_probe: experiments/differentiable_rules_poc/results/v3_9_deepbach_conditional_probe.json
+  deepbach_analysis: experiments/differentiable_rules_poc/V3_9_ANALYSIS.md
 snarky_rule:
-  file: ../voice_leading_conformance.rules
-  rule_id: R-LEADING-001
-  action: pending_context_equivalence
+  file: learned_tonal_resolution.rules
+  rule_id: R_LEARNED_LEADING_001
+  action: weighted_ordinal_preference
+  learned_weight: 2.0214869830878857
+  finite_semantic_check:
+    abstract_local_states: 256
+    mismatches: 0
 exceptions:
-  status: partially_clustered_by_bass_transition_and_mode
+  status: confirmed_preference_with_authentic_exceptions
 bach_examples:
   source: experiments/differentiable_rules_poc/results/v3_3_mode_stratified_leading_tone.json
-deepbach_counterexamples: []
+deepbach_counterexamples:
+  - piece_id: bach/bwv359
+    offset_current: 53.0
+    deepbach_resolution_probability: 0.9931361675262451
+    deepbach_bach_choice_probability: 0.0035478388890624046
+  - piece_id: bach/bwv57.8
+    offset_current: 32.0
+    deepbach_resolution_probability: 0.6862682104110718
+    deepbach_bach_choice_probability: 0.005596536211669445

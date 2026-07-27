@@ -156,6 +156,11 @@ def test_leading_tone_candidate_card_matches_canonical_experiments() -> None:
             / "results/v3_7_harmonic_feature_compression.json"
         ).read_text(encoding="utf-8")
     )
+    frozen_test = json.loads(
+        (
+            EXPERIMENT_ROOT / "results/v3_8_frozen_harmonic_test.json"
+        ).read_text(encoding="utf-8")
+    )
     card = yaml.safe_load(
         (RULES_ROOT / "R-LEARNED-LEADING-001.yaml").read_text(encoding="utf-8")
     )
@@ -167,8 +172,8 @@ def test_leading_tone_candidate_card_matches_canonical_experiments() -> None:
     assert result["model"]["selected_source_classes"] == [11]
     assert len(refinement["model"]["selected_refinements"]) == 7
     assert null["model"]["selected_refinements"] == []
-    assert card["lifecycle"] == "CANDIDATE"
-    assert card["statistics"]["test"]["opened"] is False
+    assert card["lifecycle"] == "SUPPORTED"
+    assert card["statistics"]["test"]["opened"] is True
     assert (
         card["statistics"]["validation"]["residual_z"]
         == source_class["validation"]["z_score"]
@@ -208,3 +213,10 @@ def test_leading_tone_candidate_card_matches_canonical_experiments() -> None:
         ]
     )
     assert card_compression["null_selected_model"] is None
+    assert card["lifecycle"] == "SUPPORTED"
+    assert card["refinements"]["frozen_test"]["accepted"] is True
+    assert (
+        card["refinements"]["frozen_test"]["nll_gain"]
+        == frozen_test["models"]["graded_exact"]["test_gain_vs_baseline"]
+    )
+    assert card["snarky_rule"]["finite_semantic_check"]["mismatches"] == 0
