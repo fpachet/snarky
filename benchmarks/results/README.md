@@ -102,3 +102,50 @@ gives a ×113.5 internal gain and reduces match attempts from 2,881,600 to
 6,598. The CLAIRE rule is a natural event-demon formulation that scans the
 instantiated hubs; this is a language-level comparison, not a claim that both
 runtimes use the same physical join strategy.
+
+## Factorized multi-premise events — 2026-07-27
+
+The engine implementation is commit `4b433e8`; every primary record below
+uses Python 3.13.11 on macOS ARM64 with `snarky_dirty=false`:
+
+- [`claire_triangle_closure_factorized_events_2026-07-27.json`](claire_triangle_closure_factorized_events_2026-07-27.json)
+  — five runs of factorized Snarky and interpreted CLAIRE4 through 100 groups;
+- [`claire_triangle_closure_partial_memory_2026-07-27.json`](claire_triangle_closure_partial_memory_2026-07-27.json)
+  — three runs with only the previous bounded prefix memory;
+- [`claire_triangle_closure_generic_2026-07-27.json`](claire_triangle_closure_generic_2026-07-27.json)
+  — three runs with both specializations disabled;
+- [`claire_triangle_closure_budget_cliff_2026-07-27.json`](claire_triangle_closure_budget_cliff_2026-07-27.json)
+  — the one-run 33-group boundary where bounded memory falls back;
+- [`incremental_conjunctions_factorized_events_2026-07-27.json`](incremental_conjunctions_factorized_events_2026-07-27.json)
+  — cold/streamed guards plus the three-way factorized/memory/generic A/B.
+
+The common-language result is:
+
+| Groups | Snarky | Interpreted CLAIRE4 | Observed gap |
+| ---: | ---: | ---: | ---: |
+| 2 | 0.00750 s | 0.000343 s | ×21.9 |
+| 5 | 0.01864 s | 0.001191 s | ×15.7 |
+| 10 | 0.03782 s | 0.002892 s | ×13.1 |
+| 25 | 0.09495 s | 0.013004 s | ×7.30 |
+| 33 | 0.12486 s | 0.020969 s | ×5.95 |
+| 50 | 0.19238 s | 0.044907 s | ×4.28 |
+| 100 | 0.42016 s | 0.165307 s | ×2.54 |
+
+Snarky performs exactly three matches and two indexed support lookups per
+closing edge: 19,200 matches and 12,800 lookups for 6,400 outputs at 100
+groups. Its factorized path is ×1.20–×1.31 faster than bounded prefix memory
+through 25 groups and ×14.5–×166.3 faster than the generic join. The
+asymptotic result is more important: at 33 groups bounded memory exceeds its
+2,048-state budget and takes 27.5449 seconds, while factorized execution takes
+0.12486 seconds, a ×220.6 difference.
+
+The independent conjunction runner retains identical outputs, facts,
+activations, evaluations, and skips. At 25 barrier groups its medians are
+0.08727 seconds factorized, 0.11927 seconds with prefix memory, and 15.88971
+seconds generic. Match attempts are respectively 4,800, 6,598, and 2,881,600.
+
+[`rulebase_suite_factorized_events_2026-07-27.json`](rulebase_suite_factorized_events_2026-07-27.json)
+uses follow-up commit `570f54d`, three clean runs, all 12 documented
+rulebases, and the three primary strategies. Every application oracle passes;
+the semi-naive four-queens scenario exercises two factorized event
+evaluations, while focused MEA rules deliberately remain unspecialized.

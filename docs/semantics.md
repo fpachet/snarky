@@ -102,6 +102,8 @@ Optimized strategies must produce the same observable activations:
 
 - indexed instantiation maintains exact fact buckets and compiled patterns;
 - semi-naive instantiation evaluates only joins containing a newly added fact;
+- safe factorized event instantiation anchors a positive conjunction on an
+  added fact and retrieves its remaining supports through exact indexes;
 - constraint instantiation narrows finite domains and compact premise tables
   before exact matching;
 - adaptive instantiation selects constraint filtering only when its estimated
@@ -115,6 +117,13 @@ existential witnesses, aggregate counts, and domain tables update from this
 delta. Removing a support invalidates the corresponding memories; adding
 facts causes any potentially broadened constraint component to be safely
 reconsidered.
+
+Factorized event instantiation does not change source-order comparison
+semantics. It is available only when every comparison operand was already
+bound by preceding textual fact premises and at least one later fact premise
+exists. Rules containing `FOCUS`, queries, aggregates, binding or combination
+premises are excluded. Addition deltas use the specialized plan; removals and
+mixed deltas fall back to complete or memory-backed evaluation.
 
 Constraint filtering is monotone during one evaluation and cannot remove a
 valid activation. Exact ground matching remains the final oracle.

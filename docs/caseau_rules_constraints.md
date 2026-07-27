@@ -64,6 +64,29 @@ whether that separate path keeps partial joins or uses another production-rule
 algorithm. The Talarian comparison in this project deliberately exercises the
 built-in event-demon path.
 
+## Factorized conjunctions in current Snarky
+
+Snarky now has a conservative multi-premise event path for a related but
+different execution model. When an addition reaches a positive rule whose
+comparisons were already bound at their textual positions, the added fact is
+used as a join anchor. Fixed relation fields reject irrelevant anchor
+positions, and the remaining fact premises are retrieved from exact indexes.
+The runtime neither scans all hubs nor materializes every left/right prefix.
+
+For example, the shared triangle rule prepares `hub → left` and
+`hub → right` facts, then streams `left → right` edges. Each edge supplies
+both endpoint variables; two indexed lookups find the common hub. The
+executable Snarky version is
+[`rulebases/small/triangle_closure`](../rulebases/small/triangle_closure/README.md),
+and the common-language runner is
+[`benchmarks/claire_triangle_closure.py`](../benchmarks/claire_triangle_closure.py).
+
+This specialization is deliberately narrower than a general RETE network.
+It excludes focused conflict-resolution rules, comparisons that were
+textually unbound, negative or aggregate queries, bindings, combinations, and
+removal deltas. Those cases preserve the existing semi-naive, partial-memory,
+or complete-evaluation behavior.
+
 ## Operational comparison
 
 | Snarky case-1 concept | LAURE precedent |

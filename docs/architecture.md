@@ -54,6 +54,8 @@ The `instantiation` package implements interchangeable strategies:
 - `naive_join.py` is the semantic reference;
 - `fact_index.py`, `query_memory.py`, and `semi_naive_join.py` support
   persistent optimized matching;
+- `event_rules.py` compiles simple and safe factorized multi-premise delta
+  handlers;
 - `indexed.py` composes indexed and semi-naive strategies;
 - domain planning, compact tables, propagators, and adaptive selection provide
   optional finite-domain filtering.
@@ -61,6 +63,13 @@ The `instantiation` package implements interchangeable strategies:
 Strategies receive net fact deltas, may retain state between calls, and must
 implement isolation when a session forks. Differential tests enforce logical
 equivalence with the naive strategy.
+
+Factorized event plans are immutable, rule-keyed compiled definitions. For
+an addition-only delta they match the added fact against a statically filtered
+anchor position, then follow exact fact-index lookups for the other positive
+premises. Compilation requires comparisons to have been bound at their
+original textual position and excludes `FOCUS`; every unsupported shape and
+every removal follows the existing general path.
 
 ### Search and control
 
@@ -126,4 +135,3 @@ Behavioral validation combines:
 
 See [reference semantics](semantics.md), [API stability](api_stability.md),
 and the [benchmark guide](../benchmarks/README.md).
-

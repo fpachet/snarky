@@ -11,6 +11,8 @@ stables, de micro-benchmarks.
 - [`combinations_foreach`](combinations_foreach/README.md) engendre des
   binômes, les filtre par des faits et matérialise leurs membres avec
   `FOR EACH`.
+- [`triangle_closure`](triangle_closure/README.md) montre une conjonction
+  événementielle de trois faits exécutée sans produit partiel matérialisé.
 
 Les fixtures de débogage purement internes restent dans `tests/rulebases` :
 elles ne constituent pas des exemples publics.

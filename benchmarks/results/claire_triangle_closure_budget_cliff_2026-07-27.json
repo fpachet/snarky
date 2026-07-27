@@ -1,0 +1,80 @@
+{
+  "benchmark": "claire_triangle_closure",
+  "protocol": {
+    "groups": "N independent hub/left/right groups",
+    "width": 8,
+    "prepared_memberships_per_group": 16,
+    "streamed_edges_per_group": 64,
+    "expected_outputs_per_group": 64,
+    "factorized_event_rules": false,
+    "partial_join_memory": true,
+    "scheduling": "one closing edge followed by saturation",
+    "logical_equivalence": "both engines validate firings, outputs, and hub checksum",
+    "timing_scope": {
+      "snarky": "assume-and-run_group for every closing edge",
+      "claire": "rule-triggering outgoing-set additions"
+    },
+    "preparation_scope": {
+      "snarky": "fact construction, session creation, initial saturation",
+      "claire": "node, hub, and membership-set construction"
+    }
+  },
+  "repeat": 1,
+  "python": "3.13.11",
+  "platform": "macOS-15.7.7-arm64-arm-64bit-Mach-O",
+  "snarky_commit": "4b433e8efcfd799ddb03356e6c2bdd9865ce9c76",
+  "snarky_dirty": false,
+  "results": [
+    {
+      "group_count": 33,
+      "width": 8,
+      "expected_outputs": 2112,
+      "expected_checksum": 35904,
+      "snarky": {
+        "median_seconds": 27.544926582981134,
+        "min_seconds": 27.544926582981134,
+        "max_seconds": 27.544926582981134,
+        "median_rule_firings_per_second": 76.67473694792554,
+        "median_preparation_seconds": 0.02056450000964105,
+        "min_preparation_seconds": 0.02056450000964105,
+        "max_preparation_seconds": 0.02056450000964105,
+        "groups": 33,
+        "width": 8,
+        "rule_firings": 2112,
+        "outputs": 2112,
+        "checksum": 35904,
+        "match_attempts": 5022272,
+        "candidate_facts": 5022272,
+        "rule_evaluations": 2112,
+        "rule_skips": 2112,
+        "partial_join_builds": 0,
+        "partial_join_updates": 0,
+        "partial_join_bypasses": 1,
+        "factorized_event_evaluations": 0,
+        "factorized_event_candidates": 0,
+        "factorized_event_lookups": 0,
+        "runs": [
+          {
+            "groups": 33,
+            "width": 8,
+            "seconds": 27.544926582981134,
+            "preparation_seconds": 0.02056450000964105,
+            "rule_firings": 2112,
+            "outputs": 2112,
+            "checksum": 35904,
+            "match_attempts": 5022272,
+            "candidate_facts": 5022272,
+            "rule_evaluations": 2112,
+            "rule_skips": 2112,
+            "partial_join_builds": 0,
+            "partial_join_updates": 0,
+            "partial_join_bypasses": 1,
+            "factorized_event_evaluations": 0,
+            "factorized_event_candidates": 0,
+            "factorized_event_lookups": 0
+          }
+        ]
+      }
+    }
+  ]
+}

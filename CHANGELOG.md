@@ -33,6 +33,9 @@ details are documented in [docs/versioning.md](docs/versioning.md).
   benchmark and a persistent-constraint/forward-rule Sudoku hybrid.
 - Four-level metric profiles, appoggiatura and escape-tone analysis, and
   declarative accompaniment/voicing policies in the SATB harmonizer.
+- A conservative factorized event handler for streamed positive
+  multi-premise rules, plus an executable triangle-closure example and
+  CLAIRE4 comparison.
 
 ### Changed
 
@@ -43,6 +46,9 @@ details are documented in [docs/versioning.md](docs/versioning.md).
   historical explicit top-level imports for the 0.1 series.
 - Improved parser, fact-index, query-memory, join, and constraint-propagation
   hot paths, with benchmark evidence recorded under `benchmarks/results`.
+- Avoided materialized partial products for safe comparison-barrier rules by
+  anchoring indexed joins directly on added facts; removals, `FOCUS`, unbound
+  comparisons, and unsupported premises retain their previous paths.
 - Reduced the source distribution to buildable package sources and
   publication metadata. External references, vendored corpora, Spinoza source
   text, generated music, and benchmark records are excluded.

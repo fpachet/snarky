@@ -782,8 +782,8 @@ facile à comprendre et à vérifier.
 
 ## Phase 11 — Réactivité événementielle et conjonctions
 
-**État : ordonnanceur par dépendances, spécialisation événementielle et
-mémoires partielles bornées livrés.**
+**État : ordonnanceur par dépendances, spécialisations événementielles simple
+et factorisée, et mémoires partielles bornées livrés.**
 
 La comparaison avec le test Talarian de CLAIRE4 a isolé un coût qui n'était
 pas visible dans les anciennes applications par lots : après chaque mutation,
@@ -817,11 +817,15 @@ Les optimisations suivantes sont ordonnées ainsi :
    pour les règles à plusieurs prémisses, sans matérialiser les produits dont
    la cardinalité dépasserait le budget existant — **livré pour les préfixes
    positifs séparés d'une prémisse factuelle ultérieure par une comparaison** ;
-3. remplacer les ensembles de règles affectées par des tableaux ou bitsets si
+3. compiler ces conjonctions en gestionnaires delta factorisés qui ancrent la
+   jointure sur le fait ajouté et interrogent directement les index, sans
+   matérialiser le produit partiel — **livré pour les règles positives dont
+   les comparaisons sont déjà liées, hors `FOCUS` et suppressions** ;
+4. remplacer les ensembles de règles affectées par des tableaux ou bitsets si
    le profil confirme encore leur coût ;
-4. réduire les objets temporaires des substitutions, événements et actions,
+5. réduire les objets temporaires des substitutions, événements et actions,
    puis envisager des identifiants entiers internés pour les termes chauds ;
-5. ne déplacer la boucle critique vers mypyc, Cython ou Rust qu'après
+6. ne déplacer la boucle critique vers mypyc, Cython ou Rust qu'après
    épuisement des spécialisations algorithmiques en Python.
 
 Trois baselines complémentaires rendent cette phase mesurable :
@@ -914,6 +918,44 @@ de jointure mémorisé. Le témoin Snarky sans mémoire atteint 16,2327 s à
 sous le budget de matérialisation du préfixe ; au-delà, le repli générique est
 correct mais ce protocole devient très lent. La suite propre après ajout du
 benchmark compte 617 succès et 3 tests ignorés.
+
+La troisième tranche supprime précisément cette rupture. Le fait ajouté est
+testé uniquement contre les positions dont les champs constants concordent,
+puis devient l'ancre de la jointure. Les autres prémisses positives sont
+retrouvées dans `FactIndex` ; les comparaisons restent évaluées dans leur
+ordre. La compilation exige qu'elles aient déjà été liées à leur position
+textuelle. Les règles `FOCUS`, négatives, existentielles, agrégées, avec
+`BIND` ou `COMBINATIONS`, ainsi que les deltas contenant une suppression,
+conservent leur chemin antérieur. `use_factorized_event_rules=False` fournit
+le témoin mémoire partielle.
+
+Sur le commit propre `4b433e8`, cinq répétitions de la comparaison commune
+donnent :
+
+| Groupes | Snarky factorisé | CLAIRE4 interprété | Écart |
+| ---: | ---: | ---: | ---: |
+| 2 | 0,00750 s | 0,000343 s | ×21,9 |
+| 5 | 0,01864 s | 0,001191 s | ×15,7 |
+| 10 | 0,03782 s | 0,002892 s | ×13,1 |
+| 25 | 0,09495 s | 0,013004 s | ×7,30 |
+| 33 | 0,12486 s | 0,020969 s | ×5,95 |
+| 50 | 0,19238 s | 0,044907 s | ×4,28 |
+| 100 | 0,42016 s | 0,165307 s | ×2,54 |
+
+Chaque arc demande exactement trois correspondances et deux recherches
+indexées, indépendamment du nombre de groupes. À 100 groupes, 6 400 sorties
+requièrent donc 19 200 correspondances et 12 800 recherches. À 25 groupes, le
+gain constant sur la mémoire partielle est ×1,31 et le gain sur la jointure
+générique ×166,3.
+
+Le changement asymptotique apparaît à 33 groupes : l'ancien préfixe dépasse
+son budget de 2 048 états, revient au chemin générique et prend 27,5449 s.
+Le gestionnaire factorisé reste à 0,12486 s, soit un écart ×220,6, sans
+mémoire de produit. Le benchmark indépendant `incremental_conjunctions`
+confirme à 25 groupes 0,08727 s contre 0,11927 s pour la mémoire et 15,88971 s
+pour le générique, avec les mêmes faits et activations. La suite propre compte
+622 succès et 3 tests ignorés ; les 12 rulebases documentées conservent leurs
+oracles et les règles MEA focalisées restent volontairement non spécialisées.
 
 ## Prochaine tranche concrète
 

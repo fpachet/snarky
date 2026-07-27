@@ -66,9 +66,13 @@ uv run python -m benchmarks.claire_talarian_filter \
   --engine snarky --sizes 100 1000 5000 --repeat 5 \
   --disable-event-rules
 uv run python -m benchmarks.claire_triangle_closure \
-  --groups 2 5 10 25 --repeat 5
+  --groups 2 5 10 25 33 50 100 --repeat 5
 uv run python -m benchmarks.claire_triangle_closure \
   --engine snarky --groups 2 5 10 25 --repeat 3 \
+  --disable-factorized-event-rules
+uv run python -m benchmarks.claire_triangle_closure \
+  --engine snarky --groups 2 5 10 25 --repeat 3 \
+  --disable-factorized-event-rules \
   --disable-partial-join-memory
 uv run python -m benchmarks.incremental_conjunctions \
   --groups 25 100 250 --width 8 --repeat 5
@@ -142,14 +146,29 @@ of the owning hubs.
 
 The natural CLAIRE formulation attaches a demon to additions in each left
 node's `outgoing` set, then scans the instantiated hubs to test the other two
-premises. Snarky keeps the rule declarative and uses its bounded partial-join
-memory automatically. Consequently this comparison is useful precisely
-because the storage strategies differ: CLAIRE has much lower per-event
-overhead, while Snarky's retained prefix avoids recomputing the combinatorial
-join. The runner reports no automatic cross-engine speedup ratio.
-`--disable-partial-join-memory` provides the identical Snarky workload through
-the generic semi-naïve path. The archived sizes stop at 25 groups so the
-retained prefix remains below the configured memory budget.
+premises. Snarky keeps the rule declarative and compiles the arriving edge as
+a factorized join anchor: fixed relation fields select the edge premise, then
+two exact index lookups retrieve the hub memberships. It materializes no
+left/right prefix product and is independent of `partial_join_limit`.
+
+Consequently this comparison is useful precisely because the storage
+strategies differ: CLAIRE has lower per-event overhead but scans all hubs,
+while Snarky performs a constant number of indexed matches per edge. The
+runner reports no automatic cross-engine speedup ratio.
+`--disable-factorized-event-rules` restores the bounded partial-memory path;
+adding `--disable-partial-join-memory` selects the generic semi-naïve witness.
+Counters distinguish `factorized_event_evaluations`, added candidates, exact
+lookups, partial-memory builds, and bypasses.
+
+The archived common run extends to 100 groups. At 33 groups the old retained
+prefix exceeds its default budget and falls back to the generic join, so a
+separate one-run cliff record is retained rather than hiding that behavior in
+an extrapolation.
+
+`incremental_conjunctions --barrier-groups ...` reports all three Snarky
+paths for the same comparison-barrier rule: `factorized`, `memory`, and
+`generic`. Cold and ordinary streamed conjunctions remain guards for rule
+shapes outside the new specialization.
 
 ### Constraint filtering and propagation
 

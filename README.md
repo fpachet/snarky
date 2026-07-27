@@ -36,6 +36,8 @@ behavior and modern extensions are documented separately.
   `COUNT`, `GCC`, `TABLE`, and `LEX_LESS_EQUAL` constraints;
 - reference, indexed, semi-naive, constraint-filtered, and adaptive
   instantiation strategies;
+- compiled event handlers for simple rules and safe factorized
+  multi-premise deltas;
 - strict type checking and differential tests across execution strategies.
 
 The required runtime is Python 3.12 or newer. PyYAML is the only mandatory
@@ -118,6 +120,14 @@ result = ForwardEngine(rules).run(facts)
 The default engine uses semi-naive instantiation. The naive strategy remains
 the executable semantic reference and a useful diagnostic oracle.
 
+For streamed positive conjunctions, the default strategy can compile an
+added fact into the anchor of a factorized event join. If every comparison
+was already bound at its textual position, indexed lookups retrieve the
+remaining supports without materializing a Cartesian prefix. Unsupported
+rules, focused conflict-resolution rules, and removal deltas automatically
+fall back to the general engine. See the executable
+[triangle-closure example](rulebases/small/triangle_closure/README.md).
+
 ## Execution model
 
 Snarky keeps inference and search separate:
@@ -136,6 +146,7 @@ candidate facts
     -> premise tables and variable domains
     -> propagation to a fixed point
     -> active Compact-Table rows
+    -> safe factorized event handlers
     -> semi-naive joins containing new facts
     -> exact matcher validation
 ```
