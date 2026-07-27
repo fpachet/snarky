@@ -89,6 +89,26 @@ def _rule_explanation(feature: k3.FeatureSpec) -> str:
             f"bloc central avec {feature.value} classes distinctes "
             f"au niveau métrique {feature.second_value}"
         )
+    if feature.kind.startswith("rare_tonal_"):
+        scope = k3.VOICE_NAMES[feature.target_voice]
+        mode = "mineur" if feature.second_value else "majeur"
+        classes = _pcset(int(feature.value))
+        status = {
+            "rare_tonal_class": "classe tonale empiriquement rare",
+            "rare_tonal_incoming_step": "classe rare approchée par pas",
+            "rare_tonal_leap_arrival": "classe rare atteinte sans pas",
+            "rare_tonal_immediate_step_resolution": (
+                "classe rare immédiatement résolue par pas"
+            ),
+            "rare_tonal_short_no_step_resolution": (
+                "classe rare courte sans résolution par pas"
+            ),
+            "rare_tonal_immediate_neighbor": "classe rare en broderie immédiate",
+            "rare_tonal_immediate_passing": "classe rare en passage immédiat",
+            "rare_tonal_weak_metric": "classe rare sur niveau métrique faible",
+            "rare_tonal_strong_metric": "classe rare sur niveau métrique fort",
+        }[feature.kind]
+        return f"{status} ({scope}, {mode}, classes {classes})"
     return feature.label
 
 
@@ -109,6 +129,14 @@ def _markdown(result: dict[str, Any]) -> str:
             else "- Distribution catégorielle apprise des classes relatives par mode."
         ),
         "- Répétition attaquée distincte d'une tenue.",
+        *(
+            [
+                "- Statuts chromatiques appris : rareté marginale, approche, "
+                "résolution, passage, broderie et niveau métrique."
+            ]
+            if result["experiment"]["chromatic_rarity_threshold"] is not None
+            else []
+        ),
         "- Nombre de classes distinctes, éventuellement conditionné par la métrique.",
         "- Fingerprints verticaux mécaniquement énumérés relativement à la tonique",
         "  ou à la basse.",
@@ -174,6 +202,7 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--version", default="v5_6")
     parser.add_argument("--voice-specific-tonal", action="store_true")
     parser.add_argument("--voice-specific-repeats", action="store_true")
+    parser.add_argument("--chromatic-rarity-threshold", type=float)
     return parser.parse_args()
 
 
@@ -210,6 +239,7 @@ def main() -> int:
         minimum_support=args.min_testable,
         minimum_piece_support=args.min_piece_support,
         voice_specific_repeats=args.voice_specific_repeats,
+        chromatic_rarity_threshold=args.chromatic_rarity_threshold,
     )
     catalogue_map = {
         feature.key: feature for feature in (*k3.feature_catalogue(), *contextual)
@@ -343,6 +373,7 @@ def main() -> int:
             "manifest_summary": manifest["summary"],
             "voice_specific_tonal_baseline": args.voice_specific_tonal,
             "voice_specific_repeats": args.voice_specific_repeats,
+            "chromatic_rarity_threshold": args.chromatic_rarity_threshold,
         },
         "corpus": {
             "train_pieces": len(splits["train"]),

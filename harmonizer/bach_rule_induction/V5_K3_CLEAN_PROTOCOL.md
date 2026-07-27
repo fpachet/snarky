@@ -266,6 +266,45 @@ Sur le même soprano, le même rythme, la même graine et douze balayages :
 Ces taux génératifs sur un choral du train sont diagnostiques. Ils ne
 remplacent ni une campagne multi-pièces ni l'ouverture finale du test.
 
+## Boucle chromatique V5.8
+
+L'audit conditionnel est d'abord effectué sur les 50 chorals de validation,
+sans charger le test. Les classes rares sont définies mécaniquement par une
+fréquence train inférieure à 2 %, séparément par voix et mode. V5.7 les
+**sous-estime** dans ses conditionnelles : `2,364 %` attendus contre `3,780 %`
+observés chez Bach (`z=+11,41`). Une interdiction chromatique globale serait
+donc contraire au corpus.
+
+Le traitement local est très structuré : 82 % des choix rares authentiques
+sont approchés par pas, 56 % ont une résolution immédiate par pas, 21 % sont
+des broderies et 25 % des passages. Une campagne Gibbs porte ensuite sur 20
+chorals de validation, deux graines et six balayages, avec soprano et rythme
+authentiques :
+
+| Modèle | NLL validation | Bach rare | Généré rare | Écart apparié |
+|---|---:|---:|---:|---:|
+| V5.7 | 1,120257 | 4,828 % | 5,925 % | +1,728 pp |
+| V5.8 | 1,060328 | 4,828 % | 8,029 % | +3,654 pp |
+
+V5.8 repart de zéro avec 1 026 prédicats, dont 72 interactions de licence
+chromatique. Elle reconstruit exactement les vingt règles V5.7 puis ajoute huit
+régularités verticales et mélodiques ; aucune interaction chromatique n'est
+retenue. L'écart V5.8–Bach est pourtant significatif, IC95 `+1,466` à
+`+5,841` points. V5.8 est donc **rejetée comme successeur génératif**, malgré
+sa meilleure pseudo-vraisemblance.
+
+Cette expérience établit la nécessité d'un second gradient pour V5.9 :
+
+```text
+g_r = E_Bach[f_r] - E_Gibbs[f_r]
+```
+
+Le premier terme récompense toujours les règles prédictives sur les choix
+authentiques ; le second pénalise les moments que la génération amplifie. Les
+poids restent signés et lisibles : une rareté générale peut recevoir un poids
+négatif pendant que passage, broderie ou résolution reçoivent des licences
+positives. Le test scellé reste fermé pendant ce calibrage.
+
 ## Frontière MusicXML et MuSES
 
 Le corpus historique est distribué sous forme `.mxl`. MuSES ne possède pas

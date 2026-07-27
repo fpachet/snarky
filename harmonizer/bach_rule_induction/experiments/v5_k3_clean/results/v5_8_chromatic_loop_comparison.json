@@ -1,0 +1,41 @@
+{
+  "conditional_validation": {
+    "decisions": 13202,
+    "difference": 0.014161120546685557,
+    "expected_rate": 0.023636182892187343,
+    "observed_count": 499,
+    "observed_rate": 0.0377973034388729,
+    "pieces": 50,
+    "z_score": 11.412287198870052
+  },
+  "experiment": {
+    "id": "V5.8-CHROMATIC-LOOP-COMPARISON",
+    "status": "REJECTED_GENERATIVE_SUCCESSOR",
+    "test_loaded": false
+  },
+  "generation": {
+    "V5.7": {
+      "generated_rate": 0.0592469545957918,
+      "paired_difference": {
+        "ci95_high": 0.03974069404795573,
+        "ci95_low": -0.005173936637787518,
+        "mean": 0.017283378705084108
+      },
+      "source_rate": 0.048283499446290144,
+      "validation_nll": 1.1202567589199097
+    },
+    "V5.8": {
+      "generated_rate": 0.08028792912513842,
+      "paired_difference": {
+        "ci95_high": 0.058414913669140825,
+        "ci95_low": 0.014655656241696804,
+        "mean": 0.036535284955418815
+      },
+      "source_rate": 0.048283499446290144,
+      "validation_nll": 1.060327636434427
+    }
+  },
+  "next_method": "conditional gradient plus Bach-minus-Gibbs moment contrast",
+  "v5_8_rule_count": 28,
+  "v5_8_selected_chromatic_rule_count": 0
+}

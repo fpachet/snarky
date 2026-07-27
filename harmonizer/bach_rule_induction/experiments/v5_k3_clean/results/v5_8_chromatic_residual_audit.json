@@ -1,0 +1,494 @@
+{
+  "corpus": {
+    "test_pieces_reserved": 51,
+    "validation_decisions": 13202,
+    "validation_pieces": 50
+  },
+  "experiment": {
+    "id": "V5.8-CHROMATIC-RESIDUAL-AUDIT",
+    "rarity_definition": "train probability by voice and declared mode",
+    "rarity_threshold": 0.02,
+    "source_model": "/Users/francoispachet/IdeaProjects/boojum/harmonizer/bach_rule_induction/experiments/v5_k3_clean/results/v5_7_k3_contextual_model.json",
+    "status": "EXPLORATORY",
+    "test_loaded": false
+  },
+  "interpretation": "V5.7 sous-estime significativement les choix rares authentiques dans ses conditionnelles. Une p\u00e9nalisation chromatique globale serait donc contraire au corpus. Il faut tester si la cha\u00eene de Gibbs amplifie ces choix ou si l'\u00e9cart aper\u00e7u sur BWV 108.6 est propre \u00e0 cette pi\u00e8ce.",
+  "rare_relative_pitch_classes": {
+    "Alto": {
+      "major": [
+        1,
+        3,
+        8,
+        10
+      ],
+      "minor": [
+        1,
+        6
+      ]
+    },
+    "Bass": {
+      "major": [
+        1,
+        3,
+        8,
+        10
+      ],
+      "minor": [
+        4,
+        6
+      ]
+    },
+    "Soprano": {
+      "major": [
+        1,
+        3,
+        6,
+        8,
+        10
+      ],
+      "minor": [
+        1,
+        4,
+        6,
+        9,
+        11
+      ]
+    },
+    "Tenor": {
+      "major": [
+        1,
+        3,
+        6,
+        8,
+        10
+      ],
+      "minor": [
+        4,
+        6,
+        9
+      ]
+    }
+  },
+  "validation": {
+    "candidate_interactions": {
+      "immediate_neighbor": {
+        "decisions": 1365,
+        "difference": 0.04891948218781994,
+        "expected_rate": 0.02800359473525699,
+        "observed_count": 105,
+        "observed_rate": 0.07692307692307693,
+        "pieces": 50,
+        "z_score": 11.73266431536108
+      },
+      "immediate_passing": {
+        "decisions": 2686,
+        "difference": 0.015736489658938518,
+        "expected_rate": 0.03005651108566312,
+        "observed_count": 123,
+        "observed_rate": 0.04579300074460164,
+        "pieces": 50,
+        "z_score": 5.186538756892517
+      },
+      "immediate_step_resolution": {
+        "decisions": 7883,
+        "difference": 0.013934014390501046,
+        "expected_rate": 0.02133174737532415,
+        "observed_count": 278,
+        "observed_rate": 0.035265761765825195,
+        "pieces": 50,
+        "z_score": 9.209445560507735
+      },
+      "incoming_step": {
+        "decisions": 12024,
+        "difference": 0.012060279323397028,
+        "expected_rate": 0.021955023404480547,
+        "observed_count": 409,
+        "observed_rate": 0.034015302727877575,
+        "pieces": 50,
+        "z_score": 9.682081378698769
+      },
+      "no_incoming_step": {
+        "decisions": 13202,
+        "difference": 0.003176966737828874,
+        "expected_rate": 0.0036401821790019093,
+        "observed_count": 90,
+        "observed_rate": 0.0068171489168307835,
+        "pieces": 50,
+        "z_score": 6.208022208695571
+      },
+      "short_note_no_step_resolution": {
+        "decisions": 8702,
+        "difference": 0.0019964236982262717,
+        "expected_rate": 0.004668710753623878,
+        "observed_count": 58,
+        "observed_rate": 0.00666513445185015,
+        "pieces": 50,
+        "z_score": 2.82159398109708
+      },
+      "strong_metric": {
+        "decisions": 5801,
+        "difference": 0.007593648643057005,
+        "expected_rate": 0.022056411691368093,
+        "observed_count": 172,
+        "observed_rate": 0.029650060334425098,
+        "pieces": 50,
+        "z_score": 4.177265330958577
+      },
+      "weak_metric": {
+        "decisions": 7401,
+        "difference": 0.019308790390348468,
+        "expected_rate": 0.024874428093640183,
+        "observed_count": 327,
+        "observed_rate": 0.04418321848398865,
+        "pieces": 50,
+        "z_score": 11.399109438347665
+      }
+    },
+    "chosen_rare_roles": {
+      "immediate_neighbor": {
+        "count": 105,
+        "share_of_rare": 0.21042084168336672
+      },
+      "immediate_passing": {
+        "count": 123,
+        "share_of_rare": 0.24649298597194388
+      },
+      "immediate_step_resolution": {
+        "count": 278,
+        "share_of_rare": 0.5571142284569138
+      },
+      "incoming_step": {
+        "count": 409,
+        "share_of_rare": 0.8196392785571143
+      },
+      "no_incoming_step": {
+        "count": 90,
+        "share_of_rare": 0.18036072144288579
+      },
+      "rare_choices": 499,
+      "short_note_no_step_resolution": {
+        "count": 58,
+        "share_of_rare": 0.11623246492985972
+      }
+    },
+    "rare_pitch_class_support": [
+      {
+        "count": 5,
+        "mode": "major",
+        "pieces": 2,
+        "relative_pitch_class": 1,
+        "voice": "Soprano"
+      },
+      {
+        "count": 1,
+        "mode": "major",
+        "pieces": 1,
+        "relative_pitch_class": 3,
+        "voice": "Soprano"
+      },
+      {
+        "count": 10,
+        "mode": "major",
+        "pieces": 6,
+        "relative_pitch_class": 6,
+        "voice": "Soprano"
+      },
+      {
+        "count": 0,
+        "mode": "major",
+        "pieces": 0,
+        "relative_pitch_class": 8,
+        "voice": "Soprano"
+      },
+      {
+        "count": 9,
+        "mode": "major",
+        "pieces": 2,
+        "relative_pitch_class": 10,
+        "voice": "Soprano"
+      },
+      {
+        "count": 4,
+        "mode": "minor",
+        "pieces": 2,
+        "relative_pitch_class": 1,
+        "voice": "Soprano"
+      },
+      {
+        "count": 9,
+        "mode": "minor",
+        "pieces": 3,
+        "relative_pitch_class": 4,
+        "voice": "Soprano"
+      },
+      {
+        "count": 3,
+        "mode": "minor",
+        "pieces": 2,
+        "relative_pitch_class": 6,
+        "voice": "Soprano"
+      },
+      {
+        "count": 21,
+        "mode": "minor",
+        "pieces": 10,
+        "relative_pitch_class": 9,
+        "voice": "Soprano"
+      },
+      {
+        "count": 28,
+        "mode": "minor",
+        "pieces": 12,
+        "relative_pitch_class": 11,
+        "voice": "Soprano"
+      },
+      {
+        "count": 20,
+        "mode": "major",
+        "pieces": 7,
+        "relative_pitch_class": 1,
+        "voice": "Alto"
+      },
+      {
+        "count": 2,
+        "mode": "major",
+        "pieces": 2,
+        "relative_pitch_class": 3,
+        "voice": "Alto"
+      },
+      {
+        "count": 29,
+        "mode": "major",
+        "pieces": 14,
+        "relative_pitch_class": 8,
+        "voice": "Alto"
+      },
+      {
+        "count": 38,
+        "mode": "major",
+        "pieces": 11,
+        "relative_pitch_class": 10,
+        "voice": "Alto"
+      },
+      {
+        "count": 14,
+        "mode": "minor",
+        "pieces": 4,
+        "relative_pitch_class": 1,
+        "voice": "Alto"
+      },
+      {
+        "count": 17,
+        "mode": "minor",
+        "pieces": 10,
+        "relative_pitch_class": 6,
+        "voice": "Alto"
+      },
+      {
+        "count": 10,
+        "mode": "major",
+        "pieces": 8,
+        "relative_pitch_class": 1,
+        "voice": "Tenor"
+      },
+      {
+        "count": 6,
+        "mode": "major",
+        "pieces": 1,
+        "relative_pitch_class": 3,
+        "voice": "Tenor"
+      },
+      {
+        "count": 38,
+        "mode": "major",
+        "pieces": 12,
+        "relative_pitch_class": 6,
+        "voice": "Tenor"
+      },
+      {
+        "count": 9,
+        "mode": "major",
+        "pieces": 7,
+        "relative_pitch_class": 8,
+        "voice": "Tenor"
+      },
+      {
+        "count": 30,
+        "mode": "major",
+        "pieces": 9,
+        "relative_pitch_class": 10,
+        "voice": "Tenor"
+      },
+      {
+        "count": 10,
+        "mode": "minor",
+        "pieces": 8,
+        "relative_pitch_class": 4,
+        "voice": "Tenor"
+      },
+      {
+        "count": 16,
+        "mode": "minor",
+        "pieces": 8,
+        "relative_pitch_class": 6,
+        "voice": "Tenor"
+      },
+      {
+        "count": 35,
+        "mode": "minor",
+        "pieces": 14,
+        "relative_pitch_class": 9,
+        "voice": "Tenor"
+      },
+      {
+        "count": 17,
+        "mode": "major",
+        "pieces": 10,
+        "relative_pitch_class": 1,
+        "voice": "Bass"
+      },
+      {
+        "count": 7,
+        "mode": "major",
+        "pieces": 4,
+        "relative_pitch_class": 3,
+        "voice": "Bass"
+      },
+      {
+        "count": 27,
+        "mode": "major",
+        "pieces": 14,
+        "relative_pitch_class": 8,
+        "voice": "Bass"
+      },
+      {
+        "count": 38,
+        "mode": "major",
+        "pieces": 11,
+        "relative_pitch_class": 10,
+        "voice": "Bass"
+      },
+      {
+        "count": 19,
+        "mode": "minor",
+        "pieces": 12,
+        "relative_pitch_class": 4,
+        "voice": "Bass"
+      },
+      {
+        "count": 27,
+        "mode": "minor",
+        "pieces": 14,
+        "relative_pitch_class": 6,
+        "voice": "Bass"
+      }
+    ],
+    "strata": {
+      "metric": {
+        "0": {
+          "decisions": 2761,
+          "difference": 0.02342503081133321,
+          "expected_rate": 0.02800561026074213,
+          "observed_count": 142,
+          "observed_rate": 0.05143064107207534,
+          "pieces": 48,
+          "z_score": 7.90477434179921
+        },
+        "1": {
+          "decisions": 4640,
+          "difference": 0.01685944991570647,
+          "expected_rate": 0.023011239739465946,
+          "observed_count": 185,
+          "observed_rate": 0.03987068965517242,
+          "pieces": 50,
+          "z_score": 8.235962790880183
+        },
+        "2": {
+          "decisions": 2785,
+          "difference": 0.010236595401295942,
+          "expected_rate": 0.021002183772851277,
+          "observed_count": 87,
+          "observed_rate": 0.03123877917414722,
+          "pieces": 50,
+          "z_score": 3.9710288637736144
+        },
+        "3": {
+          "decisions": 3016,
+          "difference": 0.005153129172998844,
+          "expected_rate": 0.0230298946996802,
+          "observed_count": 85,
+          "observed_rate": 0.028183023872679045,
+          "pieces": 50,
+          "z_score": 2.01209682979492
+        }
+      },
+      "mode": {
+        "major": {
+          "decisions": 7244,
+          "difference": 0.012690904096090059,
+          "expected_rate": 0.028170498443943075,
+          "observed_count": 296,
+          "observed_rate": 0.040861402540033134,
+          "pieces": 26,
+          "z_score": 6.9585128424458365
+        },
+        "minor": {
+          "decisions": 5958,
+          "difference": 0.015948674754156813,
+          "expected_rate": 0.018123161432482996,
+          "observed_count": 203,
+          "observed_rate": 0.03407183618663981,
+          "pieces": 24,
+          "z_score": 9.810114565638097
+        }
+      },
+      "overall": {
+        "decisions": 13202,
+        "difference": 0.014161120546685557,
+        "expected_rate": 0.023636182892187343,
+        "observed_count": 499,
+        "observed_rate": 0.0377973034388729,
+        "pieces": 50,
+        "z_score": 11.412287198870052
+      },
+      "voice": {
+        "Alto": {
+          "decisions": 3436,
+          "difference": 0.012836877143407931,
+          "expected_rate": 0.022087453473588575,
+          "observed_count": 120,
+          "observed_rate": 0.034924330616996506,
+          "pieces": 50,
+          "z_score": 5.37464394412146
+        },
+        "Bass": {
+          "decisions": 3553,
+          "difference": 0.015203066184159224,
+          "expected_rate": 0.02279299348372707,
+          "observed_count": 135,
+          "observed_rate": 0.037996059667886294,
+          "pieces": 50,
+          "z_score": 6.4985711767944565
+        },
+        "Soprano": {
+          "decisions": 2787,
+          "difference": 0.012168285543973638,
+          "expected_rate": 0.020124502400052195,
+          "observed_count": 90,
+          "observed_rate": 0.03229278794402583,
+          "pieces": 50,
+          "z_score": 4.811749726058911
+        },
+        "Tenor": {
+          "decisions": 3426,
+          "difference": 0.016029800825808755,
+          "expected_rate": 0.028920578625446353,
+          "observed_count": 154,
+          "observed_rate": 0.04495037945125511,
+          "pieces": 50,
+          "z_score": 6.055282793759797
+        }
+      }
+    }
+  }
+}

@@ -638,6 +638,48 @@ def _contextual_feature_mask(
             else voices == feature.target_voice
         )
         return applies[:, None] & (candidates == previous)
+    if feature.kind.startswith("rare_tonal_"):
+        if feature.target_voice not in range(4):
+            raise ValueError("Rare tonal features require one target voice")
+        if feature.value is None or feature.second_value not in {0, 1}:
+            raise ValueError("Rare tonal features require a mask and mode")
+        tonics = _context_array(dataset.tonic_pcs, "tonic_pcs")[:, None]
+        modes = _context_array(dataset.modes, "modes")
+        levels = _context_array(dataset.metric_levels, "metric_levels")
+        applies = (voices == feature.target_voice) & (modes == feature.second_value)
+        relative = (candidates - tonics) % 12
+        rare = (
+            np.right_shift(int(feature.value), relative).astype(np.int8) & 1
+        ).astype(bool)
+        following = dataset.blocks[rows, 2, voices, None]
+        next_attack = dataset.attacks[rows, 2, voices, None]
+        incoming = candidates - previous
+        outgoing = following - candidates
+        incoming_step = (np.abs(incoming) >= 1) & (np.abs(incoming) <= 2)
+        outgoing_step = next_attack & (np.abs(outgoing) >= 1) & (np.abs(outgoing) <= 2)
+        if feature.kind == "rare_tonal_class":
+            status = np.ones_like(rare)
+        elif feature.kind == "rare_tonal_incoming_step":
+            status = incoming_step
+        elif feature.kind == "rare_tonal_leap_arrival":
+            status = ~incoming_step
+        elif feature.kind == "rare_tonal_immediate_step_resolution":
+            status = outgoing_step
+        elif feature.kind == "rare_tonal_short_no_step_resolution":
+            status = next_attack & ~outgoing_step
+        elif feature.kind == "rare_tonal_immediate_neighbor":
+            status = incoming_step & outgoing_step & (following == previous)
+        elif feature.kind == "rare_tonal_immediate_passing":
+            status = (
+                incoming_step & outgoing_step & (np.sign(incoming) == np.sign(outgoing))
+            )
+        elif feature.kind == "rare_tonal_weak_metric":
+            status = levels[:, None] <= 1
+        elif feature.kind == "rare_tonal_strong_metric":
+            status = levels[:, None] >= 2
+        else:
+            raise ValueError(f"Unknown rare tonal feature: {feature.kind}")
+        return applies[:, None] & rare & status
     value = feature.value
     if value is None:
         raise ValueError(f"Feature {feature.key} has no numeric value")
@@ -681,7 +723,7 @@ def feature_mask(dataset: K3Dataset, feature: FeatureSpec) -> np.ndarray:
         "central_distinct_pc_count_metric",
         "central_tonic_pcset",
         "central_bass_pcset",
-    }:
+    } or feature.kind.startswith("rare_tonal_"):
         return _contextual_feature_mask(dataset, feature, candidates)
     row_voice = dataset.voice_indices
     if feature.target_voice == -1:
@@ -870,6 +912,19 @@ def learn_voice_tonal_logits(
     return logits
 
 
+def empirical_rare_pc_masks(
+    dataset: K3Dataset,
+    threshold: float,
+) -> np.ndarray:
+    """Encode voice/mode pitch classes below a learned marginal threshold."""
+
+    if not 0.0 < threshold < 1.0:
+        raise ValueError("Rarity threshold must lie strictly between zero and one")
+    rare = np.exp(learn_voice_tonal_logits(dataset)) < threshold
+    powers = np.left_shift(1, np.arange(12, dtype=np.int16))
+    return np.sum(rare * powers, axis=2, dtype=np.int16)
+
+
 def contextual_base_scores(
     dataset: K3Dataset,
     register_logits: np.ndarray,
@@ -902,6 +957,7 @@ def contextual_feature_catalogue(
     minimum_support: int = 100,
     minimum_piece_support: int = 10,
     voice_specific_repeats: bool = False,
+    chromatic_rarity_threshold: float | None = None,
 ) -> tuple[FeatureSpec, ...]:
     """Generate readable context features and observed vertical fingerprints."""
 
@@ -913,6 +969,37 @@ def contextual_feature_catalogue(
         features.extend(
             FeatureSpec("attacked_repeat_from_previous", voice) for voice in range(4)
         )
+    if chromatic_rarity_threshold is not None:
+        rare_masks = empirical_rare_pc_masks(
+            dataset,
+            chromatic_rarity_threshold,
+        )
+        rare_kinds = (
+            "rare_tonal_class",
+            "rare_tonal_incoming_step",
+            "rare_tonal_leap_arrival",
+            "rare_tonal_immediate_step_resolution",
+            "rare_tonal_short_no_step_resolution",
+            "rare_tonal_immediate_neighbor",
+            "rare_tonal_immediate_passing",
+            "rare_tonal_weak_metric",
+            "rare_tonal_strong_metric",
+        )
+        for voice in range(4):
+            for mode in range(2):
+                mask = int(rare_masks[voice, mode])
+                if not mask:
+                    continue
+                features.extend(
+                    FeatureSpec(
+                        kind,
+                        voice,
+                        value=mask,
+                        second_value=mode,
+                        complexity=2 if kind == "rare_tonal_class" else 3,
+                    )
+                    for kind in rare_kinds
+                )
     features.extend(
         FeatureSpec("central_distinct_pc_count", -1, value=count)
         for count in range(1, 5)
@@ -1299,6 +1386,95 @@ def _state_energy(
     return float(score.sum())
 
 
+def _candidate_state_energies(
+    blocks: np.ndarray,
+    attacks: np.ndarray,
+    central_times: Sequence[int],
+    start: int,
+    end: int,
+    voice: int,
+    candidates: np.ndarray,
+    *,
+    candidate_min: int,
+    candidate_max: int,
+    register_logits: np.ndarray,
+    features: Sequence[FeatureSpec],
+    weights: np.ndarray,
+    tonal_logits: np.ndarray | None = None,
+    tonic_pc: int | None = None,
+    mode: int | None = None,
+    metric_levels: np.ndarray | None = None,
+) -> np.ndarray:
+    """Score every proposed segment pitch in one vectorized feature pass."""
+
+    previous = blocks[start:end, voice].copy()
+    worlds = []
+    group_ids = []
+    try:
+        for group, candidate in enumerate(candidates):
+            blocks[start:end, voice] = candidate
+            dataset = _decision_dataset(
+                blocks,
+                attacks,
+                central_times,
+                candidate_min,
+                candidate_max,
+                tonic_pc,
+                mode,
+                metric_levels,
+            )
+            if dataset is not None:
+                worlds.append(dataset)
+                group_ids.append(np.full(dataset.size, group, dtype=np.int16))
+    finally:
+        blocks[start:end, voice] = previous
+    if not worlds:
+        return np.zeros(candidates.size, dtype=np.float64)
+    dataset = K3Dataset(
+        piece_ids=np.concatenate([world.piece_ids for world in worlds]),
+        offsets=np.concatenate([world.offsets for world in worlds]),
+        voice_indices=np.concatenate([world.voice_indices for world in worlds]),
+        blocks=np.concatenate([world.blocks for world in worlds]),
+        attacks=np.concatenate([world.attacks for world in worlds]),
+        candidate_min=candidate_min,
+        candidate_max=candidate_max,
+        tonic_pcs=(
+            None
+            if tonic_pc is None
+            else np.concatenate([world.tonic_pcs for world in worlds])
+        ),
+        modes=(
+            None if mode is None else np.concatenate([world.modes for world in worlds])
+        ),
+        metric_levels=(
+            None
+            if metric_levels is None
+            else np.concatenate([world.metric_levels for world in worlds])
+        ),
+    )
+    rows = np.arange(dataset.size)
+    chosen = dataset.chosen_indices
+    if np.any(chosen < 0) or np.any(chosen >= candidates.size):
+        return np.full(candidates.size, -math.inf, dtype=np.float64)
+    if tonal_logits is None:
+        row_scores = register_logits[dataset.voice_indices, chosen].copy()
+    else:
+        base_scores = contextual_base_scores(
+            dataset,
+            register_logits,
+            tonal_logits,
+        )
+        row_scores = base_scores[rows, chosen]
+    for feature, weight in zip(features, weights, strict=True):
+        mask = feature_mask(dataset, feature)
+        row_scores += weight * mask[rows, chosen]
+    return np.bincount(
+        np.concatenate(group_ids),
+        weights=row_scores,
+        minlength=candidates.size,
+    )
+
+
 def rhythmic_gibbs_sample(
     initial_blocks: np.ndarray,
     attacks: np.ndarray,
@@ -1366,25 +1542,24 @@ def rhythmic_gibbs_sample(
                 max(1, start - 1),
                 min(blocks.shape[0] - 2, end) + 1,
             )
-            previous = blocks[start:end, voice].copy()
-            scores = np.empty(candidates.size, dtype=np.float64)
-            for index, candidate in enumerate(candidates):
-                blocks[start:end, voice] = candidate
-                scores[index] = _state_energy(
-                    blocks,
-                    attack_grid,
-                    affected_times,
-                    candidate_min=candidate_min,
-                    candidate_max=candidate_max,
-                    register_logits=register_logits,
-                    features=features,
-                    weights=weights,
-                    tonal_logits=tonal_logits,
-                    tonic_pc=tonic_pc,
-                    mode=mode,
-                    metric_levels=metric_levels,
-                )
-            blocks[start:end, voice] = previous
+            scores = _candidate_state_energies(
+                blocks,
+                attack_grid,
+                affected_times,
+                start,
+                end,
+                voice,
+                candidates,
+                candidate_min=candidate_min,
+                candidate_max=candidate_max,
+                register_logits=register_logits,
+                features=features,
+                weights=weights,
+                tonal_logits=tonal_logits,
+                tonic_pc=tonic_pc,
+                mode=mode,
+                metric_levels=metric_levels,
+            )
             scores /= scale
             scores -= scores.max()
             probabilities = np.exp(scores)

@@ -19,6 +19,11 @@ Le dossier ne charge aucun fichier de `rules/` ni aucun manifeste de
   métrique, répétitions attaquées et fingerprints verticaux ;
 - `run_contextual_generation_comparison.py` : comparaison contrôlée
   Bach/V5.5/V5.6/V5.7 sur le même soprano et le même rythme ;
+- `run_chromatic_residual_audit.py` : calibration conditionnelle des classes
+  tonales empiriquement rares sur validation ;
+- `run_multichoral_generation_audit.py` : campagne Gibbs reproductible sur
+  plusieurs chorals et plusieurs graines ;
+- `run_chromatic_loop_comparison.py` : décision avant/après et protocole V5.9 ;
 - `results/` : artefacts et rapports reproductibles.
 
 `V5.0` conserve le premier catalogue spécialisé, qui a appris huit variantes
@@ -45,6 +50,12 @@ Résultats principaux :
   raffinement tonal et répétition attaquée par voix ;
 - [`V5_7_CONTEXTUAL_GENERATION_COMPARISON.md`](results/V5_7_CONTEXTUAL_GENERATION_COMPARISON.md),
   mesure avant/après des défauts observés dans la partition ;
+- [`V5_8_CHROMATIC_RESIDUAL_AUDIT.md`](results/V5_8_CHROMATIC_RESIDUAL_AUDIT.md),
+  contraste entre choix rares observés et attendus sur validation ;
+- [`V5_8_MULTICHORAL_GENERATION_AUDIT.md`](results/V5_8_MULTICHORAL_GENERATION_AUDIT.md),
+  première campagne générative V5.7 sur 20 chorals ;
+- [`V5_8_CHROMATIC_LOOP_COMPARISON.md`](results/V5_8_CHROMATIC_LOOP_COMPARISON.md),
+  rejet génératif de V5.8 et définition du gradient V5.9 ;
 - `v5_1_k3_compact_model.json`, modèle complet pour le Gibbs.
 
 Le protocole complet est

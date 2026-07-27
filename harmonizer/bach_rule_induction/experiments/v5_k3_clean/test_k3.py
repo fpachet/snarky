@@ -136,6 +136,49 @@ def test_voice_tonal_baseline_has_one_distribution_per_voice_and_mode() -> None:
     assert scores.shape == (data.size, data.candidate_pitches.size)
 
 
+def test_rare_tonal_features_encode_local_licences() -> None:
+    data = _dataset().take(np.asarray([0]))
+    data.tonic_pcs = np.asarray([0], dtype=np.int8)
+    data.modes = np.asarray([0], dtype=np.int8)
+    data.metric_levels = np.asarray([1], dtype=np.int8)
+    rare_a = 1 << 9
+
+    generic = k3.feature_mask(
+        data,
+        k3.FeatureSpec(
+            "rare_tonal_class",
+            0,
+            value=rare_a,
+            second_value=0,
+        ),
+    )
+    passing = k3.feature_mask(
+        data,
+        k3.FeatureSpec(
+            "rare_tonal_immediate_passing",
+            0,
+            value=rare_a,
+            second_value=0,
+        ),
+    )
+    weak = k3.feature_mask(
+        data,
+        k3.FeatureSpec(
+            "rare_tonal_weak_metric",
+            0,
+            value=rare_a,
+            second_value=0,
+        ),
+    )
+
+    candidate = 69
+    index = candidate - data.candidate_min
+    assert generic[0, index]
+    assert passing[0, index]
+    assert weak[0, index]
+    assert not generic[0, 68 - data.candidate_min]
+
+
 def test_contextual_vertical_signatures_are_candidate_dependent() -> None:
     data = _dataset().take(np.asarray([0]))
     data.tonic_pcs = np.asarray([0], dtype=np.int8)
@@ -293,6 +336,76 @@ def test_rhythmic_gibbs_changes_one_attack_and_its_whole_hold() -> None:
     assert np.array_equal(generated[1:3, 1], [62, 62])
     assert generated[3, 1] == 61
     assert np.array_equal(generated[:, 0], blocks[:, 0])
+
+
+def test_vectorized_segment_energies_match_scalar_worlds() -> None:
+    blocks = np.asarray(
+        [
+            [67, 64, 55, 48],
+            [69, 65, 57, 50],
+            [71, 67, 59, 52],
+            [72, 69, 60, 53],
+            [74, 71, 62, 55],
+        ],
+        dtype=np.int16,
+    )
+    attacks = np.ones_like(blocks, dtype=bool)
+    candidates = np.arange(60, 73, dtype=np.int16)
+    register_logits = np.zeros((4, candidates.size), dtype=np.float64)
+    tonal_logits = np.zeros((4, 2, 12), dtype=np.float64)
+    metric_levels = np.asarray([3, 1, 2, 1, 3], dtype=np.int8)
+    features = (
+        k3.FeatureSpec("abs_step_from_previous_gt", 0, value=2),
+        k3.FeatureSpec(
+            "rare_tonal_incoming_step",
+            0,
+            value=1 << 11,
+            second_value=0,
+        ),
+    )
+    weights = np.asarray([-0.7, 0.4])
+    affected = range(1, 4)
+    vectorized = k3._candidate_state_energies(
+        blocks,
+        attacks,
+        affected,
+        2,
+        3,
+        0,
+        candidates,
+        candidate_min=60,
+        candidate_max=72,
+        register_logits=register_logits,
+        features=features,
+        weights=weights,
+        tonal_logits=tonal_logits,
+        tonic_pc=0,
+        mode=0,
+        metric_levels=metric_levels,
+    )
+    scalar = []
+    original = blocks[2, 0]
+    for candidate in candidates:
+        blocks[2, 0] = candidate
+        scalar.append(
+            k3._state_energy(
+                blocks,
+                attacks,
+                affected,
+                candidate_min=60,
+                candidate_max=72,
+                register_logits=register_logits,
+                features=features,
+                weights=weights,
+                tonal_logits=tonal_logits,
+                tonic_pc=0,
+                mode=0,
+                metric_levels=metric_levels,
+            )
+        )
+    blocks[2, 0] = original
+
+    assert np.allclose(vectorized, scalar)
 
 
 def test_clean_induction_source_has_no_rule_base_dependency() -> None:

@@ -71,9 +71,26 @@ distinctes ; il ne choisit pas encore lui-même `ATTACK/HOLD`.
 - [x] utiliser MuSES comme exporteur canonique et music21 comme adaptateur
       d'import ou de mise en page source seulement.
 
-Le prochain résidu génératif est l'excès d'attaques tonalement rares. Il doit
-être confirmé sur plusieurs chorals train/validation avant tout nouvel ajout
-de feature. La génération libre du rythme vient ensuite.
+### 1.0.2 Boucle chromatique multi-chorals exécutée
+
+- [x] auditer les conditionnelles V5.7 sur les 50 chorals de validation ;
+- [x] mesurer 20 chorals générés, deux graines par pièce ;
+- [x] distinguer rareté globale et licences locales de passage, broderie,
+      approche, résolution et métrique ;
+- [x] réinduire V5.8 depuis zéro avec 72 interactions candidates ;
+- [x] constater qu'aucune interaction chromatique n'entre dans les 28 règles ;
+- [x] rejeter V5.8 malgré sa meilleure NLL, car ses générations sont
+      significativement plus chromatiques ;
+- [ ] ajouter à V5.9 un gradient génératif
+      `E_Bach[f] - E_Gibbs[f]` ;
+- [ ] sélectionner une base sur prédiction **et** fidélité des moments
+      génératifs, avant ouverture du test scellé.
+
+La conclusion méthodologique est importante : la pseudo-vraisemblance locale
+ne suffit pas à sélectionner une base destinée à la génération Gibbs. V5.8
+améliore la NLL validation de `1,120257` à `1,060328`, mais fait passer le taux
+pondéré de classes rares générées de `5,925 %` à `8,029 %`, contre `4,828 %`
+chez Bach. La génération libre du rythme reste postérieure à ce calibrage.
 
 Deux résultats scientifiques distincts sont recherchés :
 
