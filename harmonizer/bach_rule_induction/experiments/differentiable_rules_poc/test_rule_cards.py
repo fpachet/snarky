@@ -145,6 +145,11 @@ def test_leading_tone_candidate_card_matches_canonical_experiments() -> None:
             / "results/v3_5_selected_tonal_harmonic_audit.json"
         ).read_text(encoding="utf-8")
     )
+    joint_ablation = json.loads(
+        (
+            EXPERIMENT_ROOT / "results/v3_6_tonal_rule_ablation.json"
+        ).read_text(encoding="utf-8")
+    )
     card = yaml.safe_load(
         (RULES_ROOT / "R-LEARNED-LEADING-001.yaml").read_text(encoding="utf-8")
     )
@@ -174,3 +179,15 @@ def test_leading_tone_candidate_card_matches_canonical_experiments() -> None:
     assert card_audit["train"]["exact_progressions"][0] == result_audit[
         "train"
     ]["exact_progression_matches"]
+    card_ablation = card["refinements"]["joint_ablation"]
+    result_models = joint_ablation["model"]["models"]
+    assert card_ablation["validation_nll"]["both"] == result_models["both"][
+        "validation_nll"
+    ]
+    assert card_ablation["validation_nll"]["both"] < result_models["proxy"][
+        "validation_nll"
+    ]
+    assert card_ablation["candidate_dependent_harmonic_coverage"]["train"] == [
+        41,
+        43,
+    ]

@@ -833,8 +833,9 @@ possède une définition musicale testée.
 - [x] Auditer indépendamment le contenu harmonique de cette clause : le noyau
       `vii°6→I6` est sans exception observée mais seulement partiellement
       équivalent au proxy numérique.
-- [ ] Comparer par ablation le proxy numérique et sa spécialisation harmonique
-      exacte.
+- [x] Comparer par ablation le proxy numérique et sa spécialisation harmonique
+      exacte ; le proxy conserve le gain propre le plus robuste et les deux
+      colonnes forment une hiérarchie plutôt que deux règles indépendantes.
 - [ ] Ajouter ensuite les faits harmoniques nécessaires aux résolutions et
       doublures.
 - [x] Comparer sémantiquement les clauses de mouvement direct aux oracles

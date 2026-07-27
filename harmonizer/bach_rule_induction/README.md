@@ -136,6 +136,14 @@ ensuite cette étiquette sur les quatre voix. La progression exacte
 Elle constitue donc un noyau net, mais non une équivalence : la clause apprise
 englobe aussi des accords de dominante ou des états ornés sur la même basse.
 
+Le [POC V3.6](experiments/differentiable_rules_poc/V3_6_ANALYSIS.md) réajuste
+ensuite quatre modèles. Le proxy et son noyau candidat-dépendant améliorent
+chacun la baseline ; leur combinaison obtient la meilleure NLL de validation
+(`1,268457`). Le proxy conserve un gain propre robuste au-delà de
+`vii°6→I6`, tandis que le gain inverse est positif mais limite. Le résultat
+favorise une règle générale locale munie d'une spécialisation harmonique, et
+non deux règles prétendument indépendantes.
+
 ## Organisation
 
 ```text
@@ -219,7 +227,7 @@ Livrable : premières RuleCards vérifiées dans `rules/`.
 - [x] utiliser les exceptions pour proposer `global_key_mode` comme feature ;
 - [x] calibrer la première famille tonale sur 49 maxima de permutations ;
 - [x] auditer harmoniquement la seule clause survivante ;
-- comparer par ablation la clause chromatique et son noyau `vii°6→I6` ;
+- [x] comparer par ablation la clause chromatique et son noyau `vii°6→I6` ;
 - valider sur un sous-ensemble non consulté pendant la découverte ;
 - compiler les règles retenues en `R-LEARNED-*` ;
 - vérifier chaque règle sur exemples, contre-exemples et cas limites.

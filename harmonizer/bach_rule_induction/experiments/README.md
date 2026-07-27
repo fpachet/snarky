@@ -70,3 +70,10 @@ Le neuvième incrément inspecte les ensembles complets de classes sans les
 réintroduire dans la sélection. Le noyau exact `vii°6→I6` résout 41/41 fois au
 train et 12/12 en validation, mais ne couvre que 76 % et 63 % de la clause.
 L'interprétation est donc classée `PITCH_CLASS_PROXY_PARTIAL`.
+
+Le dixième incrément convertit ce noyau en feature candidat-dépendante et
+réajuste quatre modèles. La combinaison proxy + spécialisation obtient la
+meilleure NLL de validation (`1,268457`). Le proxy garde un gain propre de
+`0,002212` au-delà de la spécialisation, tandis que le gain propre inverse
+(`0,000565`) est plus fragile. Le contrôle permuté ne reproduit pas les
+intervalles positifs principaux.

@@ -353,6 +353,34 @@ Cependant, il ne couvre pas toute la clause numérique : le proxy est
 Voir [`V3_5_ANALYSIS.md`](V3_5_ANALYSIS.md) et le
 [`rapport canonique`](results/V3_5_SELECTED_TONAL_HARMONIC_AUDIT_REPORT.md).
 
+## POC V3.6 — ablation conjointe sans fuite de cible
+
+Le V3.6 transforme la lecture harmonique en vraie colonne
+candidat-dépendante : la note candidate d'alto est substituée dans la
+signature cible, sans consulter la note choisie.
+
+```sh
+../deepbach-reference/.venv/bin/python \
+  harmonizer/bach_rule_induction/experiments/differentiable_rules_poc/\
+run_tonal_rule_ablation.py
+
+../deepbach-reference/.venv/bin/python \
+  harmonizer/bach_rule_induction/experiments/differentiable_rules_poc/\
+run_tonal_rule_ablation.py --null-shuffle \
+  --output-stem v3_6_tonal_rule_ablation_null
+```
+
+Les modèles baseline, proxy, harmonique et conjoint sont tous réajustés. Le
+modèle conjoint est le meilleur (`NLL validation = 1,268457`). Le proxy
+apporte encore `0,002212` au-delà de la spécialisation harmonique, avec un
+intervalle bootstrap strictement positif. L'apport inverse vaut `0,000565`,
+mais son intervalle touche zéro. Dans le contrôle permuté, tous les intervalles
+principaux traversent zéro.
+
+Voir [`V3_6_ANALYSIS.md`](V3_6_ANALYSIS.md), le
+[`rapport authentique`](results/V3_6_TONAL_RULE_ABLATION_REPORT.md) et le
+[`rapport nul`](results/V3_6_TONAL_RULE_ABLATION_NULL_REPORT.md).
+
 ## Interprétation prudente
 
 Une valeur conditionnelle extrême est une hypothèse de règle, pas une preuve

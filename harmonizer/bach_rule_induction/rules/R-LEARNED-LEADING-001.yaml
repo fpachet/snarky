@@ -89,7 +89,37 @@ refinements:
     conclusion: >
       La progression vii°6 vers I6 forme un noyau sans exception observée,
       mais n'est pas équivalente à la clause chromatique plus large.
-    lifecycle: CANDIDATE_PENDING_JOINT_ABLATION
+    lifecycle: CANDIDATE_ABLATED
+  joint_ablation:
+    experiment: v3_6_tonal_rule_ablation
+    formulations:
+      - TONAL_PROXY_MAJOR_ALTO_BASS_2_TO_4
+      - TONAL_EXACT_VII6_TO_I6
+    candidate_dependent_harmonic_coverage:
+      train: [41, 43]
+      validation: [12, 12]
+    validation_nll:
+      baseline: 1.2762102173221306
+      proxy: 1.269022454289757
+      harmonic: 1.2706690458520997
+      both: 1.2684574081169158
+    incremental_validation_gain:
+      harmonic_given_proxy: 0.0005650461728412548
+      proxy_given_harmonic: 0.002211637735183958
+    bootstrap_validation:
+      harmonic_given_proxy:
+        interval_95: [-0.00000828530172369843, 0.0011568315086175223]
+        positive_fraction: 0.972
+      proxy_given_harmonic:
+        interval_95: [0.0009432580497822817, 0.00377522808784353]
+        positive_fraction: 1.0
+    null_main_intervals_include_zero: true
+    conclusion: >
+      Le proxy conserve un apport propre robuste. La spécialisation harmonique
+      renforce ponctuellement le proxy, mais son intervalle touche zéro. Les
+      deux formulations décrivent une hiérarchie imbriquée, pas des règles
+      indépendantes.
+    lifecycle: CANDIDATE_PENDING_HARMONIC_FEATURE_EXPANSION
 provenance:
   experiment: experiments/differentiable_rules_poc/results/v3_1_global_tonal_tendency.json
   refinement_experiment: experiments/differentiable_rules_poc/results/v3_3_mode_stratified_leading_tone.json
@@ -99,6 +129,9 @@ provenance:
   family_calibration_analysis: experiments/differentiable_rules_poc/V3_4_ANALYSIS.md
   harmonic_audit: experiments/differentiable_rules_poc/results/v3_5_selected_tonal_harmonic_audit.json
   harmonic_audit_analysis: experiments/differentiable_rules_poc/V3_5_ANALYSIS.md
+  joint_ablation: experiments/differentiable_rules_poc/results/v3_6_tonal_rule_ablation.json
+  joint_ablation_null: experiments/differentiable_rules_poc/results/v3_6_tonal_rule_ablation_null.json
+  joint_ablation_analysis: experiments/differentiable_rules_poc/V3_6_ANALYSIS.md
 snarky_rule:
   file: ../voice_leading_conformance.rules
   rule_id: R-LEADING-001
