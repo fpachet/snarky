@@ -381,6 +381,33 @@ Voir [`V3_6_ANALYSIS.md`](V3_6_ANALYSIS.md), le
 [`rapport authentique`](results/V3_6_TONAL_RULE_ABLATION_REPORT.md) et le
 [`rapport nul`](results/V3_6_TONAL_RULE_ABLATION_NULL_REPORT.md).
 
+## POC V3.7 — compression cross-fittée
+
+V3.7 audite les 13 cas atypiques du train, construit trois statuts harmoniques
+candidat-dépendants et compare leurs versions booléennes et graduées :
+
+```sh
+../deepbach-reference/.venv/bin/python \
+  harmonizer/bach_rule_induction/experiments/differentiable_rules_poc/\
+run_harmonic_feature_compression.py
+
+../deepbach-reference/.venv/bin/python \
+  harmonizer/bach_rule_induction/experiments/differentiable_rules_poc/\
+run_harmonic_feature_compression.py --null-shuffle \
+  --output-stem v3_7_harmonic_feature_compression_null
+```
+
+La sélection repose sur cinq plis par groupes de chorals. `graded_exact`
+encode la préférence générale au niveau `1` et son noyau `vii°6→I6` au niveau
+`2`. Un poids unique conserve `99,96 %` du gain des deux poids libres. Sa
+borne bootstrap cross-fittée est positive ; aucun candidat n'est éligible dans
+le contrôle nul.
+
+Voir [`V3_7_ANALYSIS.md`](V3_7_ANALYSIS.md), le
+[`rapport authentique`](results/V3_7_HARMONIC_FEATURE_COMPRESSION_REPORT.md) et
+le
+[`protocole de test gelé`](FROZEN_V3_8_TEST_PROTOCOL.json).
+
 ## Interprétation prudente
 
 Une valeur conditionnelle extrême est une hypothèse de règle, pas une preuve

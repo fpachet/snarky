@@ -836,8 +836,13 @@ possède une définition musicale testée.
 - [x] Comparer par ablation le proxy numérique et sa spécialisation harmonique
       exacte ; le proxy conserve le gain propre le plus robuste et les deux
       colonnes forment une hiérarchie plutôt que deux règles indépendantes.
-- [ ] Ajouter ensuite les faits harmoniques nécessaires aux résolutions et
-      doublures.
+- [x] Ajouter un premier vocabulaire candidat-dépendant de noyaux harmoniques,
+      auditer les 13 cas atypiques et compresser la hiérarchie en un statut
+      ordinal à un poids.
+- [x] Geler le modèle, les hyperparamètres et les critères confirmatoires avant
+      toute ouverture des 51 chorals de test.
+- [ ] Ajouter ensuite les faits harmoniques nécessaires aux autres résolutions
+      et aux doublures.
 - [x] Comparer sémantiquement les clauses de mouvement direct aux oracles
       Snarky sur un domaine local fini : zéro désaccord sur 301 401 états
       valides par classe.

@@ -77,3 +77,9 @@ meilleure NLL de validation (`1,268457`). Le proxy garde un gain propre de
 `0,002212` au-delà de la spécialisation, tandis que le gain propre inverse
 (`0,000565`) est plus fragile. Le contrôle permuté ne reproduit pas les
 intervalles positifs principaux.
+
+Le onzième incrément examine les 13 cas atypiques et effectue une validation
+croisée groupée en cinq plis. Un statut ordinal `0/1/2`, appris avec un seul
+poids, conserve `99,96 %` du gain du modèle à deux poids. Son coût descriptif
+passe de 240 à 144 bits et le sélecteur ne retient rien sur les réponses
+mélangées. Cette formulation est gelée avant le test final.

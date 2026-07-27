@@ -120,6 +120,30 @@ refinements:
       deux formulations décrivent une hiérarchie imbriquée, pas des règles
       indépendantes.
     lifecycle: CANDIDATE_PENDING_HARMONIC_FEATURE_EXPANSION
+  harmonic_compression:
+    experiment: v3_7_harmonic_feature_compression
+    selected_model: graded_exact
+    feature_id: TONAL_GRADED_EXACT_VII6_TO_I6
+    levels:
+      0: outside_context
+      1: numeric_proxy_resolution
+      2: numeric_proxy_and_exact_vii6_to_I6
+    learned_parameter_count: 1
+    description_bits: 144
+    two_weight_description_bits: 240
+    crossfit_nll: 1.2780944618925614
+    crossfit_gain_retention_vs_two_weights: 0.9995540720143624
+    bootstrap_gain_vs_baseline_95:
+      - 0.0015876769377473929
+      - 0.005555296766319976
+    null_selected_model: null
+    atypical_train_contexts:
+      proxy_only: 11
+      exact_context_exceptions: 2
+    conclusion: >
+      Une seule force graduée représente la règle locale et son renforcement
+      harmonique presque sans perte. Les niveaux sont locaux et imbriqués.
+    lifecycle: FROZEN_PENDING_TEST
 provenance:
   experiment: experiments/differentiable_rules_poc/results/v3_1_global_tonal_tendency.json
   refinement_experiment: experiments/differentiable_rules_poc/results/v3_3_mode_stratified_leading_tone.json
@@ -132,6 +156,10 @@ provenance:
   joint_ablation: experiments/differentiable_rules_poc/results/v3_6_tonal_rule_ablation.json
   joint_ablation_null: experiments/differentiable_rules_poc/results/v3_6_tonal_rule_ablation_null.json
   joint_ablation_analysis: experiments/differentiable_rules_poc/V3_6_ANALYSIS.md
+  harmonic_compression: experiments/differentiable_rules_poc/results/v3_7_harmonic_feature_compression.json
+  harmonic_compression_null: experiments/differentiable_rules_poc/results/v3_7_harmonic_feature_compression_null.json
+  harmonic_compression_analysis: experiments/differentiable_rules_poc/V3_7_ANALYSIS.md
+  frozen_test_protocol: experiments/differentiable_rules_poc/FROZEN_V3_8_TEST_PROTOCOL.json
 snarky_rule:
   file: ../voice_leading_conformance.rules
   rule_id: R-LEADING-001

@@ -144,6 +144,14 @@ chacun la baseline ; leur combinaison obtient la meilleure NLL de validation
 favorise une règle générale locale munie d'une spécialisation harmonique, et
 non deux règles prétendument indépendantes.
 
+Le [POC V3.7](experiments/differentiable_rules_poc/V3_7_ANALYSIS.md) compresse
+cette hiérarchie en un statut ordinal local `0/1/2`. Avec un seul poids, la
+formulation `graded_exact` conserve `99,96 %` du gain cross-fitté des deux
+poids libres et réduit le coût descriptif de 240 à 144 bits. Aucun modèle
+n'est sélectionné dans le contrôle nul. La feature et les critères du test
+final sont désormais gelés dans
+[`FROZEN_V3_8_TEST_PROTOCOL.json`](experiments/differentiable_rules_poc/FROZEN_V3_8_TEST_PROTOCOL.json).
+
 ## Organisation
 
 ```text
@@ -228,6 +236,8 @@ Livrable : premières RuleCards vérifiées dans `rules/`.
 - [x] calibrer la première famille tonale sur 49 maxima de permutations ;
 - [x] auditer harmoniquement la seule clause survivante ;
 - [x] comparer par ablation la clause chromatique et son noyau `vii°6→I6` ;
+- [x] compresser la hiérarchie par validation croisée groupée et geler la
+      formulation `graded_exact` avant le test ;
 - valider sur un sous-ensemble non consulté pendant la découverte ;
 - compiler les règles retenues en `R-LEARNED-*` ;
 - vérifier chaque règle sur exemples, contre-exemples et cas limites.

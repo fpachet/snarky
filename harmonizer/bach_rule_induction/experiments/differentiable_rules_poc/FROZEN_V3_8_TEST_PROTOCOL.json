@@ -1,0 +1,48 @@
+{
+  "schema_version": 1,
+  "status": "FROZEN_BEFORE_TEST",
+  "frozen_model": "graded_exact",
+  "feature": {
+    "id": "TONAL_GRADED_EXACT_VII6_TO_I6",
+    "task": "alto_candidate_choice",
+    "values": {
+      "0": "outside the learned local context",
+      "1": "major, alto source class 11, bass 2 to 4, candidate rises one semitone",
+      "2": "value 1 and exact candidate-dependent pitch-class progression {2,5,11} to {0,4,7}"
+    },
+    "observed_target_alto_is_forbidden_in_premise": true
+  },
+  "training": {
+    "splits": [
+      "train",
+      "validation"
+    ],
+    "piece_count": 301,
+    "fit_validation_policy": "training_data_only",
+    "max_steps": 100,
+    "learning_rate": 0.04,
+    "l1": 0.001
+  },
+  "evaluation": {
+    "split": "test",
+    "piece_count": 51,
+    "bootstrap_replicates": 10000,
+    "comparators": [
+      "baseline",
+      "both"
+    ],
+    "open_once": true
+  },
+  "acceptance": {
+    "selected_nll_below_baseline": true,
+    "bootstrap_gain_p025_above_zero": true,
+    "minimum_gain_retention_vs_both": 0.9,
+    "all_criteria_required": true,
+    "no_retuning_after_test": true
+  },
+  "source_hashes": {
+    "compression_implementation_sha256": "3f8d562748cc7d91921c35221c8ea9c0329ed32c563cfc87c382fe2c318815fb",
+    "authentic_v3_7_sha256": "0c30d8c233a9e4cd2f0da95ce3d84091a293ad9a9d9df98ca29c50b08f0ddf85",
+    "null_v3_7_sha256": "57261a9e34c6c04d23f794fc167ea878f8fdcd33601910bb481cd47e3b12389e"
+  }
+}

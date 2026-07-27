@@ -150,6 +150,12 @@ def test_leading_tone_candidate_card_matches_canonical_experiments() -> None:
             EXPERIMENT_ROOT / "results/v3_6_tonal_rule_ablation.json"
         ).read_text(encoding="utf-8")
     )
+    compression = json.loads(
+        (
+            EXPERIMENT_ROOT
+            / "results/v3_7_harmonic_feature_compression.json"
+        ).read_text(encoding="utf-8")
+    )
     card = yaml.safe_load(
         (RULES_ROOT / "R-LEARNED-LEADING-001.yaml").read_text(encoding="utf-8")
     )
@@ -191,3 +197,14 @@ def test_leading_tone_candidate_card_matches_canonical_experiments() -> None:
         41,
         43,
     ]
+    card_compression = card["refinements"]["harmonic_compression"]
+    assert card_compression["selected_model"] == compression["selection"][
+        "selected_model"
+    ]
+    assert (
+        card_compression["crossfit_gain_retention_vs_two_weights"]
+        == compression["models"]["graded_exact"][
+            "crossfit_gain_retention_vs_both"
+        ]
+    )
+    assert card_compression["null_selected_model"] is None
