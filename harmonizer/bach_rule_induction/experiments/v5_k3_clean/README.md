@@ -11,6 +11,8 @@ Le dossier ne charge aucun fichier de `rules/` ni aucun manifeste de
 - `k3.py` : représentation du corpus, catalogue numérique, gradient et Gibbs ;
 - `run_induction.py` : construction du corpus et génération de colonnes ;
 - `run_gibbs_diagnostic.py` : génération dense avec le modèle appris ;
+- `run_k3_ablation.py` : retrait d'une règle et réajustement des autres ;
+- `run_k3_null_max_calibration.py` : calibration familiale de la première règle ;
 - `results/` : artefacts et rapports reproductibles.
 
 `V5.0` conserve le premier catalogue spécialisé, qui a appris huit variantes
@@ -25,6 +27,10 @@ Résultats principaux :
 - [`V5_1_AUTHENTIC_NULL_COMPARISON.md`](results/V5_1_AUTHENTIC_NULL_COMPARISON.md) ;
 - [`V5_2_FIRST_RULE_AUDIT.md`](results/V5_2_FIRST_RULE_AUDIT.md), audit du
   seuil mélodique `> 2` ;
+- [`V5_3_K3_REFIT_ABLATION.md`](results/V5_3_K3_REFIT_ABLATION.md), contribution
+  conditionnelle de chaque règle après réajustement des onze autres ;
+- [`V5_4_K3_FIRST_COLUMN_NULL_MAX.md`](results/V5_4_K3_FIRST_COLUMN_NULL_MAX.md),
+  calibration de la première découverte contre le maximum des faux signaux ;
 - `v5_1_k3_compact_model.json`, modèle complet pour le Gibbs.
 
 Le protocole complet est

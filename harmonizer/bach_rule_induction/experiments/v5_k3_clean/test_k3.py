@@ -4,6 +4,8 @@ from pathlib import Path
 
 import k3
 import numpy as np
+import run_k3_ablation as ablation
+import run_k3_null_max_calibration as calibration
 
 
 def _dataset() -> k3.K3Dataset:
@@ -89,6 +91,31 @@ def test_adjacent_step_sizes_propagate_holds() -> None:
     candidate = 70
     expected = abs(candidate - data.blocks[0, 0, 0])
     assert sizes[0, candidate - data.candidate_min] == expected
+
+
+def test_ablation_removes_exactly_one_rule_column() -> None:
+    matrix = np.arange(2 * 3 * 4).reshape(2, 3, 4)
+
+    reduced = ablation.remove_column(matrix, 1)
+
+    assert reduced.shape == (2, 3, 3)
+    assert np.array_equal(reduced, matrix[:, :, [0, 2, 3]])
+
+
+def test_null_index_permutations_preserve_group_histograms() -> None:
+    data = _dataset()
+    data.piece_ids[:] = "p1"
+    data.voice_indices[:] = 0
+
+    shuffled = calibration.shuffled_choice_indices(data, replicates=3, seed=9)
+
+    assert shuffled.shape == (3, data.size)
+    original = data.chosen_indices
+    for replicate in shuffled:
+        for piece in np.unique(data.piece_ids):
+            for voice in range(4):
+                rows = (data.piece_ids == piece) & (data.voice_indices == voice)
+                assert sorted(replicate[rows]) == sorted(original[rows])
 
 
 def test_null_shuffle_preserves_piece_voice_pitch_histograms() -> None:

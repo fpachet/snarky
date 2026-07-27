@@ -50,9 +50,12 @@ chargés pendant cette induction.
       contrôle nul ;
 - [x] alimenter un échantillonneur Gibbs avec le même évaluateur K3.
 
-Avant toute promotion, il reste à répéter la calibration nulle, effectuer les
-ablations réajustées, auditer la clause spécialisée de rang 11 et étendre le
-Gibbs aux tenues réelles.
+Les ablations réajustées sont terminées : chacune des douze règles conserve un
+gain de validation positif après réapprentissage des onze autres. La première
+colonne est aussi validée contre le maximum de 49 contrôles permutés sur tout
+le catalogue. Avant toute promotion de la base complète, il reste à calibrer
+le processus séquentiel entier sous permutations, auditer la clause
+spécialisée de rang 11 et étendre le Gibbs aux tenues réelles.
 
 Deux résultats scientifiques distincts sont recherchés :
 

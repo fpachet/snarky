@@ -132,3 +132,35 @@ ADD_PENALTY si mouvement > 7 demi-tons
 Les quatre voix suivent cette direction, mais les exceptions sont plus
 fréquentes à la basse. Cette formulation reste pondérée et ne rend aucun saut
 illégal.
+
+## Ablation V5.3
+
+Les douze poids V5.1 ont été réajustés conjointement, puis chaque colonne a été
+retirée à son tour avant de réapprendre les onze autres. Les douze retraits
+augmentent la NLL de validation. La contribution conditionnelle varie de
+`+0,012102` à `+0,269848` NLL ; elle ne repose donc pas seulement sur des
+colonnes redondantes qui décriraient plusieurs fois le même phénomène.
+
+En particulier, les deux prédicats numériques découverts après gel comme
+préservation des classes `0` et `7` avec mouvements de même signe conservent
+respectivement `+0,031190` et `+0,034538` NLL après réajustement. Cette
+expérience établit leur utilité conditionnelle dans la base fixée, pas encore
+leur validité familiale après le processus adaptatif complet.
+
+## Calibration V5.4 de la première colonne
+
+La première sélection a été comparée à 49 permutations des choix authentiques
+au sein de chaque pièce et de chaque voix. Pour chaque permutation, le test
+retient le plus grand score absolu parmi les 777 prédicats testables du
+catalogue de 791 prédicats.
+
+Le signal authentique de `any_voice_adjacent_step_gt(all_voices)=2` vaut
+`-284,796`. Le maximum nul médian vaut `56,450` et le plus grand des 49 maxima
+nuls vaut `58,465`. Aucun corpus permuté ne rejoint donc le signal authentique ;
+le p familial empirique est `1/50 = 0,020`, qui est la résolution minimale de
+cette expérience.
+
+Cette conclusion protège uniquement la première colonne, évaluée avant tout
+choix adaptatif antérieur. Elle ne doit pas être étendue aux onze colonnes
+résiduelles. Leur contrôle exige de rejouer sous chaque permutation la
+sélection et le réajustement séquentiels complets.
