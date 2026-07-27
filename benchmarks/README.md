@@ -61,6 +61,9 @@ uv run python -m benchmarks.claire_n_queens \
   --sizes 8 10 12 14 --repeat 3
 uv run python -m benchmarks.claire_talarian_filter \
   --sizes 100 1000 5000 --repeat 3
+uv run python -m benchmarks.claire_talarian_filter \
+  --engine snarky --sizes 100 1000 5000 --repeat 5 \
+  --disable-event-rules
 uv run python -m benchmarks.incremental_conjunctions \
   --groups 25 100 250 --width 8 --repeat 5
 uv run python -m benchmarks.choice_search --repeat 5
@@ -116,6 +119,9 @@ speedup ratio. In particular, CLAIRE compiles these rules as event demons:
 the slot update binds the object and value, then the remaining comparison is a
 direct Boolean test. This benchmark therefore does not measure a general
 multi-relation join or a RETE-style partial-match network.
+Snarky's event-rule specialization is enabled by default;
+`--disable-event-rules` runs the same workload through the generic
+semi-naïve path for a direct A/B comparison.
 
 ### Constraint filtering and propagation
 

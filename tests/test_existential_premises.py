@@ -75,6 +75,49 @@ def test_correlated_not_exists_rejects_a_present_witness() -> None:
     )
 
 
+def test_query_registered_after_unrelated_deltas_is_invalidated_later() -> None:
+    positive_rule = parse_rules(
+        """
+        RULE observe_source
+        WHEN
+            ($item source yes)
+        THEN
+            ADD ($item observed yes)
+        END
+        """
+    )[0]
+    query_rule = parse_rules(
+        """
+        RULE expose_unblocked
+        WHEN
+            ($item source yes)
+            NOT EXISTS ($item blocked yes)
+        THEN
+            ADD ($item available yes)
+        END
+        """
+    )[0]
+    source = _fact("(a source yes)")
+    blocked = _fact("(a blocked yes)")
+    strategy = SemiNaiveInstantiationStrategy()
+
+    strategy.instantiate(
+        positive_rule,
+        (source,),
+        FactDelta(added=(source,), revision=1),
+    )
+    assert strategy.instantiate(query_rule, (source,), None)
+
+    assert (
+        strategy.instantiate(
+            query_rule,
+            (source, blocked),
+            FactDelta(added=(blocked,), revision=2),
+        )
+        == ()
+    )
+
+
 def test_exists_uses_witness_facts_without_exporting_local_bindings() -> None:
     rules = parse_rules(
         """

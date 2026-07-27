@@ -55,3 +55,5 @@ def test_snarky_filter_smoke() -> None:
     assert summary["checksum"] == 120
     assert summary["rule_evaluations"] == 39
     assert summary["rule_skips"] == 561
+    assert summary["event_rule_evaluations"] == 39
+    assert summary["event_rule_candidates"] == 48

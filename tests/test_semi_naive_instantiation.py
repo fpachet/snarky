@@ -9,6 +9,71 @@ from snarky import (
 )
 
 
+def test_simple_event_rule_specialization_matches_generic_delta_join() -> None:
+    rule = parse_rules(
+        """
+        RULE positive_value
+        WHEN
+            ($item value $value)
+            $value > 0
+        THEN
+            ADD ($item accepted $value)
+        END
+        """
+    )[0]
+    facts = (
+        Fact(parse_term("(a value 2)")),
+        Fact(parse_term("(b value 0)")),
+        Fact(parse_term("(c unrelated 3)")),
+    )
+    delta = FactDelta(added=facts, revision=1)
+    specialized = SemiNaiveInstantiationStrategy()
+    generic = SemiNaiveInstantiationStrategy(use_event_rules=False)
+
+    specialized_activations = specialized.instantiate(rule, facts, delta)
+    generic_activations = generic.instantiate(rule, facts, delta)
+
+    assert specialized_activations == generic_activations
+    assert len(specialized_activations) == 1
+    assert specialized.metrics.event_rule_evaluations == 1
+    assert specialized.metrics.event_rule_candidates == 3
+    assert generic.metrics.event_rule_evaluations == 0
+
+
+def test_multi_fact_rule_uses_generic_delta_join() -> None:
+    rule = parse_rules(
+        """
+        RULE combine
+        WHEN
+            ($item left $left)
+            ($item right $right)
+        THEN
+            ADD ($left paired_with $right)
+        END
+        """
+    )[0]
+    left = Fact(parse_term("(node left a)"))
+    right = Fact(parse_term("(node right b)"))
+    strategy = SemiNaiveInstantiationStrategy()
+
+    activations = strategy.instantiate(
+        rule,
+        (left, right),
+        FactDelta(added=(left, right), revision=1),
+    )
+
+    assert len(activations) == 1
+    assert strategy.metrics.event_rule_evaluations == 0
+
+
+def test_event_rule_setting_is_preserved_across_branch_forks() -> None:
+    strategy = SemiNaiveInstantiationStrategy(use_event_rules=False)
+
+    branch = strategy.fork_for_branch()
+
+    assert branch.use_event_rules is False
+
+
 def test_delta_variants_are_unique_and_restore_naive_order() -> None:
     rule = parse_rules(
         """
@@ -231,7 +296,7 @@ def test_large_ordered_fact_set_keeps_stable_delta_ranks() -> None:
         for index in range(1_600)
     )
     initial = (old, *noise)
-    strategy = SemiNaiveInstantiationStrategy()
+    strategy = SemiNaiveInstantiationStrategy(use_event_rules=False)
 
     first = strategy.instantiate(rule, initial)
     strategy.invalidate(frozenset((old,)))

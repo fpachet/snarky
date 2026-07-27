@@ -782,7 +782,8 @@ facile à comprendre et à vérifier.
 
 ## Phase 11 — Réactivité événementielle et conjonctions
 
-**État : ordonnanceur par dépendances livré ; spécialisations à faire.**
+**État : ordonnanceur par dépendances et première spécialisation
+événementielle livrés.**
 
 La comparaison avec le test Talarian de CLAIRE4 a isolé un coût qui n'était
 pas visible dans les anciennes applications par lots : après chaque mutation,
@@ -810,7 +811,8 @@ Les optimisations suivantes sont ordonnées ainsi :
 
 1. compiler les règles monotones simples en gestionnaires événementiels
    spécialisés, indexés par relation, avec repli automatique vers le moteur
-   générique ;
+   générique — **livré pour une prémisse factuelle positive suivie uniquement
+   de comparaisons** ;
 2. intégrer au chemin incrémental par défaut des mémoires de joints partiels
    pour les règles à plusieurs prémisses, sans matérialiser les produits dont
    la cardinalité dépasserait le budget existant ;
@@ -835,6 +837,30 @@ checkouts, la plateforme, les échantillons individuels et les compteurs
 logiques. La cible indicative du premier compilateur événementiel est un gain
 d'au moins ×2 sur Talarian sans régression sur `incremental_conjunctions` ni
 sur `rulebase_suite`.
+
+La première tranche compile ce sous-ensemble conservateur en un plan mis en
+cache et applique directement le delta de faits. Tant qu'aucune règle
+générique n'en a besoin, elle évite aussi de construire et maintenir
+`FactIndex`. L'option `use_event_rules=False`, exposée par
+`--disable-event-rules` dans le benchmark Talarian, fournit le témoin A/B.
+Les règles à plusieurs faits, négatives, existentielles, agrégées ou contenant
+`BIND` restent sur le chemin générique.
+
+Sur Python 3.13.11/macOS ARM64, cinq répétitions donnent :
+
+| Frames | Générique | Événementiel | Gain |
+| ---: | ---: | ---: | ---: |
+| 100 | 0,0544 s | 0,0363 s | ×1,50 |
+| 1 000 | 0,5803 s | 0,3884 s | ×1,49 |
+| 5 000 | 4,3095 s | 2,4682 s | ×1,75 |
+
+À 5 000 frames, la baseline archivée avant ce chantier était de 4,6347 s :
+le gain cumulé atteint donc ×1,88, à peu de chose de la cible indicative ×2.
+Les 607 tests passent (3 ignorés). Les sorties exactes de
+`incremental_conjunctions` sont inchangées et sa médiane s'améliore dans les
+six cas mesurés ; les 33 cas de `rulebase_suite` conservent leurs compteurs
+logiques, avec un ratio médian de ×1,03 et un pire écart temporel observé
+inférieur à 5 %, compatible avec le bruit de mesure.
 
 ## Prochaine tranche concrète
 

@@ -47,6 +47,7 @@ from .compiled import (
     negative_fact_plans,
     simple_fact_plan,
 )
+from .event_rules import compile_event_rule, instantiate_event_rule
 from .fact_index import FactIndex as FactIndex
 from .fact_index import _structural_lookup
 from .query_memory import (
@@ -566,6 +567,10 @@ class IndexedInstantiationStrategy:
             delta.revision
             and delta.revision <= self._query_memory.processed_revision
         ):
+            return
+        if not self._query_memory.registrations:
+            if delta.revision:
+                self._query_memory.processed_revision = delta.revision
             return
         if delta.changed:
             self._invalidate_query_memories(delta.added, delta.removed)
@@ -1638,12 +1643,26 @@ class IndexedInstantiationStrategy:
 class SemiNaiveInstantiationStrategy(IndexedInstantiationStrategy):
     """Enumerate only joins containing a fact new to the current rule."""
 
+    def __init__(
+        self,
+        matcher: PatternMatcher | None = None,
+        *,
+        partial_join_limit: int = 2_048,
+        use_event_rules: bool = True,
+    ) -> None:
+        super().__init__(
+            matcher,
+            partial_join_limit=partial_join_limit,
+        )
+        self.use_event_rules = use_event_rules
+
     def fork_for_branch(self) -> SemiNaiveInstantiationStrategy:
         """Return a clean semi-naïve strategy seeded from the current index."""
 
         branch = SemiNaiveInstantiationStrategy(
             self.matcher,
             partial_join_limit=self.partial_join_limit,
+            use_event_rules=self.use_event_rules,
         )
         if self._index is not None:
             branch._index = self._index.clone(metrics=branch.metrics)
@@ -1656,6 +1675,25 @@ class SemiNaiveInstantiationStrategy(IndexedInstantiationStrategy):
         delta: FactDelta | tuple[Fact, ...] | None = None,
     ) -> tuple[Activation, ...]:
         changes = _normalize_delta(delta)
+        event_plan = (
+            compile_event_rule(rule) if self.use_event_rules else None
+        )
+        if event_plan is not None:
+            if self._index is not None:
+                self._index_for(facts, changes)
+            candidates = (
+                facts
+                if changes is None or changes.removed
+                else changes.added
+            )
+            activations = instantiate_event_rule(
+                event_plan,
+                candidates,
+                self.metrics,
+            )
+            self.metrics.activations_produced += len(activations)
+            return tuple(activations)
+
         index = self._index_for(facts, changes)
         if (
             changes is None

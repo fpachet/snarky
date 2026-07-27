@@ -173,12 +173,19 @@ def _summarize(
     }
 
 
-def measure_snarky(size: int, repeat: int) -> dict[str, Any]:
+def measure_snarky(
+    size: int,
+    repeat: int,
+    *,
+    use_event_rules: bool = True,
+) -> dict[str, Any]:
     """Measure one assume-and-saturate update per positive input."""
 
     samples: list[dict[str, Any]] = []
     for _ in range(repeat):
-        strategy = SemiNaiveInstantiationStrategy()
+        strategy = SemiNaiveInstantiationStrategy(
+            use_event_rules=use_event_rules,
+        )
         engine = ForwardEngine(
             FILTER_RULES,
             strategy=strategy,
@@ -218,6 +225,12 @@ def measure_snarky(size: int, repeat: int) -> dict[str, Any]:
                 session.agenda_metrics.rule_recomputations
             ),
             "rule_skips": session.agenda_metrics.rule_reuses,
+            "event_rule_evaluations": (
+                strategy.metrics.event_rule_evaluations
+            ),
+            "event_rule_candidates": (
+                strategy.metrics.event_rule_candidates
+            ),
         }
         validate_metrics(size, sample)
         samples.append(sample)
@@ -232,6 +245,8 @@ def measure_snarky(size: int, repeat: int) -> dict[str, Any]:
             "activations_produced",
             "rule_evaluations",
             "rule_skips",
+            "event_rule_evaluations",
+            "event_rule_candidates",
         ),
     )
 
@@ -284,6 +299,7 @@ def run(
     engine: str,
     claire_root: Path | None = None,
     claire_binary: Path | None = None,
+    use_event_rules: bool = True,
 ) -> dict[str, Any]:
     """Run selected engines and return one machine-readable payload."""
 
@@ -300,7 +316,11 @@ def run(
     for size in sizes:
         case: dict[str, Any] = {"size": size}
         if engine in {"both", "snarky"}:
-            case["snarky"] = measure_snarky(size, repeat)
+            case["snarky"] = measure_snarky(
+                size,
+                repeat,
+                use_event_rules=use_event_rules,
+            )
         if selected_binary is not None:
             case["claire_interpreted"] = measure_claire(
                 size,
@@ -321,6 +341,7 @@ def run(
             "dependency_scheduling": (
                 "only rules affected by each fact mutation are evaluated"
             ),
+            "event_rule_specialization": use_event_rules,
             "timing_scope": {
                 "snarky": "ten assume-and-run_group updates per frame",
                 "claire": "ten rule-triggering slot updates per frame",
@@ -365,6 +386,10 @@ def main() -> None:
     parser.add_argument("--claire-root", type=Path)
     parser.add_argument("--claire-binary", type=Path)
     parser.add_argument("--output", type=Path)
+    parser.add_argument(
+        "--disable-event-rules",
+        action="store_true",
+    )
     arguments = parser.parse_args()
     if arguments.repeat < 1:
         parser.error("--repeat must be positive")
@@ -377,6 +402,7 @@ def main() -> None:
             engine=arguments.engine,
             claire_root=arguments.claire_root,
             claire_binary=arguments.claire_binary,
+            use_event_rules=not arguments.disable_event_rules,
         ),
         indent=2,
     )
