@@ -23,3 +23,9 @@ vraisemblance conditionnelle guide la recherche, puis une compression
 symbolique propose des prédicats locaux réutilisables. Le premier résultat
 retrouve notamment les patrons numériques correspondant aux quintes et octaves
 parallèles, sans exposer ces noms pendant l'apprentissage.
+
+Le second incrément ajoute une véritable génération de colonnes sur le résidu
+du modèle courant. Il isole ensuite les classes numériques `0` et `7` dans la
+famille des arrivées après saut en même direction. La comparaison postérieure
+sur un domaine local fini classe les deux clauses comme équivalentes aux règles
+Snarky de mouvement direct ; le contrôle mélangé ne les sélectionne pas.

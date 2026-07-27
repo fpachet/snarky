@@ -67,11 +67,19 @@ quintes parallèles.
 
 Les scores de validation de ces deux patrons sont `z = -4,410` et
 `z = -4,715`. Ils deviennent positifs dans le contrôle où les choix sont
-mélangés à l'intérieur de chaque pièce. Le [rapport
-d'analyse](experiments/differentiable_rules_poc/ANALYSIS.md) conserve aussi les
-limites : 52 clauses restent actives, le mouvement direct n'est pas encore
-isolé des pénalités générales de saut et aucune obligation tonale n'est encore
-identifiable avec ce vocabulaire.
+mélangés à l'intérieur de chaque pièce.
+
+Le [POC V2.1](experiments/differentiable_rules_poc/V2_ANALYSIS.md) ajoute une
+génération de colonnes sur les résidus. Après absorption des coûts généraux, il
+sélectionne exactement les classes `0` et `7` pour les arrivées après saut en
+même direction. Les deux clauses ont des poids négatifs, améliorent la
+validation et sont extensionnellement équivalentes à `R-DIRECT-001/002` sur
+301 401 états locaux valides par classe. Le contrôle mélangé ne sélectionne
+aucune classe. Le catalogue passe de 52 clauses actives dans le V1 à 34 dans le
+V2, avec une NLL de validation de `1,625642`.
+
+Le test final reste scellé. Le bootstrap groupé, les voix intérieures, le
+chevauchement et les premières obligations tonales restent à traiter.
 
 ## Organisation
 

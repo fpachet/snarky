@@ -799,11 +799,13 @@ possède une définition musicale testée.
       octaves/unissons et quintes parallèles.
 - [x] Exécuter un contrôle nul par mélange des choix à l'intérieur des pièces.
 - [ ] Étendre l'expérience aux voix intérieures et au chevauchement.
-- [ ] Isoler le mouvement direct des coûts généraux du saut et du mouvement
-      semblable.
+- [x] Isoler le mouvement direct des coûts généraux du saut et du mouvement
+      semblable par génération de colonnes résiduelle.
 - [ ] Ajouter ensuite les faits tonals pour les résolutions et doublures.
-- [ ] Comparer sémantiquement les clauses induites aux oracles Snarky sur un
-      domaine local fini.
+- [x] Comparer sémantiquement les clauses de mouvement direct aux oracles
+      Snarky sur un domaine local fini : zéro désaccord sur 301 401 états
+      valides par classe.
+- [ ] Étendre la comparaison sémantique aux autres familles récupérées.
 - [ ] Classer chaque cible comme équivalente, raffinée, plus faible,
       contredite, non identifiable ou non retrouvée.
 - [ ] Ne lancer la recherche de règles inédites qu'après publication de ce

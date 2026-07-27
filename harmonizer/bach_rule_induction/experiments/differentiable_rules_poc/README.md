@@ -120,6 +120,46 @@ dans [`ANALYSIS.md`](ANALYSIS.md). Les sorties principales sont :
 - [`results/NULL_REPORT.md`](results/NULL_REPORT.md) pour le contrôle mélangé ;
 - les fichiers JSON homonymes pour les statistiques complètes.
 
+## POC V2.1 — génération de colonnes
+
+Le second incrément ajuste d'abord des effets numériques génériques, puis
+recherche une clause à la fois sur le résidu conditionnel du catalogue courant :
+
+```sh
+../deepbach-reference/.venv/bin/python \
+  harmonizer/bach_rule_induction/experiments/differentiable_rules_poc/\
+run_column_generation.py
+```
+
+Le contrôle nul et la branche limitée aux évitements sont :
+
+```sh
+../deepbach-reference/.venv/bin/python \
+  harmonizer/bach_rule_induction/experiments/differentiable_rules_poc/\
+run_column_generation.py \
+  --null-shuffle \
+  --output-stem v2_null
+
+../deepbach-reference/.venv/bin/python \
+  harmonizer/bach_rule_induction/experiments/differentiable_rules_poc/\
+run_column_generation.py \
+  --column-direction avoid \
+  --output-stem v2_avoid
+```
+
+Le V2 ne contient aucune option d'ouverture du test scellé. Son
+[`V2_ANALYSIS.md`](V2_ANALYSIS.md) montre que les classes `0` et `7` sont les
+seules retenues dans la famille des arrivées après saut en même direction. Les
+formules obtenues sont équivalentes aux règles Snarky de mouvement direct sur
+301 401 états locaux valides par classe, sans désaccord.
+
+Sorties principales :
+
+- [`results/V2_RESULT_REPORT.md`](results/V2_RESULT_REPORT.md) ;
+- [`results/V2_NULL_REPORT.md`](results/V2_NULL_REPORT.md) ;
+- [`results/V2_AVOID_REPORT.md`](results/V2_AVOID_REPORT.md) ;
+- les trois fichiers JSON correspondants.
+
 ## Interprétation prudente
 
 Une valeur conditionnelle extrême est une hypothèse de règle, pas une preuve
