@@ -456,6 +456,25 @@ def _sign(values: np.ndarray) -> np.ndarray:
     return np.sign(values).astype(np.int8)
 
 
+def adjacent_step_sizes(dataset: K3Dataset) -> np.ndarray:
+    """Maximum target-voice step to either effective neighboring block."""
+
+    candidates = dataset.candidate_pitches[None, :]
+    rows = np.arange(dataset.size)
+    voices = dataset.voice_indices
+    previous = dataset.blocks[rows, 0, voices, None]
+    static_following = dataset.blocks[rows, 2, voices, None]
+    following = np.where(
+        dataset.attacks[rows, 2, voices, None],
+        static_following,
+        candidates,
+    )
+    return np.maximum(
+        np.abs(candidates - previous),
+        np.abs(following - candidates),
+    )
+
+
 def feature_mask(dataset: K3Dataset, feature: FeatureSpec) -> np.ndarray:
     """Evaluate one feature for every candidate in every opportunity."""
 
@@ -546,9 +565,7 @@ def _universal_feature_mask(
             np.abs(following - candidates) % 12 == value
         )
     if feature.kind == "any_voice_adjacent_step_gt":
-        return (np.abs(candidates - previous) > value) | (
-            np.abs(following - candidates) > value
-        )
+        return adjacent_step_sizes(dataset) > value
     if feature.kind == "any_voice_three_block_sign_shape":
         return (_sign(candidates - previous) == value) & (
             _sign(following - candidates) == feature.second_value

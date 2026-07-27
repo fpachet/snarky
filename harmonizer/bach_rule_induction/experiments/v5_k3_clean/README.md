@@ -23,6 +23,8 @@ Résultats principaux :
 - [`V5_1_K3_COMPACT_REPORT.md`](results/V5_1_K3_COMPACT_REPORT.md) ;
 - [`V5_1_K3_COMPACT_NULL_REPORT.md`](results/V5_1_K3_COMPACT_NULL_REPORT.md) ;
 - [`V5_1_AUTHENTIC_NULL_COMPARISON.md`](results/V5_1_AUTHENTIC_NULL_COMPARISON.md) ;
+- [`V5_2_FIRST_RULE_AUDIT.md`](results/V5_2_FIRST_RULE_AUDIT.md), audit du
+  seuil mélodique `> 2` ;
 - `v5_1_k3_compact_model.json`, modèle complet pour le Gibbs.
 
 Le protocole complet est

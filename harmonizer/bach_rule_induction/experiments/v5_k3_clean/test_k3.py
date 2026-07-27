@@ -81,6 +81,16 @@ def test_universal_step_feature_applies_to_every_voice() -> None:
     assert mask[1, 60 - data.candidate_min]
 
 
+def test_adjacent_step_sizes_propagate_holds() -> None:
+    data = _dataset().take(np.asarray([0]))
+    data.attacks[0, 2, 0] = False
+    sizes = k3.adjacent_step_sizes(data)
+
+    candidate = 70
+    expected = abs(candidate - data.blocks[0, 0, 0])
+    assert sizes[0, candidate - data.candidate_min] == expected
+
+
 def test_null_shuffle_preserves_piece_voice_pitch_histograms() -> None:
     data = _dataset()
     shuffled = k3.shuffle_choices_within_piece_and_voice(data, seed=7)

@@ -114,3 +114,21 @@ sur ses blocs de tenue et sommer toutes les énergies locales affectées.
 - génération Gibbs utilisant exactement le même évaluateur K3 ;
 - artefact machine-readable et rapport humain ;
 - test garantissant l'absence de dépendance aux bases antérieures.
+
+## Audit V5.2 de la première règle
+
+Le premier seuil sélectionné n'est pas interprété comme une interdiction des
+sauts. Sur validation, le ratio observé/attendu vaut `3,266` pour une taille
+maximale de deux demi-tons, puis `0,362` pour trois. Un seuil souple à un
+paramètre bat une pénalité linéaire de même complexité de `0,214919` NLL.
+
+La formulation lisible retenue pour la suite est donc :
+
+```text
+PREFER mouvement vers chaque bloc voisin ≤ 2 demi-tons
+ADD_PENALTY si mouvement > 7 demi-tons
+```
+
+Les quatre voix suivent cette direction, mais les exceptions sont plus
+fréquentes à la basse. Cette formulation reste pondérée et ne rend aucun saut
+illégal.
