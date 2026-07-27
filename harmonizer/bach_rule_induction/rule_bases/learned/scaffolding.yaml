@@ -1,0 +1,23 @@
+schema_version: 1
+id: S-LEARNED-DIAGNOSTIC-SCAFFOLDING-001
+status: exploratory
+description: >
+  Petits domaines destinés au premier smoke test de génération. Les hauteurs
+  sont les quatre valeurs les plus fréquentes par voix dans les décisions du
+  train variant-safe. Elles ne constituent ni une règle d'harmonie ni un
+  résultat confirmatoire.
+source:
+  split: variant-safe-251-50-51
+  subset: train
+  artifact: experiments/differentiable_rules_poc/work/satb-opportunities-full.npz
+  statistic: four_most_frequent_chosen_pitches_per_voice
+voice_pitch_pools:
+  alto:
+    pitches: [62, 64, 66, 67]
+    counts: [2301, 2805, 1920, 2820]
+  tenor:
+    pitches: [57, 59, 60, 62]
+    counts: [2740, 2141, 2468, 2760]
+  bass:
+    pitches: [48, 50, 52, 55]
+    counts: [1478, 2461, 2118, 1585]

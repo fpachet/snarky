@@ -1,0 +1,48 @@
+schema_version: 1
+id: S-LEARNED
+kind: learned
+description: >
+  Base autonome contenant seulement des règles dont les clauses ont été
+  sélectionnées sur le corpus. Les poids joints de niveau A sont une projection
+  diagnostique, non une calibration confirmatoire.
+inherits: []
+rule_files:
+  - ../../rules/learned_voice_leading.rules
+  - ../../rules/learned_tonal_resolution.rules
+  - ../../rules/learned_choice_weights.rules
+rule_ids:
+  - R-LEARNED-DIRECT-001
+  - R-LEARNED-DIRECT-002
+  - R-LEARNED-MELODY-002
+  - R-LEARNED-OVERLAP-001
+  - R-LEARNED-PARALLEL-001
+  - R-LEARNED-PARALLEL-002
+  - R-LEARNED-LEADING-001
+weights:
+  R-LEARNED-DIRECT-001:
+    log_contribution: -1.1384081451296304
+    projection: v2_4_soprano_weight
+  R-LEARNED-DIRECT-002:
+    log_contribution: -0.9624822827826056
+    projection: v2_4_soprano_weight
+  R-LEARNED-MELODY-002:
+    log_contribution: -1.077182451255807
+    projection: mean_v2_4_voice_weights
+  R-LEARNED-OVERLAP-001:
+    log_contribution: -0.7546719828038286
+    projection: mean_v2_4_voice_weights
+  R-LEARNED-PARALLEL-001:
+    log_contribution: -2.521482401330126
+    projection: mean_v2_4_voice_weights
+  R-LEARNED-PARALLEL-002:
+    log_contribution: -2.3234071608467675
+    projection: mean_v2_4_voice_weights
+  R-LEARNED-LEADING-001:
+    log_contribution_per_strength: 2.0214869830878857
+    projection: frozen_v3_8_weight
+scaffolding:
+  file: scaffolding.yaml
+  provenance: train_only_empirical_pitch_marginals
+  neutral_choice_weights: true
+  harmonic_vocabulary: false
+  historical_rule_filters: false

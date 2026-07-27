@@ -1,11 +1,15 @@
 # Baselines
 
-Ce dossier accueillera les adaptateurs reproductibles des systèmes comparés :
+Ce dossier accueille les adaptateurs reproductibles des systèmes comparés :
 
-- `S0` et `S1` pour Snarky ;
+- `S-HISTORICAL`, `S-LEARNED` et `S-HYBRID` pour Snarky ;
 - `E0` pour la reconstruction de CHORAL ;
 - `D0-legacy` et `D0-modern` pour DeepBach ;
 - `H0` pour les combinaisons hybrides.
+
+Les trois bases Snarky sont définies par des manifestes versionnés dans
+[`../rule_bases/`](../rule_bases/). `S-LEARNED` n'hérite d'aucun fichier
+historique ; `S-HYBRID` est la seule configuration qui déclare leur union.
 
 Les modèles externes restent dans `third_party/`. Un adaptateur doit enregistrer
 révision, environnement, paramètres, graine, entrée, sortie et empreinte des

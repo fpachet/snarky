@@ -91,3 +91,23 @@ gain des deux poids libres. Le treizième incrément le compile en Snarky sans
 désaccord sur 256 états abstraits, puis montre que DeepBach préfère lui aussi
 la résolution dans les 12 contextes sondés — y compris dans les deux
 exceptions choisies par Bach.
+
+## Première boucle générative autonome
+
+[`learned_only_generation/`](learned_only_generation/) sépare strictement la
+base historique de la base apprise. V4.1 génère dix fragments avec les seules
+règles `R-LEARNED-*`, conserve les MusicXML et publie tous les défauts observés.
+V4.2 réutilise ces défauts pour ouvrir la famille « ordre vertical », induit un
+seuil de croisement sur `train`, le mesure sur `validation` et exécute un
+contrôle mélangé. La nouvelle règle reste candidate tant que le maximum de
+famille n'a pas été calibré sur plusieurs permutations.
+
+## Induction clean-room K3
+
+[`v5_k3_clean/`](v5_k3_clean/) est désormais l'axe principal. La base commence
+vide et le langage n'autorise que trois blocs verticaux successifs. Le premier
+budget compact de douze règles gagne `1,145342` NLL sur validation, contre
+`0,106239` pour un contrôle permuté, et récupère après gel les structures
+numériques générales des octaves et quintes parallèles. Les artefacts V5.0
+spécialisés sont conservés pour documenter pourquoi l'invariance par voix et la
+symétrie temporelle ont été ajoutées au langage.

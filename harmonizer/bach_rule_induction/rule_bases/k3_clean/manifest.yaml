@@ -1,0 +1,18 @@
+schema_version: 1
+profile_id: S-K3-LEARNED
+status: EMPTY_START
+inherits: []
+musical_rule_files: []
+initial_rule_ids: []
+locality:
+  radius: 1
+  blocks: 3
+  target: one_masked_note
+  generation: gibbs
+forbidden_dependencies:
+  - ../historical/manifest.yaml
+  - ../learned/manifest.yaml
+  - ../hybrid/manifest.yaml
+learned_model:
+  path: ../../experiments/v5_k3_clean/results/v5_1_k3_compact_model.json
+  required_for_generation: true

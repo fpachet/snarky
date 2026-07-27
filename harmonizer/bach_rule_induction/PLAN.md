@@ -22,6 +22,52 @@ contre-exemples pour découvrir :
 Le résultat visé est à la fois un harmoniseur, un outil d'analyse différentielle
 et un traité de conduite des voix exécutable et fondé sur corpus.
 
+Le protocole d'exécution de la première base apprise autonome est gelé dans
+[`V4_PROTOCOL.md`](V4_PROTOCOL.md). Il définit la frontière entre échafaudage
+et connaissance musicale, la politique de données après l'ouverture V3.8 et
+les critères du premier banc génératif.
+
+Le nouvel axe principal est
+[`V5-K3-CLEAN`](V5_K3_CLEAN_PROTOCOL.md). Il repart d'une base vide avec une
+seule hypothèse structurelle : toute règle inspecte trois blocs verticaux
+consécutifs. Les règles et poids V1–V4 restent un benchmark externe, résumé
+dans [`EXPERIMENT_HISTORY.md`](EXPERIMENT_HISTORY.md), et ne sont jamais
+chargés pendant cette induction.
+
+### 1.0 Jalon V5.1 exécuté
+
+- [x] construire 68 263 décisions `train` et 13 202 décisions `validation` ;
+- [x] dériver un domaine commun MIDI `36–81` du seul `train` ;
+- [x] propager correctement une alternative dans le bloc suivant en cas de
+      tenue ;
+- [x] partir de zéro avec une distribution de registre apprise ;
+- [x] générer 791 prédicats numériques sans noms de règles historiques ;
+- [x] sélectionner et réajuster un budget compact de 12 règles ;
+- [x] retrouver après gel les classes préservées `0` et `7` avec mouvement de
+      même signe ;
+- [x] exécuter un contrôle permuté de même budget ;
+- [x] obtenir un gain NLL validation `1,145342`, contre `0,106239` sous le
+      contrôle nul ;
+- [x] alimenter un échantillonneur Gibbs avec le même évaluateur K3.
+
+Avant toute promotion, il reste à répéter la calibration nulle, effectuer les
+ablations réajustées, auditer la clause spécialisée de rang 11 et étendre le
+Gibbs aux tenues réelles.
+
+Deux résultats scientifiques distincts sont recherchés :
+
+1. **compression explicable** : déterminer quelle qualité d'harmonisation une
+   petite base de règles locales et intelligibles peut atteindre face à
+   DeepBach ;
+2. **connaissance nouvelle sur Bach** : identifier ce que les traités, CHORAL
+   et la base Snarky historique n'expriment pas, expriment trop généralement,
+   ou présentent à tort comme absolu.
+
+Le second objectif ne se réduit pas à produire de meilleures générations. Il
+vise un **traité empirique du choral de Bach** : règles, domaines
+d'application, forces, exceptions, exemples dans les partitions et gains
+prédictifs tenus à part.
+
 ### 1.1 Hypothèse scientifique centrale
 
 Le projet teste l'hypothèse qu'une part substantielle de la connaissance
@@ -94,6 +140,35 @@ théorie manuelle. Le but moderne est de les récupérer comme hypothèses, puis
 les confirmer, les nuancer, les simplifier ou les dépasser par induction sur
 corpus.
 
+### 1.3 Deux bases de règles, puis leur union
+
+La provenance des règles doit rester visible jusque dans les expériences et
+les traces d'exécution. Trois configurations Snarky sont donc maintenues :
+
+- `S-HISTORICAL` : règles écrites manuellement dans l'harmoniseur historique,
+  conservées intactes ;
+- `S-LEARNED` : uniquement les règles induites du corpus et compilées sous des
+  identifiants `R-LEARNED-*` ;
+- `S-HYBRID` : union déclarative des deux bases, sans copie ni changement
+  silencieux du statut des règles.
+
+La base apprise peut utiliser un fait musical conçu par l'humain sans que la
+règle elle-même soit manuelle. Chaque entrée conserve donc deux provenances :
+
+- `rule_origin` : `HUMAN_SNARKY`, `TREATISE`, `CHORAL`, `INDUCED` ou
+  `HYBRID_REVISION` ;
+- `feature_origin` : `OBSERVED`, `HUMAN_DEFINED`, `CORPUS_ANNOTATED`,
+  `SYMBOLICALLY_INVENTED` ou `LEARNED_OPAQUE`.
+
+Une règle dont le poids et les conditions sont sélectionnés sur corpus, mais
+qui consulte les statuts harmoniques humains `vii°6` et `I6`, appartient bien à
+`S-LEARNED`. Elle ne constitue toutefois pas une découverte autonome de ces
+concepts. Cette nuance doit apparaître dans sa `RuleCard`.
+
+`S-HISTORICAL` demeure un patrimoine et une baseline : l'induction ne le
+réécrit jamais. Toute correction ou extension proposée est créée dans une base
+séparée et évaluée par ablation.
+
 ## 2. Questions de recherche
 
 1. Quelle part du style des chorals peut être décrite par une base compacte de
@@ -119,6 +194,16 @@ corpus.
 10. Les interactions apparentes entre règles peuvent-elles être reformulées
     comme des statuts musicaux explicites tout en conservant des règles locales
     et indépendantes ?
+11. Quelles décisions de Bach restent systématiquement mal classées après
+    conditionnement sur les règles des traités, de CHORAL et de Snarky ?
+12. Parmi ces résidus, lesquels révèlent une règle absente, un raffinement
+    contextuel, une exception régulière ou une formulation historique trop
+    stricte ?
+13. Une grammaire empirique enrichie explique-t-elle les chorals tenus à part
+    significativement mieux que les règles pédagogiques seules, à complexité
+    explicitement mesurée ?
+14. Quelles régularités sont propres à Bach, par opposition aux conventions
+    plus générales du choral tonal observables chez d'autres compositeurs ?
 
 ## 3. Livrables
 
@@ -155,15 +240,35 @@ Chaque règle découverte doit être publiée sous trois formes :
 2. une fiche empirique avec statistiques et exceptions ;
 3. une formulation Snarky exécutable avec un identifiant `R-LEARNED-*`.
 
+Le catalogue publie séparément les manifestes de `S-HISTORICAL`,
+`S-LEARNED` et `S-HYBRID`. Une règle apprise ne doit jamais être rangée dans le
+dossier historique, même lorsqu'elle redécouvre exactement une règle humaine.
+Dans ce cas, la `RuleCard` induite pointe vers l'implémentation historique et
+enregistre l'équivalence sans dupliquer le code.
+
 ### 3.4 Banc d'essai reproductible
 
 Le banc compare au minimum :
 
-- `S0` : harmoniseur Snarky expert actuel ;
-- `S1` : Snarky avec règles induites ;
+- `S-HISTORICAL` : harmoniseur Snarky expert actuel ;
+- `S-LEARNED` : solveur avec seulement les règles induites et une politique de
+  choix par défaut explicitement neutre ;
+- `S-HYBRID` : Snarky historique enrichi des règles induites ;
 - `E0` : règles CHORAL d'Ebcioğlu reconstruites ou sous-ensemble déclaré ;
 - `D0` : DeepBach reproduit avec une version et des poids identifiés ;
 - `H0` : DeepBach comme heuristique ou générateur, Snarky comme contrôleur.
+
+`BACH-REFERENCE` désigne la réalisation authentique tenue à part. Ce n'est pas
+un générateur supplémentaire : elle fournit, pour chaque entrée commune, le
+choix observé, les statistiques descriptives et l'ancrage de l'évaluation
+humaine.
+
+La comparaison principale harmonise le même soprano de test avec toutes les
+bases. Une seconde condition peut imposer soprano et basse. Plusieurs sorties
+à graines fixées sont conservées sans sélection manuelle. La base
+`S-LEARNED`, nécessairement incomplète dans les premières versions, doit
+déclarer sa politique de choix par défaut afin de ne pas attribuer aux règles
+apprises les préférences cachées du solveur.
 
 La source, les ressources distribuées, leurs empreintes et les limites de
 reproductibilité de `D0` sont consignées dans
@@ -197,6 +302,32 @@ Cette baseline, nommée `E0`, distingue fidèlement :
 
 `E0` est une source historique et une hypothèse musicale à tester, pas un oracle
 de vérité sur Bach.
+
+### 3.7 Traité empirique de Bach
+
+Le livrable scientifique final n'est pas seulement un fichier de règles. Il
+présente chaque famille sous une forme consultable par un musicien :
+
+- formulation pédagogique ou historique de départ ;
+- formulation empirique enrichie ;
+- contexte exact où la règle gagne ou perd en force ;
+- statut `MUST`, `NORMALLY`, `PREFER` ou `OBSERVED` ;
+- exemples authentiques, exceptions et paires minimales ;
+- support par pièce, incertitude et résultat tenu à part ;
+- différence prédictive par rapport à la formulation historique ;
+- code Snarky et provenance de chaque fait consulté.
+
+Ce traité distingue explicitement :
+
+1. `REDISCOVERY` : équivalence avec une règle connue ;
+2. `REFINEMENT` : domaine, force ou exceptions d'une règle connue rendus plus
+   précis ;
+3. `NEW_REGULARITY` : information prédictive stable et non redondante dont
+   aucune formulation équivalente n'a été retrouvée dans les sources auditées ;
+4. `CONTRADICTION` : comportement authentique et régulier incompatible avec la
+   formulation historique ;
+5. `UNRESOLVED` : effet statistique encore sans interprétation musicale
+   suffisamment claire.
 
 ## 4. Principes méthodologiques
 
@@ -246,6 +377,48 @@ classées comme :
 - exception expliquée par une feature supplémentaire ;
 - cas encore inexpliqué.
 
+### 4.5 Apprendre au-delà des traités
+
+La recherche de nouveauté est **résiduelle**. Avant de proposer une règle
+nouvelle, on ajuste une baseline contenant les règles historiques
+représentables et on recherche les clauses qui expliquent encore les choix de
+Bach mal classés :
+
+```text
+traités + CHORAL + Snarky historique
+→ prédictions sur les décisions de Bach
+→ résidus conditionnels
+→ recherche de clauses locales courtes
+→ règle candidate
+→ ablation contre la baseline historique
+```
+
+La nouveauté n'est jamais déduite de l'absence d'un énoncé dans un seul traité.
+Une candidate ne reçoit le statut `NEW_REGULARITY` que si :
+
+- elle améliore la prédiction sur des pièces jamais utilisées pour la
+  découvrir ;
+- son gain reste positif lorsque les règles historiques proches sont déjà
+  présentes ;
+- elle est stable par bootstrap de pièces et sous analyses harmoniques
+  plausibles ;
+- une version plus courte ou une règle connue ne fournit pas la même
+  information ;
+- sa formulation et ses exceptions sont auditables musicalement ;
+- la recherche bibliographique et l'audit de CHORAL ne trouvent pas
+  d'équivalent.
+
+Un `REFINEMENT` est un résultat scientifique à part entière. Préciser la voix,
+la métrique, la fonction, le renversement ou les exceptions d'une règle
+générale peut mieux rendre compte de Bach qu'une nouvelle interdiction
+spectaculaire mais rare.
+
+Enfin, « propre à Bach » exige un contraste. Une règle induite uniquement sur
+Bach est d'abord qualifiée de **descriptive de Bach**. Elle ne devient
+**bachienne différentielle** que si son support ou sa force diffère
+significativement dans un corpus comparable d'autres compositeurs, avec la
+même représentation et le même protocole.
+
 ## 5. Corpus et protocole de partage
 
 ### 5.1 Corpus principal
@@ -274,6 +447,13 @@ issues de certaines conversions MuseScore ; ces données ne doivent donc pas
 être traitées comme un oracle sans contrôle :
 
 <https://dcmlab.github.io/bach_chorales/>
+
+Un corpus de contraste, constitué de chorals comparables d'autres compositeurs,
+sera ajouté dans une expérience séparée. Il ne sert pas à sélectionner les
+règles descriptives de Bach, mais à tester ensuite leur spécificité. Les
+différences de période, fonction liturgique, instrumentation, longueur et
+qualité d'encodage devront être contrôlées avant toute qualification de règle
+« bachienne ».
 
 ### 5.3 Prévention des fuites
 
@@ -734,6 +914,42 @@ distincte ; l'explication ne doit pas influencer l'écoute aveugle.
 - proportion des décisions associées à une provenance lisible ;
 - temps nécessaire pour diagnostiquer et corriger un cas.
 
+### 11.7 Expérience comparative principale
+
+L'évaluation sépare trois questions qui ne doivent pas être confondues.
+
+**Pouvoir descriptif.** Sur chaque décision tenue à part, mesurer le rang ou la
+probabilité du choix authentique de Bach sous `S-HISTORICAL`, `S-LEARNED`,
+`S-HYBRID` et `D0-modern`. Les différences
+`S-HYBRID - S-HISTORICAL` et `S-LEARNED - politique neutre` mesurent
+respectivement l'information ajoutée aux traités et l'information portée par la
+base apprise seule.
+
+**Pouvoir génératif.** Pour chaque soprano de test, générer un nombre fixé de
+réalisations avec les mêmes informations disponibles :
+
+- `BACH-REFERENCE` : réalisation authentique ;
+- `S-HISTORICAL` ;
+- `S-LEARNED` ;
+- `S-HYBRID` ;
+- `D0-modern` ;
+- éventuellement `H0`.
+
+Les sorties sont évaluées sans présélection par conformité, statistiques de
+style, diversité, nouveauté, satisfaisabilité et écoute en aveugle.
+
+**Valeur théorique.** Pour chaque règle apprise, mesurer son gain conditionnel
+à la baseline historique, sa perte par ablation, son coût descriptif, la
+stabilité de ses exceptions et sa relation aux sources. C'est cette troisième
+analyse, et non une préférence d'écoute isolée, qui permet de conclure qu'une
+formulation empirique rend mieux compte de Bach qu'un énoncé de traité.
+
+Le checkpoint `D0-legacy`, entraîné historiquement sur un corpus augmenté qui
+peut contenir les pièces d'évaluation, reste un audit exploratoire. Une
+comparaison confirmatoire exige `D0-modern` réentraîné sur exactement les mêmes
+pièces `train`, sans transposition ni variante issue de `validation` ou
+`test`.
+
 ## 12. Lots de travail
 
 ### Lot 0 — protocole figé
@@ -884,15 +1100,41 @@ règle entre voix, sans fait composite révélant la réponse.
 page, une formulation vérifiée, un type historique, une traduction formelle ou
 un motif de report, et des statistiques sur corpus.
 
+### Lot 3c — induction résiduelle au-delà des traités
+
+- [ ] Figer un manifeste des règles de traités, CHORAL et Snarky servant de
+      baseline de connaissance connue.
+- [ ] Calculer les résidus décisionnels de cette baseline sur `train`.
+- [ ] Chercher des clauses courtes conditionnellement aux règles déjà connues.
+- [ ] Comparer chaque candidate à sa règle historique par ablation et paires
+      minimales.
+- [ ] Classer les candidates en `REDISCOVERY`, `REFINEMENT`,
+      `NEW_REGULARITY`, `CONTRADICTION` ou `UNRESOLVED`.
+- [ ] Soumettre les revendications de nouveauté à l'audit des sources et à une
+      relecture musicologique.
+- [ ] Tester séparément la spécificité bachienne sur un corpus de contraste
+      comparable.
+
+**Critère de sortie :** toute règle présentée comme nouvelle apporte un gain
+tenu à part au-delà de la baseline connue, reste intelligible sous le budget de
+complexité et ne possède pas d'équivalent identifié dans les sources auditées.
+
 ### Lot 4 — compilation Snarky
 
 - [ ] Compiler les règles sélectionnées en `R-LEARNED-*`.
+- [ ] Créer des manifestes séparés `S-HISTORICAL`, `S-LEARNED` et
+      `S-HYBRID`.
+- [ ] Garantir par test que charger `S-LEARNED` n'importe aucune règle
+      historique et que `S-HISTORICAL` reste inchangée.
+- [ ] Définir et mesurer la politique neutre utilisée lorsque la base apprise
+      ne classe pas les candidates.
 - [ ] Séparer contraintes, violations, préférences et observations.
 - [ ] Vérifier chaque règle sur ses exemples et contre-exemples.
 - [ ] Conserver les statistiques et la provenance dans les traces.
 
 **Critère de sortie :** chaque règle publiée est exécutable et reliée à sa
-fiche empirique.
+fiche empirique ; les trois configurations peuvent être chargées et comparées
+sans ambiguïté de provenance.
 
 ### Lot 5 — banc DeepBach
 
@@ -939,12 +1181,15 @@ explication symbolique ne dépend pas d'un score neuronal opaque.
 
 - [ ] Relire les règles avec des musiciens et théoriciens.
 - [ ] Comparer chaque famille à sa formulation pédagogique usuelle.
+- [ ] Publier séparément redécouvertes, raffinements, contradictions et
+      nouvelles régularités.
 - [ ] Publier exemples, contre-exemples, partitions et statistiques.
 - [ ] Documenter les résultats négatifs et règles instables.
 - [ ] Préparer l'étude d'écoute en aveugle.
 
 **Critère de sortie :** le catalogue peut être consulté comme un traité
-musical, indépendamment du code.
+musical empirique, indépendamment du code, et chaque prétention de précision
+supérieure aux traités est reliée à une comparaison tenue à part.
 
 ## 13. MVP
 
@@ -956,7 +1201,7 @@ Le premier incrément doit rester volontairement limité :
 - patrons verticaux, transitions et contours sur trois positions ;
 - 15 à 30 familles de règles candidates ;
 - transcription vérifiée d'au moins 20 règles représentatives de CHORAL ;
-- comparaison `S0`, `S1`, `E0` et `D0` ;
+- comparaison `S-HISTORICAL`, `S-LEARNED`, `S-HYBRID`, `E0` et `D0` ;
 - audit automatique des violations ;
 - dix paires minimales documentées ;
 - au moins une feature nouvelle justifiée par les erreurs de DeepBach ;

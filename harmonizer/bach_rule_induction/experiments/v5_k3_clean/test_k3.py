@@ -1,0 +1,149 @@
+from __future__ import annotations
+
+from pathlib import Path
+
+import k3
+import numpy as np
+
+
+def _dataset() -> k3.K3Dataset:
+    return k3.K3Dataset(
+        piece_ids=np.asarray(["p1", "p2"]),
+        offsets=np.asarray([[0, 1, 2], [0, 1, 2]], dtype=np.float32),
+        voice_indices=np.asarray([0, 1], dtype=np.int8),
+        blocks=np.asarray(
+            [
+                [[67, 64, 55, 48], [69, 66, 57, 50], [71, 67, 59, 52]],
+                [[72, 64, 55, 48], [72, 65, 57, 50], [74, 67, 59, 52]],
+            ],
+            dtype=np.int16,
+        ),
+        attacks=np.ones((2, 3, 4), dtype=bool),
+        candidate_min=60,
+        candidate_max=72,
+    )
+
+
+def test_catalogue_is_numeric_and_has_no_historical_rule_names() -> None:
+    labels = " ".join(feature.label.lower() for feature in k3.feature_catalogue())
+
+    assert "parallel" not in labels
+    assert "direct" not in labels
+    assert "overlap" not in labels
+    assert "leading" not in labels
+    assert "v-1" not in labels
+    assert "all_voices" in labels
+
+
+def test_preserved_pair_feature_uses_previous_and_central_blocks() -> None:
+    data = _dataset().take(np.asarray([0]))
+    feature = k3.FeatureSpec(
+        "pair_abs_class_preserved_same_sign",
+        target_voice=0,
+        other_voice=3,
+        value=7,
+        complexity=4,
+    )
+
+    mask = k3.feature_mask(data, feature)
+
+    # Previous soprano/bass interval is 7 mod 12. Candidate 69 over bass 50
+    # preserves class 7 while both voices move upward.
+    assert mask[0, 69 - data.candidate_min]
+    assert not mask[0, 68 - data.candidate_min]
+
+
+def test_counterfactual_pitch_propagates_into_a_following_hold() -> None:
+    data = _dataset().take(np.asarray([0]))
+    data.attacks[0, 2, 0] = False
+    feature = k3.FeatureSpec(
+        "abs_class_to_next",
+        target_voice=0,
+        value=0,
+    )
+
+    mask = k3.feature_mask(data, feature)
+
+    assert mask.all()
+
+
+def test_universal_step_feature_applies_to_every_voice() -> None:
+    data = _dataset()
+    feature = k3.FeatureSpec(
+        "any_voice_adjacent_step_gt",
+        target_voice=-1,
+        value=2,
+    )
+
+    mask = k3.feature_mask(data, feature)
+
+    assert mask[0, 72 - data.candidate_min]
+    assert mask[1, 60 - data.candidate_min]
+
+
+def test_null_shuffle_preserves_piece_voice_pitch_histograms() -> None:
+    data = _dataset()
+    shuffled = k3.shuffle_choices_within_piece_and_voice(data, seed=7)
+
+    for piece in np.unique(data.piece_ids):
+        for voice in range(4):
+            original_rows = (data.piece_ids == piece) & (data.voice_indices == voice)
+            shuffled_rows = (shuffled.piece_ids == piece) & (
+                shuffled.voice_indices == voice
+            )
+            assert sorted(data.chosen_pitches[original_rows]) == sorted(
+                shuffled.chosen_pitches[shuffled_rows]
+            )
+
+
+def test_residual_sign_distinguishes_avoidance_and_preference() -> None:
+    data = _dataset()
+    probs = np.full((data.size, data.candidate_pitches.size), 1 / 13)
+    avoided = np.zeros_like(probs, dtype=bool)
+    preferred = np.zeros_like(probs, dtype=bool)
+    avoided[:, :4] = True
+    preferred[np.arange(data.size), data.chosen_indices] = True
+
+    avoided_stat = k3.residual_statistic(data, probs, avoided, 1, 0.0)
+    preferred_stat = k3.residual_statistic(data, probs, preferred, 1, 0.0)
+
+    assert avoided_stat is not None and avoided_stat.gradient < 0
+    assert preferred_stat is not None and preferred_stat.gradient > 0
+
+
+def test_gibbs_sampler_is_deterministic_and_preserves_fixed_cells() -> None:
+    blocks = np.asarray(
+        [
+            [72, 64, 55, 48],
+            [74, 65, 57, 50],
+            [76, 67, 59, 52],
+            [74, 65, 57, 50],
+        ],
+        dtype=np.int16,
+    )
+    fixed = np.zeros_like(blocks, dtype=bool)
+    fixed[:, 0] = True
+    logits = np.zeros((4, 13), dtype=np.float64)
+    kwargs = {
+        "candidate_min": 60,
+        "candidate_max": 72,
+        "register_logits": logits,
+        "features": (),
+        "weights": np.asarray([], dtype=np.float64),
+        "sweeps": 3,
+        "seed": 7,
+    }
+
+    first = k3.gibbs_sample(blocks, fixed, **kwargs)
+    second = k3.gibbs_sample(blocks, fixed, **kwargs)
+
+    assert np.array_equal(first, second)
+    assert np.array_equal(first[:, 0], blocks[:, 0])
+
+
+def test_clean_induction_source_has_no_rule_base_dependency() -> None:
+    source = (Path(__file__).parent / "run_induction.py").read_text(encoding="utf-8")
+
+    assert "rule_profiles" not in source
+    assert "learned_generator" not in source
+    assert "rule_bases" not in source

@@ -1,0 +1,18 @@
+# Mise à jour générique du poids d'une candidate après fixation de la tranche
+# SATB précédente. La table conditionnelle est construite uniquement à partir
+# des activations et poids de la base apprise.
+
+GROUP update_learned_contextual_weights
+    RULE use_learned_previous_voicing_weight
+    WHEN
+        ($variable predecessor $previous)
+        ($previous value $previous_value)
+        ($variable candidate $value)
+        ($variable choice_weight SEQ[$value $old_weight])
+        ($variable learned_conditional_weight SEQ[$previous_value $value $new_weight])
+        $old_weight != $new_weight
+    THEN
+        REMOVE ($variable choice_weight SEQ[$value $old_weight])
+        ADD ($variable choice_weight SEQ[$value $new_weight])
+    END
+END_GROUP

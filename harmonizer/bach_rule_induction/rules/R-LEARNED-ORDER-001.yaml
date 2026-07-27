@@ -1,0 +1,80 @@
+schema_version: 1
+id: R-LEARNED-ORDER-001
+title: Évitement du croisement simultané des voix adjacentes
+lifecycle: CANDIDATE
+status: NORMALLY
+statement: >
+  Pour deux voix adjacentes, éviter que la candidate de la voix supérieure
+  soit située au moins un demi-ton sous la voix inférieure simultanée, ou que
+  la candidate de la voix inférieure soit située au moins un demi-ton au-dessus
+  de la voix supérieure simultanée.
+scope:
+  voices: [soprano_alto, alto_tenor, tenor_bass]
+  window: [current_attack]
+  corpus: music21-3.1.0-deepbach-352
+  split: variant-safe-251-50-51
+conditions:
+  - candidate_upper - simultaneous_lower <= -1
+  - OR simultaneous_upper - candidate_lower <= -1
+conclusion:
+  kind: avoid
+normalized_clause: >
+  candidate_upper - simultaneous_lower <= -1 OR
+  simultaneous_upper - candidate_lower <= -1
+selection:
+  trigger: V4.1 learned-only generation diagnostics
+  family: simultaneous_adjacent_gap_le
+  numeric_thresholds_tested: [-2, -1, 0, 1, 2]
+  family_rule_budget: 1
+  criterion: most_negative_validation_local_log_rate_contrast
+statistics:
+  train:
+    pieces: 251
+    testable_opportunities: 57593
+    observed_rate: 0.0170854096852048
+    model_expected_rate: 0.04300688764941174
+    residual_z: -38.77875288639605
+    local_log_rate_contrast: -0.2966160952233259
+    bootstrap_replicates: 1000
+    bootstrap_z_95: [-40.87226783370842, -36.71878186634786]
+    bootstrap_negative_fraction: 1.0
+    conditional_nll_gain: 0.014220385699715399
+  validation:
+    pieces: 50
+    testable_opportunities: 11092
+    observed_rate: 0.00847457627118644
+    model_expected_rate: 0.03539080702804118
+    residual_z: -18.36372294512507
+    local_log_rate_contrast: -0.4945408101378215
+    bootstrap_replicates: 1000
+    bootstrap_z_95: [-20.78527019312923, -16.337348084773343]
+    bootstrap_negative_fraction: 1.0
+    conditional_nll_gain: 0.01720705753832452
+  test:
+    opened: false
+fit:
+  log_weight: -1.5387677301917186
+null_control:
+  kind: one_within_piece_choice_shuffle
+  selected_same_threshold: true
+  fitted_weight: -0.08694048146846736
+  validation_nll_gain: 0.0011738086101278355
+  validation_local_log_rate_contrast: -0.06049186931935227
+  interpretation: >
+    Le signal authentique est nettement plus fort, mais une seule réalisation
+    nulle ne suffit pas à calibrer la sélection familiale.
+provenance:
+  rule_origin: INDUCED
+  feature_origin: OBSERVED
+  experiment: >
+    experiments/learned_only_generation/results/
+    v4_2_vertical_order_induction.json
+  report: >
+    experiments/learned_only_generation/results/
+    V4_2_VERTICAL_ORDER_INDUCTION_REPORT.md
+snarky_rule:
+  status: not_compiled_pending_null_calibration
+exceptions:
+  status: pending_case_audit
+bach_examples: []
+deepbach_counterexamples: []

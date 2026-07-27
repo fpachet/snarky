@@ -10,6 +10,16 @@ Chaque règle sera stockée comme une `RuleCard` reliant :
 - provenance pédagogique, CHORAL, experte ou induite ;
 - règle Snarky exécutable lorsqu'elle est compilable.
 
+Les manifestes futurs distinguent strictement :
+
+- `S-HISTORICAL`, base Snarky écrite à la main et conservée intacte ;
+- `S-LEARNED`, composée uniquement des `R-LEARNED-*` induites du corpus ;
+- `S-HYBRID`, union explicite des deux bases.
+
+Une `RuleCard` conserve séparément l'origine de la règle et celle de ses
+features. Une règle induite peut donc consulter un statut harmonique défini par
+l'humain sans être confondue avec une règle historique.
+
 Avant toute recherche de nouveauté, le
 [benchmark de redécouverte](KNOWN_RULE_RECOVERY.md) masque les règles Snarky
 existantes et vérifie si le mineur les retrouve à partir du corpus.
@@ -34,14 +44,22 @@ conditionnel sparse et génération de colonnes — est spécifié dans
   en mouvement conjoint de la classe numérique `7` ;
 - [`R-LEARNED-LEADING-001.yaml`](R-LEARNED-LEADING-001.yaml) : tendance
   ascendante de la classe globale `11` et raffinements contextuels.
+- [`R-LEARNED-ORDER-001.yaml`](R-LEARNED-ORDER-001.yaml) : première candidate
+  V4 issue des croisements des générations apprises seules.
 
-Les six premières cartes sont `SUPPORTED` et renvoient aux règles Snarky expertes
-existantes, auxquelles elles sont extensionnellement équivalentes sur le
-domaine local testé. Elles ne dupliquent donc pas leur compilation. La carte
-de sensible reste `CANDIDATE` : elle est statistiquement stable, mais son
-contexte global n'est pas encore équivalent à la prémisse harmonique de
-`R-LEADING-001`. Parmi ses sept raffinements V3.3, seul
-`majeur + alto + basse 2→4` survit à la calibration de 49 maxima nuls
-(`p FWER = 0,02`). Son audit harmonique trouve un noyau `vii°6→I6` sans
-exception observée, mais seulement partiellement équivalent à la clause
-numérique ; les deux formulations attendent une ablation comparative.
+Les six premières cartes sont `SUPPORTED` et renvoient aux règles Snarky
+expertes existantes, auxquelles elles sont extensionnellement équivalentes sur
+le domaine local testé. Elles ne dupliquent donc pas leur compilation. La carte
+de sensible est également `SUPPORTED` depuis le test gelé V3.8. Son statut
+gradué combine le proxy `majeur + alto + basse 2→4` et un bonus pour le noyau
+harmonique exact `vii°6→I6`. Il conserve `99,964 %` du gain des deux poids sur
+les 51 chorals de test et sa compilation
+[`learned_tonal_resolution.rules`](learned_tonal_resolution.rules) correspond
+à l'oracle sur 256 états locaux abstraits. Il s'agit d'une préférence
+`NORMALLY`, non d'une obligation dure.
+
+`R-LEARNED-ORDER-001` reste `CANDIDATE`. La frontière de croisement strict
+`-1` est beaucoup plus marquée dans les données authentiques que dans le
+contrôle mélangé, mais ce dernier sélectionne encore la même forme avec un
+effet faible. Une calibration familiale supplémentaire est requise avant
+compilation et ajout au manifeste `S-LEARNED`.

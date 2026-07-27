@@ -9,21 +9,43 @@ Le projet est volontairement séparé du prototype
 l'harmoniseur principal qu'après validation, avec une provenance et des tests
 explicites.
 
+Le protocole de la première base générative apprise seule est gelé dans
+[`V4_PROTOCOL.md`](V4_PROTOCOL.md). L'axe principal est désormais
+[`V5-K3-CLEAN`](V5_K3_CLEAN_PROTOCOL.md) : base vide, règles limitées à trois
+blocs verticaux et génération Gibbs utilisant exactement le même contexte que
+l'apprentissage. Les expériences antérieures sont condensées dans
+[`EXPERIMENT_HISTORY.md`](EXPERIMENT_HISTORY.md).
+
 ## Objectif expérimental
+
+Le projet poursuit deux objectifs complémentaires :
+
+1. mesurer quelle part de la qualité de Bach peut être comprimée dans une
+   petite base de règles locales et intelligibles ;
+2. découvrir ce que les traités, CHORAL et la base Snarky historique
+   n'expriment pas encore, ou expriment de manière trop générale.
 
 Comparer sur les mêmes pièces et la même tâche :
 
 | ID | Système |
 |---|---|
-| `S0` | harmoniseur Snarky expert actuel |
-| `S1` | Snarky enrichi de règles induites |
+| `S-HISTORICAL` | base Snarky historique écrite à la main, inchangée |
+| `S-LEARNED` | uniquement les règles induites du corpus |
+| `S-HYBRID` | union déclarative des bases historique et apprise |
 | `E0` | règles historiques de CHORAL reconstruites |
 | `D0-legacy` | [DeepBach historique](../../../deepbach-reference/README.md), poids et code figés |
 | `D0-modern` | port DeepBach maintenu et validé différentiellement |
 | `H0` | combinaison DeepBach–Snarky |
+| `BACH-REFERENCE` | harmonisation authentique tenue à part |
 
 La première tâche commune est l'harmonisation SATB d'un soprano imposé, avec
 rythme, métrique, fermatas et métadonnées tonales contrôlés.
+
+La séparation des bases est stricte : une règle apprise ne modifie ni ne
+rejoint silencieusement la base historique. Chaque règle enregistre séparément
+l'origine de sa formulation et l'origine des faits musicaux qu'elle consulte.
+Cela permet, par exemple, de qualifier correctement une règle induite qui
+utilise une analyse harmonique définie par l'humain.
 
 ## Hypothèse centrale
 
@@ -41,6 +63,21 @@ des faits de statut est comptée afin de ne pas cacher le problème dans des
 features opaques. Une conclusion négative — qualité exigeant beaucoup de
 clauses, des règles non locales ou des statuts inintelligibles — répondrait elle
 aussi à la question scientifique.
+
+La recherche de connaissance nouvelle est résiduelle : on cherche ce que Bach
+fait encore de manière systématique après avoir conditionné le modèle sur les
+règles connues. Chaque résultat est classé comme redécouverte, raffinement,
+nouvelle régularité, contradiction ou cas non résolu. Une revendication de
+nouveauté exige un gain non redondant sur des pièces tenues à part, une
+formulation courte, des exceptions auditables et l'absence d'équivalent dans
+les sources examinées.
+
+Le livrable visé est ainsi un **traité empirique du choral de Bach** :
+formulations pédagogiques et enrichies côte à côte, forces estimées, contextes,
+exceptions, exemples dans les partitions et règles Snarky exécutables. Pour
+affirmer qu'une régularité est spécifiquement bachienne, et pas seulement
+tonale, elle devra ensuite être testée sur un corpus comparable d'autres
+compositeurs.
 
 ## État expérimental au 27 juillet 2026
 
@@ -60,6 +97,13 @@ Les fondations reproductibles sont en place :
 - un [premier POC différentiable](experiments/differentiable_rules_poc/) a
   extrait 20 350 décisions de soprano et appris des clauses depuis des
   hauteurs numériques.
+
+Le premier cycle `V5.1-K3-CLEAN` repart réellement d'une base musicale vide
+sur 68 263 décisions `train` et 13 202 décisions `validation`. Douze clauses
+locales réduisent la NLL de validation de `1,145342`, soit `10,78` fois le gain
+d'un contrôle permuté de même budget. Le catalogue compact retrouve notamment
+les patrons numériques généraux des octaves et quintes parallèles. Le test de
+51 chorals n'est pas chargé.
 
 Le POC retrouve sans noms musicologiques l'évitement des sauts supérieurs à
 l'octave, une abstraction locale de mouvement de même signe entre soprano et
@@ -166,6 +210,14 @@ les 12 contextes Bach sondés, mais préfère aussi la règle dans les deux
 exceptions authentiques ; cela confirme qu'il faut conserver une préférence
 graduée et non une obligation dure.
 
+Le cycle
+[`V4`](V4_PROTOCOL.md) sépare désormais physiquement `S-HISTORICAL`,
+`S-LEARNED` et `S-HYBRID`. Les six règles de niveau A possèdent une compilation
+apprise autonome, la force tonale est raccordée au score conditionnel, et un
+générateur diagnostique choisit des tranches SATB sans charger les règles
+historiques. Ses sorties exploratoires sur fragments `train` sont conservées
+dans `experiments/learned_only_generation/results/`.
+
 ## Organisation
 
 ```text
@@ -176,7 +228,8 @@ bach_rule_induction/
 ├── corpus/               manifeste, partitions et transformations
 ├── features/             registre des descripteurs musicaux
 ├── rules/                RuleCards et règles Snarky induites
-├── baselines/            adaptateurs S0, E0, D0 et H0
+├── rule_bases/           manifestes historical, learned et hybrid
+├── baselines/            adaptateurs Snarky, E0, D0 et H0
 └── experiments/          configurations, sorties et métriques
 ```
 
@@ -256,7 +309,7 @@ Livrable : premières RuleCards vérifiées dans `rules/`.
 - [x] compiler la première obligation retenue en `R-LEARNED-*` et Snarky ;
 - vérifier chaque règle sur exemples, contre-exemples et cas limites.
 
-Livrable : baseline `S1` reproductible.
+Livrable : bases `S-HISTORICAL`, `S-LEARNED` et `S-HYBRID` reproductibles.
 
 Le premier résultat attendu n'est pas une règle nouvelle, mais le benchmark
 [`rules/KNOWN_RULE_RECOVERY.md`](rules/KNOWN_RULE_RECOVERY.md) : le mineur doit
@@ -298,7 +351,8 @@ Livrable : adaptateur DeepBach versionné et test différentiel.
 - construire des paires minimales ;
 - tester rejet, réparation, masquage et ordre des choix Snarky par DeepBach.
 
-Livrable : atlas des désaccords et comparaison `S0/S1/E0/D0/H0`.
+Livrable : atlas des désaccords et comparaison
+`S-HISTORICAL/S-LEARNED/S-HYBRID/E0/D0/H0`.
 
 ### Phase 7 — évaluation et publication
 
