@@ -179,6 +179,23 @@ def test_rare_tonal_features_encode_local_licences() -> None:
     assert not generic[0, 68 - data.candidate_min]
 
 
+def test_rare_tonal_catalogue_can_exclude_the_fixed_soprano() -> None:
+    data = _dataset()
+    data.tonic_pcs = np.asarray([0, 2], dtype=np.int8)
+    data.modes = np.asarray([0, 1], dtype=np.int8)
+    data.metric_levels = np.asarray([3, 0], dtype=np.int8)
+
+    features = k3.rare_tonal_feature_catalogue(
+        data,
+        0.1,
+        voices=(1, 2, 3),
+    )
+
+    assert features
+    assert {feature.target_voice for feature in features} == {1, 2, 3}
+    assert all(feature.kind.startswith("rare_tonal_") for feature in features)
+
+
 def test_contextual_vertical_signatures_are_candidate_dependent() -> None:
     data = _dataset().take(np.asarray([0]))
     data.tonic_pcs = np.asarray([0], dtype=np.int8)

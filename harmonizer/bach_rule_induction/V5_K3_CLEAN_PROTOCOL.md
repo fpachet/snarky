@@ -305,6 +305,44 @@ poids restent signés et lisibles : une rareté générale peut recevoir un poid
 négatif pendant que passage, broderie ou résolution reçoivent des licences
 positives. Le test scellé reste fermé pendant ce calibrage.
 
+## Calibration générative V5.9
+
+V5.9 conserve et gèle les vingt règles conditionnelles V5.7. Sur 16 chorals du
+train déterminés par hash, des chaînes Gibbs persistantes fournissent le terme
+négatif du gradient. Le catalogue de calibration comprend 54 statuts :
+rareté, approche par pas, arrivée par saut, résolution immédiate, absence de
+résolution courte, passage, broderie et force métrique, séparés par voix
+générée et mode.
+
+Huit règles au maximum sont retenues par amplitude et stabilité du contraste.
+Dans cette première calibration, elles concernent surtout la basse en majeur,
+puis l'alto en majeur et la basse en mineur. Tous les contrastes initiaux sont
+négatifs : le Gibbs surproduit encore ces statuts, y compris lorsqu'ils sont
+approchés ou résolus par pas. Après quatre époques :
+
+- distance moyenne des huit moments train : `0,028467 → 0,016242` ;
+- poids maximal absolu : `0,466357` ;
+- NLL validation : `1,130530`, contre `1,120257` pour V5.7.
+
+La campagne de validation est strictement appariée à celle de V5.7 :
+
+| Modèle | Classes rares générées | Écart moyen à Bach | MAE par pièce |
+|---|---:|---:|---:|
+| V5.7 | 5,925 % | +1,728 pp | 4,401 pp |
+| V5.8 | 8,029 % | +3,654 pp | 5,582 pp |
+| V5.9 | 4,529 % | +0,151 pp | 3,107 pp |
+
+Bach est à `4,828 %`. V5.9 améliore 14 pièces sur 20 ; le gain moyen de MAE
+sur V5.7 est `1,293` point, IC95 `0,384–2,203`. Il est promu comme modèle
+chromatiquement calibré expérimental.
+
+La correction reste incomplète. Sur BWV 108.6, V5.9 conserve `3,42 %` de
+classes rares contre `0,68 %` chez Bach, tout en préservant les sept
+répétitions de basse et `48,98 %` de blocs triadiques. Plus généralement, les
+chorals très chromatiques restent sous-modélisés. La prochaine étape doit donc
+apprendre des **licences positives** fondées sur une tonalité locale, sans
+revenir à une interdiction globale ni ouvrir le test scellé.
+
 ## Frontière MusicXML et MuSES
 
 Le corpus historique est distribué sous forme `.mxl`. MuSES ne possède pas

@@ -81,9 +81,9 @@ distinctes ; il ne choisit pas encore lui-même `ATTACK/HOLD`.
 - [x] constater qu'aucune interaction chromatique n'entre dans les 28 règles ;
 - [x] rejeter V5.8 malgré sa meilleure NLL, car ses générations sont
       significativement plus chromatiques ;
-- [ ] ajouter à V5.9 un gradient génératif
+- [x] ajouter à V5.9 un gradient génératif
       `E_Bach[f] - E_Gibbs[f]` ;
-- [ ] sélectionner une base sur prédiction **et** fidélité des moments
+- [x] sélectionner une base sur prédiction **et** fidélité des moments
       génératifs, avant ouverture du test scellé.
 
 La conclusion méthodologique est importante : la pseudo-vraisemblance locale
@@ -91,6 +91,27 @@ ne suffit pas à sélectionner une base destinée à la génération Gibbs. V5.8
 améliore la NLL validation de `1,120257` à `1,060328`, mais fait passer le taux
 pondéré de classes rares générées de `5,925 %` à `8,029 %`, contre `4,828 %`
 chez Bach. La génération libre du rythme reste postérieure à ce calibrage.
+
+### 1.0.3 Calibration générative V5.9 exécutée
+
+- [x] choisir 16 chorals du train par hash, sans sélection musicale ;
+- [x] initialiser et maintenir des chaînes Gibbs persistantes ;
+- [x] classer 54 statuts chromatiques des voix générées par contraste de
+      moments ;
+- [x] limiter la couche générative à huit règles lisibles ;
+- [x] réduire la distance des moments train de `0,028467` à `0,016242` ;
+- [x] geler les poids avant la campagne sur validation ;
+- [x] réutiliser exactement les 20 pièces, deux graines et six balayages ;
+- [x] ramener le taux rare pondéré à `4,529 %`, contre `4,828 %` chez Bach ;
+- [x] réduire la MAE par pièce de `4,401` à `3,107` points ;
+- [x] conserver le test scellé fermé.
+
+V5.9 remplace V5.7 comme modèle chromatiquement calibré expérimental. Le gain
+de MAE sur V5.7 est de `1,293` point, IC95 `0,384–2,203`, avec 14 pièces
+améliorées sur 20. La NLL conditionnelle passe seulement de `1,120257` à
+`1,130530`. La prochaine lacune n'est plus la surproduction moyenne, mais la
+sous-production dans les chorals authentiquement très chromatiques : il faut
+apprendre des licences positives et un statut de tonalité locale.
 
 Deux résultats scientifiques distincts sont recherchés :
 

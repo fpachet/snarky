@@ -925,6 +925,47 @@ def empirical_rare_pc_masks(
     return np.sum(rare * powers, axis=2, dtype=np.int16)
 
 
+def rare_tonal_feature_catalogue(
+    dataset: K3Dataset,
+    threshold: float,
+    *,
+    voices: Iterable[int] = range(4),
+) -> tuple[FeatureSpec, ...]:
+    """Generate signed-rule candidates for learned rare-class licences."""
+
+    rare_masks = empirical_rare_pc_masks(dataset, threshold)
+    rare_kinds = (
+        "rare_tonal_class",
+        "rare_tonal_incoming_step",
+        "rare_tonal_leap_arrival",
+        "rare_tonal_immediate_step_resolution",
+        "rare_tonal_short_no_step_resolution",
+        "rare_tonal_immediate_neighbor",
+        "rare_tonal_immediate_passing",
+        "rare_tonal_weak_metric",
+        "rare_tonal_strong_metric",
+    )
+    features = []
+    for voice in voices:
+        if voice not in range(4):
+            raise ValueError(f"Unknown voice index: {voice}")
+        for mode in range(2):
+            mask = int(rare_masks[voice, mode])
+            if not mask:
+                continue
+            features.extend(
+                FeatureSpec(
+                    kind,
+                    voice,
+                    value=mask,
+                    second_value=mode,
+                    complexity=2 if kind == "rare_tonal_class" else 3,
+                )
+                for kind in rare_kinds
+            )
+    return tuple(features)
+
+
 def contextual_base_scores(
     dataset: K3Dataset,
     register_logits: np.ndarray,
@@ -970,36 +1011,12 @@ def contextual_feature_catalogue(
             FeatureSpec("attacked_repeat_from_previous", voice) for voice in range(4)
         )
     if chromatic_rarity_threshold is not None:
-        rare_masks = empirical_rare_pc_masks(
-            dataset,
-            chromatic_rarity_threshold,
+        features.extend(
+            rare_tonal_feature_catalogue(
+                dataset,
+                chromatic_rarity_threshold,
+            )
         )
-        rare_kinds = (
-            "rare_tonal_class",
-            "rare_tonal_incoming_step",
-            "rare_tonal_leap_arrival",
-            "rare_tonal_immediate_step_resolution",
-            "rare_tonal_short_no_step_resolution",
-            "rare_tonal_immediate_neighbor",
-            "rare_tonal_immediate_passing",
-            "rare_tonal_weak_metric",
-            "rare_tonal_strong_metric",
-        )
-        for voice in range(4):
-            for mode in range(2):
-                mask = int(rare_masks[voice, mode])
-                if not mask:
-                    continue
-                features.extend(
-                    FeatureSpec(
-                        kind,
-                        voice,
-                        value=mask,
-                        second_value=mode,
-                        complexity=2 if kind == "rare_tonal_class" else 3,
-                    )
-                    for kind in rare_kinds
-                )
     features.extend(
         FeatureSpec("central_distinct_pc_count", -1, value=count)
         for count in range(1, 5)

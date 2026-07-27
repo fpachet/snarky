@@ -24,6 +24,10 @@ Le dossier ne charge aucun fichier de `rules/` ni aucun manifeste de
 - `run_multichoral_generation_audit.py` : campagne Gibbs reproductible sur
   plusieurs chorals et plusieurs graines ;
 - `run_chromatic_loop_comparison.py` : décision avant/après et protocole V5.9 ;
+- `run_generative_moment_calibration.py` : calibration de huit règles maximum
+  par contraste de moments Bach−Gibbs sur train ;
+- `run_v5_9_comparison.py` : validation appariée V5.7/V5.8/V5.9 et retour sur
+  BWV 108.6 ;
 - `results/` : artefacts et rapports reproductibles.
 
 `V5.0` conserve le premier catalogue spécialisé, qui a appris huit variantes
@@ -56,6 +60,10 @@ Résultats principaux :
   première campagne générative V5.7 sur 20 chorals ;
 - [`V5_8_CHROMATIC_LOOP_COMPARISON.md`](results/V5_8_CHROMATIC_LOOP_COMPARISON.md),
   rejet génératif de V5.8 et définition du gradient V5.9 ;
+- [`V5_9_GENERATIVE_CALIBRATION.md`](results/V5_9_GENERATIVE_CALIBRATION.md),
+  poids appris par les chaînes persistantes sur train ;
+- [`V5_9_GENERATIVE_VALIDATION_COMPARISON.md`](results/V5_9_GENERATIVE_VALIDATION_COMPARISON.md),
+  promotion expérimentale de V5.9 après validation multi-chorals ;
 - `v5_1_k3_compact_model.json`, modèle complet pour le Gibbs.
 
 Le protocole complet est
