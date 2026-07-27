@@ -11,7 +11,7 @@ GROUP locked_candidates_single_line
             ($other candidate $value)
             ($other row $other_line)
             $other_line != $line
-        END_EXISTS
+        END_NOT_EXISTS
         ($target row $line)
         ($target box $other_box)
         $other_box != $box
@@ -30,7 +30,7 @@ GROUP locked_candidates_single_line
             ($other candidate $value)
             ($other column $other_line)
             $other_line != $line
-        END_EXISTS
+        END_NOT_EXISTS
         ($target column $line)
         ($target box $other_box)
         $other_box != $box
@@ -53,7 +53,7 @@ GROUP locked_candidates_multiple_lines
             ($other candidate $value)
             ($other box $other_box)
             $other_box != $box
-        END_EXISTS
+        END_NOT_EXISTS
         ($target box $box)
         ($target row $other_line)
         $other_line != $line
@@ -72,7 +72,7 @@ GROUP locked_candidates_multiple_lines
             ($other candidate $value)
             ($other box $other_box)
             $other_box != $box
-        END_EXISTS
+        END_NOT_EXISTS
         ($target box $box)
         ($target column $other_line)
         $other_line != $line

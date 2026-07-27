@@ -40,7 +40,7 @@ GROUP classify_learned_tonal_resolution_strength
         ($candidate tonal_resolution_component numeric_proxy)
         NOT EXISTS
             ($candidate tonal_resolution_component exact_harmonic_bonus)
-        END_EXISTS
+        END_NOT_EXISTS
     THEN
         ADD ($candidate learned_tonal_resolution_strength 1)
     END

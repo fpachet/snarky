@@ -132,7 +132,7 @@ GROUP solve_n_queens
         NOT EXISTS
             ($candidate contains $attacker)
             ($attacker attacks $cell)
-        END_EXISTS
+        END_NOT_EXISTS
     THEN
         LET $next := $column + 1
         ADD (($candidate chooses $cell) kind queens_candidate)
@@ -154,7 +154,7 @@ GROUP solve_n_queens
         $next > $n
         NOT EXISTS
             ($candidate state solution)
-        END_EXISTS
+        END_NOT_EXISTS
     THEN
         ADD ($candidate state solution)
     END

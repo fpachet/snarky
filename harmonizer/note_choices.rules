@@ -77,7 +77,7 @@ GROUP apply_harmonizer_decisions
         ($variable decision $chosen)
         NOT EXISTS
             ($variable candidate $chosen)
-        END_EXISTS
+        END_NOT_EXISTS
     THEN
         ADD (search state contradiction)
         ADD (search invalid_choice $variable)

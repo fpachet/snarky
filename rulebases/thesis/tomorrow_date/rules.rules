@@ -37,7 +37,7 @@ GROUP classify_year
         ($year divisible_by 4)
         NOT EXISTS
             ($year divisible_by 100)
-        END_EXISTS
+        END_NOT_EXISTS
     THEN
         ADD ($year leap true)
     END
@@ -48,7 +48,7 @@ GROUP classify_year
         ($year divisible_by 100)
         NOT EXISTS
             ($year divisible_by 400)
-        END_EXISTS
+        END_NOT_EXISTS
     THEN
         ADD ($year leap false)
     END
@@ -58,7 +58,7 @@ GROUP classify_year
         (current year $year)
         NOT EXISTS
             ($year divisible_by 4)
-        END_EXISTS
+        END_NOT_EXISTS
     THEN
         ADD ($year leap false)
     END

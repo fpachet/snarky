@@ -55,7 +55,7 @@ GROUP solve_goals
         (monkey on floor)
         NOT EXISTS
             (monkey holds $object)
-        END_EXISTS
+        END_NOT_EXISTS
     THEN
         FRESH $child PREFIX goal
         ADD ($child kind goal)
@@ -337,7 +337,7 @@ GROUP solve_goals
         ($root status satisfied)
         NOT EXISTS
             ($other status active)
-        END_EXISTS
+        END_NOT_EXISTS
     THEN
         ADD (problem state solved)
     END

@@ -10,7 +10,7 @@ GROUP solve_hanoi
         ($problem to $target)
         NOT EXISTS
             ($problem state done)
-        END_EXISTS
+        END_NOT_EXISTS
     THEN
         ADD ($problem move SEQ[$source $target])
         ADD ($problem state done)
@@ -28,7 +28,7 @@ GROUP solve_hanoi
         ($problem via $spare)
         NOT EXISTS
             ($problem first_child $child)
-        END_EXISTS
+        END_NOT_EXISTS
     THEN
         LET $smaller := $n - 1
         FRESH $child PREFIX hanoi
@@ -55,7 +55,7 @@ GROUP solve_hanoi
         ($first state done)
         NOT EXISTS
             ($problem second_child $second)
-        END_EXISTS
+        END_NOT_EXISTS
     THEN
         LET $smaller := $n - 1
         FRESH $second PREFIX hanoi
@@ -78,7 +78,7 @@ GROUP solve_hanoi
         ($second state done)
         NOT EXISTS
             ($problem state done)
-        END_EXISTS
+        END_NOT_EXISTS
     THEN
         ADD ($problem state done)
     END

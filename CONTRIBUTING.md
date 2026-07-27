@@ -10,6 +10,7 @@ Discuss substantial work in a GitHub issue before investing in it.
 git clone https://github.com/fpachet/snarky.git
 cd snarky
 python -m pip install -e ".[dev]"
+snarky check --syntax-only --format .
 pytest
 ruff check .
 mypy src
@@ -32,6 +33,7 @@ Python 3.12 or newer is required.
 Run the complete local gate before requesting review:
 
 ```sh
+snarky check --syntax-only --format .
 ruff check .
 mypy src
 pytest

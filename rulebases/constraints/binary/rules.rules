@@ -11,7 +11,7 @@ GROUP propagate_binary_constraints
         NOT EXISTS
             ($right candidate $right_value)
             ($relation allows SEQ[$left_value $right_value])
-        END_EXISTS
+        END_NOT_EXISTS
     THEN
         REMOVE ($left candidate $left_value)
     END
@@ -27,7 +27,7 @@ GROUP propagate_binary_constraints
         NOT EXISTS
             ($left candidate $left_value)
             ($relation allows SEQ[$left_value $right_value])
-        END_EXISTS
+        END_NOT_EXISTS
     THEN
         REMOVE ($right candidate $right_value)
     END
@@ -41,7 +41,7 @@ GROUP classify_csp_domains
         ($variable value $value)
         NOT EXISTS
             ($variable candidate $value)
-        END_EXISTS
+        END_NOT_EXISTS
     THEN
         REMOVE ($variable value $value)
     END
@@ -53,10 +53,10 @@ GROUP classify_csp_domains
         NOT EXISTS
             ($variable candidate $other)
             $other != $value
-        END_EXISTS
+        END_NOT_EXISTS
         NOT EXISTS
             ($variable value $known)
-        END_EXISTS
+        END_NOT_EXISTS
     THEN
         ADD ($variable value $value)
     END
@@ -69,7 +69,7 @@ GROUP classify_csp_problems
         ($problem variable $variable)
         NOT EXISTS
             ($variable candidate $value)
-        END_EXISTS
+        END_NOT_EXISTS
     THEN
         ADD ($problem state contradiction)
         ADD ($problem empty_domain $variable)
@@ -83,11 +83,11 @@ GROUP classify_csp_problems
             ($problem variable $variable)
             NOT EXISTS
                 ($variable value $value)
-            END_EXISTS
-        END_EXISTS
+            END_NOT_EXISTS
+        END_NOT_EXISTS
         NOT EXISTS
             ($problem state contradiction)
-        END_EXISTS
+        END_NOT_EXISTS
     THEN
         ADD ($problem state solved)
     END

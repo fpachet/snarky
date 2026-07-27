@@ -56,6 +56,7 @@ For development:
 
 ```sh
 python -m pip install -e ".[dev]"
+snarky check --syntax-only --format .
 pytest
 ruff check .
 mypy src
@@ -223,6 +224,7 @@ the [finite-CSP guide](csp_solver/README.md) for formulations and commands.
 
 - [Documentation map](docs/README.md)
 - [Textual syntax](docs/syntax.md)
+- [Language validation and formatting](docs/language_tooling.md)
 - [Semantics](docs/semantics.md)
 - [Finite-CSP solver optimization plan](docs/solver_optimization_plan.md)
 - [API stability](docs/api_stability.md)

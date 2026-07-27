@@ -9,7 +9,7 @@ GROUP derive_solved_cells
         END_UNIQUE
         NOT EXISTS
             ($cell solved $known)
-        END_EXISTS
+        END_NOT_EXISTS
     THEN
         ADD ($cell solved $value)
     END

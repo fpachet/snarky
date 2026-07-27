@@ -36,6 +36,8 @@ details are documented in [docs/versioning.md](docs/versioning.md).
 - A conservative factorized event handler for streamed positive
   multi-premise rules, plus an executable triangle-closure example and
   CLAIRE4 comparison.
+- A comment-preserving `snarky format` command and a source-oriented
+  `snarky check` validator for rules, persistent constraints, and programs.
 
 ### Changed
 

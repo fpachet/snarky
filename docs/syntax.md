@@ -338,3 +338,11 @@ Rules alone saturate by forward chaining. In finite-CSP search, persistent
 constraints and affected rule groups alternate to a joint fixed point before
 the engine tests the goal or exposes a `CHOICE`. Candidate-domain widening by
 rules is not part of the current narrowing-only persistent semantics.
+
+## Validation and formatting
+
+The `snarky check` command validates `.rules`, `.constraints`, and `.program`
+files. `snarky format` applies canonical four-space indentation while
+preserving comments and semantics. See
+[Language validation and formatting](language_tooling.md) for commands,
+diagnostic codes, linking modes, and the formatting contract.
