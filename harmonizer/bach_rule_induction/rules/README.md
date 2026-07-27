@@ -31,8 +31,13 @@ conditionnel sparse et génération de colonnes — est spécifié dans
 - [`R-LEARNED-PARALLEL-001.yaml`](R-LEARNED-PARALLEL-001.yaml) : répétition
   en mouvement conjoint de la classe numérique `0` ;
 - [`R-LEARNED-PARALLEL-002.yaml`](R-LEARNED-PARALLEL-002.yaml) : répétition
-  en mouvement conjoint de la classe numérique `7`.
+  en mouvement conjoint de la classe numérique `7` ;
+- [`R-LEARNED-LEADING-001.yaml`](R-LEARNED-LEADING-001.yaml) : tendance
+  ascendante de la classe globale `11` et raffinements contextuels.
 
-Les six cartes sont `SUPPORTED` et renvoient aux règles Snarky expertes
+Les six premières cartes sont `SUPPORTED` et renvoient aux règles Snarky expertes
 existantes, auxquelles elles sont extensionnellement équivalentes sur le
-domaine local testé. Elles ne dupliquent donc pas leur compilation.
+domaine local testé. Elles ne dupliquent donc pas leur compilation. La carte
+de sensible reste `CANDIDATE` : elle est statistiquement stable, mais son
+contexte global n'est pas encore équivalent à la prémisse harmonique de
+`R-LEADING-001`.

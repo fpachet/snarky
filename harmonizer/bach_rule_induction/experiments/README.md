@@ -51,3 +51,11 @@ gain propre aux deux règles de parallèles.
 Le sixième incrément réentraîne le modèle après retrait de chaque groupe.
 Toutes les pénalités authentiques restent positives ; celle des parallèles
 atteint `0,051384` et tombe à environ zéro dans le contrôle permuté.
+
+Le septième incrément traite une obligation positive. Un scan aveugle des
+douze classes relatives à la tonique retient seulement `11` pour la conclusion
+« monter d'un demi-ton ». Les raffinements suivants énumèrent la voix, les
+classes de basse source/cible, puis le mode. Ils isolent sept contextes
+lisibles, dont des proxys de `vii°6→I`, `V4/2→I6`, `V→i`, `V→VI` et `V→III`.
+Le contrôle permuté n'en retient aucun ; ces clauses restent candidates jusqu'à
+la calibration familiale répétée.

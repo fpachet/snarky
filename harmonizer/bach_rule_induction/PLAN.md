@@ -764,10 +764,10 @@ identiques après import et export sur tout le corpus accepté.
 ### Lot 2 — registre de features
 
 - [ ] Inventorier les faits déjà produits par l'harmoniseur.
-- [ ] Définir les identifiants et la provenance.
+- [x] Définir les premiers identifiants tonals globaux et leur provenance.
 - [ ] Ajouter les features tonales, phraséologiques et contrapuntiques
       prioritaires.
-- [ ] Fournir des tests positifs, négatifs, limites et ambigus.
+- [x] Fournir les premiers tests positifs et négatifs des statuts tonals.
 
 **Critère de sortie :** tout prédicat utilisé par une règle apprise possède une
 fiche testée.
@@ -793,6 +793,8 @@ fiche testée.
       provenance, contrôle nul, bootstrap et équivalence Snarky.
 - [x] Exporter les deux `RuleCard` de parallèles généralisées aux six paires
       de voix.
+- [x] Exporter une `RuleCard` candidate pour la première obligation tonale et
+      ses raffinements contextuels.
 - [ ] Généraliser automatiquement l'export de `RuleCard` à toute famille
       retenue.
 
@@ -822,7 +824,14 @@ possède une définition musicale testée.
       avec zéro sélection dans le contrôle permuté.
 - [x] Isoler le mouvement direct des coûts généraux du saut et du mouvement
       semblable par génération de colonnes résiduelle.
-- [ ] Ajouter ensuite les faits tonals pour les résolutions et doublures.
+- [x] Ajouter les faits de tonique, mode et classe chromatique relative, puis
+      retrouver la tendance ascendante de la classe `11`.
+- [x] Utiliser les exceptions pour séparer par mode un proxy de résolution
+      trompeuse `V→VI`.
+- [ ] Calibrer les 864 raffinements tonals par maxima sur plusieurs
+      permutations indépendantes.
+- [ ] Ajouter ensuite les faits harmoniques nécessaires aux résolutions et
+      doublures.
 - [x] Comparer sémantiquement les clauses de mouvement direct aux oracles
       Snarky sur un domaine local fini : zéro désaccord sur 301 401 états
       valides par classe.

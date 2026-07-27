@@ -274,6 +274,47 @@ la pénalité des parallèles est pratiquement nulle.
 Voir [`V2_5_ANALYSIS.md`](V2_5_ANALYSIS.md) et le
 [`rapport canonique`](results/V2_5_SATB_GROUP_REFIT_REPORT.md).
 
+## POC V3.1 — première obligation tonale
+
+Le V3.1 scanne les douze classes sources relatives à la tonique globale pour
+la conclusion positive `candidate == previous + 1` :
+
+```sh
+../deepbach-reference/.venv/bin/python \
+  harmonizer/bach_rule_induction/experiments/differentiable_rules_poc/\
+run_tonal_tendency.py
+```
+
+La classe `11` est la seule retenue ; elle est interprétée après sélection
+comme la sensible globale. Un pic local contre les classes voisines élimine le
+faux signal observé dans le premier contrôle nul. Voir
+[`V3_1_ANALYSIS.md`](V3_1_ANALYSIS.md).
+
+## POC V3.2–V3.3 — raffinements et ajout du mode
+
+Le V3.2 énumère 432 contextes `voix × basse source × basse cible`. Le V3.3
+ajoute le mode comme statut explicite et en teste 864 :
+
+```sh
+../deepbach-reference/.venv/bin/python \
+  harmonizer/bach_rule_induction/experiments/differentiable_rules_poc/\
+run_leading_tone_refinement.py
+
+../deepbach-reference/.venv/bin/python \
+  harmonizer/bach_rule_induction/experiments/differentiable_rules_poc/\
+run_leading_tone_refinement.py \
+  --stratify-mode \
+  --min-train-support 20 \
+  --candidate-budget 8 \
+  --output-stem v3_3_mode_stratified_leading_tone
+```
+
+Sept clauses passent train et validation dans le V3.3, contre aucune après
+permutation. L'audit des états leur associe postérieurement des proxys de
+progressions harmoniques usuelles. Voir
+[`V3_2_ANALYSIS.md`](V3_2_ANALYSIS.md) et
+[`V3_3_ANALYSIS.md`](V3_3_ANALYSIS.md).
+
 ## Interprétation prudente
 
 Une valeur conditionnelle extrême est une hypothèse de règle, pas une preuve

@@ -1,0 +1,74 @@
+schema_version: 1
+id: R-LEARNED-LEADING-001
+title: Tendance ascendante de la classe tonale globale 11
+lifecycle: CANDIDATE
+status: NORMALLY
+statement: >
+  Lorsqu'une voix porte la classe située un demi-ton sous la tonique globale,
+  préférer sa résolution ascendante exacte d'un demi-ton, avec une force
+  dépendant de la voix, du mode et du mouvement de basse.
+scope:
+  voices: [soprano, alto, tenor, bass]
+  window: [previous_attack, current_attack]
+  corpus: music21-3.1.0-deepbach-352
+  split: variant-safe-251-50-51
+conditions:
+  - (previous_pitch - global_key_tonic_pc) % 12 == 11
+conclusion:
+  kind: prefer
+  clause: candidate_pitch == previous_pitch + 1
+normalized_clause: >
+  tonic_relative_source_class == 11
+  AND candidate_pitch == previous_pitch + 1
+selection:
+  family: tonic_relative_source_class
+  numeric_values_tested: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11]
+  family_rule_budget: 1
+  train_local_log_rate_contrast_min: 1.4
+  validation_local_log_rate_contrast_min: 1.5
+statistics:
+  train:
+    pieces: 251
+    testable_opportunities: 4235
+    observed_rate: 0.5053128689492326
+    model_expected_rate: 0.3002453567941374
+    residual_z: 34.76117965403654
+  validation:
+    pieces: 50
+    testable_opportunities: 909
+    observed_rate: 0.5258525852585259
+    model_expected_rate: 0.30743951728078833
+    residual_z: 17.09266992538674
+    bootstrap_replicates: 1000
+    bootstrap_z_95: [14.2193426555035, 20.10606943595229]
+    bootstrap_positive_fraction: 1.0
+  test:
+    opened: false
+null_control:
+  selected: false
+  reason: local_peak_below_threshold
+semantic_comparison:
+  reference_rule_id: R-LEADING-001
+  classification: MISSING_CONTEXT_FOR_EQUIVALENCE
+  reason: >
+    La formule apprise utilise la tonalité globale mais ne teste ni le rôle de
+    l'accord source ni les exceptions de résolution.
+refinements:
+  experiment: v3_3_mode_stratified_leading_tone
+  candidate_count: 7
+  null_selected_count: 0
+  status: CANDIDATE_REFINEMENT
+provenance:
+  experiment: experiments/differentiable_rules_poc/results/v3_1_global_tonal_tendency.json
+  refinement_experiment: experiments/differentiable_rules_poc/results/v3_3_mode_stratified_leading_tone.json
+  analysis: experiments/differentiable_rules_poc/V3_1_ANALYSIS.md
+  refinement_analysis: experiments/differentiable_rules_poc/V3_3_ANALYSIS.md
+snarky_rule:
+  file: ../voice_leading_conformance.rules
+  rule_id: R-LEADING-001
+  action: pending_context_equivalence
+exceptions:
+  status: partially_clustered_by_bass_transition_and_mode
+bach_examples:
+  source: experiments/differentiable_rules_poc/results/v3_3_mode_stratified_leading_tone.json
+deepbach_counterexamples: []

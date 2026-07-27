@@ -115,3 +115,40 @@ def test_satb_parallel_rule_cards_match_canonical_experiment() -> None:
         assert card["semantic_comparison"]["reference_rule_id"] == reference
         assert card["semantic_comparison"]["mismatches"] == 0
         assert card["statistics"]["train"]["residual_z"] == scan["train"]["z_score"]
+
+
+def test_leading_tone_candidate_card_matches_canonical_experiments() -> None:
+    result = json.loads(
+        (
+            EXPERIMENT_ROOT / "results/v3_1_global_tonal_tendency.json"
+        ).read_text(encoding="utf-8")
+    )
+    refinement = json.loads(
+        (
+            EXPERIMENT_ROOT / "results/v3_3_mode_stratified_leading_tone.json"
+        ).read_text(encoding="utf-8")
+    )
+    null = json.loads(
+        (
+            EXPERIMENT_ROOT
+            / "results/v3_3_mode_stratified_leading_tone_null.json"
+        ).read_text(encoding="utf-8")
+    )
+    card = yaml.safe_load(
+        (RULES_ROOT / "R-LEARNED-LEADING-001.yaml").read_text(encoding="utf-8")
+    )
+    source_class = next(
+        record
+        for record in result["model"]["source_class_scan"]
+        if record["numeric_value"] == 11
+    )
+    assert result["model"]["selected_source_classes"] == [11]
+    assert len(refinement["model"]["selected_refinements"]) == 7
+    assert null["model"]["selected_refinements"] == []
+    assert card["lifecycle"] == "CANDIDATE"
+    assert card["statistics"]["test"]["opened"] is False
+    assert (
+        card["statistics"]["validation"]["residual_z"]
+        == source_class["validation"]["z_score"]
+    )
+    assert card["refinements"]["candidate_count"] == 7

@@ -94,8 +94,7 @@ généralisé les parallèles aux six paires de voix. Il retient exactement les
 classes `0` et `7`, contre aucune dans le contrôle permuté, et retrouve
 `R-PARALLEL-001/002` sans désaccord sur 1 130 364 états par classe.
 
-Le test final reste scellé. Les premières obligations tonales restent à
-traiter.
+Le test final reste scellé.
 
 Le [POC V2.4](experiments/differentiable_rules_poc/V2_4_ANALYSIS.md) réunit
 enfin les sept règles récupérées dans un même modèle. Le catalogue améliore la
@@ -109,6 +108,21 @@ compensé : les pénalités restent positives pour les parallèles (`0,051384`),
 la mélodie (`0,008753`), l'overlap (`0,005419`) et les mouvements directs
 (`0,000997`). Le contrôle permuté ramène la contribution des parallèles à
 environ zéro.
+
+Le [POC V3.1](experiments/differentiable_rules_poc/V3_1_ANALYSIS.md) ouvre les
+obligations. En testant uniformément les douze classes relatives à la tonique
+globale, il retient uniquement `11` pour la conclusion « monter d'un
+demi-ton ». Le taux de validation est `0,5259` contre `0,3074` attendu
+(`z = 17,093`). Un contraste local, ajouté après diagnostic d'un faux positif,
+rejette la classe dans le contrôle permuté.
+
+Les [POC V3.2](experiments/differentiable_rules_poc/V3_2_ANALYSIS.md) et
+[V3.3](experiments/differentiable_rules_poc/V3_3_ANALYSIS.md) raffinent cette
+tendance avec des clauses courtes sur la voix, le mouvement de basse et le
+mode. Le V3.3 retient sept proxys de progressions lisibles sur 864 candidats,
+contre aucun dans le contrôle nul. Il distingue notamment le patron mineur
+assimilable à `V→VI`, vérifié 25/25 fois au train et 11/11 en validation, de
+son homologue majeur qui ne résout jamais dans les occurrences observées.
 
 ## Organisation
 
@@ -189,6 +203,9 @@ Livrable : premières RuleCards vérifiées dans `rules/`.
 - sélectionner les règles par support, gain, stabilité et coût descriptif ;
 - mesurer effets marginaux, ablations, redondances et interactions résiduelles ;
 - enrichir les faits de statut sans introduire de dépendances entre règles ;
+- [x] définir un premier statut tonal global et redécouvrir la classe `11` ;
+- [x] utiliser les exceptions pour proposer `global_key_mode` comme feature ;
+- calibrer les familles tonales par maxima de permutations répétées ;
 - valider sur un sous-ensemble non consulté pendant la découverte ;
 - compiler les règles retenues en `R-LEARNED-*` ;
 - vérifier chaque règle sur exemples, contre-exemples et cas limites.
@@ -252,13 +269,15 @@ Le premier sprint de provenance est terminé. L'ordre de travail immédiat est
 désormais :
 
 1. préenregistrer les seuils d'encoche, budgets et le partage groupé ;
-2. définir et tester les faits de tonalité locale et de degré mélodique ;
+2. [x] définir et tester les premiers faits de tonalité globale et de classe
+   mélodique relative ;
 3. dédupliquer les paires lors des attaques simultanées et mesurer la
    sensibilité ;
-4. extraire et analyser les exceptions authentiques comme exemples musicaux ;
-5. ajouter les faits tonals minimaux pour rechercher la première obligation ;
+4. [x] extraire et analyser un premier lot d'exceptions authentiques ;
+5. [x] ajouter les faits tonals minimaux et retrouver la première obligation ;
 6. revoir les cartes CHORAL à faible confiance pertinentes pour ces familles ;
-7. auditer les variantes mélodiques proches avant d'ouvrir le test.
+7. calibrer les maxima de familles sur plusieurs permutations ;
+8. auditer les variantes mélodiques proches avant d'ouvrir le test.
 
 La définition exhaustive des lots, métriques, risques et critères de sortie se
 trouve dans [`PLAN.md`](PLAN.md).

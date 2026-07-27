@@ -491,7 +491,9 @@ def bootstrap_by_piece(
         "z_median": float(quantiles[1]),
         "z_p975": float(quantiles[2]),
         "negative_fraction": float(np.mean(z_scores < 0)),
+        "positive_fraction": float(np.mean(z_scores > 0)),
         "below_minus_two_fraction": float(np.mean(z_scores <= -2)),
+        "above_two_fraction": float(np.mean(z_scores >= 2)),
     }
 
 

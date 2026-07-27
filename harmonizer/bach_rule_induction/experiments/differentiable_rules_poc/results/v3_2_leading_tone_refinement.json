@@ -1,0 +1,920 @@
+{
+  "corpus": {
+    "pieces_total": 352,
+    "test_opened": false,
+    "test_pieces_reserved": 51,
+    "train_pieces": 251,
+    "validation_pieces": 50
+  },
+  "experiment": {
+    "candidate_count": 432,
+    "mode_stratified": false,
+    "name": "differentiable_rules_poc_v3_2_leading_tone_refinement",
+    "null_shuffle": false,
+    "seed": 1729,
+    "selection": {
+      "candidate_budget": 5,
+      "min_train_confirmation": 0.65,
+      "min_train_support": 30,
+      "min_train_z": 3.0,
+      "min_validation_confirmation": 0.65,
+      "min_validation_support": 8,
+      "min_validation_z": 2.0
+    },
+    "split_strategy": "exact_soprano_contour_and_rhythm_conservative_grouping",
+    "test_opened": false
+  },
+  "model": {
+    "all_candidate_count": 432,
+    "reference_rule_id": "R-LEADING-001",
+    "selected_refinements": [
+      {
+        "bootstrap_train": {
+          "above_two_fraction": 1.0,
+          "below_minus_two_fraction": 0.0,
+          "negative_fraction": 0.0,
+          "piece_count": 251,
+          "positive_fraction": 1.0,
+          "replicates": 1000,
+          "z_median": 6.648241828381574,
+          "z_p025": 5.089739936780833,
+          "z_p975": 8.22613523015004
+        },
+        "bootstrap_validation": {
+          "above_two_fraction": 1.0,
+          "below_minus_two_fraction": 0.0,
+          "negative_fraction": 0.0,
+          "piece_count": 50,
+          "positive_fraction": 1.0,
+          "replicates": 1000,
+          "z_median": 4.384242751532798,
+          "z_p025": 3.01564285980881,
+          "z_p975": 5.72087526492047
+        },
+        "interpretation": "LEADING_TONE_CHORD_6_TO_TONIC_ROOT_PROXY",
+        "mode": "all",
+        "source_bass_class": 2,
+        "subject_voice": "Alto",
+        "subject_voice_index": 1,
+        "target_bass_class": 0,
+        "train": {
+          "expected_rate": 0.5807480144709568,
+          "observed_rate": 0.9021739130434783,
+          "piece_support": 66,
+          "residual_sum": 29.571182668671966,
+          "testable_opportunities": 92,
+          "variance": 19.563264146696845,
+          "z_score": 6.685717695966361
+        },
+        "train_by_mode": {
+          "major": {
+            "exceptions": 9,
+            "opportunities": 43,
+            "resolution_rate": 0.7906976744186046,
+            "resolutions": 34
+          },
+          "minor": {
+            "exceptions": 0,
+            "opportunities": 49,
+            "resolution_rate": 1.0,
+            "resolutions": 49
+          }
+        },
+        "validation": {
+          "expected_rate": 0.5746465795557969,
+          "observed_rate": 0.9642857142857143,
+          "piece_support": 19,
+          "residual_sum": 10.909895772437686,
+          "testable_opportunities": 28,
+          "variance": 6.0666581800107675,
+          "z_score": 4.42940956061098
+        },
+        "validation_by_mode": {
+          "major": {
+            "exceptions": 1,
+            "opportunities": 16,
+            "resolution_rate": 0.9375,
+            "resolutions": 15
+          },
+          "minor": {
+            "exceptions": 0,
+            "opportunities": 12,
+            "resolution_rate": 1.0,
+            "resolutions": 12
+          }
+        },
+        "validation_examples": [
+          {
+            "mode": "minor",
+            "offset_current": 55.0,
+            "offset_previous": 54.5,
+            "piece_id": "bach/bwv111.6",
+            "resolved": true,
+            "source_satb_midi": [
+              71,
+              68,
+              62,
+              59
+            ],
+            "source_satb_relative_classes": [
+              2,
+              11,
+              5,
+              2
+            ],
+            "target_satb_midi": [
+              72,
+              69,
+              64,
+              57
+            ],
+            "target_satb_relative_classes": [
+              3,
+              0,
+              7,
+              0
+            ]
+          },
+          {
+            "mode": "minor",
+            "offset_current": 12.0,
+            "offset_previous": 11.0,
+            "piece_id": "bach/bwv162.6-lpz",
+            "resolved": true,
+            "source_satb_midi": [
+              73,
+              70,
+              64,
+              49
+            ],
+            "source_satb_relative_classes": [
+              2,
+              11,
+              5,
+              2
+            ],
+            "target_satb_midi": [
+              74,
+              71,
+              66,
+              47
+            ],
+            "target_satb_relative_classes": [
+              3,
+              0,
+              7,
+              0
+            ]
+          },
+          {
+            "mode": "minor",
+            "offset_current": 28.0,
+            "offset_previous": 27.0,
+            "piece_id": "bach/bwv162.6-lpz",
+            "resolved": true,
+            "source_satb_midi": [
+              73,
+              70,
+              64,
+              49
+            ],
+            "source_satb_relative_classes": [
+              2,
+              11,
+              5,
+              2
+            ],
+            "target_satb_midi": [
+              74,
+              71,
+              66,
+              47
+            ],
+            "target_satb_relative_classes": [
+              3,
+              0,
+              7,
+              0
+            ]
+          },
+          {
+            "mode": "major",
+            "offset_current": 106.5,
+            "offset_previous": 106.0,
+            "piece_id": "bach/bwv276",
+            "resolved": false,
+            "source_satb_midi": [
+              64,
+              59,
+              56,
+              50
+            ],
+            "source_satb_relative_classes": [
+              4,
+              11,
+              8,
+              2
+            ],
+            "target_satb_midi": [
+              64,
+              57,
+              57,
+              48
+            ],
+            "target_satb_relative_classes": [
+              4,
+              9,
+              9,
+              0
+            ]
+          }
+        ]
+      },
+      {
+        "bootstrap_train": {
+          "above_two_fraction": 1.0,
+          "below_minus_two_fraction": 0.0,
+          "negative_fraction": 0.0,
+          "piece_count": 251,
+          "positive_fraction": 1.0,
+          "replicates": 1000,
+          "z_median": 12.258876508749843,
+          "z_p025": 8.432983629360718,
+          "z_p975": 15.921540856264546
+        },
+        "bootstrap_validation": {
+          "above_two_fraction": 1.0,
+          "below_minus_two_fraction": 0.0,
+          "negative_fraction": 0.0,
+          "piece_count": 50,
+          "positive_fraction": 1.0,
+          "replicates": 1000,
+          "z_median": 7.983574840855374,
+          "z_p025": 5.220695221266079,
+          "z_p975": 10.459916411700979
+        },
+        "interpretation": "LEADING_TONE_CHORD_6_TO_TONIC_6_PROXY",
+        "mode": "all",
+        "source_bass_class": 2,
+        "subject_voice": "Alto",
+        "subject_voice_index": 1,
+        "target_bass_class": 4,
+        "train": {
+          "expected_rate": 0.21634439863005772,
+          "observed_rate": 0.875,
+          "piece_support": 28,
+          "residual_sum": 36.88471367671677,
+          "testable_opportunities": 56,
+          "variance": 8.895081580035948,
+          "z_score": 12.367201839619236
+        },
+        "train_by_mode": {
+          "major": {
+            "exceptions": 7,
+            "opportunities": 54,
+            "resolution_rate": 0.8703703703703703,
+            "resolutions": 47
+          },
+          "minor": {
+            "exceptions": 0,
+            "opportunities": 2,
+            "resolution_rate": 1.0,
+            "resolutions": 2
+          }
+        },
+        "validation": {
+          "expected_rate": 0.2456200187856367,
+          "observed_rate": 1.0,
+          "piece_support": 12,
+          "residual_sum": 14.333219643072903,
+          "testable_opportunities": 19,
+          "variance": 3.170279748670615,
+          "z_score": 8.049982992711689
+        },
+        "validation_by_mode": {
+          "major": {
+            "exceptions": 0,
+            "opportunities": 19,
+            "resolution_rate": 1.0,
+            "resolutions": 19
+          }
+        },
+        "validation_examples": [
+          {
+            "mode": "major",
+            "offset_current": 5.0,
+            "offset_previous": 4.5,
+            "piece_id": "bach/bwv112.5",
+            "resolved": true,
+            "source_satb_midi": [
+              72,
+              66,
+              57,
+              45
+            ],
+            "source_satb_relative_classes": [
+              5,
+              11,
+              2,
+              2
+            ],
+            "target_satb_midi": [
+              71,
+              67,
+              62,
+              47
+            ],
+            "target_satb_relative_classes": [
+              4,
+              0,
+              7,
+              4
+            ]
+          },
+          {
+            "mode": "major",
+            "offset_current": 21.0,
+            "offset_previous": 20.5,
+            "piece_id": "bach/bwv112.5",
+            "resolved": true,
+            "source_satb_midi": [
+              72,
+              66,
+              57,
+              45
+            ],
+            "source_satb_relative_classes": [
+              5,
+              11,
+              2,
+              2
+            ],
+            "target_satb_midi": [
+              71,
+              67,
+              62,
+              47
+            ],
+            "target_satb_relative_classes": [
+              4,
+              0,
+              7,
+              4
+            ]
+          },
+          {
+            "mode": "major",
+            "offset_current": 1.0,
+            "offset_previous": 0.5,
+            "piece_id": "bach/bwv133.6",
+            "resolved": true,
+            "source_satb_midi": [
+              67,
+              61,
+              57,
+              52
+            ],
+            "source_satb_relative_classes": [
+              5,
+              11,
+              7,
+              2
+            ],
+            "target_satb_midi": [
+              69,
+              62,
+              57,
+              54
+            ],
+            "target_satb_relative_classes": [
+              7,
+              0,
+              7,
+              4
+            ]
+          }
+        ]
+      },
+      {
+        "bootstrap_train": {
+          "above_two_fraction": 0.98,
+          "below_minus_two_fraction": 0.0,
+          "negative_fraction": 0.0,
+          "piece_count": 251,
+          "positive_fraction": 1.0,
+          "replicates": 1000,
+          "z_median": 3.5223043988577523,
+          "z_p025": 2.065385134972328,
+          "z_p975": 4.750849119621846
+        },
+        "bootstrap_validation": {
+          "above_two_fraction": 0.625,
+          "below_minus_two_fraction": 0.0,
+          "negative_fraction": 0.01,
+          "piece_count": 50,
+          "positive_fraction": 0.99,
+          "replicates": 1000,
+          "z_median": 2.2533787012783506,
+          "z_p025": 0.4180440818226371,
+          "z_p975": 3.5360767873370973
+        },
+        "interpretation": "UNINTERPRETED_NUMERIC_REFINEMENT",
+        "mode": "all",
+        "source_bass_class": 7,
+        "subject_voice": "Tenor",
+        "subject_voice_index": 2,
+        "target_bass_class": 8,
+        "train": {
+          "expected_rate": 0.4888653543752607,
+          "observed_rate": 0.7575757575757576,
+          "piece_support": 24,
+          "residual_sum": 8.867443305616401,
+          "testable_opportunities": 33,
+          "variance": 6.177628659030933,
+          "z_score": 3.5676933670318562
+        },
+        "train_by_mode": {
+          "major": {
+            "exceptions": 8,
+            "opportunities": 8,
+            "resolution_rate": 0.0,
+            "resolutions": 0
+          },
+          "minor": {
+            "exceptions": 0,
+            "opportunities": 25,
+            "resolution_rate": 1.0,
+            "resolutions": 25
+          }
+        },
+        "validation": {
+          "expected_rate": 0.5467256749232929,
+          "observed_rate": 0.8461538461538461,
+          "piece_support": 8,
+          "residual_sum": 3.892566225997191,
+          "testable_opportunities": 13,
+          "variance": 2.8518384138058637,
+          "z_score": 2.3050139221919212
+        },
+        "validation_by_mode": {
+          "major": {
+            "exceptions": 2,
+            "opportunities": 2,
+            "resolution_rate": 0.0,
+            "resolutions": 0
+          },
+          "minor": {
+            "exceptions": 0,
+            "opportunities": 11,
+            "resolution_rate": 1.0,
+            "resolutions": 11
+          }
+        },
+        "validation_examples": [
+          {
+            "mode": "minor",
+            "offset_current": 4.0,
+            "offset_previous": 3.0,
+            "piece_id": "bach/bwv162.6-lpz",
+            "resolved": true,
+            "source_satb_midi": [
+              73,
+              66,
+              58,
+              54
+            ],
+            "source_satb_relative_classes": [
+              2,
+              7,
+              11,
+              7
+            ],
+            "target_satb_midi": [
+              71,
+              62,
+              59,
+              55
+            ],
+            "target_satb_relative_classes": [
+              0,
+              3,
+              0,
+              8
+            ]
+          },
+          {
+            "mode": "minor",
+            "offset_current": 20.0,
+            "offset_previous": 19.0,
+            "piece_id": "bach/bwv162.6-lpz",
+            "resolved": true,
+            "source_satb_midi": [
+              73,
+              66,
+              58,
+              54
+            ],
+            "source_satb_relative_classes": [
+              2,
+              7,
+              11,
+              7
+            ],
+            "target_satb_midi": [
+              71,
+              62,
+              59,
+              55
+            ],
+            "target_satb_relative_classes": [
+              0,
+              3,
+              0,
+              8
+            ]
+          },
+          {
+            "mode": "minor",
+            "offset_current": 5.0,
+            "offset_previous": 4.0,
+            "piece_id": "bach/bwv197.10",
+            "resolved": true,
+            "source_satb_midi": [
+              73,
+              66,
+              58,
+              54
+            ],
+            "source_satb_relative_classes": [
+              2,
+              7,
+              11,
+              7
+            ],
+            "target_satb_midi": [
+              71,
+              62,
+              59,
+              55
+            ],
+            "target_satb_relative_classes": [
+              0,
+              3,
+              0,
+              8
+            ]
+          },
+          {
+            "mode": "major",
+            "offset_current": 15.0,
+            "offset_previous": 14.0,
+            "piece_id": "bach/bwv248.46-5",
+            "resolved": false,
+            "source_satb_midi": [
+              73,
+              64,
+              56,
+              52
+            ],
+            "source_satb_relative_classes": [
+              4,
+              7,
+              11,
+              7
+            ],
+            "target_satb_midi": [
+              74,
+              68,
+              59,
+              53
+            ],
+            "target_satb_relative_classes": [
+              5,
+              11,
+              2,
+              8
+            ]
+          },
+          {
+            "mode": "major",
+            "offset_current": 50.0,
+            "offset_previous": 49.0,
+            "piece_id": "bach/bwv260",
+            "resolved": false,
+            "source_satb_midi": [
+              69,
+              62,
+              54,
+              50
+            ],
+            "source_satb_relative_classes": [
+              2,
+              7,
+              11,
+              7
+            ],
+            "target_satb_midi": [
+              71,
+              66,
+              59,
+              51
+            ],
+            "target_satb_relative_classes": [
+              4,
+              11,
+              4,
+              8
+            ]
+          }
+        ]
+      },
+      {
+        "bootstrap_train": {
+          "above_two_fraction": 1.0,
+          "below_minus_two_fraction": 0.0,
+          "negative_fraction": 0.0,
+          "piece_count": 251,
+          "positive_fraction": 1.0,
+          "replicates": 1000,
+          "z_median": 7.194159055821654,
+          "z_p025": 5.1163726243221115,
+          "z_p975": 9.213478947684255
+        },
+        "bootstrap_validation": {
+          "above_two_fraction": 0.972,
+          "below_minus_two_fraction": 0.0,
+          "negative_fraction": 0.001,
+          "piece_count": 50,
+          "positive_fraction": 0.999,
+          "replicates": 1000,
+          "z_median": 4.237181903013745,
+          "z_p025": 1.9445821506497918,
+          "z_p975": 5.9529533550627685
+        },
+        "interpretation": "OUTER_DOMINANT_TO_TONIC_CADENTIAL_PROXY",
+        "mode": "all",
+        "source_bass_class": 7,
+        "subject_voice": "Soprano",
+        "subject_voice_index": 0,
+        "target_bass_class": 0,
+        "train": {
+          "expected_rate": 0.4240859000715656,
+          "observed_rate": 0.7235772357723578,
+          "piece_support": 76,
+          "residual_sum": 36.83743429119743,
+          "testable_opportunities": 123,
+          "variance": 25.919614704711968,
+          "z_score": 7.235609219434805
+        },
+        "train_by_mode": {
+          "major": {
+            "exceptions": 32,
+            "opportunities": 89,
+            "resolution_rate": 0.6404494382022472,
+            "resolutions": 57
+          },
+          "minor": {
+            "exceptions": 2,
+            "opportunities": 34,
+            "resolution_rate": 0.9411764705882353,
+            "resolutions": 32
+          }
+        },
+        "validation": {
+          "expected_rate": 0.4819712670706713,
+          "observed_rate": 0.88,
+          "piece_support": 16,
+          "residual_sum": 9.950718323233216,
+          "testable_opportunities": 25,
+          "variance": 5.577135499129096,
+          "z_score": 4.213556625766405
+        },
+        "validation_by_mode": {
+          "major": {
+            "exceptions": 3,
+            "opportunities": 14,
+            "resolution_rate": 0.7857142857142857,
+            "resolutions": 11
+          },
+          "minor": {
+            "exceptions": 0,
+            "opportunities": 11,
+            "resolution_rate": 1.0,
+            "resolutions": 11
+          }
+        },
+        "validation_examples": [
+          {
+            "mode": "major",
+            "offset_current": 61.0,
+            "offset_previous": 60.0,
+            "piece_id": "bach/bwv133.6",
+            "resolved": true,
+            "source_satb_midi": [
+              73,
+              67,
+              57,
+              45
+            ],
+            "source_satb_relative_classes": [
+              11,
+              5,
+              7,
+              7
+            ],
+            "target_satb_midi": [
+              74,
+              66,
+              57,
+              50
+            ],
+            "target_satb_relative_classes": [
+              0,
+              4,
+              7,
+              0
+            ]
+          },
+          {
+            "mode": "minor",
+            "offset_current": 17.0,
+            "offset_previous": 16.0,
+            "piece_id": "bach/bwv179.6",
+            "resolved": true,
+            "source_satb_midi": [
+              68,
+              64,
+              59,
+              52
+            ],
+            "source_satb_relative_classes": [
+              11,
+              7,
+              2,
+              7
+            ],
+            "target_satb_midi": [
+              69,
+              64,
+              61,
+              45
+            ],
+            "target_satb_relative_classes": [
+              0,
+              7,
+              4,
+              0
+            ]
+          },
+          {
+            "mode": "minor",
+            "offset_current": 37.0,
+            "offset_previous": 36.0,
+            "piece_id": "bach/bwv179.6",
+            "resolved": true,
+            "source_satb_midi": [
+              68,
+              64,
+              59,
+              52
+            ],
+            "source_satb_relative_classes": [
+              11,
+              7,
+              2,
+              7
+            ],
+            "target_satb_midi": [
+              69,
+              64,
+              61,
+              45
+            ],
+            "target_satb_relative_classes": [
+              0,
+              7,
+              4,
+              0
+            ]
+          },
+          {
+            "mode": "major",
+            "offset_current": 56.0,
+            "offset_previous": 55.0,
+            "piece_id": "bach/bwv248.64-s",
+            "resolved": false,
+            "source_satb_midi": [
+              73,
+              64,
+              57,
+              45
+            ],
+            "source_satb_relative_classes": [
+              11,
+              2,
+              7,
+              7
+            ],
+            "target_satb_midi": [
+              66,
+              66,
+              62,
+              50
+            ],
+            "target_satb_relative_classes": [
+              4,
+              4,
+              0,
+              0
+            ]
+          },
+          {
+            "mode": "major",
+            "offset_current": 28.0,
+            "offset_previous": 27.0,
+            "piece_id": "bach/bwv355",
+            "resolved": false,
+            "source_satb_midi": [
+              68,
+              64,
+              59,
+              52
+            ],
+            "source_satb_relative_classes": [
+              11,
+              7,
+              2,
+              7
+            ],
+            "target_satb_midi": [
+              66,
+              64,
+              61,
+              45
+            ],
+            "target_satb_relative_classes": [
+              9,
+              7,
+              4,
+              0
+            ]
+          },
+          {
+            "mode": "major",
+            "offset_current": 47.0,
+            "offset_previous": 46.5,
+            "piece_id": "bach/bwv385",
+            "resolved": false,
+            "source_satb_midi": [
+              68,
+              64,
+              56,
+              52
+            ],
+            "source_satb_relative_classes": [
+              11,
+              7,
+              11,
+              7
+            ],
+            "target_satb_midi": [
+              66,
+              64,
+              61,
+              45
+            ],
+            "target_satb_relative_classes": [
+              9,
+              7,
+              4,
+              0
+            ]
+          }
+        ]
+      }
+    ],
+    "semantic_status": "CANDIDATE_REFINEMENT"
+  },
+  "runtime": {
+    "music21": "9.7.1",
+    "numpy": "2.5.1",
+    "python": "3.13.11 | packaged by Anaconda, Inc. | (main, Dec 10 2025, 21:21:08) [Clang 20.1.8 ]"
+  },
+  "schema_version": 1,
+  "source": {
+    "archive": "/Users/francoispachet/IdeaProjects/deepbach-reference/resources/cache/music21-3.1.0.tar.gz",
+    "archive_sha256": "73a33407459e59fc5cfa7ea268088e5e10db9354e01ceceb2295d56373b937d2",
+    "manifest": "/Users/francoispachet/IdeaProjects/boojum/harmonizer/bach_rule_induction/corpus/manifest.music21-3.1.0.json",
+    "manifest_schema_version": 1,
+    "split": "/Users/francoispachet/IdeaProjects/boojum/harmonizer/bach_rule_induction/experiments/differentiable_rules_poc/results/splits.variant-safe.json"
+  },
+  "tonal_status_audit": {
+    "key_changes_detected": 0,
+    "mode_counts": {
+      "major": 176,
+      "minor": 176
+    },
+    "pieces_audited": 352,
+    "pieces_with_one_consistent_key": 352
+  }
+}

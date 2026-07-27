@@ -1,0 +1,55 @@
+{
+  "corpus": {
+    "pieces_total": 352,
+    "test_opened": false,
+    "test_pieces_reserved": 51,
+    "train_pieces": 251,
+    "validation_pieces": 50
+  },
+  "experiment": {
+    "candidate_count": 864,
+    "mode_stratified": true,
+    "name": "differentiable_rules_poc_v3_3_mode_stratified_refinement",
+    "null_shuffle": true,
+    "seed": 1729,
+    "selection": {
+      "candidate_budget": 8,
+      "min_train_confirmation": 0.65,
+      "min_train_support": 20,
+      "min_train_z": 3.0,
+      "min_validation_confirmation": 0.65,
+      "min_validation_support": 8,
+      "min_validation_z": 2.0
+    },
+    "split_strategy": "exact_soprano_contour_and_rhythm_conservative_grouping",
+    "test_opened": false
+  },
+  "model": {
+    "all_candidate_count": 864,
+    "reference_rule_id": "R-LEADING-001",
+    "selected_refinements": [],
+    "semantic_status": "CANDIDATE_REFINEMENT"
+  },
+  "runtime": {
+    "music21": "9.7.1",
+    "numpy": "2.5.1",
+    "python": "3.13.11 | packaged by Anaconda, Inc. | (main, Dec 10 2025, 21:21:08) [Clang 20.1.8 ]"
+  },
+  "schema_version": 1,
+  "source": {
+    "archive": "/Users/francoispachet/IdeaProjects/deepbach-reference/resources/cache/music21-3.1.0.tar.gz",
+    "archive_sha256": "73a33407459e59fc5cfa7ea268088e5e10db9354e01ceceb2295d56373b937d2",
+    "manifest": "/Users/francoispachet/IdeaProjects/boojum/harmonizer/bach_rule_induction/corpus/manifest.music21-3.1.0.json",
+    "manifest_schema_version": 1,
+    "split": "/Users/francoispachet/IdeaProjects/boojum/harmonizer/bach_rule_induction/experiments/differentiable_rules_poc/results/splits.variant-safe.json"
+  },
+  "tonal_status_audit": {
+    "key_changes_detected": 0,
+    "mode_counts": {
+      "major": 176,
+      "minor": 176
+    },
+    "pieces_audited": 352,
+    "pieces_with_one_consistent_key": 352
+  }
+}
