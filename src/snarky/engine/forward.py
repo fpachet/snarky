@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+from typing import Literal, overload
+
 from ..actions import Action
 from ..facts import Fact
 from ..instantiation import (
@@ -288,16 +290,50 @@ class InferenceSession:
     def _set_fact_time_tag(self, fact: Fact, value: int | None) -> None:
         _set_fact_time_tag(self, fact, value)
 
+    def _instantiation_facts(self) -> NaiveFactStore | tuple[Fact, ...]:
+        """Use a live view only for strategies that explicitly support it."""
+
+        if getattr(self.strategy, "supports_fact_view", False):
+            return self._store
+        return self._store.facts
+
+    @overload
     def run_group(
         self,
         group: RuleGroup,
         *,
         mode: GroupExecutionMode = GroupExecutionMode.SATURATE,
         until: StopCondition | None = None,
-    ) -> GroupRunResult:
-        """Execute *group* according to *mode* while preserving session state."""
+        materialize_result: Literal[True] = True,
+    ) -> GroupRunResult: ...
 
-        return _run_group(self, group, mode, until)
+    @overload
+    def run_group(
+        self,
+        group: RuleGroup,
+        *,
+        mode: GroupExecutionMode = GroupExecutionMode.SATURATE,
+        until: StopCondition | None = None,
+        materialize_result: Literal[False],
+    ) -> None: ...
+
+    def run_group(
+        self,
+        group: RuleGroup,
+        *,
+        mode: GroupExecutionMode = GroupExecutionMode.SATURATE,
+        until: StopCondition | None = None,
+        materialize_result: bool = True,
+    ) -> GroupRunResult | None:
+        """Execute *group*, optionally skipping its immutable result snapshot."""
+
+        return _run_group(
+            self,
+            group,
+            mode,
+            until,
+            materialize_result,
+        )
 
     def _agenda_candidates(
         self,
@@ -305,11 +341,10 @@ class InferenceSession:
     ) -> tuple[AgendaCandidate, ...]:
         """Build the complete current set of unfired activations."""
 
-        facts_snapshot = self._store.facts
         memory = self._agenda_memories.get(group.name)
         updated_memory, candidates = _evaluate_agenda(
             group,
-            facts_snapshot,
+            self._instantiation_facts(),
             self._events,
             memory,
             self.strategy,
@@ -416,7 +451,10 @@ class InferenceSession:
         *,
         cycles: int,
         stop_reason: GroupStopReason,
-    ) -> GroupRunResult:
+        materialize_result: bool,
+    ) -> GroupRunResult | None:
+        if not materialize_result:
+            return None
         facts = self._store.facts
         events = tuple(self._events[start_event_count:])
         return GroupRunResult(

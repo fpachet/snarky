@@ -107,7 +107,8 @@ def _run_group(
     group: RuleGroup,
     mode: GroupExecutionMode,
     until: StopCondition | None,
-) -> GroupRunResult:
+    materialize_result: bool,
+) -> GroupRunResult | None:
     """Execute *group* against *session* without owning session state."""
 
     if mode is GroupExecutionMode.UNTIL and until is None:
@@ -138,6 +139,7 @@ def _run_group(
             start_fired_count,
             cycles=0,
             stop_reason=GroupStopReason.CONDITION_MET,
+            materialize_result=materialize_result,
         )
 
     if session.conflict_strategy is not None:
@@ -150,13 +152,13 @@ def _run_group(
             start_event_count,
             start_agenda_count,
             start_fired_count,
+            materialize_result,
         )
 
     for local_cycle in range(1, session.limits.max_cycles + 1):
         session._cycles += 1
         mutations_this_cycle = 0
         for rule in group.rules:
-            facts_snapshot = session._store.facts
             state_key = (group.name, rule.name)
             previous_count = session._previous_event_counts.get(state_key)
             delta = (
@@ -167,7 +169,6 @@ def _run_group(
                 )
                 else _fact_delta(
                     tuple(session._events[previous_count:]),
-                    facts_snapshot,
                     revision=len(session._events),
                 )
             )
@@ -175,7 +176,7 @@ def _run_group(
             session._previous_event_counts[state_key] = len(session._events)
             for activation in session.strategy.instantiate(
                 rule,
-                facts_snapshot,
+                session._instantiation_facts(),
                 delta,
             ):
                 if any(
@@ -211,6 +212,7 @@ def _run_group(
                         start_fired_count,
                         cycles=local_cycle,
                         stop_reason=GroupStopReason.CONDITION_MET,
+                        materialize_result=materialize_result,
                     )
                 if (
                     mode is GroupExecutionMode.FIRST_CHANGE
@@ -225,6 +227,7 @@ def _run_group(
                         start_fired_count,
                         cycles=local_cycle,
                         stop_reason=GroupStopReason.FIRST_CHANGE,
+                        materialize_result=materialize_result,
                     )
 
         if mode is GroupExecutionMode.ONE_CYCLE:
@@ -237,6 +240,7 @@ def _run_group(
                 start_fired_count,
                 cycles=local_cycle,
                 stop_reason=GroupStopReason.ONE_CYCLE,
+                materialize_result=materialize_result,
             )
         if mutations_this_cycle == 0:
             return session._group_result(
@@ -248,6 +252,7 @@ def _run_group(
                 start_fired_count,
                 cycles=local_cycle,
                 stop_reason=GroupStopReason.FIXED_POINT,
+                materialize_result=materialize_result,
             )
 
     raise InferenceLimitError(
@@ -265,7 +270,8 @@ def _run_group_with_conflict_resolution(
     start_event_count: int,
     start_agenda_count: int,
     start_fired_count: int,
-) -> GroupRunResult:
+    materialize_result: bool,
+) -> GroupRunResult | None:
     """Resolve one complete conflict set before every activation."""
 
     assert session.conflict_strategy is not None
@@ -282,6 +288,7 @@ def _run_group_with_conflict_resolution(
                 start_fired_count,
                 cycles=local_cycle,
                 stop_reason=GroupStopReason.FIXED_POINT,
+                materialize_result=materialize_result,
             )
 
         selected = session.conflict_strategy.select(candidates)
@@ -328,6 +335,7 @@ def _run_group_with_conflict_resolution(
                 start_fired_count,
                 cycles=local_cycle,
                 stop_reason=GroupStopReason.CONDITION_MET,
+                materialize_result=materialize_result,
             )
         if (
             mode is GroupExecutionMode.FIRST_CHANGE
@@ -342,6 +350,7 @@ def _run_group_with_conflict_resolution(
                 start_fired_count,
                 cycles=local_cycle,
                 stop_reason=GroupStopReason.FIRST_CHANGE,
+                materialize_result=materialize_result,
             )
         if mode is GroupExecutionMode.ONE_CYCLE:
             return session._group_result(
@@ -353,6 +362,7 @@ def _run_group_with_conflict_resolution(
                 start_fired_count,
                 cycles=local_cycle,
                 stop_reason=GroupStopReason.ONE_CYCLE,
+                materialize_result=materialize_result,
             )
 
     raise InferenceLimitError(

@@ -37,6 +37,8 @@ chord-generating harmonizer measure different workloads.
 
 | Module | Comparison |
 |---|---|
+| `claire_n_queens` | normalized N-Queens comparison with CLAIRE4 |
+| `claire_talarian_filter` | normalized Talarian rule-filter comparison with CLAIRE4 |
 | `choice_search` | CSP and harmonizer integration across search traversals |
 | `choice_trail` | lazy forked DFS versus reversible-trail DFS on N-queens |
 | `choice_formulations` | extensional versus intensional N-queens and harmony transitions |
@@ -50,6 +52,10 @@ chord-generating harmonizer measure different workloads.
 Representative commands:
 
 ```sh
+uv run python -m benchmarks.claire_n_queens \
+  --sizes 8 10 12 14 --repeat 3
+uv run python -m benchmarks.claire_talarian_filter \
+  --sizes 100 1000 5000 --repeat 3
 uv run python -m benchmarks.choice_search --repeat 5
 uv run python benchmarks/choice_trail.py --repeat 3
 uv run python benchmarks/choice_formulations.py --repeat 3
@@ -69,6 +75,36 @@ uv run python -m benchmarks.csp_harmonizer_next --repeat 5
 uv run python -m benchmarks.sudoku_rules --levels 1 6 7 --repeat 5
 uv run python benchmarks/fibonacci_explicit.py --repeat 7
 ```
+
+`claire_n_queens` expects a CLAIRE4 checkout in the sibling directory
+`../CLAIRE4`, or at the path named by `CLAIRE4_ROOT`. It uses CLAIRE's bundled
+platform interpreter and does not include process startup or model
+construction in CLAIRE's measured search time. Snarky prepares its inference
+session separately, reports that preparation time, and uses only
+`SessionChoiceSearch.solve()` as its primary search timing. The JSON records
+these timing scopes explicitly and deliberately publishes no automatic speedup
+ratio. The shared protocol finds the first solution with
+minimum-remaining-values selection, numeric column and row tie-breaking,
+singleton propagation, and no symmetry breaking. The runner specializes
+CLAIRE's reversible tables to each requested board size before loading the
+source. It requires both engines to select the same first solution.
+Engine-specific search and propagation counters are retained because their
+definitions are not interchangeable.
+
+`claire_talarian_filter` adapts CLAIRE4's historical Talarian filter test to
+a common ten-rule workload. Each of `N` prepared frames receives ten positive
+inputs, causing exactly `10N` independent rule firings and `10N` observable
+outputs; both runners validate those counts and a `40N` checksum. Primary
+timings exclude source/rule parsing and process startup. For each input,
+Snarky times `InferenceSession.assume()` followed by `run_group()` to a fixed
+point with `materialize_result=False`, matching CLAIRE's immediately
+rule-triggering slot update without copying the complete fact memory after
+each input. Per-update outputs are read from the event journal. Preparation is
+reported separately (input-fact construction plus an empty session for
+Snarky, object construction for CLAIRE). The semantic workload and incremental
+scheduling are normalized, but the engines' storage models differ, so the
+runner reports inference throughput without calculating a cross-engine
+speedup ratio.
 
 ### Constraint filtering and propagation
 

@@ -79,6 +79,36 @@ def test_remove_action_mutates_memory_and_records_an_event() -> None:
     ]
 
 
+def test_unmaterialized_group_run_preserves_delta_without_fact_snapshot() -> None:
+    (rule,) = parse_rules(
+        """
+        RULE derive
+        WHEN
+            seed
+        THEN
+            ADD derived
+        END
+        """
+    )
+    engine = ForwardEngine((rule,))
+    session = engine.create_session(())
+    session.assume(_fact("seed"))
+    cursor = session.event_cursor()
+
+    result = session.run_group(
+        engine.default_group,
+        materialize_result=False,
+    )
+
+    assert result is None
+    assert session._store._snapshot_revision != session._store._revision
+    events = session.events_after(cursor)
+    assert events is not None
+    assert tuple(event.fact for event in events) == (_fact("derived"),)
+    assert session.facts == (_fact("seed"), _fact("derived"))
+    assert session._store._snapshot_revision == session._store._revision
+
+
 def test_actions_are_staged_before_an_activation_changes_memory() -> None:
     group = parse_rule_groups(
         """

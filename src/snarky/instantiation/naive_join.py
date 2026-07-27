@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+from collections.abc import Sequence
+
 from ..computed import ComputedPremise
 from ..facts import Fact
 from ..matching import PatternMatcher
@@ -32,6 +34,8 @@ from .base import (
 class NaiveInstantiationStrategy:
     """Scan every fact and join premises by deterministic backtracking."""
 
+    supports_fact_view = True
+
     def __init__(self, matcher: PatternMatcher | None = None) -> None:
         self.matcher = matcher or PatternMatcher()
         self.metrics = InstantiationMetrics()
@@ -39,7 +43,7 @@ class NaiveInstantiationStrategy:
     def instantiate(
         self,
         rule: Rule,
-        facts: tuple[Fact, ...],
+        facts: Sequence[Fact],
         delta: FactDelta | tuple[Fact, ...] | None = None,
     ) -> tuple[Activation, ...]:
         del delta
@@ -70,7 +74,7 @@ class NaiveInstantiationStrategy:
     def _extend(
         self,
         rule: Rule,
-        facts: tuple[Fact, ...],
+        facts: Sequence[Fact],
         premise_index: int,
         substitution: Substitution,
         supports: tuple[Fact, ...],
@@ -195,7 +199,7 @@ class NaiveInstantiationStrategy:
     def _first_witness(
         self,
         premises: tuple[Premise, ...],
-        facts: tuple[Fact, ...],
+        facts: Sequence[Fact],
         substitution: Substitution,
         witness_cache: WitnessCache,
     ) -> tuple[Fact, ...] | None:
@@ -218,7 +222,7 @@ class NaiveInstantiationStrategy:
     def _first_witness_from(
         self,
         premises: tuple[Premise, ...],
-        facts: tuple[Fact, ...],
+        facts: Sequence[Fact],
         premise_index: int,
         substitution: Substitution,
         supports: tuple[Fact, ...],
@@ -339,7 +343,7 @@ class NaiveInstantiationStrategy:
     def _all_witnesses(
         self,
         premises: tuple[Premise, ...],
-        facts: tuple[Fact, ...],
+        facts: Sequence[Fact],
         substitution: Substitution,
         witness_cache: WitnessCache,
     ) -> tuple[tuple[Fact, ...], ...]:
@@ -358,7 +362,7 @@ class NaiveInstantiationStrategy:
     def _collect_witnesses_from(
         self,
         premises: tuple[Premise, ...],
-        facts: tuple[Fact, ...],
+        facts: Sequence[Fact],
         premise_index: int,
         substitution: Substitution,
         supports: tuple[Fact, ...],
@@ -483,7 +487,7 @@ class NaiveInstantiationStrategy:
     def _collect_values(
         self,
         premise: CollectPremise,
-        facts: tuple[Fact, ...],
+        facts: Sequence[Fact],
         substitution: Substitution,
         witness_cache: WitnessCache,
     ) -> tuple[FiniteSet, tuple[Fact, ...]]:
@@ -512,7 +516,7 @@ class NaiveInstantiationStrategy:
         self,
         premises: tuple[Premise, ...],
         projection: Term,
-        facts: tuple[Fact, ...],
+        facts: Sequence[Fact],
         premise_index: int,
         substitution: Substitution,
         supports: tuple[Fact, ...],

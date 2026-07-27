@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+from collections.abc import Sequence
 from dataclasses import dataclass
 from functools import cache
 from typing import Protocol, runtime_checkable
@@ -181,7 +182,7 @@ class InstantiationStrategy(Protocol):
     def instantiate(
         self,
         rule: Rule,
-        facts: tuple[Fact, ...],
+        facts: Sequence[Fact],
         delta: FactDelta | tuple[Fact, ...] | None = None,
     ) -> tuple[Activation, ...]: ...
 

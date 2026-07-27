@@ -97,6 +97,8 @@ class IndexedInstantiationStrategy:
     this strategy changes work but not observable results.
     """
 
+    supports_fact_view = True
+
     def __init__(
         self,
         matcher: PatternMatcher | None = None,
@@ -128,7 +130,7 @@ class IndexedInstantiationStrategy:
     def instantiate(
         self,
         rule: Rule,
-        facts: tuple[Fact, ...],
+        facts: Sequence[Fact],
         delta: FactDelta | tuple[Fact, ...] | None = None,
     ) -> tuple[Activation, ...]:
         changes = _normalize_delta(delta)
@@ -510,7 +512,7 @@ class IndexedInstantiationStrategy:
     def _index_for(
         self,
         rule: Rule,
-        facts: tuple[Fact, ...],
+        facts: Sequence[Fact],
         delta: FactDelta | None,
     ) -> FactIndex:
         del rule
@@ -535,10 +537,10 @@ class IndexedInstantiationStrategy:
 
         if delta is None:
             indexed = tuple(index.facts)
-            if facts[: len(indexed)] == indexed:
+            if tuple(facts[: len(indexed)]) == indexed:
                 added = index.extend(facts[len(indexed) :])
                 self.metrics.indexed_facts += added
-            elif indexed != facts:
+            elif indexed != tuple(facts):
                 index = FactIndex(facts, metrics=self.metrics)
                 self._index = index
                 if delta is None:
@@ -1643,7 +1645,7 @@ class SemiNaiveInstantiationStrategy(IndexedInstantiationStrategy):
     def instantiate(
         self,
         rule: Rule,
-        facts: tuple[Fact, ...],
+        facts: Sequence[Fact],
         delta: FactDelta | tuple[Fact, ...] | None = None,
     ) -> tuple[Activation, ...]:
         changes = _normalize_delta(delta)

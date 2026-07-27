@@ -188,7 +188,7 @@ class ConstraintInstantiationStrategy(SemiNaiveInstantiationStrategy):
     def instantiate(
         self,
         rule: Rule,
-        facts: tuple[Fact, ...],
+        facts: Sequence[Fact],
         delta: FactDelta | tuple[Fact, ...] | None = None,
     ) -> tuple[Activation, ...]:
         changes = _normalize_delta(delta)
@@ -313,7 +313,7 @@ class ConstraintInstantiationStrategy(SemiNaiveInstantiationStrategy):
     def _probe_fallback(
         self,
         rule: Rule,
-        facts: tuple[Fact, ...],
+        facts: Sequence[Fact],
         changes: FactDelta | None,
     ) -> tuple[tuple[Activation, ...], float]:
         snapshot = {

@@ -97,6 +97,14 @@ Les détails et la trace observable figurent dans
 actions d’une règle sont exécutées avant de tester l’arrêt. Le résultat expose
 les ajouts, retraits et événements produits par l’appel.
 
+Les boucles incrémentales qui n'ont pas besoin d'une photographie complète
+peuvent appeler `run_group(..., materialize_result=False)`. L'exécution et le
+point fixe sont identiques, mais l'appel retourne `None` et ne construit pas
+de `GroupRunResult` ni de tuple contenant toute la mémoire. Un curseur
+`event_cursor()` pris avant l'appel, puis `events_after(cursor)`, permet de
+lire uniquement les mutations produites. Le mode matérialisé reste la valeur
+par défaut et conserve l'API historique.
+
 ## Arrêt sur un but
 
 `FactExists` est la première condition déclarative fournie par Snarky. Elle

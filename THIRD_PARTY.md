@@ -58,6 +58,22 @@ hashes are recorded by that project's `UPSTREAM.json`; Boojum's technical
 inventory remains in
 [`harmonizer/bach_rule_induction/sources/DEEPBACH.md`](harmonizer/bach_rule_induction/sources/DEEPBACH.md).
 
+## CLAIRE4 cross-language benchmark
+
+`benchmarks/claire_n_queens.cl` and
+`benchmarks/claire_talarian_filter.cl` are modified derivatives of Yves
+Caseau's `test/toys/queens.cl` and `test/rules/filter.cl`, respectively, from
+[`ycaseau/CLAIRE4`](https://github.com/ycaseau/CLAIRE4) at revision
+`25b14968e1eef80269d56af418eda7d2ccd88cbf`. The upstream repository records
+the Apache License 2.0. The local N-Queens file changes the board-size
+handling, singleton propagation, assigned-conflict validation,
+instrumentation, and output format. The local filter file makes the frame
+count runtime-configurable, separates object preparation from inference, and
+adds validation counters and machine-readable output. Both are retained only
+as benchmark source, excluded from the Python wheel and source distribution,
+and must not enter a tagged repository release until the upstream Apache-2.0
+license text and required notices are bundled with them.
+
 ## Spinoza text
 
 `spinoza/sources/ethique_III_appuhn_1913.txt` and
