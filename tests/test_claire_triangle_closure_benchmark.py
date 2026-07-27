@@ -73,7 +73,7 @@ def test_validate_triangle_metrics_rejects_missing_activation() -> None:
         )
 
 
-def test_snarky_triangle_smoke_uses_partial_join_memory() -> None:
+def test_snarky_triangle_smoke_uses_factorized_event_handler() -> None:
     summary = measure_snarky(2, 1)
 
     assert summary["rule_firings"] == 128
@@ -81,6 +81,9 @@ def test_snarky_triangle_smoke_uses_partial_join_memory() -> None:
     assert summary["checksum"] == 192
     assert summary["rule_evaluations"] == 128
     assert summary["rule_skips"] == 128
-    assert summary["partial_join_builds"] == 1
-    assert summary["partial_join_updates"] == 127
+    assert summary["factorized_event_evaluations"] == 128
+    assert summary["factorized_event_candidates"] == 128
+    assert summary["factorized_event_lookups"] == 256
+    assert summary["partial_join_builds"] == 0
+    assert summary["partial_join_updates"] == 0
     assert summary["partial_join_bypasses"] == 0

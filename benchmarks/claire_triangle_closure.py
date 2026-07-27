@@ -192,6 +192,7 @@ def measure_snarky(
     group_count: int,
     repeat: int,
     *,
+    use_factorized_event_rules: bool = True,
     use_partial_join_memory: bool = True,
 ) -> dict[str, Any]:
     """Measure one assume-and-saturate update per closing edge."""
@@ -199,6 +200,7 @@ def measure_snarky(
     samples: list[dict[str, Any]] = []
     for _ in range(repeat):
         strategy = SemiNaiveInstantiationStrategy(
+            use_factorized_event_rules=use_factorized_event_rules,
             use_partial_join_memory=use_partial_join_memory,
         )
         engine = ForwardEngine(
@@ -268,6 +270,15 @@ def measure_snarky(
             "partial_join_builds": strategy.metrics.partial_join_builds,
             "partial_join_updates": strategy.metrics.partial_join_updates,
             "partial_join_bypasses": strategy.metrics.partial_join_bypasses,
+            "factorized_event_evaluations": (
+                strategy.metrics.factorized_event_evaluations
+            ),
+            "factorized_event_candidates": (
+                strategy.metrics.factorized_event_candidates
+            ),
+            "factorized_event_lookups": (
+                strategy.metrics.factorized_event_lookups
+            ),
         }
         validate_metrics(group_count, sample)
         samples.append(sample)
@@ -286,6 +297,9 @@ def measure_snarky(
             "partial_join_builds",
             "partial_join_updates",
             "partial_join_bypasses",
+            "factorized_event_evaluations",
+            "factorized_event_candidates",
+            "factorized_event_lookups",
         ),
     )
 
@@ -345,6 +359,7 @@ def run(
     engine: str,
     claire_root: Path | None = None,
     claire_binary: Path | None = None,
+    use_factorized_event_rules: bool = True,
     use_partial_join_memory: bool = True,
 ) -> dict[str, Any]:
     """Run selected engines and return one machine-readable payload."""
@@ -370,6 +385,7 @@ def run(
             case["snarky"] = measure_snarky(
                 group_count,
                 repeat,
+                use_factorized_event_rules=use_factorized_event_rules,
                 use_partial_join_memory=use_partial_join_memory,
             )
         if selected_binary is not None:
@@ -388,6 +404,7 @@ def run(
             "prepared_memberships_per_group": 2 * WIDTH,
             "streamed_edges_per_group": WIDTH * WIDTH,
             "expected_outputs_per_group": WIDTH * WIDTH,
+            "factorized_event_rules": use_factorized_event_rules,
             "partial_join_memory": use_partial_join_memory,
             "scheduling": "one closing edge followed by saturation",
             "logical_equivalence": (
@@ -440,6 +457,10 @@ def main() -> None:
     parser.add_argument("--claire-binary", type=Path)
     parser.add_argument("--output", type=Path)
     parser.add_argument(
+        "--disable-factorized-event-rules",
+        action="store_true",
+    )
+    parser.add_argument(
         "--disable-partial-join-memory",
         action="store_true",
     )
@@ -455,6 +476,9 @@ def main() -> None:
             engine=arguments.engine,
             claire_root=arguments.claire_root,
             claire_binary=arguments.claire_binary,
+            use_factorized_event_rules=(
+                not arguments.disable_factorized_event_rules
+            ),
             use_partial_join_memory=(
                 not arguments.disable_partial_join_memory
             ),

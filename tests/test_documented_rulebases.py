@@ -9,8 +9,10 @@ from snarky import (
     Fact,
     FiniteSequence,
     ForwardEngine,
+    SemiNaiveInstantiationStrategy,
     Triple,
     parse_rule_groups,
+    parse_rules,
     parse_term,
 )
 
@@ -22,6 +24,7 @@ SCENARIOS = (
     "small/fibonacci_explicit",
     "small/factorial_explicit",
     "small/combinations_foreach",
+    "small/triangle_closure",
     "constraints/binary",
     "constraints/global",
     "thesis/equality_transitivity",
@@ -106,6 +109,49 @@ def test_combinations_are_filtered_before_for_each_actions() -> None:
     assert Fact(
         parse_term("(SEQ[alice chloe] kind working_pair)")
     ) not in result.facts
+
+
+def test_triangle_example_uses_factorized_handler_when_edges_stream() -> None:
+    rules = parse_rules(
+        (
+            RULEBASE_ROOT / "small/triangle_closure/rules.rules"
+        ).read_text(encoding="utf-8")
+    )
+    memberships = tuple(
+        Fact(parse_term(text))
+        for text in (
+            "(hub left left-a)",
+            "(hub left left-b)",
+            "(hub right right-a)",
+            "(hub right right-b)",
+        )
+    )
+    edges = tuple(
+        Fact(parse_term(text))
+        for text in (
+            "(left-a edge right-a)",
+            "(left-b edge right-b)",
+        )
+    )
+    strategy = SemiNaiveInstantiationStrategy()
+    engine = ForwardEngine(rules, strategy=strategy)
+    session = engine.create_session(memberships)
+    session.run_group(engine.default_group)
+    strategy.metrics.reset()
+
+    for edge in edges:
+        session.assume(edge)
+        session.run_group(engine.default_group)
+
+    assert strategy.metrics.factorized_event_evaluations == 2
+    assert strategy.metrics.factorized_event_lookups == 4
+    assert strategy.metrics.partial_join_builds == 0
+    assert Fact(
+        parse_term("(hub triangle SEQ[left-a right-a])")
+    ) in session.facts
+    assert Fact(
+        parse_term("(hub triangle SEQ[left-b right-b])")
+    ) in session.facts
 
 
 def test_direct_and_incremental_queen_rules_find_the_same_two_solutions() -> None:

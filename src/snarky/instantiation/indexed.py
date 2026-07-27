@@ -49,7 +49,12 @@ from .compiled import (
     negative_fact_plans,
     simple_fact_plan,
 )
-from .event_rules import compile_event_rule, instantiate_event_rule
+from .event_rules import (
+    compile_event_rule,
+    compile_factorized_event_rule,
+    instantiate_event_rule,
+    instantiate_factorized_event_rule,
+)
 from .fact_index import FactIndex as FactIndex
 from .fact_index import _structural_lookup
 from .query_memory import (
@@ -1672,6 +1677,7 @@ class SemiNaiveInstantiationStrategy(IndexedInstantiationStrategy):
         *,
         partial_join_limit: int = 2_048,
         use_event_rules: bool = True,
+        use_factorized_event_rules: bool = True,
         use_partial_join_memory: bool = True,
     ) -> None:
         super().__init__(
@@ -1679,6 +1685,7 @@ class SemiNaiveInstantiationStrategy(IndexedInstantiationStrategy):
             partial_join_limit=partial_join_limit,
         )
         self.use_event_rules = use_event_rules
+        self.use_factorized_event_rules = use_factorized_event_rules
         self.use_partial_join_memory = use_partial_join_memory
         self._semi_naive_positive_memories: dict[
             Rule, _SemiNaivePositiveMemory
@@ -1693,6 +1700,7 @@ class SemiNaiveInstantiationStrategy(IndexedInstantiationStrategy):
             self.matcher,
             partial_join_limit=self.partial_join_limit,
             use_event_rules=self.use_event_rules,
+            use_factorized_event_rules=self.use_factorized_event_rules,
             use_partial_join_memory=self.use_partial_join_memory,
         )
         if self._index is not None:
@@ -1735,6 +1743,29 @@ class SemiNaiveInstantiationStrategy(IndexedInstantiationStrategy):
             return tuple(activations)
 
         index = self._index_for(facts, changes)
+        factorized_event_plan = (
+            compile_factorized_event_rule(rule)
+            if (
+                self.use_event_rules
+                and self.use_factorized_event_rules
+                and changes is not None
+                and bool(changes.added)
+                and not changes.removed
+            )
+            else None
+        )
+        if factorized_event_plan is not None:
+            assert changes is not None
+            factorized_activations = instantiate_factorized_event_rule(
+                factorized_event_plan,
+                index,
+                changes.added,
+                self.metrics,
+            )
+            self.metrics.activations_produced += len(
+                factorized_activations
+            )
+            return factorized_activations
         if self._can_use_semi_naive_positive_memory(rule):
             if (
                 rule in self._semi_naive_positive_memories
@@ -1797,6 +1828,8 @@ class SemiNaiveInstantiationStrategy(IndexedInstantiationStrategy):
             self._semi_naive_partial_pending.discard(rule)
             self.metrics.partial_join_builds += 1
             if delta is None:
+                return activations
+            if delta.removed:
                 return activations
             if not delta.added:
                 return ()

@@ -23,9 +23,18 @@ def test_incremental_conjunctions_smoke() -> None:
     assert result["streamed"]["fired_activations"] == 8
     assert result["streamed"]["rule_evaluations"] == 8
     assert result["streamed"]["rule_skips"] == 8
+    assert barrier["factorized"]["outputs"] == 8
     assert barrier["memory"]["outputs"] == 8
     assert barrier["generic"]["outputs"] == 8
-    assert barrier["memory"]["facts"] == barrier["generic"]["facts"] == 24
+    assert (
+        barrier["factorized"]["facts"]
+        == barrier["memory"]["facts"]
+        == barrier["generic"]["facts"]
+        == 24
+    )
+    assert barrier["factorized"]["factorized_event_evaluations"] == 8
+    assert barrier["factorized"]["partial_join_builds"] == 0
     assert barrier["memory"]["partial_join_builds"] == 1
     assert barrier["memory"]["partial_join_bypasses"] == 0
+    assert barrier["memory"]["factorized_event_evaluations"] == 0
     assert barrier["generic"]["partial_join_builds"] == 0

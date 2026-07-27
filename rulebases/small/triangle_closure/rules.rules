@@ -1,0 +1,9 @@
+RULE close_triangle
+WHEN
+    ($hub left $left)
+    ($hub right $right)
+    $left != $right
+    ($left edge $right)
+THEN
+    ADD ($hub triangle SEQ[$left $right])
+END

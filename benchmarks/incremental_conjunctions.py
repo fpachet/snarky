@@ -151,6 +151,9 @@ def _summarize(samples: list[dict[str, Any]]) -> dict[str, Any]:
         "partial_join_builds",
         "partial_join_updates",
         "partial_join_bypasses",
+        "factorized_event_evaluations",
+        "factorized_event_candidates",
+        "factorized_event_lookups",
     )
     stable = {counter: samples[0][counter] for counter in counters}
     for sample in samples[1:]:
@@ -232,6 +235,15 @@ def measure_cold(
                 "partial_join_bypasses": (
                     strategy.metrics.partial_join_bypasses
                 ),
+                "factorized_event_evaluations": (
+                    strategy.metrics.factorized_event_evaluations
+                ),
+                "factorized_event_candidates": (
+                    strategy.metrics.factorized_event_candidates
+                ),
+                "factorized_event_lookups": (
+                    strategy.metrics.factorized_event_lookups
+                ),
             }
         )
     return _summarize(samples)
@@ -243,6 +255,7 @@ def measure_streamed(
     repeat: int,
     *,
     rules: tuple[Rule, ...] = JOIN_RULES,
+    use_factorized_event_rules: bool = True,
     use_partial_join_memory: bool = True,
 ) -> dict[str, Any]:
     """Measure one compatibility addition and saturation per valid pair."""
@@ -253,6 +266,7 @@ def measure_streamed(
     samples: list[dict[str, Any]] = []
     for _ in range(repeat):
         strategy = SemiNaiveInstantiationStrategy(
+            use_factorized_event_rules=use_factorized_event_rules,
             use_partial_join_memory=use_partial_join_memory,
         )
         engine = ForwardEngine(
@@ -323,6 +337,15 @@ def measure_streamed(
                 "partial_join_bypasses": (
                     strategy.metrics.partial_join_bypasses
                 ),
+                "factorized_event_evaluations": (
+                    strategy.metrics.factorized_event_evaluations
+                ),
+                "factorized_event_candidates": (
+                    strategy.metrics.factorized_event_candidates
+                ),
+                "factorized_event_lookups": (
+                    strategy.metrics.factorized_event_lookups
+                ),
             }
         )
     return _summarize(samples)
@@ -354,8 +377,8 @@ def run(
                 "expected output set"
             ),
             "barrier": (
-                "the optional A/B inserts a bound comparison before the "
-                "last fact premise"
+                "the optional comparison contrasts the factorized handler, "
+                "bounded prefix memory, and generic delta join"
             ),
         },
         "repeat": repeat,
@@ -378,17 +401,25 @@ def run(
                 "group_count": group_count,
                 "width": width,
                 "expected_outputs": group_count * width * width,
+                "factorized": measure_streamed(
+                    group_count,
+                    width,
+                    repeat,
+                    rules=BARRIER_JOIN_RULES,
+                ),
                 "memory": measure_streamed(
                     group_count,
                     width,
                     repeat,
                     rules=BARRIER_JOIN_RULES,
+                    use_factorized_event_rules=False,
                 ),
                 "generic": measure_streamed(
                     group_count,
                     width,
                     repeat,
                     rules=BARRIER_JOIN_RULES,
+                    use_factorized_event_rules=False,
                     use_partial_join_memory=False,
                 ),
             }

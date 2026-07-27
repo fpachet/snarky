@@ -40,12 +40,13 @@ def test_simple_event_rule_specialization_matches_generic_delta_join() -> None:
     assert generic.metrics.event_rule_evaluations == 0
 
 
-def test_multi_fact_rule_uses_generic_delta_join() -> None:
+def test_multi_fact_rule_uses_factorized_delta_handler() -> None:
     rule = parse_rules(
         """
         RULE combine
         WHEN
             ($item left $left)
+            $left != never
             ($item right $right)
         THEN
             ADD ($left paired_with $right)
@@ -64,17 +65,22 @@ def test_multi_fact_rule_uses_generic_delta_join() -> None:
 
     assert len(activations) == 1
     assert strategy.metrics.event_rule_evaluations == 0
+    assert strategy.metrics.factorized_event_evaluations == 1
+    assert strategy.metrics.factorized_event_candidates == 2
+    assert strategy.metrics.factorized_event_lookups == 2
 
 
 def test_event_rule_setting_is_preserved_across_branch_forks() -> None:
     strategy = SemiNaiveInstantiationStrategy(
         use_event_rules=False,
+        use_factorized_event_rules=False,
         use_partial_join_memory=False,
     )
 
     branch = strategy.fork_for_branch()
 
     assert branch.use_event_rules is False
+    assert branch.use_factorized_event_rules is False
     assert branch.use_partial_join_memory is False
 
 
@@ -98,8 +104,11 @@ def test_partial_memory_matches_generic_across_add_and_remove() -> None:
     first_edge = Fact(parse_term("(a compatible b1)"))
     second_edge = Fact(parse_term("(a compatible b2)"))
     facts = (left, first_right, second_right)
-    memory = SemiNaiveInstantiationStrategy()
+    memory = SemiNaiveInstantiationStrategy(
+        use_factorized_event_rules=False,
+    )
     generic = SemiNaiveInstantiationStrategy(
+        use_factorized_event_rules=False,
         use_partial_join_memory=False,
     )
 
@@ -148,7 +157,10 @@ def test_partial_memory_keeps_comparison_levels_outside_state_budget() -> None:
     right = Fact(parse_term("(group right only_right)"))
     first_edge = Fact(parse_term("(first compatible only_right)"))
     second_edge = Fact(parse_term("(second compatible only_right)"))
-    strategy = SemiNaiveInstantiationStrategy(partial_join_limit=5)
+    strategy = SemiNaiveInstantiationStrategy(
+        partial_join_limit=5,
+        use_factorized_event_rules=False,
+    )
     facts = (first_left, second_left, right)
 
     assert strategy.instantiate(rule, facts) == ()
@@ -189,7 +201,10 @@ def test_partial_memory_falls_back_when_prefix_exceeds_budget() -> None:
     left = Fact(parse_term("(group left a)"))
     right = Fact(parse_term("(group right b)"))
     edge = Fact(parse_term("(a compatible b)"))
-    strategy = SemiNaiveInstantiationStrategy(partial_join_limit=1)
+    strategy = SemiNaiveInstantiationStrategy(
+        partial_join_limit=1,
+        use_factorized_event_rules=False,
+    )
 
     assert strategy.instantiate(rule, (left, right)) == ()
     activations = strategy.instantiate(
@@ -201,6 +216,120 @@ def test_partial_memory_falls_back_when_prefix_exceeds_budget() -> None:
     assert len(activations) == 1
     assert strategy.metrics.partial_join_builds == 0
     assert strategy.metrics.partial_join_bypasses == 1
+
+
+def test_factorized_handler_avoids_partial_memory_budget_cliff() -> None:
+    rule = parse_rules(
+        """
+        RULE compatible_after_filter
+        WHEN
+            ($group left $left)
+            ($group right $right)
+            $left != $right
+            ($left compatible $right)
+        THEN
+            ADD ($left paired_with $right)
+        END
+        """
+    )[0]
+    left = Fact(parse_term("(group left a)"))
+    right = Fact(parse_term("(group right b)"))
+    edge = Fact(parse_term("(a compatible b)"))
+    factorized = SemiNaiveInstantiationStrategy(partial_join_limit=1)
+    generic = SemiNaiveInstantiationStrategy(
+        use_factorized_event_rules=False,
+        use_partial_join_memory=False,
+    )
+
+    assert factorized.instantiate(rule, (left, right)) == ()
+    assert generic.instantiate(rule, (left, right)) == ()
+    delta = FactDelta(added=(edge,), revision=1)
+    specialized = factorized.instantiate(
+        rule,
+        (left, right, edge),
+        delta,
+    )
+    exhaustive = generic.instantiate(
+        rule,
+        (left, right, edge),
+        delta,
+    )
+
+    assert specialized == exhaustive
+    assert len(specialized) == 1
+    assert factorized.metrics.factorized_event_evaluations == 1
+    assert factorized.metrics.factorized_event_lookups == 2
+    assert factorized.metrics.partial_join_builds == 0
+    assert factorized.metrics.partial_join_bypasses == 0
+
+
+def test_factorized_handler_accepts_an_earlier_fact_as_delta_anchor() -> None:
+    rule = parse_rules(
+        """
+        RULE compatible_after_filter
+        WHEN
+            ($group left $left)
+            ($group right $right)
+            $left != $right
+            ($left compatible $right)
+        THEN
+            ADD ($left paired_with $right)
+        END
+        """
+    )[0]
+    left = Fact(parse_term("(group left a)"))
+    right = Fact(parse_term("(group right b)"))
+    edge = Fact(parse_term("(a compatible b)"))
+    initial = (right, edge)
+    factorized = SemiNaiveInstantiationStrategy()
+    generic = SemiNaiveInstantiationStrategy(
+        use_factorized_event_rules=False,
+        use_partial_join_memory=False,
+    )
+
+    assert factorized.instantiate(rule, initial) == ()
+    assert generic.instantiate(rule, initial) == ()
+    delta = FactDelta(added=(left,), revision=1)
+
+    assert factorized.instantiate(rule, (*initial, left), delta) == (
+        generic.instantiate(rule, (*initial, left), delta)
+    )
+
+
+def test_factorized_handler_falls_back_safely_after_removal() -> None:
+    rule = parse_rules(
+        """
+        RULE compatible_after_filter
+        WHEN
+            ($group left $left)
+            ($group right $right)
+            $left != $right
+            ($left compatible $right)
+        THEN
+            ADD ($left paired_with $right)
+        END
+        """
+    )[0]
+    left = Fact(parse_term("(group left a)"))
+    right = Fact(parse_term("(group right b)"))
+    edge = Fact(parse_term("(a compatible b)"))
+    strategy = SemiNaiveInstantiationStrategy()
+
+    assert strategy.instantiate(rule, (left, right)) == ()
+    assert len(
+        strategy.instantiate(
+            rule,
+            (left, right, edge),
+            FactDelta(added=(edge,), revision=1),
+        )
+    ) == 1
+    strategy.invalidate(frozenset((right,)))
+
+    assert strategy.instantiate(
+        rule,
+        (left, edge),
+        FactDelta(removed=frozenset((right,)), revision=2),
+    ) == ()
 
 
 def test_delta_variants_are_unique_and_restore_naive_order() -> None:
@@ -303,6 +432,7 @@ def test_semi_naive_preserves_textual_comparison_barriers() -> None:
 
     assert exhaustive.instantiate(rule, all_facts, delta) == ()
     assert semi_naive.instantiate(rule, all_facts, delta) == ()
+    assert semi_naive.metrics.factorized_event_evaluations == 0
 
 
 def test_compound_indexes_intersect_two_bound_triple_positions() -> None:
