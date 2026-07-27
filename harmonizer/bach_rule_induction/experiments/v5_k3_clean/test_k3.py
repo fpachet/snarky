@@ -196,6 +196,25 @@ def test_rare_tonal_catalogue_can_exclude_the_fixed_soprano() -> None:
     assert all(feature.kind.startswith("rare_tonal_") for feature in features)
 
 
+def test_rare_tonal_vertical_feature_uses_candidate_pcset() -> None:
+    data = _dataset().take(np.asarray([0]))
+    data.tonic_pcs = np.asarray([0], dtype=np.int8)
+    data.modes = np.asarray([0], dtype=np.int8)
+    data.metric_levels = np.asarray([1], dtype=np.int8)
+    major_triad = sum(1 << pitch_class for pitch_class in {0, 4, 7})
+    feature = k3.FeatureSpec(
+        "rare_tonal_bass_pcset",
+        0,
+        value=1 << 9,
+        second_value=major_triad,
+    )
+
+    mask = k3.feature_mask(data, feature)
+
+    assert mask[0, 69 - data.candidate_min]
+    assert not mask[0, 68 - data.candidate_min]
+
+
 def test_contextual_vertical_signatures_are_candidate_dependent() -> None:
     data = _dataset().take(np.asarray([0]))
     data.tonic_pcs = np.asarray([0], dtype=np.int8)

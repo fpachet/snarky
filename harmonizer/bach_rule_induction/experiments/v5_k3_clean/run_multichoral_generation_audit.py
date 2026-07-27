@@ -92,6 +92,11 @@ def _markdown(result: dict[str, Any]) -> str:
         "Les taux principaux ne portent que sur alto, ténor et basse, c'est-à-dire",
         "les voix effectivement régénérées.",
         "",
+        "Une « classe rare » est une classe de hauteur relative à la tonique",
+        "globale dont la fréquence train est individuellement inférieure à 2 %,",
+        "pour la voix et le mode concernés. Le taux cumule plusieurs classes :",
+        "ce n'est ni un taux d'altérations écrites, ni un taux de fautes.",
+        "",
         "| Mesure | Bach | Généré V5.7 |",
         "|---|---:|---:|",
         (

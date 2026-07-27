@@ -5,6 +5,11 @@ d'apprentissage inférieure à `2.00 %`,
 séparément pour chaque voix et chaque mode. Il ne s'agit donc pas d'une
 liste de notes chromatiques écrite à la main.
 
+Le taux observé est le nombre d'attaques authentiques classées rares
+divisé par toutes les décisions d'attaque internes des quatre voix. Comme
+plusieurs classes ont chacune une fréquence train inférieure au seuil,
+leur taux cumulé sur validation peut dépasser 2 %.
+
 Le jeu de test scellé n'est ni chargé ni consulté.
 
 ## Calibration conditionnelle sur validation

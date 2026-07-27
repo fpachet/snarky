@@ -113,6 +113,24 @@ améliorées sur 20. La NLL conditionnelle passe seulement de `1,120257` à
 sous-production dans les chorals authentiquement très chromatiques : il faut
 apprendre des licences positives et un statut de tonalité locale.
 
+### 1.0.4 Audit résiduel V5.10
+
+- [x] rééchantillonner de nouvelles chaînes V5.9 sur les 16 pièces train ;
+- [x] auditer les 46 statuts de mouvement et métrique non sélectionnés ;
+- [x] ajouter 22 interactions rares × empreinte verticale relative à la basse ;
+- [x] constater qu'aucune licence positive ne dépasse à la fois `+0,5` point
+      et `z=2` ;
+- [ ] apprendre un statut tonal local latent sur les trois blocs ;
+- [ ] tester si ce statut explique les chromaticismes authentiques que les
+      empreintes instantanées ne distinguent pas.
+
+La meilleure licence simple est la broderie rare d'alto en majeur
+(`+0,409` point, `z=1,80`). La meilleure interaction verticale est l'ensemble
+`{0,3,6,9}` relatif à la basse avec une classe rare d'alto en majeur
+(`+0,335` point, `z=1,82`). Ces signaux sont plausibles mais insuffisamment
+stables. Le prochain statut doit donc représenter une référence tonale locale
+persistante, et non seulement une sonorité centrale.
+
 Deux résultats scientifiques distincts sont recherchés :
 
 1. **compression explicable** : déterminer quelle qualité d'harmonisation une

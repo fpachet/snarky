@@ -641,12 +641,22 @@ def _contextual_feature_mask(
     if feature.kind.startswith("rare_tonal_"):
         if feature.target_voice not in range(4):
             raise ValueError("Rare tonal features require one target voice")
-        if feature.value is None or feature.second_value not in {0, 1}:
+        if feature.value is None or feature.second_value is None:
             raise ValueError("Rare tonal features require a mask and mode")
+        if feature.kind == "rare_tonal_bass_pcset":
+            feature_mode, vertical_signature = divmod(
+                feature.second_value,
+                4096,
+            )
+        else:
+            feature_mode = feature.second_value
+            vertical_signature = None
+        if feature_mode not in {0, 1}:
+            raise ValueError("Rare tonal feature has an invalid mode")
         tonics = _context_array(dataset.tonic_pcs, "tonic_pcs")[:, None]
         modes = _context_array(dataset.modes, "modes")
         levels = _context_array(dataset.metric_levels, "metric_levels")
-        applies = (voices == feature.target_voice) & (modes == feature.second_value)
+        applies = (voices == feature.target_voice) & (modes == feature_mode)
         relative = (candidates - tonics) % 12
         rare = (
             np.right_shift(int(feature.value), relative).astype(np.int8) & 1
@@ -677,6 +687,8 @@ def _contextual_feature_mask(
             status = levels[:, None] <= 1
         elif feature.kind == "rare_tonal_strong_metric":
             status = levels[:, None] >= 2
+        elif feature.kind == "rare_tonal_bass_pcset":
+            status = central_bass_pcset_signatures(dataset) == vertical_signature
         else:
             raise ValueError(f"Unknown rare tonal feature: {feature.kind}")
         return applies[:, None] & rare & status
@@ -963,6 +975,59 @@ def rare_tonal_feature_catalogue(
                 )
                 for kind in rare_kinds
             )
+    return tuple(features)
+
+
+def rare_tonal_vertical_feature_catalogue(
+    dataset: K3Dataset,
+    threshold: float,
+    *,
+    voices: Iterable[int] = range(4),
+    minimum_support: int = 20,
+    minimum_piece_support: int = 5,
+) -> tuple[FeatureSpec, ...]:
+    """Enumerate rare choices licensed by observed local vertical signatures."""
+
+    rare_masks = empirical_rare_pc_masks(dataset, threshold)
+    signatures = central_bass_pcset_signatures(dataset)
+    rows = np.arange(dataset.size)
+    chosen_signatures = signatures[rows, dataset.chosen_indices]
+    tonics = _context_array(dataset.tonic_pcs, "tonic_pcs")
+    modes = _context_array(dataset.modes, "modes")
+    relative = (dataset.chosen_pitches - tonics) % 12
+    features = []
+    for voice in voices:
+        if voice not in range(4):
+            raise ValueError(f"Unknown voice index: {voice}")
+        for mode in range(2):
+            rare_mask = int(rare_masks[voice, mode])
+            rare_choice = (
+                (dataset.voice_indices == voice)
+                & (modes == mode)
+                & (
+                    (np.right_shift(rare_mask, relative).astype(np.int8) & 1).astype(
+                        bool
+                    )
+                )
+            )
+            for signature in np.unique(chosen_signatures[rare_choice]):
+                support = rare_choice & (chosen_signatures == signature)
+                if int(support.sum()) < minimum_support:
+                    continue
+                if (
+                    int(np.unique(dataset.piece_ids[support]).size)
+                    < minimum_piece_support
+                ):
+                    continue
+                features.append(
+                    FeatureSpec(
+                        "rare_tonal_bass_pcset",
+                        voice,
+                        value=rare_mask,
+                        second_value=mode * 4096 + int(signature),
+                        complexity=4,
+                    )
+                )
     return tuple(features)
 
 

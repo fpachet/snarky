@@ -28,6 +28,8 @@ Le dossier ne charge aucun fichier de `rules/` ni aucun manifeste de
   par contraste de moments Bach−Gibbs sur train ;
 - `run_v5_9_comparison.py` : validation appariée V5.7/V5.8/V5.9 et retour sur
   BWV 108.6 ;
+- `run_generative_residual_audit.py` : second tour sur les licences restantes
+  et les interactions avec les empreintes verticales locales ;
 - `results/` : artefacts et rapports reproductibles.
 
 `V5.0` conserve le premier catalogue spécialisé, qui a appris huit variantes
@@ -64,6 +66,8 @@ Résultats principaux :
   poids appris par les chaînes persistantes sur train ;
 - [`V5_9_GENERATIVE_VALIDATION_COMPARISON.md`](results/V5_9_GENERATIVE_VALIDATION_COMPARISON.md),
   promotion expérimentale de V5.9 après validation multi-chorals ;
+- [`V5_10_GENERATIVE_RESIDUAL_AUDIT.md`](results/V5_10_GENERATIVE_RESIDUAL_AUDIT.md),
+  clôture négative des licences simples et verticales ;
 - `v5_1_k3_compact_model.json`, modèle complet pour le Gibbs.
 
 Le protocole complet est

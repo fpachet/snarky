@@ -275,6 +275,16 @@ fréquence train inférieure à 2 %, séparément par voix et mode. V5.7 les
 observés chez Bach (`z=+11,41`). Une interdiction chromatique globale serait
 donc contraire au corpus.
 
+Le seuil de 2 % s'applique à **chaque classe de hauteur relative**, et non à
+leur union. Le taux « Bach rare » est le nombre d'attaques authentiques dont la
+classe appartient à cette union, divisé par toutes les attaques du périmètre.
+Il peut donc dépasser 2 %. Dans l'audit conditionnel (`3,780 %`), le périmètre
+est constitué des décisions internes des quatre voix sur 50 chorals de
+validation. Dans les campagnes génératives (`4,828 %`), il est constitué de
+toutes les attaques d'alto, ténor et basse sur les 20 chorals effectivement
+générés. Aucun de ces nombres ne mesure directement les altérations écrites,
+les fausses notes ou les violations de règles.
+
 Le traitement local est très structuré : 82 % des choix rares authentiques
 sont approchés par pas, 56 % ont une résolution immédiate par pas, 21 % sont
 des broderies et 25 % des passages. Une campagne Gibbs porte ensuite sur 20
@@ -342,6 +352,32 @@ répétitions de basse et `48,98 %` de blocs triadiques. Plus généralement, le
 chorals très chromatiques restent sous-modélisés. La prochaine étape doit donc
 apprendre des **licences positives** fondées sur une tonalité locale, sans
 revenir à une interdiction globale ni ouvrir le test scellé.
+
+## Audit résiduel V5.10
+
+Après V5.9, 46 statuts non sélectionnés sont réévalués avec de nouvelles
+chaînes sur les mêmes 16 chorals du train. Aucun ne dépasse simultanément
+`+0,5` point de contraste Bach−Gibbs et `z=2`. La meilleure licence est une
+broderie rare d'alto en majeur : `+0,409` point, `z=1,80`.
+
+Le catalogue est alors enrichi de 22 interactions entre classe rare et
+fingerprint vertical relatif à la basse, énumérées uniquement à partir des
+supports train. Le meilleur candidat est :
+
+```text
+classe rare d'alto en majeur
+ET ensemble vertical relatif à la basse {0,3,6,9}
+```
+
+Son gradient atteint `+0,335` point avec `z=1,82`, encore sous le seuil. Une
+sonorité instantanée ne suffit donc pas à distinguer les altérations
+structurelles. V5.10 ne produit pas de nouveau modèle : il clôt ce vocabulaire
+par un résultat négatif.
+
+Le prochain POC doit traiter la référence tonale locale comme un **statut
+latent**. L'émission restera limitée aux trois blocs K3 ; la persistance du
+statut sera une transition locale entre noyaux adjacents. Aucun nom d'accord
+ni étiquette de modulation ne sera injecté.
 
 ## Frontière MusicXML et MuSES
 

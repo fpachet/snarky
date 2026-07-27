@@ -4,6 +4,10 @@ Même ensemble de 20 chorals de validation, mêmes deux graines, même
 soprano, même rythme et six balayages. Les poids V5.9 ont été calibrés
 exclusivement sur 16 chorals du train. Le test scellé reste fermé.
 
+Ici, « Bach » désigne les attaques authentiques d'alto, ténor et basse
+dans ces mêmes 20 chorals. Une classe rare est définie voix par voix et
+mode par mode sur le train ; elle n'est pas synonyme d'altération écrite.
+
 | Modèle | NLL validation | Classes rares générées | Écart à Bach | IC95 | MAE par pièce |
 |---|---:|---:|---:|---:|---:|
 | V5.7 | 1.120257 | 5.925 % | +1.728 pp | [-0.517, +3.974] | 4.401 pp |
