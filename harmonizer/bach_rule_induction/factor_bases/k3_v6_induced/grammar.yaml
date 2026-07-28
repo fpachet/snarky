@@ -1,0 +1,204 @@
+schema_version: 1
+id: K3-V6-GRAMMAR-1
+status: FROZEN
+frozen_on: 2026-07-28
+purpose: >
+  Définir avant induction le langage de facteurs courts dans lequel
+  l'algorithme recherche. Ce fichier ne contient aucune règle d'harmonie,
+  aucun nom d'accord et aucun facteur sélectionné.
+
+locality:
+  kernel: K3
+  blocks: [previous, current, following]
+  radius: 1
+  target: one_masked_note
+  attack_hold_semantics: true
+
+primitive_inputs:
+  - sounding_midi_pitch
+  - voice_index
+  - attack_or_hold
+  - previous_current_following_position
+  - declared_global_tonic_pitch_class
+  - declared_mode
+  - metric_level
+
+generated_relations:
+  - absolute_melodic_interval_class
+  - absolute_melodic_distance
+  - melodic_direction
+  - ordered_vertical_gap
+  - vertical_interval_class
+  - pair_motion_direction
+  - tonic_relative_pitch_class
+  - distinct_vertical_pitch_class_count
+  - tonic_relative_vertical_pitch_class_set
+  - bass_relative_vertical_pitch_class_set
+
+operators:
+  atomic:
+    - equality
+    - greater_than_threshold
+    - less_or_equal_threshold
+  composition:
+    - conjunction
+  forbidden:
+    - factor_activation_as_input
+    - historical_rule_verdict_as_input
+    - chord_label_as_input
+    - cadence_label_as_input
+    - learned_latent_state_as_input
+
+families:
+  - id: universal_melodic_interval_class
+    feature_kinds:
+      - any_voice_adjacent_abs_class
+    voices: all_symmetrically
+    values: {range: [0, 11]}
+    complexity: 1
+
+  - id: voice_melodic_interval_class
+    feature_kinds:
+      - abs_class_from_previous
+      - abs_class_to_next
+    voices: {range: [0, 3]}
+    values: {range: [0, 11]}
+    complexity: 1
+
+  - id: universal_melodic_distance_threshold
+    feature_kinds:
+      - any_voice_adjacent_step_gt
+    voices: all_symmetrically
+    thresholds: [1, 2, 4, 7, 12]
+    complexity: 1
+
+  - id: voice_melodic_distance_threshold
+    feature_kinds:
+      - abs_step_from_previous_gt
+      - abs_step_to_next_gt
+    voices: {range: [0, 3]}
+    thresholds: [1, 2, 4, 7, 12]
+    complexity: 1
+
+  - id: three_block_direction_shape
+    feature_kinds:
+      - any_voice_three_block_sign_shape
+      - three_block_sign_shape
+    voices: [all_symmetrically, {range: [0, 3]}]
+    directions: [-1, 0, 1]
+    complexity: 2
+
+  - id: universal_vertical_interval_class
+    feature_kinds:
+      - any_pair_central_abs_class
+    voice_pairs: all_unordered
+    values: {range: [0, 11]}
+    complexity: 1
+
+  - id: voice_pair_vertical_interval_class
+    feature_kinds:
+      - central_pair_abs_class
+    voice_pairs: all_ordered_distinct
+    values: {range: [0, 11]}
+    complexity: 1
+
+  - id: universal_pair_motion
+    feature_kinds:
+      - any_pair_abs_class_preserved_same_sign
+      - any_pair_arrival_abs_class_same_sign
+    voice_pairs: all_unordered
+    values: {range: [0, 11]}
+    complexity_by_kind:
+      any_pair_abs_class_preserved_same_sign: 4
+      any_pair_arrival_abs_class_same_sign: 2
+
+  - id: voice_pair_motion
+    feature_kinds:
+      - pair_abs_class_preserved_same_sign
+      - pair_arrival_abs_class_same_sign
+    voice_pairs: all_ordered_distinct
+    values: {range: [0, 11]}
+    complexity_by_kind:
+      pair_abs_class_preserved_same_sign: 4
+      pair_arrival_abs_class_same_sign: 2
+
+  - id: ordered_voice_gap
+    feature_kinds:
+      - any_adjacent_central_ordered_gap_le
+      - central_ordered_gap_le
+      - previous_ordered_gap_le
+    voice_pairs: [all_adjacent, all_ordered_distinct]
+    thresholds: [-2, -1, 0, 1, 2]
+    complexity: 1
+
+  - id: attacked_repetition
+    feature_kinds:
+      - attacked_repeat_from_previous
+    voices: [all_symmetrically, {range: [0, 3]}]
+    complexity: 1
+
+  - id: tonal_degree_by_voice_and_mode
+    role: nuisance_baseline
+    feature_kinds:
+      - tonic_relative_class_mode
+    voices: {range: [0, 3]}
+    modes: [major, minor]
+    values: {range: [0, 11]}
+    complexity: 1
+
+  - id: vertical_cardinality
+    feature_kinds:
+      - central_distinct_pc_count
+    values: [1, 2, 3, 4]
+    complexity: 1
+
+  - id: vertical_cardinality_metric_conjunction
+    feature_kinds:
+      - central_distinct_pc_count_metric
+    values: [1, 2, 3, 4]
+    metric_levels: [0, 1, 2, 3]
+    complexity: 2
+
+  - id: observed_vertical_set
+    feature_kinds:
+      - central_tonic_pcset
+      - central_bass_pcset
+    enumeration: observed_on_train_only
+    minimum_event_support: 100
+    minimum_piece_support: 10
+    complexity: 3
+
+structure_learning:
+  algorithm: residual_gradient_column_generation
+  refit: joint_conditional_log_linear
+  maximum_factors: 30
+  maximum_clause_complexity: 4
+  minimum_testable_opportunities: 100
+  minimum_piece_support: 10
+  null_control:
+    kind: within_piece_and_voice_choice_permutation
+    seed: 1729
+    selection_requires_exceeding_family_max: true
+  stopping:
+    consecutive_validation_non_improvements: 3
+    minimum_validation_nll_improvement: 0.000001
+    stop_when_no_positive_description_adjusted_column: true
+
+parameter_learning:
+  optimizer: adam_with_proximal_l1
+  learning_rate: 0.04
+  maximum_steps_per_refit: 60
+  l1: 0.001
+  generative_refinement:
+    enabled: true
+    may_change_factor_structure: false
+    gradient: bach_moment_minus_model_moment
+
+provenance_guards:
+  expert_defines_primitives_and_grammar_only: true
+  selected_factor_instances_are_corpus_outputs: true
+  signs_are_corpus_outputs: true
+  weights_are_corpus_outputs: true
+  historical_names_applied_post_hoc_only: true
+  validation_may_stop_but_not_create_targeted_families: true
+  test_split_must_remain_unloaded: true

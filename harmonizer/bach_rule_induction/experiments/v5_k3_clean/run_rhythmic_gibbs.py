@@ -284,10 +284,10 @@ def _markdown(result: dict[str, Any]) -> str:
         "- Alto, ténor et basse rééchantillonnés par segments d'attaque.",
         (f"- `{generation['sweeps']}` balayages Gibbs, graine `{generation['seed']}`."),
         (
-            f"- `{result['experiment']['learned_pitch_rules']}` règles K3 apprises, "
+            f"- `{result['experiment']['learned_pitch_rules']}` facteurs K3 appris, "
             "sans règle historique."
         ),
-        "- Test fermé non chargé.",
+        "- Test réservé non chargé.",
         "",
         "## Résultat structurel",
         "",
@@ -342,8 +342,8 @@ def _markdown(result: dict[str, Any]) -> str:
                 else "- Le catalogue actuel ne possède ni tonalité locale ni degré "
                 "d'échelle."
             ),
-            "- Les règles pondérées sont évaluées par le moteur K3 Python ; leur",
-            "  compilation dans une base Snarky apprise reste le jalon suivant.",
+            "- Les activations K3 sont calculées par un fournisseur pur, puis",
+            "  évaluées par la base `FACTOR` Snarky sans effet de bord.",
             "",
             "Cette expérience valide la sémantique `ATTACK/HOLD` et l'export",
             "MusicXML/MIDI. Elle ne constitue pas encore une comparaison qualitative",

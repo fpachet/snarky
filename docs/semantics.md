@@ -57,6 +57,30 @@ window and combination premises may produce multiple activations.
 Computed premises call only explicitly registered pure `ComputedPredicate`
 objects. Snarky never evaluates arbitrary source text.
 
+## Learned factors
+
+A `FactorDefinition` is a Boolean premise conjunction and a scope template.
+A `FactorParameter` stores its learned finite log weight separately. Pairing
+them creates a `WeightedFactor`; a `FactorGroup` is not a `RuleGroup`.
+
+Factor evaluation takes an immutable fact snapshot and returns ground
+`FactorActivation` values. It never fires actions and never adds activations
+to working memory. Multiple witnesses resolving to the same
+`(factor, scope)` are one grounding and contribute once:
+
+```text
+log_score = sum(log_weight of each active grounding)
+```
+
+Changing a parameter changes this score but not the activation vector.
+Changing the learned factor structure changes the vector and is therefore a
+separate, explicitly versioned learning operation.
+
+Hard constraints remain propagators defining feasibility. Learned factors
+define preferences among configurations; neither mechanism silently changes
+the semantics of the other. Turning factor scores into conditionals and
+sampling them is an inference-layer operation, not a factor side effect.
+
 ## Actions
 
 Supported actions are `ADD`, `REMOVE`, `LET`, `FRESH`, `FOR EACH`, and

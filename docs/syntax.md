@@ -51,6 +51,33 @@ END_GROUP
 evaluated in textual order, so a comparison may use only variables already
 bound by preceding premises.
 
+## Learned factors
+
+Factors use the same pure premise language but have no `THEN` block and no
+actions:
+
+```text
+FACTOR_GROUP learned_bach
+    FACTOR small_motion
+    SCOPE SEQ[$decision $candidate]
+    LOG_WEIGHT 0.7
+    WHEN
+        ($decision candidate $candidate)
+        ($candidate small_motion yes)
+    END_FACTOR
+END_FACTOR_GROUP
+```
+
+`parse_factors()` reads standalone `FACTOR ... END_FACTOR` definitions.
+`parse_factor_groups()` reads grouped definitions. `SCOPE` identifies one
+ground factor instance; several witnesses for the same factor and scope count
+only once. `LOG_WEIGHT` is a finite learned log contribution.
+
+A factor can read facts, comparisons and registered pure predicates. It can
+never execute `ADD`, `REMOVE`, `CHOICE`, `LET`, or any other action.
+Factor activations are returned as immutable evaluation data and are not
+inserted into working memory, so one factor cannot trigger another.
+
 ## Programs and sequential steps
 
 `parse_rule_program()` reads a manifest that references named rule groups:

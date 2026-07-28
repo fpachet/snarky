@@ -1,0 +1,877 @@
+schema_version: 1
+model_id: F-K3-V6-INDUCED
+status: LEARNED_FROM_CORPUS
+grammar: grammar.yaml
+grammar_sha256: b2cbc86118c578864e82821279008d5c1bbe1d6977d4105a6224173314812e6e
+factors:
+- id: F-K3-V6-001
+  family: universal_melodic_distance_threshold
+  feature:
+    kind: any_voice_adjacent_step_gt
+    target_voice: -1
+    other_voice: null
+    value: 2
+    second_value: null
+    complexity: 1
+    key: any_voice_adjacent_step_gt:-1:-:2:-
+    label: any_voice_adjacent_step_gt(all_voices)=2
+  parameter:
+    scale: log_energy_contribution
+    log_weight: -1.2626112138484347
+    sign: avoidance
+  selection:
+    gradient: -0.43630185773412994
+    variance: 11120.092339642
+    z_score: -282.4348188751188
+    approximate_nll_gain: 0.584280114505817
+    observed_rate: 0.2100097165725202
+    expected_rate: 0.7005035113799989
+    testable_opportunities: 60721
+    piece_support: 251
+    column_score: 0.5841170521855102
+    null_family_max_abs_z: 39.583672365551124
+    exceeds_null_family_max: true
+  origin: learned_from_bach_corpus
+  human_authored: false
+- id: F-K3-V6-002
+  family: observed_vertical_set
+  feature:
+    kind: central_bass_pcset
+    target_voice: -1
+    other_voice: null
+    value: 145
+    second_value: null
+    complexity: 3
+    key: central_bass_pcset:-1:-:145:-
+    label: central_bass_pcset(all_voices)=145
+  parameter:
+    scale: log_energy_contribution
+    log_weight: 1.6703686911772495
+    sign: preference
+  selection:
+    gradient: 0.1758487563241343
+    variance: 3767.54708131919
+    z_score: 195.56688918631386
+    approximate_nll_gain: 0.2801401062509116
+    observed_rate: 0.6847388059701492
+    expected_rate: 0.23682971444200074
+    testable_opportunities: 26800
+    piece_support: 251
+    column_score: 0.27965091928999136
+    null_family_max_abs_z: 7.454604643626779
+    exceeds_null_family_max: true
+  origin: learned_from_bach_corpus
+  human_authored: false
+- id: F-K3-V6-003
+  family: observed_vertical_set
+  feature:
+    kind: central_bass_pcset
+    target_voice: -1
+    other_voice: null
+    value: 137
+    second_value: null
+    complexity: 3
+    key: central_bass_pcset:-1:-:137:-
+    label: central_bass_pcset(all_voices)=137
+  parameter:
+    scale: log_energy_contribution
+    log_weight: 1.3146286419798678
+    sign: preference
+  selection:
+    gradient: 0.08008246034731148
+    variance: 2425.446238106487
+    z_score: 111.00101541924819
+    approximate_nll_gain: 0.09024819758950074
+    observed_rate: 0.47317921948794434
+    expected_rate: 0.2014084518673367
+    testable_opportunities: 20115
+    piece_support: 251
+    column_score: 0.08975901062858051
+    null_family_max_abs_z: 7.2472528200882556
+    exceeds_null_family_max: true
+  origin: learned_from_bach_corpus
+  human_authored: false
+- id: F-K3-V6-004
+  family: observed_vertical_set
+  feature:
+    kind: central_bass_pcset
+    target_voice: -1
+    other_voice: null
+    value: 265
+    second_value: null
+    complexity: 3
+    key: central_bass_pcset:-1:-:265:-
+    label: central_bass_pcset(all_voices)=265
+  parameter:
+    scale: log_energy_contribution
+    log_weight: 0.9990261506482578
+    sign: preference
+  selection:
+    gradient: 0.07129559979063219
+    variance: 2002.3540862752336
+    z_score: 108.7621185130289
+    approximate_nll_gain: 0.08664429063652448
+    observed_rate: 0.4317789291882556
+    expected_rate: 0.1770632999158463
+    testable_opportunities: 19107
+    piece_support: 251
+    column_score: 0.08615510367560425
+    null_family_max_abs_z: 7.255868423238666
+    exceeds_null_family_max: true
+  origin: learned_from_bach_corpus
+  human_authored: false
+- id: F-K3-V6-005
+  family: universal_melodic_interval_class
+  feature:
+    kind: any_voice_adjacent_abs_class
+    target_voice: -1
+    other_voice: null
+    value: 1
+    second_value: null
+    complexity: 1
+    key: any_voice_adjacent_abs_class:-1:-:1:-
+    label: any_voice_adjacent_abs_class(all_voices)=1
+  parameter:
+    scale: log_energy_contribution
+    log_weight: 1.3475716228670305
+    sign: preference
+  selection:
+    gradient: 0.13188949884384707
+    variance: 7480.306595655262
+    z_score: 104.09644286973653
+    approximate_nll_gain: 0.07937000584600971
+    observed_rate: 0.38083588473990304
+    expected_rate: 0.24894638589605597
+    testable_opportunities: 68263
+    piece_support: 251
+    column_score: 0.07920694352570297
+    null_family_max_abs_z: 15.099137701363615
+    exceeds_null_family_max: true
+  origin: learned_from_bach_corpus
+  human_authored: false
+- id: F-K3-V6-006
+  family: universal_melodic_interval_class
+  feature:
+    kind: any_voice_adjacent_abs_class
+    target_voice: -1
+    other_voice: null
+    value: 2
+    second_value: null
+    complexity: 1
+    key: any_voice_adjacent_abs_class:-1:-:2:-
+    label: any_voice_adjacent_abs_class(all_voices)=2
+  parameter:
+    scale: log_energy_contribution
+    log_weight: 0.8268081367034378
+    sign: preference
+  selection:
+    gradient: 0.1210373310911631
+    variance: 10805.445559592223
+    z_score: 79.4846689197498
+    approximate_nll_gain: 0.04627552695664004
+    observed_rate: 0.5385347845831563
+    expected_rate: 0.4174974534919933
+    testable_opportunities: 68263
+    piece_support: 251
+    column_score: 0.0461124646363333
+    null_family_max_abs_z: 15.70240294568416
+    exceeds_null_family_max: true
+  origin: learned_from_bach_corpus
+  human_authored: false
+- id: F-K3-V6-007
+  family: ordered_voice_gap
+  feature:
+    kind: any_adjacent_central_ordered_gap_le
+    target_voice: -1
+    other_voice: null
+    value: 2
+    second_value: null
+    complexity: 1
+    key: any_adjacent_central_ordered_gap_le:-1:-:2:-
+    label: any_adjacent_central_ordered_gap_le(all_voices)=2
+  parameter:
+    scale: log_energy_contribution
+    log_weight: -1.0117080585206486
+    sign: avoidance
+  selection:
+    gradient: -0.07491300747972073
+    variance: 5534.94795425859
+    z_score: -68.73624962863781
+    approximate_nll_gain: 0.034606390086946166
+    observed_rate: 0.08992029723737041
+    expected_rate: 0.16653362841715372
+    testable_opportunities: 66748
+    piece_support: 251
+    column_score: 0.03444332776663942
+    null_family_max_abs_z: 18.903170797250866
+    exceeds_null_family_max: true
+  origin: learned_from_bach_corpus
+  human_authored: false
+- id: F-K3-V6-008
+  family: observed_vertical_set
+  feature:
+    kind: central_bass_pcset
+    target_voice: -1
+    other_voice: null
+    value: 329
+    second_value: null
+    complexity: 3
+    key: central_bass_pcset:-1:-:329:-
+    label: central_bass_pcset(all_voices)=329
+  parameter:
+    scale: log_energy_contribution
+    log_weight: 1.854828096690252
+    sign: preference
+  selection:
+    gradient: 0.018525732635020036
+    variance: 431.38549276095364
+    z_score: 60.887479254289815
+    approximate_nll_gain: 0.027154425749978554
+    observed_rate: 0.3070352539214164
+    expected_rate: 0.11063486770238039
+    testable_opportunities: 6439
+    piece_support: 251
+    column_score: 0.026665238789058316
+    null_family_max_abs_z: 7.134927043200198
+    exceeds_null_family_max: true
+  origin: learned_from_bach_corpus
+  human_authored: false
+- id: F-K3-V6-009
+  family: universal_vertical_interval_class
+  feature:
+    kind: any_pair_central_abs_class
+    target_voice: -1
+    other_voice: null
+    value: 11
+    second_value: null
+    complexity: 1
+    key: any_pair_central_abs_class:-1:-:11:-
+    label: any_pair_central_abs_class(all_voices)=11
+  parameter:
+    scale: log_energy_contribution
+    log_weight: -1.615865573546047
+    sign: avoidance
+  selection:
+    gradient: -0.04544535285396522
+    variance: 3029.0160640229456
+    z_score: -56.36688850536758
+    approximate_nll_gain: 0.023271949077659494
+    observed_rate: 0.01667081728022501
+    expected_rate: 0.062116170134190234
+    testable_opportunities: 68263
+    piece_support: 251
+    column_score: 0.02310888675735275
+    null_family_max_abs_z: 9.775381041626412
+    exceeds_null_family_max: true
+  origin: learned_from_bach_corpus
+  human_authored: false
+- id: F-K3-V6-010
+  family: universal_pair_motion
+  feature:
+    kind: any_pair_abs_class_preserved_same_sign
+    target_voice: -1
+    other_voice: null
+    value: 7
+    second_value: null
+    complexity: 4
+    key: any_pair_abs_class_preserved_same_sign:-1:-:7:-
+    label: any_pair_abs_class_preserved_same_sign(all_voices)=7
+  parameter:
+    scale: log_energy_contribution
+    log_weight: -1.95371443864518
+    sign: avoidance
+  selection:
+    gradient: -0.027489796621580298
+    variance: 1171.393960640397
+    z_score: -54.8283791175135
+    approximate_nll_gain: 0.02201889132219351
+    observed_rate: 0.002814754002228347
+    expected_rate: 0.11285615356705189
+    testable_opportunities: 17053
+    piece_support: 251
+    column_score: 0.021366642040966527
+    null_family_max_abs_z: 5.610665432190874
+    exceeds_null_family_max: true
+  origin: learned_from_bach_corpus
+  human_authored: false
+- id: F-K3-V6-011
+  family: universal_vertical_interval_class
+  feature:
+    kind: any_pair_central_abs_class
+    target_voice: -1
+    other_voice: null
+    value: 10
+    second_value: null
+    complexity: 1
+    key: any_pair_central_abs_class:-1:-:10:-
+    label: any_pair_central_abs_class(all_voices)=10
+  parameter:
+    scale: log_energy_contribution
+    log_weight: -1.3530302045971976
+    sign: avoidance
+  selection:
+    gradient: -0.059444137213288846
+    variance: 5936.9287908780425
+    z_score: -52.66395592482252
+    approximate_nll_gain: 0.020314755091716222
+    observed_rate: 0.08697244480904737
+    expected_rate: 0.1464165820223362
+    testable_opportunities: 68263
+    piece_support: 251
+    column_score: 0.020151692771409477
+    null_family_max_abs_z: 9.243635992823396
+    exceeds_null_family_max: true
+  origin: learned_from_bach_corpus
+  human_authored: false
+- id: F-K3-V6-012
+  family: universal_pair_motion
+  feature:
+    kind: any_pair_abs_class_preserved_same_sign
+    target_voice: -1
+    other_voice: null
+    value: 0
+    second_value: null
+    complexity: 4
+    key: any_pair_abs_class_preserved_same_sign:-1:-:0:-
+    label: any_pair_abs_class_preserved_same_sign(all_voices)=0
+  parameter:
+    scale: log_energy_contribution
+    log_weight: -2.027701354254517
+    sign: avoidance
+  selection:
+    gradient: -0.025937018003466875
+    variance: 1008.5935350036407
+    z_score: -55.75031480559047
+    approximate_nll_gain: 0.02276560948773449
+    observed_rate: 0.0024254529890141248
+    expected_rate: 0.12873010842992294
+    testable_opportunities: 14018
+    piece_support: 251
+    column_score: 0.022113360206507508
+    null_family_max_abs_z: 4.847933711273582
+    exceeds_null_family_max: true
+  origin: learned_from_bach_corpus
+  human_authored: false
+- id: F-K3-V6-013
+  family: universal_vertical_interval_class
+  feature:
+    kind: any_pair_central_abs_class
+    target_voice: -1
+    other_voice: null
+    value: 1
+    second_value: null
+    complexity: 1
+    key: any_pair_central_abs_class:-1:-:1:-
+    label: any_pair_central_abs_class(all_voices)=1
+  parameter:
+    scale: log_energy_contribution
+    log_weight: -1.442817572152045
+    sign: avoidance
+  selection:
+    gradient: -0.03923269028622203
+    variance: 2984.859778565589
+    z_score: -49.01979531600517
+    approximate_nll_gain: 0.017600605985841837
+    observed_rate: 0.022940685290713858
+    expected_rate: 0.062173375576935884
+    testable_opportunities: 68263
+    piece_support: 251
+    column_score: 0.017437543665535092
+    null_family_max_abs_z: 8.146109856833215
+    exceeds_null_family_max: true
+  origin: learned_from_bach_corpus
+  human_authored: false
+- id: F-K3-V6-014
+  family: universal_melodic_distance_threshold
+  feature:
+    kind: any_voice_adjacent_step_gt
+    target_voice: -1
+    other_voice: null
+    value: 7
+    second_value: null
+    complexity: 1
+    key: any_voice_adjacent_step_gt:-1:-:7:-
+    label: any_voice_adjacent_step_gt(all_voices)=7
+  parameter:
+    scale: log_energy_contribution
+    log_weight: -1.1704063598793062
+    sign: avoidance
+  selection:
+    gradient: -0.038529409173639124
+    variance: 3027.166110179037
+    z_score: -47.80348881532019
+    approximate_nll_gain: 0.01673800992423745
+    observed_rate: 0.03695177207208528
+    expected_rate: 0.07551846941097302
+    testable_opportunities: 68197
+    piece_support: 251
+    column_score: 0.016574947603930704
+    null_family_max_abs_z: 24.051138011708375
+    exceeds_null_family_max: true
+  origin: learned_from_bach_corpus
+  human_authored: false
+- id: F-K3-V6-015
+  family: universal_pair_motion
+  feature:
+    kind: any_pair_arrival_abs_class_same_sign
+    target_voice: -1
+    other_voice: null
+    value: 2
+    second_value: null
+    complexity: 2
+    key: any_pair_arrival_abs_class_same_sign:-1:-:2:-
+    label: any_pair_arrival_abs_class_same_sign(all_voices)=2
+  parameter:
+    scale: log_energy_contribution
+    log_weight: -1.197656725943424
+    sign: avoidance
+  selection:
+    gradient: -0.02608480942717498
+    variance: 1455.6749596734671
+    z_score: -46.670325843501935
+    approximate_nll_gain: 0.015953879219625895
+    observed_rate: 0.004259496514201095
+    expected_rate: 0.03388674640899895
+    testable_opportunities: 60101
+    piece_support: 251
+    column_score: 0.0156277545790124
+    null_family_max_abs_z: 3.8217238290741538
+    exceeds_null_family_max: true
+  origin: learned_from_bach_corpus
+  human_authored: false
+- id: F-K3-V6-016
+  family: vertical_cardinality
+  feature:
+    kind: central_distinct_pc_count
+    target_voice: -1
+    other_voice: null
+    value: 2
+    second_value: null
+    complexity: 1
+    key: central_distinct_pc_count:-1:-:2:-
+    label: central_distinct_pc_count(all_voices)=2
+  parameter:
+    scale: log_energy_contribution
+    log_weight: -1.4257325575343227
+    sign: avoidance
+  selection:
+    gradient: -0.030522040597965615
+    variance: 2121.323880984618
+    z_score: -45.237171846243584
+    approximate_nll_gain: 0.014989098901649305
+    observed_rate: 0.058073129125565524
+    expected_rate: 0.1353380574552743
+    testable_opportunities: 26966
+    piece_support: 251
+    column_score: 0.014826036581342558
+    null_family_max_abs_z: 2.4603085773506015
+    exceeds_null_family_max: true
+  origin: learned_from_bach_corpus
+  human_authored: false
+- id: F-K3-V6-017
+  family: vertical_cardinality_metric_conjunction
+  feature:
+    kind: central_distinct_pc_count_metric
+    target_voice: -1
+    other_voice: null
+    value: 3
+    second_value: 0
+    complexity: 2
+    key: central_distinct_pc_count_metric:-1:-:3:0
+    label: central_distinct_pc_count_metric(all_voices)=3,0
+  parameter:
+    scale: log_energy_contribution
+    log_weight: -1.1649378003543938
+    sign: avoidance
+  selection:
+    gradient: -0.025822007113600023
+    variance: 1605.1777786162293
+    z_score: -43.9960612072502
+    approximate_nll_gain: 0.014177910447475987
+    observed_rate: 0.4901515706231237
+    expected_rate: 0.6192200096357676
+    testable_opportunities: 13657
+    piece_support: 230
+    column_score: 0.013851785806862495
+    null_family_max_abs_z: 0.907114913990794
+    exceeds_null_family_max: true
+  origin: learned_from_bach_corpus
+  human_authored: false
+- id: F-K3-V6-018
+  family: ordered_voice_gap
+  feature:
+    kind: previous_ordered_gap_le
+    target_voice: 0
+    other_voice: 1
+    value: 2
+    second_value: null
+    complexity: 1
+    key: previous_ordered_gap_le:0:1:2:-
+    label: previous_ordered_gap_le(v0,v1)=2
+  parameter:
+    scale: log_energy_contribution
+    log_weight: 1.2724213508685973
+    sign: preference
+  selection:
+    gradient: 0.018496128183674618
+    variance: 916.165416481398
+    z_score: 41.71375155340967
+    approximate_nll_gain: 0.012745096675062533
+    observed_rate: 0.24436244362443624
+    expected_rate: 0.15808383229450726
+    testable_opportunities: 14634
+    piece_support: 251
+    column_score: 0.012582034354755786
+    null_family_max_abs_z: 8.881135030159783
+    exceeds_null_family_max: true
+  origin: learned_from_bach_corpus
+  human_authored: false
+- id: F-K3-V6-019
+  family: attacked_repetition
+  feature:
+    kind: attacked_repeat_from_previous
+    target_voice: 3
+    other_voice: null
+    value: null
+    second_value: null
+    complexity: 1
+    key: attacked_repeat_from_previous:3:-:-:-
+    label: attacked_repeat_from_previous(v3)
+  parameter:
+    scale: log_energy_contribution
+    log_weight: -1.5421578033041958
+    sign: avoidance
+  selection:
+    gradient: -0.02241799258078829
+    variance: 1377.3041638293057
+    z_score: -41.23511038340973
+    approximate_nll_gain: 0.012454289500402744
+    observed_rate: 0.040512081578364
+    expected_rate: 0.12532251316461712
+    testable_opportunities: 18044
+    piece_support: 251
+    column_score: 0.012291227180095997
+    null_family_max_abs_z: 5.362546210296513
+    exceeds_null_family_max: true
+  origin: learned_from_bach_corpus
+  human_authored: false
+- id: F-K3-V6-020
+  family: universal_vertical_interval_class
+  feature:
+    kind: any_pair_central_abs_class
+    target_voice: -1
+    other_voice: null
+    value: 2
+    second_value: null
+    complexity: 1
+    key: any_pair_central_abs_class:-1:-:2:-
+    label: any_pair_central_abs_class(all_voices)=2
+  parameter:
+    scale: log_energy_contribution
+    log_weight: -0.9218813196986748
+    sign: avoidance
+  selection:
+    gradient: -0.039574469762342475
+    variance: 5130.797230537868
+    z_score: -37.714473515997184
+    approximate_nll_gain: 0.010418392925807927
+    observed_rate: 0.10307194234065306
+    expected_rate: 0.14264641210299553
+    testable_opportunities: 68263
+    piece_support: 251
+    column_score: 0.01025533060550118
+    null_family_max_abs_z: 7.367693126783238
+    exceeds_null_family_max: true
+  origin: learned_from_bach_corpus
+  human_authored: false
+- id: F-K3-V6-021
+  family: observed_vertical_set
+  feature:
+    kind: central_bass_pcset
+    target_voice: -1
+    other_voice: null
+    value: 141
+    second_value: null
+    complexity: 3
+    key: central_bass_pcset:-1:-:141:-
+    label: central_bass_pcset(all_voices)=141
+  parameter:
+    scale: log_energy_contribution
+    log_weight: 2.2219518768184305
+    sign: preference
+  selection:
+    gradient: 0.007416531433061109
+    variance: 139.09324477627098
+    z_score: 42.927262395513175
+    approximate_nll_gain: 0.01349742801205074
+    observed_rate: 0.14766024380652773
+    expected_rate: 0.04811744293844858
+    testable_opportunities: 5086
+    piece_support: 250
+    column_score: 0.013008241051130501
+    null_family_max_abs_z: 7.549743032256132
+    exceeds_null_family_max: true
+  origin: learned_from_bach_corpus
+  human_authored: false
+- id: F-K3-V6-022
+  family: observed_vertical_set
+  feature:
+    kind: central_bass_pcset
+    target_voice: -1
+    other_voice: null
+    value: 161
+    second_value: null
+    complexity: 3
+    key: central_bass_pcset:-1:-:161:-
+    label: central_bass_pcset(all_voices)=161
+  parameter:
+    scale: log_energy_contribution
+    log_weight: 1.2974734416691578
+    sign: preference
+  selection:
+    gradient: 0.014634190719564162
+    variance: 649.239251465907
+    z_score: 39.20592430391964
+    approximate_nll_gain: 0.011258694318479092
+    observed_rate: 0.22136878385032005
+    expected_rate: 0.1229961830537067
+    testable_opportunities: 10155
+    piece_support: 251
+    column_score: 0.010769507357558853
+    null_family_max_abs_z: 7.531522491394704
+    exceeds_null_family_max: true
+  origin: learned_from_bach_corpus
+  human_authored: false
+- id: F-K3-V6-023
+  family: three_block_direction_shape
+  feature:
+    kind: three_block_sign_shape
+    target_voice: 1
+    other_voice: null
+    value: 0
+    second_value: -1
+    complexity: 2
+    key: three_block_sign_shape:1:-:0:-1
+    label: three_block_sign_shape(v1)=0,-1
+  parameter:
+    scale: log_energy_contribution
+    log_weight: 1.6959592226446873
+    sign: preference
+  selection:
+    gradient: 0.009471717516213398
+    variance: 399.25662975219905
+    z_score: 32.358474532242205
+    approximate_nll_gain: 0.007669388058346159
+    observed_rate: 0.28373505408996014
+    expected_rate: 0.16102337202329187
+    testable_opportunities: 5269
+    piece_support: 251
+    column_score: 0.007343263417732667
+    null_family_max_abs_z: 8.029998417742242
+    exceeds_null_family_max: true
+  origin: learned_from_bach_corpus
+  human_authored: false
+- id: F-K3-V6-024
+  family: observed_vertical_set
+  feature:
+    kind: central_bass_pcset
+    target_voice: -1
+    other_voice: null
+    value: 649
+    second_value: null
+    complexity: 3
+    key: central_bass_pcset:-1:-:649:-
+    label: central_bass_pcset(all_voices)=649
+  parameter:
+    scale: log_energy_contribution
+    log_weight: 1.6526099631546056
+    sign: preference
+  selection:
+    gradient: 0.006909622452181121
+    variance: 232.1347615069065
+    z_score: 30.9577649543433
+    approximate_nll_gain: 0.007019785322710446
+    observed_rate: 0.15748878923766815
+    expected_rate: 0.07288402556892558
+    testable_opportunities: 5575
+    piece_support: 250
+    column_score: 0.006530598361790208
+    null_family_max_abs_z: 7.544081670280627
+    exceeds_null_family_max: true
+  origin: learned_from_bach_corpus
+  human_authored: false
+- id: F-K3-V6-025
+  family: three_block_direction_shape
+  feature:
+    kind: any_voice_three_block_sign_shape
+    target_voice: -1
+    other_voice: null
+    value: -1
+    second_value: -1
+    complexity: 2
+    key: any_voice_three_block_sign_shape:-1:-:-1:-1
+    label: any_voice_three_block_sign_shape(all_voices)=-1,-1
+  parameter:
+    scale: log_energy_contribution
+    log_weight: 0.9925650759833413
+    sign: preference
+  selection:
+    gradient: 0.019581785703561245
+    variance: 1968.4765669502972
+    z_score: 30.12815517112522
+    approximate_nll_gain: 0.006648592458692111
+    observed_rate: 0.5646976906115817
+    expected_rate: 0.4871352305046883
+    testable_opportunities: 17234
+    piece_support: 251
+    column_score: 0.00632246781807862
+    null_family_max_abs_z: 7.979780631573801
+    exceeds_null_family_max: true
+  origin: learned_from_bach_corpus
+  human_authored: false
+- id: F-K3-V6-026
+  family: universal_pair_motion
+  feature:
+    kind: any_pair_abs_class_preserved_same_sign
+    target_voice: -1
+    other_voice: null
+    value: 3
+    second_value: null
+    complexity: 4
+    key: any_pair_abs_class_preserved_same_sign:-1:-:3:-
+    label: any_pair_abs_class_preserved_same_sign(all_voices)=3
+  parameter:
+    scale: log_energy_contribution
+    log_weight: 0.856041060820882
+    sign: preference
+  selection:
+    gradient: 0.017344206667718978
+    variance: 1504.5074204569296
+    z_score: 30.524084233065956
+    approximate_nll_gain: 0.006824485579796566
+    observed_rate: 0.2658435848470045
+    expected_rate: 0.21326253143142956
+    testable_opportunities: 22517
+    piece_support: 251
+    column_score: 0.006172236298569582
+    null_family_max_abs_z: 3.6983455001260848
+    exceeds_null_family_max: true
+  origin: learned_from_bach_corpus
+  human_authored: false
+- id: F-K3-V6-027
+  family: observed_vertical_set
+  feature:
+    kind: central_bass_pcset
+    target_voice: -1
+    other_voice: null
+    value: 1041
+    second_value: null
+    complexity: 3
+    key: central_bass_pcset:-1:-:1041:-
+    label: central_bass_pcset(all_voices)=1041
+  parameter:
+    scale: log_energy_contribution
+    log_weight: 1.9311911362711855
+    sign: preference
+  selection:
+    gradient: 0.004859952420468773
+    variance: 144.4377574865856
+    z_score: 27.604317857398986
+    approximate_nll_gain: 0.0055813424869425345
+    observed_rate: 0.08487420430433465
+    expected_rate: 0.034593068796838454
+    testable_opportunities: 6598
+    piece_support: 251
+    column_score: 0.005092155526022297
+    null_family_max_abs_z: 7.55147606428606
+    exceeds_null_family_max: true
+  origin: learned_from_bach_corpus
+  human_authored: false
+- id: F-K3-V6-028
+  family: observed_vertical_set
+  feature:
+    kind: central_bass_pcset
+    target_voice: -1
+    other_voice: null
+    value: 1169
+    second_value: null
+    complexity: 3
+    key: central_bass_pcset:-1:-:1169:-
+    label: central_bass_pcset(all_voices)=1169
+  parameter:
+    scale: log_energy_contribution
+    log_weight: 1.4467477677061655
+    sign: preference
+  selection:
+    gradient: 0.008623820476920795
+    variance: 399.35329581422377
+    z_score: 29.458215933184587
+    approximate_nll_gain: 0.006356199448941082
+    observed_rate: 0.163885372309817
+    expected_rate: 0.09613443926619356
+    testable_opportunities: 8689
+    piece_support: 251
+    column_score: 0.005867012488020845
+    null_family_max_abs_z: 7.5508369319836355
+    exceeds_null_family_max: true
+  origin: learned_from_bach_corpus
+  human_authored: false
+- id: F-K3-V6-029
+  family: observed_vertical_set
+  feature:
+    kind: central_tonic_pcset
+    target_voice: -1
+    other_voice: null
+    value: 2180
+    second_value: null
+    complexity: 3
+    key: central_tonic_pcset:-1:-:2180:-
+    label: central_tonic_pcset(all_voices)=2180
+  parameter:
+    scale: log_energy_contribution
+    log_weight: 1.2733220146603945
+    sign: preference
+  selection:
+    gradient: 0.014028323445589942
+    variance: 1099.7566135554257
+    z_score: 28.8763867690134
+    approximate_nll_gain: 0.006107596449274512
+    observed_rate: 0.7596002694812486
+    expected_rate: 0.6520755172505831
+    testable_opportunities: 8906
+    piece_support: 241
+    column_score: 0.005618409488354275
+    null_family_max_abs_z: 7.552519607768779
+    exceeds_null_family_max: true
+  origin: learned_from_bach_corpus
+  human_authored: false
+- id: F-K3-V6-030
+  family: observed_vertical_set
+  feature:
+    kind: central_bass_pcset
+    target_voice: -1
+    other_voice: null
+    value: 545
+    second_value: null
+    complexity: 3
+    key: central_bass_pcset:-1:-:545:-
+    label: central_bass_pcset(all_voices)=545
+  parameter:
+    scale: log_energy_contribution
+    log_weight: -1.4857722562644335
+    sign: avoidance
+  selection:
+    gradient: -0.012611696168596897
+    variance: 811.7531832072009
+    z_score: -30.216688668123084
+    approximate_nll_gain: 0.006687724492523607
+    observed_rate: 0.07679430843272651
+    expected_rate: 0.16686673106894015
+    testable_opportunities: 9558
+    piece_support: 251
+    column_score: 0.0061985375316033695
+    null_family_max_abs_z: 7.621555780682206
+    exceeds_null_family_max: true
+  origin: learned_from_bach_corpus
+  human_authored: false
+test_split_loaded: false

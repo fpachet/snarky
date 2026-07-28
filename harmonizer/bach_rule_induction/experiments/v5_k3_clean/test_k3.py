@@ -2,12 +2,14 @@ from __future__ import annotations
 
 from pathlib import Path
 
+import export_v5_16_factor_catalogue as factor_export
+import export_v5_16_factor_program as factor_program_export
 import k3
 import local_tonality
 import numpy as np
+import refit_v6_generative_weights as v6_refit
 import run_k3_ablation as ablation
 import run_k3_null_max_calibration as calibration
-import export_v5_16_factor_catalogue as factor_export
 import snarky_choice_bridge
 
 
@@ -596,6 +598,40 @@ def test_joint_energy_counts_one_shared_sonority_potential_per_block() -> None:
     assert energy == 2.0
 
 
+def test_v6_refit_uses_factor_grounding_semantics() -> None:
+    data = _dataset()
+    data.piece_ids[:] = "p1"
+    data.offsets[:] = np.asarray([0, 1, 2], dtype=np.float32)
+
+    shared = v6_refit._grounding_rows(
+        data,
+        k3.FeatureSpec("central_bass_pcset", -1, value=145),
+    )
+    bass = v6_refit._grounding_rows(
+        data,
+        k3.FeatureSpec("attacked_repeat_from_previous", 3),
+    )
+    decision = v6_refit._grounding_rows(
+        data,
+        k3.FeatureSpec("any_voice_adjacent_step_gt", -1, value=2),
+    )
+
+    assert shared.sum() == 1
+    assert not bass.any()
+    assert decision.all()
+
+
+def test_v6_refit_cannot_add_or_remove_factor_structure() -> None:
+    source = (Path(__file__).parent / "refit_v6_generative_weights.py").read_text(
+        encoding="utf-8"
+    )
+
+    assert "feature_catalogue(" not in source
+    assert "rare_tonal_feature_catalogue(" not in source
+    assert '"new_factor_count": 0' in source
+    assert '"factor_structure_changed": False' in source
+
+
 def test_factor_export_merges_additive_weights_and_preserves_sources() -> None:
     feature = k3.FeatureSpec(
         "abs_class_from_previous",
@@ -636,6 +672,31 @@ def test_factor_export_marks_shared_sonorities_once_per_vertical_block() -> None
     ]
 
 
+def test_v5_16_factor_program_round_trips_all_weights() -> None:
+    catalogue = {
+        "counts": {"canonical_factors_after_merge": 2},
+        "factors": [
+            {
+                "id": "F-ONE",
+                "parameter": {"log_weight": -0.5},
+            },
+            {
+                "id": "F-TWO",
+                "parameter": {"log_weight": 1.25},
+            },
+        ],
+    }
+
+    text = factor_program_export.render_factor_program(catalogue)
+    (group,) = factor_program_export.parse_factor_groups(text)
+
+    assert [factor.name for factor in group.factors] == ["F-ONE", "F-TWO"]
+    assert [factor.parameter.log_weight for factor in group.factors] == [
+        -0.5,
+        1.25,
+    ]
+
+
 def test_snarky_choice_bridge_preserves_v5_16_conditionals() -> None:
     data = _dataset()
     data.tonic_pcs = np.asarray([0, 2], dtype=np.int8)
@@ -671,6 +732,25 @@ def test_snarky_choice_bridge_explains_each_candidate_by_factor_id() -> None:
         for alternative in alternatives
         for activation in alternative["active_factors"]
     )
+
+
+def test_snarky_factor_model_matches_the_v5_16_activation_sum() -> None:
+    data = _dataset()
+    data.tonic_pcs = np.asarray([0, 2], dtype=np.int8)
+    data.modes = np.asarray([0, 1], dtype=np.int8)
+    data.metric_levels = np.asarray([3, 0], dtype=np.int8)
+    program = snarky_choice_bridge.load_choice_program()
+    evaluation = program.evaluate(data)
+
+    expected = np.tensordot(
+        evaluation.activations,
+        program.weights,
+        axes=([2], [0]),
+    )
+    actual = program.snarky_factor_scores(data, evaluation)
+
+    assert np.allclose(actual, expected)
+    assert program.snarky_factor_model().groups[0].name == "k3_v5_16_reference"
 
 
 def test_clean_induction_source_has_no_rule_base_dependency() -> None:

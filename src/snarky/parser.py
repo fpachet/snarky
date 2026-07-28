@@ -33,6 +33,12 @@ from .parser_arithmetic import (
 from .parser_arithmetic import (
     parse_arithmetic_expression as parse_arithmetic_expression,
 )
+from .parser_factors import (
+    parse_factor_groups as parse_factor_groups,
+)
+from .parser_factors import (
+    parse_factors as parse_factors,
+)
 from .parser_lexer import ParseError as ParseError
 from .parser_lexer import _normalized_lines
 from .parser_premises import (
@@ -215,15 +221,11 @@ def parse_rule_program(
             elif directive.startswith("CONSTRAINT "):
                 constraint_name = directive.removeprefix("CONSTRAINT ").strip()
                 if constraint_name not in available_constraints:
-                    raise ParseError(
-                        f"unknown program constraint {constraint_name!r}"
-                    )
+                    raise ParseError(f"unknown program constraint {constraint_name!r}")
                 constraint_names.append(constraint_name)
                 propagators.append(available_constraints[constraint_name])
             else:
-                raise ParseError(
-                    f"unexpected STEP directive {directive!r}"
-                )
+                raise ParseError(f"unexpected STEP directive {directive!r}")
             position += 1
         if position >= len(lines) - 1:
             raise ParseError(f"step {step_name!r} is missing END_STEP")

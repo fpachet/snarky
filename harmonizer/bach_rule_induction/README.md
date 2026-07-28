@@ -30,8 +30,9 @@ Comparer sur les mêmes pièces et la même tâche :
 | ID | Système |
 |---|---|
 | `S-HISTORICAL` | base Snarky historique écrite à la main, inchangée |
-| `S-LEARNED` | uniquement les règles induites du corpus |
-| `S-HYBRID` | union déclarative des bases historique et apprise |
+| `F-K3-V5.16-REFERENCE` | facteurs du POC V5.16, gelés comme oracle d'ingénierie |
+| `F-K3-V6-INDUCED` | structure et paramètres factoriels appris depuis le corpus |
+| `S-HYBRID` | contraintes/règles expertes et facteurs appris, explicitement séparés |
 | `E0` | règles historiques de CHORAL reconstruites |
 | `D0-legacy` | [DeepBach historique](../../../deepbach-reference/README.md), poids et code figés |
 | `D0-modern` | port DeepBach maintenu et validé différentiellement |
@@ -41,11 +42,11 @@ Comparer sur les mêmes pièces et la même tâche :
 La première tâche commune est l'harmonisation SATB d'un soprano imposé, avec
 rythme, métrique, fermatas et métadonnées tonales contrôlés.
 
-La séparation des bases est stricte : une règle apprise ne modifie ni ne
-rejoint silencieusement la base historique. Chaque règle enregistre séparément
-l'origine de sa formulation et l'origine des faits musicaux qu'elle consulte.
-Cela permet, par exemple, de qualifier correctement une règle induite qui
-utilise une analyse harmonique définie par l'humain.
+La séparation des bases est stricte. Les `RULE` et `CONSTRAINT` sont écrites
+par un expert ; les `FACTOR` et leurs paramètres sont appris depuis le corpus.
+Une activation factorielle est pure, n'est pas ajoutée aux faits et ne peut
+donc déclencher aucune règle. Chaque objet enregistre séparément l'origine de
+sa formulation et celle des faits musicaux qu'il consulte.
 
 ## Hypothèse centrale
 
@@ -79,7 +80,7 @@ affirmer qu'une régularité est spécifiquement bachienne, et pas seulement
 tonale, elle devra ensuite être testée sur un corpus comparable d'autres
 compositeurs.
 
-## État expérimental au 27 juillet 2026
+## État expérimental au 28 juillet 2026
 
 Les fondations reproductibles sont en place :
 
@@ -97,6 +98,23 @@ Les fondations reproductibles sont en place :
 - un [premier POC différentiable](experiments/differentiable_rules_poc/) a
   extrait 20 350 décisions de soprano et appris des clauses depuis des
   hauteurs numériques.
+
+Le jalon V6 introduit désormais une syntaxe Snarky `FACTOR` distincte des
+règles et contraintes. Une grammaire numérique locale gelée a engendré 954
+candidats ; 30 facteurs ont été sélectionnés depuis zéro et font passer la NLL
+de validation de `2,422315` à `1,048935`. Tous dépassent le maximum absolu de
+leur famille sous permutation ; aucune règle historique, carte CHORAL ou
+contrainte experte n'a été chargée.
+
+Un premier réajustement génératif a conservé ces 30 facteurs et modifié
+uniquement leurs poids par le gradient `E_Bach[f] - E_Gibbs[f]`. Sur le train,
+la MAE des moments passe de `0,035206` à `0,013355`. Sur dix chorals de
+développement, les demi-tons de basse reviennent de `39,41 %` à `25,29 %`
+contre `25,73 %` chez Bach, et les blocs triadiques de `46,41 %` à `53,66 %`
+contre `53,86 %`. Les répétitions attaquées de basse et les dissonances sur
+temps fort restent trop nombreuses : V6 est exécutable mais pas encore
+promue. Le [bilan complet](factor_bases/k3_v6_induced/V6_RESEARCH_LOOP_SUMMARY.md)
+conserve le test réservé fermé.
 
 Le premier cycle `V5.1-K3-CLEAN` repart réellement d'une base musicale vide
 sur 68 263 décisions `train` et 13 202 décisions `validation`. Douze clauses
@@ -212,11 +230,11 @@ graduée et non une obligation dure.
 
 Le cycle
 [`V4`](V4_PROTOCOL.md) sépare désormais physiquement `S-HISTORICAL`,
-`S-LEARNED` et `S-HYBRID`. Les six règles de niveau A possèdent une compilation
-apprise autonome, la force tonale est raccordée au score conditionnel, et un
-générateur diagnostique choisit des tranches SATB sans charger les règles
-historiques. Ses sorties exploratoires sur fragments `train` sont conservées
-dans `experiments/learned_only_generation/results/`.
+`S-LEARNED` et `S-HYBRID`. Cette nomenclature V4 est conservée pour reproduire
+l'expérience historique ; V6 la remplace par `F-LEARNED` pour ne plus appeler
+« règles » les facteurs appris. Les six objets V4 de niveau A possèdent une
+compilation autonome, et leurs sorties exploratoires restent dans
+`experiments/learned_only_generation/results/`.
 
 ## Organisation
 
@@ -229,6 +247,7 @@ bach_rule_induction/
 ├── features/             registre des descripteurs musicaux
 ├── rules/                RuleCards et règles Snarky induites
 ├── rule_bases/           manifestes historical, learned et hybrid
+├── factor_bases/         facteurs probabilistes appris, séparés des règles
 ├── baselines/            adaptateurs Snarky, E0, D0 et H0
 └── experiments/          configurations, sorties et métriques
 ```
@@ -309,7 +328,7 @@ Livrable : premières RuleCards vérifiées dans `rules/`.
 - [x] compiler la première obligation retenue en `R-LEARNED-*` et Snarky ;
 - vérifier chaque règle sur exemples, contre-exemples et cas limites.
 
-Livrable : bases `S-HISTORICAL`, `S-LEARNED` et `S-HYBRID` reproductibles.
+Livrable : `S-HISTORICAL`, `F-LEARNED` et `S-HYBRID` reproductibles.
 
 Le premier résultat attendu n'est pas une règle nouvelle, mais le benchmark
 [`rules/KNOWN_RULE_RECOVERY.md`](rules/KNOWN_RULE_RECOVERY.md) : le mineur doit
@@ -352,7 +371,7 @@ Livrable : adaptateur DeepBach versionné et test différentiel.
 - tester rejet, réparation, masquage et ordre des choix Snarky par DeepBach.
 
 Livrable : atlas des désaccords et comparaison
-`S-HISTORICAL/S-LEARNED/S-HYBRID/E0/D0/H0`.
+`S-HISTORICAL/F-LEARNED/S-HYBRID/E0/D0/H0`.
 
 ### Phase 7 — évaluation et publication
 

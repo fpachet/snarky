@@ -487,6 +487,8 @@ La migration proposée est :
 10. vérifier que `CHOICE` reproduit les conditionnelles du modèle, sans devenir
     leur source sémantique.
 
-La prochaine implémentation ne devrait donc pas ajouter directement une
-nouvelle pondération à V5.16. Elle devrait d'abord introduire le modèle de
-facteurs canonique et son banc de tests.
+Cette migration est exécutée : V5.16 est conservée dans
+`factor_bases/k3_v5_16_reference`, le DSL `FACTOR` possède son banc de tests,
+et V6 apprend une nouvelle structure depuis la grammaire gelée. Le
+réajustement génératif V6 ne modifie que les paramètres et conserve les 30
+prédicats sélectionnés.

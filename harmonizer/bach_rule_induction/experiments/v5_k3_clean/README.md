@@ -44,6 +44,14 @@ Le dossier ne charge aucun fichier de `rules/` ni aucun manifeste de
   export des portées, instanciations et poids probabilistes canoniques ;
 - `snarky_choice_bridge.py` : compilation fidèle de ces facteurs en poids
   positifs pour `CHOICE`, avec explication factorielle de chaque candidate ;
+- `export_v5_16_factor_program.py` : migration du POC gelé vers le DSL pur
+  `FACTOR` ;
+- `run_v6_factor_induction.py` : génération de colonnes depuis la grammaire
+  V6 gelée, calibration nulle familiale et apprentissage conditionnel ;
+- `export_v6_factor_program.py` : export des 30 facteurs sélectionnés dans le
+  DSL Snarky ;
+- `refit_v6_generative_weights.py` : réajustement des seuls paramètres par
+  contraste de moments Bach−Gibbs, structure factorielle gelée ;
 - `results/` : artefacts et rapports reproductibles.
 
 `V5.0` conserve le premier catalogue spécialisé, qui a appris huit variantes
@@ -96,8 +104,10 @@ Résultats principaux :
   réplication de la confirmation avec trois graines ;
 - [`V5_16_SNARKY_CHOICE_BRIDGE.md`](results/V5_16_SNARKY_CHOICE_BRIDGE.md),
   parité numérique entre le modèle V5.16 et ses poids de `CHOICE` ;
-- [`../../rule_bases/k3_clean/v5_16_factors.yaml`](../../rule_bases/k3_clean/v5_16_factors.yaml),
-  catalogue factoriel V5.16 gelé, distinct du DSL Snarky historique ;
+- [`../../factor_bases/k3_v5_16_reference/`](../../factor_bases/k3_v5_16_reference/),
+  référence factorielle V5.16 gelée ;
+- [`../../factor_bases/k3_v6_induced/V6_RESEARCH_LOOP_SUMMARY.md`](../../factor_bases/k3_v6_induced/V6_RESEARCH_LOOP_SUMMARY.md),
+  induction V6 depuis zéro, réajustement génératif et audit ;
 - `v5_1_k3_compact_model.json`, modèle complet pour le Gibbs.
 
 Le protocole complet est

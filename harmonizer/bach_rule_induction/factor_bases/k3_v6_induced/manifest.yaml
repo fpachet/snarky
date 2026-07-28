@@ -1,0 +1,51 @@
+schema_version: 1
+id: F-K3-V6-INDUCED
+kind: learned_factor_base
+status: GENERATIVE_WEIGHT_REFIT_PARTIAL_NOT_PROMOTED
+description: >
+  Base factorielle reconstruite depuis zéro. L'expert définit seulement les
+  primitives observables, la grammaire de clauses et les budgets. La
+  sélection des facteurs, leur signe et leurs poids proviennent du corpus.
+inherits: []
+grammar: grammar.yaml
+selected_factors: selected_factors.yaml
+conditional_factor_program: v6_induced.factors
+generative_refit_factor_program: v6_generative_refit.factors
+model: v6_induced_model.json
+report: V6_INDUCTION_REPORT.md
+generative_refit_model: v6_generative_refit_model.json
+generative_refit_report: V6_GENERATIVE_WEIGHT_REFIT.md
+initial_generation_audit: V6_DEVELOPMENT_GENERATION_AUDIT.md
+refit_generation_audit: V6_REFIT_DEVELOPMENT_GENERATION_AUDIT.md
+canonical_example: V6_REFIT_BWV108_6_GENERATION.md
+results:
+  candidate_factors: 954
+  selected_factors: 30
+  baseline_validation_nll: 2.422314652559177
+  final_validation_nll: 1.0489351152972142
+  validation_nll_gain: 1.3733795372619628
+  all_selections_exceed_null_family_max: true
+  stopping_reason: maximum_factor_budget
+  factor_structure_frozen_during_generative_refit: true
+  new_factors_during_generative_refit: 0
+  train_moment_mae_before_refit: 0.0352061391
+  train_moment_mae_after_refit: 0.0133551865
+  refit_validation_conditional_nll: 1.159606862
+  stable_remaining_generation_residuals:
+    - bass_attacked_repetition_excess
+    - strong_block_dissonance_excess
+splits:
+  source: ../../experiments/differentiable_rules_poc/results/splits.variant-safe.json
+  train_role: structure_and_parameter_learning
+  validation_role: stopping_and_frozen_hyperparameters
+  test_role: sealed_until_final_model
+dependencies:
+  historical_rules: []
+  choral_rules: []
+  expert_constraints: []
+scaffolding:
+  four_voice_satb_representation: true
+  fixed_soprano_task: true
+  observed_rhythm_and_attack_hold_grid: true
+  musical_harmony_knowledge: false
+test_split_loaded: false

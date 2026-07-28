@@ -16,12 +16,28 @@ import k3
 import numpy as np
 import yaml
 
+from snarky import (
+    Atom,
+    Fact,
+    FactorDefinition,
+    FactorGroup,
+    FactorModel,
+    FactorParameter,
+    FactPremise,
+    FiniteSequence,
+    Number,
+    Triple,
+    Variable,
+    WeightedFactor,
+    evaluate_factor_model,
+)
+
 HERE = Path(__file__).resolve().parent
 REPOSITORY = Path(__file__).resolve().parents[4]
 DEFAULT_CATALOGUE = (
-    REPOSITORY
-    / "harmonizer/bach_rule_induction/rule_bases/k3_clean/v5_16_factors.yaml"
+    REPOSITORY / "harmonizer/bach_rule_induction/rule_bases/k3_clean/v5_16_factors.yaml"
 )
+K3_FACTOR_ACTIVE = Atom("k3_factor_active")
 
 
 @dataclass(frozen=True)
@@ -127,15 +143,93 @@ class K3ChoiceProgram:
                     {
                         "pitch": int(pitch),
                         "local_score": float(result.local_scores[row, candidate]),
-                        "choice_weight": float(
-                            result.positive_weights[row, candidate]
-                        ),
+                        "choice_weight": float(result.positive_weights[row, candidate]),
                         "probability": float(result.probabilities[row, candidate]),
                         "active_factors": active,
                     }
                 )
             rows.append(alternatives)
         return rows
+
+    def snarky_factor_model(self) -> FactorModel:
+        """Compile learned parameters into a pure Snarky factor model."""
+
+        scope = Variable("scope")
+        factors = tuple(
+            WeightedFactor(
+                FactorDefinition(
+                    factor.id,
+                    scope,
+                    (
+                        FactPremise(
+                            Triple(
+                                scope,
+                                K3_FACTOR_ACTIVE,
+                                Atom(factor.id),
+                            )
+                        ),
+                    ),
+                ),
+                FactorParameter(factor.id, factor.log_weight),
+            )
+            for factor in self.factors
+        )
+        return FactorModel(
+            self.id,
+            (FactorGroup("k3_v5_16_reference", factors),),
+        )
+
+    def activation_facts(
+        self,
+        dataset: k3.K3Dataset,
+        evaluation: ChoiceEvaluation | None = None,
+    ) -> tuple[Fact, ...]:
+        """Materialize immutable activations, never forward-rule consequences."""
+
+        result = self.evaluate(dataset) if evaluation is None else evaluation
+        return tuple(
+            Fact(
+                Triple(
+                    FiniteSequence((Number(row), Number(int(pitch)))),
+                    K3_FACTOR_ACTIVE,
+                    Atom(factor.id),
+                )
+            )
+            for row in range(dataset.size)
+            for candidate, pitch in enumerate(result.pitches)
+            for index, factor in enumerate(self.factors)
+            if result.activations[row, candidate, index]
+        )
+
+    def snarky_factor_scores(
+        self,
+        dataset: k3.K3Dataset,
+        evaluation: ChoiceEvaluation | None = None,
+    ) -> np.ndarray:
+        """Return the learned contribution evaluated by Snarky's FactorModel."""
+
+        result = self.evaluate(dataset) if evaluation is None else evaluation
+        factor_evaluation = evaluate_factor_model(
+            self.snarky_factor_model(),
+            self.activation_facts(dataset, result),
+        )
+        scores = np.zeros(
+            (dataset.size, dataset.candidate_pitches.size),
+            dtype=np.float64,
+        )
+        pitch_to_index = {
+            int(pitch): index for index, pitch in enumerate(dataset.candidate_pitches)
+        }
+        for activation in factor_evaluation.activations:
+            if not isinstance(activation.scope, FiniteSequence):
+                raise TypeError("K3 factor scope must be a finite sequence")
+            row_term, pitch_term = activation.scope.elements
+            if not isinstance(row_term, Number) or not isinstance(pitch_term, Number):
+                raise TypeError("K3 factor scope needs numeric row and pitch")
+            row = int(row_term.value)
+            candidate = pitch_to_index[int(pitch_term.value)]
+            scores[row, candidate] += activation.contribution
+        return scores
 
 
 def _source_model_path(catalogue_path: Path, source: str) -> Path:
@@ -221,7 +315,6 @@ def source_model_evaluation(
         pitches=dataset.candidate_pitches,
         local_scores=local_scores,
         positive_weights=positive_weights,
-        probabilities=positive_weights
-        / positive_weights.sum(axis=1, keepdims=True),
+        probabilities=positive_weights / positive_weights.sum(axis=1, keepdims=True),
         activations=activations,
     )
