@@ -7,6 +7,8 @@ import local_tonality
 import numpy as np
 import run_k3_ablation as ablation
 import run_k3_null_max_calibration as calibration
+import export_v5_16_factor_catalogue as factor_export
+import snarky_choice_bridge
 
 
 def _dataset() -> k3.K3Dataset:
@@ -227,6 +229,73 @@ def test_contextual_vertical_signatures_are_candidate_dependent() -> None:
     expected = sum(1 << pitch_class for pitch_class in {0, 2, 6, 9})
     assert signatures[0, 72 - data.candidate_min] == expected
     assert signatures[0, 71 - data.candidate_min] != expected
+
+
+def test_following_signature_propagates_a_central_hold() -> None:
+    data = _dataset().take(np.asarray([0]))
+    data.attacks[0, 2, 0] = False
+    central = k3.central_bass_pcset_signatures(data)
+    following = k3.bass_pcset_signatures(data, position=2)
+
+    candidate = 69
+    index = candidate - data.candidate_min
+    expected_central = sum(1 << pitch_class for pitch_class in {0, 4, 7})
+    expected_following = sum(1 << pitch_class for pitch_class in {0, 3, 5, 7})
+
+    assert central[0, index] == expected_central
+    assert following[0, index] == expected_following
+
+
+def test_explicit_metric_and_transition_features_are_candidate_dependent() -> None:
+    data = _dataset().take(np.asarray([0]))
+    data.tonic_pcs = np.asarray([0], dtype=np.int8)
+    data.modes = np.asarray([0], dtype=np.int8)
+    data.metric_levels = np.asarray([3], dtype=np.int8)
+    data.attacks[0, 2, 0] = False
+    central = sum(1 << pitch_class for pitch_class in {0, 4, 7})
+    following = sum(1 << pitch_class for pitch_class in {0, 3, 5, 7})
+
+    metric = k3.feature_mask(
+        data,
+        k3.FeatureSpec(
+            "central_bass_pcset_metric",
+            -1,
+            value=central,
+            second_value=1,
+        ),
+    )
+    transition = k3.feature_mask(
+        data,
+        k3.FeatureSpec(
+            "bass_pcset_transition",
+            -1,
+            value=central,
+            second_value=following,
+        ),
+    )
+    semitone_on_strong_block = k3.feature_mask(
+        data,
+        k3.FeatureSpec(
+            "any_pair_central_abs_class_metric",
+            -1,
+            value=1,
+            second_value=1,
+        ),
+    )
+    triadic_on_strong_block = k3.feature_mask(
+        data,
+        k3.FeatureSpec(
+            "central_triadic_metric",
+            -1,
+            value=1,
+            second_value=1,
+        ),
+    )
+
+    assert metric[0, 69 - data.candidate_min]
+    assert transition[0, 69 - data.candidate_min]
+    assert semitone_on_strong_block[0, 67 - data.candidate_min]
+    assert triadic_on_strong_block[0, 69 - data.candidate_min]
 
 
 def test_context_survives_dataset_round_trip(tmp_path: Path) -> None:
@@ -488,6 +557,120 @@ def test_vectorized_segment_energies_match_scalar_worlds() -> None:
     blocks[2, 0] = original
 
     assert np.allclose(vectorized, scalar)
+
+
+def test_joint_energy_counts_one_shared_sonority_potential_per_block() -> None:
+    blocks = np.asarray(
+        [
+            [67, 64, 55, 48],
+            [69, 66, 57, 50],
+            [71, 67, 59, 52],
+        ],
+        dtype=np.int16,
+    )
+    attacks = np.ones_like(blocks, dtype=bool)
+    major_triad = sum(1 << pitch_class for pitch_class in {0, 4, 7})
+    dataset = k3._decision_dataset(
+        blocks,
+        attacks,
+        [1],
+        36,
+        81,
+    )
+
+    assert dataset is not None
+    assert dataset.size == 4
+    assert k3.shared_potential_rows(dataset).sum() == 1
+
+    energy = k3._state_energy(
+        blocks,
+        attacks,
+        [1],
+        candidate_min=36,
+        candidate_max=81,
+        register_logits=np.zeros((4, 46), dtype=np.float64),
+        features=(k3.FeatureSpec("central_bass_pcset", -1, value=major_triad),),
+        weights=np.asarray([2.0]),
+    )
+
+    assert energy == 2.0
+
+
+def test_factor_export_merges_additive_weights_and_preserves_sources() -> None:
+    feature = k3.FeatureSpec(
+        "abs_class_from_previous",
+        target_voice=3,
+        value=1,
+    )
+    model = {
+        "base_rule_count": 1,
+        "calibration_rule_count": 0,
+        "v5_14_rule_count": 0,
+        "rules": [
+            {"feature": feature.to_dict(), "weight": -0.4},
+            {"feature": feature.to_dict(), "weight": -0.2},
+        ],
+    }
+
+    (merged,) = factor_export.merge_rules(model)
+
+    assert np.isclose(merged["log_weight"], -0.6)
+    assert len(merged["sources"]) == 2
+    assert factor_export.factor_grounding(feature) == "once_per_target_voice_attack"
+
+
+def test_factor_export_marks_shared_sonorities_once_per_vertical_block() -> None:
+    feature = k3.FeatureSpec(
+        "central_bass_pcset_metric",
+        target_voice=-1,
+        value=145,
+        second_value=1,
+    )
+
+    assert factor_export.factor_grounding(feature) == "once_per_vertical_block"
+    assert factor_export.factor_scope(feature)["voices"] == [
+        "soprano",
+        "alto",
+        "tenor",
+        "bass",
+    ]
+
+
+def test_snarky_choice_bridge_preserves_v5_16_conditionals() -> None:
+    data = _dataset()
+    data.tonic_pcs = np.asarray([0, 2], dtype=np.int8)
+    data.modes = np.asarray([0, 1], dtype=np.int8)
+    data.metric_levels = np.asarray([3, 0], dtype=np.int8)
+    program = snarky_choice_bridge.load_choice_program()
+
+    compiled = program.evaluate(data)
+    source = snarky_choice_bridge.source_model_evaluation(data)
+
+    assert len(program.factors) == 41
+    assert np.all(compiled.positive_weights > 0)
+    assert np.allclose(compiled.probabilities.sum(axis=1), 1.0)
+    assert np.allclose(compiled.local_scores, source.local_scores)
+    assert np.allclose(compiled.positive_weights, source.positive_weights)
+    assert np.allclose(compiled.probabilities, source.probabilities)
+
+
+def test_snarky_choice_bridge_explains_each_candidate_by_factor_id() -> None:
+    data = _dataset().take(np.asarray([0]))
+    data.tonic_pcs = np.asarray([0], dtype=np.int8)
+    data.modes = np.asarray([0], dtype=np.int8)
+    data.metric_levels = np.asarray([3], dtype=np.int8)
+    program = snarky_choice_bridge.load_choice_program()
+
+    (alternatives,) = program.explanations(data)
+
+    assert len(alternatives) == data.candidate_pitches.size
+    assert {item["pitch"] for item in alternatives} == set(data.candidate_pitches)
+    assert np.isclose(sum(item["probability"] for item in alternatives), 1.0)
+    assert all(
+        activation["factor_id"].startswith("F-K3-V5.16-")
+        for alternative in alternatives
+        for activation in alternative["active_factors"]
+    )
 
 
 def test_clean_induction_source_has_no_rule_base_dependency() -> None:

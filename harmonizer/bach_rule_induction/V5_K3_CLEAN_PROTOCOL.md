@@ -177,6 +177,13 @@ décisions centrées sur une attaque dont le K3 intersecte la durée modifiée.
 Cette sémantique évite de compter une blanche comme quatre noires répétées et
 conserve les interactions avec les attaques des autres voix.
 
+Depuis la correction V5.14, cette addition distingue deux portées. Un prédicat
+mélodique appartient à la décision de sa voix. Un potentiel de sonorité ou de
+transition appartient au bloc vertical commun et n'est compté qu'une fois,
+même si plusieurs voix attaquent simultanément. Avant V5.14, ces potentiels
+communs étaient multipliés par le nombre d'attaques du bloc ; les générations
+V5.12–V5.13 ne peuvent donc pas servir de référence promue.
+
 Le premier diagnostic utilise `bach/bwv108.6`, appartenant au train :
 
 - `98` blocs verticaux ;

@@ -1,0 +1,1299 @@
+schema_version: 1
+id: S-K3-LEARNED-V5.16-FACTORS
+status: PROBABILISTIC_CONFIRMED_NOT_YET_COMPILED_TO_RULE_DSL
+source_model: harmonizer/bach_rule_induction/experiments/v5_k3_clean/results/v5_16_interpolated_generative_model.json
+probability_model:
+  family: conditional_log_linear_with_gibbs_joint_generation
+  score: baseline(candidate) + sum(log_weight * feature)
+  choice_weight: exp(local_score - max_local_score)
+  hard_constraints: remove_candidate_before_normalization
+locality:
+  kernel: K3
+  radius: 1
+  blocks: 3
+  attack_hold_semantics: true
+grounding_semantics:
+  shared_potentials_counted_once: true
+  introduced_in: V5.14
+counts:
+  source_weight_terms: 44
+  canonical_factors_after_merge: 41
+  merged_additive_terms: 3
+baselines:
+  register_logits: embedded_in_source_model
+  voice_mode_tonal_logits: embedded_in_source_model
+confirmation:
+  pieces: 10
+  seeds_per_piece: 3
+  sweeps: 6
+  report: ../../experiments/v5_k3_clean/results/V5_16_MULTISEED_CONFIRMATION_AUDIT.md
+  stable_audited_residuals: 0
+  test_split_loaded: false
+factors:
+- id: F-K3-V5.16-001
+  key: abs_class_from_previous:3:-:1:-
+  label: abs_class_from_previous(v3)=1
+  scope:
+    blocks:
+    - previous
+    - current
+    voices:
+    - bass
+  grounding: once_per_target_voice_attack
+  feature:
+    kind: abs_class_from_previous
+    target_voice: 3
+    other_voice: null
+    value: 1
+    second_value: null
+    complexity: 2
+  parameter:
+    scale: log_energy_contribution
+    log_weight: -0.5062322350916507
+    odds_multiplier_isolated: 0.6027623726732892
+    sign: avoidance
+  sources:
+  - layer: v5_14_explicit_calibration
+    source_index: 30
+    log_weight: -0.27950857923677913
+    selection:
+      bach_rate: 0.2259087415638154
+      gibbs_rate: 0.38573002902120446
+      gradient: -0.15982128745738902
+      z_score: -6.6353069550025205
+  - layer: v5_16_interpolated_bass_correction
+    source_index: 42
+    log_weight: -0.2267236558548716
+    selection:
+      bach_rate: 0.2259087415638154
+      gibbs_rate: 0.3069056526158544
+      gradient: -0.08099691105203899
+      z_score: -4.502298961251702
+    unscaled_source_weight: -0.4534473117097432
+- id: F-K3-V5.16-002
+  key: abs_class_from_previous:3:-:2:-
+  label: abs_class_from_previous(v3)=2
+  scope:
+    blocks:
+    - previous
+    - current
+    voices:
+    - bass
+  grounding: once_per_target_voice_attack
+  feature:
+    kind: abs_class_from_previous
+    target_voice: 3
+    other_voice: null
+    value: 2
+    second_value: null
+    complexity: 2
+  parameter:
+    scale: log_energy_contribution
+    log_weight: -0.26799121035287976
+    odds_multiplier_isolated: 0.7649145044018871
+    sign: avoidance
+  sources:
+  - layer: v5_14_explicit_calibration
+    source_index: 36
+    log_weight: -0.26799121035287976
+    selection:
+      bach_rate: 0.3623478288294558
+      gibbs_rate: 0.4021076608499522
+      gradient: -0.03975983202049632
+      z_score: -2.2046023961503813
+- id: F-K3-V5.16-003
+  key: abs_step_from_previous_gt:3:-:2:-
+  label: abs_step_from_previous_gt(v3)=2
+  scope:
+    blocks:
+    - previous
+    - current
+    voices:
+    - bass
+  grounding: once_per_target_voice_attack
+  feature:
+    kind: abs_step_from_previous_gt
+    target_voice: 3
+    other_voice: null
+    value: 2
+    second_value: null
+    complexity: 2
+  parameter:
+    scale: log_energy_contribution
+    log_weight: 0.5088149560090999
+    odds_multiplier_isolated: 1.6633189204690355
+    sign: preference
+  sources:
+  - layer: v5_14_explicit_calibration
+    source_index: 29
+    log_weight: 0.2781032441163789
+    selection:
+      bach_rate: 0.35936629748373905
+      gibbs_rate: 0.15247813925991832
+      gradient: 0.20688815822382078
+      z_score: 10.287987179676868
+  - layer: v5_16_interpolated_bass_correction
+    source_index: 41
+    log_weight: 0.230711711892721
+    selection:
+      bach_rate: 0.35936629748373905
+      gibbs_rate: 0.24664100132963213
+      gradient: 0.11272529615410697
+      z_score: 5.510933880546322
+    unscaled_source_weight: 0.461423423785442
+- id: F-K3-V5.16-004
+  key: abs_step_from_previous_gt:3:-:4:-
+  label: abs_step_from_previous_gt(v3)=4
+  scope:
+    blocks:
+    - previous
+    - current
+    voices:
+    - bass
+  grounding: once_per_target_voice_attack
+  feature:
+    kind: abs_step_from_previous_gt
+    target_voice: 3
+    other_voice: null
+    value: 4
+    second_value: null
+    complexity: 2
+  parameter:
+    scale: log_energy_contribution
+    log_weight: 0.5114354558026835
+    odds_multiplier_isolated: 1.6676833633700898
+    sign: preference
+  sources:
+  - layer: v5_14_explicit_calibration
+    source_index: 28
+    log_weight: 0.278555952108593
+    selection:
+      bach_rate: 0.28250811712740886
+      gibbs_rate: 0.08928379757725625
+      gradient: 0.19322431955015268
+      z_score: 13.935505069734127
+  - layer: v5_16_interpolated_bass_correction
+    source_index: 40
+    log_weight: 0.2328795036940904
+    selection:
+      bach_rate: 0.28250811712740886
+      gibbs_rate: 0.16790648672171316
+      gradient: 0.11460163040569574
+      z_score: 5.5403568384995
+    unscaled_source_weight: 0.4657590073881808
+- id: F-K3-V5.16-005
+  key: any_adjacent_central_ordered_gap_le:-1:-:2:-
+  label: any_adjacent_central_ordered_gap_le(all_voices)=2
+  scope:
+    blocks:
+    - current
+    voices:
+    - decision_voice
+  grounding: once_per_attack_decision
+  feature:
+    kind: any_adjacent_central_ordered_gap_le
+    target_voice: -1
+    other_voice: null
+    value: 2
+    second_value: null
+    complexity: 1
+  parameter:
+    scale: log_energy_contribution
+    log_weight: -1.0178834424340237
+    odds_multiplier_isolated: 0.36135896839158216
+    sign: avoidance
+  sources:
+  - layer: v5_7_contextual_base
+    source_index: 6
+    log_weight: -1.0178834424340237
+    selection:
+      gradient: -0.07491300747972073
+      z_score: -68.73624962863781
+- id: F-K3-V5.16-006
+  key: any_pair_abs_class_preserved_same_sign:-1:-:0:-
+  label: any_pair_abs_class_preserved_same_sign(all_voices)=0
+  scope:
+    blocks:
+    - current
+    voices:
+    - decision_voice
+  grounding: once_per_attack_decision
+  feature:
+    kind: any_pair_abs_class_preserved_same_sign
+    target_voice: -1
+    other_voice: null
+    value: 0
+    second_value: null
+    complexity: 4
+  parameter:
+    scale: log_energy_contribution
+    log_weight: -2.00945432343293
+    odds_multiplier_isolated: 0.13406180910088267
+    sign: avoidance
+  sources:
+  - layer: v5_7_contextual_base
+    source_index: 11
+    log_weight: -2.00945432343293
+    selection:
+      gradient: -0.025937018003466875
+      z_score: -55.75031480559047
+- id: F-K3-V5.16-007
+  key: any_pair_abs_class_preserved_same_sign:-1:-:7:-
+  label: any_pair_abs_class_preserved_same_sign(all_voices)=7
+  scope:
+    blocks:
+    - current
+    voices:
+    - decision_voice
+  grounding: once_per_attack_decision
+  feature:
+    kind: any_pair_abs_class_preserved_same_sign
+    target_voice: -1
+    other_voice: null
+    value: 7
+    second_value: null
+    complexity: 4
+  parameter:
+    scale: log_energy_contribution
+    log_weight: -1.9638524934343322
+    odds_multiplier_isolated: 0.14031680872785593
+    sign: avoidance
+  sources:
+  - layer: v5_7_contextual_base
+    source_index: 9
+    log_weight: -1.9638524934343322
+    selection:
+      gradient: -0.027489796621580298
+      z_score: -54.8283791175135
+- id: F-K3-V5.16-008
+  key: any_pair_arrival_abs_class_same_sign:-1:-:2:-
+  label: any_pair_arrival_abs_class_same_sign(all_voices)=2
+  scope:
+    blocks:
+    - current
+    voices:
+    - decision_voice
+  grounding: once_per_attack_decision
+  feature:
+    kind: any_pair_arrival_abs_class_same_sign
+    target_voice: -1
+    other_voice: null
+    value: 2
+    second_value: null
+    complexity: 2
+  parameter:
+    scale: log_energy_contribution
+    log_weight: -1.2170495783290516
+    odds_multiplier_isolated: 0.29610250665864446
+    sign: avoidance
+  sources:
+  - layer: v5_7_contextual_base
+    source_index: 14
+    log_weight: -1.2170495783290516
+    selection:
+      gradient: -0.02608480942717498
+      z_score: -46.670325843501935
+- id: F-K3-V5.16-009
+  key: any_pair_central_abs_class:-1:-:10:-
+  label: any_pair_central_abs_class(all_voices)=10
+  scope:
+    blocks:
+    - current
+    voices:
+    - decision_voice
+  grounding: once_per_attack_decision
+  feature:
+    kind: any_pair_central_abs_class
+    target_voice: -1
+    other_voice: null
+    value: 10
+    second_value: null
+    complexity: 1
+  parameter:
+    scale: log_energy_contribution
+    log_weight: -1.2220285573408722
+    odds_multiplier_isolated: 0.29463188263381185
+    sign: avoidance
+  sources:
+  - layer: v5_7_contextual_base
+    source_index: 10
+    log_weight: -1.2220285573408722
+    selection:
+      gradient: -0.059444137213288846
+      z_score: -52.66395592482252
+- id: F-K3-V5.16-010
+  key: any_pair_central_abs_class:-1:-:11:-
+  label: any_pair_central_abs_class(all_voices)=11
+  scope:
+    blocks:
+    - current
+    voices:
+    - decision_voice
+  grounding: once_per_attack_decision
+  feature:
+    kind: any_pair_central_abs_class
+    target_voice: -1
+    other_voice: null
+    value: 11
+    second_value: null
+    complexity: 1
+  parameter:
+    scale: log_energy_contribution
+    log_weight: -1.6531881597140254
+    odds_multiplier_isolated: 0.19143859783501568
+    sign: avoidance
+  sources:
+  - layer: v5_7_contextual_base
+    source_index: 8
+    log_weight: -1.6531881597140254
+    selection:
+      gradient: -0.04544535285396522
+      z_score: -56.36688850536758
+- id: F-K3-V5.16-011
+  key: any_pair_central_abs_class:-1:-:1:-
+  label: any_pair_central_abs_class(all_voices)=1
+  scope:
+    blocks:
+    - current
+    voices:
+    - decision_voice
+  grounding: once_per_attack_decision
+  feature:
+    kind: any_pair_central_abs_class
+    target_voice: -1
+    other_voice: null
+    value: 1
+    second_value: null
+    complexity: 1
+  parameter:
+    scale: log_energy_contribution
+    log_weight: -1.4508648358747822
+    odds_multiplier_isolated: 0.23436751099059164
+    sign: avoidance
+  sources:
+  - layer: v5_7_contextual_base
+    source_index: 12
+    log_weight: -1.4508648358747822
+    selection:
+      gradient: -0.03923269028622203
+      z_score: -49.01979531600517
+- id: F-K3-V5.16-012
+  key: any_pair_central_abs_class:-1:-:2:-
+  label: any_pair_central_abs_class(all_voices)=2
+  scope:
+    blocks:
+    - current
+    voices:
+    - decision_voice
+  grounding: once_per_attack_decision
+  feature:
+    kind: any_pair_central_abs_class
+    target_voice: -1
+    other_voice: null
+    value: 2
+    second_value: null
+    complexity: 1
+  parameter:
+    scale: log_energy_contribution
+    log_weight: -0.8387880089519272
+    odds_multiplier_isolated: 0.4322340699215782
+    sign: avoidance
+  sources:
+  - layer: v5_7_contextual_base
+    source_index: 19
+    log_weight: -0.8387880089519272
+    selection:
+      gradient: -0.039574469762342475
+      z_score: -37.714473515997184
+- id: F-K3-V5.16-013
+  key: any_pair_central_abs_class_metric:-1:-:5:0
+  label: any_pair_central_abs_class_metric(all_voices)=5,0
+  scope:
+    blocks:
+    - current
+    voices:
+    - decision_voice
+  grounding: once_per_attack_decision
+  feature:
+    kind: any_pair_central_abs_class_metric
+    target_voice: -1
+    other_voice: null
+    value: 5
+    second_value: 0
+    complexity: 3
+  parameter:
+    scale: log_energy_contribution
+    log_weight: -0.2566776568759886
+    odds_multiplier_isolated: 0.7736175438742495
+    sign: avoidance
+  sources:
+  - layer: v5_14_explicit_calibration
+    source_index: 34
+    log_weight: -0.2566776568759886
+    selection:
+      bach_rate: 0.15388624963654535
+      gibbs_rate: 0.19673795835462596
+      gradient: -0.0428517087180806
+      z_score: -5.729416854801316
+- id: F-K3-V5.16-014
+  key: any_pair_central_abs_class_metric:-1:-:6:1
+  label: any_pair_central_abs_class_metric(all_voices)=6,1
+  scope:
+    blocks:
+    - current
+    voices:
+    - decision_voice
+  grounding: once_per_attack_decision
+  feature:
+    kind: any_pair_central_abs_class_metric
+    target_voice: -1
+    other_voice: null
+    value: 6
+    second_value: 1
+    complexity: 3
+  parameter:
+    scale: log_energy_contribution
+    log_weight: -0.2637027872712257
+    odds_multiplier_isolated: 0.768201825091042
+    sign: avoidance
+  sources:
+  - layer: v5_14_explicit_calibration
+    source_index: 33
+    log_weight: -0.2637027872712257
+    selection:
+      bach_rate: 0.023820214543220693
+      gibbs_rate: 0.067849878127119
+      gradient: -0.0440296635838983
+      z_score: -7.133429130885875
+- id: F-K3-V5.16-015
+  key: any_pair_central_abs_class_metric:-1:-:7:1
+  label: any_pair_central_abs_class_metric(all_voices)=7,1
+  scope:
+    blocks:
+    - current
+    voices:
+    - decision_voice
+  grounding: once_per_attack_decision
+  feature:
+    kind: any_pair_central_abs_class_metric
+    target_voice: -1
+    other_voice: null
+    value: 7
+    second_value: 1
+    complexity: 3
+  parameter:
+    scale: log_energy_contribution
+    log_weight: 0.2745940525567331
+    odds_multiplier_isolated: 1.3159963410692341
+    sign: preference
+  sources:
+  - layer: v5_14_explicit_calibration
+    source_index: 31
+    log_weight: 0.2745940525567331
+    selection:
+      bach_rate: 0.20055618173725248
+      gibbs_rate: 0.11692136135814826
+      gradient: 0.08363482037910422
+      z_score: 15.223463261802298
+- id: F-K3-V5.16-016
+  key: any_voice_adjacent_abs_class:-1:-:1:-
+  label: any_voice_adjacent_abs_class(all_voices)=1
+  scope:
+    blocks:
+    - current
+    voices:
+    - decision_voice
+  grounding: once_per_attack_decision
+  feature:
+    kind: any_voice_adjacent_abs_class
+    target_voice: -1
+    other_voice: null
+    value: 1
+    second_value: null
+    complexity: 1
+  parameter:
+    scale: log_energy_contribution
+    log_weight: 1.4268593406190844
+    odds_multiplier_isolated: 4.165595908351957
+    sign: preference
+  sources:
+  - layer: v5_7_contextual_base
+    source_index: 4
+    log_weight: 1.4268593406190844
+    selection:
+      gradient: 0.13188949884384707
+      z_score: 104.09644286973653
+- id: F-K3-V5.16-017
+  key: any_voice_adjacent_abs_class:-1:-:2:-
+  label: any_voice_adjacent_abs_class(all_voices)=2
+  scope:
+    blocks:
+    - current
+    voices:
+    - decision_voice
+  grounding: once_per_attack_decision
+  feature:
+    kind: any_voice_adjacent_abs_class
+    target_voice: -1
+    other_voice: null
+    value: 2
+    second_value: null
+    complexity: 1
+  parameter:
+    scale: log_energy_contribution
+    log_weight: 0.8921160694271277
+    odds_multiplier_isolated: 2.4402880104943447
+    sign: preference
+  sources:
+  - layer: v5_7_contextual_base
+    source_index: 5
+    log_weight: 0.8921160694271277
+    selection:
+      gradient: 0.1210373310911631
+      z_score: 79.4846689197498
+- id: F-K3-V5.16-018
+  key: any_voice_adjacent_step_gt:-1:-:2:-
+  label: any_voice_adjacent_step_gt(all_voices)=2
+  scope:
+    blocks:
+    - current
+    voices:
+    - decision_voice
+  grounding: once_per_attack_decision
+  feature:
+    kind: any_voice_adjacent_step_gt
+    target_voice: -1
+    other_voice: null
+    value: 2
+    second_value: null
+    complexity: 1
+  parameter:
+    scale: log_energy_contribution
+    log_weight: -1.3607790059512426
+    odds_multiplier_isolated: 0.2564609145379713
+    sign: avoidance
+  sources:
+  - layer: v5_7_contextual_base
+    source_index: 0
+    log_weight: -1.3607790059512426
+    selection:
+      gradient: -0.43630185773412994
+      z_score: -282.4348188751188
+- id: F-K3-V5.16-019
+  key: any_voice_adjacent_step_gt:-1:-:7:-
+  label: any_voice_adjacent_step_gt(all_voices)=7
+  scope:
+    blocks:
+    - current
+    voices:
+    - decision_voice
+  grounding: once_per_attack_decision
+  feature:
+    kind: any_voice_adjacent_step_gt
+    target_voice: -1
+    other_voice: null
+    value: 7
+    second_value: null
+    complexity: 1
+  parameter:
+    scale: log_energy_contribution
+    log_weight: -1.2369292868975112
+    odds_multiplier_isolated: 0.29027419958856193
+    sign: avoidance
+  sources:
+  - layer: v5_7_contextual_base
+    source_index: 13
+    log_weight: -1.2369292868975112
+    selection:
+      gradient: -0.038529409173639124
+      z_score: -47.80348881532019
+- id: F-K3-V5.16-020
+  key: attacked_repeat_from_previous:3:-:-:-
+  label: attacked_repeat_from_previous(v3)
+  scope:
+    blocks:
+    - previous
+    - current
+    voices:
+    - bass
+  grounding: once_per_target_voice_attack
+  feature:
+    kind: attacked_repeat_from_previous
+    target_voice: 3
+    other_voice: null
+    value: null
+    second_value: null
+    complexity: 1
+  parameter:
+    scale: log_energy_contribution
+    log_weight: -1.5887878859937437
+    odds_multiplier_isolated: 0.20417294269080724
+    sign: avoidance
+  sources:
+  - layer: v5_7_contextual_base
+    source_index: 18
+    log_weight: -1.5887878859937437
+    selection:
+      gradient: -0.02241799258078829
+      z_score: -41.23511038340973
+- id: F-K3-V5.16-021
+  key: bass_pcset_transition:-1:-:145:1169
+  label: bass_pcset_transition(all_voices)=145,1169
+  scope:
+    blocks:
+    - current
+    - following
+    voices:
+    - soprano
+    - alto
+    - tenor
+    - bass
+  grounding: once_per_k3_transition
+  feature:
+    kind: bass_pcset_transition
+    target_voice: -1
+    other_voice: null
+    value: 145
+    second_value: 1169
+    complexity: 5
+  parameter:
+    scale: log_energy_contribution
+    log_weight: 0.27806589074086463
+    odds_multiplier_isolated: 1.3205732078894987
+    sign: preference
+  sources:
+  - layer: v5_14_explicit_calibration
+    source_index: 35
+    log_weight: 0.27806589074086463
+    selection:
+      bach_rate: 0.039102157291779564
+      gibbs_rate: 0.0014285714285714286
+      gradient: 0.03767358586320813
+      z_score: 6.246381500669231
+- id: F-K3-V5.16-022
+  key: bass_pcset_transition:-1:-:145:145
+  label: bass_pcset_transition(all_voices)=145,145
+  scope:
+    blocks:
+    - current
+    - following
+    voices:
+    - soprano
+    - alto
+    - tenor
+    - bass
+  grounding: once_per_k3_transition
+  feature:
+    kind: bass_pcset_transition
+    target_voice: -1
+    other_voice: null
+    value: 145
+    second_value: 145
+    complexity: 5
+  parameter:
+    scale: log_energy_contribution
+    log_weight: 0.2714568449796053
+    odds_multiplier_isolated: 1.3118742566745778
+    sign: preference
+  sources:
+  - layer: v5_14_explicit_calibration
+    source_index: 37
+    log_weight: 0.2714568449796053
+    selection:
+      bach_rate: 0.09056014478462325
+      gibbs_rate: 0.04237255881851144
+      gradient: 0.04818758596611181
+      z_score: 4.078289997791089
+- id: F-K3-V5.16-023
+  key: bass_pcset_transition:-1:-:265:265
+  label: bass_pcset_transition(all_voices)=265,265
+  scope:
+    blocks:
+    - current
+    - following
+    voices:
+    - soprano
+    - alto
+    - tenor
+    - bass
+  grounding: once_per_k3_transition
+  feature:
+    kind: bass_pcset_transition
+    target_voice: -1
+    other_voice: null
+    value: 265
+    second_value: 265
+    complexity: 5
+  parameter:
+    scale: log_energy_contribution
+    log_weight: -0.2641831264155432
+    odds_multiplier_isolated: 0.7678329162914762
+    sign: avoidance
+  sources:
+  - layer: v5_14_explicit_calibration
+    source_index: 38
+    log_weight: -0.2641831264155432
+    selection:
+      bach_rate: 0.00673331104780381
+      gibbs_rate: 0.027186319477101976
+      gradient: -0.020453008429298168
+      z_score: -3.6130039460498793
+- id: F-K3-V5.16-024
+  key: bass_pcset_transition:-1:-:289:265
+  label: bass_pcset_transition(all_voices)=289,265
+  scope:
+    blocks:
+    - current
+    - following
+    voices:
+    - soprano
+    - alto
+    - tenor
+    - bass
+  grounding: once_per_k3_transition
+  feature:
+    kind: bass_pcset_transition
+    target_voice: -1
+    other_voice: null
+    value: 289
+    second_value: 265
+    complexity: 5
+  parameter:
+    scale: log_energy_contribution
+    log_weight: -0.24116561197674283
+    odds_multiplier_isolated: 0.7857114923793652
+    sign: avoidance
+  sources:
+  - layer: v5_14_explicit_calibration
+    source_index: 39
+    log_weight: -0.24116561197674283
+    selection:
+      bach_rate: 0.0008928571428571428
+      gibbs_rate: 0.008841703596582203
+      gradient: -0.00794884645372506
+      z_score: -4.040569818532853
+- id: F-K3-V5.16-025
+  key: central_bass_pcset:-1:-:137:-
+  label: central_bass_pcset(all_voices)=137
+  scope:
+    blocks:
+    - current
+    voices:
+    - soprano
+    - alto
+    - tenor
+    - bass
+  grounding: once_per_vertical_block
+  feature:
+    kind: central_bass_pcset
+    target_voice: -1
+    other_voice: null
+    value: 137
+    second_value: null
+    complexity: 3
+  parameter:
+    scale: log_energy_contribution
+    log_weight: 1.178894067720941
+    odds_multiplier_isolated: 3.2507770748671874
+    sign: preference
+  sources:
+  - layer: v5_7_contextual_base
+    source_index: 2
+    log_weight: 1.178894067720941
+    selection:
+      gradient: 0.08008246034731148
+      z_score: 111.00101541924819
+- id: F-K3-V5.16-026
+  key: central_bass_pcset:-1:-:145:-
+  label: central_bass_pcset(all_voices)=145
+  scope:
+    blocks:
+    - current
+    voices:
+    - soprano
+    - alto
+    - tenor
+    - bass
+  grounding: once_per_vertical_block
+  feature:
+    kind: central_bass_pcset
+    target_voice: -1
+    other_voice: null
+    value: 145
+    second_value: null
+    complexity: 3
+  parameter:
+    scale: log_energy_contribution
+    log_weight: 1.688977080246391
+    odds_multiplier_isolated: 5.413939845674067
+    sign: preference
+  sources:
+  - layer: v5_7_contextual_base
+    source_index: 1
+    log_weight: 1.688977080246391
+    selection:
+      gradient: 0.1758487563241343
+      z_score: 195.56688918631386
+- id: F-K3-V5.16-027
+  key: central_bass_pcset:-1:-:265:-
+  label: central_bass_pcset(all_voices)=265
+  scope:
+    blocks:
+    - current
+    voices:
+    - soprano
+    - alto
+    - tenor
+    - bass
+  grounding: once_per_vertical_block
+  feature:
+    kind: central_bass_pcset
+    target_voice: -1
+    other_voice: null
+    value: 265
+    second_value: null
+    complexity: 3
+  parameter:
+    scale: log_energy_contribution
+    log_weight: 1.1892547629517713
+    odds_multiplier_isolated: 3.2846324652468524
+    sign: preference
+  sources:
+  - layer: v5_7_contextual_base
+    source_index: 3
+    log_weight: 1.1892547629517713
+    selection:
+      gradient: 0.07129559979063219
+      z_score: 108.7621185130289
+- id: F-K3-V5.16-028
+  key: central_bass_pcset:-1:-:329:-
+  label: central_bass_pcset(all_voices)=329
+  scope:
+    blocks:
+    - current
+    voices:
+    - soprano
+    - alto
+    - tenor
+    - bass
+  grounding: once_per_vertical_block
+  feature:
+    kind: central_bass_pcset
+    target_voice: -1
+    other_voice: null
+    value: 329
+    second_value: null
+    complexity: 3
+  parameter:
+    scale: log_energy_contribution
+    log_weight: 1.8162185012382257
+    odds_multiplier_isolated: 6.148563647190357
+    sign: preference
+  sources:
+  - layer: v5_7_contextual_base
+    source_index: 7
+    log_weight: 1.8162185012382257
+    selection:
+      gradient: 0.018525732635020036
+      z_score: 60.887479254289815
+- id: F-K3-V5.16-029
+  key: central_bass_pcset_metric:-1:-:145:1
+  label: central_bass_pcset_metric(all_voices)=145,1
+  scope:
+    blocks:
+    - current
+    voices:
+    - soprano
+    - alto
+    - tenor
+    - bass
+  grounding: once_per_vertical_block
+  feature:
+    kind: central_bass_pcset_metric
+    target_voice: -1
+    other_voice: null
+    value: 145
+    second_value: 1
+    complexity: 4
+  parameter:
+    scale: log_energy_contribution
+    log_weight: 0.2774243733386605
+    odds_multiplier_isolated: 1.3197263088750255
+    sign: preference
+  sources:
+  - layer: v5_14_explicit_calibration
+    source_index: 32
+    log_weight: 0.2774243733386605
+    selection:
+      bach_rate: 0.14308717726719306
+      gibbs_rate: 0.05784195144468838
+      gradient: 0.08524522582250467
+      z_score: 7.833367127784686
+- id: F-K3-V5.16-030
+  key: central_distinct_pc_count:-1:-:2:-
+  label: central_distinct_pc_count(all_voices)=2
+  scope:
+    blocks:
+    - current
+    voices:
+    - soprano
+    - alto
+    - tenor
+    - bass
+  grounding: once_per_vertical_block
+  feature:
+    kind: central_distinct_pc_count
+    target_voice: -1
+    other_voice: null
+    value: 2
+    second_value: null
+    complexity: 1
+  parameter:
+    scale: log_energy_contribution
+    log_weight: -1.516893244312613
+    odds_multiplier_isolated: 0.2193924279408183
+    sign: avoidance
+  sources:
+  - layer: v5_7_contextual_base
+    source_index: 15
+    log_weight: -1.516893244312613
+    selection:
+      gradient: -0.030522040597965615
+      z_score: -45.237171846243584
+- id: F-K3-V5.16-031
+  key: central_distinct_pc_count_metric:-1:-:3:0
+  label: central_distinct_pc_count_metric(all_voices)=3,0
+  scope:
+    blocks:
+    - current
+    voices:
+    - soprano
+    - alto
+    - tenor
+    - bass
+  grounding: once_per_vertical_block
+  feature:
+    kind: central_distinct_pc_count_metric
+    target_voice: -1
+    other_voice: null
+    value: 3
+    second_value: 0
+    complexity: 2
+  parameter:
+    scale: log_energy_contribution
+    log_weight: -1.289444908134439
+    odds_multiplier_isolated: 0.2754236260792976
+    sign: avoidance
+  sources:
+  - layer: v5_7_contextual_base
+    source_index: 16
+    log_weight: -1.289444908134439
+    selection:
+      gradient: -0.025822007113600023
+      z_score: -43.9960612072502
+- id: F-K3-V5.16-032
+  key: previous_ordered_gap_le:0:1:2:-
+  label: previous_ordered_gap_le(v0,v1)=2
+  scope:
+    blocks:
+    - current
+    voices:
+    - soprano
+    - alto
+  grounding: once_per_target_voice_attack
+  feature:
+    kind: previous_ordered_gap_le
+    target_voice: 0
+    other_voice: 1
+    value: 2
+    second_value: null
+    complexity: 1
+  parameter:
+    scale: log_energy_contribution
+    log_weight: 1.3734189428440486
+    odds_multiplier_isolated: 3.94882846129643
+    sign: preference
+  sources:
+  - layer: v5_7_contextual_base
+    source_index: 17
+    log_weight: 1.3734189428440486
+    selection:
+      gradient: 0.018496128183674618
+      z_score: 41.71375155340967
+- id: F-K3-V5.16-033
+  key: rare_tonal_class:1:-:1290:0
+  label: rare_tonal_class(v1)=1290,0
+  scope:
+    blocks:
+    - current
+    voices:
+    - alto
+  grounding: once_per_target_voice_attack
+  feature:
+    kind: rare_tonal_class
+    target_voice: 1
+    other_voice: null
+    value: 1290
+    second_value: 0
+    complexity: 2
+  parameter:
+    scale: log_energy_contribution
+    log_weight: -0.4425453733669536
+    odds_multiplier_isolated: 0.6423991924925501
+    sign: avoidance
+  sources:
+  - layer: v5_9_chromatic_calibration
+    source_index: 22
+    log_weight: -0.4425453733669536
+    selection:
+      bach_rate: 0.010456311712631937
+      gibbs_rate: 0.03325024720358634
+      gradient: -0.022793935490954403
+      z_score: -3.2428076797278846
+- id: F-K3-V5.16-034
+  key: rare_tonal_class:3:-:1290:0
+  label: rare_tonal_class(v3)=1290,0
+  scope:
+    blocks:
+    - current
+    voices:
+    - bass
+  grounding: once_per_target_voice_attack
+  feature:
+    kind: rare_tonal_class
+    target_voice: 3
+    other_voice: null
+    value: 1290
+    second_value: 0
+    complexity: 2
+  parameter:
+    scale: log_energy_contribution
+    log_weight: -0.46609429035514927
+    odds_multiplier_isolated: 0.627448118952062
+    sign: avoidance
+  sources:
+  - layer: v5_9_chromatic_calibration
+    source_index: 20
+    log_weight: -0.46609429035514927
+    selection:
+      bach_rate: 0.015595164848271205
+      gibbs_rate: 0.060130761011327444
+      gradient: -0.04453559616305623
+      z_score: -3.6743160932914405
+- id: F-K3-V5.16-035
+  key: rare_tonal_class:3:-:80:1
+  label: rare_tonal_class(v3)=80,1
+  scope:
+    blocks:
+    - current
+    voices:
+    - bass
+  grounding: once_per_target_voice_attack
+  feature:
+    kind: rare_tonal_class
+    target_voice: 3
+    other_voice: null
+    value: 80
+    second_value: 1
+    complexity: 2
+  parameter:
+    scale: log_energy_contribution
+    log_weight: -0.4663566592072267
+    odds_multiplier_isolated: 0.627283517703419
+    sign: avoidance
+  sources:
+  - layer: v5_9_chromatic_calibration
+    source_index: 25
+    log_weight: -0.4663566592072267
+    selection:
+      bach_rate: 0.017962953976880608
+      gibbs_rate: 0.0422890551937153
+      gradient: -0.024326101216834692
+      z_score: -2.0730767820917544
+- id: F-K3-V5.16-036
+  key: rare_tonal_immediate_step_resolution:1:-:1290:0
+  label: rare_tonal_immediate_step_resolution(v1)=1290,0
+  scope:
+    blocks:
+    - previous
+    - current
+    - following
+    voices:
+    - alto
+  grounding: once_per_target_voice_attack
+  feature:
+    kind: rare_tonal_immediate_step_resolution
+    target_voice: 1
+    other_voice: null
+    value: 1290
+    second_value: 0
+    complexity: 3
+  parameter:
+    scale: log_energy_contribution
+    log_weight: -0.3862567915477083
+    odds_multiplier_isolated: 0.6795959887657065
+    sign: avoidance
+  sources:
+  - layer: v5_9_chromatic_calibration
+    source_index: 27
+    log_weight: -0.3862567915477083
+    selection:
+      bach_rate: 0.009280579673135851
+      gibbs_rate: 0.027409758988098127
+      gradient: -0.018129179314962274
+      z_score: -2.714223349374641
+- id: F-K3-V5.16-037
+  key: rare_tonal_immediate_step_resolution:3:-:1290:0
+  label: rare_tonal_immediate_step_resolution(v3)=1290,0
+  scope:
+    blocks:
+    - previous
+    - current
+    - following
+    voices:
+    - bass
+  grounding: once_per_target_voice_attack
+  feature:
+    kind: rare_tonal_immediate_step_resolution
+    target_voice: 3
+    other_voice: null
+    value: 1290
+    second_value: 0
+    complexity: 3
+  parameter:
+    scale: log_energy_contribution
+    log_weight: -0.457807226215685
+    odds_multiplier_isolated: 0.632669426532146
+    sign: avoidance
+  sources:
+  - layer: v5_9_chromatic_calibration
+    source_index: 24
+    log_weight: -0.457807226215685
+    selection:
+      bach_rate: 0.01097015297404303
+      gibbs_rate: 0.038907808426300386
+      gradient: -0.027937655452257355
+      z_score: -3.7010664960422726
+- id: F-K3-V5.16-038
+  key: rare_tonal_incoming_step:1:-:1290:0
+  label: rare_tonal_incoming_step(v1)=1290,0
+  scope:
+    blocks:
+    - current
+    voices:
+    - alto
+  grounding: once_per_target_voice_attack
+  feature:
+    kind: rare_tonal_incoming_step
+    target_voice: 1
+    other_voice: null
+    value: 1290
+    second_value: 0
+    complexity: 3
+  parameter:
+    scale: log_energy_contribution
+    log_weight: -0.44312527099265153
+    odds_multiplier_isolated: 0.6420267747186011
+    sign: avoidance
+  sources:
+  - layer: v5_9_chromatic_calibration
+    source_index: 26
+    log_weight: -0.44312527099265153
+    selection:
+      bach_rate: 0.009982826864147087
+      gibbs_rate: 0.03082327398300847
+      gradient: -0.02084044711886138
+      z_score: -3.2805781187306255
+- id: F-K3-V5.16-039
+  key: rare_tonal_incoming_step:3:-:1290:0
+  label: rare_tonal_incoming_step(v3)=1290,0
+  scope:
+    blocks:
+    - current
+    voices:
+    - bass
+  grounding: once_per_target_voice_attack
+  feature:
+    kind: rare_tonal_incoming_step
+    target_voice: 3
+    other_voice: null
+    value: 1290
+    second_value: 0
+    complexity: 3
+  parameter:
+    scale: log_energy_contribution
+    log_weight: -0.46425154761750415
+    odds_multiplier_isolated: 0.6286054103842164
+    sign: avoidance
+  sources:
+  - layer: v5_9_chromatic_calibration
+    source_index: 21
+    log_weight: -0.46425154761750415
+    selection:
+      bach_rate: 0.011434541547324017
+      gibbs_rate: 0.04727590082363555
+      gradient: -0.035841359276311546
+      z_score: -3.5831982760647882
+- id: F-K3-V5.16-040
+  key: rare_tonal_weak_metric:3:-:1290:0
+  label: rare_tonal_weak_metric(v3)=1290,0
+  scope:
+    blocks:
+    - current
+    voices:
+    - bass
+  grounding: once_per_target_voice_attack
+  feature:
+    kind: rare_tonal_weak_metric
+    target_voice: 3
+    other_voice: null
+    value: 1290
+    second_value: 0
+    complexity: 3
+  parameter:
+    scale: log_energy_contribution
+    log_weight: -0.4593041713109684
+    odds_multiplier_isolated: 0.6317230636405283
+    sign: avoidance
+  sources:
+  - layer: v5_9_chromatic_calibration
+    source_index: 23
+    log_weight: -0.4593041713109684
+    selection:
+      bach_rate: 0.013181756359508768
+      gibbs_rate: 0.04651142595517195
+      gradient: -0.03332966959566318
+      z_score: -3.3013894298160436
+- id: F-K3-V5.16-041
+  key: three_block_sign_shape:3:-:-1:0
+  label: three_block_sign_shape(v3)=-1,0
+  scope:
+    blocks:
+    - previous
+    - current
+    - following
+    voices:
+    - bass
+  grounding: once_per_target_voice_attack
+  feature:
+    kind: three_block_sign_shape
+    target_voice: 3
+    other_voice: null
+    value: -1
+    second_value: 0
+    complexity: 3
+  parameter:
+    scale: log_energy_contribution
+    log_weight: -0.23771240829812257
+    odds_multiplier_isolated: 0.7884294042459745
+    sign: avoidance
+  sources:
+  - layer: v5_16_interpolated_bass_correction
+    source_index: 43
+    log_weight: -0.23771240829812257
+    selection:
+      bach_rate: 0.13680291933478328
+      gibbs_rate: 0.16833163137477875
+      gradient: -0.031528712039995445
+      z_score: -4.261992884465869
+    unscaled_source_weight: -0.47542481659624514

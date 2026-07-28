@@ -34,6 +34,16 @@ Le dossier ne charge aucun fichier de `rules/` ni aucun manifeste de
   latent à partir des noyaux K3 ;
 - `run_local_tonality_poc.py` : ajustement train et évaluation tenue à part ;
 - `run_local_tonality_sensitivity.py` : robustesse à la persistance du statut ;
+- `run_v5_12_explicit_calibration.py` : contraste génératif de faits
+  observables de basse, métrique, sonorité et transition ;
+- `run_explicit_generation_audit.py` : audit apparié des mouvements de basse
+  et sonorités sur des tranches distinctes de validation ;
+- `make_v5_16_interpolated_model.py` : interpolation reproductible des quatre
+  corrections de basse V5.15 sur le socle V5.14 ;
+- `export_v5_16_factor_catalogue.py` : fusion des corrections additives et
+  export des portées, instanciations et poids probabilistes canoniques ;
+- `snarky_choice_bridge.py` : compilation fidèle de ces facteurs en poids
+  positifs pour `CHOICE`, avec explication factorielle de chaque candidate ;
 - `results/` : artefacts et rapports reproductibles.
 
 `V5.0` conserve le premier catalogue spécialisé, qui a appris huit variantes
@@ -73,9 +83,21 @@ Résultats principaux :
 - [`V5_10_GENERATIVE_RESIDUAL_AUDIT.md`](results/V5_10_GENERATIVE_RESIDUAL_AUDIT.md),
   clôture négative des licences simples et verticales ;
 - [`V5_11_LOCAL_TONALITY_HMM.md`](results/V5_11_LOCAL_TONALITY_HMM.md),
-  validation du statut tonal latent ;
+  exploration d'une origine transposable latente, sans interprétation de
+  tonalité locale ;
 - [`V5_11_LOCAL_TONALITY_SENSITIVITY.md`](results/V5_11_LOCAL_TONALITY_SENSITIVITY.md),
   robustesse à trois probabilités de persistance ;
+- [`V5_12_TO_V5_16_BASS_SONORITY_LOOP.md`](results/V5_12_TO_V5_16_BASS_SONORITY_LOOP.md),
+  correction de l'énergie conjointe et boucle complète sur la basse et les
+  sonorités ;
+- [`V5_16_CONFIRMATION_GENERATION_AUDIT.md`](results/V5_16_CONFIRMATION_GENERATION_AUDIT.md),
+  confirmation sur dix chorals non utilisés pour choisir l'interpolation ;
+- [`V5_16_MULTISEED_CONFIRMATION_AUDIT.md`](results/V5_16_MULTISEED_CONFIRMATION_AUDIT.md),
+  réplication de la confirmation avec trois graines ;
+- [`V5_16_SNARKY_CHOICE_BRIDGE.md`](results/V5_16_SNARKY_CHOICE_BRIDGE.md),
+  parité numérique entre le modèle V5.16 et ses poids de `CHOICE` ;
+- [`../../rule_bases/k3_clean/v5_16_factors.yaml`](../../rule_bases/k3_clean/v5_16_factors.yaml),
+  catalogue factoriel V5.16 gelé, distinct du DSL Snarky historique ;
 - `v5_1_k3_compact_model.json`, modèle complet pour le Gibbs.
 
 Le protocole complet est

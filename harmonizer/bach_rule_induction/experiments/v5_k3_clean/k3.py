@@ -13,6 +13,16 @@ import numpy as np
 VOICE_NAMES = ("Soprano", "Alto", "Tenor", "Bass")
 DEFAULT_THRESHOLDS = (1, 2, 4, 7, 12)
 ORDER_THRESHOLDS = (-2, -1, 0, 1, 2)
+TRIADIC_BASS_PCSET_SIGNATURES = (137, 145, 265, 289, 529, 545)
+SHARED_POTENTIAL_KINDS = {
+    "central_distinct_pc_count",
+    "central_distinct_pc_count_metric",
+    "central_tonic_pcset",
+    "central_bass_pcset",
+    "central_bass_pcset_metric",
+    "central_triadic_metric",
+    "bass_pcset_transition",
+}
 
 
 @dataclass
@@ -601,24 +611,51 @@ def central_tonic_pcset_signatures(dataset: K3Dataset) -> np.ndarray:
 def central_bass_pcset_signatures(dataset: K3Dataset) -> np.ndarray:
     """Return bass-relative 12-bit pitch-class sets for every candidate."""
 
+    return bass_pcset_signatures(dataset, position=1)
+
+
+def bass_pcset_signatures(
+    dataset: K3Dataset,
+    *,
+    position: int,
+) -> np.ndarray:
+    """Return candidate-aware bass-relative sets at one K3 position.
+
+    At the central position the candidate replaces the attacked target note.
+    At the following position it also replaces that voice when the central
+    attack is held. This keeps sonority trajectories consistent with the
+    ATTACK/HOLD semantics used by the Gibbs sampler.
+    """
+
+    if position not in {0, 1, 2}:
+        raise ValueError("A K3 position must be 0, 1, or 2")
     candidates = dataset.candidate_pitches[None, :]
     voices = dataset.voice_indices
-    reference = np.where(
-        (voices == 3)[:, None],
-        candidates,
-        dataset.blocks[:, 1, 3, None],
+    candidate_applies = voices[:, None] == np.arange(4)[None, :]
+    if position == 2:
+        candidate_applies &= ~dataset.attacks[:, 2, :]
+    elif position == 0:
+        candidate_applies &= False
+    pitches = np.broadcast_to(
+        dataset.blocks[:, position, :, None],
+        (
+            dataset.size,
+            4,
+            dataset.candidate_pitches.size,
+        ),
     )
+    pitches = np.where(
+        candidate_applies[:, :, None],
+        candidates[:, None, :],
+        pitches,
+    )
+    reference = pitches[:, 3, :]
     signatures = np.zeros(
         (dataset.size, dataset.candidate_pitches.size),
         dtype=np.int16,
     )
     for voice in range(4):
-        pitches = np.where(
-            (voices == voice)[:, None],
-            candidates,
-            dataset.blocks[:, 1, voice, None],
-        )
-        relative = (pitches - reference) % 12
+        relative = (pitches[:, voice, :] - reference) % 12
         signatures |= np.left_shift(1, relative).astype(np.int16)
     return signatures
 
@@ -720,6 +757,43 @@ def _contextual_feature_mask(
         return central_tonic_pcset_signatures(dataset) == value
     if feature.kind == "central_bass_pcset":
         return central_bass_pcset_signatures(dataset) == value
+    if feature.kind == "central_bass_pcset_metric":
+        levels = _context_array(dataset.metric_levels, "metric_levels")
+        return (central_bass_pcset_signatures(dataset) == value) & (
+            (levels >= 2)[:, None] == bool(feature.second_value)
+        )
+    if feature.kind == "central_triadic_metric":
+        if feature.second_value not in {0, 1}:
+            raise ValueError("Metric triadic features require weak/strong status")
+        levels = _context_array(dataset.metric_levels, "metric_levels")
+        triadic = np.isin(
+            central_bass_pcset_signatures(dataset),
+            TRIADIC_BASS_PCSET_SIGNATURES,
+        )
+        return triadic & (
+            (levels >= 2)[:, None] == bool(feature.second_value)
+        )
+    if feature.kind == "bass_pcset_transition":
+        if feature.second_value is None:
+            raise ValueError("A sonority transition requires two signatures")
+        current = central_bass_pcset_signatures(dataset)
+        following = bass_pcset_signatures(dataset, position=2)
+        return (current == value) & (following == feature.second_value)
+    if feature.kind == "any_pair_central_abs_class_metric":
+        if feature.second_value not in {0, 1}:
+            raise ValueError("Metric pair features require weak/strong status")
+        levels = _context_array(dataset.metric_levels, "metric_levels")
+        metric = ((levels >= 2) == bool(feature.second_value))[:, None]
+        pair_mask = _universal_feature_mask(
+            dataset,
+            FeatureSpec(
+                "any_pair_central_abs_class",
+                -1,
+                value=value,
+            ),
+            candidates,
+        )
+        return metric & pair_mask
     raise ValueError(f"Unknown contextual K3 feature: {feature.kind}")
 
 
@@ -735,6 +809,10 @@ def feature_mask(dataset: K3Dataset, feature: FeatureSpec) -> np.ndarray:
         "central_distinct_pc_count_metric",
         "central_tonic_pcset",
         "central_bass_pcset",
+        "central_bass_pcset_metric",
+        "central_triadic_metric",
+        "bass_pcset_transition",
+        "any_pair_central_abs_class_metric",
     } or feature.kind.startswith("rare_tonal_"):
         return _contextual_feature_mask(dataset, feature, candidates)
     row_voice = dataset.voice_indices
@@ -1291,6 +1369,33 @@ def feature_from_model_record(record: dict[str, Any]) -> FeatureSpec:
     return FeatureSpec.from_dict(payload)
 
 
+def shared_potential_rows(
+    dataset: K3Dataset,
+    group_ids: np.ndarray | None = None,
+) -> np.ndarray:
+    """Select one representative per joint world and central K3 block.
+
+    A chord or sonority-transition potential belongs to the vertical block,
+    not to every voice attacking in that block. Conditional note prediction
+    legitimately exposes the potential in each voice's conditional, whereas
+    a joint-state energy must count it exactly once.
+    """
+
+    central = dataset.offsets[:, 1]
+    groups = (
+        np.zeros(dataset.size, dtype=np.int64)
+        if group_ids is None
+        else np.asarray(group_ids, dtype=np.int64)
+    )
+    if groups.shape != (dataset.size,):
+        raise ValueError("Joint-world group ids must match the K3 dataset")
+    keys = np.rec.fromarrays((groups, central), names=("group", "central"))
+    _, indices = np.unique(keys, return_index=True)
+    mask = np.zeros(dataset.size, dtype=bool)
+    mask[indices] = True
+    return mask
+
+
 def gibbs_sample(
     initial_blocks: np.ndarray,
     fixed: np.ndarray,
@@ -1464,7 +1569,17 @@ def _state_energy(
         score = base_scores[rows, dataset.chosen_indices]
     if features:
         matrix = feature_matrix(dataset, features)
-        score += matrix[rows, dataset.chosen_indices] @ weights
+        chosen_features = matrix[rows, dataset.chosen_indices]
+        representatives = shared_potential_rows(dataset)
+        for index, (feature, weight) in enumerate(
+            zip(features, weights, strict=True)
+        ):
+            applies = (
+                representatives
+                if feature.kind in SHARED_POTENTIAL_KINDS
+                else np.ones(dataset.size, dtype=bool)
+            )
+            score[applies] += weight * chosen_features[applies, index]
     return float(score.sum())
 
 
@@ -1547,11 +1662,16 @@ def _candidate_state_energies(
             tonal_logits,
         )
         row_scores = base_scores[rows, chosen]
+    joint_groups = np.concatenate(group_ids)
+    representatives = shared_potential_rows(dataset, joint_groups)
     for feature, weight in zip(features, weights, strict=True):
         mask = feature_mask(dataset, feature)
-        row_scores += weight * mask[rows, chosen]
+        contribution = mask[rows, chosen]
+        if feature.kind in SHARED_POTENTIAL_KINDS:
+            contribution &= representatives
+        row_scores += weight * contribution
     return np.bincount(
-        np.concatenate(group_ids),
+        joint_groups,
         weights=row_scores,
         minlength=candidates.size,
     )

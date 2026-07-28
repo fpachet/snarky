@@ -34,6 +34,11 @@ consécutifs. Les règles et poids V1–V4 restent un benchmark externe, résum�
 dans [`EXPERIMENT_HISTORY.md`](EXPERIMENT_HISTORY.md), et ne sont jamais
 chargés pendant cette induction.
 
+La formalisation probabiliste proposée après V5.16 est décrite dans
+[`MAXENT_RULE_FACTOR_MODEL.md`](MAXENT_RULE_FACTOR_MODEL.md). Elle sépare les
+moments observés, les paramètres d'un modèle MaxEnt factoriel et les poids
+opérationnels dérivés pour les `CHOICE` Snarky.
+
 ### 1.0 Jalon V5.1 exécuté
 
 - [x] construire 68 263 décisions `train` et 13 202 décisions `validation` ;
@@ -111,7 +116,7 @@ de MAE sur V5.7 est de `1,293` point, IC95 `0,384–2,203`, avec 14 pièces
 améliorées sur 20. La NLL conditionnelle passe seulement de `1,120257` à
 `1,130530`. La prochaine lacune n'est plus la surproduction moyenne, mais la
 sous-production dans les chorals authentiquement très chromatiques : il faut
-apprendre des licences positives et un statut de tonalité locale.
+apprendre des licences positives et tester de nouveaux faits explicites.
 
 ### 1.0.4 Audit résiduel V5.10
 
@@ -120,18 +125,19 @@ apprendre des licences positives et un statut de tonalité locale.
 - [x] ajouter 22 interactions rares × empreinte verticale relative à la basse ;
 - [x] constater qu'aucune licence positive ne dépasse à la fois `+0,5` point
       et `z=2` ;
-- [x] apprendre un statut tonal local latent sur les trois blocs ;
-- [x] tester si ce statut explique les chromaticismes authentiques que les
-      empreintes instantanées ne distinguent pas.
+- [x] explorer une origine transposable latente sur les trois blocs ;
+- [x] constater que son gain statistique ne lui confère pas une signification
+      de tonalité locale intelligible ;
+- [x] mettre V5.11 en quarantaine et revenir aux faits K3 observables.
 
 La meilleure licence simple est la broderie rare d'alto en majeur
 (`+0,409` point, `z=1,80`). La meilleure interaction verticale est l'ensemble
 `{0,3,6,9}` relatif à la basse avec une classe rare d'alto en majeur
 (`+0,335` point, `z=1,82`). Ces signaux sont plausibles mais insuffisamment
-stables. Le prochain statut doit donc représenter une référence tonale locale
-persistante, et non seulement une sonorité centrale.
+stables. Leur échec ne justifie pas d'interpréter automatiquement une variable
+latente comme une région tonale.
 
-### 1.0.5 Statut tonal latent V5.11
+### 1.0.5 Origine transposable latente V5.11 — quarantaine
 
 - [x] dédupliquer les attaques simultanées en 23 950 états train ;
 - [x] apprendre par EM un HMM à douze références transposables ;
@@ -148,9 +154,57 @@ postérieure normalisée vaut `0,030` : le HMM n'est pas indéterminé. Le taux
 rare des 13 202 décisions de validation passe opérationnellement de `3,780 %`
 avec référence globale à `1,242 %` avec référence locale.
 
-Le statut peut désormais entrer dans le langage de règles. Pour la génération,
-il faudra échantillonner alternativement les notes et les états latents afin de
-ne jamais utiliser les voix authentiques cachées comme contexte.
+Les douze états ont été créés par le modèle comme douze origines de
+transposition d'un même profil. Le corpus choisit et ajuste ces origines, mais
+ne leur donne aucune signification de tonique, fondamentale ou région tonale.
+La reclassification de notes rares est en partie mécanique. V5.11 reste une
+expérience statistique séparée et **n'entre ni dans le générateur ni dans le
+langage de règles appris**.
+
+### 1.0.6 Basse et sonorités explicites V5.12–V5.16
+
+- [x] mesurer directement demi-tons, répétitions et grands sauts de basse ;
+- [x] mesurer sonorités triadiques, dissonances fortes/faibles et transitions ;
+- [x] montrer que V5.9 surproduit les demi-tons de basse sur BWV 108.6 ;
+- [x] rejeter V5.12, qui apprend trop d'interdictions et surproduit les triades ;
+- [x] découvrir que l'énergie conjointe comptait une sonorité une fois par voix
+      attaquante ;
+- [x] compter depuis V5.14 chaque potentiel de sonorité une seule fois par bloc ;
+- [x] réinduire interdictions et licences avec cette sémantique corrigée ;
+- [x] isoler une calibration de basse V5.15 et constater sa surcorrection ;
+- [x] choisir l'interpolation V5.16 sur dix chorals de développement ;
+- [x] confirmer V5.16 sur les dix chorals suivants, test scellé fermé.
+
+Sur la confirmation, les demi-tons de basse valent `26,32 %` contre `25,73 %`
+chez Bach, les grands sauts `24,35 %` contre `28,03 %`, les blocs triadiques
+`56,08 %` contre `53,86 %` et les blocs forts non triadiques `27,52 %` contre
+`28,20 %`. Tous ces écarts appariés ont un IC95 recouvrant zéro. La sonorité
+`{0,3,6,8}` sur bloc faible reste surproduite de `+2,57` points et constitue
+la prochaine lacune explicite. V5.16 est un candidat expérimental confirmé,
+pas encore une base finale ni une base Snarky compilée.
+
+La réplication avec trois graines ramène les demi-tons à `25,86 %`, les grands
+sauts à `24,94 %` et `{0,3,6,8}` faible à `4,24 %`. Aucun des dix écarts
+appariés audités n'exclut alors zéro à 95 %. V5.16 est gelée sans pénalité
+résiduelle supplémentaire ; le chantier suivant est son export factoriel puis
+sa compilation dans `S-K3-LEARNED`.
+
+L'export factoriel est maintenant matérialisé dans
+[`rule_bases/k3_clean/v5_16_factors.yaml`](rule_bases/k3_clean/v5_16_factors.yaml).
+Les `44` termes de poids sont fusionnés en `41` facteurs canoniques ; trois
+corrections additives V5.16 sont réintégrées dans le poids de leur feature
+d'origine. Chaque facteur déclare sa portée et son instanciation
+`once_per_target_voice_attack`, `once_per_attack_decision`,
+`once_per_vertical_block` ou `once_per_k3_transition`. Cet artefact reste un
+catalogue probabiliste : la compilation fidèle de ses prédicats dans le DSL
+Snarky constitue le jalon suivant.
+
+Le
+[pont probabiliste vers `CHOICE`](experiments/v5_k3_clean/results/V5_16_SNARKY_CHOICE_BRIDGE.md)
+reproduit désormais les conditionnelles du modèle source à la précision
+flottante, sans réapprentissage. Il expose également les facteurs actifs de
+chaque candidate ; seule leur transcription dans le DSL `.rules` reste à
+faire.
 
 Deux résultats scientifiques distincts sont recherchés :
 
@@ -1219,6 +1273,8 @@ complexité et ne possède pas d'équivalent identifié dans les sources audité
 
 ### Lot 4 — compilation Snarky
 
+- [x] Figer les 41 facteurs V5.16 et compiler leurs scores en poids positifs
+      de `CHOICE`, avec parité exacte contre les 44 termes source fusionnés.
 - [ ] Compiler les règles sélectionnées en `R-LEARNED-*`.
 - [ ] Créer des manifestes séparés `S-HISTORICAL`, `S-LEARNED` et
       `S-HYBRID`.
