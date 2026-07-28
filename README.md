@@ -226,6 +226,7 @@ the [finite-CSP guide](csp_solver/README.md) for formulations and commands.
 - [Textual syntax](docs/syntax.md)
 - [Language validation and formatting](docs/language_tooling.md)
 - [Semantics](docs/semantics.md)
+- [Learned-factor language plan](docs/learned_factor_language_plan.md)
 - [Finite-CSP solver optimization plan](docs/solver_optimization_plan.md)
 - [API stability](docs/api_stability.md)
 - [Versioning and compatibility](docs/versioning.md)

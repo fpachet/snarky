@@ -116,6 +116,11 @@ temps fort restent trop nombreuses : V6 est exécutable mais pas encore
 promue. Le [bilan complet](factor_bases/k3_v6_induced/V6_RESEARCH_LOOP_SUMMARY.md)
 conserve le test réservé fermé.
 
+La formalisation générique de cette séparation, l'intégration de
+l'apprentissage dans le langage et les exemples jouets préalables à la
+migration du code Bach sont décrits dans le
+[plan du langage factoriel appris](../../docs/learned_factor_language_plan.md).
+
 Le premier cycle `V5.1-K3-CLEAN` repart réellement d'une base musicale vide
 sur 68 263 décisions `train` et 13 202 décisions `validation`. Douze clauses
 locales réduisent la NLL de validation de `1,145342`, soit `10,78` fois le gain

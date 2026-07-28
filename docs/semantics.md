@@ -80,6 +80,9 @@ Hard constraints remain propagators defining feasibility. Learned factors
 define preferences among configurations; neither mechanism silently changes
 the semantics of the other. Turning factor scores into conditionals and
 sampling them is an inference-layer operation, not a factor side effect.
+The remaining formalization, language-integrated learning interface, generic
+factor-to-choice bridge, and exact toy oracles are tracked in the
+[learned-factor language plan](learned_factor_language_plan.md).
 
 ## Actions
 

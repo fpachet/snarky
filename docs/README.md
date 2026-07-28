@@ -15,6 +15,7 @@ should not be mechanically mixed with English sections.
 - [Textual syntax](syntax.md)
 - [Language validation and formatting](language_tooling.md)
 - [Reference semantics](semantics.md)
+- [Learned-factor language plan](learned_factor_language_plan.md)
 - [Rule programs and sequential steps](rule_programs.md)
 - [Persistent finite-domain constraints](persistent_constraints.md)
 - [Finite-CSP solver optimization plan](solver_optimization_plan.md)
