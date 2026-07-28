@@ -6,6 +6,7 @@ from __future__ import annotations
 import argparse
 import json
 import math
+from concurrent.futures import ProcessPoolExecutor
 from pathlib import Path
 from typing import Any
 
@@ -63,8 +64,7 @@ def _metrics(
     pair_dissonances = np.zeros(lattice.size, dtype=np.float64)
     for time, block in enumerate(blocks):
         pair_dissonances[time] = sum(
-            abs(int(block[left]) - int(block[right])) % 12
-            in PAIR_DISSONANCE_CLASSES
+            abs(int(block[left]) - int(block[right])) % 12 in PAIR_DISSONANCE_CLASSES
             for left in range(4)
             for right in range(left + 1, 4)
         )
@@ -90,12 +90,8 @@ def _metrics(
         "strong_nontriadic_rate": float(
             (~np.isin(signatures[strong], list(TRIADIC_SIGNATURES))).mean()
         ),
-        "strong_pair_dissonances_per_block": float(
-            pair_dissonances[strong].mean()
-        ),
-        "weak_pair_dissonances_per_block": float(
-            pair_dissonances[~strong].mean()
-        ),
+        "strong_pair_dissonances_per_block": float(pair_dissonances[strong].mean()),
+        "weak_pair_dissonances_per_block": float(pair_dissonances[~strong].mean()),
         "dominant_65_strong_rate": float(
             (signatures[strong] == DOMINANT_SEVENTH_FIRST_INVERSION).mean()
         ),
@@ -116,6 +112,61 @@ def _mean_interval(values: list[float]) -> dict[str, float]:
         "ci95_low": mean - 1.96 * standard_error,
         "ci95_high": mean + 1.96 * standard_error,
     }
+
+
+def _generation_metrics(
+    task: tuple[
+        str,
+        k3.RhythmicLattice,
+        dict[str, Any],
+        int,
+        int,
+        int,
+        int,
+    ],
+) -> tuple[str, str, dict[str, float]]:
+    (
+        label,
+        lattice,
+        model,
+        candidate_min,
+        candidate_max,
+        seed,
+        sweeps,
+    ) = task
+    fixed = np.zeros_like(lattice.blocks, dtype=bool)
+    fixed[:, 0] = True
+    fixed[0, :] = True
+    fixed[-1, :] = True
+    local_seed = generative._piece_seed(lattice.piece_id, seed)
+    initial = rhythmic._randomize_mutable_segments(
+        lattice.blocks,
+        lattice.attacks,
+        fixed,
+        model["register_logits"],
+        candidate_min,
+        local_seed,
+        model["tonal_logits"],
+        lattice.tonic_pc,
+        lattice.mode,
+    )
+    generated = k3.rhythmic_gibbs_sample(
+        initial,
+        lattice.attacks,
+        fixed,
+        candidate_min=candidate_min,
+        candidate_max=candidate_max,
+        register_logits=model["register_logits"],
+        features=model["features"],
+        weights=model["weights"],
+        sweeps=sweeps,
+        seed=local_seed,
+        tonal_logits=model["tonal_logits"],
+        tonic_pc=lattice.tonic_pc,
+        mode=lattice.mode,
+        metric_levels=lattice.metric_levels,
+    )
+    return lattice.piece_id, label, _metrics(generated, lattice)
 
 
 def _markdown(result: dict[str, Any]) -> str:
@@ -150,7 +201,7 @@ def _markdown(result: dict[str, Any]) -> str:
         f"`{result['experiment']['pieces']}` chorals de validation, "
         f"`{result['experiment']['seeds_per_piece']}` graine(s), "
         f"`{result['experiment']['sweeps']}` balayages. Même soprano, rythme et "
-        "blocs de bord pour Bach et chaque modèle. Test fermé.",
+        "blocs de bord pour Bach et chaque modèle. Test réservé non chargé.",
         "",
         "Chaque valeur est d'abord calculée par pièce, puis moyennée pour ne pas",
         "donner davantage de poids aux chorals longs.",
@@ -208,6 +259,7 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--sweeps", type=int, default=6)
     parser.add_argument("--max-pieces", type=int, default=10)
     parser.add_argument("--piece-offset", type=int, default=0)
+    parser.add_argument("--workers", type=int, default=1)
     parser.add_argument("--output-dir", type=Path, default=HERE / "results")
     parser.add_argument(
         "--output-stem",
@@ -260,58 +312,79 @@ def main() -> int:
         args.piece_offset : args.piece_offset + args.max_pieces
     ]
     seeds = [int(value) for value in args.seeds.split(",") if value]
-    rows = []
-    for piece_number, piece_id in enumerate(piece_ids, start=1):
-        print(
-            f"[explicit-audit] {piece_number}/{len(piece_ids)} {piece_id}",
-            flush=True,
-        )
-        lattice = k3.extract_piece_lattice(
+    lattices = {
+        piece_id: k3.extract_piece_lattice(
             generative._score_path(args.scores, piece_id),
             piece_id,
         )
-        fixed = np.zeros_like(lattice.blocks, dtype=bool)
-        fixed[:, 0] = True
-        fixed[0, :] = True
-        fixed[-1, :] = True
-        source_metrics = _metrics(lattice.blocks, lattice)
-        generated_metrics: dict[str, dict[str, float]] = {}
-        for label, model in prepared.items():
-            seed_metrics = []
-            for seed in seeds:
-                local_seed = generative._piece_seed(piece_id, seed)
-                initial = rhythmic._randomize_mutable_segments(
-                    lattice.blocks,
-                    lattice.attacks,
-                    fixed,
-                    model["register_logits"],
-                    candidate_min,
-                    local_seed,
-                    model["tonal_logits"],
-                    lattice.tonic_pc,
-                    lattice.mode,
+        for piece_id in piece_ids
+    }
+    source_by_piece = {
+        piece_id: _metrics(lattice.blocks, lattice)
+        for piece_id, lattice in lattices.items()
+    }
+    tasks = [
+        (
+            label,
+            lattices[piece_id],
+            model,
+            candidate_min,
+            candidate_max,
+            seed,
+            args.sweeps,
+        )
+        for piece_id in piece_ids
+        for label, model in prepared.items()
+        for seed in seeds
+    ]
+    executor = (
+        None if args.workers == 1 else ProcessPoolExecutor(max_workers=args.workers)
+    )
+    metrics_by_piece_model: dict[
+        tuple[str, str],
+        list[dict[str, float]],
+    ] = {
+        (piece_id, label): [] for piece_id in piece_ids for label in prepared
+    }
+    completed_by_piece = {piece_id: 0 for piece_id in piece_ids}
+    try:
+        generated = (
+            map(_generation_metrics, tasks)
+            if executor is None
+            else executor.map(_generation_metrics, tasks)
+        )
+        completed_pieces = 0
+        completions_per_piece = len(prepared) * len(seeds)
+        for piece_id, label, metrics in generated:
+            metrics_by_piece_model[(piece_id, label)].append(metrics)
+            completed_by_piece[piece_id] += 1
+            if completed_by_piece[piece_id] == completions_per_piece:
+                completed_pieces += 1
+                print(
+                    f"[explicit-audit] {completed_pieces}/{len(piece_ids)} "
+                    f"{piece_id}",
+                    flush=True,
                 )
-                generated = k3.rhythmic_gibbs_sample(
-                    initial,
-                    lattice.attacks,
-                    fixed,
-                    candidate_min=candidate_min,
-                    candidate_max=candidate_max,
-                    register_logits=model["register_logits"],
-                    features=model["features"],
-                    weights=model["weights"],
-                    sweeps=args.sweeps,
-                    seed=local_seed,
-                    tonal_logits=model["tonal_logits"],
-                    tonic_pc=lattice.tonic_pc,
-                    mode=lattice.mode,
-                    metric_levels=lattice.metric_levels,
+    finally:
+        if executor is not None:
+            executor.shutdown()
+    rows = []
+    for piece_id in piece_ids:
+        source_metrics = source_by_piece[piece_id]
+        generated_metrics = {
+            label: {
+                key: float(
+                    np.mean(
+                        [
+                            row[key]
+                            for row in metrics_by_piece_model[(piece_id, label)]
+                        ]
+                    )
                 )
-                seed_metrics.append(_metrics(generated, lattice))
-            generated_metrics[label] = {
-                key: float(np.mean([row[key] for row in seed_metrics]))
                 for key in source_metrics
             }
+            for label in prepared
+        }
         rows.append(
             {
                 "piece_id": piece_id,
@@ -328,16 +401,14 @@ def main() -> int:
     }
     paired = {
         label: {
-            key: _mean_interval(
-                [row[label][key] - row["Bach"][key] for row in rows]
-            )
+            key: _mean_interval([row[label][key] - row["Bach"][key] for row in rows])
             for key in rows[0]["Bach"]
         }
         for label in prepared
     }
     result = {
         "experiment": {
-            "id": "V5.12-EXPLICIT-GENERATION-AUDIT",
+            "id": "EXPLICIT-GENERATION-AUDIT",
             "status": "EXPLORATORY",
             "test_loaded": False,
             "pieces": len(piece_ids),
@@ -345,6 +416,7 @@ def main() -> int:
             "seeds": seeds,
             "seeds_per_piece": len(seeds),
             "sweeps": args.sweeps,
+            "workers": args.workers,
         },
         "models": {label: str(path.resolve()) for label, path in model_paths.items()},
         "summary": summary,

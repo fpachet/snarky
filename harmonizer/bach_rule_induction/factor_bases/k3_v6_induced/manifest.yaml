@@ -1,7 +1,7 @@
 schema_version: 1
 id: F-K3-V6-INDUCED
 kind: learned_factor_base
-status: GENERATIVE_WEIGHT_REFIT_PARTIAL_NOT_PROMOTED
+status: ITERATIVE_GENERATIVE_WEIGHTS_VALIDATED_NOT_FINAL
 description: >
   Base factorielle reconstruite depuis zéro. L'expert définit seulement les
   primitives observables, la grammaire de clauses et les budgets. La
@@ -11,6 +11,7 @@ grammar: grammar.yaml
 selected_factors: selected_factors.yaml
 conditional_factor_program: v6_induced.factors
 generative_refit_factor_program: v6_generative_refit.factors
+multimetric_iteration2_factor_program: v6_multimetric_iteration2.factors
 model: v6_induced_model.json
 report: V6_INDUCTION_REPORT.md
 generative_refit_model: v6_generative_refit_model.json
@@ -18,6 +19,26 @@ generative_refit_report: V6_GENERATIVE_WEIGHT_REFIT.md
 initial_generation_audit: V6_DEVELOPMENT_GENERATION_AUDIT.md
 refit_generation_audit: V6_REFIT_DEVELOPMENT_GENERATION_AUDIT.md
 canonical_example: V6_REFIT_BWV108_6_GENERATION.md
+weight_learning_report: V6_WEIGHT_LEARNING_SCALING_AND_CONTROL.md
+sampling_optimization_report: V6_SAMPLING_OPTIMIZATION.md
+multimetric_iteration2_model: v6_train64_multimetric_iteration2_model.json
+multimetric_iteration2_development_audit: V6_MULTIMETRIC_ITERATION2_SWEEP30_DEVELOPMENT_AUDIT.md
+multimetric_iteration2_validation_audit: V6_MULTIMETRIC_ITERATION2_FULL_VALIDATION_AUDIT.md
+iteration3_multiseed_decision: V6_ITERATION3_MULTISEED_DECISION.md
+iteration3_rejected_candidate_model: v6_iteration3_multiseed_model.json
+iteration3_residual_feature_diagnostic: V6_ITERATION3_RESIDUAL_FEATURE_DIAGNOSTIC.md
+v7_residual_factor_decision: V7_RESIDUAL_FACTOR_DECISION.md
+v7_listening_comparison: ../../../generated/v7_listening_comparison/README.md
+v8_joint_pseudolikelihood_model: v8_joint_pseudolikelihood_model.json
+v8_joint_pseudolikelihood_decision: V8_JOINT_PSEUDOLIKELIHOOD_DECISION.md
+v8_joint_pseudolikelihood_listening: ../../../generated/v8_joint_pl_listening/README.md
+v8_exact_joint_pseudolikelihood_model: v8_exact_joint_pseudolikelihood_full_model.json
+v8_exact_joint_pseudolikelihood_decision: V8_EXACT_JOINT_PSEUDOLIKELIHOOD_DECISION.md
+v8_exact_joint_pseudolikelihood_listening: ../../../generated/v8_exact_joint_pl_listening/README.md
+v9_exact_reinduced_model: v9_exact_reinduced_model.json
+v9_exact_reinduction_decision: V9_EXACT_REINDUCTION_DECISION.md
+v9_exact_reinduced_listening: ../../../generated/v9_exact_reinduced_listening/README.md
+listening_suite: listening_suite/README.md
 results:
   candidate_factors: 954
   selected_factors: 30
@@ -31,9 +52,59 @@ results:
   train_moment_mae_before_refit: 0.0352061391
   train_moment_mae_after_refit: 0.0133551865
   refit_validation_conditional_nll: 1.159606862
+  compatible_generative_train_chorals: 248
+  incompatible_generative_train_chorals: 3
+  train248_moment_mae_after_refit: 0.012866522338400513
+  multimetric_jacobian_rank: 10
+  multimetric_diagnostics: 10
+  iteration2_max_abs_weight_step: 0.15
+  iteration2_validation_conditional_nll: 1.241166012074241
+  iteration2_development_stable_residual_count_30_sweeps: 0
+  iteration2_full_validation_stable_residual_count_6_sweeps: 2
+  iteration3_independent_control_seeds: 3
+  iteration3_raw_minimum_delta_cosine: 0.19947720512369482
+  iteration3_consensus_ridge: 1.0
+  iteration3_consensus_max_abs_weight_step: 0.03983220518204244
+  iteration3_validation_conditional_nll: 1.2388698014657074
+  iteration3_promoted: false
+  iteration3_rejection_reason: sweep30_excessive_triadic_rate
+  residual_structure_candidates_screened: 782
+  residual_structure_candidates_sign_stable_selected: 18
+  v7_candidates_tested: 3
+  v7_candidates_promoted: 0
+  v7_six_factor_best_train_moment_mae: 0.005009378315292727
+  v7_six_factor_validation_nll: 1.2258431831542957
+  v7_sonority_short_audit_improved_diagnostics: 7
+  v7_sonority_long_audit_improved_diagnostics: 3
+  v8_joint_pseudolikelihood_factors: 48
+  v8_joint_pseudolikelihood_validation_nll: 0.9983141751720186
+  v8_joint_pseudolikelihood_gain_vs_v6: 0.05062094012519558
+  v8_short_audit_improved_diagnostics: 3
+  v8_long_audit_improved_diagnostics: 4
+  v8_promoted_as_generator: false
+  v8_rejection_reason: excessive_stepwise_and_chromatic_bass
+  v8_exact_train_pieces: 251
+  v8_exact_validation_pieces: 50
+  v8_exact_train_choices: 53604
+  v8_exact_validation_choices: 10414
+  v8_exact_validation_nll: 0.8296421019086195
+  v8_exact_scope_matches_gibbs: true
+  v8_exact_long_bass_large_leap_rate: 0.2146
+  v8_exact_long_bass_semitone_rate: 0.2764
+  v8_exact_long_bass_outside_scale_rate: 0.0743
+  v8_exact_promoted_as_generator: false
+  v8_exact_rejection_reason: long_horizon_overtriadic_and_insufficient_bass_leaps
+  v9_exact_catalogue_factors: 954
+  v9_exact_selected_factors: 30
+  v9_exact_train_nll: 0.7841835
+  v9_exact_validation_nll: 0.7797829
+  v9_exact_null_family_calibration: pending_exact_replication
+  v9_exact_promoted_as_generator: false
+  v9_exact_rejection_reason: unlicensed_vertical_dissonance_and_chromaticism
+  retained_reference_model: v6_train64_multimetric_iteration2_model.json
   stable_remaining_generation_residuals:
     - bass_attacked_repetition_excess
-    - strong_block_dissonance_excess
+    - bass_relative_pcset_329_on_weak_block_excess
 splits:
   source: ../../experiments/differentiable_rules_poc/results/splits.variant-safe.json
   train_role: structure_and_parameter_learning

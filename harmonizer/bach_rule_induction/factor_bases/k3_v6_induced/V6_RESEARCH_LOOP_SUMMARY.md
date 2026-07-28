@@ -50,9 +50,33 @@ Sur dix chorals de développement, trois graines par pièce :
 | dissonances par bloc faible | 0,893 | 1,017 | 0,873 |
 | dissonances par bloc fort | 0,406 | 0,663 | 0,530 |
 
-Deux résidus restent stables dans ce petit audit : les répétitions attaquées
-de basse (`6,87 %` contre `3,11 %`) et les dissonances sur bloc fort
-(`0,530` contre `0,406`). V6 n'est donc pas promue comme base finale.
+Ce premier réajustement laissait deux résidus stables dans ce petit audit :
+les répétitions attaquées de basse (`6,87 %` contre `3,11 %`) et les
+dissonances sur bloc fort (`0,530` contre `0,406`).
+
+## Mise à l'échelle et contrôle multivarié
+
+Le contraste de moments a ensuite été porté à 64 puis aux 248 chorals de train
+compatibles avec la grille rythmique continue. Trois chorals contenant des
+pauses internes non représentées sont exclus explicitement. La meilleure MAE
+des 30 moments atteint `0,012867` sur 248 pièces.
+
+Un Jacobien train de dix diagnostics explicites par rapport aux 30 poids,
+estimé par covariance, a un rang `10/10`. Cela indique que les défauts observés
+sont localement contrôlables par les facteurs existants. Une première
+projection multivariée, puis une seconde projection recalculée autour des
+nouveaux poids et bornée à `0,15`, produisent le checkpoint
+`v6_train64_multimetric_iteration2_model.json`.
+
+Sur dix chorals de développement à 30 sweeps, aucun des dix écarts appariés
+n'est stable. Sur les 50 chorals de validation à 6 sweeps, deux écarts faibles
+restent stables : répétitions de basse (`4,42 %` contre `3,37 %`) et empreinte
+`{0,3,6,8}` sur bloc faible (`4,24 %` contre `2,93 %`). Les huit autres
+mesures, dont le chromatisme, les accords forts non triadiques et les
+dissonances fortes, recouvrent Bach.
+
+Le protocole et les résultats complets sont décrits dans
+[`V6_WEIGHT_LEARNING_SCALING_AND_CONTROL.md`](V6_WEIGHT_LEARNING_SCALING_AND_CONTROL.md).
 
 ## Génération canonique
 
@@ -70,7 +94,27 @@ exécutable. Le résultat confirme qu'il faut apprendre deux choses distinctes :
 1. la structure courte des facteurs depuis les choix authentiques ;
 2. leurs paramètres génératifs depuis les moments de la distribution jointe.
 
-La prochaine itération peut modifier les poids sur `train` et choisir un point
-sur `validation`, mais elle ne doit pas inventer une nouvelle clause après
-inspection de cet audit. Toute extension de la grammaire doit être
-préenregistrée comme une nouvelle version. Le test reste scellé.
+Le rang complet du Jacobien ne justifie pas encore de nouvelle clause. La
+prochaine itération doit améliorer l'estimation des poids et le mélange des
+chaînes sans être choisie après inspection répétée de la validation. Toute
+extension de la grammaire doit être préenregistrée comme une nouvelle version.
+Le test reste scellé.
+
+## Itération 3 multigraine
+
+Une troisième itération a ensuite vérifié cette hypothèse avec trois
+estimations indépendantes sur 32 chorals × 2 chaînes. L'inversion brute du
+Jacobien est instable : les cosinus entre corrections ne valent que `0,473`,
+`0,199` et `0,468`. Un ridge sélectionné par un seuil de stabilité
+préexplicite produit néanmoins un petit pas consensus, améliore la NLL
+conditionnelle et réduit les dissonances fortes à 6 sweeps.
+
+Le contrôle à 30 sweeps révèle toutefois que ce pas accentue un taux triadique
+déjà excessif. L'itération 3 n'est donc pas promue ; l'itération 2 reste le
+meilleur checkpoint génératif. Le résultat complet est consigné dans
+[`V6_ITERATION3_MULTISEED_DECISION.md`](V6_ITERATION3_MULTISEED_DECISION.md).
+
+Cette expérience invalide l'idée de poursuivre seulement les poids : le
+contraste `triadique/non triadique` est trop grossier. La prochaine grammaire
+doit distinguer les empreintes de sonorités, leur statut métrique, le mouvement
+de basse et leur résolution dans le même noyau K3.

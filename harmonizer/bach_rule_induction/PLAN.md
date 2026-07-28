@@ -221,15 +221,69 @@ DSL pur `.factors` et servent d'oracle de parité pour la nouvelle architecture.
 - [x] calibrer chaque sélection contre le maximum nul de sa famille ;
 - [x] geler la structure et réajuster uniquement les poids par le gradient
       génératif `E_Bach[f] - E_Gibbs[f]` ;
+- [x] porter ce contraste à 248 chorals de train compatibles et consigner les
+      trois exclusions rythmiques ;
+- [x] estimer le Jacobien de dix diagnostics par covariance des activations ;
+- [x] exécuter une seconde correction locale avec un pas borné à `0,15` ;
+- [x] vérifier le checkpoint sur 10 chorals à 30 sweeps et 50 chorals à
+      6 sweeps ;
 - [x] produire un audit multi-chorals et un MusicXML/MIDI canonique ;
+- [x] compiler l'énergie locale candidate et mesurer un gain `×3,21` par
+      sweep sur BWV 108.6 avec parité exacte ;
+- [x] ajouter les caches de chaînes, l'ESS/dérive des moments du gradient et
+      un arrêt adaptatif borné ;
+- [x] implémenter un coloriage exact des portées K3 indépendantes et conserver
+      le séquentiel comme défaut après un checkpoint de performance négatif ;
+- [x] estimer une troisième correction sur trois graines, rejeter l'inversion
+      instable, puis construire un petit pas consensus par ridge ;
+- [x] rejeter la promotion de ce pas après divergence entre les audits
+      génératifs à 6 et 30 sweeps ;
+- [x] classer 782 facteurs résiduels sur les états multigraines et retenir 18
+      hypothèses dont le signe est stable sur les trois graines ;
+- [x] tester six facteurs V7 puis l'ablation/refit des quatre facteurs de
+      sonorité, et rejeter les trois candidats après audits génératifs ;
+- [x] réapprendre conjointement par pseudo-vraisemblance les 30 facteurs V6
+      et les 18 facteurs résiduels, sans poids gelé ;
+- [x] obtenir une NLL validation de `0,998314`, contre `1,048935` pour la
+      structure V6 conditionnelle ;
+- [x] auditer V8 à 6 et 30 sweeps et rejeter sa promotion générative en raison
+      d'une basse trop conjointe et trop chromatique ;
+- [x] identifier que la première V8 apprenait seulement les activations du K3
+      central alors que Gibbs recompte tous les noyaux affectés ;
+- [x] construire les mondes contrefactuels exacts attaque/tenue et garantir
+      par test la parité de leurs logits avec le sampler ;
+- [x] réapprendre les 48 poids sur 251 chorals de train et 50 de validation,
+      avec une NLL exacte de `0,829642` ;
+- [x] vérifier que le correctif ramène à 30 sweeps les grands sauts de `7,04 %`
+      à `21,46 %`, les demi-tons de `42,62 %` à `27,64 %` et la basse hors
+      gamme de `15,40 %` à `7,43 %` ;
+- [x] ne pas promouvoir ces poids après les audits génératifs, malgré la
+      validation du correctif de portée ;
+- [x] réinduire exactement la structure depuis les 954 candidats, en
+      apprenant conjointement registre, profil tonal et 30 facteurs ;
+- [x] obtenir une NLL de validation de `0,779783`, meilleure que les
+      `0,829642` de V8 Exact avec 48 facteurs ;
+- [x] rejeter V9 comme générateur après les audits à 6 et 30 sweeps :
+      secondes soprano-alto positives sans licence contextuelle, dissonances
+      fortes et chromaticisme de basse excessifs ;
+- [ ] enrichir la grammaire K3 avec des licences lisibles de dissonance
+      (métrique, attaque/tenue, préparation, passage/voisin et résolution) ;
+- [ ] répéter la calibration nulle familiale dans les mondes exacts puis
+      réinduire structure et poids depuis zéro ;
+- [ ] si nécessaire, calibrer avec un objectif hybride préservant la
+      pseudo-vraisemblance exacte et corrigeant les moments génératifs ;
 - [x] conserver le test réservé fermé.
 
 Le résultat détaillé est dans
 [`V6_RESEARCH_LOOP_SUMMARY.md`](factor_bases/k3_v6_induced/V6_RESEARCH_LOOP_SUMMARY.md).
-Le réajustement ramène les principaux moments chromatiques et verticaux près de
-Bach, mais laisse un excès stable de répétitions attaquées à la basse et de
-dissonances sur bloc fort. La base est donc un POC factoriel complet, pas un
-modèle final.
+La décision V9 et le diagnostic précis des dissonances non licenciées sont
+consignés dans
+[`V9_EXACT_REINDUCTION_DECISION.md`](factor_bases/k3_v6_induced/V9_EXACT_REINDUCTION_DECISION.md).
+Le réajustement itératif ramène huit des dix diagnostics explicites dans les
+intervalles de Bach sur 50 chorals de validation. Deux faibles résidus restent :
+répétitions attaquées à la basse et empreinte `{0,3,6,8}` sur bloc faible. La
+base est donc le meilleur checkpoint génératif appris du POC, pas un modèle
+final.
 
 Deux résultats scientifiques distincts sont recherchés :
 

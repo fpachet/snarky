@@ -2,14 +2,21 @@ from __future__ import annotations
 
 from pathlib import Path
 
+import aggregate_v6_multiseed_control as v6_multiseed
+import apply_v6_control_delta as v6_control_apply
 import export_v5_16_factor_catalogue as factor_export
 import export_v5_16_factor_program as factor_program_export
+import fit_joint_pseudolikelihood as joint_pl
+import fit_v7_residual_factors as v7_fit
 import k3
 import local_tonality
 import numpy as np
+import pytest
 import refit_v6_generative_weights as v6_refit
 import run_k3_ablation as ablation
 import run_k3_null_max_calibration as calibration
+import run_v6_factor_controllability as v6_control
+import run_v6_residual_feature_diagnostic as v6_residual
 import snarky_choice_bridge
 
 
@@ -415,6 +422,83 @@ def test_residual_sign_distinguishes_avoidance_and_preference() -> None:
     assert preferred_stat is not None and preferred_stat.gradient > 0
 
 
+def test_joint_pseudolikelihood_gradient_includes_the_factor_sum() -> None:
+    data = _dataset()
+    features = (
+        k3.FeatureSpec("abs_class_from_previous", 0, value=2),
+        k3.FeatureSpec("central_pair_abs_class", 0, other_voice=3, value=7),
+    )
+    matrix = k3.feature_matrix(data, features)
+    weights = np.asarray([0.37, -0.21], dtype=np.float64)
+    register = np.zeros((4, data.candidate_pitches.size), dtype=np.float64)
+
+    _, analytic = k3.conditional_nll_gradient(
+        data,
+        register,
+        matrix,
+        weights,
+    )
+    numerical = np.empty_like(weights)
+    epsilon = 1e-6
+    for index in range(weights.size):
+        upper = weights.copy()
+        lower = weights.copy()
+        upper[index] += epsilon
+        lower[index] -= epsilon
+        numerical[index] = (
+            k3.conditional_nll(data, register, matrix, upper)
+            - k3.conditional_nll(data, register, matrix, lower)
+        ) / (2.0 * epsilon)
+
+    assert np.allclose(analytic, numerical, atol=1e-7)
+
+
+def test_joint_pseudolikelihood_combines_unique_base_and_residual_factors() -> None:
+    base_feature = k3.FeatureSpec("abs_class_from_previous", 3, value=2)
+    residual_feature = k3.FeatureSpec("abs_class_from_previous", 3, value=3)
+    structure = {
+        "model": {
+            "rules": [{"feature": base_feature.to_dict(), "weight": 0.5}],
+            "factors": [],
+        }
+    }
+    residual = {
+        "selected": [
+            {
+                "feature": base_feature.to_dict(),
+                "description": "duplicate",
+                "family": "bass_motion",
+                "bach_rate": 0.2,
+                "gibbs_rate": 0.1,
+                "gradient": 0.1,
+                "z_score": 3.0,
+                "seed_sign_agreement": True,
+            },
+            {
+                "feature": residual_feature.to_dict(),
+                "description": "new",
+                "family": "bass_motion",
+                "bach_rate": 0.1,
+                "gibbs_rate": 0.2,
+                "gradient": -0.1,
+                "z_score": -3.0,
+                "seed_sign_agreement": True,
+            },
+        ]
+    }
+
+    records = joint_pl._combined_records(structure, residual)
+
+    assert [record["feature"].key for record in records] == [
+        base_feature.key,
+        residual_feature.key,
+    ]
+    assert [record["origin"] for record in records] == [
+        "v6_structure",
+        "v6_iteration3_residual",
+    ]
+
+
 def test_gibbs_sampler_is_deterministic_and_preserves_fixed_cells() -> None:
     blocks = np.asarray(
         [
@@ -455,7 +539,207 @@ def test_attack_segments_cover_holds_until_the_next_attack() -> None:
     assert voice_one == [(0, 1, 1), (1, 4, 1), (4, 5, 1)]
 
 
-def test_rhythmic_gibbs_changes_one_attack_and_its_whole_hold() -> None:
+def test_attack_segments_preserve_a_leading_hold_as_boundary_segment() -> None:
+    attacks = np.ones((5, 4), dtype=bool)
+    attacks[0, 0] = False
+    attacks[1, 0] = False
+
+    soprano = [segment for segment in k3.attack_segments(attacks) if segment[2] == 0]
+
+    assert soprano == [(0, 2, 0), (2, 3, 0), (3, 4, 0), (4, 5, 0)]
+
+
+def test_validated_attack_segments_reject_an_unrepresented_internal_attack() -> None:
+    attacks = np.ones((5, 4), dtype=bool)
+    attacks[2, 0] = False
+    blocks = np.full((5, 4), 60, dtype=np.int16)
+    blocks[2, 0] = 62
+
+    with pytest.raises(
+        ValueError,
+        match=r"voice 0 held span \[1, 3\) changes pitch",
+    ):
+        k3.validated_attack_segments(blocks, attacks)
+
+
+def test_colored_segment_groups_have_disjoint_factor_scopes() -> None:
+    attacks = np.ones((9, 4), dtype=bool)
+    segments = k3.attack_segments(attacks)
+    groups = k3.independent_segment_groups(segments, attacks.shape[0])
+
+    assert sorted(segment for group in groups for segment in group) == sorted(segments)
+    assert any(len(group) > 1 for group in groups)
+    for group in groups:
+        scopes = [
+            set(k3.segment_energy_times(segment, attacks.shape[0]))
+            for segment in group
+        ]
+        for left in range(len(scopes)):
+            for right in range(left + 1, len(scopes)):
+                assert scopes[left].isdisjoint(scopes[right])
+
+
+def test_trust_region_preserves_direction_and_bounds_the_largest_step() -> None:
+    proposed = np.asarray([0.5, -1.0, 2.0])
+
+    scale = v6_control_apply.trust_region_scale(proposed, 1.0, 0.2)
+
+    assert scale == pytest.approx(0.1)
+    assert scale * proposed == pytest.approx([0.05, -0.1, 0.2])
+
+
+def test_minimum_norm_delta_projects_diagnostic_residuals() -> None:
+    jacobian = np.asarray([[1.0, 0.0, 1.0], [0.0, 1.0, 1.0]])
+    residual = np.asarray([0.2, -0.1])
+
+    delta, projected = v6_control._minimum_norm_delta(
+        jacobian,
+        residual,
+        ridge=0.0,
+        diagnostic_scales=np.ones(2),
+    )
+
+    assert projected == pytest.approx(residual)
+    assert jacobian @ delta == pytest.approx(residual)
+
+
+def test_controllability_chain_cache_round_trip(tmp_path: Path) -> None:
+    path = tmp_path / "chains.npz"
+    chain_ids = ["piece-a#replica=0", "piece-b#replica=0"]
+    states = {
+        chain_ids[0]: np.arange(20, dtype=np.int16).reshape(5, 4),
+        chain_ids[1]: np.arange(24, dtype=np.int16).reshape(6, 4),
+    }
+
+    v6_control._write_chain_cache(
+        path,
+        chain_ids=chain_ids,
+        states=states,
+        source_model=tmp_path / "model.json",
+        weights=np.asarray([0.5, -0.25]),
+        candidate_min=36,
+        candidate_max=84,
+        seed=7613,
+    )
+    restored, metadata = v6_control._load_chain_cache(path)
+
+    assert list(restored) == chain_ids
+    assert all(np.array_equal(restored[key], states[key]) for key in chain_ids)
+    assert metadata["schema_version"] == 1
+    assert metadata["candidate_min"] == 36
+    assert metadata["candidate_max"] == 84
+    assert metadata["chains"] == 2
+
+
+def test_convergence_summary_monitors_gradient_moments() -> None:
+    diagnostics = np.tile(np.asarray([[0.0], [1.0]]), (8, 1))
+    counts = np.tile(np.asarray([[1.0, 0.0], [0.0, 1.0]]), (8, 1))
+
+    moments = v6_control._convergence_moments(diagnostics, counts)
+    ess_q05, drift_q95 = v6_control._convergence_summary(
+        diagnostics,
+        counts,
+        window=4,
+    )
+
+    assert moments.shape == (16, 5)
+    assert ess_q05 >= 4
+    assert drift_q95 == pytest.approx(0.0)
+
+
+def test_lag1_ess_penalizes_persistent_samples() -> None:
+    alternating = np.tile(np.asarray([0.0, 1.0]), 10)[:, None]
+    persistent = np.repeat(np.asarray([0.0, 1.0]), 10)[:, None]
+
+    assert (
+        v6_control._lag1_effective_sample_sizes(alternating)[0]
+        > v6_control._lag1_effective_sample_sizes(persistent)[0]
+    )
+
+
+def test_multiseed_ridge_selects_first_stable_direction() -> None:
+    jacobians = np.asarray(
+        [
+            [[1.0, 0.1], [0.1, 0.03]],
+            [[1.0, -0.1], [-0.1, 0.03]],
+        ]
+    )
+    residuals = np.asarray([[0.2, 0.01], [0.2, -0.01]])
+    scales = np.ones_like(residuals)
+
+    ridge, delta, records = v6_multiseed.select_stable_ridge(
+        jacobians,
+        residuals,
+        scales,
+        (1e-5, 1.0, 10.0),
+        minimum_cosine=0.8,
+        max_abs_step=0.2,
+    )
+
+    assert ridge in {1.0, 10.0}
+    selected = next(record for record in records if record["ridge"] == ridge)
+    assert selected["passes_stability_gate"]
+    assert np.max(np.abs(delta)) <= 0.2
+
+
+def test_residual_feature_selection_requires_seed_sign_agreement() -> None:
+    features = (
+        k3.FeatureSpec("abs_class_from_previous", 3, value=2),
+        k3.FeatureSpec("abs_class_from_previous", 3, value=3),
+    )
+    records = [
+        {
+            "bach_rate": 0.3,
+            "gibbs_rate": 0.2,
+            "gradient": 0.1,
+            "z_score": 4.0,
+            "selection_score": 0.2,
+            "seed_sign_agreement": True,
+        },
+        {
+            "bach_rate": 0.1,
+            "gibbs_rate": 0.2,
+            "gradient": -0.1,
+            "z_score": -5.0,
+            "selection_score": 0.3,
+            "seed_sign_agreement": False,
+        },
+    ]
+
+    selected = v6_residual._select_robust(
+        records,
+        features,
+        per_family=2,
+        minimum_rate=0.003,
+        minimum_abs_z=2.0,
+    )
+
+    assert selected == [0]
+
+
+def test_v7_chooses_one_factor_per_sign_and_family() -> None:
+    records = [
+        {
+            "family": family,
+            "gradient": sign,
+            "selection_score": score,
+        }
+        for family in ("bass_motion", "vertical_context", "sonority_transition")
+        for sign, score in ((1.0, 2.0), (-1.0, 3.0), (1.0, 1.0))
+    ]
+
+    selected = v7_fit._choose_two_per_family(records)
+
+    assert len(selected) == 6
+    for family in ("bass_motion", "vertical_context", "sonority_transition"):
+        local = [record for record in selected if record["family"] == family]
+        assert sorted(np.sign(record["gradient"]) for record in local) == [-1.0, 1.0]
+
+
+@pytest.mark.parametrize("update_schedule", ("sequential", "colored"))
+def test_rhythmic_gibbs_changes_one_attack_and_its_whole_hold(
+    update_schedule: str,
+) -> None:
     blocks = np.asarray(
         [
             [62, 60, 60, 60],
@@ -484,6 +768,7 @@ def test_rhythmic_gibbs_changes_one_attack_and_its_whole_hold() -> None:
         weights=np.asarray([], dtype=np.float64),
         sweeps=1,
         seed=3,
+        update_schedule=update_schedule,
     )
 
     assert np.array_equal(generated[1:3, 1], [62, 62])
@@ -559,6 +844,162 @@ def test_vectorized_segment_energies_match_scalar_worlds() -> None:
     blocks[2, 0] = original
 
     assert np.allclose(vectorized, scalar)
+
+
+def test_compiled_segment_energies_exactly_match_legacy_worlds() -> None:
+    blocks = np.asarray(
+        [
+            [67, 64, 55, 48],
+            [69, 65, 57, 50],
+            [71, 67, 59, 52],
+            [72, 69, 60, 53],
+            [74, 71, 62, 55],
+        ],
+        dtype=np.int16,
+    )
+    attacks = np.ones_like(blocks, dtype=bool)
+    attacks[2, 1] = False
+    candidates = np.arange(48, 75, dtype=np.int16)
+    register_logits = np.arange(4 * candidates.size, dtype=np.float64).reshape(
+        4,
+        -1,
+    )
+    register_logits /= 100
+    tonal_logits = np.arange(4 * 2 * 12, dtype=np.float64).reshape(4, 2, 12)
+    tonal_logits /= 200
+    metric_levels = np.asarray([3, 1, 2, 1, 3], dtype=np.int8)
+    features = (
+        k3.FeatureSpec("any_voice_adjacent_step_gt", -1, value=2),
+        k3.FeatureSpec("central_bass_pcset", -1, value=145),
+        k3.FeatureSpec("attacked_repeat_from_previous", 1),
+        k3.FeatureSpec("any_pair_central_abs_class", -1, value=2),
+    )
+    weights = np.asarray([-0.7, 1.2, -0.3, 0.4])
+    kwargs = {
+        "candidate_min": 48,
+        "candidate_max": 74,
+        "register_logits": register_logits,
+        "features": features,
+        "weights": weights,
+        "tonal_logits": tonal_logits,
+        "tonic_pc": 11,
+        "mode": 0,
+        "metric_levels": metric_levels,
+    }
+
+    compiled = k3._candidate_state_energies(
+        blocks,
+        attacks,
+        range(1, 4),
+        1,
+        3,
+        1,
+        candidates,
+        **kwargs,
+    )
+    legacy = k3._candidate_state_energies_legacy(
+        blocks,
+        attacks,
+        range(1, 4),
+        1,
+        3,
+        1,
+        candidates,
+        **kwargs,
+    )
+    component_kwargs = {key: value for key, value in kwargs.items() if key != "weights"}
+    base_scores, factor_totals = k3.candidate_segment_components(
+        blocks,
+        attacks,
+        range(1, 4),
+        1,
+        3,
+        1,
+        candidates,
+        **component_kwargs,
+    )
+
+    assert np.array_equal(compiled, legacy)
+    assert np.array_equal(
+        base_scores + factor_totals @ weights,
+        compiled,
+    )
+
+
+def test_selected_candidate_feature_path_matches_full_masks() -> None:
+    data = _dataset()
+    data.tonic_pcs = np.asarray([0, 2], dtype=np.int8)
+    data.modes = np.asarray([0, 1], dtype=np.int8)
+    data.metric_levels = np.asarray([3, 0], dtype=np.int8)
+    features = (
+        k3.FeatureSpec("any_voice_adjacent_step_gt", -1, value=2),
+        k3.FeatureSpec("any_pair_central_abs_class", -1, value=2),
+        k3.FeatureSpec("central_bass_pcset", -1, value=145),
+        k3.FeatureSpec("attacked_repeat_from_previous", -1),
+        k3.FeatureSpec("tonic_relative_class_mode", -1, value=9, second_value=0),
+        k3.FeatureSpec(
+            "pair_abs_class_preserved_same_sign",
+            target_voice=0,
+            other_voice=3,
+            value=7,
+        ),
+    )
+    rows = np.arange(data.size)
+
+    for feature in features:
+        expected = k3.feature_mask(data, feature)[rows, data.chosen_indices]
+        assert np.array_equal(k3.chosen_feature_values(data, feature), expected)
+
+
+def test_compiled_gibbs_exactly_matches_legacy_seeded_trajectory() -> None:
+    blocks = np.asarray(
+        [
+            [67, 64, 55, 48],
+            [69, 65, 57, 50],
+            [71, 67, 59, 52],
+            [72, 69, 60, 53],
+            [74, 71, 62, 55],
+        ],
+        dtype=np.int16,
+    )
+    attacks = np.ones_like(blocks, dtype=bool)
+    attacks[2, 1] = False
+    blocks[2, 1] = blocks[1, 1]
+    fixed = np.zeros_like(blocks, dtype=bool)
+    fixed[:, 0] = True
+    fixed[0, :] = True
+    fixed[-1, :] = True
+    candidate_min = 48
+    candidate_max = 74
+    kwargs = {
+        "candidate_min": candidate_min,
+        "candidate_max": candidate_max,
+        "register_logits": np.zeros((4, candidate_max - candidate_min + 1)),
+        "features": (
+            k3.FeatureSpec("any_voice_adjacent_step_gt", -1, value=2),
+            k3.FeatureSpec("any_pair_central_abs_class", -1, value=2),
+        ),
+        "weights": np.asarray([-0.7, 0.4]),
+        "sweeps": 3,
+        "seed": 4709,
+    }
+
+    compiled = k3.rhythmic_gibbs_sample(
+        blocks,
+        attacks,
+        fixed,
+        energy_backend="compiled",
+        **kwargs,
+    )
+    legacy = k3.rhythmic_gibbs_sample(
+        blocks,
+        attacks,
+        fixed,
+        energy_backend="legacy",
+        **kwargs,
+    )
+
+    assert np.array_equal(compiled, legacy)
 
 
 def test_joint_energy_counts_one_shared_sonority_potential_per_block() -> None:

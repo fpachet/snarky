@@ -48,10 +48,26 @@ Le dossier ne charge aucun fichier de `rules/` ni aucun manifeste de
   `FACTOR` ;
 - `run_v6_factor_induction.py` : génération de colonnes depuis la grammaire
   V6 gelée, calibration nulle familiale et apprentissage conditionnel ;
+- `fit_joint_pseudolikelihood.py` : somme les activations de tous les facteurs
+  avant le softmax et réapprend conjointement les 48 poids V6+résiduels ;
+- `fit_exact_joint_pseudolikelihood.py` : construit chaque monde candidat
+  attaque/tenue avec toutes les portées K3 affectées, vérifie la parité Gibbs
+  et réapprend les 48 poids sur les conditionnelles globales exactes ;
+- `run_exact_factor_reinduction.py` : repart des 954 facteurs gelés, classe
+  leurs gradients sur les conditionnelles Gibbs exactes et réapprend
+  conjointement la structure, le registre, le profil tonal et les poids ;
 - `export_v6_factor_program.py` : export des 30 facteurs sélectionnés dans le
   DSL Snarky ;
 - `refit_v6_generative_weights.py` : réajustement des seuls paramètres par
   contraste de moments Bach−Gibbs, structure factorielle gelée ;
+- `run_v6_factor_controllability.py` : estimation train du Jacobien
+  diagnostics×facteurs par covariance et projection minimale standardisée ;
+  trajectoires locales par worker, cache explicite des chaînes persistantes,
+  arrêt adaptatif sur les moments du gradient et ordonnanceur coloré optionnel ;
+- `apply_v6_control_delta.py` : application d'une direction apprise avec
+  région de confiance et contrôle de NLL conditionnelle ;
+- `run_explicit_generation_audit.py` : ordonnance toutes les générations
+  pièce×modèle×graine en parallèle et mesure dix diagnostics explicites ;
 - `results/` : artefacts et rapports reproductibles.
 
 `V5.0` conserve le premier catalogue spécialisé, qui a appris huit variantes
@@ -108,6 +124,28 @@ Résultats principaux :
   référence factorielle V5.16 gelée ;
 - [`../../factor_bases/k3_v6_induced/V6_RESEARCH_LOOP_SUMMARY.md`](../../factor_bases/k3_v6_induced/V6_RESEARCH_LOOP_SUMMARY.md),
   induction V6 depuis zéro, réajustement génératif et audit ;
+- [`../../factor_bases/k3_v6_induced/V6_WEIGHT_LEARNING_SCALING_AND_CONTROL.md`](../../factor_bases/k3_v6_induced/V6_WEIGHT_LEARNING_SCALING_AND_CONTROL.md),
+  mise à l'échelle, Jacobien multivarié, région de confiance et validation ;
+- [`../../factor_bases/k3_v6_induced/V6_SAMPLING_OPTIMIZATION.md`](../../factor_bases/k3_v6_induced/V6_SAMPLING_OPTIMIZATION.md),
+  parité du moteur par trajectoire et gain mesuré des chaînes persistantes ;
+- [`../../factor_bases/k3_v6_induced/V6_ITERATION3_MULTISEED_DECISION.md`](../../factor_bases/k3_v6_induced/V6_ITERATION3_MULTISEED_DECISION.md),
+  estimation multigraine, régularisation du problème inverse et rejet de la
+  promotion après contrôle à 30 sweeps ;
+- [`../../factor_bases/k3_v6_induced/V6_ITERATION3_RESIDUAL_FEATURE_DIAGNOSTIC.md`](../../factor_bases/k3_v6_induced/V6_ITERATION3_RESIDUAL_FEATURE_DIAGNOSTIC.md),
+  classement train multigraine des mouvements de basse, contextes métriques et
+  transitions de sonorités encore absents de V6 ;
+- [`../../factor_bases/k3_v6_induced/V7_RESIDUAL_FACTOR_DECISION.md`](../../factor_bases/k3_v6_induced/V7_RESIDUAL_FACTOR_DECISION.md),
+  apprentissage, ablation et rejet de trois candidats V7, avec paire d'écoute
+  contrôlée Iteration 2/V7-Sonority ;
+- [`../../factor_bases/k3_v6_induced/V8_JOINT_PSEUDOLIKELIHOOD_DECISION.md`](../../factor_bases/k3_v6_induced/V8_JOINT_PSEUDOLIKELIHOOD_DECISION.md),
+  apprentissage conjoint de 48 poids, gain conditionnel tenu à part et rejet
+  génératif après audits appariés à 6 et 30 sweeps ;
+- [`../../factor_bases/k3_v6_induced/V8_EXACT_JOINT_PSEUDOLIKELIHOOD_DECISION.md`](../../factor_bases/k3_v6_induced/V8_EXACT_JOINT_PSEUDOLIKELIHOOD_DECISION.md),
+  rectification des portées, parité exacte avec les logits Gibbs, apprentissage
+  complet et audits génératifs du modèle corrigé ;
+- [`../../factor_bases/k3_v6_induced/V9_EXACT_REINDUCTION_DECISION.md`](../../factor_bases/k3_v6_induced/V9_EXACT_REINDUCTION_DECISION.md),
+  réinduction exacte depuis zéro, gain conditionnel compact et diagnostic des
+  dissonances contextuelles apprises comme préférences globales ;
 - `v5_1_k3_compact_model.json`, modèle complet pour le Gibbs.
 
 Le protocole complet est

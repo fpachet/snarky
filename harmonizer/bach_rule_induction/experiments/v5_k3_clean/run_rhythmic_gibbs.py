@@ -129,7 +129,12 @@ def _source_score_metadata(score: Any) -> dict[str, Any]:
         raise ValueError("Expected one declared key and time signature")
     declared = declared_keys[0]
     key_signature = declared.tonic.name + ("m" if declared.mode == "minor" else "")
-    bpm = float(marks[0].number) if marks and marks[0].number else 120.0
+    quarter_bpms = [
+        float(quarter_bpm)
+        for mark in marks
+        if (quarter_bpm := mark.getQuarterBPM()) is not None
+    ]
+    bpm = quarter_bpms[0] if quarter_bpms else 120.0
     return {
         "key_signature": key_signature,
         "time_signature": signatures[0].ratioString,
@@ -363,6 +368,11 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--sweeps", type=int, default=20)
     parser.add_argument("--seed", type=int, default=5517)
     parser.add_argument("--temperature", type=float, default=1.0)
+    parser.add_argument(
+        "--update-schedule",
+        choices=("sequential", "colored"),
+        default="sequential",
+    )
     parser.add_argument("--output", type=Path, default=DEFAULT_OUTPUT)
     parser.add_argument("--report", type=Path, default=DEFAULT_REPORT)
     parser.add_argument("--generated-directory", type=Path, default=DEFAULT_GENERATED)
@@ -423,6 +433,7 @@ def main() -> int:
         tonic_pc=lattice.tonic_pc,
         mode=lattice.mode,
         metric_levels=lattice.metric_levels,
+        update_schedule=args.update_schedule,
     )
     from music21 import converter
 
