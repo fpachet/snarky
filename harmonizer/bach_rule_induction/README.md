@@ -43,10 +43,16 @@ La première tâche commune est l'harmonisation SATB d'un soprano imposé, avec
 rythme, métrique, fermatas et métadonnées tonales contrôlés.
 
 La séparation des bases est stricte. Les `RULE` et `CONSTRAINT` sont écrites
-par un expert ; les `FACTOR` et leurs paramètres sont appris depuis le corpus.
-Une activation factorielle est pure, n'est pas ajoutée aux faits et ne peut
-donc déclencher aucune règle. Chaque objet enregistre séparément l'origine de
-sa formulation et celle des faits musicaux qu'il consulte.
+par un expert dans la base historique. Dans la base apprise, l'expert définit
+le langage de prédicats et les critères statistiques ; le corpus sélectionne
+les instances, leur statut dur ou souple et les poids. Une activation
+factorielle est pure, n'est pas ajoutée aux faits et ne peut donc déclencher
+aucune règle. Chaque objet enregistre séparément l'origine de sa formulation,
+de sa sélection et des faits musicaux qu'il consulte.
+
+Les deux boucles — induction de la théorie puis recherche de solutions
+satisfaisantes — sont spécifiées dans
+[`TWO_LOOPS_EXPERIMENT_PROTOCOL.md`](TWO_LOOPS_EXPERIMENT_PROTOCOL.md).
 
 ## Hypothèse centrale
 
@@ -533,3 +539,27 @@ Ce résultat motive V26 : apprendre conjointement, dans une seule partition
 locale intelligible, le rôle de la sonorité faible et la qualité de sa
 résolution forte. Voir
 [`V25_WEAK_SONORITY_DECISION.md`](factor_bases/k3_v6_induced/V25_WEAK_SONORITY_DECISION.md).
+
+## Retour à la génération déclarative Snarky
+
+L'apprentissage et la génération sont désormais séparés explicitement.
+L'induction sur corpus estime des prédicats, leur statut et, pour les
+préférences, leurs poids. Elle ne constitue pas le moteur génératif final.
+Une fois gelés, ces artefacts sont compilés dans un problème Snarky :
+
+- les interdictions empiriques deviennent des contraintes persistantes ;
+- les facteurs V24 deviennent des préférences de choix additives ;
+- le soprano, le rythme et les conditions aux limites sont des faits ;
+- Snarky réalise la fermeture par propagation, choisit une valeur et restaure
+  un état antérieur en cas de contradiction.
+
+Le premier POC résout un fragment de BWV 108.6 sans Gibbs et vérifie la parité
+des 65 contributions factorielles à `6,661 × 10⁻¹⁶`. Sur le cas courant, trois
+décisions suffisent et aucun backtrack n'est déclenché : cela signifie que la
+branche préférée est compatible, non que le moteur en serait incapable. Le
+résultat répétitif montre surtout que les 23 filtres V22 sont trop faibles ou
+inactifs dans ce petit domaine et que V24 ne constitue pas encore une théorie
+générative suffisante.
+
+Architecture, limites et suite :
+[`SNARKY_RULE_SEARCH_ARCHITECTURE.md`](SNARKY_RULE_SEARCH_ARCHITECTURE.md).

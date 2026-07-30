@@ -1817,3 +1817,42 @@ boucle indépendante ultérieure.
 
 Le protocole complet et les audits sont consignés dans
 [`V25_WEAK_SONORITY_DECISION.md`](factor_bases/k3_v6_induced/V25_WEAK_SONORITY_DECISION.md).
+
+## 21. Recentrage : apprendre la théorie, chercher avec Snarky
+
+Les boucles Gibbs restent utiles pour estimer ou diagnostiquer un modèle
+MaxEnt. Elles ne doivent plus être confondues avec le générateur final. Le
+pipeline cible est maintenant :
+
+1. proposer automatiquement des prédicats K3 lisibles ;
+2. déterminer sur train leur rôle candidat : interdiction, obligation ou
+   préférence ;
+3. apprendre conjointement les seuls poids des préférences ;
+4. valider stabilité, parcimonie et généralisation avant de geler une base ;
+5. compiler les interdictions/obligations en contraintes persistantes et les
+   préférences en facteurs Snarky ;
+6. générer par fermeture de propagation, `CHOICE` et rollback/backtracking ;
+7. analyser chaque échec ou étrangeté comme une lacune explicite de la base,
+   puis rouvrir l'induction sur train.
+
+Un premier POC exécutable réalise les étapes 5–6 avec les artefacts existants
+V22/V24 sur un fragment court. Il n'utilise pas Gibbs pour générer. Les
+fenêtres K3 sont reliées par des contraintes de table persistantes et les
+scores V24 ordonnent les choix. La parité factorielle Snarky est exacte à la
+tolérance numérique.
+
+Ce POC révèle aussi la prochaine question scientifique : dans le domaine
+restreint testé, les 23 filtres V22 ne retirent aucune candidate et le MAP
+local favorise des répétitions. Il faut donc apprendre des groupes de
+contraintes réellement discriminants, notamment la cohérence harmonique
+verticale et la trajectoire de basse, au lieu d'ajouter des correctifs manuels
+au sampler.
+
+La frontière entre apprentissage, compilation et recherche est détaillée dans
+[`SNARKY_RULE_SEARCH_ARCHITECTURE.md`](SNARKY_RULE_SEARCH_ARCHITECTURE.md).
+
+Le protocole exécutable attendu pour les expériences suivantes sépare
+désormais deux boucles : induction/MLE/calibration, puis
+propagation/score/backtracking. Leur contrat, les formules du score, les
+conditions de gel et les tests d'interface sont définis dans
+[`TWO_LOOPS_EXPERIMENT_PROTOCOL.md`](TWO_LOOPS_EXPERIMENT_PROTOCOL.md).

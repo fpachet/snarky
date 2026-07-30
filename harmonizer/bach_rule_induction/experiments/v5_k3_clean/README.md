@@ -46,6 +46,10 @@ Le dossier ne charge aucun fichier de `rules/` ni aucun manifeste de
   export des portées, instanciations et poids probabilistes canoniques ;
 - `snarky_choice_bridge.py` : compilation fidèle de ces facteurs en poids
   positifs pour `CHOICE`, avec explication factorielle de chaque candidate ;
+- `run_v24_snarky_search.py` : premier générateur V24 sans Gibbs ; il compile
+  les facteurs appris en préférences de fenêtres, les filtres V22 en
+  contraintes persistantes, puis confie propagation, choix et rollback à la
+  recherche CSP de Snarky ;
 - `export_v5_16_factor_program.py` : migration du POC gelé vers le DSL pur
   `FACTOR` ;
 - `run_v6_factor_induction.py` : génération de colonnes depuis la grammaire
