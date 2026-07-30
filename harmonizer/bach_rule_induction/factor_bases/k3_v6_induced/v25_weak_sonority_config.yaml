@@ -1,0 +1,65 @@
+schema_version: 1
+id: K3-V25-WEAK-SONORITY-GROUP-1
+status: FROZEN
+frozen_on: 2026-07-30
+baseline_model: v24_contrastive_moment_model.json
+baseline_label: socle V24 réajusté
+source_grammar: grammar_v25_weak_sonority.yaml
+source_exact_cache: ../../experiments/v5_k3_clean/work/k3-exact-v25-selected-32x10.npz
+
+group:
+  id: residual_weak_sonority_status
+  feature_kind: central_residual_weak_sonority_status
+  size: 9
+  label: groupe V25 faible
+  learning: joint
+  reference_state: strict_unique_named_chord
+  shared_block_potential: true
+  matrix_shape: [9]
+  l1_inside_group: 0.0005
+  l2_group_scaled_by_sqrt_size: true
+
+coverage:
+  split: structure_train_32
+  minimum_testable_opportunities: 100
+  minimum_piece_support: 5
+  require_all_cells_testable: true
+
+sampling:
+  pieces: 32
+  seeds: [25204]
+  sweeps: 6
+  initialization: source
+  update_schedule: sequential
+  workers: 8
+
+estimation:
+  objective: exact_conditional_pseudolikelihood
+  optimizer: adam_plus_sparse_group_proximal
+  learning_rate: 0.02
+  steps_baseline_prefit: 120
+  steps_comparison: 180
+  return_checkpoint: best_validation_during_discovery
+  l1_baseline_by_clause_complexity: 0.001
+  l2: 0.001
+  group_penalty_path: [0.6, 0.3, 0.1, 0.03, 0.0]
+
+optimization:
+  iterations: 8
+  learning_rate: 0.5
+  l2: 0.01
+  weight_clip: 1.5
+  baseline_weights_frozen: true
+
+selection:
+  criterion: paired_bootstrap_then_piece_disjoint_stability
+  paired_bootstrap_resamples: 100000
+  paired_bootstrap_seed: 25029
+  minimum_positive_piece_fraction: 0.6
+
+learning_protocol:
+  conditional_objective: exact_pseudolikelihood
+  generative_objective: bach_minus_generated_maxent_moments
+  baseline_weights_frozen_during_generative_calibration: true
+  validation_used_during_updates: false
+  test_opened: false

@@ -1,0 +1,54 @@
+schema_version: 1
+id: K3-V25-WEAK-SONORITY-GRAMMAR-1
+status: FROZEN
+frozen_on: 2026-07-30
+extends: grammar_v24_residual_sonority.yaml
+purpose: >
+  Remplacer les licences pairwise chevauchantes de V10–V14 par un seul
+  statut partagé et mutuellement exclusif pour chaque sonorité faible hors
+  analyse nommée unique. Le vocabulaire est local à K3 et ne pré-étiquette
+  aucun statut comme interdiction.
+
+extensions:
+  residual_weak_sonority_features: true
+
+additional_generated_relations:
+  - residual_weak_sonority_status
+  - foreign_tone_passing_in_k3
+  - foreign_tone_neighbor_in_k3
+  - foreign_tone_suspension_in_k3
+  - foreign_tone_appoggiatura_in_k3
+
+families:
+  - id: residual_weak_sonority_status
+    feature_kinds:
+      - central_residual_weak_sonority_status
+    metric_strength: weak
+    reference_state: strict_unique_named_chord
+    statuses:
+      - exact_named_ambiguous
+      - incomplete_consonant_triad
+      - triad_plus_one_ambiguous
+      - triad_plus_passing
+      - triad_plus_neighbor
+      - triad_plus_suspension
+      - triad_plus_appoggiatura
+      - triad_plus_unlicensed
+      - other_unlicensed
+    parameter_count: 9
+    complexity: 4
+    shared_block_potential: true
+    mutually_exclusive: true
+
+structure_learning:
+  maximum_clause_complexity: 4
+  group_learning: joint_only
+  individual_clause_selection: forbidden
+
+provenance_guards:
+  vocabulary_frozen_before_weight_learning: true
+  previous_pairwise_features_loaded_into_new_group: false
+  expert_defines_status_vocabulary_only: true
+  no_status_is_an_absolute_prohibition: true
+  validation_effects_loaded: false
+  test_opened: false

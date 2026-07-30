@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Fit the exhaustive eight-cell V24 residual-sonority RuleGroup."""
+"""Fit one exhaustive residual-sonority RuleGroup above a frozen baseline."""
 
 from __future__ import annotations
 
@@ -65,14 +65,23 @@ def _clean_path(path: list[dict[str, Any]]) -> None:
         point.pop("_parameters", None)
 
 
+def _status_names(feature_kind: str) -> tuple[str, ...]:
+    if feature_kind == "central_residual_strong_sonority_status":
+        return k3.RESIDUAL_STRONG_SONORITY_NAMES
+    if feature_kind == "central_residual_weak_sonority_status":
+        return k3.RESIDUAL_WEAK_SONORITY_NAMES
+    raise ValueError(f"Unknown residual-sonority group: {feature_kind}")
+
+
 def _markdown(result: dict[str, Any]) -> str:
     selection = result["selection"]
+    experiment = result["experiment"]
     lines = [
-        "# V24 — groupe exhaustif des sonorités résiduelles",
+        f"# {experiment['id']} — groupe exhaustif de sonorités résiduelles",
         "",
-        "Les huit cellules sont apprises simultanément au-dessus de V23. Elles",
-        "ne dupliquent aucun accord nommé unique : elles couvrent exactement",
-        "l'état de référence laissé sans facteur par V23.",
+        f"Les {experiment['group_cell_count']} cellules sont apprises "
+        "simultanément au-dessus du socle gelé. Elles ne dupliquent aucun",
+        "accord nommé unique et forment une partition mutuellement exclusive.",
         "",
         "| Candidat | λ | NLL validation/pièce | Gain apparié | "
         "IC bootstrap 95 % | Chorals améliorés |",
@@ -129,7 +138,7 @@ def main() -> int:
     args = parse_args()
     config = yaml.safe_load(args.config.read_text(encoding="utf-8"))
     if config["status"] != "FROZEN":
-        raise ValueError("V24 configuration must be frozen before fitting")
+        raise ValueError("Residual-sonority configuration must be frozen")
     source = json.loads(args.source.read_text(encoding="utf-8"))
     baseline = json.loads(
         (FACTOR_BASE / config["baseline_model"]).read_text(encoding="utf-8")
@@ -145,7 +154,7 @@ def main() -> int:
     archive = np.load(args.cache)
     metadata = json.loads(str(archive["metadata"]))
     if metadata["feature_keys"] != [feature.key for feature in features]:
-        raise ValueError("V24 cache and frozen features disagree")
+        raise ValueError("Residual cache and frozen features disagree")
     candidates = np.arange(
         int(metadata["candidate_min"]),
         int(metadata["candidate_max"]) + 1,
@@ -193,7 +202,7 @@ def main() -> int:
         return_best_validation=return_best,
     )
     baseline_point = _point(
-        label="socle V23 réajusté",
+        label=str(config.get("baseline_label", "socle réajusté")),
         penalty=None,
         train=train_baseline,
         validation=validation_baseline,
@@ -254,7 +263,8 @@ def main() -> int:
             return_best_validation=return_best,
         )
         point = _point(
-            label=f"groupe V24 λ={penalty:g}",
+            label=f"{config['group'].get('label', config['group']['id'])} "
+            f"λ={penalty:g}",
             penalty=penalty,
             train=train,
             validation=validation,
@@ -271,7 +281,7 @@ def main() -> int:
         )
         path.append(point)
         print(
-            f"[v24] lambda={penalty:g} "
+            f"[residual-group] lambda={penalty:g} "
             f"validation={point['validation_piece_mean_nll']:.6f} "
             f"gain={point['paired_vs_baseline']['mean_improvement']:+.6f}",
             flush=True,
@@ -337,7 +347,7 @@ def main() -> int:
                     "weight": float(weight),
                 }
                 for name, weight in zip(
-                    k3.RESIDUAL_STRONG_SONORITY_NAMES,
+                    _status_names(config["group"]["feature_kind"]),
                     group_weights,
                     strict=True,
                 )
@@ -351,11 +361,11 @@ def main() -> int:
     )
     args.report.write_text(_markdown(result), encoding="utf-8")
     print(
-        f"[v24] selected={result['selection']['selected_label']}",
+        f"[residual-group] selected={result['selection']['selected_label']}",
         flush=True,
     )
-    print(f"[v24] wrote {args.output}", flush=True)
-    print(f"[v24] wrote {args.report}", flush=True)
+    print(f"[residual-group] wrote {args.output}", flush=True)
+    print(f"[residual-group] wrote {args.report}", flush=True)
     return 0
 
 

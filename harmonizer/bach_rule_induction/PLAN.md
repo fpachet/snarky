@@ -1787,3 +1787,33 @@ groupes distincts, afin de préserver l'interprétabilité :
 
 Le protocole, les résultats et l'exemple d'écoute sont consignés dans
 [`V24_RESIDUAL_SONORITY_DECISION.md`](factor_bases/k3_v6_induced/V24_RESIDUAL_SONORITY_DECISION.md).
+
+## 20. Décision V25 et transition conjointe V26
+
+V25 ouvre le premier des deux groupes annoncés par V24 : les licences de
+sonorité aux temps faibles. Neuf états exclusifs séparent accords ambigus,
+triades incomplètes, passages, broderies, suspensions, appoggiatures et deux
+formes de résidu non licencié.
+
+Le résultat est scientifiquement négatif mais informatif. Sur dix chorals de
+validation et cinq graines, V25 rapproche les dissonances faibles de Bach
+(`1,080 → 1,051`, Bach `1,032`), tout en dégradant les dissonances fortes
+(`0,510 → 0,552`, Bach `0,357`). Le modèle réduit surtout la catégorie
+`other_unlicensed`; il ne produit toujours pas assez de suspensions.
+
+V25 n'est donc pas ajouté à la base Snarky retenue. Il montre que deux
+descriptions marginales, même lisibles, ne suffisent pas : il faut représenter
+explicitement la relation musicale entre une dissonance faible et sa
+résolution.
+
+V26 testera une partition K3 unique, exhaustive et mutuellement exclusive :
+
+`rôle de la sonorité faible × qualité de la résolution forte`.
+
+Les poids de ce groupe seront appris conjointement. Le critère de conservation
+est fixé avant l'expérience : amélioration des temps faibles sans dégradation
+des temps forts sur validation. L'induction structurée de la basse reste une
+boucle indépendante ultérieure.
+
+Le protocole complet et les audits sont consignés dans
+[`V25_WEAK_SONORITY_DECISION.md`](factor_bases/k3_v6_induced/V25_WEAK_SONORITY_DECISION.md).

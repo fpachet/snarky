@@ -43,6 +43,17 @@ RESIDUAL_STRONG_SONORITY_NAMES = (
     "triad_plus_unlicensed",
     "other_unlicensed",
 )
+RESIDUAL_WEAK_SONORITY_NAMES = (
+    "exact_named_ambiguous",
+    "incomplete_consonant_triad",
+    "triad_plus_one_ambiguous",
+    "triad_plus_passing",
+    "triad_plus_neighbor",
+    "triad_plus_suspension",
+    "triad_plus_appoggiatura",
+    "triad_plus_unlicensed",
+    "other_unlicensed",
+)
 NAMED_CHORD_STATUS_KINDS = {
     "central_named_chord_quality",
     "central_named_chord_root_degree",
@@ -68,6 +79,7 @@ SHARED_POTENTIAL_KINDS = {
     "central_bass_tonal_strong_mode",
     "central_unique_chord_family_inversion_strong",
     "central_residual_strong_sonority_status",
+    "central_residual_weak_sonority_status",
     "bass_pcset_transition",
 }
 INTERVAL_CONTEXT_KINDS = {
@@ -934,6 +946,105 @@ def central_residual_strong_sonority_statuses(
     return status
 
 
+def central_residual_weak_sonority_statuses(
+    dataset: K3Dataset,
+    candidates: np.ndarray | None = None,
+) -> np.ndarray:
+    """Classify weak sonorities outside the strict named-chord vocabulary.
+
+    This block-level partition replaces overlapping pairwise licences. Strict
+    unique named chords and strong blocks receive ``-1``.
+    """
+
+    candidates = _candidate_values(dataset, candidates)
+    signatures = central_tonic_pcset_signatures(dataset, candidates)
+    levels = _context_array(dataset.metric_levels, "metric_levels")
+    status = np.full(signatures.shape, -1, dtype=np.int8)
+    residual = (
+        (levels < 2)[:, None]
+        & (NAMED_CHORD_ANALYSIS_COUNT_BY_SIGNATURE[signatures] != 1)
+    )
+    ambiguous_named = NAMED_CHORD_ANALYSIS_COUNT_BY_SIGNATURE[signatures] > 1
+    status[residual & ambiguous_named] = 0
+    incomplete = INCOMPLETE_CONSONANT_TRIAD_BY_SIGNATURE[signatures]
+    status[residual & ~ambiguous_named & incomplete] = 1
+    plus_count = TRIAD_PLUS_ONE_ANALYSIS_COUNT_BY_SIGNATURE[signatures]
+    plus_ambiguous = plus_count > 1
+    status[residual & ~ambiguous_named & ~incomplete & plus_ambiguous] = 2
+    strict_plus = (
+        residual
+        & ~ambiguous_named
+        & ~incomplete
+        & (plus_count == 1)
+    )
+    if np.any(strict_plus):
+        voices = dataset.voice_indices
+        central = np.broadcast_to(
+            dataset.blocks[:, 1, :, None],
+            (dataset.size, 4, candidates.shape[1]),
+        ).copy()
+        for voice in range(4):
+            central[:, voice, :] = np.where(
+                (voices == voice)[:, None],
+                candidates,
+                central[:, voice, :],
+            )
+        following = np.broadcast_to(
+            dataset.blocks[:, 2, :, None],
+            central.shape,
+        ).copy()
+        for voice in range(4):
+            following[:, voice, :] = np.where(
+                ((voices == voice) & ~dataset.attacks[:, 2, voice])[:, None],
+                candidates,
+                following[:, voice, :],
+            )
+        foreign_pc = TRIAD_PLUS_ONE_FOREIGN_PC_BY_SIGNATURE[signatures]
+        passing = np.zeros_like(strict_plus)
+        neighbor = np.zeros_like(strict_plus)
+        suspension = np.zeros_like(strict_plus)
+        appoggiatura = np.zeros_like(strict_plus)
+        for voice in range(4):
+            is_foreign = central[:, voice, :] % 12 == foreign_pc
+            previous = dataset.blocks[:, 0, voice, None]
+            incoming = central[:, voice, :] - previous
+            outgoing = following[:, voice, :] - central[:, voice, :]
+            incoming_step = (np.abs(incoming) >= 1) & (np.abs(incoming) <= 2)
+            outgoing_step = (
+                dataset.attacks[:, 2, voice, None]
+                & (np.abs(outgoing) >= 1)
+                & (np.abs(outgoing) <= 2)
+            )
+            prepared = central[:, voice, :] == previous
+            is_passing = (
+                incoming_step
+                & outgoing_step
+                & (_sign(incoming) == _sign(outgoing))
+            )
+            is_neighbor = (
+                incoming_step
+                & outgoing_step
+                & (following[:, voice, :] == previous)
+            )
+            passing |= is_foreign & is_passing
+            neighbor |= is_foreign & is_neighbor
+            suspension |= is_foreign & prepared & outgoing_step
+            appoggiatura |= (
+                is_foreign
+                & dataset.attacks[:, 1, voice, None]
+                & ~prepared
+                & outgoing_step
+                & ~(is_passing | is_neighbor)
+            )
+        status[strict_plus] = 7
+        status[strict_plus & appoggiatura] = 6
+        status[strict_plus & suspension] = 5
+        status[strict_plus & neighbor] = 4
+        status[strict_plus & passing] = 3
+    status[residual & (status < 0)] = 8
+    return status
+
+
 def _named_chord_status_mask(
     dataset: K3Dataset,
     feature: FeatureSpec,
@@ -1226,6 +1337,16 @@ def _contextual_feature_mask(
             )
             == value
         )
+    if feature.kind == "central_residual_weak_sonority_status":
+        if value not in range(len(RESIDUAL_WEAK_SONORITY_NAMES)):
+            raise ValueError("Residual weak sonority status is out of range")
+        return (
+            central_residual_weak_sonority_statuses(
+                dataset,
+                candidates,
+            )
+            == value
+        )
     if feature.kind in NAMED_CHORD_STATUS_KINDS:
         return _named_chord_status_mask(dataset, feature, candidates)
     if feature.kind in NAMED_CHORD_TRANSITION_KINDS:
@@ -1430,6 +1551,7 @@ def _feature_mask_for_candidates(
         "central_bass_tonal_strong_mode",
         "central_unique_chord_family_inversion_strong",
         "central_residual_strong_sonority_status",
+        "central_residual_weak_sonority_status",
         *NAMED_CHORD_STATUS_KINDS,
         *NAMED_CHORD_TRANSITION_KINDS,
         "bass_pcset_transition",
@@ -1878,6 +2000,7 @@ def contextual_feature_catalogue(
     bass_tonal_strong_mode_features: bool = False,
     unique_chord_family_inversion_strong_features: bool = False,
     residual_strong_sonority_features: bool = False,
+    residual_weak_sonority_features: bool = False,
 ) -> tuple[FeatureSpec, ...]:
     """Generate readable context features and observed vertical fingerprints."""
 
@@ -1931,6 +2054,8 @@ def contextual_feature_catalogue(
         )
     if residual_strong_sonority_features:
         features.extend(residual_strong_sonority_feature_catalogue())
+    if residual_weak_sonority_features:
+        features.extend(residual_weak_sonority_feature_catalogue())
     features.extend(
         FeatureSpec("central_distinct_pc_count", -1, value=count)
         for count in range(1, 5)
@@ -2125,6 +2250,21 @@ def residual_strong_sonority_feature_catalogue(
             complexity=4,
         )
         for status in range(len(RESIDUAL_STRONG_SONORITY_NAMES))
+    )
+
+
+def residual_weak_sonority_feature_catalogue(
+) -> tuple[FeatureSpec, ...]:
+    """Generate the exhaustive V25 statuses for the weak V23 reference."""
+
+    return tuple(
+        FeatureSpec(
+            "central_residual_weak_sonority_status",
+            -1,
+            value=status,
+            complexity=4,
+        )
+        for status in range(len(RESIDUAL_WEAK_SONORITY_NAMES))
     )
 
 

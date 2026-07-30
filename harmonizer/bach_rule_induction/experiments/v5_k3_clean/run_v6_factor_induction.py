@@ -132,6 +132,12 @@ def _catalogue(
                 False,
             )
         ),
+        residual_weak_sonority_features=bool(
+            grammar.get("extensions", {}).get(
+                "residual_weak_sonority_features",
+                False,
+            )
+        ),
     )
     family_by_kind = _feature_family_map(grammar)
     catalogue = {

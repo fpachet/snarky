@@ -1878,6 +1878,7 @@ def _residual_sonority_dataset(
     *,
     previous: list[int] | None = None,
     following: list[int] | None = None,
+    metric_level: int = 3,
 ) -> k3.K3Dataset:
     previous = central if previous is None else previous
     following = central if following is None else following
@@ -1891,7 +1892,7 @@ def _residual_sonority_dataset(
         candidate_max=central[2],
         tonic_pcs=np.asarray([0], dtype=np.int8),
         modes=np.asarray([0], dtype=np.int8),
-        metric_levels=np.asarray([3], dtype=np.int8),
+        metric_levels=np.asarray([metric_level], dtype=np.int8),
     )
 
 
@@ -1951,3 +1952,68 @@ def test_v24_residual_catalogue_is_one_exhaustive_eight_cell_group() -> None:
     assert len(features) == 8
     assert activations[0, 0].sum() == 1
     assert activations[0, 0, 6]
+
+
+def test_v25_weak_status_leaves_strict_unique_chords_as_reference() -> None:
+    major = _residual_sonority_dataset(
+        [76, 67, 60, 48],
+        metric_level=1,
+    )
+    augmented = _residual_sonority_dataset(
+        [76, 68, 60, 48],
+        metric_level=1,
+    )
+
+    assert k3.central_residual_weak_sonority_statuses(major)[0, 0] == -1
+    assert k3.central_residual_weak_sonority_statuses(augmented)[0, 0] == 0
+
+
+def test_v25_weak_status_separates_passing_and_neighbor() -> None:
+    passing = _residual_sonority_dataset(
+        [76, 67, 62, 48],
+        previous=[76, 67, 60, 48],
+        following=[76, 67, 64, 48],
+        metric_level=1,
+    )
+    neighbor = _residual_sonority_dataset(
+        [76, 67, 62, 48],
+        previous=[76, 67, 60, 48],
+        following=[76, 67, 60, 48],
+        metric_level=1,
+    )
+
+    assert k3.central_residual_weak_sonority_statuses(passing)[0, 0] == 3
+    assert k3.central_residual_weak_sonority_statuses(neighbor)[0, 0] == 4
+
+
+def test_v25_weak_status_separates_suspension_and_appoggiatura() -> None:
+    suspension = _residual_sonority_dataset(
+        [76, 67, 62, 48],
+        previous=[76, 67, 62, 48],
+        following=[76, 67, 60, 48],
+        metric_level=1,
+    )
+    appoggiatura = _residual_sonority_dataset(
+        [76, 67, 62, 48],
+        previous=[76, 67, 65, 48],
+        following=[76, 67, 60, 48],
+        metric_level=1,
+    )
+
+    assert k3.central_residual_weak_sonority_statuses(suspension)[0, 0] == 5
+    assert k3.central_residual_weak_sonority_statuses(appoggiatura)[0, 0] == 6
+
+
+def test_v25_weak_catalogue_is_one_exhaustive_nine_cell_group() -> None:
+    data = _residual_sonority_dataset(
+        [76, 67, 62, 48],
+        previous=[76, 67, 60, 48],
+        following=[76, 67, 65, 48],
+        metric_level=1,
+    )
+    features = k3.residual_weak_sonority_feature_catalogue()
+    activations = k3.feature_matrix(data, features)
+
+    assert len(features) == 9
+    assert activations[0, 0].sum() == 1
+    assert activations[0, 0, 7]

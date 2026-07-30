@@ -520,3 +520,16 @@ constituent les deux résidus suivants.
 
 Décision et écoute :
 [`V24_RESIDUAL_SONORITY_DECISION.md`](factor_bases/k3_v6_induced/V24_RESIDUAL_SONORITY_DECISION.md).
+
+## Checkpoint V25 — licences faibles, résultat négatif
+
+V25 apprend neuf catégories exclusives de sonorités faibles dans K3. Sur la
+validation réservée, il rapproche les dissonances faibles de Bach, mais
+augmente les dissonances fortes. Il est donc conservé comme expérience
+reproductible et rejeté comme successeur de V24 ; aucune règle V25 n'entre dans
+la base Snarky retenue.
+
+Ce résultat motive V26 : apprendre conjointement, dans une seule partition
+locale intelligible, le rôle de la sonorité faible et la qualité de sa
+résolution forte. Voir
+[`V25_WEAK_SONORITY_DECISION.md`](factor_bases/k3_v6_induced/V25_WEAK_SONORITY_DECISION.md).
