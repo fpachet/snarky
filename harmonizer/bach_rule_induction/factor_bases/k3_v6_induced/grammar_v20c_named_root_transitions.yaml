@@ -1,0 +1,41 @@
+schema_version: 1
+id: K3-V20C-NAMED-ROOT-TRANSITIONS-GRAMMAR-1
+status: FROZEN
+frozen_on: 2026-07-28
+extends: grammar_v20b_identifiable_harmonic_status.yaml
+purpose: >
+  Ajouter une seule relation fonctionnelle lisible : la transition entre les
+  fondamentales uniques de deux accords nommés voisins, séparément en majeur
+  et en mineur.
+
+extensions:
+  vertical_status_features: true
+  named_harmonic_status_features: true
+  named_harmonic_metric_encoding: baseline_plus_strong_deviation
+  named_harmonic_transition_features: true
+
+additional_generated_relations:
+  - declared_mode_and_previous_named_root_degree_and_current_named_root_degree
+
+families:
+  - id: named_root_transition_mode
+    feature_kinds:
+      - central_named_root_transition_mode
+    modes: [major, minor]
+    previous_root_degrees: {range: [0, 11]}
+    current_root_degrees: {range: [0, 11]}
+    requires_unique_named_analysis: true
+    complexity: 4
+
+structure_learning:
+  maximum_clause_complexity: 4
+
+provenance_guards:
+  coverage_audit: V20C_NAMED_ROOT_TRANSITION_COVERAGE_TRAIN.md
+  compared_against_v13_bass_transitions: true
+  transition_cells_preselected_from_marginals: false
+  all_mode_degree_pairs_generated_symmetrically: true
+  metric_conditioning_enabled: false
+  quality_conditioning_enabled: false
+  hidden_states_enabled: false
+  test_split_loaded: false

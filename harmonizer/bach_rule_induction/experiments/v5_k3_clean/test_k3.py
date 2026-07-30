@@ -13,8 +13,10 @@ import local_tonality
 import numpy as np
 import pytest
 import refit_v6_generative_weights as v6_refit
+import run_exact_factor_reinduction as exact_reinduction
 import run_k3_ablation as ablation
 import run_k3_null_max_calibration as calibration
+import run_rhythmic_gibbs as rhythmic
 import run_v6_factor_controllability as v6_control
 import run_v6_residual_feature_diagnostic as v6_residual
 import snarky_choice_bridge
@@ -36,6 +38,11 @@ def _dataset() -> k3.K3Dataset:
         candidate_min=60,
         candidate_max=72,
     )
+
+
+def test_model_version_ignores_k3_namespace_prefix() -> None:
+    assert rhythmic._model_version("K3-V19-UNANIMOUS-FULL-1") == "V19"
+    assert rhythmic._model_version("V5.7-K3-CONTEXTUAL") == "V5.7"
 
 
 def test_catalogue_is_numeric_and_has_no_historical_rule_names() -> None:
@@ -206,6 +213,232 @@ def test_rare_tonal_catalogue_can_exclude_the_fixed_soprano() -> None:
     assert features
     assert {feature.target_voice for feature in features} == {1, 2, 3}
     assert all(feature.kind.startswith("rare_tonal_") for feature in features)
+
+
+def test_interval_context_catalogue_is_class_neutral() -> None:
+    features = k3.interval_context_feature_catalogue()
+
+    assert len(features) == 96
+    assert {feature.value for feature in features} == set(range(12))
+    assert all(feature.target_voice == -1 for feature in features)
+
+
+def test_directed_metric_context_catalogue_is_complete_and_neutral() -> None:
+    features = k3.directed_metric_context_feature_catalogue()
+    kinds = {feature.kind for feature in features}
+
+    assert len(features) == 610
+    assert kinds == {
+        "any_pair_central_abs_class_target_passing_metric",
+        "central_pair_abs_class_metric",
+        "bass_abs_step_from_previous_gt_metric",
+        "bass_tonic_transition_metric",
+    }
+    pair_features = [
+        feature
+        for feature in features
+        if feature.kind == "central_pair_abs_class_metric"
+    ]
+    assert len(pair_features) == 288
+    assert {feature.value for feature in pair_features} == set(range(12))
+
+
+def test_directed_metric_trajectory_catalogue_is_complete_and_neutral() -> None:
+    features = k3.directed_metric_trajectory_feature_catalogue()
+
+    assert len(features) == 2016
+    assert len({feature.key for feature in features}) == 2016
+    assert {feature.value for feature in features} == set(range(12))
+    assert {feature.second_value for feature in features} == {0, 1}
+    assert {feature.target_voice for feature in features} == set(range(4))
+
+
+def test_directed_pair_and_bass_metric_contexts_activate_locally() -> None:
+    data = _dataset().take(np.asarray([0]))
+    data.metric_levels = np.asarray([3], dtype=np.int8)
+    pair = k3.FeatureSpec(
+        "central_pair_abs_class_metric",
+        0,
+        1,
+        value=3,
+        second_value=1,
+        complexity=3,
+    )
+    bass_motion = k3.FeatureSpec(
+        "bass_abs_step_from_previous_gt_metric",
+        3,
+        value=4,
+        second_value=1,
+        complexity=3,
+    )
+
+    pair_mask = k3.feature_mask(data, pair)
+    bass_mask = k3.feature_mask(data, bass_motion)
+
+    assert pair_mask[0, 69 - data.candidate_min]
+    assert not pair_mask[0, 68 - data.candidate_min]
+    assert not bass_mask[0].any()
+
+
+def test_directed_pair_trajectory_detects_other_voice_step_resolution() -> None:
+    data = _dataset().take(np.asarray([0]))
+    data.metric_levels = np.asarray([3], dtype=np.int8)
+    data.blocks[0, 1, 1] = 68
+    data.blocks[0, 2, 1] = 67
+    data.attacks[0, 2, 1] = True
+    resolved = k3.FeatureSpec(
+        "central_pair_abs_class_metric_other_step_resolved",
+        0,
+        1,
+        value=1,
+        second_value=1,
+        complexity=4,
+    )
+    held_and_resolved = k3.FeatureSpec(
+        "central_pair_abs_class_metric_other_held_step_resolved",
+        0,
+        1,
+        value=1,
+        second_value=1,
+        complexity=5,
+    )
+
+    resolved_mask = k3.feature_mask(data, resolved)
+    held_mask = k3.feature_mask(data, held_and_resolved)
+
+    assert resolved_mask[0, 69 - data.candidate_min]
+    assert not held_mask[0, 69 - data.candidate_min]
+    data.attacks[0, 1, 1] = False
+    held_mask = k3.feature_mask(data, held_and_resolved)
+    assert held_mask[0, 69 - data.candidate_min]
+
+
+def test_interval_context_distinguishes_passing_and_neighbor_motion() -> None:
+    data = _dataset().take(np.asarray([0]))
+    passing = k3.feature_mask(
+        data,
+        k3.FeatureSpec(
+            "any_pair_central_abs_class_target_passing",
+            -1,
+            value=3,
+            complexity=4,
+        ),
+    )
+    neighbor = k3.feature_mask(
+        data,
+        k3.FeatureSpec(
+            "any_pair_central_abs_class_target_neighbor",
+            -1,
+            value=3,
+            complexity=4,
+        ),
+    )
+
+    assert passing[0, 69 - data.candidate_min]
+    assert not passing[0, 68 - data.candidate_min]
+    assert not neighbor[0, 69 - data.candidate_min]
+    data.blocks[0, 2, 0] = data.blocks[0, 0, 0]
+    neighbor = k3.feature_mask(
+        data,
+        k3.FeatureSpec(
+            "any_pair_central_abs_class_target_neighbor",
+            -1,
+            value=3,
+            complexity=4,
+        ),
+    )
+    assert neighbor[0, 69 - data.candidate_min]
+
+
+def test_interval_context_detects_held_other_voice_resolution() -> None:
+    data = _dataset().take(np.asarray([0]))
+    data.blocks[0, 1, 1] = data.blocks[0, 0, 1]
+    data.blocks[0, 2, 1] = data.blocks[0, 1, 1] + 1
+    data.attacks[0, 1, 1] = False
+    feature = k3.FeatureSpec(
+        "any_pair_central_abs_class_other_held_step_resolved",
+        -1,
+        value=5,
+        complexity=4,
+    )
+
+    mask = k3.feature_mask(data, feature)
+
+    assert mask[0, 69 - data.candidate_min]
+    assert not mask[0, 70 - data.candidate_min]
+
+
+def test_v10_grammar_extends_v6_without_mutating_it() -> None:
+    grammar_path = (
+        Path(__file__).resolve().parents[2]
+        / "factor_bases/k3_v6_induced/grammar_v10_interval_context.yaml"
+    )
+    grammar = exact_reinduction._load_grammar(grammar_path)
+    kinds = {
+        kind
+        for family in grammar["families"]
+        for kind in family["feature_kinds"]
+    }
+
+    assert grammar["id"] == "K3-V10-INTERVAL-CONTEXT-GRAMMAR-1"
+    assert grammar["extensions"]["interval_context_licenses"]
+    assert "any_voice_adjacent_step_gt" in kinds
+    assert "any_pair_central_abs_class_target_passing" in kinds
+
+
+def test_v13_grammar_adds_only_neutral_directed_metric_relations() -> None:
+    grammar_path = (
+        Path(__file__).resolve().parents[2]
+        / "factor_bases/k3_v6_induced/grammar_v13_directed_metric_context.yaml"
+    )
+    grammar = exact_reinduction._load_grammar(grammar_path)
+    kinds = {
+        kind
+        for family in grammar["families"]
+        for kind in family["feature_kinds"]
+    }
+
+    assert grammar["id"] == "K3-V13-DIRECTED-METRIC-CONTEXT-GRAMMAR-1"
+    assert grammar["extensions"]["directed_metric_context_licenses"]
+    assert "central_pair_abs_class_metric" in kinds
+    assert "bass_tonic_transition_metric" in kinds
+
+
+def test_v14_grammar_adds_full_directed_metric_trajectory_relations() -> None:
+    grammar_path = (
+        Path(__file__).resolve().parents[2]
+        / "factor_bases/k3_v6_induced/grammar_v14_directed_metric_trajectory.yaml"
+    )
+    grammar = exact_reinduction._load_grammar(grammar_path)
+    kinds = {
+        kind
+        for family in grammar["families"]
+        for kind in family["feature_kinds"]
+    }
+
+    assert grammar["id"] == "K3-V14-DIRECTED-METRIC-TRAJECTORY-GRAMMAR-1"
+    assert grammar["extensions"]["directed_metric_trajectory_licenses"]
+    assert "central_pair_abs_class_metric_other_step_resolved" in kinds
+    assert "central_pair_abs_class_metric_target_passing" in kinds
+
+
+def test_v11_grammar_adds_train_defined_tonal_licences() -> None:
+    grammar_path = (
+        Path(__file__).resolve().parents[2]
+        / "factor_bases/k3_v6_induced/grammar_v11_tonal_licenses.yaml"
+    )
+    grammar = exact_reinduction._load_grammar(grammar_path)
+    kinds = {
+        kind
+        for family in grammar["families"]
+        for kind in family["feature_kinds"]
+    }
+
+    assert grammar["id"] == "K3-V11-TONAL-LICENSE-GRAMMAR-1"
+    assert grammar["extensions"]["interval_context_licenses"]
+    assert grammar["extensions"]["rare_tonal_threshold"] == 0.02
+    assert "rare_tonal_class" in kinds
+    assert "rare_tonal_immediate_passing" in kinds
 
 
 def test_rare_tonal_vertical_feature_uses_candidate_pcset() -> None:
@@ -776,6 +1009,44 @@ def test_rhythmic_gibbs_changes_one_attack_and_its_whole_hold(
     assert np.array_equal(generated[:, 0], blocks[:, 0])
 
 
+def test_rhythmic_gibbs_removes_hard_constraint_candidates() -> None:
+    blocks = np.asarray(
+        [
+            [60, 55, 52, 48],
+            [60, 55, 52, 48],
+            [60, 55, 52, 48],
+        ],
+        dtype=np.int16,
+    )
+    attacks = np.ones_like(blocks, dtype=bool)
+    fixed = np.ones_like(blocks, dtype=bool)
+    fixed[1, 0] = False
+    logits = np.full((4, 15), -100.0, dtype=np.float64)
+    logits[0, 12:15] = (0.0, 100.0, 0.0)
+
+    generated = k3.rhythmic_gibbs_sample(
+        blocks,
+        attacks,
+        fixed,
+        candidate_min=48,
+        candidate_max=62,
+        register_logits=logits,
+        features=(),
+        weights=np.asarray([], dtype=np.float64),
+        constraint_features=(
+            k3.FeatureSpec(
+                "abs_class_from_previous",
+                0,
+                value=1,
+            ),
+        ),
+        sweeps=1,
+        seed=3,
+    )
+
+    assert generated[1, 0] != 61
+
+
 def test_vectorized_segment_energies_match_scalar_worlds() -> None:
     blocks = np.asarray(
         [
@@ -924,6 +1195,70 @@ def test_compiled_segment_energies_exactly_match_legacy_worlds() -> None:
         base_scores + factor_totals @ weights,
         compiled,
     )
+
+
+def test_joint_segment_components_match_scalar_worlds() -> None:
+    blocks = np.asarray(
+        [
+            [67, 64, 55, 48],
+            [69, 65, 57, 50],
+            [71, 67, 59, 52],
+            [72, 69, 60, 53],
+        ],
+        dtype=np.int16,
+    )
+    attacks = np.ones_like(blocks, dtype=bool)
+    register_logits = np.arange(4 * 27, dtype=np.float64).reshape(4, 27) / 100
+    metric_levels = np.asarray([3, 1, 2, 3], dtype=np.int8)
+    features = (
+        k3.FeatureSpec("any_voice_adjacent_step_gt", -1, value=2),
+        k3.FeatureSpec("central_bass_pcset", -1, value=145),
+        k3.FeatureSpec("any_pair_central_abs_class", -1, value=2),
+    )
+    weights = np.asarray([-0.7, 1.2, 0.4])
+    segments = ((1, 2, 1), (1, 2, 3))
+    candidate_sets = (
+        np.asarray([64, 65, 66], dtype=np.int16),
+        np.asarray([48, 49], dtype=np.int16),
+    )
+    kwargs = {
+        "candidate_min": 48,
+        "candidate_max": 74,
+        "register_logits": register_logits,
+        "features": features,
+        "tonic_pc": 0,
+        "mode": 0,
+        "metric_levels": metric_levels,
+    }
+
+    combinations, base_scores, factor_totals = k3.joint_segment_components(
+        blocks,
+        attacks,
+        range(1, 3),
+        segments,
+        candidate_sets,
+        **kwargs,
+    )
+    expected = []
+    for combination in combinations:
+        world = blocks.copy()
+        for (start, end, voice), pitch in zip(
+            segments,
+            combination,
+            strict=True,
+        ):
+            world[start:end, voice] = pitch
+        expected.append(
+            k3._state_energy(
+                world,
+                attacks,
+                range(1, 3),
+                weights=weights,
+                **kwargs,
+            )
+        )
+
+    assert np.allclose(base_scores + factor_totals @ weights, expected)
 
 
 def test_selected_candidate_feature_path_matches_full_masks() -> None:
@@ -1200,3 +1535,419 @@ def test_clean_induction_source_has_no_rule_base_dependency() -> None:
     assert "rule_profiles" not in source
     assert "learned_generator" not in source
     assert "rule_bases" not in source
+
+
+def test_vertical_status_extension_adds_only_two_named_triadic_factors() -> None:
+    data = _dataset()
+    data.tonic_pcs = np.asarray([0, 2], dtype=np.int8)
+    data.modes = np.asarray([0, 1], dtype=np.int8)
+    data.metric_levels = np.asarray([3, 0], dtype=np.int8)
+
+    baseline = k3.contextual_feature_catalogue(data)
+    extended = k3.contextual_feature_catalogue(
+        data,
+        vertical_status_features=True,
+    )
+    added = {feature.key: feature for feature in extended}
+    for feature in baseline:
+        added.pop(feature.key)
+
+    assert {feature.kind for feature in added.values()} == {
+        "central_triadic_metric"
+    }
+    assert {feature.second_value for feature in added.values()} == {0, 1}
+    assert all(feature.complexity == 2 for feature in added.values())
+
+
+def test_named_harmonic_statuses_distinguish_quality_degree_and_inversion() -> None:
+    data = k3.K3Dataset(
+        piece_ids=np.asarray(["p"]),
+        offsets=np.asarray([[0, 1, 2]], dtype=np.float32),
+        voice_indices=np.asarray([0], dtype=np.int8),
+        blocks=np.asarray(
+            [[[72, 64, 55, 48], [72, 64, 55, 48], [72, 64, 55, 48]]],
+            dtype=np.int16,
+        ),
+        attacks=np.ones((1, 3, 4), dtype=bool),
+        candidate_min=60,
+        candidate_max=72,
+        tonic_pcs=np.asarray([0], dtype=np.int8),
+        modes=np.asarray([0], dtype=np.int8),
+        metric_levels=np.asarray([3], dtype=np.int8),
+    )
+    major = k3.feature_mask(
+        data,
+        k3.FeatureSpec("central_named_chord_quality", -1, value=0),
+    )
+    dominant_seventh = k3.feature_mask(
+        data,
+        k3.FeatureSpec("central_named_chord_quality", -1, value=4),
+    )
+    tonic_root = k3.feature_mask(
+        data,
+        k3.FeatureSpec("central_named_chord_root_degree", -1, value=0),
+    )
+    root_position = k3.feature_mask(
+        data,
+        k3.FeatureSpec("central_named_chord_inversion", -1, value=0),
+    )
+    strong_dominant_seventh = k3.feature_mask(
+        data,
+        k3.FeatureSpec(
+            "central_named_chord_quality_metric",
+            -1,
+            value=4,
+            second_value=1,
+        ),
+    )
+    tonic_dominant_seventh = k3.feature_mask(
+        data,
+        k3.FeatureSpec(
+            "central_named_chord_degree_quality",
+            -1,
+            value=0,
+            second_value=4,
+        ),
+    )
+
+    assert major[0, 72 - data.candidate_min]
+    assert not major[0, 70 - data.candidate_min]
+    assert dominant_seventh[0, 70 - data.candidate_min]
+    assert tonic_root[0, 70 - data.candidate_min]
+    assert root_position[0, 70 - data.candidate_min]
+    assert strong_dominant_seventh[0, 70 - data.candidate_min]
+    assert tonic_dominant_seventh[0, 70 - data.candidate_min]
+
+
+def test_named_harmonic_status_extension_adds_only_low_order_named_factors() -> None:
+    data = _dataset()
+    data.tonic_pcs = np.asarray([0, 0], dtype=np.int8)
+    data.modes = np.asarray([0, 0], dtype=np.int8)
+    data.metric_levels = np.asarray([1, 3], dtype=np.int8)
+
+    baseline = k3.contextual_feature_catalogue(data)
+    extended = k3.contextual_feature_catalogue(
+        data,
+        named_harmonic_status_features=True,
+    )
+    baseline_keys = {feature.key for feature in baseline}
+    added = [feature for feature in extended if feature.key not in baseline_keys]
+
+    assert len(added) == 226
+    assert {feature.kind for feature in added} == k3.NAMED_CHORD_STATUS_KINDS
+    assert max(feature.complexity for feature in added) == 2
+
+
+def test_named_harmonic_baseline_deviation_encoding_is_not_collinear() -> None:
+    features = k3.named_harmonic_status_feature_catalogue(
+        metric_encoding="baseline_plus_strong_deviation",
+    )
+    metric_features = [
+        feature
+        for feature in features
+        if feature.kind
+        in {
+            "central_named_chord_quality_metric",
+            "central_named_chord_root_degree_metric",
+        }
+    ]
+
+    assert len(features) == 204
+    assert len(metric_features) == 22
+    assert {feature.second_value for feature in metric_features} == {1}
+
+
+def test_named_root_transition_uses_chord_roots_not_bass_notes() -> None:
+    data = k3.K3Dataset(
+        piece_ids=np.asarray(["p"]),
+        offsets=np.asarray([[0, 1, 2]], dtype=np.float32),
+        voice_indices=np.asarray([0], dtype=np.int8),
+        blocks=np.asarray(
+            [
+                [
+                    [76, 67, 60, 52],  # C major in first inversion.
+                    [74, 67, 59, 55],  # G major in root position.
+                    [72, 64, 55, 48],
+                ]
+            ],
+            dtype=np.int16,
+        ),
+        attacks=np.ones((1, 3, 4), dtype=bool),
+        candidate_min=72,
+        candidate_max=76,
+        tonic_pcs=np.asarray([0], dtype=np.int8),
+        modes=np.asarray([0], dtype=np.int8),
+        metric_levels=np.asarray([3], dtype=np.int8),
+    )
+    tonic_to_dominant = k3.feature_mask(
+        data,
+        k3.FeatureSpec(
+            "central_named_root_transition_mode",
+            -1,
+            value=0 * 12 + 7,
+            second_value=0,
+            complexity=4,
+        ),
+    )
+    bass_mimic = k3.feature_mask(
+        data,
+        k3.FeatureSpec(
+            "central_named_root_transition_mode",
+            -1,
+            value=4 * 12 + 7,
+            second_value=0,
+            complexity=4,
+        ),
+    )
+
+    assert tonic_to_dominant[0, 74 - data.candidate_min]
+    assert not bass_mimic[0, 74 - data.candidate_min]
+
+
+def test_named_root_transition_catalogue_is_symmetric_and_low_order() -> None:
+    features = k3.named_harmonic_transition_feature_catalogue()
+
+    assert len(features) == 2 * 12 * 12
+    assert {feature.kind for feature in features} == {
+        "central_named_root_transition_mode"
+    }
+    assert {feature.second_value for feature in features} == {0, 1}
+    assert {feature.complexity for feature in features} == {4}
+
+
+def test_named_root_motion_shares_one_parameter_across_departure_degrees() -> None:
+    data = k3.K3Dataset(
+        piece_ids=np.asarray(["c_to_g", "d_to_a"]),
+        offsets=np.asarray([[0, 1, 2], [0, 1, 2]], dtype=np.float32),
+        voice_indices=np.asarray([0, 0], dtype=np.int8),
+        blocks=np.asarray(
+            [
+                [
+                    [76, 67, 60, 52],
+                    [74, 67, 59, 55],
+                    [72, 64, 55, 48],
+                ],
+                [
+                    [78, 69, 62, 54],
+                    [76, 69, 61, 57],
+                    [74, 66, 57, 50],
+                ],
+            ],
+            dtype=np.int16,
+        ),
+        attacks=np.ones((2, 3, 4), dtype=bool),
+        candidate_min=74,
+        candidate_max=78,
+        tonic_pcs=np.asarray([0, 0], dtype=np.int8),
+        modes=np.asarray([0, 0], dtype=np.int8),
+        metric_levels=np.asarray([3, 3], dtype=np.int8),
+    )
+    ascending_fifth = k3.feature_mask(
+        data,
+        k3.FeatureSpec(
+            "central_named_root_motion_mode",
+            -1,
+            value=7,
+            second_value=0,
+            complexity=3,
+        ),
+    )
+
+    assert ascending_fifth[0, 74 - data.candidate_min]
+    assert ascending_fifth[1, 76 - data.candidate_min]
+
+
+def test_named_root_motion_catalogue_has_only_24_shared_parameters() -> None:
+    features = k3.named_harmonic_root_motion_feature_catalogue()
+
+    assert len(features) == 24
+    assert {feature.second_value for feature in features} == {0, 1}
+    assert {feature.value for feature in features} == set(range(12))
+    assert {feature.complexity for feature in features} == {3}
+
+
+def test_bass_tonal_strong_mode_status_tracks_candidate_bass() -> None:
+    data = k3.K3Dataset(
+        piece_ids=np.asarray(["p"]),
+        offsets=np.asarray([[0, 1, 2]], dtype=np.float32),
+        voice_indices=np.asarray([3], dtype=np.int8),
+        blocks=np.asarray(
+            [[[72, 64, 55, 48], [72, 64, 55, 48], [72, 64, 55, 48]]],
+            dtype=np.int16,
+        ),
+        attacks=np.ones((1, 3, 4), dtype=bool),
+        candidate_min=48,
+        candidate_max=50,
+        tonic_pcs=np.asarray([0], dtype=np.int8),
+        modes=np.asarray([0], dtype=np.int8),
+        metric_levels=np.asarray([3], dtype=np.int8),
+    )
+    tonic = k3.feature_mask(
+        data,
+        k3.FeatureSpec(
+            "central_bass_tonal_strong_mode",
+            -1,
+            value=0,
+            second_value=0,
+            complexity=2,
+        ),
+    )
+
+    assert tonic[0, 0]
+    assert not tonic[0, 1]
+    data.metric_levels[:] = 1
+    assert not k3.feature_mask(
+        data,
+        k3.FeatureSpec(
+            "central_bass_tonal_strong_mode",
+            -1,
+            value=0,
+            second_value=0,
+            complexity=2,
+        ),
+    ).any()
+
+
+def test_unique_chord_family_inversion_excludes_ambiguous_analyses() -> None:
+    data = k3.K3Dataset(
+        piece_ids=np.asarray(["major", "augmented"]),
+        offsets=np.asarray([[0, 1, 2], [0, 1, 2]], dtype=np.float32),
+        voice_indices=np.asarray([0, 0], dtype=np.int8),
+        blocks=np.asarray(
+            [
+                [
+                    [72, 64, 55, 48],
+                    [72, 64, 55, 48],
+                    [72, 64, 55, 48],
+                ],
+                [
+                    [72, 68, 64, 48],
+                    [72, 68, 64, 48],
+                    [72, 68, 64, 48],
+                ],
+            ],
+            dtype=np.int16,
+        ),
+        attacks=np.ones((2, 3, 4), dtype=bool),
+        candidate_min=72,
+        candidate_max=72,
+        tonic_pcs=np.asarray([0, 0], dtype=np.int8),
+        modes=np.asarray([0, 0], dtype=np.int8),
+        metric_levels=np.asarray([3, 3], dtype=np.int8),
+    )
+    consonant_root_position = k3.feature_mask(
+        data,
+        k3.FeatureSpec(
+            "central_unique_chord_family_inversion_strong",
+            -1,
+            value=0,
+            complexity=3,
+        ),
+    )
+
+    assert consonant_root_position[0, 0]
+    assert not consonant_root_position[1, 0]
+
+
+def test_v23_catalogues_have_only_38_shared_status_parameters() -> None:
+    bass = k3.bass_tonal_strong_mode_feature_catalogue()
+    chords = k3.unique_chord_family_inversion_strong_feature_catalogue()
+
+    assert len(bass) == 24
+    assert len(chords) == 14
+    assert {feature.value for feature in chords} == {
+        0,
+        1,
+        2,
+        4,
+        5,
+        6,
+        8,
+        9,
+        10,
+        11,
+        12,
+        13,
+        14,
+        15,
+    }
+
+
+def _residual_sonority_dataset(
+    central: list[int],
+    *,
+    previous: list[int] | None = None,
+    following: list[int] | None = None,
+) -> k3.K3Dataset:
+    previous = central if previous is None else previous
+    following = central if following is None else following
+    return k3.K3Dataset(
+        piece_ids=np.asarray(["p"]),
+        offsets=np.asarray([[0, 1, 2]], dtype=np.float32),
+        voice_indices=np.asarray([2], dtype=np.int8),
+        blocks=np.asarray([[previous, central, following]], dtype=np.int16),
+        attacks=np.ones((1, 3, 4), dtype=bool),
+        candidate_min=central[2],
+        candidate_max=central[2],
+        tonic_pcs=np.asarray([0], dtype=np.int8),
+        modes=np.asarray([0], dtype=np.int8),
+        metric_levels=np.asarray([3], dtype=np.int8),
+    )
+
+
+def test_v24_residual_status_leaves_strict_unique_chords_to_v23() -> None:
+    major = _residual_sonority_dataset([76, 67, 60, 48])
+    augmented = _residual_sonority_dataset([76, 68, 60, 48])
+
+    assert k3.central_residual_strong_sonority_statuses(major)[0, 0] == -1
+    assert k3.central_residual_strong_sonority_statuses(augmented)[0, 0] == 0
+
+
+def test_v24_residual_status_recognizes_incomplete_consonant_triad() -> None:
+    data = _residual_sonority_dataset([76, 64, 60, 48])
+
+    assert k3.central_residual_strong_sonority_statuses(data)[0, 0] == 1
+
+
+def test_v24_residual_status_licenses_passing_foreign_tone() -> None:
+    data = _residual_sonority_dataset(
+        [76, 67, 62, 48],
+        previous=[76, 67, 60, 48],
+        following=[76, 67, 64, 48],
+    )
+
+    assert k3.central_residual_strong_sonority_statuses(data)[0, 0] == 3
+
+
+def test_v24_residual_status_distinguishes_suspension_and_appoggiatura() -> None:
+    suspension = _residual_sonority_dataset(
+        [76, 67, 62, 48],
+        previous=[76, 67, 62, 48],
+        following=[76, 67, 60, 48],
+    )
+    appoggiatura = _residual_sonority_dataset(
+        [76, 67, 62, 48],
+        previous=[76, 67, 65, 48],
+        following=[76, 67, 60, 48],
+    )
+
+    assert k3.central_residual_strong_sonority_statuses(
+        suspension
+    )[0, 0] == 4
+    assert k3.central_residual_strong_sonority_statuses(
+        appoggiatura
+    )[0, 0] == 5
+
+
+def test_v24_residual_catalogue_is_one_exhaustive_eight_cell_group() -> None:
+    data = _residual_sonority_dataset(
+        [76, 67, 62, 48],
+        previous=[76, 67, 60, 48],
+        following=[76, 67, 65, 48],
+    )
+    features = k3.residual_strong_sonority_feature_catalogue()
+    activations = k3.feature_matrix(data, features)
+
+    assert len(features) == 8
+    assert activations[0, 0].sum() == 1
+    assert activations[0, 0, 6]

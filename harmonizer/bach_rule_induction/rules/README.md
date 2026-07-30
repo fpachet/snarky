@@ -63,3 +63,70 @@ les 51 chorals de test et sa compilation
 contrôle mélangé, mais ce dernier sélectionne encore la même forme avec un
 effet faible. Une calibration familiale supplémentaire est requise avant
 compilation et ajout au manifeste `S-LEARNED`.
+
+## Noyau explicatif V18
+
+Le dossier [`v18_unanimous/`](v18_unanimous/) contient quatorze RuleCards
+présentes dans cinq réinductions complètes sur cinq. Leurs poids sont réappris
+sur 251 chorals et validés sur 50 ; le test de 51 chorals reste fermé. Elles
+sont compilées comme préférences factorielles, jamais comme interdictions
+absolues, dans
+[`v18_unanimous_full.factors`](../factor_bases/k3_v6_induced/v18_unanimous_full.factors).
+
+## Noyau explicatif V19
+
+Le dossier [`v19_unanimous/`](v19_unanimous/) contient les dix-huit RuleCards
+du noyau V19, présentes dans cinq découvertes complètes sur cinq. V19 ajoute
+un vocabulaire déclaratif minimal pour reconnaître une triade majeure ou
+mineure complète et distingue temps fort et temps faible. Le corpus, et non
+l'expert, sélectionne ces deux facteurs, apprend leur signe positif et leur
+poids.
+
+Le programme
+[`v19_unanimous_full.factors`](../factor_bases/k3_v6_induced/v19_unanimous_full.factors)
+est numériquement identique à l'évaluateur Python à `8,88 × 10⁻¹⁶` près.
+V19 est le checkpoint explicatif courant ; les règles V18 sont conservées
+comme base de comparaison historique.
+
+## RuleGroup V22 et contraintes candidates
+
+[`v22_shared_root_motion/RG-LEARNED-V22-001.yaml`](v22_shared_root_motion/RG-LEARNED-V22-001.yaml)
+décrit une seule règle structurée `mode × mouvement dirigé de fondamentale`.
+Ses 24 poids sont appris conjointement et compilés avec le socle dans
+[`v22_shared_root_motion_full.factors`](../factor_bases/k3_v6_induced/v22_shared_root_motion_full.factors).
+
+Le dossier [`v22_candidate_constraints/`](v22_candidate_constraints/) contient
+23 prédicats sans exception sur 251 chorals de train et 50 de validation. Ils
+sont compilés comme filtres d'ablation dans `candidate_constraints.rules`,
+mais restent `EMPIRICAL_PRETEST_FILTERS_NOT_MUST`. L'absence dans le corpus
+n'est pas, à elle seule, une certification logique.
+
+## RuleGroup V23
+
+[`v23_metric_harmony/RG-LEARNED-V23-001.yaml`](v23_metric_harmony/RG-LEARNED-V23-001.yaml)
+décrit le groupe `famille d'accord nommée unique × renversement` sur temps
+fort. Ses quatorze poids sont appris conjointement ; l'absence d'analyse
+unique constitue l'état de référence. Le groupe se réplique dans quatre folds
+et sur la validation 251/50.
+
+Le programme
+[`v23_metric_harmony_full.factors`](../factor_bases/k3_v6_induced/v23_metric_harmony_full.factors)
+contient les 43 facteurs V22 et les 14 nouveaux facteurs V23. Sa parité avec
+l'évaluateur Python est passée à `8,88 × 10⁻¹⁶`. Les 23 filtres empiriques
+restent hors du manifeste V23 retenu : leur combinaison générative avec V23
+n'est pas favorable dans la première ablation.
+
+## RuleGroup V24
+
+[`v24_residual_sonority/RG-LEARNED-V24-001.yaml`](v24_residual_sonority/RG-LEARNED-V24-001.yaml)
+décrit huit statuts exhaustifs pour les sonorités fortes que V23 laisse sans
+analyse unique. Le vocabulaire de complétude et de licences
+passage–retard–appoggiature est défini par l'analyste ; les huit poids sont
+appris par les écarts de moments entre Bach et les générations.
+
+Le groupe n'est pas retenu par pseudo-vraisemblance, mais améliore les
+métriques harmoniques génératives sur validation. Son statut est donc
+`GENERATIVELY_SUPPORTED_PRETEST`, pas `SUPPORTED` au sens explicatif. Le
+programme
+[`v24_contrastive_full.factors`](../factor_bases/k3_v6_induced/v24_contrastive_full.factors)
+contient 65 facteurs et reproduit les scores Python à `8,88 × 10⁻¹⁶` près.

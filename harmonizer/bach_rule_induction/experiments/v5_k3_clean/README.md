@@ -15,6 +15,8 @@ Le dossier ne charge aucun fichier de `rules/` ni aucun manifeste de
 - `run_k3_null_max_calibration.py` : calibration familiale de la première règle ;
 - `run_rhythmic_gibbs.py` : génération des hauteurs sur une grille polyphonique
   réelle d'attaques et de tenues ;
+- `render_piano_mp3.py` : neutralise les programmes vocaux du MIDI, force le
+  programme General MIDI 0 et rend un piano acoustique avec `MS Basic.sf3` ;
 - `run_contextual_induction.py` : réinduction depuis zéro avec tonalité,
   métrique, répétitions attaquées et fingerprints verticaux ;
 - `run_contextual_generation_comparison.py` : comparaison contrôlée
@@ -56,6 +58,12 @@ Le dossier ne charge aucun fichier de `rules/` ni aucun manifeste de
 - `run_exact_factor_reinduction.py` : repart des 954 facteurs gelés, classe
   leurs gradients sur les conditionnelles Gibbs exactes et réapprend
   conjointement la structure, le registre, le profil tonal et les poids ;
+- `grammar_v10_interval_context.yaml` et `grammar_v11_tonal_licenses.yaml` :
+  extensions gelées pour les licences locales d'intervalle puis les classes
+  tonales rares définies sur train ;
+- `grammar_v13_directed_metric_context.yaml` et
+  `grammar_v14_directed_metric_trajectory.yaml` : clauses dirigées par paire
+  de voix, métrique et trajectoire de préparation/résolution ;
 - `export_v6_factor_program.py` : export des 30 facteurs sélectionnés dans le
   DSL Snarky ;
 - `refit_v6_generative_weights.py` : réajustement des seuls paramètres par
@@ -64,10 +72,69 @@ Le dossier ne charge aucun fichier de `rules/` ni aucun manifeste de
   diagnostics×facteurs par covariance et projection minimale standardisée ;
   trajectoires locales par worker, cache explicite des chaînes persistantes,
   arrêt adaptatif sur les moments du gradient et ordonnanceur coloré optionnel ;
+- `apply_exact_control_delta.py` : applique une direction générative avec
+  rayon de confiance et dichotomie sous garde de NLL Gibbs exacte ;
+- `ablate_exact_feature.py` : retire exactement une colonne sans réajustement
+  afin de comparer son gain conditionnel et son effet causal génératif ;
+- `rank_exact_hybrid_candidates.py` : présélectionne le top-K conditionnel
+  exact sous un modèle existant, sans l'admettre avant son audit génératif ;
+- `aggregate_v16_candidate_admission.py` : agrège les sensibilités du top-K
+  sur plusieurs graines et applique le garde-fou de Pareto avant admission ;
+- `refit_exact_admitted_candidate.py` : ajoute une seule clause admise et
+  réajuste conjointement les poids et paramètres auxiliaires sur les mondes
+  Gibbs exacts ;
+- `run_v17_paired_finite_difference.py` : perturbe réellement le sampler avec
+  le même état initial et le même flux aléatoire pour mesurer les candidats
+  aux horizons finis sans hypothèse d'équilibre ;
+- `make_v17_joint_candidate.py` : construit une correction conjointe bornée
+  entre une nouvelle colonne et un seul facteur existant pour réplication
+  appariée ;
+- `run_v18_explanatory_sparse_induction.py` : apprend une frontière
+  qualité–complexité de prédicats lisibles par pseudo-vraisemblance exacte,
+  avec `L1` pondéré par leur longueur descriptive et sélection à une erreur
+  standard ;
+- `run_v18_weight_stability.py` : réapprend les poids de la base V18 sur quatre
+  replis par pièce sans confondre stabilité paramétrique et stabilité de la
+  découverte ;
+- `prepare_v18_structure_stability.py` et
+  `aggregate_v18_structure_stability.py` : répètent la découverte complète sur
+  quatre sous-corpus et extraient le noyau unanime ;
+- `fit_v18_unanimous_full.py` : réapprend ce noyau sur les 251 chorals de train
+  avec arrêt sur les 50 de validation ;
+- `export_v18_explanatory_artifacts.py` : produit les RuleCards, le catalogue
+  factoriel et le programme Snarky de la base explicative ;
+- `audit_v18_snarky_parity.py` : compare les activations, contributions et
+  probabilités du modèle Python au programme `FACTOR` Snarky ;
+- `build_v19_exact_catalogue.py` : matérialise le catalogue qui ajoute les
+  statuts triadiques fort/faible et les contextes intervalliques métriques ;
+- les utilitaires V18 de stabilité, réajustement, export et parité acceptent
+  désormais des identifiants et sorties V19 sans dupliquer le protocole ;
+- `run_v12_context_residual_audit.py` : localise sur train les résidus par
+  paire de voix, force métrique, statut de résolution et transition tonale de
+  basse ;
 - `apply_v6_control_delta.py` : application d'une direction apprise avec
   région de confiance et contrôle de NLL conditionnelle ;
 - `run_explicit_generation_audit.py` : ordonnance toutes les générations
   pièce×modèle×graine en parallèle et mesure dix diagnostics explicites ;
+- `grouped_maxent.py` et `run_v21_grouped_transition.py` : apprennent un
+  `RuleGroup` complet avec projection d'identifiabilité, pénalité proximale et
+  sélection bootstrap appariée ;
+- `aggregate_v22_shared_root_motion.py` : agrège les quatre folds V22, la
+  validation complète et la stabilité des 24 poids partagés ;
+- `export_v22_shared_root_motion.py` : produit le modèle génératif, la carte de
+  groupe et les 43 facteurs Snarky (19 de socle + 24 du groupe) ;
+- `build_v22_constraint_ablation.py` : compile 23 prédicats zéro-exception en
+  filtres pré-test, sans les déclarer `MUST` ;
+- `build_v23_selected_cache.py` et `audit_v23_status_coverage.py` :
+  matérialisent les 38 cellules V23 et vérifient leur testabilité avant tout
+  ajustement ;
+- `run_v23_metric_bass_harmony.py`, `run_v23_stability_fold.py` et
+  `aggregate_v23_metric_bass_harmony.py` : apprennent les groupes basse et
+  harmonie, exécutent les ablations et consolident quatre folds puis le
+  contrôle 251/50 ;
+- `export_v23_metric_harmony.py` : exporte les 43 facteurs V22 et les 14
+  statuts harmoniques retenus en modèle génératif, catalogue et programme
+  `FACTOR` Snarky ;
 - `results/` : artefacts et rapports reproductibles.
 
 `V5.0` conserve le premier catalogue spécialisé, qui a appris huit variantes
@@ -146,6 +213,59 @@ Résultats principaux :
 - [`../../factor_bases/k3_v6_induced/V9_EXACT_REINDUCTION_DECISION.md`](../../factor_bases/k3_v6_induced/V9_EXACT_REINDUCTION_DECISION.md),
   réinduction exacte depuis zéro, gain conditionnel compact et diagnostic des
   dissonances contextuelles apprises comme préférences globales ;
+- [`../../factor_bases/k3_v6_induced/V10_V11_CONTEXT_LICENSE_DECISION.md`](../../factor_bases/k3_v6_induced/V10_V11_CONTEXT_LICENSE_DECISION.md),
+  gain des licences d'intervalle, échec des licences tonales plates et
+  nécessité d'une sélection hybride conditionnelle–générative ;
+- [`../../factor_bases/k3_v6_induced/V12_EXACT_HYBRID_DECISION.md`](../../factor_bases/k3_v6_induced/V12_EXACT_HYBRID_DECISION.md),
+  validation d'une correction des moments génératifs sous garde de
+  pseudo-vraisemblance exacte, sans promotion du candidat ;
+- [`../../factor_bases/k3_v6_induced/V13_DIRECTED_METRIC_DECISION.md`](../../factor_bases/k3_v6_induced/V13_DIRECTED_METRIC_DECISION.md),
+  localisation des incompatibilités de contexte, réinduction V13 et rejet
+  génératif avant validation complète ;
+- [`../../factor_bases/k3_v6_induced/V14_V15_HYBRID_STRUCTURE_DECISION.md`](../../factor_bases/k3_v6_induced/V14_V15_HYBRID_STRUCTURE_DECISION.md),
+  ablation causale d'une clause prédictive mais générativement nuisible et
+  protocole d'admission hybride V16 ;
+- [`../../factor_bases/k3_v6_induced/V16_HYBRID_ADMISSION_DECISION.md`](../../factor_bases/k3_v6_induced/V16_HYBRID_ADMISSION_DECISION.md),
+  top-K exact, échec du gradient de covariance transitoire et remplacement
+  prévu par des différences finies appariées du sampler ;
+- [`../../factor_bases/k3_v6_induced/V17_PAIRED_FINITE_DIFFERENCE_DECISION.md`](../../factor_bases/k3_v6_induced/V17_PAIRED_FINITE_DIFFERENCE_DECISION.md),
+  écran apparié des douze facteurs à horizon court et rejet de la première
+  itération sans relâchement rétrospectif des seuils ;
+- [`../../factor_bases/k3_v6_induced/V18_EXPLANATORY_DECISION.md`](../../factor_bases/k3_v6_induced/V18_EXPLANATORY_DECISION.md),
+  retour à une induction MaxEnt de règles indépendantes et lisibles ;
+- [`../../factor_bases/k3_v6_induced/V19_VERTICAL_STATUS_DECISION.md`](../../factor_bases/k3_v6_induced/V19_VERTICAL_STATUS_DECISION.md),
+  découverte stable de la préférence pour les triades complètes, distinction
+  métrique apprise et amélioration générative tenue hors apprentissage ;
+- [`../../factor_bases/k3_v6_induced/V20_NON_DUPLICATION_GATE.md`](../../factor_bases/k3_v6_induced/V20_NON_DUPLICATION_GATE.md),
+  inventaire des familles déjà testées et critères d'admission d'une
+  représentation harmonique réellement nouvelle ;
+- [`../../factor_bases/k3_v6_induced/V20B_IDENTIFIABLE_HARMONIC_STATUS_DECISION.md`](../../factor_bases/k3_v6_induced/V20B_IDENTIFIABLE_HARMONIC_STATUS_DECISION.md),
+  stabilité de quatre statuts verticaux nommés après correction de
+  l'identifiabilité de la grammaire ;
+- [`../../factor_bases/k3_v6_induced/V20C_NAMED_ROOT_TRANSITIONS_DECISION.md`](../../factor_bases/k3_v6_induced/V20C_NAMED_ROOT_TRANSITIONS_DECISION.md),
+  audit de nouveauté face à V13 puis rejet conditionnel des 288 transitions
+  de fondamentales, sans réplications ni génération redondantes ;
+- [`../../factor_bases/k3_v6_induced/V21_GROUPED_LEARNING_DECISION.md`](../../factor_bases/k3_v6_induced/V21_GROUPED_LEARNING_DECISION.md),
+  apprentissage conjoint de la table de transitions, gain apparié initial,
+  puis rejet hors pli de ses 288 degrés de liberté ;
+- [`../../factor_bases/k3_v6_induced/V22_SHARED_ROOT_MOTION_DECISION.md`](../../factor_bases/k3_v6_induced/V22_SHARED_ROOT_MOTION_DECISION.md),
+  remplacement de V21 par une règle partagée de 24 paramètres, stable dans
+  quatre folds et sur la validation complète ;
+- [`../../factor_bases/k3_v6_induced/V22_RULEGROUP_CONSTRAINTS_VALIDATION10X1_SWEEP6.md`](../../factor_bases/k3_v6_induced/V22_RULEGROUP_CONSTRAINTS_VALIDATION10X1_SWEEP6.md),
+  ablation générative séparant socle, groupe appris et filtres candidats ;
+- [`../../factor_bases/k3_v6_induced/V23_METRIC_BASS_HARMONY_DECISION.md`](../../factor_bases/k3_v6_induced/V23_METRIC_BASS_HARMONY_DECISION.md),
+  rétention du groupe de 14 statuts harmoniques forts et rejet parcimonieux
+  des 24 paramètres supplémentaires de basse ;
+- [`../../factor_bases/k3_v6_induced/V23_V22_CONTROLLED_GENERATION_VALIDATION10X1_SWEEP6.md`](../../factor_bases/k3_v6_induced/V23_V22_CONTROLLED_GENERATION_VALIDATION10X1_SWEEP6.md),
+  comparaison générative contrôlée de V22, V23 et des filtres candidats ;
+- [`../../factor_bases/k3_v6_induced/V24_RESIDUAL_SONORITY_DECISION.md`](../../factor_bases/k3_v6_induced/V24_RESIDUAL_SONORITY_DECISION.md),
+  rejet conditionnel, calibration MaxEnt générative, validation V23–V24,
+  ablation du Gibbs conjoint et compilation Snarky du vocabulaire résiduel ;
+- [`../../../generated/v24_contrastive_bwv108_6_seed_22304_piano.mp3`](../../../generated/v24_contrastive_bwv108_6_seed_22304_piano.mp3),
+  exemple V24 BWV 108.6 à 30 balayages, rendu au piano acoustique ;
+- [`../../../generated/v16_rank5_local_piano/README.md`](../../../generated/v16_rank5_local_piano/README.md),
+  exemple BWV 108.6 à 30 balayages du petit pas V16 utile en régime long,
+  rendu explicitement avec un piano acoustique ;
 - `v5_1_k3_compact_model.json`, modèle complet pour le Gibbs.
 
 Le protocole complet est

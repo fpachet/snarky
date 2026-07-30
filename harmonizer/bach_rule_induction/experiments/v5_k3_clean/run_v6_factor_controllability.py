@@ -65,6 +65,7 @@ class TrajectoryTask:
     actual_piece_id: str
     chain: generative.Chain
     features: tuple[k3.FeatureSpec, ...]
+    monitored_features: tuple[k3.FeatureSpec, ...]
     weights: np.ndarray
     candidate_min: int
     candidate_max: int
@@ -238,7 +239,7 @@ def _sample_trajectory(task: TrajectoryTask) -> TrajectoryResult:
             _factor_counts(
                 chain,
                 chain.blocks,
-                task.features,
+                task.monitored_features,
                 task.candidate_min,
                 task.candidate_max,
             )
@@ -556,6 +557,14 @@ def parse_args() -> argparse.Namespace:
         default=",".join(DEFAULT_DIAGNOSTICS),
         help="Comma-separated explicit metric keys, or 'all'",
     )
+    parser.add_argument(
+        "--monitor-shortlist",
+        type=Path,
+        help=(
+            "Optional V16 shortlist whose zero-weight candidate activations "
+            "are monitored without changing the sampled model."
+        ),
+    )
     parser.add_argument("--standardize", action="store_true")
     parser.add_argument("--max-controllable-delta", type=float, default=0.75)
     parser.add_argument("--seed", type=int, default=7613)
@@ -624,6 +633,53 @@ def main() -> int:
         [float(rule["weight"]) for rule in model["rules"]],
         dtype=np.float64,
     )
+    factor_records = model.get("factors")
+    if factor_records is None:
+        factor_records = [
+            {
+                "id": f"LEARNED-{index:03d}",
+                "feature": rule["feature"],
+            }
+            for index, rule in enumerate(model["rules"], start=1)
+        ]
+    monitored_features = features
+    monitored_candidate_count = 0
+    if args.monitor_shortlist is not None:
+        shortlist = json.loads(
+            args.monitor_shortlist.read_text(encoding="utf-8")
+        )
+        candidates_to_monitor = shortlist["candidates"]
+        candidate_features = tuple(
+            k3.feature_from_model_record(candidate["feature"])
+            for candidate in candidates_to_monitor
+        )
+        existing_keys = {feature.key for feature in features}
+        duplicate_keys = [
+            feature.key
+            for feature in candidate_features
+            if feature.key in existing_keys
+        ]
+        if duplicate_keys:
+            raise ValueError(
+                "Monitor shortlist contains factors already in the model: "
+                + ", ".join(duplicate_keys)
+            )
+        if len({feature.key for feature in candidate_features}) != len(
+            candidate_features
+        ):
+            raise ValueError("Monitor shortlist contains duplicate factors")
+        monitored_features = (*features, *candidate_features)
+        monitored_candidate_count = len(candidate_features)
+        factor_records = [
+            *factor_records,
+            *[
+                {
+                    "id": f"V16-CANDIDATE-{candidate['rank']:03d}",
+                    "feature": candidate["feature"],
+                }
+                for candidate in candidates_to_monitor
+            ],
+        ]
 
     cached_states: dict[str, np.ndarray] = {}
     cache_metadata: dict[str, Any] | None = None
@@ -698,6 +754,7 @@ def main() -> int:
                 actual_piece_id=piece_id,
                 chain=chain,
                 features=features,
+                monitored_features=monitored_features,
                 weights=weights,
                 candidate_min=candidate_min,
                 candidate_max=candidate_max,
@@ -824,7 +881,7 @@ def main() -> int:
                         _factor_counts(
                             chain,
                             chain.blocks,
-                            features,
+                            monitored_features,
                             candidate_min,
                             candidate_max,
                         )
@@ -921,7 +978,6 @@ def main() -> int:
         and max_abs_delta <= args.max_controllable_delta
         and all(count > 0 for count in robust_counts)
     )
-    factor_records = model["factors"]
     top_sensitivities = {}
     for diagnostic, key in enumerate(diagnostic_keys):
         indices = np.argsort(np.abs(jacobian[diagnostic]))[::-1][:8]
@@ -1000,6 +1056,13 @@ def main() -> int:
                 else str(args.final_chain_cache.resolve())
             ),
             "diagnostics": list(diagnostic_keys),
+            "monitor_shortlist": (
+                None
+                if args.monitor_shortlist is None
+                else str(args.monitor_shortlist.resolve())
+            ),
+            "monitored_existing_factor_count": len(features),
+            "monitored_candidate_count": monitored_candidate_count,
             "test_loaded": False,
             "factor_structure_changed": False,
             "weights_changed": False,
@@ -1016,6 +1079,7 @@ def main() -> int:
         },
         "control": {
             "jacobian_definition": "Cov(metric, factor_activation_count)",
+            "factor_records": factor_records,
             "jacobian": jacobian.tolist(),
             "singular_values": singular_values.tolist(),
             "rank": rank,

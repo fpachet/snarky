@@ -1,0 +1,200 @@
+{
+  "baseline": {
+    "group_max_abs_weights": {},
+    "group_norms": {},
+    "group_penalty": null,
+    "label": "socle V22",
+    "terminal_train_decision_nll": 0.7875204513137583,
+    "terminal_validation_decision_nll": 0.8675745339563656,
+    "train_piece_mean_nll": 0.7848720782204982,
+    "train_piece_standard_error": 0.025884327668430695,
+    "validation_piece_mean_nll": 0.8586282039380131,
+    "validation_piece_standard_error": 0.0500988903591724
+  },
+  "experiment": {
+    "cache": "/Users/francoispachet/IdeaProjects/boojum/harmonizer/bach_rule_induction/experiments/v5_k3_clean/work/v23-structure-stability/fold1.npz",
+    "checkpoint": "terminal",
+    "fold": 1,
+    "id": "K3-V23B-METRIC-BASS-HARMONY-STABILITY-1",
+    "test_loaded": false,
+    "train_piece_count": 24,
+    "validation_piece_count": 8
+  },
+  "variants": {
+    "both_groups": {
+      "active_group_ids": [
+        "bass_tonal_strong_mode",
+        "unique_chord_family_inversion_strong"
+      ],
+      "frozen_group_penalty": 0.6,
+      "group_weights": {
+        "bass_tonal_strong_mode": [
+          0.23141645657565138,
+          -0.1856231815816819,
+          -0.05409995735607803,
+          -0.15541490373666167,
+          0.23679966060990798,
+          0.14187106780934103,
+          0.15969804638013682,
+          0.13837059741965443,
+          -0.12549184932021196,
+          -0.11056750299054197,
+          -0.08156916575817752,
+          -0.1953892680513386,
+          0.12336050608120486,
+          -0.1972263383099202,
+          0.07741392648925932,
+          0.20648896427776975,
+          -0.18922382030521429,
+          0.019067127365731983,
+          -0.1570870993614723,
+          -0.09070639062745497,
+          0.132794040317758,
+          0.1671375814335258,
+          -0.07054601013280246,
+          -0.021472487228385455
+        ],
+        "unique_chord_family_inversion_strong": [
+          0.3189208434425336,
+          -0.0017307531782871986,
+          0.06561468181877493,
+          -0.23624518790983984,
+          -0.21197098197379258,
+          -0.2823043010732519,
+          0.2434223549651315,
+          -0.11795858194941318,
+          -0.28572468014571417,
+          0.0010671820007307521,
+          0.2949013709728483,
+          0.31306323873272623,
+          -0.12573666901630284,
+          0.23306278152291965
+        ]
+      },
+      "paired_vs_baseline": {
+        "bootstrap_95_interval": [
+          -0.0009691229367781024,
+          0.003880930814912767
+        ],
+        "bootstrap_probability_nonpositive": 0.13784,
+        "bootstrap_resamples": 100000,
+        "bootstrap_seed": 23115,
+        "differences_baseline_minus_candidate": [
+          -0.0018817806197255482,
+          0.006519331427852548,
+          0.001585401678302234,
+          0.00026274807725068516,
+          0.001478224827873298,
+          0.007083874680079094,
+          -0.0034135903672098955,
+          -0.0008079938810389153
+        ],
+        "mean_improvement": 0.0013532769779229376,
+        "negative_piece_count": 3,
+        "piece_ids": [
+          "bach/bwv110.7",
+          "bach/bwv174.5",
+          "bach/bwv245.5",
+          "bach/bwv265",
+          "bach/bwv312",
+          "bach/bwv371",
+          "bach/bwv408",
+          "bach/bwv426"
+        ],
+        "positive_piece_count": 5,
+        "standard_error": 0.0013272307999884331
+      },
+      "point": {
+        "group_max_abs_weights": {
+          "bass_tonal_strong_mode": 0.23679966060990798,
+          "unique_chord_family_inversion_strong": 0.3189208434425336
+        },
+        "group_norms": {
+          "bass_tonal_strong_mode": 0.7290900365034116,
+          "unique_chord_family_inversion_strong": 0.834487730623328
+        },
+        "group_penalty": 0.6,
+        "label": "both_groups",
+        "terminal_train_decision_nll": 0.7818046757357157,
+        "terminal_validation_decision_nll": 0.8642831161016528,
+        "train_piece_mean_nll": 0.779314288380394,
+        "train_piece_standard_error": 0.02579710689512235,
+        "validation_piece_mean_nll": 0.8572749269600901,
+        "validation_piece_standard_error": 0.049844043079313685
+      }
+    },
+    "harmony_only": {
+      "active_group_ids": [
+        "unique_chord_family_inversion_strong"
+      ],
+      "frozen_group_penalty": 0.6,
+      "group_weights": {
+        "unique_chord_family_inversion_strong": [
+          0.3196840616018222,
+          -0.0031666648609709708,
+          0.05210580253206546,
+          -0.23352968413897907,
+          -0.20945661373065183,
+          -0.2831967421850782,
+          0.23539644894265752,
+          -0.11942016084698136,
+          -0.2848437303077846,
+          -0.010654275601674354,
+          0.2956848907727023,
+          0.31100216807586695,
+          -0.13267086643769854,
+          0.22695664873037577
+        ]
+      },
+      "paired_vs_baseline": {
+        "bootstrap_95_interval": [
+          -0.001588941975115076,
+          0.0029278385531712747
+        ],
+        "bootstrap_probability_nonpositive": 0.23914,
+        "bootstrap_resamples": 100000,
+        "bootstrap_seed": 23114,
+        "differences_baseline_minus_candidate": [
+          -0.0020215441337002593,
+          0.0047918556282322555,
+          0.0029329070460822892,
+          0.0028560076571071402,
+          0.0010830443153697633,
+          0.0036992362726020467,
+          -0.005632024600912944,
+          -0.0011216424990626583
+        ],
+        "mean_improvement": 0.0008234799607147042,
+        "negative_piece_count": 3,
+        "piece_ids": [
+          "bach/bwv110.7",
+          "bach/bwv174.5",
+          "bach/bwv245.5",
+          "bach/bwv265",
+          "bach/bwv312",
+          "bach/bwv371",
+          "bach/bwv408",
+          "bach/bwv426"
+        ],
+        "positive_piece_count": 5,
+        "standard_error": 0.0012408048047085989
+      },
+      "point": {
+        "group_max_abs_weights": {
+          "unique_chord_family_inversion_strong": 0.3196840616018222
+        },
+        "group_norms": {
+          "unique_chord_family_inversion_strong": 0.8292867010383588
+        },
+        "group_penalty": 0.6,
+        "label": "harmony_only",
+        "terminal_train_decision_nll": 0.783137122471532,
+        "terminal_validation_decision_nll": 0.8656392101231658,
+        "train_piece_mean_nll": 0.7805746483660561,
+        "train_piece_standard_error": 0.025948179724786424,
+        "validation_piece_mean_nll": 0.8578047239772983,
+        "validation_piece_standard_error": 0.049888099485479995
+      }
+    }
+  }
+}

@@ -14,6 +14,48 @@ VOICE_NAMES = ("Soprano", "Alto", "Tenor", "Bass")
 DEFAULT_THRESHOLDS = (1, 2, 4, 7, 12)
 ORDER_THRESHOLDS = (-2, -1, 0, 1, 2)
 TRIADIC_BASS_PCSET_SIGNATURES = (137, 145, 265, 289, 529, 545)
+NAMED_CHORD_QUALITIES: tuple[tuple[str, tuple[int, ...]], ...] = (
+    ("major_triad", (0, 4, 7)),
+    ("minor_triad", (0, 3, 7)),
+    ("diminished_triad", (0, 3, 6)),
+    ("augmented_triad", (0, 4, 8)),
+    ("dominant_seventh", (0, 4, 7, 10)),
+    ("major_seventh", (0, 4, 7, 11)),
+    ("minor_seventh", (0, 3, 7, 10)),
+    ("half_diminished_seventh", (0, 3, 6, 10)),
+    ("diminished_seventh", (0, 3, 6, 9)),
+    ("minor_major_seventh", (0, 3, 7, 11)),
+)
+UNIQUE_CHORD_FAMILY_BY_QUALITY = (0, 0, 1, 1, 2, 2, 2, 3, 3, 3)
+UNIQUE_CHORD_FAMILY_NAMES = (
+    "consonant_triad",
+    "altered_triad",
+    "common_seventh",
+    "altered_seventh",
+)
+RESIDUAL_STRONG_SONORITY_NAMES = (
+    "exact_named_ambiguous",
+    "incomplete_consonant_triad",
+    "triad_plus_one_ambiguous",
+    "triad_plus_passing_or_neighbor",
+    "triad_plus_suspension",
+    "triad_plus_appoggiatura",
+    "triad_plus_unlicensed",
+    "other_unlicensed",
+)
+NAMED_CHORD_STATUS_KINDS = {
+    "central_named_chord_quality",
+    "central_named_chord_root_degree",
+    "central_named_chord_inversion",
+    "central_named_chord_quality_metric",
+    "central_named_chord_root_degree_metric",
+    "central_named_chord_degree_quality",
+    "central_named_chord_quality_inversion",
+}
+NAMED_CHORD_TRANSITION_KINDS = {
+    "central_named_root_transition_mode",
+    "central_named_root_motion_mode",
+}
 SHARED_POTENTIAL_KINDS = {
     "central_distinct_pc_count",
     "central_distinct_pc_count_metric",
@@ -21,7 +63,20 @@ SHARED_POTENTIAL_KINDS = {
     "central_bass_pcset",
     "central_bass_pcset_metric",
     "central_triadic_metric",
+    *NAMED_CHORD_STATUS_KINDS,
+    *NAMED_CHORD_TRANSITION_KINDS,
+    "central_bass_tonal_strong_mode",
+    "central_unique_chord_family_inversion_strong",
+    "central_residual_strong_sonority_status",
     "bass_pcset_transition",
+}
+INTERVAL_CONTEXT_KINDS = {
+    "any_pair_central_abs_class_target_rearticulated",
+    "any_pair_central_abs_class_target_step_resolved",
+    "any_pair_central_abs_class_target_passing",
+    "any_pair_central_abs_class_target_neighbor",
+    "any_pair_central_abs_class_other_held",
+    "any_pair_central_abs_class_other_held_step_resolved",
 }
 
 
@@ -628,6 +683,23 @@ def central_tonic_pcset_signatures(
     return signatures
 
 
+def fixed_tonic_pcset_signatures(
+    dataset: K3Dataset,
+    *,
+    position: int,
+) -> np.ndarray:
+    """Return tonic-relative pitch-class sets at one fixed K3 position."""
+
+    if position not in {0, 1, 2}:
+        raise ValueError("A K3 position must be 0, 1, or 2")
+    tonics = _context_array(dataset.tonic_pcs, "tonic_pcs")
+    signatures = np.zeros(dataset.size, dtype=np.int16)
+    for voice in range(4):
+        relative = (dataset.blocks[:, position, voice] - tonics) % 12
+        signatures |= np.left_shift(1, relative).astype(np.int16)
+    return signatures
+
+
 def central_bass_pcset_signatures(
     dataset: K3Dataset,
     candidates: np.ndarray | None = None,
@@ -635,6 +707,315 @@ def central_bass_pcset_signatures(
     """Return bass-relative 12-bit pitch-class sets for every candidate."""
 
     return bass_pcset_signatures(dataset, position=1, candidates=candidates)
+
+
+def _named_chord_signature(root_degree: int, intervals: tuple[int, ...]) -> int:
+    return sum(1 << ((root_degree + interval) % 12) for interval in intervals)
+
+
+def _named_chord_unique_root_lookup() -> np.ndarray:
+    """Map exact named pcsets to a root, leaving ambiguous sets undefined."""
+
+    analyses: list[list[int]] = [[] for _ in range(4096)]
+    for _, intervals in NAMED_CHORD_QUALITIES:
+        for root_degree in range(12):
+            signature = _named_chord_signature(root_degree, intervals)
+            analyses[signature].append(root_degree)
+    lookup = np.full(4096, -1, dtype=np.int8)
+    for signature, roots in enumerate(analyses):
+        if len(roots) == 1:
+            lookup[signature] = roots[0]
+    return lookup
+
+
+NAMED_CHORD_UNIQUE_ROOT_BY_SIGNATURE = _named_chord_unique_root_lookup()
+
+
+def _named_chord_unique_analysis_lookup() -> tuple[np.ndarray, np.ndarray]:
+    """Map a pcset to one strict quality/root analysis, excluding ambiguity."""
+
+    analyses: list[list[tuple[int, int]]] = [[] for _ in range(4096)]
+    for quality, (_, intervals) in enumerate(NAMED_CHORD_QUALITIES):
+        for root_degree in range(12):
+            signature = _named_chord_signature(root_degree, intervals)
+            analyses[signature].append((quality, root_degree))
+    qualities = np.full(4096, -1, dtype=np.int8)
+    roots = np.full(4096, -1, dtype=np.int8)
+    for signature, candidates in enumerate(analyses):
+        if len(candidates) == 1:
+            qualities[signature], roots[signature] = candidates[0]
+    return qualities, roots
+
+
+(
+    NAMED_CHORD_UNIQUE_QUALITY_BY_SIGNATURE,
+    NAMED_CHORD_STRICT_UNIQUE_ROOT_BY_SIGNATURE,
+) = _named_chord_unique_analysis_lookup()
+
+
+def _named_chord_analysis_count_lookup() -> np.ndarray:
+    """Count exact named analyses, including symmetric alternatives."""
+
+    counts = np.zeros(4096, dtype=np.int8)
+    for _, intervals in NAMED_CHORD_QUALITIES:
+        for root_degree in range(12):
+            counts[_named_chord_signature(root_degree, intervals)] += 1
+    return counts
+
+
+NAMED_CHORD_ANALYSIS_COUNT_BY_SIGNATURE = (
+    _named_chord_analysis_count_lookup()
+)
+
+
+def _consonant_triad_scaffold_lookups(
+) -> tuple[np.ndarray, np.ndarray, np.ndarray]:
+    """Describe incomplete triads and strict triad-plus-one pcsets."""
+
+    triad_signatures = {
+        _named_chord_signature(root, intervals)
+        for _, intervals in NAMED_CHORD_QUALITIES[:2]
+        for root in range(12)
+    }
+    incomplete = np.zeros(4096, dtype=bool)
+    for signature in range(4096):
+        if signature.bit_count() < 2:
+            continue
+        incomplete[signature] = any(
+            signature != triad
+            and signature & ~triad == 0
+            for triad in triad_signatures
+        )
+    analyses: list[set[tuple[int, int]]] = [set() for _ in range(4096)]
+    for triad in triad_signatures:
+        for foreign_pc in range(12):
+            if triad & (1 << foreign_pc):
+                continue
+            analyses[triad | (1 << foreign_pc)].add(
+                (triad, foreign_pc)
+            )
+    counts = np.zeros(4096, dtype=np.int8)
+    foreign = np.full(4096, -1, dtype=np.int8)
+    for signature, candidates in enumerate(analyses):
+        counts[signature] = len(candidates)
+        if len(candidates) == 1:
+            foreign[signature] = next(iter(candidates))[1]
+    return incomplete, counts, foreign
+
+
+(
+    INCOMPLETE_CONSONANT_TRIAD_BY_SIGNATURE,
+    TRIAD_PLUS_ONE_ANALYSIS_COUNT_BY_SIGNATURE,
+    TRIAD_PLUS_ONE_FOREIGN_PC_BY_SIGNATURE,
+) = _consonant_triad_scaffold_lookups()
+
+
+def central_bass_degrees(
+    dataset: K3Dataset,
+    candidates: np.ndarray | None = None,
+) -> np.ndarray:
+    """Return the candidate-aware bass degree relative to the declared tonic."""
+
+    candidates = _candidate_values(dataset, candidates)
+    tonics = _context_array(dataset.tonic_pcs, "tonic_pcs")[:, None]
+    bass = np.where(
+        (dataset.voice_indices == 3)[:, None],
+        candidates,
+        dataset.blocks[:, 1, 3, None],
+    )
+    return (bass - tonics) % 12
+
+
+def central_residual_strong_sonority_statuses(
+    dataset: K3Dataset,
+    candidates: np.ndarray | None = None,
+) -> np.ndarray:
+    """Classify every strong sonority not covered by a strict named analysis.
+
+    The result is exhaustive on the V23 reference state. Strict unique named
+    chords receive ``-1`` because their family/inversion is already modelled
+    by V23. Weak blocks also receive ``-1``.
+    """
+
+    candidates = _candidate_values(dataset, candidates)
+    signatures = central_tonic_pcset_signatures(dataset, candidates)
+    levels = _context_array(dataset.metric_levels, "metric_levels")
+    status = np.full(signatures.shape, -1, dtype=np.int8)
+    residual = (
+        (levels >= 2)[:, None]
+        & (NAMED_CHORD_ANALYSIS_COUNT_BY_SIGNATURE[signatures] != 1)
+    )
+    ambiguous_named = (
+        NAMED_CHORD_ANALYSIS_COUNT_BY_SIGNATURE[signatures] > 1
+    )
+    status[residual & ambiguous_named] = 0
+    incomplete = INCOMPLETE_CONSONANT_TRIAD_BY_SIGNATURE[signatures]
+    status[residual & ~ambiguous_named & incomplete] = 1
+    plus_count = TRIAD_PLUS_ONE_ANALYSIS_COUNT_BY_SIGNATURE[signatures]
+    plus_ambiguous = plus_count > 1
+    status[
+        residual
+        & ~ambiguous_named
+        & ~incomplete
+        & plus_ambiguous
+    ] = 2
+    strict_plus = (
+        residual
+        & ~ambiguous_named
+        & ~incomplete
+        & (plus_count == 1)
+    )
+    if np.any(strict_plus):
+        voices = dataset.voice_indices
+        central = np.broadcast_to(
+            dataset.blocks[:, 1, :, None],
+            (dataset.size, 4, candidates.shape[1]),
+        ).copy()
+        for voice in range(4):
+            central[:, voice, :] = np.where(
+                (voices == voice)[:, None],
+                candidates,
+                central[:, voice, :],
+            )
+        following = np.broadcast_to(
+            dataset.blocks[:, 2, :, None],
+            central.shape,
+        ).copy()
+        for voice in range(4):
+            following[:, voice, :] = np.where(
+                ((voices == voice) & ~dataset.attacks[:, 2, voice])[
+                    :, None
+                ],
+                candidates,
+                following[:, voice, :],
+            )
+        foreign_pc = TRIAD_PLUS_ONE_FOREIGN_PC_BY_SIGNATURE[signatures]
+        passing_neighbor = np.zeros_like(strict_plus)
+        suspension = np.zeros_like(strict_plus)
+        appoggiatura = np.zeros_like(strict_plus)
+        for voice in range(4):
+            is_foreign = central[:, voice, :] % 12 == foreign_pc
+            previous = dataset.blocks[:, 0, voice, None]
+            incoming = central[:, voice, :] - previous
+            outgoing = following[:, voice, :] - central[:, voice, :]
+            incoming_step = (
+                (np.abs(incoming) >= 1) & (np.abs(incoming) <= 2)
+            )
+            outgoing_step = (
+                dataset.attacks[:, 2, voice, None]
+                & (np.abs(outgoing) >= 1)
+                & (np.abs(outgoing) <= 2)
+            )
+            prepared = central[:, voice, :] == previous
+            passing = (
+                incoming_step
+                & outgoing_step
+                & (_sign(incoming) == _sign(outgoing))
+            )
+            neighbor = (
+                incoming_step
+                & outgoing_step
+                & (following[:, voice, :] == previous)
+            )
+            passing_neighbor |= is_foreign & (passing | neighbor)
+            suspension |= is_foreign & prepared & outgoing_step
+            appoggiatura |= (
+                is_foreign
+                & dataset.attacks[:, 1, voice, None]
+                & ~prepared
+                & outgoing_step
+                & ~(passing | neighbor)
+            )
+        status[strict_plus] = 6
+        status[strict_plus & appoggiatura] = 5
+        status[strict_plus & suspension] = 4
+        status[strict_plus & passing_neighbor] = 3
+    status[residual & (status < 0)] = 7
+    return status
+
+
+def _named_chord_status_mask(
+    dataset: K3Dataset,
+    feature: FeatureSpec,
+    candidates: np.ndarray,
+) -> np.ndarray:
+    """Evaluate one factorized, deterministic chord-status predicate."""
+
+    if feature.kind not in NAMED_CHORD_STATUS_KINDS:
+        raise ValueError(f"Unknown named chord status: {feature.kind}")
+    if feature.value is None:
+        raise ValueError("Named chord statuses require a value")
+    signatures = central_tonic_pcset_signatures(dataset, candidates)
+    bass_degrees = central_bass_degrees(dataset, candidates)
+    levels = _context_array(dataset.metric_levels, "metric_levels")
+
+    def quality_mask(quality_index: int) -> np.ndarray:
+        if quality_index not in range(len(NAMED_CHORD_QUALITIES)):
+            raise ValueError("Named chord status has an invalid quality")
+        _, intervals = NAMED_CHORD_QUALITIES[quality_index]
+        expected = [
+            _named_chord_signature(root_degree, intervals)
+            for root_degree in range(12)
+        ]
+        return np.isin(signatures, expected)
+
+    def degree_mask(root_degree: int) -> np.ndarray:
+        if root_degree not in range(12):
+            raise ValueError("Named chord status has an invalid root degree")
+        expected = [
+            _named_chord_signature(root_degree, intervals)
+            for _, intervals in NAMED_CHORD_QUALITIES
+        ]
+        return np.isin(signatures, expected)
+
+    def quality_inversion_mask(
+        quality_index: int,
+        inversion: int,
+    ) -> np.ndarray:
+        if quality_index not in range(len(NAMED_CHORD_QUALITIES)):
+            raise ValueError("Named chord status has an invalid quality")
+        _, intervals = NAMED_CHORD_QUALITIES[quality_index]
+        if inversion not in range(len(intervals)):
+            raise ValueError("Named chord status has an invalid inversion")
+        result = np.zeros_like(signatures, dtype=bool)
+        for root_degree in range(12):
+            result |= (
+                signatures == _named_chord_signature(root_degree, intervals)
+            ) & (
+                bass_degrees == (root_degree + intervals[inversion]) % 12
+            )
+        return result
+
+    if feature.kind == "central_named_chord_quality":
+        return quality_mask(feature.value)
+    if feature.kind == "central_named_chord_root_degree":
+        return degree_mask(feature.value)
+    if feature.kind == "central_named_chord_inversion":
+        inversion = feature.value
+        result = np.zeros_like(signatures, dtype=bool)
+        for quality_index, (_, intervals) in enumerate(NAMED_CHORD_QUALITIES):
+            if inversion < len(intervals):
+                result |= quality_inversion_mask(quality_index, inversion)
+        return result
+    if feature.second_value is None:
+        raise ValueError("Conjoined named chord statuses require two values")
+    if feature.kind == "central_named_chord_quality_metric":
+        return quality_mask(feature.value) & (
+            (levels >= 2)[:, None] == bool(feature.second_value)
+        )
+    if feature.kind == "central_named_chord_root_degree_metric":
+        return degree_mask(feature.value) & (
+            (levels >= 2)[:, None] == bool(feature.second_value)
+        )
+    if feature.kind == "central_named_chord_degree_quality":
+        quality_index = feature.second_value
+        if quality_index not in range(len(NAMED_CHORD_QUALITIES)):
+            raise ValueError("Named chord status has an invalid quality")
+        _, intervals = NAMED_CHORD_QUALITIES[quality_index]
+        return signatures == _named_chord_signature(feature.value, intervals)
+    if feature.kind == "central_named_chord_quality_inversion":
+        return quality_inversion_mask(feature.value, feature.second_value)
+    raise AssertionError("Unreachable named chord status")
 
 
 def bass_pcset_signatures(
@@ -798,6 +1179,87 @@ def _contextual_feature_mask(
             TRIADIC_BASS_PCSET_SIGNATURES,
         )
         return triadic & ((levels >= 2)[:, None] == bool(feature.second_value))
+    if feature.kind == "central_bass_tonal_strong_mode":
+        if feature.second_value not in {0, 1}:
+            raise ValueError("Bass tonal status requires major/minor mode")
+        if value not in range(12):
+            raise ValueError("Bass tonal status requires one pitch class")
+        modes = _context_array(dataset.modes, "modes")
+        levels = _context_array(dataset.metric_levels, "metric_levels")
+        return (
+            (central_bass_degrees(dataset, candidates) == value)
+            & (modes == feature.second_value)[:, None]
+            & (levels >= 2)[:, None]
+        )
+    if feature.kind == "central_unique_chord_family_inversion_strong":
+        if value not in range(16):
+            raise ValueError("Chord family/inversion status is out of range")
+        family, inversion = divmod(value, 4)
+        if family not in range(4):
+            raise ValueError("Chord family status is out of range")
+        signatures = central_tonic_pcset_signatures(dataset, candidates)
+        qualities = NAMED_CHORD_UNIQUE_QUALITY_BY_SIGNATURE[signatures]
+        roots = NAMED_CHORD_STRICT_UNIQUE_ROOT_BY_SIGNATURE[signatures]
+        bass_degrees = central_bass_degrees(dataset, candidates)
+        levels = _context_array(dataset.metric_levels, "metric_levels")
+        result = np.zeros_like(signatures, dtype=bool)
+        for quality, (_, intervals) in enumerate(NAMED_CHORD_QUALITIES):
+            if UNIQUE_CHORD_FAMILY_BY_QUALITY[quality] != family:
+                continue
+            if inversion >= len(intervals):
+                continue
+            result |= (
+                (qualities == quality)
+                & (
+                    bass_degrees
+                    == (roots + intervals[inversion]) % 12
+                )
+            )
+        return result & (levels >= 2)[:, None]
+    if feature.kind == "central_residual_strong_sonority_status":
+        if value not in range(len(RESIDUAL_STRONG_SONORITY_NAMES)):
+            raise ValueError("Residual strong sonority status is out of range")
+        return (
+            central_residual_strong_sonority_statuses(
+                dataset,
+                candidates,
+            )
+            == value
+        )
+    if feature.kind in NAMED_CHORD_STATUS_KINDS:
+        return _named_chord_status_mask(dataset, feature, candidates)
+    if feature.kind in NAMED_CHORD_TRANSITION_KINDS:
+        if feature.second_value not in {0, 1}:
+            raise ValueError("A named root transition requires major/minor mode")
+        previous_signatures = fixed_tonic_pcset_signatures(dataset, position=0)
+        current_signatures = central_tonic_pcset_signatures(dataset, candidates)
+        previous_roots = NAMED_CHORD_UNIQUE_ROOT_BY_SIGNATURE[
+            previous_signatures
+        ]
+        current_roots = NAMED_CHORD_UNIQUE_ROOT_BY_SIGNATURE[
+            current_signatures
+        ]
+        modes = _context_array(dataset.modes, "modes")
+        applies = (modes == feature.second_value)[:, None]
+        if feature.kind == "central_named_root_transition_mode":
+            if feature.value not in range(144):
+                raise ValueError(
+                    "A named root transition must encode two degrees"
+                )
+            previous_degree, current_degree = divmod(feature.value, 12)
+            return (
+                applies
+                & (previous_roots == previous_degree)[:, None]
+                & (current_roots == current_degree)
+            )
+        if feature.value not in range(12):
+            raise ValueError("A named root motion must encode one interval")
+        return (
+            applies
+            & (previous_roots >= 0)[:, None]
+            & (current_roots >= 0)
+            & ((current_roots - previous_roots[:, None]) % 12 == feature.value)
+        )
     if feature.kind == "bass_pcset_transition":
         if feature.second_value is None:
             raise ValueError("A sonority transition requires two signatures")
@@ -823,6 +1285,127 @@ def _contextual_feature_mask(
             candidates,
         )
         return metric & pair_mask
+    if feature.kind == "any_pair_central_abs_class_target_passing_metric":
+        if feature.second_value not in {0, 1}:
+            raise ValueError("Metric passing features require weak/strong status")
+        levels = _context_array(dataset.metric_levels, "metric_levels")
+        metric = ((levels >= 2) == bool(feature.second_value))[:, None]
+        passing = _universal_feature_mask(
+            dataset,
+            FeatureSpec(
+                "any_pair_central_abs_class_target_passing",
+                -1,
+                value=value,
+            ),
+            candidates,
+        )
+        return metric & passing
+    if feature.kind == "central_pair_abs_class_metric":
+        if feature.target_voice not in range(4):
+            raise ValueError("Directed pair metric features require one target")
+        if (
+            feature.other_voice not in range(4)
+            or feature.other_voice == feature.target_voice
+        ):
+            raise ValueError("Directed pair metric features require another voice")
+        if feature.second_value not in {0, 1}:
+            raise ValueError("Directed pair metric features require weak/strong")
+        levels = _context_array(dataset.metric_levels, "metric_levels")
+        applies = dataset.voice_indices == feature.target_voice
+        other = dataset.blocks[:, 1, feature.other_voice, None]
+        interval = np.abs(candidates - other) % 12 == value
+        metric = (levels >= 2) == bool(feature.second_value)
+        return applies[:, None] & metric[:, None] & interval
+    if feature.kind.startswith("central_pair_abs_class_metric_"):
+        if feature.target_voice not in range(4):
+            raise ValueError("Directed pair trajectory features require one target")
+        if (
+            feature.other_voice not in range(4)
+            or feature.other_voice == feature.target_voice
+        ):
+            raise ValueError(
+                "Directed pair trajectory features require another voice"
+            )
+        if feature.second_value not in {0, 1}:
+            raise ValueError(
+                "Directed pair trajectory features require weak/strong"
+            )
+        levels = _context_array(dataset.metric_levels, "metric_levels")
+        voice = feature.target_voice
+        other_voice = feature.other_voice
+        applies = dataset.voice_indices == voice
+        previous = dataset.blocks[:, 0, voice, None]
+        other = dataset.blocks[:, 1, other_voice, None]
+        following = np.where(
+            dataset.attacks[:, 2, voice, None],
+            dataset.blocks[:, 2, voice, None],
+            candidates,
+        )
+        incoming = candidates - previous
+        outgoing = following - candidates
+        incoming_step = (np.abs(incoming) >= 1) & (np.abs(incoming) <= 2)
+        outgoing_step = dataset.attacks[:, 2, voice, None] & (
+            (np.abs(outgoing) >= 1) & (np.abs(outgoing) <= 2)
+        )
+        other_outgoing = dataset.blocks[:, 2, other_voice, None] - other
+        other_step = dataset.attacks[:, 2, other_voice, None] & (
+            (np.abs(other_outgoing) >= 1) & (np.abs(other_outgoing) <= 2)
+        )
+        other_held = ~dataset.attacks[:, 1, other_voice, None]
+        suffix = feature.kind.removeprefix("central_pair_abs_class_metric_")
+        if suffix == "target_rearticulated":
+            status = candidates == previous
+        elif suffix == "target_step_resolved":
+            status = outgoing_step
+        elif suffix == "target_passing":
+            status = (
+                incoming_step
+                & outgoing_step
+                & (_sign(incoming) == _sign(outgoing))
+            )
+        elif suffix == "target_neighbor":
+            status = incoming_step & outgoing_step & (following == previous)
+        elif suffix == "other_held":
+            status = other_held
+        elif suffix == "other_step_resolved":
+            status = other_step
+        elif suffix == "other_held_step_resolved":
+            status = other_held & other_step
+        else:
+            raise ValueError(f"Unknown directed pair trajectory: {suffix}")
+        interval = np.abs(candidates - other) % 12 == value
+        metric = (levels >= 2) == bool(feature.second_value)
+        return applies[:, None] & metric[:, None] & interval & status
+    if feature.kind == "bass_abs_step_from_previous_gt_metric":
+        if feature.second_value not in {0, 1}:
+            raise ValueError("Metric bass-motion features require weak/strong")
+        levels = _context_array(dataset.metric_levels, "metric_levels")
+        applies = dataset.voice_indices == 3
+        previous = dataset.blocks[:, 0, 3, None]
+        metric = (levels >= 2) == bool(feature.second_value)
+        return (
+            applies[:, None]
+            & metric[:, None]
+            & (np.abs(candidates - previous) > value)
+        )
+    if feature.kind == "bass_tonic_transition_metric":
+        if feature.second_value not in {0, 1}:
+            raise ValueError("Tonal bass transitions require weak/strong status")
+        if value not in range(144):
+            raise ValueError("A tonal bass transition must encode two classes")
+        levels = _context_array(dataset.metric_levels, "metric_levels")
+        tonics = _context_array(dataset.tonic_pcs, "tonic_pcs")[:, None]
+        previous_class, current_class = divmod(value, 12)
+        previous = (dataset.blocks[:, 0, 3, None] - tonics) % 12
+        current = (candidates - tonics) % 12
+        applies = dataset.voice_indices == 3
+        metric = (levels >= 2) == bool(feature.second_value)
+        return (
+            applies[:, None]
+            & metric[:, None]
+            & (previous == previous_class)
+            & (current == current_class)
+        )
     raise ValueError(f"Unknown contextual K3 feature: {feature.kind}")
 
 
@@ -844,9 +1427,23 @@ def _feature_mask_for_candidates(
         "central_bass_pcset",
         "central_bass_pcset_metric",
         "central_triadic_metric",
+        "central_bass_tonal_strong_mode",
+        "central_unique_chord_family_inversion_strong",
+        "central_residual_strong_sonority_status",
+        *NAMED_CHORD_STATUS_KINDS,
+        *NAMED_CHORD_TRANSITION_KINDS,
         "bass_pcset_transition",
         "any_pair_central_abs_class_metric",
-    } or feature.kind.startswith("rare_tonal_"):
+        "any_pair_central_abs_class_target_passing_metric",
+        "central_pair_abs_class_metric",
+        "bass_abs_step_from_previous_gt_metric",
+        "bass_tonic_transition_metric",
+    } or feature.kind.startswith(
+        (
+            "rare_tonal_",
+            "central_pair_abs_class_metric_",
+        )
+    ):
         return _contextual_feature_mask(dataset, feature, candidates)
     row_voice = dataset.voice_indices
     if feature.target_voice == -1:
@@ -984,8 +1581,75 @@ def _universal_feature_mask(
                 continue
             current_other = dataset.blocks[voice_rows, 1, other, None]
             previous_other = dataset.blocks[voice_rows, 0, other, None]
+            target_class = np.abs(voice_candidates - current_other) % 12
             if feature.kind == "any_pair_central_abs_class":
-                local = np.abs(voice_candidates - current_other) % 12 == value
+                local = target_class == value
+            elif feature.kind in INTERVAL_CONTEXT_KINDS:
+                static_following = dataset.blocks[voice_rows, 2, voice, None]
+                next_attack = dataset.attacks[voice_rows, 2, voice, None]
+                following = np.where(
+                    next_attack,
+                    static_following,
+                    voice_candidates,
+                )
+                incoming = voice_candidates - voice_previous
+                outgoing = following - voice_candidates
+                incoming_step = (np.abs(incoming) >= 1) & (
+                    np.abs(incoming) <= 2
+                )
+                outgoing_step = next_attack & (np.abs(outgoing) >= 1) & (
+                    np.abs(outgoing) <= 2
+                )
+                if feature.kind.endswith("target_rearticulated"):
+                    status = voice_candidates == voice_previous
+                elif feature.kind.endswith("target_step_resolved"):
+                    status = outgoing_step
+                elif feature.kind.endswith("target_passing"):
+                    status = (
+                        incoming_step
+                        & outgoing_step
+                        & (_sign(incoming) == _sign(outgoing))
+                    )
+                elif feature.kind.endswith("target_neighbor"):
+                    status = (
+                        incoming_step
+                        & outgoing_step
+                        & (following == voice_previous)
+                    )
+                else:
+                    other_held = ~dataset.attacks[
+                        voice_rows,
+                        1,
+                        other,
+                        None,
+                    ]
+                    if feature.kind.endswith("other_held"):
+                        status = other_held
+                    elif feature.kind.endswith("other_held_step_resolved"):
+                        other_next_attack = dataset.attacks[
+                            voice_rows,
+                            2,
+                            other,
+                            None,
+                        ]
+                        other_following = dataset.blocks[
+                            voice_rows,
+                            2,
+                            other,
+                            None,
+                        ]
+                        other_outgoing = other_following - current_other
+                        status = (
+                            other_held
+                            & other_next_attack
+                            & (np.abs(other_outgoing) >= 1)
+                            & (np.abs(other_outgoing) <= 2)
+                        )
+                    else:  # pragma: no cover - guarded by the kind set
+                        raise ValueError(
+                            f"Unknown interval context: {feature.kind}"
+                        )
+                local = (target_class == value) & status
             elif feature.kind in {
                 "any_pair_abs_class_preserved_same_sign",
                 "any_pair_arrival_abs_class_same_sign",
@@ -1203,6 +1867,17 @@ def contextual_feature_catalogue(
     minimum_piece_support: int = 10,
     voice_specific_repeats: bool = False,
     chromatic_rarity_threshold: float | None = None,
+    interval_context_licenses: bool = False,
+    directed_metric_context_licenses: bool = False,
+    directed_metric_trajectory_licenses: bool = False,
+    vertical_status_features: bool = False,
+    named_harmonic_status_features: bool = False,
+    named_harmonic_metric_encoding: str = "disjoint_weak_strong",
+    named_harmonic_transition_features: bool = False,
+    named_harmonic_root_motion_features: bool = False,
+    bass_tonal_strong_mode_features: bool = False,
+    unique_chord_family_inversion_strong_features: bool = False,
+    residual_strong_sonority_features: bool = False,
 ) -> tuple[FeatureSpec, ...]:
     """Generate readable context features and observed vertical fingerprints."""
 
@@ -1221,6 +1896,41 @@ def contextual_feature_catalogue(
                 chromatic_rarity_threshold,
             )
         )
+    if interval_context_licenses:
+        features.extend(interval_context_feature_catalogue())
+    if directed_metric_context_licenses:
+        features.extend(directed_metric_context_feature_catalogue())
+    if directed_metric_trajectory_licenses:
+        features.extend(directed_metric_trajectory_feature_catalogue())
+    if vertical_status_features:
+        features.extend(
+            FeatureSpec(
+                "central_triadic_metric",
+                -1,
+                value=1,
+                second_value=strong,
+                complexity=2,
+            )
+            for strong in (0, 1)
+        )
+    if named_harmonic_status_features:
+        features.extend(
+            named_harmonic_status_feature_catalogue(
+                metric_encoding=named_harmonic_metric_encoding,
+            )
+        )
+    if named_harmonic_transition_features:
+        features.extend(named_harmonic_transition_feature_catalogue())
+    if named_harmonic_root_motion_features:
+        features.extend(named_harmonic_root_motion_feature_catalogue())
+    if bass_tonal_strong_mode_features:
+        features.extend(bass_tonal_strong_mode_feature_catalogue())
+    if unique_chord_family_inversion_strong_features:
+        features.extend(
+            unique_chord_family_inversion_strong_feature_catalogue()
+        )
+    if residual_strong_sonority_features:
+        features.extend(residual_strong_sonority_feature_catalogue())
     features.extend(
         FeatureSpec("central_distinct_pc_count", -1, value=count)
         for count in range(1, 5)
@@ -1260,6 +1970,316 @@ def contextual_feature_catalogue(
             )
     unique = {feature.key: feature for feature in features}
     return tuple(unique[key] for key in sorted(unique))
+
+
+def named_harmonic_status_feature_catalogue(
+    *,
+    metric_encoding: str = "disjoint_weak_strong",
+) -> tuple[FeatureSpec, ...]:
+    """Generate low-order, named chord-status factors without transitions."""
+
+    if metric_encoding == "disjoint_weak_strong":
+        metric_values = (0, 1)
+    elif metric_encoding == "baseline_plus_strong_deviation":
+        metric_values = (1,)
+    else:
+        raise ValueError(f"Unknown named harmonic metric encoding: {metric_encoding}")
+    features = []
+    quality_count = len(NAMED_CHORD_QUALITIES)
+    features.extend(
+        FeatureSpec("central_named_chord_quality", -1, value=quality)
+        for quality in range(quality_count)
+    )
+    features.extend(
+        FeatureSpec("central_named_chord_root_degree", -1, value=degree)
+        for degree in range(12)
+    )
+    features.extend(
+        FeatureSpec("central_named_chord_inversion", -1, value=inversion)
+        for inversion in range(4)
+    )
+    features.extend(
+        FeatureSpec(
+            "central_named_chord_quality_metric",
+            -1,
+            value=quality,
+            second_value=strong,
+            complexity=2,
+        )
+        for quality in range(quality_count)
+        for strong in metric_values
+    )
+    features.extend(
+        FeatureSpec(
+            "central_named_chord_root_degree_metric",
+            -1,
+            value=degree,
+            second_value=strong,
+            complexity=2,
+        )
+        for degree in range(12)
+        for strong in metric_values
+    )
+    features.extend(
+        FeatureSpec(
+            "central_named_chord_degree_quality",
+            -1,
+            value=degree,
+            second_value=quality,
+            complexity=2,
+        )
+        for degree in range(12)
+        for quality in range(quality_count)
+    )
+    features.extend(
+        FeatureSpec(
+            "central_named_chord_quality_inversion",
+            -1,
+            value=quality,
+            second_value=inversion,
+            complexity=2,
+        )
+        for quality, (_, intervals) in enumerate(NAMED_CHORD_QUALITIES)
+        for inversion in range(len(intervals))
+    )
+    return tuple(features)
+
+
+def named_harmonic_transition_feature_catalogue() -> tuple[FeatureSpec, ...]:
+    """Generate mode-specific transitions between uniquely named roots."""
+
+    return tuple(
+        FeatureSpec(
+            "central_named_root_transition_mode",
+            -1,
+            value=previous_degree * 12 + current_degree,
+            second_value=mode,
+            complexity=4,
+        )
+        for mode in range(2)
+        for previous_degree in range(12)
+        for current_degree in range(12)
+    )
+
+
+def named_harmonic_root_motion_feature_catalogue() -> tuple[FeatureSpec, ...]:
+    """Generate 24 shared root-motion factors instead of a 288-cell table."""
+
+    return tuple(
+        FeatureSpec(
+            "central_named_root_motion_mode",
+            -1,
+            value=motion,
+            second_value=mode,
+            complexity=3,
+        )
+        for mode in range(2)
+        for motion in range(12)
+    )
+
+
+def bass_tonal_strong_mode_feature_catalogue() -> tuple[FeatureSpec, ...]:
+    """Generate strong-beat deviations from the existing bass tonal profile."""
+
+    return tuple(
+        FeatureSpec(
+            "central_bass_tonal_strong_mode",
+            -1,
+            value=pitch_class,
+            second_value=mode,
+            complexity=2,
+        )
+        for mode in range(2)
+        for pitch_class in range(12)
+    )
+
+
+def unique_chord_family_inversion_strong_feature_catalogue(
+) -> tuple[FeatureSpec, ...]:
+    """Generate 14 strong-beat statuses from strict named chord analyses."""
+
+    statuses = (
+        *((family, inversion) for family in (0, 1) for inversion in range(3)),
+        *((family, inversion) for family in (2, 3) for inversion in range(4)),
+    )
+    return tuple(
+        FeatureSpec(
+            "central_unique_chord_family_inversion_strong",
+            -1,
+            value=family * 4 + inversion,
+            complexity=3,
+        )
+        for family, inversion in statuses
+    )
+
+
+def residual_strong_sonority_feature_catalogue(
+) -> tuple[FeatureSpec, ...]:
+    """Generate the exhaustive V24 statuses for the V23 reference state."""
+
+    return tuple(
+        FeatureSpec(
+            "central_residual_strong_sonority_status",
+            -1,
+            value=status,
+            complexity=4,
+        )
+        for status in range(len(RESIDUAL_STRONG_SONORITY_NAMES))
+    )
+
+
+def interval_context_feature_catalogue() -> tuple[FeatureSpec, ...]:
+    """Generate generic interval licences without naming consonance classes."""
+
+    features = []
+    for interval_class in range(12):
+        features.extend(
+            FeatureSpec(
+                "any_pair_central_abs_class_metric",
+                -1,
+                value=interval_class,
+                second_value=strong,
+                complexity=2,
+            )
+            for strong in (0, 1)
+        )
+        features.extend(
+            (
+                FeatureSpec(
+                    "any_pair_central_abs_class_target_rearticulated",
+                    -1,
+                    value=interval_class,
+                    complexity=3,
+                ),
+                FeatureSpec(
+                    "any_pair_central_abs_class_target_step_resolved",
+                    -1,
+                    value=interval_class,
+                    complexity=3,
+                ),
+                FeatureSpec(
+                    "any_pair_central_abs_class_target_passing",
+                    -1,
+                    value=interval_class,
+                    complexity=4,
+                ),
+                FeatureSpec(
+                    "any_pair_central_abs_class_target_neighbor",
+                    -1,
+                    value=interval_class,
+                    complexity=4,
+                ),
+                FeatureSpec(
+                    "any_pair_central_abs_class_other_held",
+                    -1,
+                    value=interval_class,
+                    complexity=3,
+                ),
+                FeatureSpec(
+                    "any_pair_central_abs_class_other_held_step_resolved",
+                    -1,
+                    value=interval_class,
+                    complexity=4,
+                ),
+            )
+        )
+    return tuple(features)
+
+
+def directed_metric_context_feature_catalogue() -> tuple[FeatureSpec, ...]:
+    """Generate neutral pair, passing, and bass contexts motivated by V12."""
+
+    features = []
+    for interval_class in range(12):
+        features.extend(
+            FeatureSpec(
+                "any_pair_central_abs_class_target_passing_metric",
+                -1,
+                value=interval_class,
+                second_value=strong,
+                complexity=5,
+            )
+            for strong in (0, 1)
+        )
+        for target in range(4):
+            for other in range(4):
+                if other == target:
+                    continue
+                features.extend(
+                    FeatureSpec(
+                        "central_pair_abs_class_metric",
+                        target,
+                        other,
+                        interval_class,
+                        strong,
+                        complexity=3,
+                    )
+                    for strong in (0, 1)
+                )
+    features.extend(
+        FeatureSpec(
+            "bass_abs_step_from_previous_gt_metric",
+            3,
+            value=threshold,
+            second_value=strong,
+            complexity=3,
+        )
+        for threshold in DEFAULT_THRESHOLDS
+        for strong in (0, 1)
+    )
+    features.extend(
+        FeatureSpec(
+            "bass_tonic_transition_metric",
+            3,
+            value=previous_class * 12 + current_class,
+            second_value=strong,
+            complexity=4,
+        )
+        for previous_class in range(12)
+        for current_class in range(12)
+        for strong in (0, 1)
+    )
+    return tuple(features)
+
+
+def directed_metric_trajectory_feature_catalogue() -> tuple[FeatureSpec, ...]:
+    """Generate full pair × interval × metric × trajectory conjunctions."""
+
+    kinds = (
+        "central_pair_abs_class_metric_target_rearticulated",
+        "central_pair_abs_class_metric_target_step_resolved",
+        "central_pair_abs_class_metric_target_passing",
+        "central_pair_abs_class_metric_target_neighbor",
+        "central_pair_abs_class_metric_other_held",
+        "central_pair_abs_class_metric_other_step_resolved",
+        "central_pair_abs_class_metric_other_held_step_resolved",
+    )
+    return tuple(
+        FeatureSpec(
+            kind,
+            target,
+            other,
+            interval_class,
+            strong,
+            complexity=(
+                5
+                if kind.endswith(
+                    (
+                        "target_passing",
+                        "target_neighbor",
+                        "other_held_step_resolved",
+                    )
+                )
+                else 4
+            ),
+        )
+        for kind in kinds
+        for target in range(4)
+        for other in range(4)
+        if other != target
+        for interval_class in range(12)
+        for strong in (0, 1)
+    )
 
 
 def feature_matrix(
@@ -1769,7 +2789,7 @@ def _candidate_world_components(
 
     rows = np.arange(dataset.size)
     chosen = dataset.chosen_indices
-    if np.any(chosen < 0) or np.any(chosen >= candidates.size):
+    if np.any(chosen < 0) or np.any(chosen >= dataset.candidate_pitches.size):
         return (
             np.full(candidates.size, -math.inf, dtype=np.float64),
             np.zeros((candidates.size, len(features)), dtype=np.float64),
@@ -1988,6 +3008,95 @@ def candidate_segment_components(
     )
 
 
+def joint_segment_components(
+    blocks: np.ndarray,
+    attacks: np.ndarray,
+    central_times: Sequence[int],
+    segments: Sequence[tuple[int, int, int]],
+    candidate_sets: Sequence[np.ndarray],
+    *,
+    candidate_min: int,
+    candidate_max: int,
+    register_logits: np.ndarray,
+    features: Sequence[FeatureSpec],
+    tonal_logits: np.ndarray | None = None,
+    tonic_pc: int | None = None,
+    mode: int | None = None,
+    metric_levels: np.ndarray | None = None,
+) -> tuple[np.ndarray, np.ndarray, np.ndarray]:
+    """Return exact energy components for a Cartesian product of segments."""
+
+    if len(segments) < 2 or len(segments) != len(candidate_sets):
+        raise ValueError(
+            "Joint updates require matching sets for at least two segments"
+        )
+    candidates = tuple(np.asarray(values, dtype=np.int16) for values in candidate_sets)
+    if any(values.ndim != 1 or values.size == 0 for values in candidates):
+        raise ValueError("Each joint candidate set must be a non-empty vector")
+    grids = np.meshgrid(*candidates, indexing="ij")
+    combinations = np.column_stack([grid.reshape(-1) for grid in grids])
+    base = _decision_dataset(
+        blocks,
+        attacks,
+        central_times,
+        candidate_min,
+        candidate_max,
+        tonic_pc,
+        mode,
+        metric_levels,
+    )
+    if base is None:
+        return (
+            combinations,
+            np.zeros(combinations.shape[0], dtype=np.float64),
+            np.zeros((combinations.shape[0], len(features)), dtype=np.float64),
+        )
+    world_count = combinations.shape[0]
+    world_blocks = np.broadcast_to(
+        base.blocks,
+        (world_count, *base.blocks.shape),
+    ).copy()
+    for index, (start, end, voice) in enumerate(segments):
+        changed_cells = (base.offsets >= start) & (base.offsets < end)
+        local_voice = world_blocks[:, :, :, voice]
+        local_voice[...] = np.where(
+            changed_cells[None, :, :],
+            combinations[:, index, None, None],
+            local_voice,
+        )
+    dataset = K3Dataset(
+        piece_ids=np.tile(base.piece_ids, world_count),
+        offsets=np.tile(base.offsets, (world_count, 1)),
+        voice_indices=np.tile(base.voice_indices, world_count),
+        blocks=world_blocks.reshape((-1, 3, 4)),
+        attacks=np.tile(base.attacks, (world_count, 1, 1)),
+        candidate_min=candidate_min,
+        candidate_max=candidate_max,
+        tonic_pcs=(
+            None if base.tonic_pcs is None else np.tile(base.tonic_pcs, world_count)
+        ),
+        modes=None if base.modes is None else np.tile(base.modes, world_count),
+        metric_levels=(
+            None
+            if base.metric_levels is None
+            else np.tile(base.metric_levels, world_count)
+        ),
+    )
+    joint_groups = np.repeat(
+        np.arange(world_count, dtype=np.int32),
+        base.size,
+    )
+    base_scores, factor_totals = _candidate_world_components(
+        dataset,
+        joint_groups,
+        candidates=np.arange(world_count),
+        register_logits=register_logits,
+        features=features,
+        tonal_logits=tonal_logits,
+    )
+    return combinations, base_scores, factor_totals
+
+
 def _candidate_state_energies(
     blocks: np.ndarray,
     attacks: np.ndarray,
@@ -2039,6 +3148,7 @@ def rhythmic_gibbs_sample(
     register_logits: np.ndarray,
     features: Sequence[FeatureSpec],
     weights: np.ndarray,
+    constraint_features: Sequence[FeatureSpec] = (),
     sweeps: int,
     seed: int,
     temperature: float = 1.0,
@@ -2048,6 +3158,7 @@ def rhythmic_gibbs_sample(
     metric_levels: np.ndarray | None = None,
     energy_backend: str = "compiled",
     update_schedule: str = "sequential",
+    strong_block_sweeps: int = 0,
 ) -> np.ndarray:
     """Sample attack pitches while preserving every per-voice hold span.
 
@@ -2074,6 +3185,10 @@ def rhythmic_gibbs_sample(
         raise ValueError("Energy backend must be 'compiled' or 'legacy'")
     if update_schedule not in {"sequential", "colored"}:
         raise ValueError("Update schedule must be 'sequential' or 'colored'")
+    if strong_block_sweeps < 0:
+        raise ValueError("Strong-block sweeps cannot be negative")
+    if strong_block_sweeps and metric_levels is None:
+        raise ValueError("Strong-block sweeps require metric levels")
     if tonal_logits is not None and (
         tonal_logits.shape not in {(2, 12), (4, 2, 12)}
         or tonic_pc is None
@@ -2118,6 +3233,31 @@ def rhythmic_gibbs_sample(
             mode=mode,
             metric_levels=metric_levels,
         )
+        if constraint_features:
+            _, constraint_totals = candidate_segment_components(
+                blocks,
+                attack_grid,
+                segment_energy_times(segment, blocks.shape[0]),
+                start,
+                end,
+                voice,
+                candidates,
+                candidate_min=candidate_min,
+                candidate_max=candidate_max,
+                register_logits=register_logits,
+                features=constraint_features,
+                tonal_logits=tonal_logits,
+                tonic_pc=tonic_pc,
+                mode=mode,
+                metric_levels=metric_levels,
+            )
+            forbidden = np.any(constraint_totals > 0, axis=1)
+            if np.all(forbidden):
+                raise ValueError(
+                    "Hard K3 constraints reject every candidate for "
+                    f"segment {(start, end, voice)}"
+                )
+            scores[forbidden] = -np.inf
         scores /= scale
         scores -= scores.max()
         probabilities = np.exp(scores)
@@ -2141,4 +3281,81 @@ def rhythmic_gibbs_sample(
                 ]
                 for (start, end, voice), selected in pending:
                     blocks[start:end, voice] = selected
+
+    if strong_block_sweeps:
+        mutable_at = {
+            (time, voice): segment
+            for segment in mutable
+            for time in range(segment[0], segment[1])
+            for voice in (segment[2],)
+        }
+        strong_times = np.flatnonzero(np.asarray(metric_levels) >= 2)
+        for _ in range(strong_block_sweeps):
+            generator.shuffle(strong_times)
+            for time in strong_times:
+                local = [
+                    mutable_at[(int(time), voice)]
+                    for voice in range(1, 4)
+                    if (int(time), voice) in mutable_at
+                ]
+                if len(local) < 2:
+                    continue
+                selected_indices = generator.choice(len(local), size=2, replace=False)
+                pair = tuple(local[int(index)] for index in selected_indices)
+                affected_times = sorted(
+                    {
+                        central_time
+                        for segment in pair
+                        for central_time in segment_energy_times(
+                            segment,
+                            blocks.shape[0],
+                        )
+                    }
+                )
+                combinations, base_scores, factor_totals = joint_segment_components(
+                    blocks,
+                    attack_grid,
+                    affected_times,
+                    pair,
+                    (candidates, candidates),
+                    candidate_min=candidate_min,
+                    candidate_max=candidate_max,
+                    register_logits=register_logits,
+                    features=features,
+                    tonal_logits=tonal_logits,
+                    tonic_pc=tonic_pc,
+                    mode=mode,
+                    metric_levels=metric_levels,
+                )
+                scores = base_scores + factor_totals @ weights
+                if constraint_features:
+                    _, _, constraint_totals = joint_segment_components(
+                        blocks,
+                        attack_grid,
+                        affected_times,
+                        pair,
+                        (candidates, candidates),
+                        candidate_min=candidate_min,
+                        candidate_max=candidate_max,
+                        register_logits=register_logits,
+                        features=constraint_features,
+                        tonal_logits=tonal_logits,
+                        tonic_pc=tonic_pc,
+                        mode=mode,
+                        metric_levels=metric_levels,
+                    )
+                    forbidden = np.any(constraint_totals > 0, axis=1)
+                    if np.all(forbidden):
+                        continue
+                    scores[forbidden] = -np.inf
+                scores /= scale
+                scores -= scores.max()
+                probabilities = np.exp(scores)
+                probabilities /= probabilities.sum()
+                selected = combinations[
+                    int(generator.choice(combinations.shape[0], p=probabilities))
+                ]
+                for segment, pitch in zip(pair, selected, strict=True):
+                    start, end, voice = segment
+                    blocks[start:end, voice] = pitch
     return blocks

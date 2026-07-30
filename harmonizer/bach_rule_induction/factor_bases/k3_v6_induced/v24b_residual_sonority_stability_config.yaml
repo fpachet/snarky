@@ -1,0 +1,26 @@
+schema_version: 1
+id: K3-V24B-RESIDUAL-SONORITY-STABILITY-1
+status: FROZEN
+frozen_on: 2026-07-29
+purpose: >
+  Répliquer dans quatre plis le groupe résiduel V24 avec la plus forte
+  pénalité ayant franchi le bootstrap apparié initial.
+
+source_config: v24_residual_sonority_config.yaml
+source_cache_directory: ../../experiments/v5_k3_clean/work/v24-structure-stability
+frozen_group_penalty: 0.6
+fold_count: 4
+checkpoint: terminal
+
+selection:
+  criterion: aggregate_out_of_fold_paired_bootstrap
+  paired_bootstrap_resamples: 100000
+  paired_bootstrap_seed: 24103
+  minimum_positive_piece_fraction: 0.6
+
+provenance_guards:
+  penalty_frozen_before_fold_runs: true
+  fold_results_seen_before_penalty_choice: false
+  fixed_terminal_checkpoint: true
+  generation_metrics_used_for_weight_learning: false
+  test_split_loaded: false

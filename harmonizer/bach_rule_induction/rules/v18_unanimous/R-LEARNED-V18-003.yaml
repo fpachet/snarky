@@ -1,0 +1,105 @@
+schema_version: 1
+id: R-LEARNED-V18-003
+title: 'au moins une paire de voix : conserve l’intervalle de classe 0 par mouvement
+  direct non nul'
+lifecycle: SUPPORTED_PRETEST
+status: AVOID
+statement: 'au moins une paire de voix : conserve l’intervalle de classe 0 par mouvement
+  direct non nul'
+scope:
+  voices: SATB
+  window:
+  - previous
+  - current
+  - following
+  attack_hold_semantics: true
+  corpus: music21-3.1.0-deepbach-352
+  split: variant-safe-251-50-51
+normalized_feature:
+  complexity: 4
+  key: any_pair_abs_class_preserved_same_sign:-1:-:0:-
+  kind: any_pair_abs_class_preserved_same_sign
+  label: any_pair_abs_class_preserved_same_sign(all_voices)=0
+  other_voice: null
+  second_value: null
+  target_voice: -1
+  value: 0
+conclusion:
+  kind: avoid
+  log_weight: -1.9312052243881486
+  absolute_prohibition: false
+selection:
+  complete_reinductions: 5
+  selected_in: 5
+  unanimous: true
+  calls_other_rules: false
+statistics:
+  train:
+    pieces: 251
+    decisions: 53604
+    testable_opportunities: 23274
+    piece_support: 251
+    observed_mean_on_testable: 0.006530892841797714
+    model_expected_mean_on_testable: 0.016606949266836087
+    postfit_residual_gradient: -0.004374862645256758
+    postfit_residual_z: -9.676374036093565
+  validation:
+    pieces: 50
+    decisions: 10414
+    testable_opportunities: 4437
+    piece_support: 50
+    observed_mean_on_testable: 0.016677935542032906
+    model_expected_mean_on_testable: 0.02177994196636024
+    postfit_residual_gradient: -0.0021737663246341847
+    postfit_residual_z: -2.130833850585513
+  test:
+    opened: false
+provenance:
+  model: v18_unanimous_full_model.json
+  structure_audit: v18_structure_stability.json
+  origin: learned_from_bach_corpus
+  human_authored: false
+  historical_rules_loaded: false
+snarky_factor:
+  file: ../../factor_bases/k3_v6_induced/v18_unanimous_full.factors
+  factor_group: k3_v18_unanimous
+  factor_id: F-K3-V18-CORE-003
+bach_examples:
+- piece: bach/bwv308
+  decision_ordinal: 1
+  voice: tenor
+  chosen_midi: 62
+  chosen_activation_count: 0
+  maximum_alternative_activation_count: 2
+- piece: bach/bwv265
+  decision_ordinal: 1
+  voice: tenor
+  chosen_midi: 60
+  chosen_activation_count: 0
+  maximum_alternative_activation_count: 2
+- piece: bach/bwv55.5
+  decision_ordinal: 0
+  voice: bass
+  chosen_midi: 57
+  chosen_activation_count: 0
+  maximum_alternative_activation_count: 2
+validation_exceptions:
+- piece: bach/bwv248.64-s
+  decision_ordinal: 186
+  voice: alto
+  chosen_midi: 64
+  chosen_activation_count: 2
+  maximum_alternative_activation_count: 4
+- piece: bach/bwv281
+  decision_ordinal: 42
+  voice: alto
+  chosen_midi: 65
+  chosen_activation_count: 2
+  maximum_alternative_activation_count: 2
+- piece: bach/bwv284
+  decision_ordinal: 22
+  voice: tenor
+  chosen_midi: 60
+  chosen_activation_count: 2
+  maximum_alternative_activation_count: 2
+deepbach_counterexamples: []

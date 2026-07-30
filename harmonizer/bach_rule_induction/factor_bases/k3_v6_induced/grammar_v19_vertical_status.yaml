@@ -1,0 +1,42 @@
+schema_version: 1
+id: K3-V19-VERTICAL-STATUS-GRAMMAR-1
+status: FROZEN
+frozen_on: 2026-07-28
+extends: grammar_v10_interval_context.yaml
+purpose: >
+  Ajouter à la grammaire explicative les deux statuts observables
+  « triade majeure ou mineure complète sur temps faible/fort ». Le statut est
+  défini avant induction ; son signe, son poids et sa sélection sont appris du
+  corpus. Aucune activation de règle n'est utilisée comme entrée.
+
+extensions:
+  vertical_status_features: true
+
+additional_generated_relations:
+  - complete_major_or_minor_triad
+  - metric_strength
+
+status_definitions:
+  complete_major_or_minor_triad:
+    representation: bass_relative_pitch_class_set
+    allowed_signatures: [137, 145, 265, 289, 529, 545]
+    interpretation:
+      - major_triad_root_position_or_inversion
+      - minor_triad_root_position_or_inversion
+    permits_octave_doublings: true
+    requires_three_distinct_pitch_classes: true
+
+families:
+  - id: triadic_metric_status
+    feature_kinds:
+      - central_triadic_metric
+    metric_strength: [weak, strong]
+    complexity: 2
+
+provenance_guards:
+  status_definition_human_authored: true
+  preferred_metric_value_prelabelled: false
+  factor_sign_prelabelled: false
+  factor_weight_prelabelled: false
+  rules_may_call_rules: false
+  generation_metrics_used_for_weight_learning: false

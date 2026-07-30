@@ -1,0 +1,51 @@
+schema_version: 1
+id: K3-V22-SHARED-ROOT-MOTION-GROUP-1
+status: FROZEN
+frozen_on: 2026-07-29
+purpose: >
+  Apprendre conjointement le RuleGroup de 24 mouvements de fondamentale et
+  tester son gain apparié avant toute réplication ou génération.
+
+baseline_model: v20b_identifiable_harmonic_status_sparse_model.json
+source_grammar: grammar_v22_shared_root_motion.yaml
+source_exact_cache: ../../experiments/v5_k3_clean/work/k3-exact-v22-catalogue-32x10.npz
+
+group:
+  id: named_root_motion_mode
+  feature_kind: central_named_root_motion_mode
+  size: 24
+  matrix_shape: [2, 12]
+  identifiability:
+    sum_over_motion_classes_zero_per_mode: true
+  l1_inside_group: 0.0005
+  l2_group_scaled_by_sqrt_size: true
+
+estimation:
+  objective: exact_conditional_pseudolikelihood
+  optimizer: adam_plus_sparse_group_proximal
+  learning_rate: 0.02
+  steps_baseline_refit: 120
+  steps_per_group_penalty: 160
+  l1_baseline_by_clause_complexity: 0.001
+  l2: 0.001
+  group_penalty_path:
+    - 0.3
+    - 0.1
+    - 0.03
+    - 0.01
+    - 0.003
+    - 0.0
+
+selection:
+  criterion: paired_bootstrap_then_piece_disjoint_stability
+  paired_bootstrap_resamples: 100000
+  paired_bootstrap_seed: 22029
+  minimum_positive_piece_fraction: 0.6
+  group_active_norm_threshold: 0.000001
+
+provenance_guards:
+  parameter_count: 24
+  individual_motion_cells_preselected: false
+  all_24_cells_fit_jointly: true
+  generation_metrics_used_for_weight_learning: false
+  test_split_loaded: false

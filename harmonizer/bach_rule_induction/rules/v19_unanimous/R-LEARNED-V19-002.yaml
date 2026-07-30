@@ -1,0 +1,104 @@
+schema_version: 1
+id: R-LEARNED-V19-002
+title: any_pair_central_abs_class_target_passing(all_voices)=9
+lifecycle: SUPPORTED_PRETEST
+status: PREFER
+statement: any_pair_central_abs_class_target_passing(all_voices)=9
+scope:
+  voices: SATB
+  window:
+  - previous
+  - current
+  - following
+  attack_hold_semantics: true
+  corpus: music21-3.1.0-deepbach-352
+  split: variant-safe-251-50-51
+normalized_feature:
+  complexity: 4
+  key: any_pair_central_abs_class_target_passing:-1:-:9:-
+  kind: any_pair_central_abs_class_target_passing
+  label: any_pair_central_abs_class_target_passing(all_voices)=9
+  other_voice: null
+  second_value: null
+  target_voice: -1
+  value: 9
+conclusion:
+  kind: prefer
+  log_weight: 0.7886525688055446
+  absolute_prohibition: false
+selection:
+  complete_reinductions: 5
+  selected_in: 5
+  unanimous: true
+  calls_other_rules: false
+statistics:
+  train:
+    pieces: 251
+    decisions: 53604
+    testable_opportunities: 31562
+    piece_support: 251
+    observed_mean_on_testable: 0.9936315822824916
+    model_expected_mean_on_testable: 0.9930925311004664
+    postfit_residual_gradient: 0.00031739298199915457
+    postfit_residual_z: 0.27811032766453614
+  validation:
+    pieces: 50
+    decisions: 10414
+    testable_opportunities: 6274
+    piece_support: 50
+    observed_mean_on_testable: 0.9937838699394326
+    model_expected_mean_on_testable: 0.9935853187333049
+    postfit_residual_gradient: 0.000119618808070404
+    postfit_residual_z: 0.045916957901558635
+  test:
+    opened: false
+provenance:
+  model: v19_unanimous_full_model.json
+  origin: learned_from_bach_corpus
+  human_authored: false
+  preference_human_authored: false
+  feature_definition_human_authored: false
+  historical_rules_loaded: false
+snarky_factor:
+  file: ../../factor_bases/k3_v6_induced/v19_unanimous_full.factors
+  factor_group: k3_v19_unanimous
+  factor_id: F-K3-V19-CORE-002
+bach_examples:
+- piece: bach/bwv229.2
+  decision_ordinal: 229
+  voice: alto
+  chosen_midi: 69
+  chosen_activation_count: 8
+  maximum_alternative_activation_count: 8
+- piece: bach/bwv279
+  decision_ordinal: 5
+  voice: alto
+  chosen_midi: 66
+  chosen_activation_count: 7
+  maximum_alternative_activation_count: 8
+- piece: bach/bwv405
+  decision_ordinal: 122
+  voice: alto
+  chosen_midi: 62
+  chosen_activation_count: 7
+  maximum_alternative_activation_count: 7
+validation_exceptions:
+- piece: bach/bwv111.6
+  decision_ordinal: 0
+  voice: alto
+  chosen_midi: 60
+  chosen_activation_count: 0
+  maximum_alternative_activation_count: 1
+- piece: bach/bwv112.5
+  decision_ordinal: 5
+  voice: bass
+  chosen_midi: 54
+  chosen_activation_count: 0
+  maximum_alternative_activation_count: 1
+- piece: bach/bwv133.6
+  decision_ordinal: 5
+  voice: alto
+  chosen_midi: 62
+  chosen_activation_count: 0
+  maximum_alternative_activation_count: 2
+deepbach_counterexamples: []

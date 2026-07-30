@@ -1,0 +1,103 @@
+schema_version: 1
+id: R-LEARNED-V18-012
+title: 'toutes voix : mouvement mélodique supérieur à 2 demi-tons'
+lifecycle: SUPPORTED_PRETEST
+status: AVOID
+statement: 'toutes voix : mouvement mélodique supérieur à 2 demi-tons'
+scope:
+  voices: SATB
+  window:
+  - previous
+  - current
+  - following
+  attack_hold_semantics: true
+  corpus: music21-3.1.0-deepbach-352
+  split: variant-safe-251-50-51
+normalized_feature:
+  complexity: 1
+  key: any_voice_adjacent_step_gt:-1:-:2:-
+  kind: any_voice_adjacent_step_gt
+  label: any_voice_adjacent_step_gt(all_voices)=2
+  other_voice: null
+  second_value: null
+  target_voice: -1
+  value: 2
+conclusion:
+  kind: avoid
+  log_weight: -1.2703092914528544
+  absolute_prohibition: false
+selection:
+  complete_reinductions: 5
+  selected_in: 5
+  unanimous: true
+  calls_other_rules: false
+statistics:
+  train:
+    pieces: 251
+    decisions: 53604
+    testable_opportunities: 52925
+    piece_support: 251
+    observed_mean_on_testable: 3.0072555503070384
+    model_expected_mean_on_testable: 3.013870645287304
+    postfit_residual_gradient: -0.00653130180267474
+    postfit_residual_z: -2.7421874152407293
+  validation:
+    pieces: 50
+    decisions: 10414
+    testable_opportunities: 10252
+    piece_support: 50
+    observed_mean_on_testable: 2.8062817011314865
+    model_expected_mean_on_testable: 2.831153380258758
+    postfit_residual_gradient: -0.02448477572621316
+    postfit_residual_z: -4.513742433497104
+  test:
+    opened: false
+provenance:
+  model: v18_unanimous_full_model.json
+  structure_audit: v18_structure_stability.json
+  origin: learned_from_bach_corpus
+  human_authored: false
+  historical_rules_loaded: false
+snarky_factor:
+  file: ../../factor_bases/k3_v6_induced/v18_unanimous_full.factors
+  factor_group: k3_v18_unanimous
+  factor_id: F-K3-V18-CORE-012
+bach_examples:
+- piece: bach/bwv308
+  decision_ordinal: 0
+  voice: alto
+  chosen_midi: 65
+  chosen_activation_count: 0
+  maximum_alternative_activation_count: 2
+- piece: bach/bwv265
+  decision_ordinal: 7
+  voice: alto
+  chosen_midi: 65
+  chosen_activation_count: 0
+  maximum_alternative_activation_count: 3
+- piece: bach/bwv55.5
+  decision_ordinal: 0
+  voice: bass
+  chosen_midi: 57
+  chosen_activation_count: 0
+  maximum_alternative_activation_count: 2
+validation_exceptions:
+- piece: bach/bwv111.6
+  decision_ordinal: 66
+  voice: alto
+  chosen_midi: 60
+  chosen_activation_count: 11
+  maximum_alternative_activation_count: 12
+- piece: bach/bwv248.46-5
+  decision_ordinal: 171
+  voice: alto
+  chosen_midi: 69
+  chosen_activation_count: 11
+  maximum_alternative_activation_count: 12
+- piece: bach/bwv385
+  decision_ordinal: 70
+  voice: alto
+  chosen_midi: 61
+  chosen_activation_count: 11
+  maximum_alternative_activation_count: 11
+deepbach_counterexamples: []

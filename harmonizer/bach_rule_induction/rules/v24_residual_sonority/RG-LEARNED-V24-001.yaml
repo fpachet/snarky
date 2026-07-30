@@ -1,0 +1,59 @@
+schema_version: 1
+id: RG-LEARNED-V24-001
+title: Statut résiduel des sonorités sur temps fort
+lifecycle: GENERATIVELY_SUPPORTED_PRETEST
+status: RULE_GROUP
+statement: Lorsqu'un bloc fort n'a pas l'analyse nommée unique de V23, le classer
+  dans un statut exhaustif de complétude ou de note étrangère localement licenciée,
+  puis pondérer ces huit statuts.
+scope:
+  voices: SATB
+  window:
+  - previous
+  - current
+  - next
+  metric: strong
+  attack_hold_semantics: true
+  reference_group: RG-LEARNED-V23-001
+parameterization:
+  dimension: residual_strong_sonority_status
+  parameter_count: 8
+  joint_learning: bach_minus_generated_maxent_moments
+  learning_iterations: 8
+  validation_used_during_updates: false
+statistics:
+  train_authentic_residual_rate: 0.1742059672762271
+  train_generated_residual_rate: 0.22040423484119345
+  train_final_moment_mae: 0.009384023099133785
+  validation_v23_strong_nontriadic_rate: 0.35169628120921226
+  validation_v24_strong_nontriadic_rate: 0.32015270935960594
+  validation_v23_strong_dissonances: 0.5964708854364026
+  validation_v24_strong_dissonances: 0.5301224316870868
+conclusion:
+  kind: joint_factor_group
+  absolute_prohibition: false
+  conditional_pseudolikelihood_replication: REJECTED
+  generative_validation: IMPROVED_HARMONY_METRICS
+  weights:
+  - status: exact_named_ambiguous
+    weight: -0.007528725108086481
+  - status: incomplete_consonant_triad
+    weight: 0.04858329819176127
+  - status: triad_plus_one_ambiguous
+    weight: -0.004252354618604141
+  - status: triad_plus_passing_or_neighbor
+    weight: -0.008950718247827222
+  - status: triad_plus_suspension
+    weight: 0.015132610750553659
+  - status: triad_plus_appoggiatura
+    weight: 0.0033232183009489283
+  - status: triad_plus_unlicensed
+    weight: -0.039225362613828564
+  - status: other_unlicensed
+    weight: -0.23766522270309623
+provenance:
+  origin: learned_from_bach_minus_generated_moments
+  human_authored_rule: false
+  human_authored_status_vocabulary: true
+  historical_rules_loaded: false
+  test_opened: false

@@ -1,0 +1,48 @@
+schema_version: 1
+id: K3-V22C-SHARED-ROOT-MOTION-FULL-1
+status: FROZEN
+frozen_on: 2026-07-29
+purpose: >
+  Réajuster sur 251 chorals et valider sur 50 le RuleGroup V22 stable dans
+  quatre plis, avant toute génération.
+
+baseline_model: v20b_identifiable_harmonic_status_sparse_model.json
+source_grammar: grammar_v22_shared_root_motion.yaml
+source_exact_cache: ../../experiments/v5_k3_clean/work/k3-exact-v22-selected-full.npz
+
+group:
+  id: named_root_motion_mode
+  feature_kind: central_named_root_motion_mode
+  size: 24
+  matrix_shape: [2, 12]
+  identifiability:
+    sum_over_motion_classes_zero_per_mode: true
+  l1_inside_group: 0.0005
+  l2_group_scaled_by_sqrt_size: true
+
+estimation:
+  objective: exact_conditional_pseudolikelihood
+  optimizer: adam_plus_sparse_group_proximal
+  learning_rate: 0.02
+  steps_baseline_refit: 120
+  steps_per_group_penalty: 160
+  return_checkpoint: terminal
+  l1_baseline_by_clause_complexity: 0.001
+  l2: 0.001
+  group_penalty_path:
+    - 0.3
+
+selection:
+  criterion: paired_bootstrap_full_validation
+  paired_bootstrap_resamples: 100000
+  paired_bootstrap_seed: 22303
+  minimum_positive_piece_fraction: 0.6
+  group_active_norm_threshold: 0.000001
+
+provenance_guards:
+  penalty_frozen_before_full_fit: true
+  penalty: 0.3
+  structure_fold_count: 4
+  structure_group_parameter_count: 24
+  generation_metrics_used_for_weight_learning: false
+  test_split_loaded: false

@@ -268,10 +268,148 @@ DSL pur `.factors` et servent d'oracle de parité pour la nouvelle architecture.
       fortes et chromaticisme de basse excessifs ;
 - [ ] enrichir la grammaire K3 avec des licences lisibles de dissonance
       (métrique, attaque/tenue, préparation, passage/voisin et résolution) ;
-- [ ] répéter la calibration nulle familiale dans les mondes exacts puis
+- [x] ajouter 96 licences neutres vis-à-vis des classes d'intervalle et
+      réinduire V10 depuis zéro ;
+- [x] améliorer la NLL à `0,757960` et réduire nettement les dissonances de
+      V9, sans résoudre le chromatisme de basse ;
+- [x] tester 72 licences tonales rares définies sur train : aucune sélection
+      à 30 ni à 45 facteurs, avec réapparition des secondes positives à grand
+      budget ;
+- [x] vérifier la contrôlabilité des dix diagnostics génératifs avec les 30
+      poids V10 : matrice de covariance de rang `10/10` ;
+- [x] appliquer deux corrections de poids sous région de confiance et garde de
+      pseudo-vraisemblance exacte, dont une agrégation sur trois graines ;
+- [x] confirmer à 30 sweeps que V12.2 améliore les dix diagnostics par rapport
+      à V12.1, puis sur 50 chorals qu'il améliore sept diagnostics sur dix par
+      rapport à V10 ;
+- [x] ne pas promouvoir V12.2 : les grands sauts de basse et les sonorités
+      fortes non triadiques restent excessifs, tandis qu'Iteration2 demeure
+      globalement plus proche de Bach ;
+- [x] localiser sur train les résidus V12.2 par paire de voix, force métrique,
+      statut de résolution et transition tonale de basse ;
+- [x] geler une grammaire V13 de 610 nouveaux candidats neutres et réinduire
+      30 facteurs depuis un catalogue exact de 1660 clauses ;
+- [x] apprendre spontanément les licences de passage des classes 9 et 10 sur
+      temps faible, au lieu des licences générales de V10 ;
+- [x] rejeter V13 sur développement : basse et dissonances faibles améliorées,
+      mais blocs non triadiques et dissonances fortes aggravés ;
+- [x] croiser dans V14 paire, intervalle, métrique et statut de
+      préparation/résolution dans un même facteur candidat ;
+- [x] répéter la calibration nulle familiale dans les mondes exacts puis
       réinduire structure et poids depuis zéro ;
-- [ ] si nécessaire, calibrer avec un objectif hybride préservant la
-      pseudo-vraisemblance exacte et corrigeant les moments génératifs ;
+- [x] montrer par ablation qu'un facteur V14 améliore la NLL exacte
+      (`0,749295` contre `0,760977` sans lui) tout en causant davantage de
+      dissonances fortes en génération ;
+- [x] vérifier que la covariance générative retrouve automatiquement le signe
+      correct de la correction et que V15.1 récupère neuf diagnostics sur dix ;
+- [x] rejeter V14 et V15.2 après audit, et ne pas promouvoir V15.1 qui demeure
+      globalement moins proche de Bach que V13 ;
+- [x] implémenter V16 : sélectionner la structure avec un objectif hybride
+      de Pareto préservant la
+      pseudo-vraisemblance exacte et pénalisant la dérive des moments
+      génératifs sur train ;
+- [x] estimer l'effet génératif du top-K des colonnes avec une campagne de
+      chaînes persistantes multigraine commune, puis n'admettre que les
+      facteurs dont le signe est stable sous région de confiance ;
+- [x] présélectionner 12 clauses parmi 3676, refuser automatiquement le
+      facteur causalement nuisible de V14 et tester deux candidats admis ;
+- [x] rejeter les candidats V16 à six balayages après pas local,
+      réajustement, dichotomie et audit sur les mêmes 32 pièces de train ;
+- [x] confirmer que le rang 5 devient utile à 30 balayages (`0,4370` contre
+      `0,5167` pour V13) : la covariance décrit le régime long mais pas le
+      sampler transitoire à horizon court ;
+- [x] rejeter son refit exact non borné : le poids passe de `+0,15` à
+      `+0,5194` et la distance longue remonte à `0,5653` ;
+- [x] implémenter V17 avec différences finies appariées du sampler réel aux
+      horizons 6 et 30, cache commun V13 et région de confiance bornée par le
+      plus grand pas effectivement validé ;
+- [x] cribler à six balayages les douze candidats sur huit pièces × deux
+      graines : aucun ne combine amélioration de chaque graine et protection
+      des grands sauts, blocs forts non triadiques et dissonances fortes ;
+- [x] appliquer la dichotomie aux rangs 9 et 12 sans obtenir de candidat
+      robuste ;
+- [x] effectuer une seconde et dernière itération V17 avec une petite
+      correction conjointe du rang 9 et de son résidu de basse, puis arrêter si
+      aucun pas ne passe à la fois les horizons 6 et 30 ;
+- [x] observer un gain sur 8 pièces × 2 graines, puis le rejeter après
+      réplication sur 32 pièces × 3 graines (`0,5422` contre `0,5208` pour
+      V13), malgré la réduction des grands sauts ;
+- [x] arrêter la boucle de réglage marginal sans ouvrir le test réservé ;
+- [x] geler V18 comme retour à l'objectif explicatif : prédicats K3 autonomes,
+      aucune activation règle→règle et aucun réglage par métrique générative ;
+- [x] exclure du premier catalogue explicatif les bitsets verticaux opaques,
+      puis apprendre conjointement les poids de 816 prédicats lisibles par
+      pseudo-vraisemblance exacte et `L1` pondéré par la complexité ;
+- [x] sélectionner par la règle d'une erreur standard une base de 19 règles
+      (complexité 26), ramenant la NLL validation par décision de `2,317000` à
+      `0,875539` ;
+- [x] vérifier sur quatre replis par pièce que les 19 poids gardent leur signe,
+      restent non nuls et réduisent fortement la NLL des chorals retirés ;
+- [x] répéter la découverte complète sur quatre partitions 24/8 et retenir un
+      noyau unanime de 14 règles, présent dans cinq exécutions sur cinq
+      (Jaccard moyen des bases : `0,620`) ;
+- [x] réapprendre ces 14 règles sur 251 chorals et valider sur 50 :
+      `2,406648 → 0,981894` de NLL, sans ouvrir le test ;
+- [x] exporter 14 RuleCards, le catalogue factoriel et le programme Snarky,
+      puis établir leur parité à `8,88 × 10⁻¹⁶` près ;
+- [x] générer BWV 108.6 à 30 balayages et auditer V18 sur 10 chorals ×
+      3 graines sans réinjecter les diagnostics dans l'apprentissage ;
+- [x] constater que le noyau explicatif seul n'est pas une grammaire
+      générative suffisante : `38,68 %` de blocs triadiques et `53,90 %` de
+      blocs forts non triadiques, contre `50,87 %` et `26,91 %` chez Bach ;
+- [x] définir V19 sans poids manuel : deux statuts lisibles « triade majeure
+      ou mineure complète », séparés selon temps fort ou faible, plus les
+      contextes intervalliques métriques de V10 ;
+- [x] laisser la pseudo-vraisemblance sélectionner ces deux statuts aux rangs
+      2 et 3 avec des poids positifs, plus fort sur temps fort ;
+- [x] répéter la découverte complète et retenir un noyau V19 de 18 règles
+      unanimes 5/5 (Jaccard moyen `0,735`, contre `0,620` pour V18) ;
+- [x] réapprendre V19 sur 251 chorals et valider sur 50 :
+      `2,406648 → 0,887879` de NLL, contre `0,981894` pour V18 ;
+- [x] exporter 18 RuleCards et le programme Snarky V19, puis vérifier la
+      parité à `8,88 × 10⁻¹⁶` près ;
+- [x] comparer V18/V19 sur 10 chorals × 3 graines × 30 balayages : V19 ramène
+      les blocs triadiques de `38,68 %` à `52,58 %` (Bach `50,87 %`) et les
+      blocs forts non triadiques de `53,90 %` à `32,44 %`
+      (Bach `26,91 %`) ;
+- [x] soumettre l'exemple à l'écoute experte et rejeter V19 comme générateur :
+      les métriques de sonorité masquent des notes fonctionnellement mal
+      placées, l'absence des accords de septième et une basse sans direction ;
+- [x] inventorier V5–V19 et poser une barrière de non-duplication interdisant
+      une nouvelle prime triadique, les bitsets opaques et la répétition des
+      transitions de basses V13 ;
+- [x] auditer sur les 251 chorals de train un vocabulaire déterministe de dix
+      qualités : `78,21 %` de blocs reçoivent un accord nommé exact et
+      `85,11 %` un accord nommé ou une triade plus une note étrangère ;
+- [x] réinduire V20A puis détecter une dépendance linéaire exacte entre le
+      facteur général et ses variantes faible/forte, sans sauver le résultat
+      par un changement rétrospectif de seuil ;
+- [x] corriger uniquement cette identifiabilité dans V20B et obtenir quinze
+      règles unanimes 5/5 (Jaccard moyen `0,718`), dont quatre nouveaux statuts
+      verticaux positifs : triades majeure/mineure en position fondamentale,
+      premier renversement et septième de dominante ;
+- [x] constater qu'aucun degré de fondamentale statique n'est sélectionné et
+      ne pas générer prématurément avec V20B ;
+- [x] vérifier avant V20C que les transitions de fondamentales sont réellement
+      distinctes de V13 : `58,33 %` d'arêtes analysables et `67,58 %` de
+      transitions différentes de celles des basses ;
+- [x] proposer symétriquement les 288 transitions mode × fondamentale
+      précédente × fondamentale courante ; n'en voir sélectionner aucune
+      parmi 30 colonnes, puis fermer la famille sans quatre réplications ni
+      génération identiques à V20B ;
+- [x] implémenter V21 : apprentissage simultané d'un `RuleGroup`, proximal de
+      groupe et matrice doublement centrée pour retirer les effets marginaux ;
+- [x] observer sur le découpage initial un gain collectif absent de V20C :
+      `0,820727 → 0,802396`, amélioration appariée
+      `0,018331 ± 0,007126`, positive sur 8 chorals sur 10 ;
+- [x] ne pas confondre ce résultat exploratoire avec une validation et geler
+      `λ=0,03` avant quatre plis disjoints ;
+- [x] constater dans quatre plis sur quatre que la matrice réduit la NLL du
+      train mais dégrade la validation ; reproduire le diagnostic sans
+      pénalité et rejeter la table libre de 288 paramètres ;
+- [ ] définir des RuleGroups de faible dimension avec partage réel des
+      paramètres, ainsi qu'un protocole séparé de découverte d'invariants
+      empiriques candidats à des contraintes ;
 - [x] conserver le test réservé fermé.
 
 Le résultat détaillé est dans
@@ -279,11 +417,38 @@ Le résultat détaillé est dans
 La décision V9 et le diagnostic précis des dissonances non licenciées sont
 consignés dans
 [`V9_EXACT_REINDUCTION_DECISION.md`](factor_bases/k3_v6_induced/V9_EXACT_REINDUCTION_DECISION.md).
-Le réajustement itératif ramène huit des dix diagnostics explicites dans les
-intervalles de Bach sur 50 chorals de validation. Deux faibles résidus restent :
-répétitions attaquées à la basse et empreinte `{0,3,6,8}` sur bloc faible. La
-base est donc le meilleur checkpoint génératif appris du POC, pas un modèle
-final.
+La validation de la correction hybride, son rejet comme nouveau générateur et
+les facteurs contextuels à introduire ensuite sont consignés dans
+[`V12_EXACT_HYBRID_DECISION.md`](factor_bases/k3_v6_induced/V12_EXACT_HYBRID_DECISION.md).
+La localisation train-only des résidus et la décision de ne pas promouvoir la
+première grammaire dirigée sont consignées dans
+[`V13_DIRECTED_METRIC_DECISION.md`](factor_bases/k3_v6_induced/V13_DIRECTED_METRIC_DECISION.md).
+Le paradoxe V14, son ablation causale, la récupération V15 et le protocole
+d'admission hybride V16 sont consignés dans
+[`V14_V15_HYBRID_STRUCTURE_DECISION.md`](factor_bases/k3_v6_induced/V14_V15_HYBRID_STRUCTURE_DECISION.md).
+Le recentrage MaxEnt sur une frontière de règles lisibles et la première base
+V18 de 19 règles sont consignés dans
+[`V18_EXPLANATORY_DECISION.md`](factor_bases/k3_v6_induced/V18_EXPLANATORY_DECISION.md).
+L'ajout V19 du statut triadique lisible, sa stabilité et son effet génératif
+hors apprentissage sont consignés dans
+[`V19_VERTICAL_STATUS_DECISION.md`](factor_bases/k3_v6_induced/V19_VERTICAL_STATUS_DECISION.md).
+V19 reste le dernier checkpoint exécutable, mais son
+[`diagnostic après écoute`](factor_bases/k3_v6_induced/V19_LISTENING_DIAGNOSIS.md)
+interdit de le promouvoir comme générateur. Il reste incomplet pour la
+fonction des accords, les accords de septième et les fonctions chromatiques de
+basse.
+La
+[`décision V20B`](factor_bases/k3_v6_induced/V20B_IDENTIFIABLE_HARMONIC_STATUS_DECISION.md)
+valide quatre statuts verticaux plus précis. La
+[`décision V20C`](factor_bases/k3_v6_induced/V20C_NAMED_ROOT_TRANSITIONS_DECISION.md)
+montre ensuite qu'une table pairwise de fondamentales dans la tonalité globale
+n'ajoute aucune règle conditionnellement utile. Cette famille est close.
+La
+[`décision V21`](factor_bases/k3_v6_induced/V21_GROUPED_LEARNING_DECISION.md)
+montre qu'une table apprise conjointement peut révéler un signal sur un
+découpage tout en surapprenant systématiquement hors pli. Un RuleGroup
+explicable doit donc réduire le nombre effectif de paramètres, et non seulement
+regrouper un grand nombre de cellules.
 
 Deux résultats scientifiques distincts sont recherchés :
 
@@ -1513,3 +1678,112 @@ référence avant de porter le nom de baseline DeepBach.
 12. Ajouter une première feature justifiée empiriquement.
 13. Réinduire les règles et mesurer le gain.
 14. Geler le protocole final avant ouverture du test.
+
+## 17. Décision V22 et boucle suivante
+
+V22 établit le protocole courant pour apprendre un groupe sans perdre
+l'intelligibilité :
+
+1. proposer une factorisation musicale de faible dimension ;
+2. apprendre tous ses paramètres simultanément par pseudo-vraisemblance
+   conditionnelle exacte et pénalité de groupe ;
+3. geler la pénalité avant quatre folds par pièce ;
+4. réapprendre sur 251 chorals et évaluer sur les 50 de validation ;
+5. compiler le groupe en `FACTOR` Snarky et vérifier la parité ;
+6. découvrir séparément les prédicats sans exception ;
+7. les tester comme filtres d'ablation sans les promouvoir automatiquement en
+   contraintes `MUST` ;
+8. mesurer séparément prédiction conditionnelle et comportement génératif.
+
+Le groupe `mode × mouvement dirigé de fondamentale` est retenu : 24 paramètres
+au lieu des 288 de V21, gain positif dans les quatre folds, puis gain apparié
+`+0,021475` sur 50 chorals (46/50 améliorés).
+
+L'ablation générative révèle toutefois un résidu précis : trop de blocs forts
+non triadiques, trop de dissonances fortes et une basse encore trop chromatique.
+La prochaine factorisation candidate doit donc porter conjointement sur :
+
+- statut tonal de la note de basse ;
+- force métrique du bloc ;
+- qualité/inversion de l'accord uniquement lorsque l'analyse est unique ;
+- éventuellement mouvement de basse, avec partage des paramètres par classe
+  tonale plutôt qu'une table de hauteurs.
+
+Elle doit être comparée au V22 courant sans modifier les 23 filtres candidats,
+afin de ne pas confondre le gain d'un nouveau facteur avec celui d'une
+contrainte.
+
+## 18. Décision V23 et résidu suivant
+
+La factorisation V23 a été gelée avant apprentissage en deux groupes :
+
+- `basse tonale sur temps fort × mode`, 24 paramètres centrés par mode ;
+- `famille d'accord nommée unique × renversement sur temps fort`, 14
+  paramètres utilisant l'absence d'analyse unique comme référence.
+
+Les 38 cellules sont suffisamment testables, mais seule la partie harmonique
+se réplique. Sur quatre folds, elle gagne `+0,002724` NLL sur 32 chorals
+hors apprentissage, IC 95 % `[+0,000814 ; +0,004597]`. Sur le réapprentissage
+251/50, elle gagne `+0,003276`, IC `[+0,001885 ; +0,004723]`, et améliore
+38/50 chorals. Le groupe tonal de basse ajouté à l'harmonie ne produit qu'un
+gain incrémental `+0,000089`, IC `[-0,000337 ; +0,000522]` ; il n'est pas
+retenu.
+
+Le modèle explicatif courant est donc V22 + le groupe harmonique V23, soit
+57 facteurs. La parité de sa compilation Snarky est passée. Une ablation
+générative contrôlée montre une réduction des dissonances fortes par rapport
+à V22, mais l'ajout des 23 filtres empiriques dégrade cette version : les
+facteurs probabilistes et les filtres doivent rester séparés.
+
+La boucle suivante ne doit pas réintroduire une table plate de degrés de
+basse. Le résidu de chromaticité devra être attaqué par une relation plus
+structurée, par exemple :
+
+1. distinguer notes d'accord, notes de passage et appoggiatures à la basse ;
+2. représenter une trajectoire tonale locale, plutôt que le seul degré global ;
+3. partager les paramètres selon fonction et direction de résolution ;
+4. auditer la couverture avant apprentissage ;
+5. comparer le nouveau groupe au V23 retenu, avec les filtres désactivés
+   pendant l'estimation et évalués seulement dans une ablation séparée.
+
+## 19. Décision V24 et boucle suivante
+
+V24 complète l'état de référence opaque de V23 par huit statuts mutuellement
+exclusifs sur les blocs forts : analyse ambiguë, triade incomplète, triade plus
+note ambiguë, passage/broderie, retard, appoggiature, note étrangère non
+licenciée, autre sonorité non licenciée. Le vocabulaire est défini par
+l'analyste, mais ses poids sont appris sans règle experte.
+
+La pseudo-vraisemblance ne réplique pas : le gain moyen des quatre folds vaut
+`−0,000353`. Ce résultat ferme l'hypothèse selon laquelle le groupe fournirait
+une amélioration conditionnelle stable de V23.
+
+Une calibration générative séparée apprend ensuite les huit poids à partir du
+gradient des moments `Bach − générations`, sans consulter la validation. Sur
+dix chorals de validation et cinq graines, elle ramène :
+
+- les blocs forts non triadiques de `35,17 %` à `32,02 %`
+  (Bach : `26,91 %`) ;
+- les dissonances fortes de `0,596` à `0,530`
+  (Bach : `0,357`) ;
+- le taux triadique de `49,42 %` à `50,17 %`
+  (Bach : `50,87 %`).
+
+V24 est donc retenu comme candidat génératif, mais pas comme groupe explicatif
+validé par pseudo-vraisemblance. Sa compilation en 65 facteurs Snarky atteint
+une parité de `8,882 × 10⁻¹⁶`.
+
+Un Gibbs conjoint exact de deux voix a aussi été implémenté. Comme attendu, il
+ne change pas la distribution cible et dégrade les mesures à horizon fini
+dans l'ablation ; il est désactivé par défaut.
+
+La prochaine boucle doit garder le vocabulaire V24 gelé et ouvrir deux
+groupes distincts, afin de préserver l'interprétabilité :
+
+1. licences de dissonance aux temps faibles, avec préparation et résolution
+   dans K3 ;
+2. fonction locale de la basse et direction de résolution, sans table plate
+   de degrés.
+
+Le protocole, les résultats et l'exemple d'écoute sont consignés dans
+[`V24_RESIDUAL_SONORITY_DECISION.md`](factor_bases/k3_v6_induced/V24_RESIDUAL_SONORITY_DECISION.md).

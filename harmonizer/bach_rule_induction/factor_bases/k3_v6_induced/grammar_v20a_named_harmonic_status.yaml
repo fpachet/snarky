@@ -1,0 +1,74 @@
+schema_version: 1
+id: K3-V20A-NAMED-HARMONIC-STATUS-GRAMMAR-1
+status: FROZEN
+frozen_on: 2026-07-28
+extends: grammar_v19_vertical_status.yaml
+purpose: >
+  Remplacer les empreintes verticales opaques par des faits harmoniques
+  déterministes et nommés. La première étape V20A autorise seulement les
+  atomes qualité, degré de fondamentale et renversement, ainsi que leurs
+  conjonctions par paires. Elle n'ajoute encore aucune transition harmonique.
+
+extensions:
+  named_harmonic_status_features: true
+  named_harmonic_metric_encoding: disjoint_weak_strong
+
+additional_generated_relations:
+  - named_complete_chord_quality
+  - named_complete_chord_root_degree
+  - named_complete_chord_inversion
+  - metric_strength
+
+status_definitions:
+  root_degree:
+    representation: chromatic_semitones_above_declared_tonic
+    values: {range: [0, 11]}
+  qualities:
+    0: {name: major_triad, intervals: [0, 4, 7]}
+    1: {name: minor_triad, intervals: [0, 3, 7]}
+    2: {name: diminished_triad, intervals: [0, 3, 6]}
+    3: {name: augmented_triad, intervals: [0, 4, 8]}
+    4: {name: dominant_seventh, intervals: [0, 4, 7, 10]}
+    5: {name: major_seventh, intervals: [0, 4, 7, 11]}
+    6: {name: minor_seventh, intervals: [0, 3, 7, 10]}
+    7: {name: half_diminished_seventh, intervals: [0, 3, 6, 10]}
+    8: {name: diminished_seventh, intervals: [0, 3, 6, 9]}
+    9: {name: minor_major_seventh, intervals: [0, 3, 7, 11]}
+  inversion:
+    representation: bass_chord_tone_index_above_root
+    preserves_symmetric_root_ambiguity: true
+
+families:
+  - id: named_chord_quality
+    feature_kinds: [central_named_chord_quality]
+    complexity: 1
+  - id: named_chord_root_degree
+    feature_kinds: [central_named_chord_root_degree]
+    complexity: 1
+  - id: named_chord_inversion
+    feature_kinds: [central_named_chord_inversion]
+    complexity: 1
+  - id: named_chord_quality_metric
+    feature_kinds: [central_named_chord_quality_metric]
+    complexity: 2
+  - id: named_chord_root_degree_metric
+    feature_kinds: [central_named_chord_root_degree_metric]
+    complexity: 2
+  - id: named_chord_degree_quality
+    feature_kinds: [central_named_chord_degree_quality]
+    complexity: 2
+  - id: named_chord_quality_inversion
+    feature_kinds: [central_named_chord_quality_inversion]
+    complexity: 2
+
+provenance_guards:
+  coverage_audited_on_train_before_induction: true
+  previous_bitset_transitions_reintroduced: false
+  harmonic_transitions_enabled: false
+  latent_states_enabled: false
+  full_four_way_conjunction_enabled: false
+  status_vocabulary_human_authored: true
+  factor_sign_prelabelled: false
+  factor_weight_prelabelled: false
+  generation_metrics_used_for_weight_learning: false
+  test_split_loaded: false

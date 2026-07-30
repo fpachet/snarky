@@ -116,6 +116,34 @@ temps fort restent trop nombreuses : V6 est exécutable mais pas encore
 promue. Le [bilan complet](factor_bases/k3_v6_induced/V6_RESEARCH_LOOP_SUMMARY.md)
 conserve le test réservé fermé.
 
+Le dernier checkpoint **exécutable** reste V19, mais le checkpoint de
+recherche explicatif est désormais **V20B**. L'expert définit un vocabulaire
+déterministe de fondamentales, qualités et renversements ; le corpus choisit
+les prédicats, leurs signes et leurs poids. Sur cinq réinductions, quatre
+statuts harmoniques sont unanimes et positifs : triades majeure et mineure à
+l'état fondamental, premier renversement et septième de dominante. La
+[décision V20B](factor_bases/k3_v6_induced/V20B_IDENTIFIABLE_HARMONIC_STATUS_DECISION.md)
+documente ce résultat.
+
+V20C a ensuite testé, sans copier leurs marginaux, les 288 transitions
+symétriques entre fondamentales nommées. Bien que `67,58 %` des transitions
+analysables diffèrent des transitions de notes de basse de V13, aucune
+nouvelle colonne n'est sélectionnée : la base et la NLL restent exactement
+celles de V20B. La
+[décision V20C](factor_bases/k3_v6_induced/V20C_NAMED_ROOT_TRANSITIONS_DECISION.md)
+ferme donc cette famille sans réplications ni génération redondantes.
+
+V21 a testé l'objection selon laquelle une relation musicale ne doit pas être
+sélectionnée cellule par cellule. Les 288 transitions ont été apprises comme
+un seul groupe MaxEnt identifiable. Un gain apparié apparaît sur le premier
+découpage (`0,01833` de NLL, 8 chorals sur 10), mais la matrice libre
+surapprend dans quatre plis sur quatre. La
+[décision V21](factor_bases/k3_v6_induced/V21_GROUPED_LEARNING_DECISION.md)
+conserve donc le mécanisme de RuleGroup tout en rejetant cette table à 288
+paramètres. La suite doit rechercher des groupes partageant réellement un
+petit nombre de paramètres et distinguer leurs règles souples des invariants
+candidats à des contraintes.
+
 La formalisation générique de cette séparation, l'intégration de
 l'apprentissage dans le langage et les exemples jouets préalables à la
 migration du code Bach sont décrits dans le
@@ -413,3 +441,82 @@ trouve dans [`PLAN.md`](PLAN.md).
   environnements et des ressources ;
 - [`sources/CHORAL.md`](sources/CHORAL.md) : source primaire, organisation et
   protocole de reconstruction des règles d'Ebcioğlu.
+
+## Checkpoint V22 — apprentissage conjoint lisible
+
+V22 valide une première forme d'apprentissage conjoint qui reste intelligible :
+une règle factorielle unique partage 24 paramètres entre les douze mouvements
+dirigés de fondamentale et les deux modes. Elle remplace la table V21 de 288
+coefficients libres.
+
+- quatre folds : gain NLL apparié `+0,013859`, 27/32 chorals améliorés ;
+- réapprentissage 251/50 : `0,829956 → 0,808481`, 46/50 améliorés ;
+- parité du programme `FACTOR` Snarky à `1,78 × 10⁻¹⁵` ;
+- 23 prédicats à fréquence nulle, issus de sept schémas, sont testés
+  séparément comme filtres pré-test et ne sont pas déclarés `MUST`.
+
+L'ablation générative montre que le groupe améliore la vraisemblance
+conditionnelle mais ne suffit pas à éliminer les dissonances. Les filtres
+candidats ramènent les dissonances faibles de `1,172` à `1,055` et le taux
+triadique de `47,07 %` à `49,23 %` sur dix chorals, mais le chromatisme de
+basse demeure. Le prochain groupe doit donc décrire le statut tonal de la
+basse et la qualité harmonique des blocs forts.
+
+Décision et artefacts :
+[`V22_SHARED_ROOT_MOTION_DECISION.md`](factor_bases/k3_v6_induced/V22_SHARED_ROOT_MOTION_DECISION.md),
+[`V22_RULEGROUP_CONSTRAINTS_VALIDATION10X1_SWEEP6.md`](factor_bases/k3_v6_induced/V22_RULEGROUP_CONSTRAINTS_VALIDATION10X1_SWEEP6.md).
+
+## Checkpoint V23 — statut harmonique fort
+
+V23 ajoute à V22 un groupe conjoint de quatorze paramètres lisibles :
+`famille d'accord nommée unique × renversement`, activé seulement sur les
+temps forts. L'absence d'analyse unique est l'état de référence ; les
+coefficients ne sont donc pas artificiellement centrés.
+
+- audit préalable : 14/14 cellules harmoniques et 24/24 cellules de basse
+  franchissent les seuils de couverture sur les 32 chorals de structure ;
+- quatre folds, harmonie seule : gain NLL `+0,002724`, 24/32 chorals
+  améliorés, IC 95 % `[+0,000814 ; +0,004597]` ;
+- réapprentissage 251/50 : gain `+0,003276`, 38/50 améliorés, IC 95 %
+  `[+0,001885 ; +0,004723]` ;
+- l'ajout simultané de 24 paramètres tonals de basse ne gagne que
+  `+0,000089` face à l'harmonie seule, avec un IC traversant zéro : il est
+  rejeté par parcimonie ;
+- 57 facteurs exportés (43 V22 + 14 V23), avec parité Snarky à
+  `8,88 × 10⁻¹⁶`.
+
+Dans l'ablation générative contrôlée V22→V23, les dissonances de temps fort
+passent de `0,688` à `0,552` par bloc et les blocs forts non triadiques de
+`37,55 %` à `33,36 %`. Les filtres zéro-exception ne se combinent toutefois
+pas favorablement avec V23 dans ce premier essai ; ils restent une ablation
+séparée et ne sont pas intégrés au modèle retenu.
+
+Décision :
+[`V23_METRIC_BASS_HARMONY_DECISION.md`](factor_bases/k3_v6_induced/V23_METRIC_BASS_HARMONY_DECISION.md).
+
+## Checkpoint V24 — sonorités résiduelles fortes
+
+V24 remplace l'état de référence indifférencié de V23 par huit statuts locaux
+et exhaustifs : accord ambigu, triade incomplète, note de passage ou broderie,
+retard, appoggiature et trois formes résiduelles non licenciées.
+
+L'apprentissage conditionnel est rejeté après quatre folds
+(`−0,000353` NLL en moyenne). Une estimation générative MaxEnt distincte,
+fondée sur les écarts de moments entre Bach et le générateur, améliore
+cependant les métriques visées sur dix chorals de validation × cinq graines :
+
+- blocs forts non triadiques : `35,17 % → 32,02 %`
+  (Bach : `26,91 %`) ;
+- dissonances fortes : `0,596 → 0,530` par bloc
+  (Bach : `0,357`) ;
+- blocs triadiques : `49,42 % → 50,17 %`
+  (Bach : `50,87 %`).
+
+Les 65 facteurs V24 sont compilés dans Snarky avec une erreur maximale de
+`8,882 × 10⁻¹⁶`. Une variante de Gibbs conjoint a été testée puis rejetée :
+elle ne remplace pas l'amélioration de la distribution cible. V24 reste un
+candidat génératif pré-test ; la basse et les licences aux temps faibles
+constituent les deux résidus suivants.
+
+Décision et écoute :
+[`V24_RESIDUAL_SONORITY_DECISION.md`](factor_bases/k3_v6_induced/V24_RESIDUAL_SONORITY_DECISION.md).

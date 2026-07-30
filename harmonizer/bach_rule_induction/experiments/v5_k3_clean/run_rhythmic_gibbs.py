@@ -275,6 +275,13 @@ def _crossing_count(blocks: np.ndarray) -> int:
     return int(np.any(blocks[:, :-1] < blocks[:, 1:], axis=1).sum())
 
 
+def _model_version(experiment_id: str) -> str:
+    return next(
+        (part for part in experiment_id.split("-") if part.startswith("V")),
+        "",
+    )
+
+
 def _markdown(result: dict[str, Any]) -> str:
     source = result["source"]
     generation = result["generation"]
@@ -289,8 +296,16 @@ def _markdown(result: dict[str, Any]) -> str:
         "- Alto, ténor et basse rééchantillonnés par segments d'attaque.",
         (f"- `{generation['sweeps']}` balayages Gibbs, graine `{generation['seed']}`."),
         (
+            f"- `{generation['strong_block_sweeps']}` passe(s) conjointe(s) "
+            "de deux voix aux temps forts."
+        ),
+        (
             f"- `{result['experiment']['learned_pitch_rules']}` facteurs K3 appris, "
             "sans règle historique."
+        ),
+        (
+            f"- `{result['experiment']['learned_hard_constraints']}` contraintes "
+            "candidates appliquées avant normalisation."
         ),
         "- Test réservé non chargé.",
         "",
@@ -368,10 +383,16 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--sweeps", type=int, default=20)
     parser.add_argument("--seed", type=int, default=5517)
     parser.add_argument("--temperature", type=float, default=1.0)
+    parser.add_argument("--strong-block-sweeps", type=int, default=0)
     parser.add_argument(
         "--update-schedule",
         choices=("sequential", "colored"),
         default="sequential",
+    )
+    parser.add_argument(
+        "--initialization",
+        choices=("random", "source"),
+        default="random",
     )
     parser.add_argument("--output", type=Path, default=DEFAULT_OUTPUT)
     parser.add_argument("--report", type=Path, default=DEFAULT_REPORT)
@@ -398,6 +419,10 @@ def main() -> int:
     )
     features = [k3.feature_from_model_record(rule) for rule in model["rules"]]
     weights = np.asarray([rule["weight"] for rule in model["rules"]])
+    constraint_features = tuple(
+        k3.feature_from_model_record(record)
+        for record in model.get("constraints", ())
+    )
     lattice = k3.extract_piece_lattice(args.score, args.piece_id)
     if lattice.blocks.min() < candidate_min or lattice.blocks.max() > candidate_max:
         raise ValueError("Source boundary pitches fall outside the train domain")
@@ -406,16 +431,20 @@ def main() -> int:
     fixed[:, 0] = True
     fixed[0, :] = True
     fixed[-1, :] = True
-    initial = _randomize_mutable_segments(
-        lattice.blocks,
-        lattice.attacks,
-        fixed,
-        register_logits,
-        candidate_min,
-        args.seed,
-        tonal_logits,
-        lattice.tonic_pc,
-        lattice.mode,
+    initial = (
+        lattice.blocks.copy()
+        if args.initialization == "source"
+        else _randomize_mutable_segments(
+            lattice.blocks,
+            lattice.attacks,
+            fixed,
+            register_logits,
+            candidate_min,
+            args.seed,
+            tonal_logits,
+            lattice.tonic_pc,
+            lattice.mode,
+        )
     )
     generated = k3.rhythmic_gibbs_sample(
         initial,
@@ -426,6 +455,7 @@ def main() -> int:
         register_logits=register_logits,
         features=features,
         weights=weights,
+        constraint_features=constraint_features,
         sweeps=args.sweeps,
         seed=args.seed,
         temperature=args.temperature,
@@ -434,6 +464,7 @@ def main() -> int:
         mode=lattice.mode,
         metric_levels=lattice.metric_levels,
         update_schedule=args.update_schedule,
+        strong_block_sweeps=args.strong_block_sweeps,
     )
     from music21 import converter
 
@@ -456,7 +487,9 @@ def main() -> int:
         score_metadata=source_metadata,
     )
     args.generated_directory.mkdir(parents=True, exist_ok=True)
-    source_version = str(payload.get("experiment", {}).get("id", "")).split("-", 1)[0]
+    source_version = _model_version(
+        str(payload.get("experiment", {}).get("id", ""))
+    )
     version = (
         source_version.lower()
         if tonal_logits is not None and source_version
@@ -480,6 +513,7 @@ def main() -> int:
             "test_loaded": False,
             "source_split": split,
             "learned_pitch_rules": len(features),
+            "learned_hard_constraints": len(constraint_features),
             "rhythm_generated": False,
             "rhythm_preserved_from_source": True,
             "tonal_context": tonal_logits is not None,
@@ -499,7 +533,10 @@ def main() -> int:
         "generation": {
             "seed": args.seed,
             "sweeps": args.sweeps,
+            "strong_block_sweeps": args.strong_block_sweeps,
             "temperature": args.temperature,
+            "update_schedule": args.update_schedule,
+            "initialization": args.initialization,
             "fixed_voice": "Soprano",
             "sampled_attack_segments": len(_mutable_segments(lattice.attacks, fixed)),
             "all_attack_segments": len(segments),

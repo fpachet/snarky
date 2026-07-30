@@ -1,0 +1,105 @@
+schema_version: 1
+id: R-LEARNED-V18-007
+title: 'au moins une paire de voix : intervalle vertical de classe 11 (septième majeure
+  modulo l’octave)'
+lifecycle: SUPPORTED_PRETEST
+status: AVOID
+statement: 'au moins une paire de voix : intervalle vertical de classe 11 (septième
+  majeure modulo l’octave)'
+scope:
+  voices: SATB
+  window:
+  - previous
+  - current
+  - following
+  attack_hold_semantics: true
+  corpus: music21-3.1.0-deepbach-352
+  split: variant-safe-251-50-51
+normalized_feature:
+  complexity: 1
+  key: any_pair_central_abs_class:-1:-:11:-
+  kind: any_pair_central_abs_class
+  label: any_pair_central_abs_class(all_voices)=11
+  other_voice: null
+  second_value: null
+  target_voice: -1
+  value: 11
+conclusion:
+  kind: avoid
+  log_weight: -1.5176767724974911
+  absolute_prohibition: false
+selection:
+  complete_reinductions: 5
+  selected_in: 5
+  unanimous: true
+  calls_other_rules: false
+statistics:
+  train:
+    pieces: 251
+    decisions: 53604
+    testable_opportunities: 53604
+    piece_support: 251
+    observed_mean_on_testable: 0.14855234683978807
+    model_expected_mean_on_testable: 0.15101587787139448
+    postfit_residual_gradient: -0.0024635310316063947
+    postfit_residual_z: -2.763535836440437
+  validation:
+    pieces: 50
+    decisions: 10414
+    testable_opportunities: 10414
+    piece_support: 50
+    observed_mean_on_testable: 0.14134818513539466
+    model_expected_mean_on_testable: 0.1435036063229861
+    postfit_residual_gradient: -0.0021554211875914183
+    postfit_residual_z: -1.0836284934861118
+  test:
+    opened: false
+provenance:
+  model: v18_unanimous_full_model.json
+  structure_audit: v18_structure_stability.json
+  origin: learned_from_bach_corpus
+  human_authored: false
+  historical_rules_loaded: false
+snarky_factor:
+  file: ../../factor_bases/k3_v6_induced/v18_unanimous_full.factors
+  factor_group: k3_v18_unanimous
+  factor_id: F-K3-V18-CORE-007
+bach_examples:
+- piece: bach/bwv308
+  decision_ordinal: 0
+  voice: alto
+  chosen_midi: 65
+  chosen_activation_count: 0
+  maximum_alternative_activation_count: 3
+- piece: bach/bwv265
+  decision_ordinal: 0
+  voice: alto
+  chosen_midi: 67
+  chosen_activation_count: 0
+  maximum_alternative_activation_count: 3
+- piece: bach/bwv55.5
+  decision_ordinal: 0
+  voice: bass
+  chosen_midi: 57
+  chosen_activation_count: 0
+  maximum_alternative_activation_count: 1
+validation_exceptions:
+- piece: bach/bwv276
+  decision_ordinal: 398
+  voice: alto
+  chosen_midi: 62
+  chosen_activation_count: 4
+  maximum_alternative_activation_count: 7
+- piece: bach/bwv362
+  decision_ordinal: 424
+  voice: alto
+  chosen_midi: 68
+  chosen_activation_count: 3
+  maximum_alternative_activation_count: 5
+- piece: bach/bwv418
+  decision_ordinal: 162
+  voice: alto
+  chosen_midi: 67
+  chosen_activation_count: 3
+  maximum_alternative_activation_count: 5
+deepbach_counterexamples: []

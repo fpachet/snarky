@@ -1,0 +1,186 @@
+{
+  "decision": {
+    "bass_group_retained": false,
+    "harmony_group_retained": true,
+    "reason": "Both models beat V22, but the 24-parameter bass addition does not significantly beat the 14-parameter harmony group.",
+    "retained_variant": "harmony_only"
+  },
+  "experiment": {
+    "fold_count": 4,
+    "fold_heldout_piece_count": 32,
+    "frozen_group_penalty": 0.6,
+    "full_validation_piece_count": 50,
+    "id": "K3-V23-METRIC-BASS-HARMONY-STABILITY",
+    "test_loaded": false
+  },
+  "incremental_bass_group": {
+    "folds_both_minus_harmony": {
+      "bootstrap_95_interval": [
+        -0.00033894508358322026,
+        0.0007354048123710855
+      ],
+      "bootstrap_probability_nonpositive": 0.23604,
+      "mean": 0.00019791435668435955,
+      "negative_count": 12,
+      "piece_count": 32,
+      "positive_count": 20,
+      "standard_error": 0.00027892399992418044
+    },
+    "full_both_minus_harmony": {
+      "bootstrap_95_interval": [
+        -0.000336502719679215,
+        0.0005224494704237433
+      ],
+      "bootstrap_probability_nonpositive": 0.34133,
+      "mean": 8.949815677953055e-05,
+      "negative_count": 23,
+      "piece_count": 50,
+      "positive_count": 27,
+      "standard_error": 0.0002213457735142295
+    }
+  },
+  "retained_harmony_weights": [
+    {
+      "label": "triades majeures/mineures, fondamentale",
+      "weight": 0.2807751580200416
+    },
+    {
+      "label": "triades majeures/mineures, 1er renversement",
+      "weight": 0.14068668239736704
+    },
+    {
+      "label": "triades majeures/mineures, 2e renversement",
+      "weight": -0.052600129411019936
+    },
+    {
+      "label": "triades diminuées/augmentées, fondamentale",
+      "weight": -0.10163956372696693
+    },
+    {
+      "label": "triades diminuées/augmentées, 1er renversement",
+      "weight": -0.20830462547380585
+    },
+    {
+      "label": "triades diminuées/augmentées, 2e renversement",
+      "weight": -0.22856429442393394
+    },
+    {
+      "label": "7es dominante/majeure/mineure, fondamentale",
+      "weight": -0.0060192134894722
+    },
+    {
+      "label": "7es dominante/majeure/mineure, 1er renversement",
+      "weight": -0.07013625005408265
+    },
+    {
+      "label": "7es dominante/majeure/mineure, 2e renversement",
+      "weight": -0.2656310917089157
+    },
+    {
+      "label": "7es dominante/majeure/mineure, 3e renversement",
+      "weight": 0.2739407024913201
+    },
+    {
+      "label": "7es altérées, fondamentale",
+      "weight": -0.17571531955166597
+    },
+    {
+      "label": "7es altérées, 1er renversement",
+      "weight": 0.2245971054727108
+    },
+    {
+      "label": "7es altérées, 2e renversement",
+      "weight": -0.14706322786630419
+    },
+    {
+      "label": "7es altérées, 3e renversement",
+      "weight": 0.2409399008504001
+    }
+  ],
+  "variants": {
+    "both_groups": {
+      "aggregate_folds": {
+        "bootstrap_95_interval": [
+          0.0008835968528168336,
+          0.0048735660457716505
+        ],
+        "bootstrap_probability_nonpositive": 0.00283,
+        "mean": 0.0029214213473663063,
+        "negative_count": 9,
+        "piece_count": 32,
+        "positive_count": 23,
+        "standard_error": 0.0010337967217028154
+      },
+      "fold_mean_improvements": [
+        0.0013532769779229376,
+        0.004091813166820599,
+        0.004316943900113029,
+        0.0019236513446086595
+      ],
+      "full_validation": {
+        "baseline_nll": 0.8000608311601225,
+        "bootstrap_95_interval": [
+          0.0019051688882364996,
+          0.004881923289532946
+        ],
+        "candidate_nll": 0.7966952191405161,
+        "mean_improvement": 0.003365612019606434,
+        "negative_piece_count": 15,
+        "piece_count": 50,
+        "positive_piece_count": 35
+      },
+      "harmony_sign_consistent_cells": 11,
+      "harmony_weight_minimum_fold_correlation": 0.8688615282903585,
+      "harmony_weight_pairwise_fold_correlations": [
+        0.9475340037777488,
+        0.9515754592253426,
+        0.9687667256708717,
+        0.8688615282903585,
+        0.9127365092460545,
+        0.9376736132939176
+      ]
+    },
+    "harmony_only": {
+      "aggregate_folds": {
+        "bootstrap_95_interval": [
+          0.0008139133210845957,
+          0.004597080824097343
+        ],
+        "bootstrap_probability_nonpositive": 0.00246,
+        "mean": 0.0027235069906819467,
+        "negative_count": 8,
+        "piece_count": 32,
+        "positive_count": 24,
+        "standard_error": 0.0009781947874881753
+      },
+      "fold_mean_improvements": [
+        0.0008234799607147042,
+        0.00362736081558912,
+        0.004301690087641613,
+        0.0021414970987823495
+      ],
+      "full_validation": {
+        "baseline_nll": 0.8000608311601225,
+        "bootstrap_95_interval": [
+          0.0018852099748274036,
+          0.004723074817212304
+        ],
+        "candidate_nll": 0.7967847172972955,
+        "mean_improvement": 0.003276113862826904,
+        "negative_piece_count": 12,
+        "piece_count": 50,
+        "positive_piece_count": 38
+      },
+      "harmony_sign_consistent_cells": 11,
+      "harmony_weight_minimum_fold_correlation": 0.8719591336161416,
+      "harmony_weight_pairwise_fold_correlations": [
+        0.9484629621262534,
+        0.953825915894904,
+        0.9664819052908337,
+        0.8719591336161416,
+        0.9106694166413771,
+        0.9382650153245133
+      ]
+    }
+  }
+}

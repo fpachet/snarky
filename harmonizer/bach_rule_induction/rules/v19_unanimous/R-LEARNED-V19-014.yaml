@@ -1,0 +1,104 @@
+schema_version: 1
+id: R-LEARNED-V19-014
+title: 'bloc central : triade majeure ou mineure complète sur temps fort'
+lifecycle: SUPPORTED_PRETEST
+status: PREFER
+statement: 'bloc central : triade majeure ou mineure complète sur temps fort'
+scope:
+  voices: SATB
+  window:
+  - previous
+  - current
+  - following
+  attack_hold_semantics: true
+  corpus: music21-3.1.0-deepbach-352
+  split: variant-safe-251-50-51
+normalized_feature:
+  complexity: 2
+  key: central_triadic_metric:-1:-:1:1
+  kind: central_triadic_metric
+  label: central_triadic_metric(all_voices)=1,1
+  other_voice: null
+  second_value: 1
+  target_voice: -1
+  value: 1
+conclusion:
+  kind: prefer
+  log_weight: 1.457886658044757
+  absolute_prohibition: false
+selection:
+  complete_reinductions: 5
+  selected_in: 5
+  unanimous: true
+  calls_other_rules: false
+statistics:
+  train:
+    pieces: 251
+    decisions: 53604
+    testable_opportunities: 19203
+    piece_support: 251
+    observed_mean_on_testable: 1.1766390668124773
+    model_expected_mean_on_testable: 1.169350143317694
+    postfit_residual_gradient: 0.00261117076841884
+    postfit_residual_z: 3.4898565827984767
+  validation:
+    pieces: 50
+    decisions: 10414
+    testable_opportunities: 3553
+    piece_support: 50
+    observed_mean_on_testable: 1.0883760202645651
+    model_expected_mean_on_testable: 1.0829063233736156
+    postfit_residual_gradient: 0.0018661257013197175
+    postfit_residual_z: 1.1461010153235542
+  test:
+    opened: false
+provenance:
+  model: v19_unanimous_full_model.json
+  origin: learned_from_bach_corpus
+  human_authored: false
+  preference_human_authored: false
+  feature_definition_human_authored: true
+  historical_rules_loaded: false
+snarky_factor:
+  file: ../../factor_bases/k3_v6_induced/v19_unanimous_full.factors
+  factor_group: k3_v19_unanimous
+  factor_id: F-K3-V19-CORE-014
+bach_examples:
+- piece: bach/bwv248.42-s
+  decision_ordinal: 143
+  voice: tenor
+  chosen_midi: 60
+  chosen_activation_count: 4
+  maximum_alternative_activation_count: 4
+- piece: bach/bwv10.7
+  decision_ordinal: 36
+  voice: alto
+  chosen_midi: 65
+  chosen_activation_count: 4
+  maximum_alternative_activation_count: 4
+- piece: bach/bwv299
+  decision_ordinal: 16
+  voice: alto
+  chosen_midi: 67
+  chosen_activation_count: 4
+  maximum_alternative_activation_count: 4
+validation_exceptions:
+- piece: bach/bwv111.6
+  decision_ordinal: 54
+  voice: alto
+  chosen_midi: 69
+  chosen_activation_count: 0
+  maximum_alternative_activation_count: 1
+- piece: bach/bwv112.5
+  decision_ordinal: 214
+  voice: alto
+  chosen_midi: 64
+  chosen_activation_count: 0
+  maximum_alternative_activation_count: 1
+- piece: bach/bwv133.6
+  decision_ordinal: 25
+  voice: bass
+  chosen_midi: 50
+  chosen_activation_count: 0
+  maximum_alternative_activation_count: 1
+deepbach_counterexamples: []

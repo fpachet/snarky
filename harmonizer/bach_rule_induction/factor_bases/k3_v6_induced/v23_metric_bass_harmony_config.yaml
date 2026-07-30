@@ -1,0 +1,75 @@
+schema_version: 1
+id: K3-V23-METRIC-BASS-HARMONY-GROUPS-1
+status: FROZEN
+frozen_on: 2026-07-29
+purpose: >
+  Tester conjointement, puis séparément par ablation, deux groupes
+  interprétables ajoutés au modèle V22 sans modifier son groupe de mouvements
+  de fondamentale.
+
+baseline_model: v22_shared_root_motion_model.json
+source_grammar: grammar_v23_metric_bass_harmony.yaml
+source_exact_cache: ../../experiments/v5_k3_clean/work/k3-exact-v23-selected-32x10.npz
+
+groups:
+  - id: bass_tonal_strong_mode
+    feature_kind: central_bass_tonal_strong_mode
+    size: 24
+    matrix_shape: [2, 12]
+    identifiability:
+      sum_over_pitch_classes_zero_per_mode: true
+    l1_inside_group: 0.0005
+    l2_group_scaled_by_sqrt_size: true
+  - id: unique_chord_family_inversion_strong
+    feature_kind: central_unique_chord_family_inversion_strong
+    size: 14
+    matrix_shape: [14]
+    identifiability:
+      reference_state: no_strict_unique_named_chord
+      sum_over_analyzed_statuses_zero: false
+    l1_inside_group: 0.0005
+    l2_group_scaled_by_sqrt_size: true
+
+coverage:
+  split: structure_train
+  pieces: 32
+  minimum_testable_opportunities: 100
+  minimum_piece_support: 10
+  policy: >
+    L'audit est descriptif et antérieur à l'apprentissage. Un groupe est
+    retiré en entier si ses cellules structurellement possibles sont
+    pratiquement inobservables ; aucune cellule n'est choisie selon son effet.
+
+estimation:
+  objective: exact_conditional_pseudolikelihood
+  optimizer: adam_plus_sparse_group_proximal
+  learning_rate: 0.02
+  steps_baseline_refit: 120
+  steps_per_group_penalty: 180
+  return_checkpoint: best_validation_during_structure_discovery
+  l1_baseline_by_clause_complexity: 0.001
+  l2: 0.001
+  group_penalty_path:
+    - 0.6
+    - 0.3
+    - 0.1
+    - 0.03
+    - 0.0
+
+selection:
+  candidates:
+    - baseline_v22
+    - bass_only
+    - harmony_only
+    - both_groups
+  criterion: paired_bootstrap_then_piece_disjoint_stability
+  paired_bootstrap_resamples: 100000
+  paired_bootstrap_seed: 23029
+  minimum_positive_piece_fraction: 0.6
+  group_active_norm_threshold: 0.000001
+
+provenance_guards:
+  factorization_frozen_before_fit: true
+  ablations_frozen_before_fit: true
+  generation_metrics_used_for_weight_learning: false
+  test_split_loaded: false

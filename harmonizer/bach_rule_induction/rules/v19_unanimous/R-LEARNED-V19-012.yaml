@@ -1,0 +1,105 @@
+schema_version: 1
+id: R-LEARNED-V19-012
+title: 'basse avec ténor : intervalle vertical de classe 9 (sixte majeure modulo l’octave)'
+lifecycle: SUPPORTED_PRETEST
+status: AVOID
+statement: 'basse avec ténor : intervalle vertical de classe 9 (sixte majeure modulo
+  l’octave)'
+scope:
+  voices: SATB
+  window:
+  - previous
+  - current
+  - following
+  attack_hold_semantics: true
+  corpus: music21-3.1.0-deepbach-352
+  split: variant-safe-251-50-51
+normalized_feature:
+  complexity: 1
+  key: central_pair_abs_class:3:2:9:-
+  kind: central_pair_abs_class
+  label: central_pair_abs_class(v3,v2)=9
+  other_voice: 2
+  second_value: null
+  target_voice: 3
+  value: 9
+conclusion:
+  kind: avoid
+  log_weight: -1.1412947314089184
+  absolute_prohibition: false
+selection:
+  complete_reinductions: 5
+  selected_in: 5
+  unanimous: true
+  calls_other_rules: false
+statistics:
+  train:
+    pieces: 251
+    decisions: 53604
+    testable_opportunities: 32901
+    piece_support: 251
+    observed_mean_on_testable: 0.13935746633840917
+    model_expected_mean_on_testable: 0.1411814704314769
+    postfit_residual_gradient: -0.001119535084434415
+    postfit_residual_z: -1.9217006388306215
+  validation:
+    pieces: 50
+    decisions: 10414
+    testable_opportunities: 6411
+    piece_support: 50
+    observed_mean_on_testable: 0.14880673841834346
+    model_expected_mean_on_testable: 0.15018156240936667
+    postfit_residual_gradient: -0.0008463603424668391
+    postfit_residual_z: -0.62739944298145
+  test:
+    opened: false
+provenance:
+  model: v19_unanimous_full_model.json
+  origin: learned_from_bach_corpus
+  human_authored: false
+  preference_human_authored: false
+  feature_definition_human_authored: false
+  historical_rules_loaded: false
+snarky_factor:
+  file: ../../factor_bases/k3_v6_induced/v19_unanimous_full.factors
+  factor_group: k3_v19_unanimous
+  factor_id: F-K3-V19-CORE-012
+bach_examples:
+- piece: bach/bwv308
+  decision_ordinal: 1
+  voice: tenor
+  chosen_midi: 62
+  chosen_activation_count: 0
+  maximum_alternative_activation_count: 1
+- piece: bach/bwv265
+  decision_ordinal: 1
+  voice: tenor
+  chosen_midi: 60
+  chosen_activation_count: 0
+  maximum_alternative_activation_count: 1
+- piece: bach/bwv55.5
+  decision_ordinal: 0
+  voice: bass
+  chosen_midi: 57
+  chosen_activation_count: 0
+  maximum_alternative_activation_count: 1
+validation_exceptions:
+- piece: bach/bwv226.2
+  decision_ordinal: 226
+  voice: tenor
+  chosen_midi: 62
+  chosen_activation_count: 3
+  maximum_alternative_activation_count: 3
+- piece: bach/bwv338
+  decision_ordinal: 34
+  voice: tenor
+  chosen_midi: 57
+  chosen_activation_count: 3
+  maximum_alternative_activation_count: 3
+- piece: bach/bwv111.6
+  decision_ordinal: 15
+  voice: tenor
+  chosen_midi: 62
+  chosen_activation_count: 2
+  maximum_alternative_activation_count: 2
+deepbach_counterexamples: []

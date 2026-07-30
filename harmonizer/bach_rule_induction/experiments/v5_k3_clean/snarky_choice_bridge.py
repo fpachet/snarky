@@ -71,6 +71,7 @@ class K3ChoiceProgram:
     register_logits: np.ndarray
     tonal_logits: np.ndarray
     factors: tuple[CompiledFactor, ...]
+    factor_group: str = "k3_v5_16_reference"
 
     @property
     def features(self) -> tuple[k3.FeatureSpec, ...]:
@@ -176,7 +177,7 @@ class K3ChoiceProgram:
         )
         return FactorModel(
             self.id,
-            (FactorGroup("k3_v5_16_reference", factors),),
+            (FactorGroup(self.factor_group, factors),),
         )
 
     def activation_facts(
@@ -259,7 +260,7 @@ def load_choice_program(
             id=str(record["id"]),
             feature=k3.FeatureSpec.from_dict(record["feature"]),
             log_weight=float(record["parameter"]["log_weight"]),
-            grounding=str(record["grounding"]),
+            grounding=str(record.get("grounding", "k3_feature_evaluator")),
         )
         for record in raw["factors"]
     )
@@ -269,12 +270,13 @@ def load_choice_program(
             f"Catalogue declares {expected} factors but contains {len(factors)}"
         )
     return K3ChoiceProgram(
-        id=str(raw["id"]),
+        id=str(raw["id"] if "id" in raw else raw["model_id"]),
         candidate_min=int(corpus["candidate_min"]),
         candidate_max=int(corpus["candidate_max"]),
         register_logits=np.asarray(model["register_logits"], dtype=np.float64),
         tonal_logits=np.asarray(model["tonal_logits"], dtype=np.float64),
         factors=factors,
+        factor_group=str(raw.get("factor_group", "k3_v5_16_reference")),
     )
 
 

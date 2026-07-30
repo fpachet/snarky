@@ -1,0 +1,56 @@
+schema_version: 1
+id: K3-V20B-IDENTIFIABLE-HARMONIC-STATUS-SPARSE-1
+status: FROZEN
+frozen_on: 2026-07-28
+purpose: >
+  Réinduire la base V20 après suppression de la seule dépendance linéaire
+  qualité = qualité×faible + qualité×fort.
+
+source_grammar: grammar_v20b_identifiable_harmonic_status.yaml
+source_exact_cache: ../../experiments/v5_k3_clean/work/k3-exact-v20b-catalogue-32x10.npz
+
+interpretability:
+  maximum_selected_rules: 30
+  maximum_clause_complexity: 4
+  minimum_testable_opportunities: 100
+  minimum_piece_support: 10
+  excluded_families:
+    - observed_vertical_set
+  rules_may_call_rules: false
+  harmonic_transitions_enabled: false
+  arbitrary_cross_factor_interactions: false
+
+estimation:
+  objective: exact_conditional_pseudolikelihood
+  optimizer: adam_with_complexity_weighted_proximal_l1
+  learning_rate: 0.03
+  maximum_steps_per_refit: 80
+  l1: 0.001
+  l2: 0.001
+  joint_weight_refit_after_each_column: true
+  nuisance_parameters:
+    - voice_register_profile
+    - voice_mode_tonal_profile
+
+selection:
+  algorithm: residual_gradient_column_generation
+  description_penalty: 1.0
+  stopping:
+    consecutive_validation_non_improvements: 4
+    minimum_validation_nll_improvement: 0.000001
+    stop_when_no_positive_description_adjusted_column: true
+  final_model:
+    rule: one_standard_error
+    interpretation: >
+      Choisir le premier modèle dont la NLL moyenne par pièce est au plus la
+      meilleure NLL plus une erreur standard de celle-ci.
+
+provenance_guards:
+  non_duplication_gate: V20_NON_DUPLICATION_GATE.md
+  coverage_gate: V20_HARMONIC_STATUS_COVERAGE_DECISION.md
+  identifiability_fix: V20A_IDENTIFIABILITY_DECISION.md
+  historical_rules_loaded: false
+  expert_constraints_loaded: false
+  generation_metrics_used_for_weight_learning: false
+  test_split_loaded: false
+  rule_signs_and_weights_are_corpus_outputs: true

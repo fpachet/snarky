@@ -1,0 +1,49 @@
+schema_version: 1
+id: K3-V14-DIRECTED-METRIC-TRAJECTORY-GRAMMAR-1
+status: FROZEN
+frozen_on: 2026-07-28
+extends: grammar_v13_directed_metric_context.yaml
+purpose: >
+  Ajouter la conjonction complète entre paire dirigée, classe d'intervalle,
+  force métrique et trajectoire K3. Le diagnostic V13 motive les relations,
+  mais aucune paire, classe, force ou trajectoire particulière n'est retenue
+  à la main.
+
+extensions:
+  directed_metric_trajectory_licenses: true
+
+additional_generated_relations:
+  - directed_pair_interval_metric_target_rearticulation
+  - directed_pair_interval_metric_target_step_resolution
+  - directed_pair_interval_metric_target_passing
+  - directed_pair_interval_metric_target_neighbor
+  - directed_pair_interval_metric_other_voice_hold
+  - directed_pair_interval_metric_other_voice_step_resolution
+  - directed_pair_interval_metric_other_voice_hold_then_step_resolution
+
+families:
+  - id: directed_pair_interval_metric_trajectory
+    feature_kinds:
+      - central_pair_abs_class_metric_target_rearticulated
+      - central_pair_abs_class_metric_target_step_resolved
+      - central_pair_abs_class_metric_target_passing
+      - central_pair_abs_class_metric_target_neighbor
+      - central_pair_abs_class_metric_other_held
+      - central_pair_abs_class_metric_other_step_resolved
+      - central_pair_abs_class_metric_other_held_step_resolved
+    voice_pairs: all_ordered_distinct
+    values: {range: [0, 11]}
+    metric_strength: [weak, strong]
+    trajectory_statuses: all_symmetrically
+    complexity_range: [4, 5]
+
+structure_learning:
+  maximum_clause_complexity: 5
+
+provenance_guards:
+  diagnostic_source: train_only_v12_3_and_v13_development
+  selected_cells_copied_from_diagnostic: false
+  all_voice_pairs_generated: true
+  all_interval_classes_generated: true
+  all_metric_strengths_generated: true
+  expert_defines_relations_only: true

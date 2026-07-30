@@ -439,7 +439,7 @@ def _markdown(result: dict[str, Any]) -> str:
     experiment = result["experiment"]
     model = result["model"]
     lines = [
-        "# V9 — réinduction exacte depuis zéro",
+        f"# {experiment['title']}",
         "",
         "La structure est sélectionnée par les gradients résiduels des véritables",
         "conditionnelles Gibbs. Registre, profil tonal et poids factoriels sont",
@@ -488,6 +488,14 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--full-cache", type=Path, default=DEFAULT_FULL_CACHE)
     parser.add_argument("--output", type=Path, default=DEFAULT_OUTPUT)
     parser.add_argument("--report", type=Path, default=DEFAULT_REPORT)
+    parser.add_argument(
+        "--experiment-id",
+        default="F-K3-V9-EXACT-REINDUCTION",
+    )
+    parser.add_argument(
+        "--title",
+        default="V9 — réinduction exacte depuis zéro",
+    )
     parser.add_argument("--structure-train-pieces", type=int, default=32)
     parser.add_argument("--structure-validation-pieces", type=int, default=10)
     parser.add_argument("--maximum-factors", type=int, default=30)
@@ -500,9 +508,33 @@ def parse_args() -> argparse.Namespace:
     return parser.parse_args()
 
 
+def _load_grammar(path: Path) -> dict[str, Any]:
+    """Load one frozen grammar, optionally extending another grammar file."""
+
+    payload = yaml.safe_load(path.read_text(encoding="utf-8"))
+    parent_name = payload.pop("extends", None)
+    if parent_name is None:
+        return payload
+    parent = _load_grammar((path.parent / parent_name).resolve())
+    families = [
+        *parent.get("families", []),
+        *payload.pop("families", []),
+    ]
+    for key, value in payload.items():
+        if (
+            isinstance(value, dict)
+            and isinstance(parent.get(key), dict)
+        ):
+            parent[key] = {**parent[key], **value}
+        else:
+            parent[key] = value
+    parent["families"] = families
+    return parent
+
+
 def main() -> int:
     args = parse_args()
-    grammar = yaml.safe_load(args.grammar.read_text(encoding="utf-8"))
+    grammar = _load_grammar(args.grammar)
     source = json.loads(args.source.read_text(encoding="utf-8"))
     split_payload = json.loads(args.splits.read_text(encoding="utf-8"))
     splits = split_payload.get("grouped_split", split_payload)
@@ -717,7 +749,8 @@ def main() -> int:
     )
     result = {
         "experiment": {
-            "id": "F-K3-V9-EXACT-REINDUCTION",
+            "id": args.experiment_id,
+            "title": args.title,
             "status": "EXACT_STRUCTURE_CANDIDATE",
             "test_loaded": False,
             "historical_rules_loaded": False,

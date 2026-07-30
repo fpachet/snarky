@@ -25,6 +25,19 @@ DEFAULT_REPORT = FACTOR_BASE / "V6_ITERATION3_MULTISEED_CONTROL.md"
 DEFAULT_RIDGES = (1e-5, 1e-4, 1e-3, 1e-2, 3e-2, 1e-1, 3e-1, 1.0, 3.0)
 
 
+def _factor_records(model: dict[str, Any]) -> list[dict[str, Any]]:
+    records = model["model"].get("factors")
+    if records is not None:
+        return records
+    return [
+        {
+            "id": f"LEARNED-{index:03d}",
+            "feature": rule["feature"],
+        }
+        for index, rule in enumerate(model["model"]["rules"], start=1)
+    ]
+
+
 def pairwise_cosines(vectors: np.ndarray) -> list[float]:
     """Return every pairwise cosine, rejecting null directions."""
 
@@ -174,7 +187,7 @@ def _markdown(result: dict[str, Any], model: dict[str, Any]) -> str:
         ]
     )
     for factor, delta in zip(
-        model["model"]["factors"],
+        _factor_records(model),
         selected["proposed_weight_delta"],
         strict=True,
     ):
@@ -336,7 +349,7 @@ def main() -> int:
             for payload in payloads
         ]
     )
-    factors = model["model"]["factors"]
+    factors = _factor_records(model)
     result = {
         "experiment": {
             "id": "F-K3-V6-ITERATION3-MULTISEED-CONTROL",

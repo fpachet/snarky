@@ -1,0 +1,53 @@
+schema_version: 1
+id: K3-V11-TONAL-LICENSE-GRAMMAR-1
+status: FROZEN
+frozen_on: 2026-07-28
+extends: grammar_v10_interval_context.yaml
+purpose: >
+  Ajouter à V10 une définition empirique, apprise sur train, des classes
+  tonales rares par voix et par mode. Le catalogue offre ensuite au même
+  algorithme des facteurs nus et des licences K3 ; ni leur signe, ni leur
+  sélection, ni leur poids ne sont imposés.
+
+extensions:
+  rare_tonal_threshold: 0.02
+
+additional_generated_relations:
+  - train_rare_tonal_class_by_voice_and_mode
+  - rare_tonal_class_and_incoming_step
+  - rare_tonal_class_and_leap_arrival
+  - rare_tonal_class_and_immediate_step_resolution
+  - rare_tonal_class_and_short_unresolved_status
+  - rare_tonal_class_and_neighbor_motion
+  - rare_tonal_class_and_passing_motion
+  - rare_tonal_class_and_metric_strength
+
+families:
+  - id: empirical_rare_tonal_status
+    feature_kinds:
+      - rare_tonal_class
+      - rare_tonal_incoming_step
+      - rare_tonal_leap_arrival
+      - rare_tonal_immediate_step_resolution
+      - rare_tonal_short_no_step_resolution
+      - rare_tonal_immediate_neighbor
+      - rare_tonal_immediate_passing
+      - rare_tonal_weak_metric
+      - rare_tonal_strong_metric
+    voices: {range: [0, 3]}
+    modes: [major, minor]
+    rarity_definition: train_probability_below_0.02
+    complexity_by_kind:
+      rare_tonal_class: 2
+      rare_tonal_incoming_step: 3
+      rare_tonal_leap_arrival: 3
+      rare_tonal_immediate_step_resolution: 3
+      rare_tonal_short_no_step_resolution: 3
+      rare_tonal_immediate_neighbor: 3
+      rare_tonal_immediate_passing: 3
+      rare_tonal_weak_metric: 3
+      rare_tonal_strong_metric: 3
+
+provenance_guards:
+  rare_pitch_classes_defined_from_train_only: true
+  tonal_licence_signs_imposed_by_expert: false

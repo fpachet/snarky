@@ -1,0 +1,1342 @@
+{
+  "experiment": {
+    "id": "K3-V18-STRUCTURE-STABILITY-1",
+    "model_count": 5,
+    "models": [
+      "/Users/francoispachet/IdeaProjects/boojum/harmonizer/bach_rule_induction/factor_bases/k3_v6_induced/v18_explanatory_sparse_model.json",
+      "/Users/francoispachet/IdeaProjects/boojum/harmonizer/bach_rule_induction/factor_bases/k3_v6_induced/v18_structure_fold1_model.json",
+      "/Users/francoispachet/IdeaProjects/boojum/harmonizer/bach_rule_induction/factor_bases/k3_v6_induced/v18_structure_fold2_model.json",
+      "/Users/francoispachet/IdeaProjects/boojum/harmonizer/bach_rule_induction/factor_bases/k3_v6_induced/v18_structure_fold3_model.json",
+      "/Users/francoispachet/IdeaProjects/boojum/harmonizer/bach_rule_induction/factor_bases/k3_v6_induced/v18_structure_fold4_model.json"
+    ],
+    "status": "UNANIMOUS_CORE_SELECTED",
+    "test_loaded": false,
+    "unanimous_core_threshold": 5
+  },
+  "summary": {
+    "mean_pairwise_jaccard": 0.6202877906298373,
+    "model_rule_counts": [
+      19,
+      24,
+      24,
+      26,
+      24
+    ],
+    "pairwise_jaccard": [
+      {
+        "jaccard": 0.5357142857142857,
+        "left": 1,
+        "right": 2
+      },
+      {
+        "jaccard": 0.6538461538461539,
+        "left": 1,
+        "right": 3
+      },
+      {
+        "jaccard": 0.5,
+        "left": 1,
+        "right": 4
+      },
+      {
+        "jaccard": 0.7916666666666666,
+        "left": 1,
+        "right": 5
+      },
+      {
+        "jaccard": 0.7142857142857143,
+        "left": 2,
+        "right": 3
+      },
+      {
+        "jaccard": 0.6129032258064516,
+        "left": 2,
+        "right": 4
+      },
+      {
+        "jaccard": 0.5,
+        "left": 2,
+        "right": 5
+      },
+      {
+        "jaccard": 0.7241379310344828,
+        "left": 3,
+        "right": 4
+      },
+      {
+        "jaccard": 0.6551724137931034,
+        "left": 3,
+        "right": 5
+      },
+      {
+        "jaccard": 0.5151515151515151,
+        "left": 4,
+        "right": 5
+      }
+    ],
+    "rules_selected_at_least_3": 22,
+    "rules_selected_at_least_4": 17,
+    "stability": [
+      {
+        "clause": "au moins deux voix adjacentes : \u00e9cart ordonn\u00e9 \u2264 2 demi-tons au bloc central",
+        "family": "ordered_voice_gap",
+        "feature": {
+          "complexity": 1,
+          "key": "any_adjacent_central_ordered_gap_le:-1:-:2:-",
+          "kind": "any_adjacent_central_ordered_gap_le",
+          "label": "any_adjacent_central_ordered_gap_le(all_voices)=2",
+          "other_voice": null,
+          "second_value": null,
+          "target_voice": -1,
+          "value": 2
+        },
+        "maximum_weight": -0.598476854915057,
+        "minimum_weight": -0.7253595715298026,
+        "selection_count": 5,
+        "selection_rate": 1.0,
+        "sign_stable_when_selected": true,
+        "weights_when_selected": [
+          -0.6493667473660909,
+          -0.6884832088410099,
+          -0.598476854915057,
+          -0.6850180212525241,
+          -0.7253595715298026
+        ]
+      },
+      {
+        "clause": "au moins une paire de voix : arrive par mouvement direct sur la classe d\u2019intervalle 2",
+        "family": "universal_pair_motion",
+        "feature": {
+          "complexity": 2,
+          "key": "any_pair_arrival_abs_class_same_sign:-1:-:2:-",
+          "kind": "any_pair_arrival_abs_class_same_sign",
+          "label": "any_pair_arrival_abs_class_same_sign(all_voices)=2",
+          "other_voice": null,
+          "second_value": null,
+          "target_voice": -1,
+          "value": 2
+        },
+        "maximum_weight": -0.8616699327973792,
+        "minimum_weight": -1.0944422515081835,
+        "selection_count": 5,
+        "selection_rate": 1.0,
+        "sign_stable_when_selected": true,
+        "weights_when_selected": [
+          -0.9871526074539663,
+          -0.8616699327973792,
+          -1.0944422515081835,
+          -0.8649082379412092,
+          -1.0269841419219996
+        ]
+      },
+      {
+        "clause": "au moins une paire de voix : conserve l\u2019intervalle de classe 0 par mouvement direct non nul",
+        "family": "universal_pair_motion",
+        "feature": {
+          "complexity": 4,
+          "key": "any_pair_abs_class_preserved_same_sign:-1:-:0:-",
+          "kind": "any_pair_abs_class_preserved_same_sign",
+          "label": "any_pair_abs_class_preserved_same_sign(all_voices)=0",
+          "other_voice": null,
+          "second_value": null,
+          "target_voice": -1,
+          "value": 0
+        },
+        "maximum_weight": -1.991300099481162,
+        "minimum_weight": -2.2955714592443153,
+        "selection_count": 5,
+        "selection_rate": 1.0,
+        "sign_stable_when_selected": true,
+        "weights_when_selected": [
+          -2.1804804807869096,
+          -2.110788575504062,
+          -1.991300099481162,
+          -2.2955714592443153,
+          -2.1739314387623505
+        ]
+      },
+      {
+        "clause": "au moins une paire de voix : conserve l\u2019intervalle de classe 7 par mouvement direct non nul",
+        "family": "universal_pair_motion",
+        "feature": {
+          "complexity": 4,
+          "key": "any_pair_abs_class_preserved_same_sign:-1:-:7:-",
+          "kind": "any_pair_abs_class_preserved_same_sign",
+          "label": "any_pair_abs_class_preserved_same_sign(all_voices)=7",
+          "other_voice": null,
+          "second_value": null,
+          "target_voice": -1,
+          "value": 7
+        },
+        "maximum_weight": -2.0319039909593304,
+        "minimum_weight": -2.289234093564529,
+        "selection_count": 5,
+        "selection_rate": 1.0,
+        "sign_stable_when_selected": true,
+        "weights_when_selected": [
+          -2.1897881765917346,
+          -2.289234093564529,
+          -2.0319039909593304,
+          -2.198766559837447,
+          -2.102429352355345
+        ]
+      },
+      {
+        "clause": "au moins une paire de voix : intervalle vertical de classe 1 (seconde mineure modulo l\u2019octave)",
+        "family": "universal_vertical_interval_class",
+        "feature": {
+          "complexity": 1,
+          "key": "any_pair_central_abs_class:-1:-:1:-",
+          "kind": "any_pair_central_abs_class",
+          "label": "any_pair_central_abs_class(all_voices)=1",
+          "other_voice": null,
+          "second_value": null,
+          "target_voice": -1,
+          "value": 1
+        },
+        "maximum_weight": -1.44113267052107,
+        "minimum_weight": -1.6649208678259255,
+        "selection_count": 5,
+        "selection_rate": 1.0,
+        "sign_stable_when_selected": true,
+        "weights_when_selected": [
+          -1.44113267052107,
+          -1.5680472461794863,
+          -1.6332629976394721,
+          -1.6649208678259255,
+          -1.5555195419043508
+        ]
+      },
+      {
+        "clause": "au moins une paire de voix : intervalle vertical de classe 10 (septi\u00e8me mineure modulo l\u2019octave)",
+        "family": "universal_vertical_interval_class",
+        "feature": {
+          "complexity": 1,
+          "key": "any_pair_central_abs_class:-1:-:10:-",
+          "kind": "any_pair_central_abs_class",
+          "label": "any_pair_central_abs_class(all_voices)=10",
+          "other_voice": null,
+          "second_value": null,
+          "target_voice": -1,
+          "value": 10
+        },
+        "maximum_weight": -0.686308930342179,
+        "minimum_weight": -0.8298930245750717,
+        "selection_count": 5,
+        "selection_rate": 1.0,
+        "sign_stable_when_selected": true,
+        "weights_when_selected": [
+          -0.686308930342179,
+          -0.7716170630415102,
+          -0.779032920477487,
+          -0.8298930245750717,
+          -0.7382635200359945
+        ]
+      },
+      {
+        "clause": "au moins une paire de voix : intervalle vertical de classe 11 (septi\u00e8me majeure modulo l\u2019octave)",
+        "family": "universal_vertical_interval_class",
+        "feature": {
+          "complexity": 1,
+          "key": "any_pair_central_abs_class:-1:-:11:-",
+          "kind": "any_pair_central_abs_class",
+          "label": "any_pair_central_abs_class(all_voices)=11",
+          "other_voice": null,
+          "second_value": null,
+          "target_voice": -1,
+          "value": 11
+        },
+        "maximum_weight": -1.6901727165153457,
+        "minimum_weight": -1.8375202423859607,
+        "selection_count": 5,
+        "selection_rate": 1.0,
+        "sign_stable_when_selected": true,
+        "weights_when_selected": [
+          -1.6901727165153457,
+          -1.8121527253893326,
+          -1.6931820193441585,
+          -1.8375202423859607,
+          -1.778717446802448
+        ]
+      },
+      {
+        "clause": "au moins une paire de voix : intervalle vertical de classe 7 (quinte juste modulo l\u2019octave)",
+        "family": "universal_vertical_interval_class",
+        "feature": {
+          "complexity": 1,
+          "key": "any_pair_central_abs_class:-1:-:7:-",
+          "kind": "any_pair_central_abs_class",
+          "label": "any_pair_central_abs_class(all_voices)=7",
+          "other_voice": null,
+          "second_value": null,
+          "target_voice": -1,
+          "value": 7
+        },
+        "maximum_weight": 0.6915651286177542,
+        "minimum_weight": 0.5031134235732455,
+        "selection_count": 5,
+        "selection_rate": 1.0,
+        "sign_stable_when_selected": true,
+        "weights_when_selected": [
+          0.6306672942384254,
+          0.5031134235732455,
+          0.5531308151134722,
+          0.5668179740610361,
+          0.6915651286177542
+        ]
+      },
+      {
+        "clause": "basse : r\u00e9p\u00e8te par une nouvelle attaque la note pr\u00e9c\u00e9dente",
+        "family": "attacked_repetition",
+        "feature": {
+          "complexity": 1,
+          "key": "attacked_repeat_from_previous:3:-:-:-",
+          "kind": "attacked_repeat_from_previous",
+          "label": "attacked_repeat_from_previous(v3)",
+          "other_voice": null,
+          "second_value": null,
+          "target_voice": 3,
+          "value": null
+        },
+        "maximum_weight": -1.5079721222276348,
+        "minimum_weight": -1.8603102514117988,
+        "selection_count": 5,
+        "selection_rate": 1.0,
+        "sign_stable_when_selected": true,
+        "weights_when_selected": [
+          -1.7750749012452625,
+          -1.8603102514117988,
+          -1.5224785495717112,
+          -1.5079721222276348,
+          -1.8424838000123025
+        ]
+      },
+      {
+        "clause": "bloc central : 3 classes de hauteur distinctes",
+        "family": "vertical_cardinality",
+        "feature": {
+          "complexity": 1,
+          "key": "central_distinct_pc_count:-1:-:3:-",
+          "kind": "central_distinct_pc_count",
+          "label": "central_distinct_pc_count(all_voices)=3",
+          "other_voice": null,
+          "second_value": null,
+          "target_voice": -1,
+          "value": 3
+        },
+        "maximum_weight": 0.7973117615554297,
+        "minimum_weight": 0.45918335425520124,
+        "selection_count": 5,
+        "selection_rate": 1.0,
+        "sign_stable_when_selected": true,
+        "weights_when_selected": [
+          0.45918335425520124,
+          0.7114877242140697,
+          0.7973117615554297,
+          0.7050757520549366,
+          0.47832412371613253
+        ]
+      },
+      {
+        "clause": "toutes voix : mouvement adjacent de classe 1 (seconde mineure modulo l\u2019octave)",
+        "family": "universal_melodic_interval_class",
+        "feature": {
+          "complexity": 1,
+          "key": "any_voice_adjacent_abs_class:-1:-:1:-",
+          "kind": "any_voice_adjacent_abs_class",
+          "label": "any_voice_adjacent_abs_class(all_voices)=1",
+          "other_voice": null,
+          "second_value": null,
+          "target_voice": -1,
+          "value": 1
+        },
+        "maximum_weight": 0.5124022405097398,
+        "minimum_weight": 0.38398101525476114,
+        "selection_count": 5,
+        "selection_rate": 1.0,
+        "sign_stable_when_selected": true,
+        "weights_when_selected": [
+          0.5124022405097398,
+          0.38398101525476114,
+          0.4954424819041446,
+          0.4533312470985447,
+          0.4720198262414901
+        ]
+      },
+      {
+        "clause": "toutes voix : mouvement m\u00e9lodique sup\u00e9rieur \u00e0 2 demi-tons",
+        "family": "universal_melodic_distance_threshold",
+        "feature": {
+          "complexity": 1,
+          "key": "any_voice_adjacent_step_gt:-1:-:2:-",
+          "kind": "any_voice_adjacent_step_gt",
+          "label": "any_voice_adjacent_step_gt(all_voices)=2",
+          "other_voice": null,
+          "second_value": null,
+          "target_voice": -1,
+          "value": 2
+        },
+        "maximum_weight": -1.2632814346140258,
+        "minimum_weight": -1.3766299870505503,
+        "selection_count": 5,
+        "selection_rate": 1.0,
+        "sign_stable_when_selected": true,
+        "weights_when_selected": [
+          -1.3766299870505503,
+          -1.3144590701635281,
+          -1.2632814346140258,
+          -1.3400061182405045,
+          -1.3573752341721523
+        ]
+      },
+      {
+        "clause": "toutes voix : mouvement m\u00e9lodique sup\u00e9rieur \u00e0 7 demi-tons",
+        "family": "universal_melodic_distance_threshold",
+        "feature": {
+          "complexity": 1,
+          "key": "any_voice_adjacent_step_gt:-1:-:7:-",
+          "kind": "any_voice_adjacent_step_gt",
+          "label": "any_voice_adjacent_step_gt(all_voices)=7",
+          "other_voice": null,
+          "second_value": null,
+          "target_voice": -1,
+          "value": 7
+        },
+        "maximum_weight": -0.7289377555877008,
+        "minimum_weight": -0.9377847265218325,
+        "selection_count": 5,
+        "selection_rate": 1.0,
+        "sign_stable_when_selected": true,
+        "weights_when_selected": [
+          -0.9190204686588332,
+          -0.9377847265218325,
+          -0.8635972423095792,
+          -0.7289377555877008,
+          -0.8900804194584122
+        ]
+      },
+      {
+        "clause": "t\u00e9nor avec basse : intervalle vertical de classe 5 (quarte juste modulo l\u2019octave)",
+        "family": "voice_pair_vertical_interval_class",
+        "feature": {
+          "complexity": 1,
+          "key": "central_pair_abs_class:2:3:5:-",
+          "kind": "central_pair_abs_class",
+          "label": "central_pair_abs_class(v2,v3)=5",
+          "other_voice": 3,
+          "second_value": null,
+          "target_voice": 2,
+          "value": 5
+        },
+        "maximum_weight": -1.0051027832126338,
+        "minimum_weight": -1.518416842745502,
+        "selection_count": 5,
+        "selection_rate": 1.0,
+        "sign_stable_when_selected": true,
+        "weights_when_selected": [
+          -1.0051027832126338,
+          -1.3154218542914748,
+          -1.08331271314887,
+          -1.2676276375871471,
+          -1.518416842745502
+        ]
+      },
+      {
+        "clause": "au moins deux voix adjacentes : \u00e9cart ordonn\u00e9 \u2264 -1 demi-tons au bloc central",
+        "family": "ordered_voice_gap",
+        "feature": {
+          "complexity": 1,
+          "key": "any_adjacent_central_ordered_gap_le:-1:-:-1:-",
+          "kind": "any_adjacent_central_ordered_gap_le",
+          "label": "any_adjacent_central_ordered_gap_le(all_voices)=-1",
+          "other_voice": null,
+          "second_value": null,
+          "target_voice": -1,
+          "value": -1
+        },
+        "maximum_weight": -0.8755278307189055,
+        "minimum_weight": -1.0319514262176344,
+        "selection_count": 4,
+        "selection_rate": 0.8,
+        "sign_stable_when_selected": true,
+        "weights_when_selected": [
+          -0.8798466288223773,
+          -0.8755278307189055,
+          -1.0319514262176344,
+          -0.9326098487727433
+        ]
+      },
+      {
+        "clause": "basse avec t\u00e9nor : intervalle vertical de classe 9 (sixte majeure modulo l\u2019octave)",
+        "family": "voice_pair_vertical_interval_class",
+        "feature": {
+          "complexity": 1,
+          "key": "central_pair_abs_class:3:2:9:-",
+          "kind": "central_pair_abs_class",
+          "label": "central_pair_abs_class(v3,v2)=9",
+          "other_voice": 2,
+          "second_value": null,
+          "target_voice": 3,
+          "value": 9
+        },
+        "maximum_weight": -0.8971533513443964,
+        "minimum_weight": -1.2125286883295152,
+        "selection_count": 4,
+        "selection_rate": 0.8,
+        "sign_stable_when_selected": true,
+        "weights_when_selected": [
+          -1.2125286883295152,
+          -1.160070397865092,
+          -1.0952798272325412,
+          -0.8971533513443964
+        ]
+      },
+      {
+        "clause": "t\u00e9nor : mouvement vers la note suivante sup\u00e9rieur \u00e0 1 demi-tons",
+        "family": "voice_melodic_distance_threshold",
+        "feature": {
+          "complexity": 1,
+          "key": "abs_step_to_next_gt:2:-:1:-",
+          "kind": "abs_step_to_next_gt",
+          "label": "abs_step_to_next_gt(v2)=1",
+          "other_voice": null,
+          "second_value": null,
+          "target_voice": 2,
+          "value": 1
+        },
+        "maximum_weight": 0.7385886224961228,
+        "minimum_weight": 0.6134813276874006,
+        "selection_count": 4,
+        "selection_rate": 0.8,
+        "sign_stable_when_selected": true,
+        "weights_when_selected": [
+          0.7385886224961228,
+          0.6441226268453559,
+          0.6134813276874006,
+          0.6251874334975326
+        ]
+      },
+      {
+        "clause": "alto avec basse : intervalle vertical de classe 4 (tierce majeure modulo l\u2019octave)",
+        "family": "voice_pair_vertical_interval_class",
+        "feature": {
+          "complexity": 1,
+          "key": "central_pair_abs_class:1:3:4:-",
+          "kind": "central_pair_abs_class",
+          "label": "central_pair_abs_class(v1,v3)=4",
+          "other_voice": 3,
+          "second_value": null,
+          "target_voice": 1,
+          "value": 4
+        },
+        "maximum_weight": 1.0145558260714806,
+        "minimum_weight": 0.7189639803293923,
+        "selection_count": 3,
+        "selection_rate": 0.6,
+        "sign_stable_when_selected": true,
+        "weights_when_selected": [
+          1.0145558260714806,
+          1.0008195914775468,
+          0.7189639803293923
+        ]
+      },
+      {
+        "clause": "au moins une paire de voix : intervalle vertical de classe 2 (seconde majeure modulo l\u2019octave)",
+        "family": "universal_vertical_interval_class",
+        "feature": {
+          "complexity": 1,
+          "key": "any_pair_central_abs_class:-1:-:2:-",
+          "kind": "any_pair_central_abs_class",
+          "label": "any_pair_central_abs_class(all_voices)=2",
+          "other_voice": null,
+          "second_value": null,
+          "target_voice": -1,
+          "value": 2
+        },
+        "maximum_weight": -0.24648935418053797,
+        "minimum_weight": -0.4284034289265623,
+        "selection_count": 3,
+        "selection_rate": 0.6,
+        "sign_stable_when_selected": true,
+        "weights_when_selected": [
+          -0.4284034289265623,
+          -0.24648935418053797,
+          -0.393794587377424
+        ]
+      },
+      {
+        "clause": "au moins une paire de voix : intervalle vertical de classe 3 (tierce mineure modulo l\u2019octave)",
+        "family": "universal_vertical_interval_class",
+        "feature": {
+          "complexity": 1,
+          "key": "any_pair_central_abs_class:-1:-:3:-",
+          "kind": "any_pair_central_abs_class",
+          "label": "any_pair_central_abs_class(all_voices)=3",
+          "other_voice": null,
+          "second_value": null,
+          "target_voice": -1,
+          "value": 3
+        },
+        "maximum_weight": 0.6143284103396137,
+        "minimum_weight": 0.3522684069806121,
+        "selection_count": 3,
+        "selection_rate": 0.6,
+        "sign_stable_when_selected": true,
+        "weights_when_selected": [
+          0.47847258080544386,
+          0.3522684069806121,
+          0.6143284103396137
+        ]
+      },
+      {
+        "clause": "bloc central : 4 classes distinctes au niveau m\u00e9trique 0",
+        "family": "vertical_cardinality_metric_conjunction",
+        "feature": {
+          "complexity": 2,
+          "key": "central_distinct_pc_count_metric:-1:-:4:0",
+          "kind": "central_distinct_pc_count_metric",
+          "label": "central_distinct_pc_count_metric(all_voices)=4,0",
+          "other_voice": null,
+          "second_value": 0,
+          "target_voice": -1,
+          "value": 4
+        },
+        "maximum_weight": 1.0841147271488714,
+        "minimum_weight": 1.0054164319040264,
+        "selection_count": 3,
+        "selection_rate": 0.6,
+        "sign_stable_when_selected": true,
+        "weights_when_selected": [
+          1.0841147271488714,
+          1.0271348936796256,
+          1.0054164319040264
+        ]
+      },
+      {
+        "clause": "toutes voix : directions successives (-1, -1)",
+        "family": "three_block_direction_shape",
+        "feature": {
+          "complexity": 2,
+          "key": "any_voice_three_block_sign_shape:-1:-:-1:-1",
+          "kind": "any_voice_three_block_sign_shape",
+          "label": "any_voice_three_block_sign_shape(all_voices)=-1,-1",
+          "other_voice": null,
+          "second_value": -1,
+          "target_voice": -1,
+          "value": -1
+        },
+        "maximum_weight": 0.5309432689244035,
+        "minimum_weight": 0.47654918411736047,
+        "selection_count": 3,
+        "selection_rate": 0.6,
+        "sign_stable_when_selected": true,
+        "weights_when_selected": [
+          0.5309432689244035,
+          0.47654918411736047,
+          0.5095948975918584
+        ]
+      },
+      {
+        "clause": "au moins une paire de voix : intervalle vertical de classe 4 (tierce majeure modulo l\u2019octave)",
+        "family": "universal_vertical_interval_class",
+        "feature": {
+          "complexity": 1,
+          "key": "any_pair_central_abs_class:-1:-:4:-",
+          "kind": "any_pair_central_abs_class",
+          "label": "any_pair_central_abs_class(all_voices)=4",
+          "other_voice": null,
+          "second_value": null,
+          "target_voice": -1,
+          "value": 4
+        },
+        "maximum_weight": 0.47282626065623057,
+        "minimum_weight": 0.4316362719775556,
+        "selection_count": 2,
+        "selection_rate": 0.4,
+        "sign_stable_when_selected": true,
+        "weights_when_selected": [
+          0.4316362719775556,
+          0.47282626065623057
+        ]
+      },
+      {
+        "clause": "basse avec alto : intervalle vertical de classe 6 (triton)",
+        "family": "voice_pair_vertical_interval_class",
+        "feature": {
+          "complexity": 1,
+          "key": "central_pair_abs_class:3:1:6:-",
+          "kind": "central_pair_abs_class",
+          "label": "central_pair_abs_class(v3,v1)=6",
+          "other_voice": 1,
+          "second_value": null,
+          "target_voice": 3,
+          "value": 6
+        },
+        "maximum_weight": -1.194770106849958,
+        "minimum_weight": -1.2744502121682388,
+        "selection_count": 2,
+        "selection_rate": 0.4,
+        "sign_stable_when_selected": true,
+        "weights_when_selected": [
+          -1.2744502121682388,
+          -1.194770106849958
+        ]
+      },
+      {
+        "clause": "basse avec t\u00e9nor : intervalle vertical de classe 0 (unisson ou octave modulo l\u2019octave)",
+        "family": "voice_pair_vertical_interval_class",
+        "feature": {
+          "complexity": 1,
+          "key": "central_pair_abs_class:3:2:0:-",
+          "kind": "central_pair_abs_class",
+          "label": "central_pair_abs_class(v3,v2)=0",
+          "other_voice": 2,
+          "second_value": null,
+          "target_voice": 3,
+          "value": 0
+        },
+        "maximum_weight": 0.8870287554217189,
+        "minimum_weight": 0.8185179707777076,
+        "selection_count": 2,
+        "selection_rate": 0.4,
+        "sign_stable_when_selected": true,
+        "weights_when_selected": [
+          0.8185179707777076,
+          0.8870287554217189
+        ]
+      },
+      {
+        "clause": "soprano avec alto : intervalle vertical de classe 1 (seconde mineure modulo l\u2019octave)",
+        "family": "voice_pair_vertical_interval_class",
+        "feature": {
+          "complexity": 1,
+          "key": "central_pair_abs_class:0:1:1:-",
+          "kind": "central_pair_abs_class",
+          "label": "central_pair_abs_class(v0,v1)=1",
+          "other_voice": 1,
+          "second_value": null,
+          "target_voice": 0,
+          "value": 1
+        },
+        "maximum_weight": 1.4575573135418174,
+        "minimum_weight": 1.3520168554107364,
+        "selection_count": 2,
+        "selection_rate": 0.4,
+        "sign_stable_when_selected": true,
+        "weights_when_selected": [
+          1.3520168554107364,
+          1.4575573135418174
+        ]
+      },
+      {
+        "clause": "soprano avec basse : intervalle vertical de classe 4 (tierce majeure modulo l\u2019octave)",
+        "family": "voice_pair_vertical_interval_class",
+        "feature": {
+          "complexity": 1,
+          "key": "central_pair_abs_class:0:3:4:-",
+          "kind": "central_pair_abs_class",
+          "label": "central_pair_abs_class(v0,v3)=4",
+          "other_voice": 3,
+          "second_value": null,
+          "target_voice": 0,
+          "value": 4
+        },
+        "maximum_weight": 1.2193342199316235,
+        "minimum_weight": 1.1349378089696895,
+        "selection_count": 2,
+        "selection_rate": 0.4,
+        "sign_stable_when_selected": true,
+        "weights_when_selected": [
+          1.1349378089696895,
+          1.2193342199316235
+        ]
+      },
+      {
+        "clause": "alto : directions successives (+0, -1)",
+        "family": "three_block_direction_shape",
+        "feature": {
+          "complexity": 2,
+          "key": "three_block_sign_shape:1:-:0:-1",
+          "kind": "three_block_sign_shape",
+          "label": "three_block_sign_shape(v1)=0,-1",
+          "other_voice": null,
+          "second_value": -1,
+          "target_voice": 1,
+          "value": 0
+        },
+        "maximum_weight": 1.0768985301270328,
+        "minimum_weight": 1.0768985301270328,
+        "selection_count": 1,
+        "selection_rate": 0.2,
+        "sign_stable_when_selected": true,
+        "weights_when_selected": [
+          1.0768985301270328
+        ]
+      },
+      {
+        "clause": "alto avec basse : intervalle vertical de classe 5 (quarte juste modulo l\u2019octave)",
+        "family": "voice_pair_vertical_interval_class",
+        "feature": {
+          "complexity": 1,
+          "key": "central_pair_abs_class:1:3:5:-",
+          "kind": "central_pair_abs_class",
+          "label": "central_pair_abs_class(v1,v3)=5",
+          "other_voice": 3,
+          "second_value": null,
+          "target_voice": 1,
+          "value": 5
+        },
+        "maximum_weight": -1.0706819005779034,
+        "minimum_weight": -1.0706819005779034,
+        "selection_count": 1,
+        "selection_rate": 0.2,
+        "sign_stable_when_selected": true,
+        "weights_when_selected": [
+          -1.0706819005779034
+        ]
+      },
+      {
+        "clause": "au moins une paire de voix : arrive par mouvement direct sur la classe d\u2019intervalle 3",
+        "family": "universal_pair_motion",
+        "feature": {
+          "complexity": 2,
+          "key": "any_pair_arrival_abs_class_same_sign:-1:-:3:-",
+          "kind": "any_pair_arrival_abs_class_same_sign",
+          "label": "any_pair_arrival_abs_class_same_sign(all_voices)=3",
+          "other_voice": null,
+          "second_value": null,
+          "target_voice": -1,
+          "value": 3
+        },
+        "maximum_weight": 0.35231611133111873,
+        "minimum_weight": 0.35231611133111873,
+        "selection_count": 1,
+        "selection_rate": 0.2,
+        "sign_stable_when_selected": true,
+        "weights_when_selected": [
+          0.35231611133111873
+        ]
+      },
+      {
+        "clause": "au moins une paire de voix : arrive par mouvement direct sur la classe d\u2019intervalle 4",
+        "family": "universal_pair_motion",
+        "feature": {
+          "complexity": 2,
+          "key": "any_pair_arrival_abs_class_same_sign:-1:-:4:-",
+          "kind": "any_pair_arrival_abs_class_same_sign",
+          "label": "any_pair_arrival_abs_class_same_sign(all_voices)=4",
+          "other_voice": null,
+          "second_value": null,
+          "target_voice": -1,
+          "value": 4
+        },
+        "maximum_weight": 0.1909169854153591,
+        "minimum_weight": 0.1909169854153591,
+        "selection_count": 1,
+        "selection_rate": 0.2,
+        "sign_stable_when_selected": true,
+        "weights_when_selected": [
+          0.1909169854153591
+        ]
+      },
+      {
+        "clause": "au moins une paire de voix : conserve l\u2019intervalle de classe 3 par mouvement direct non nul",
+        "family": "universal_pair_motion",
+        "feature": {
+          "complexity": 4,
+          "key": "any_pair_abs_class_preserved_same_sign:-1:-:3:-",
+          "kind": "any_pair_abs_class_preserved_same_sign",
+          "label": "any_pair_abs_class_preserved_same_sign(all_voices)=3",
+          "other_voice": null,
+          "second_value": null,
+          "target_voice": -1,
+          "value": 3
+        },
+        "maximum_weight": 0.45452628311381743,
+        "minimum_weight": 0.45452628311381743,
+        "selection_count": 1,
+        "selection_rate": 0.2,
+        "sign_stable_when_selected": true,
+        "weights_when_selected": [
+          0.45452628311381743
+        ]
+      },
+      {
+        "clause": "au moins une paire de voix : intervalle vertical de classe 5 (quarte juste modulo l\u2019octave)",
+        "family": "universal_vertical_interval_class",
+        "feature": {
+          "complexity": 1,
+          "key": "any_pair_central_abs_class:-1:-:5:-",
+          "kind": "any_pair_central_abs_class",
+          "label": "any_pair_central_abs_class(all_voices)=5",
+          "other_voice": null,
+          "second_value": null,
+          "target_voice": -1,
+          "value": 5
+        },
+        "maximum_weight": 0.41624444577671843,
+        "minimum_weight": 0.41624444577671843,
+        "selection_count": 1,
+        "selection_rate": 0.2,
+        "sign_stable_when_selected": true,
+        "weights_when_selected": [
+          0.41624444577671843
+        ]
+      },
+      {
+        "clause": "soprano avec alto : intervalle vertical de classe 2 (seconde majeure modulo l\u2019octave)",
+        "family": "voice_pair_vertical_interval_class",
+        "feature": {
+          "complexity": 1,
+          "key": "central_pair_abs_class:0:1:2:-",
+          "kind": "central_pair_abs_class",
+          "label": "central_pair_abs_class(v0,v1)=2",
+          "other_voice": 1,
+          "second_value": null,
+          "target_voice": 0,
+          "value": 2
+        },
+        "maximum_weight": 1.276964432728326,
+        "minimum_weight": 1.276964432728326,
+        "selection_count": 1,
+        "selection_rate": 0.2,
+        "sign_stable_when_selected": true,
+        "weights_when_selected": [
+          1.276964432728326
+        ]
+      },
+      {
+        "clause": "soprano et alto : \u00e9cart ordonn\u00e9 \u2264 2 demi-tons au bloc central",
+        "family": "ordered_voice_gap",
+        "feature": {
+          "complexity": 1,
+          "key": "central_ordered_gap_le:0:1:2:-",
+          "kind": "central_ordered_gap_le",
+          "label": "central_ordered_gap_le(v0,v1)=2",
+          "other_voice": 1,
+          "second_value": null,
+          "target_voice": 0,
+          "value": 2
+        },
+        "maximum_weight": 1.2073637818481309,
+        "minimum_weight": 1.2073637818481309,
+        "selection_count": 1,
+        "selection_rate": 0.2,
+        "sign_stable_when_selected": true,
+        "weights_when_selected": [
+          1.2073637818481309
+        ]
+      },
+      {
+        "clause": "toutes voix : mouvement m\u00e9lodique sup\u00e9rieur \u00e0 12 demi-tons",
+        "family": "universal_melodic_distance_threshold",
+        "feature": {
+          "complexity": 1,
+          "key": "any_voice_adjacent_step_gt:-1:-:12:-",
+          "kind": "any_voice_adjacent_step_gt",
+          "label": "any_voice_adjacent_step_gt(all_voices)=12",
+          "other_voice": null,
+          "second_value": null,
+          "target_voice": -1,
+          "value": 12
+        },
+        "maximum_weight": -1.5963071116098217,
+        "minimum_weight": -1.5963071116098217,
+        "selection_count": 1,
+        "selection_rate": 0.2,
+        "sign_stable_when_selected": true,
+        "weights_when_selected": [
+          -1.5963071116098217
+        ]
+      },
+      {
+        "clause": "t\u00e9nor : intervalle vers la note suivante de classe 0 (unisson ou octave modulo l\u2019octave)",
+        "family": "voice_melodic_interval_class",
+        "feature": {
+          "complexity": 1,
+          "key": "abs_class_to_next:2:-:0:-",
+          "kind": "abs_class_to_next",
+          "label": "abs_class_to_next(v2)=0",
+          "other_voice": null,
+          "second_value": null,
+          "target_voice": 2,
+          "value": 0
+        },
+        "maximum_weight": -0.7312599280029614,
+        "minimum_weight": -0.7312599280029614,
+        "selection_count": 1,
+        "selection_rate": 0.2,
+        "sign_stable_when_selected": true,
+        "weights_when_selected": [
+          -0.7312599280029614
+        ]
+      }
+    ],
+    "unanimous_core": [
+      {
+        "clause": "au moins deux voix adjacentes : \u00e9cart ordonn\u00e9 \u2264 2 demi-tons au bloc central",
+        "family": "ordered_voice_gap",
+        "feature": {
+          "complexity": 1,
+          "key": "any_adjacent_central_ordered_gap_le:-1:-:2:-",
+          "kind": "any_adjacent_central_ordered_gap_le",
+          "label": "any_adjacent_central_ordered_gap_le(all_voices)=2",
+          "other_voice": null,
+          "second_value": null,
+          "target_voice": -1,
+          "value": 2
+        },
+        "maximum_weight": -0.598476854915057,
+        "minimum_weight": -0.7253595715298026,
+        "selection_count": 5,
+        "selection_rate": 1.0,
+        "sign_stable_when_selected": true,
+        "weights_when_selected": [
+          -0.6493667473660909,
+          -0.6884832088410099,
+          -0.598476854915057,
+          -0.6850180212525241,
+          -0.7253595715298026
+        ]
+      },
+      {
+        "clause": "au moins une paire de voix : arrive par mouvement direct sur la classe d\u2019intervalle 2",
+        "family": "universal_pair_motion",
+        "feature": {
+          "complexity": 2,
+          "key": "any_pair_arrival_abs_class_same_sign:-1:-:2:-",
+          "kind": "any_pair_arrival_abs_class_same_sign",
+          "label": "any_pair_arrival_abs_class_same_sign(all_voices)=2",
+          "other_voice": null,
+          "second_value": null,
+          "target_voice": -1,
+          "value": 2
+        },
+        "maximum_weight": -0.8616699327973792,
+        "minimum_weight": -1.0944422515081835,
+        "selection_count": 5,
+        "selection_rate": 1.0,
+        "sign_stable_when_selected": true,
+        "weights_when_selected": [
+          -0.9871526074539663,
+          -0.8616699327973792,
+          -1.0944422515081835,
+          -0.8649082379412092,
+          -1.0269841419219996
+        ]
+      },
+      {
+        "clause": "au moins une paire de voix : conserve l\u2019intervalle de classe 0 par mouvement direct non nul",
+        "family": "universal_pair_motion",
+        "feature": {
+          "complexity": 4,
+          "key": "any_pair_abs_class_preserved_same_sign:-1:-:0:-",
+          "kind": "any_pair_abs_class_preserved_same_sign",
+          "label": "any_pair_abs_class_preserved_same_sign(all_voices)=0",
+          "other_voice": null,
+          "second_value": null,
+          "target_voice": -1,
+          "value": 0
+        },
+        "maximum_weight": -1.991300099481162,
+        "minimum_weight": -2.2955714592443153,
+        "selection_count": 5,
+        "selection_rate": 1.0,
+        "sign_stable_when_selected": true,
+        "weights_when_selected": [
+          -2.1804804807869096,
+          -2.110788575504062,
+          -1.991300099481162,
+          -2.2955714592443153,
+          -2.1739314387623505
+        ]
+      },
+      {
+        "clause": "au moins une paire de voix : conserve l\u2019intervalle de classe 7 par mouvement direct non nul",
+        "family": "universal_pair_motion",
+        "feature": {
+          "complexity": 4,
+          "key": "any_pair_abs_class_preserved_same_sign:-1:-:7:-",
+          "kind": "any_pair_abs_class_preserved_same_sign",
+          "label": "any_pair_abs_class_preserved_same_sign(all_voices)=7",
+          "other_voice": null,
+          "second_value": null,
+          "target_voice": -1,
+          "value": 7
+        },
+        "maximum_weight": -2.0319039909593304,
+        "minimum_weight": -2.289234093564529,
+        "selection_count": 5,
+        "selection_rate": 1.0,
+        "sign_stable_when_selected": true,
+        "weights_when_selected": [
+          -2.1897881765917346,
+          -2.289234093564529,
+          -2.0319039909593304,
+          -2.198766559837447,
+          -2.102429352355345
+        ]
+      },
+      {
+        "clause": "au moins une paire de voix : intervalle vertical de classe 1 (seconde mineure modulo l\u2019octave)",
+        "family": "universal_vertical_interval_class",
+        "feature": {
+          "complexity": 1,
+          "key": "any_pair_central_abs_class:-1:-:1:-",
+          "kind": "any_pair_central_abs_class",
+          "label": "any_pair_central_abs_class(all_voices)=1",
+          "other_voice": null,
+          "second_value": null,
+          "target_voice": -1,
+          "value": 1
+        },
+        "maximum_weight": -1.44113267052107,
+        "minimum_weight": -1.6649208678259255,
+        "selection_count": 5,
+        "selection_rate": 1.0,
+        "sign_stable_when_selected": true,
+        "weights_when_selected": [
+          -1.44113267052107,
+          -1.5680472461794863,
+          -1.6332629976394721,
+          -1.6649208678259255,
+          -1.5555195419043508
+        ]
+      },
+      {
+        "clause": "au moins une paire de voix : intervalle vertical de classe 10 (septi\u00e8me mineure modulo l\u2019octave)",
+        "family": "universal_vertical_interval_class",
+        "feature": {
+          "complexity": 1,
+          "key": "any_pair_central_abs_class:-1:-:10:-",
+          "kind": "any_pair_central_abs_class",
+          "label": "any_pair_central_abs_class(all_voices)=10",
+          "other_voice": null,
+          "second_value": null,
+          "target_voice": -1,
+          "value": 10
+        },
+        "maximum_weight": -0.686308930342179,
+        "minimum_weight": -0.8298930245750717,
+        "selection_count": 5,
+        "selection_rate": 1.0,
+        "sign_stable_when_selected": true,
+        "weights_when_selected": [
+          -0.686308930342179,
+          -0.7716170630415102,
+          -0.779032920477487,
+          -0.8298930245750717,
+          -0.7382635200359945
+        ]
+      },
+      {
+        "clause": "au moins une paire de voix : intervalle vertical de classe 11 (septi\u00e8me majeure modulo l\u2019octave)",
+        "family": "universal_vertical_interval_class",
+        "feature": {
+          "complexity": 1,
+          "key": "any_pair_central_abs_class:-1:-:11:-",
+          "kind": "any_pair_central_abs_class",
+          "label": "any_pair_central_abs_class(all_voices)=11",
+          "other_voice": null,
+          "second_value": null,
+          "target_voice": -1,
+          "value": 11
+        },
+        "maximum_weight": -1.6901727165153457,
+        "minimum_weight": -1.8375202423859607,
+        "selection_count": 5,
+        "selection_rate": 1.0,
+        "sign_stable_when_selected": true,
+        "weights_when_selected": [
+          -1.6901727165153457,
+          -1.8121527253893326,
+          -1.6931820193441585,
+          -1.8375202423859607,
+          -1.778717446802448
+        ]
+      },
+      {
+        "clause": "au moins une paire de voix : intervalle vertical de classe 7 (quinte juste modulo l\u2019octave)",
+        "family": "universal_vertical_interval_class",
+        "feature": {
+          "complexity": 1,
+          "key": "any_pair_central_abs_class:-1:-:7:-",
+          "kind": "any_pair_central_abs_class",
+          "label": "any_pair_central_abs_class(all_voices)=7",
+          "other_voice": null,
+          "second_value": null,
+          "target_voice": -1,
+          "value": 7
+        },
+        "maximum_weight": 0.6915651286177542,
+        "minimum_weight": 0.5031134235732455,
+        "selection_count": 5,
+        "selection_rate": 1.0,
+        "sign_stable_when_selected": true,
+        "weights_when_selected": [
+          0.6306672942384254,
+          0.5031134235732455,
+          0.5531308151134722,
+          0.5668179740610361,
+          0.6915651286177542
+        ]
+      },
+      {
+        "clause": "basse : r\u00e9p\u00e8te par une nouvelle attaque la note pr\u00e9c\u00e9dente",
+        "family": "attacked_repetition",
+        "feature": {
+          "complexity": 1,
+          "key": "attacked_repeat_from_previous:3:-:-:-",
+          "kind": "attacked_repeat_from_previous",
+          "label": "attacked_repeat_from_previous(v3)",
+          "other_voice": null,
+          "second_value": null,
+          "target_voice": 3,
+          "value": null
+        },
+        "maximum_weight": -1.5079721222276348,
+        "minimum_weight": -1.8603102514117988,
+        "selection_count": 5,
+        "selection_rate": 1.0,
+        "sign_stable_when_selected": true,
+        "weights_when_selected": [
+          -1.7750749012452625,
+          -1.8603102514117988,
+          -1.5224785495717112,
+          -1.5079721222276348,
+          -1.8424838000123025
+        ]
+      },
+      {
+        "clause": "bloc central : 3 classes de hauteur distinctes",
+        "family": "vertical_cardinality",
+        "feature": {
+          "complexity": 1,
+          "key": "central_distinct_pc_count:-1:-:3:-",
+          "kind": "central_distinct_pc_count",
+          "label": "central_distinct_pc_count(all_voices)=3",
+          "other_voice": null,
+          "second_value": null,
+          "target_voice": -1,
+          "value": 3
+        },
+        "maximum_weight": 0.7973117615554297,
+        "minimum_weight": 0.45918335425520124,
+        "selection_count": 5,
+        "selection_rate": 1.0,
+        "sign_stable_when_selected": true,
+        "weights_when_selected": [
+          0.45918335425520124,
+          0.7114877242140697,
+          0.7973117615554297,
+          0.7050757520549366,
+          0.47832412371613253
+        ]
+      },
+      {
+        "clause": "toutes voix : mouvement adjacent de classe 1 (seconde mineure modulo l\u2019octave)",
+        "family": "universal_melodic_interval_class",
+        "feature": {
+          "complexity": 1,
+          "key": "any_voice_adjacent_abs_class:-1:-:1:-",
+          "kind": "any_voice_adjacent_abs_class",
+          "label": "any_voice_adjacent_abs_class(all_voices)=1",
+          "other_voice": null,
+          "second_value": null,
+          "target_voice": -1,
+          "value": 1
+        },
+        "maximum_weight": 0.5124022405097398,
+        "minimum_weight": 0.38398101525476114,
+        "selection_count": 5,
+        "selection_rate": 1.0,
+        "sign_stable_when_selected": true,
+        "weights_when_selected": [
+          0.5124022405097398,
+          0.38398101525476114,
+          0.4954424819041446,
+          0.4533312470985447,
+          0.4720198262414901
+        ]
+      },
+      {
+        "clause": "toutes voix : mouvement m\u00e9lodique sup\u00e9rieur \u00e0 2 demi-tons",
+        "family": "universal_melodic_distance_threshold",
+        "feature": {
+          "complexity": 1,
+          "key": "any_voice_adjacent_step_gt:-1:-:2:-",
+          "kind": "any_voice_adjacent_step_gt",
+          "label": "any_voice_adjacent_step_gt(all_voices)=2",
+          "other_voice": null,
+          "second_value": null,
+          "target_voice": -1,
+          "value": 2
+        },
+        "maximum_weight": -1.2632814346140258,
+        "minimum_weight": -1.3766299870505503,
+        "selection_count": 5,
+        "selection_rate": 1.0,
+        "sign_stable_when_selected": true,
+        "weights_when_selected": [
+          -1.3766299870505503,
+          -1.3144590701635281,
+          -1.2632814346140258,
+          -1.3400061182405045,
+          -1.3573752341721523
+        ]
+      },
+      {
+        "clause": "toutes voix : mouvement m\u00e9lodique sup\u00e9rieur \u00e0 7 demi-tons",
+        "family": "universal_melodic_distance_threshold",
+        "feature": {
+          "complexity": 1,
+          "key": "any_voice_adjacent_step_gt:-1:-:7:-",
+          "kind": "any_voice_adjacent_step_gt",
+          "label": "any_voice_adjacent_step_gt(all_voices)=7",
+          "other_voice": null,
+          "second_value": null,
+          "target_voice": -1,
+          "value": 7
+        },
+        "maximum_weight": -0.7289377555877008,
+        "minimum_weight": -0.9377847265218325,
+        "selection_count": 5,
+        "selection_rate": 1.0,
+        "sign_stable_when_selected": true,
+        "weights_when_selected": [
+          -0.9190204686588332,
+          -0.9377847265218325,
+          -0.8635972423095792,
+          -0.7289377555877008,
+          -0.8900804194584122
+        ]
+      },
+      {
+        "clause": "t\u00e9nor avec basse : intervalle vertical de classe 5 (quarte juste modulo l\u2019octave)",
+        "family": "voice_pair_vertical_interval_class",
+        "feature": {
+          "complexity": 1,
+          "key": "central_pair_abs_class:2:3:5:-",
+          "kind": "central_pair_abs_class",
+          "label": "central_pair_abs_class(v2,v3)=5",
+          "other_voice": 3,
+          "second_value": null,
+          "target_voice": 2,
+          "value": 5
+        },
+        "maximum_weight": -1.0051027832126338,
+        "minimum_weight": -1.518416842745502,
+        "selection_count": 5,
+        "selection_rate": 1.0,
+        "sign_stable_when_selected": true,
+        "weights_when_selected": [
+          -1.0051027832126338,
+          -1.3154218542914748,
+          -1.08331271314887,
+          -1.2676276375871471,
+          -1.518416842745502
+        ]
+      }
+    ]
+  }
+}

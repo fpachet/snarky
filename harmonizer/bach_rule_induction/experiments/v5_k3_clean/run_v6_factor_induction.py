@@ -63,7 +63,75 @@ def _catalogue(
         minimum_support=int(structure["minimum_testable_opportunities"]),
         minimum_piece_support=int(structure["minimum_piece_support"]),
         voice_specific_repeats=True,
-        chromatic_rarity_threshold=None,
+        chromatic_rarity_threshold=grammar.get("extensions", {}).get(
+            "rare_tonal_threshold"
+        ),
+        interval_context_licenses=bool(
+            grammar.get("extensions", {}).get(
+                "interval_context_licenses",
+                False,
+            )
+        ),
+        directed_metric_context_licenses=bool(
+            grammar.get("extensions", {}).get(
+                "directed_metric_context_licenses",
+                False,
+            )
+        ),
+        directed_metric_trajectory_licenses=bool(
+            grammar.get("extensions", {}).get(
+                "directed_metric_trajectory_licenses",
+                False,
+            )
+        ),
+        vertical_status_features=bool(
+            grammar.get("extensions", {}).get(
+                "vertical_status_features",
+                False,
+            )
+        ),
+        named_harmonic_status_features=bool(
+            grammar.get("extensions", {}).get(
+                "named_harmonic_status_features",
+                False,
+            )
+        ),
+        named_harmonic_metric_encoding=str(
+            grammar.get("extensions", {}).get(
+                "named_harmonic_metric_encoding",
+                "disjoint_weak_strong",
+            )
+        ),
+        named_harmonic_transition_features=bool(
+            grammar.get("extensions", {}).get(
+                "named_harmonic_transition_features",
+                False,
+            )
+        ),
+        named_harmonic_root_motion_features=bool(
+            grammar.get("extensions", {}).get(
+                "named_harmonic_root_motion_features",
+                False,
+            )
+        ),
+        bass_tonal_strong_mode_features=bool(
+            grammar.get("extensions", {}).get(
+                "bass_tonal_strong_mode_features",
+                False,
+            )
+        ),
+        unique_chord_family_inversion_strong_features=bool(
+            grammar.get("extensions", {}).get(
+                "unique_chord_family_inversion_strong_features",
+                False,
+            )
+        ),
+        residual_strong_sonority_features=bool(
+            grammar.get("extensions", {}).get(
+                "residual_strong_sonority_features",
+                False,
+            )
+        ),
     )
     family_by_kind = _feature_family_map(grammar)
     catalogue = {

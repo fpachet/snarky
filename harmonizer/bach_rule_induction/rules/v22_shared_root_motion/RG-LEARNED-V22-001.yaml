@@ -1,0 +1,140 @@
+schema_version: 1
+id: RG-LEARNED-V22-001
+title: Mouvement dirigé de la fondamentale selon le mode
+lifecycle: SUPPORTED_PRETEST
+status: RULE_GROUP
+statement: Quand deux blocs successifs ont chacun une analyse d'accord unique, pondérer
+  leur mouvement de fondamentale par une table partagée de 12 classes dans chaque
+  mode.
+scope:
+  voices: SATB
+  window:
+  - previous
+  - current
+  attack_hold_semantics: true
+  requires_unique_named_chord_analysis: true
+parameterization:
+  dimensions:
+  - declared_mode
+  - directed_root_motion_class
+  shape:
+  - 2
+  - 12
+  parameter_count: 24
+  identifiability: sum_to_zero_over_motion_classes_per_mode
+  joint_learning: exact_conditional_pseudolikelihood
+  group_penalty: 0.3
+statistics:
+  four_fold_mean_nll_improvement: 0.013859286566084737
+  four_fold_positive_pieces: 27/32
+  full_validation_mean_nll_improvement: 0.021475014647672954
+  full_validation_positive_pieces: 46/50
+  full_validation_bootstrap_95_interval:
+  - 0.017585369317497834
+  - 0.02532944660374424
+conclusion:
+  kind: joint_factor_group
+  absolute_prohibition: false
+  weights:
+  - case: maintien
+    mode: major
+    root_motion_class: 0
+    weight: -0.2560613798493629
+  - case: seconde mineure ascendante
+    mode: major
+    root_motion_class: 1
+    weight: 0.33709130966354783
+  - case: seconde majeure ascendante
+    mode: major
+    root_motion_class: 2
+    weight: 0.32474827615016294
+  - case: tierce mineure ascendante
+    mode: major
+    root_motion_class: 3
+    weight: -0.2876885252151184
+  - case: tierce majeure ascendante
+    mode: major
+    root_motion_class: 4
+    weight: -0.24869286786224903
+  - case: quarte ascendante / quinte descendante
+    mode: major
+    root_motion_class: 5
+    weight: 0.42707301590511665
+  - case: triton
+    mode: major
+    root_motion_class: 6
+    weight: 0.3756829176534118
+  - case: quinte ascendante / quarte descendante
+    mode: major
+    root_motion_class: 7
+    weight: 0.22795906672818325
+  - case: tierce majeure descendante
+    mode: major
+    root_motion_class: 8
+    weight: -0.3377095454393129
+  - case: tierce mineure descendante
+    mode: major
+    root_motion_class: 9
+    weight: 0.28276590147769237
+  - case: seconde majeure descendante
+    mode: major
+    root_motion_class: 10
+    weight: -0.35339553882461183
+  - case: seconde mineure descendante
+    mode: major
+    root_motion_class: 11
+    weight: -0.49177263038746
+  - case: maintien
+    mode: minor
+    root_motion_class: 0
+    weight: -0.1503378308976309
+  - case: seconde mineure ascendante
+    mode: minor
+    root_motion_class: 1
+    weight: 0.27232097112844017
+  - case: seconde majeure ascendante
+    mode: minor
+    root_motion_class: 2
+    weight: 0.3056309401811592
+  - case: tierce mineure ascendante
+    mode: minor
+    root_motion_class: 3
+    weight: -0.14840987049101295
+  - case: tierce majeure ascendante
+    mode: minor
+    root_motion_class: 4
+    weight: -0.07380154184408978
+  - case: quarte ascendante / quinte descendante
+    mode: minor
+    root_motion_class: 5
+    weight: 0.3770343859714958
+  - case: triton
+    mode: minor
+    root_motion_class: 6
+    weight: 0.346177587174188
+  - case: quinte ascendante / quarte descendante
+    mode: minor
+    root_motion_class: 7
+    weight: 0.24554866182579255
+  - case: tierce majeure descendante
+    mode: minor
+    root_motion_class: 8
+    weight: -0.3967429798472946
+  - case: tierce mineure descendante
+    mode: minor
+    root_motion_class: 9
+    weight: 0.13305017599148572
+  - case: seconde majeure descendante
+    mode: minor
+    root_motion_class: 10
+    weight: -0.4281571514722206
+  - case: seconde mineure descendante
+    mode: minor
+    root_motion_class: 11
+    weight: -0.4823133477203125
+provenance:
+  origin: learned_from_bach_corpus
+  human_authored_rule: false
+  human_authored_parameter_sharing: true
+  historical_rules_loaded: false
+  test_opened: false

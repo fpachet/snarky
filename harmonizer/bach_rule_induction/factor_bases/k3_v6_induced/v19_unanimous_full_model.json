@@ -1,0 +1,979 @@
+{
+  "corpus": {
+    "candidate_max": 81,
+    "candidate_min": 36,
+    "manifest_summary": {
+      "article_selection": 352,
+      "augmented_transpositions": 2503,
+      "four_part_scores": 357,
+      "four_part_scores_without_simultaneous_notes": 354,
+      "historical_api_paths": 402
+    },
+    "test_pieces_reserved": 51,
+    "train_decisions": 68263,
+    "train_pieces": 251,
+    "validation_decisions": 13202,
+    "validation_pieces": 50
+  },
+  "experiment": {
+    "expert_constraints_loaded": false,
+    "generation_metrics_used_for_weight_learning": false,
+    "historical_rules_loaded": false,
+    "id": "K3-V19-UNANIMOUS-FULL-1",
+    "status": "FROZEN_EXPLANATORY_PRETEST",
+    "structure_reinduction_count": 5,
+    "test_loaded": false,
+    "title": "V19 \u2014 noyau triadique unanime r\u00e9appris sur le corpus complet",
+    "train_decisions": 53604,
+    "train_pieces": 251,
+    "unanimous_structure_threshold": 5,
+    "validation_decisions": 10414,
+    "validation_pieces": 50
+  },
+  "model": {
+    "baseline_fit": {
+      "best_validation_nll": 2.406647620734676,
+      "history": [
+        {
+          "step": 0,
+          "train_nll": 2.4323314129523954,
+          "validation_nll": 2.459904712750552
+        },
+        {
+          "step": 1,
+          "train_nll": 2.4215383380809503,
+          "validation_nll": 2.4490002811978875
+        },
+        {
+          "step": 10,
+          "train_nll": 2.383193037134377,
+          "validation_nll": 2.410328378067891
+        },
+        {
+          "step": 20,
+          "train_nll": 2.3838406812272943,
+          "validation_nll": 2.4079537668320334
+        },
+        {
+          "step": 30,
+          "train_nll": 2.3847757879587017,
+          "validation_nll": 2.406647620734676
+        },
+        {
+          "step": 40,
+          "train_nll": 2.3855208082613775,
+          "validation_nll": 2.4072777839832766
+        },
+        {
+          "step": 50,
+          "train_nll": 2.3873378298908428,
+          "validation_nll": 2.4087578527514304
+        },
+        {
+          "step": 60,
+          "train_nll": 2.390576217810997,
+          "validation_nll": 2.411110816669621
+        },
+        {
+          "step": 70,
+          "train_nll": 2.39554419657437,
+          "validation_nll": 2.415321163427624
+        },
+        {
+          "step": 80,
+          "train_nll": 2.4021972026581757,
+          "validation_nll": 2.421417813076134
+        },
+        {
+          "step": 90,
+          "train_nll": 2.4101144926159495,
+          "validation_nll": 2.428942907506832
+        },
+        {
+          "step": 100,
+          "train_nll": 2.4186262924519815,
+          "validation_nll": 2.437114109988644
+        },
+        {
+          "step": 110,
+          "train_nll": 2.4264960143660557,
+          "validation_nll": 2.444703112051402
+        },
+        {
+          "step": 120,
+          "train_nll": 2.432683156628959,
+          "validation_nll": 2.4506792874774552
+        },
+        {
+          "step": 130,
+          "train_nll": 2.4368044453721605,
+          "validation_nll": 2.4546704310013054
+        },
+        {
+          "step": 140,
+          "train_nll": 2.439087308222721,
+          "validation_nll": 2.456865415637148
+        },
+        {
+          "step": 150,
+          "train_nll": 2.4400798348175106,
+          "validation_nll": 2.4578219618949566
+        },
+        {
+          "step": 160,
+          "train_nll": 2.440343274572738,
+          "validation_nll": 2.458072864935867
+        }
+      ]
+    },
+    "baseline_validation_nll": 2.406647620734676,
+    "fit": {
+      "best_validation_nll": 0.8878793368580771,
+      "history": [
+        {
+          "step": 0,
+          "train_nll": 2.4323314129523954,
+          "validation_nll": 2.459904712750552
+        },
+        {
+          "step": 1,
+          "train_nll": 2.294697932984124,
+          "validation_nll": 2.320164992948269
+        },
+        {
+          "step": 10,
+          "train_nll": 1.4691541782460926,
+          "validation_nll": 1.4825790284146658
+        },
+        {
+          "step": 20,
+          "train_nll": 1.133479736870974,
+          "validation_nll": 1.1375424458151635
+        },
+        {
+          "step": 30,
+          "train_nll": 1.0183632928979758,
+          "validation_nll": 1.0195298850539092
+        },
+        {
+          "step": 40,
+          "train_nll": 0.9683223215598192,
+          "validation_nll": 0.9695734667119513
+        },
+        {
+          "step": 50,
+          "train_nll": 0.9416943036413905,
+          "validation_nll": 0.9435360175661415
+        },
+        {
+          "step": 60,
+          "train_nll": 0.9257725987150895,
+          "validation_nll": 0.9276381496122291
+        },
+        {
+          "step": 70,
+          "train_nll": 0.9156820069350425,
+          "validation_nll": 0.9170745619741578
+        },
+        {
+          "step": 80,
+          "train_nll": 0.9087404231280268,
+          "validation_nll": 0.9095292681860493
+        },
+        {
+          "step": 90,
+          "train_nll": 0.9034109516700917,
+          "validation_nll": 0.9037008681951315
+        },
+        {
+          "step": 100,
+          "train_nll": 0.8991921132443882,
+          "validation_nll": 0.8990888647316708
+        },
+        {
+          "step": 110,
+          "train_nll": 0.895956019052523,
+          "validation_nll": 0.8954845106351182
+        },
+        {
+          "step": 120,
+          "train_nll": 0.8935516243522256,
+          "validation_nll": 0.8927521829650322
+        },
+        {
+          "step": 130,
+          "train_nll": 0.8918031322213934,
+          "validation_nll": 0.8907274904022525
+        },
+        {
+          "step": 140,
+          "train_nll": 0.8906016139545815,
+          "validation_nll": 0.8893122269367468
+        },
+        {
+          "step": 150,
+          "train_nll": 0.889859769720334,
+          "validation_nll": 0.8884043018419305
+        },
+        {
+          "step": 160,
+          "train_nll": 0.88947188394828,
+          "validation_nll": 0.8878793368580771
+        }
+      ]
+    },
+    "register_logits": [
+      [
+        -0.35064975194431425,
+        -0.35064975194431425,
+        -0.35064975194431425,
+        -0.35064975194431425,
+        -0.35064975194431425,
+        -0.35064975194431425,
+        -0.35064975194431425,
+        -0.35064975194431425,
+        -0.35064975194431425,
+        -0.35064975194431425,
+        -0.35064975194431425,
+        -0.35064975194431425,
+        -0.35064975194431425,
+        -0.35064975194431425,
+        -0.35064975194431425,
+        -0.35064975194431425,
+        -0.35064975194431425,
+        -0.35064975194431425,
+        -0.35064975194431425,
+        -0.35064975194431425,
+        -0.35064975194431425,
+        -0.35064975194431425,
+        -0.35064975194431425,
+        -0.35064975194431425,
+        -0.02493277472972085,
+        -0.002005716783660565,
+        0.04228699363179175,
+        -0.03900320301167526,
+        0.3453040998034001,
+        0.30400363003316305,
+        0.32487377659662225,
+        0.9886856855317144,
+        0.05284876218053012,
+        1.3089007360132707,
+        0.6125717093448259,
+        1.1310074592364823,
+        1.0805248508018332,
+        0.5960047811878503,
+        1.1204373749947898,
+        0.18280768544179718,
+        0.5458561392720374,
+        0.056378085587384996,
+        -0.06288226060303827,
+        -0.07914831226113059,
+        -0.034462727802362945,
+        -0.034462727802362945
+      ],
+      [
+        -0.5597218557928373,
+        -0.5441612425312039,
+        -0.5694186009394693,
+        -0.543480004660301,
+        -0.5620190647269176,
+        -0.5538799009425145,
+        -0.5489849098765578,
+        -0.5626716413995209,
+        -0.5413998938490099,
+        -0.5662024414882225,
+        -0.5470105262738649,
+        -0.5558706675753587,
+        -0.5613377676231744,
+        -0.5443095343109767,
+        -0.5758839290777575,
+        -0.5441199009473184,
+        -0.5694548831756264,
+        -0.09446290705358912,
+        -0.11810341457247482,
+        0.22034634785840473,
+        -0.15045520224257736,
+        0.7280150435079742,
+        0.1899255767878118,
+        0.6957658312511301,
+        0.6406008406950265,
+        0.7547474590997572,
+        1.1345093846022798,
+        0.7917601709693206,
+        1.2423705773729172,
+        1.0370597290725627,
+        1.266459315709768,
+        1.3158339790345253,
+        0.7745214869734616,
+        1.1121719388108384,
+        0.8769126412055633,
+        0.5852758857296937,
+        0.27905170469210616,
+        0.30384860805776825,
+        -0.20866327048300715,
+        -0.5528218337399967,
+        -0.5818593070308965,
+        -0.5584817608339309,
+        -0.554001617253641,
+        -0.5643903121769631,
+        -0.5428762752876186,
+        -0.5731338555655825
+      ],
+      [
+        -0.5619530496871618,
+        -0.5494798365417543,
+        -0.570480507397944,
+        -0.5475308332977893,
+        -0.5675632445055628,
+        -0.5573663791859749,
+        -0.557217856404053,
+        -0.5690312467204927,
+        -0.548906663241607,
+        -0.5772861742286448,
+        -0.5581380927141529,
+        -0.5725877931729891,
+        -0.20483671999494832,
+        -0.12733301976230688,
+        0.15263174709280708,
+        -0.06014893121221621,
+        0.3021411721054567,
+        0.4974528831485662,
+        0.7894644375603451,
+        0.9886832863021127,
+        0.6149208975683146,
+        1.2569872419781682,
+        1.034660461165274,
+        1.1125859307462413,
+        1.1817608725466675,
+        0.8770301215649511,
+        1.3725034388587989,
+        0.7199472156445843,
+        1.1154930402188503,
+        0.8050622557435972,
+        0.7120115252164352,
+        0.5472126244590622,
+        -0.017321723056175898,
+        -0.14894510538710193,
+        -0.5612530168469897,
+        -0.5796082928962017,
+        -0.5686014556357823,
+        -0.5532000486798538,
+        -0.5774875046149888,
+        -0.5490336616417594,
+        -0.5755495692419271,
+        -0.5605275852450844,
+        -0.5600995999719127,
+        -0.572538723214741,
+        -0.5485304597508948,
+        -0.5779920576692202
+      ],
+      [
+        -0.5031259425051426,
+        -0.304983777778994,
+        -0.39936089638405603,
+        -0.267666911919429,
+        -0.4084494410340821,
+        0.1615379841068018,
+        -0.16925447312085362,
+        0.7491434158167519,
+        -0.063693539929377,
+        0.8545838355557747,
+        0.6155674105953844,
+        0.7783557993322567,
+        0.7774304317595069,
+        0.757635096086371,
+        1.067075817635119,
+        0.7409448199002515,
+        1.0185968536814278,
+        0.7487893548953776,
+        1.0740497018692494,
+        0.8468867804168777,
+        0.8377782716718106,
+        0.9102504654724938,
+        0.6889867073530691,
+        0.7792870567048784,
+        0.5704325766741557,
+        0.3448678566698637,
+        0.20554525273945598,
+        -0.06399342366161308,
+        -0.2413470485257609,
+        -0.7170929540641472,
+        -0.7066933474619308,
+        -0.7345577717398337,
+        -0.688091687041454,
+        -0.7353749366375302,
+        -0.700022272705453,
+        -0.710282275508926,
+        -0.7158479975861007,
+        -0.6909690183216473,
+        -0.7360757625486901,
+        -0.6899036059236883,
+        -0.7227320639413696,
+        -0.7087463265577496,
+        -0.699773564506516,
+        -0.7283895133387476,
+        -0.6872166455163137,
+        -0.7341002906774704
+      ]
+    ],
+    "rules": [
+      {
+        "calls_other_rules": false,
+        "clause": "any_pair_central_abs_class_target_passing(all_voices)=10",
+        "family": "universal_vertical_interval_target_context",
+        "feature": {
+          "complexity": 4,
+          "key": "any_pair_central_abs_class_target_passing:-1:-:10:-",
+          "kind": "any_pair_central_abs_class_target_passing",
+          "label": "any_pair_central_abs_class_target_passing(all_voices)=10",
+          "other_voice": null,
+          "second_value": null,
+          "target_voice": -1,
+          "value": 10
+        },
+        "feature_definition_human_authored": false,
+        "human_authored": false,
+        "id": "F-K3-V19-CORE-001",
+        "origin": "learned_from_bach_corpus",
+        "polarity": "preference",
+        "preference_human_authored": false,
+        "structure_selection_count": 5,
+        "structure_selection_total": 5,
+        "weight": 1.4386321334807692
+      },
+      {
+        "calls_other_rules": false,
+        "clause": "any_pair_central_abs_class_target_passing(all_voices)=9",
+        "family": "universal_vertical_interval_target_context",
+        "feature": {
+          "complexity": 4,
+          "key": "any_pair_central_abs_class_target_passing:-1:-:9:-",
+          "kind": "any_pair_central_abs_class_target_passing",
+          "label": "any_pair_central_abs_class_target_passing(all_voices)=9",
+          "other_voice": null,
+          "second_value": null,
+          "target_voice": -1,
+          "value": 9
+        },
+        "feature_definition_human_authored": false,
+        "human_authored": false,
+        "id": "F-K3-V19-CORE-002",
+        "origin": "learned_from_bach_corpus",
+        "polarity": "preference",
+        "preference_human_authored": false,
+        "structure_selection_count": 5,
+        "structure_selection_total": 5,
+        "weight": 0.7886525688055446
+      },
+      {
+        "calls_other_rules": false,
+        "clause": "au moins deux voix adjacentes : \u00e9cart ordonn\u00e9 \u2264 2 demi-tons au bloc central",
+        "family": "ordered_voice_gap",
+        "feature": {
+          "complexity": 1,
+          "key": "any_adjacent_central_ordered_gap_le:-1:-:2:-",
+          "kind": "any_adjacent_central_ordered_gap_le",
+          "label": "any_adjacent_central_ordered_gap_le(all_voices)=2",
+          "other_voice": null,
+          "second_value": null,
+          "target_voice": -1,
+          "value": 2
+        },
+        "feature_definition_human_authored": false,
+        "human_authored": false,
+        "id": "F-K3-V19-CORE-003",
+        "origin": "learned_from_bach_corpus",
+        "polarity": "avoidance",
+        "preference_human_authored": false,
+        "structure_selection_count": 5,
+        "structure_selection_total": 5,
+        "weight": -0.7034326725688141
+      },
+      {
+        "calls_other_rules": false,
+        "clause": "au moins une paire de voix : arrive par mouvement direct sur la classe d\u2019intervalle 2",
+        "family": "universal_pair_motion",
+        "feature": {
+          "complexity": 2,
+          "key": "any_pair_arrival_abs_class_same_sign:-1:-:2:-",
+          "kind": "any_pair_arrival_abs_class_same_sign",
+          "label": "any_pair_arrival_abs_class_same_sign(all_voices)=2",
+          "other_voice": null,
+          "second_value": null,
+          "target_voice": -1,
+          "value": 2
+        },
+        "feature_definition_human_authored": false,
+        "human_authored": false,
+        "id": "F-K3-V19-CORE-004",
+        "origin": "learned_from_bach_corpus",
+        "polarity": "avoidance",
+        "preference_human_authored": false,
+        "structure_selection_count": 5,
+        "structure_selection_total": 5,
+        "weight": -0.966947851021115
+      },
+      {
+        "calls_other_rules": false,
+        "clause": "au moins une paire de voix : conserve l\u2019intervalle de classe 0 par mouvement direct non nul",
+        "family": "universal_pair_motion",
+        "feature": {
+          "complexity": 4,
+          "key": "any_pair_abs_class_preserved_same_sign:-1:-:0:-",
+          "kind": "any_pair_abs_class_preserved_same_sign",
+          "label": "any_pair_abs_class_preserved_same_sign(all_voices)=0",
+          "other_voice": null,
+          "second_value": null,
+          "target_voice": -1,
+          "value": 0
+        },
+        "feature_definition_human_authored": false,
+        "human_authored": false,
+        "id": "F-K3-V19-CORE-005",
+        "origin": "learned_from_bach_corpus",
+        "polarity": "avoidance",
+        "preference_human_authored": false,
+        "structure_selection_count": 5,
+        "structure_selection_total": 5,
+        "weight": -1.805272017782532
+      },
+      {
+        "calls_other_rules": false,
+        "clause": "au moins une paire de voix : conserve l\u2019intervalle de classe 7 par mouvement direct non nul",
+        "family": "universal_pair_motion",
+        "feature": {
+          "complexity": 4,
+          "key": "any_pair_abs_class_preserved_same_sign:-1:-:7:-",
+          "kind": "any_pair_abs_class_preserved_same_sign",
+          "label": "any_pair_abs_class_preserved_same_sign(all_voices)=7",
+          "other_voice": null,
+          "second_value": null,
+          "target_voice": -1,
+          "value": 7
+        },
+        "feature_definition_human_authored": false,
+        "human_authored": false,
+        "id": "F-K3-V19-CORE-006",
+        "origin": "learned_from_bach_corpus",
+        "polarity": "avoidance",
+        "preference_human_authored": false,
+        "structure_selection_count": 5,
+        "structure_selection_total": 5,
+        "weight": -1.7969992943786244
+      },
+      {
+        "calls_other_rules": false,
+        "clause": "au moins une paire de voix : intervalle vertical de classe 1 (seconde mineure modulo l\u2019octave)",
+        "family": "universal_vertical_interval_class",
+        "feature": {
+          "complexity": 1,
+          "key": "any_pair_central_abs_class:-1:-:1:-",
+          "kind": "any_pair_central_abs_class",
+          "label": "any_pair_central_abs_class(all_voices)=1",
+          "other_voice": null,
+          "second_value": null,
+          "target_voice": -1,
+          "value": 1
+        },
+        "feature_definition_human_authored": false,
+        "human_authored": false,
+        "id": "F-K3-V19-CORE-007",
+        "origin": "learned_from_bach_corpus",
+        "polarity": "avoidance",
+        "preference_human_authored": false,
+        "structure_selection_count": 5,
+        "structure_selection_total": 5,
+        "weight": -1.1249799351609093
+      },
+      {
+        "calls_other_rules": false,
+        "clause": "au moins une paire de voix : intervalle vertical de classe 10 (septi\u00e8me mineure modulo l\u2019octave)",
+        "family": "universal_vertical_interval_class",
+        "feature": {
+          "complexity": 1,
+          "key": "any_pair_central_abs_class:-1:-:10:-",
+          "kind": "any_pair_central_abs_class",
+          "label": "any_pair_central_abs_class(all_voices)=10",
+          "other_voice": null,
+          "second_value": null,
+          "target_voice": -1,
+          "value": 10
+        },
+        "feature_definition_human_authored": false,
+        "human_authored": false,
+        "id": "F-K3-V19-CORE-008",
+        "origin": "learned_from_bach_corpus",
+        "polarity": "avoidance",
+        "preference_human_authored": false,
+        "structure_selection_count": 5,
+        "structure_selection_total": 5,
+        "weight": -0.8446412531177889
+      },
+      {
+        "calls_other_rules": false,
+        "clause": "au moins une paire de voix : intervalle vertical de classe 11 (septi\u00e8me majeure modulo l\u2019octave)",
+        "family": "universal_vertical_interval_class",
+        "feature": {
+          "complexity": 1,
+          "key": "any_pair_central_abs_class:-1:-:11:-",
+          "kind": "any_pair_central_abs_class",
+          "label": "any_pair_central_abs_class(all_voices)=11",
+          "other_voice": null,
+          "second_value": null,
+          "target_voice": -1,
+          "value": 11
+        },
+        "feature_definition_human_authored": false,
+        "human_authored": false,
+        "id": "F-K3-V19-CORE-009",
+        "origin": "learned_from_bach_corpus",
+        "polarity": "avoidance",
+        "preference_human_authored": false,
+        "structure_selection_count": 5,
+        "structure_selection_total": 5,
+        "weight": -1.252191354462477
+      },
+      {
+        "calls_other_rules": false,
+        "clause": "au moins une paire de voix : intervalle vertical de classe 7 (quinte juste modulo l\u2019octave)",
+        "family": "universal_vertical_interval_class",
+        "feature": {
+          "complexity": 1,
+          "key": "any_pair_central_abs_class:-1:-:7:-",
+          "kind": "any_pair_central_abs_class",
+          "label": "any_pair_central_abs_class(all_voices)=7",
+          "other_voice": null,
+          "second_value": null,
+          "target_voice": -1,
+          "value": 7
+        },
+        "feature_definition_human_authored": false,
+        "human_authored": false,
+        "id": "F-K3-V19-CORE-010",
+        "origin": "learned_from_bach_corpus",
+        "polarity": "preference",
+        "preference_human_authored": false,
+        "structure_selection_count": 5,
+        "structure_selection_total": 5,
+        "weight": 0.44732392143333005
+      },
+      {
+        "calls_other_rules": false,
+        "clause": "basse : r\u00e9p\u00e8te par une nouvelle attaque la note pr\u00e9c\u00e9dente",
+        "family": "attacked_repetition",
+        "feature": {
+          "complexity": 1,
+          "key": "attacked_repeat_from_previous:3:-:-:-",
+          "kind": "attacked_repeat_from_previous",
+          "label": "attacked_repeat_from_previous(v3)",
+          "other_voice": null,
+          "second_value": null,
+          "target_voice": 3,
+          "value": null
+        },
+        "feature_definition_human_authored": false,
+        "human_authored": false,
+        "id": "F-K3-V19-CORE-011",
+        "origin": "learned_from_bach_corpus",
+        "polarity": "avoidance",
+        "preference_human_authored": false,
+        "structure_selection_count": 5,
+        "structure_selection_total": 5,
+        "weight": -1.7931735481137074
+      },
+      {
+        "calls_other_rules": false,
+        "clause": "basse avec t\u00e9nor : intervalle vertical de classe 9 (sixte majeure modulo l\u2019octave)",
+        "family": "voice_pair_vertical_interval_class",
+        "feature": {
+          "complexity": 1,
+          "key": "central_pair_abs_class:3:2:9:-",
+          "kind": "central_pair_abs_class",
+          "label": "central_pair_abs_class(v3,v2)=9",
+          "other_voice": 2,
+          "second_value": null,
+          "target_voice": 3,
+          "value": 9
+        },
+        "feature_definition_human_authored": false,
+        "human_authored": false,
+        "id": "F-K3-V19-CORE-012",
+        "origin": "learned_from_bach_corpus",
+        "polarity": "avoidance",
+        "preference_human_authored": false,
+        "structure_selection_count": 5,
+        "structure_selection_total": 5,
+        "weight": -1.1412947314089184
+      },
+      {
+        "calls_other_rules": false,
+        "clause": "bloc central : triade majeure ou mineure compl\u00e8te sur temps faible",
+        "family": "triadic_metric_status",
+        "feature": {
+          "complexity": 2,
+          "key": "central_triadic_metric:-1:-:1:0",
+          "kind": "central_triadic_metric",
+          "label": "central_triadic_metric(all_voices)=1,0",
+          "other_voice": null,
+          "second_value": 0,
+          "target_voice": -1,
+          "value": 1
+        },
+        "feature_definition_human_authored": true,
+        "human_authored": false,
+        "id": "F-K3-V19-CORE-013",
+        "origin": "learned_from_bach_corpus",
+        "polarity": "preference",
+        "preference_human_authored": false,
+        "structure_selection_count": 5,
+        "structure_selection_total": 5,
+        "weight": 0.926828778835835
+      },
+      {
+        "calls_other_rules": false,
+        "clause": "bloc central : triade majeure ou mineure compl\u00e8te sur temps fort",
+        "family": "triadic_metric_status",
+        "feature": {
+          "complexity": 2,
+          "key": "central_triadic_metric:-1:-:1:1",
+          "kind": "central_triadic_metric",
+          "label": "central_triadic_metric(all_voices)=1,1",
+          "other_voice": null,
+          "second_value": 1,
+          "target_voice": -1,
+          "value": 1
+        },
+        "feature_definition_human_authored": true,
+        "human_authored": false,
+        "id": "F-K3-V19-CORE-014",
+        "origin": "learned_from_bach_corpus",
+        "polarity": "preference",
+        "preference_human_authored": false,
+        "structure_selection_count": 5,
+        "structure_selection_total": 5,
+        "weight": 1.457886658044757
+      },
+      {
+        "calls_other_rules": false,
+        "clause": "toutes voix : mouvement adjacent de classe 1 (seconde mineure modulo l\u2019octave)",
+        "family": "universal_melodic_interval_class",
+        "feature": {
+          "complexity": 1,
+          "key": "any_voice_adjacent_abs_class:-1:-:1:-",
+          "kind": "any_voice_adjacent_abs_class",
+          "label": "any_voice_adjacent_abs_class(all_voices)=1",
+          "other_voice": null,
+          "second_value": null,
+          "target_voice": -1,
+          "value": 1
+        },
+        "feature_definition_human_authored": false,
+        "human_authored": false,
+        "id": "F-K3-V19-CORE-015",
+        "origin": "learned_from_bach_corpus",
+        "polarity": "preference",
+        "preference_human_authored": false,
+        "structure_selection_count": 5,
+        "structure_selection_total": 5,
+        "weight": 0.4119163779261201
+      },
+      {
+        "calls_other_rules": false,
+        "clause": "toutes voix : mouvement m\u00e9lodique sup\u00e9rieur \u00e0 2 demi-tons",
+        "family": "universal_melodic_distance_threshold",
+        "feature": {
+          "complexity": 1,
+          "key": "any_voice_adjacent_step_gt:-1:-:2:-",
+          "kind": "any_voice_adjacent_step_gt",
+          "label": "any_voice_adjacent_step_gt(all_voices)=2",
+          "other_voice": null,
+          "second_value": null,
+          "target_voice": -1,
+          "value": 2
+        },
+        "feature_definition_human_authored": false,
+        "human_authored": false,
+        "id": "F-K3-V19-CORE-016",
+        "origin": "learned_from_bach_corpus",
+        "polarity": "avoidance",
+        "preference_human_authored": false,
+        "structure_selection_count": 5,
+        "structure_selection_total": 5,
+        "weight": -1.1038775528701323
+      },
+      {
+        "calls_other_rules": false,
+        "clause": "toutes voix : mouvement m\u00e9lodique sup\u00e9rieur \u00e0 7 demi-tons",
+        "family": "universal_melodic_distance_threshold",
+        "feature": {
+          "complexity": 1,
+          "key": "any_voice_adjacent_step_gt:-1:-:7:-",
+          "kind": "any_voice_adjacent_step_gt",
+          "label": "any_voice_adjacent_step_gt(all_voices)=7",
+          "other_voice": null,
+          "second_value": null,
+          "target_voice": -1,
+          "value": 7
+        },
+        "feature_definition_human_authored": false,
+        "human_authored": false,
+        "id": "F-K3-V19-CORE-017",
+        "origin": "learned_from_bach_corpus",
+        "polarity": "avoidance",
+        "preference_human_authored": false,
+        "structure_selection_count": 5,
+        "structure_selection_total": 5,
+        "weight": -0.8359482765642994
+      },
+      {
+        "calls_other_rules": false,
+        "clause": "t\u00e9nor avec basse : intervalle vertical de classe 5 (quarte juste modulo l\u2019octave)",
+        "family": "voice_pair_vertical_interval_class",
+        "feature": {
+          "complexity": 1,
+          "key": "central_pair_abs_class:2:3:5:-",
+          "kind": "central_pair_abs_class",
+          "label": "central_pair_abs_class(v2,v3)=5",
+          "other_voice": 3,
+          "second_value": null,
+          "target_voice": 2,
+          "value": 5
+        },
+        "feature_definition_human_authored": false,
+        "human_authored": false,
+        "id": "F-K3-V19-CORE-018",
+        "origin": "learned_from_bach_corpus",
+        "polarity": "avoidance",
+        "preference_human_authored": false,
+        "structure_selection_count": 5,
+        "structure_selection_total": 5,
+        "weight": -1.0944624310688733
+      }
+    ],
+    "tonal_logits": [
+      [
+        [
+          0.08309980552655345,
+          0.07840623138042221,
+          0.08530827392934179,
+          -0.6840315630003095,
+          0.09423843142332113,
+          0.04149279371753293,
+          0.00984067088971187,
+          0.07058040875679426,
+          0.07651641692421082,
+          0.03996486978102454,
+          0.07120160450827566,
+          0.033382056163120954
+        ],
+        [
+          0.004080502582572516,
+          0.004690192197643758,
+          0.002235643680031151,
+          0.0031806538756009852,
+          0.002174147664578208,
+          0.0031005962272777276,
+          -0.029540680477585374,
+          0.003949795837881769,
+          0.0006380610645234115,
+          0.001990132597760033,
+          0.0015678159256349467,
+          0.0019331388240808696
+        ]
+      ],
+      [
+        [
+          0.9837196902729173,
+          -0.6431754354591093,
+          0.6791900899511958,
+          -1.2614127204853665,
+          0.5690475370446246,
+          0.22466879977346355,
+          -0.194274924622411,
+          0.8470352395776438,
+          -0.8266236299166446,
+          0.3751648327860202,
+          -1.3137260401815434,
+          0.5603865612592095
+        ],
+        [
+          0.5663811537771894,
+          -0.8315407169240946,
+          0.31377068333195307,
+          0.5274232262806972,
+          -0.33528941743794205,
+          0.5195089831572467,
+          -1.0017653598293772,
+          0.6065746061169914,
+          0.2048792171052635,
+          -0.7011580098423249,
+          0.09664913326465638,
+          0.03456650099974081
+        ]
+      ],
+      [
+        [
+          0.6777332801634652,
+          -0.8527086953280902,
+          0.7937152614645873,
+          -1.4949627617561416,
+          0.782961026228011,
+          0.4613024923365006,
+          -0.5122670337404984,
+          0.8262880663507057,
+          -1.0218478037205874,
+          0.656339417398507,
+          -0.979440490396532,
+          0.6628872410000729
+        ],
+        [
+          0.5735179808025558,
+          -0.5518667990617988,
+          0.5102332651194657,
+          0.4777923407384503,
+          -0.8801683389889198,
+          0.6481316259884569,
+          -1.1270752029366669,
+          0.6066909713169151,
+          0.4218432300051393,
+          -0.8524362489083556,
+          0.3674240259231804,
+          -0.1940868499984221
+        ]
+      ],
+      [
+        [
+          0.9434512157113477,
+          -0.6125024776069514,
+          0.6391577403799975,
+          -1.2925970461716756,
+          0.4692375243944159,
+          0.31961719256152676,
+          -0.5242177961386771,
+          0.810588444337401,
+          -0.5369271675562438,
+          0.7492912798461172,
+          -1.3701235754986756,
+          0.40502466574141716
+        ],
+        [
+          0.8012915025602476,
+          -0.7386377832030876,
+          0.20501055653797481,
+          0.606739903388279,
+          -0.5474209000913745,
+          0.580753253254071,
+          -1.1117953102541074,
+          0.5443262704452995,
+          0.38414868389155366,
+          -0.7058225303634188,
+          0.34542384198027337,
+          -0.3640174881457108
+        ]
+      ]
+    ],
+    "train_nll": 0.88947188394828,
+    "validation_nll": 0.8878793368580771,
+    "validation_nll_gain": 1.518768283876599
+  }
+}

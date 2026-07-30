@@ -123,6 +123,8 @@ def _generation_metrics(
         int,
         int,
         int,
+        str,
+        int,
     ],
 ) -> tuple[str, str, dict[str, float]]:
     (
@@ -133,22 +135,28 @@ def _generation_metrics(
         candidate_max,
         seed,
         sweeps,
+        initialization,
+        strong_block_sweeps,
     ) = task
     fixed = np.zeros_like(lattice.blocks, dtype=bool)
     fixed[:, 0] = True
     fixed[0, :] = True
     fixed[-1, :] = True
     local_seed = generative._piece_seed(lattice.piece_id, seed)
-    initial = rhythmic._randomize_mutable_segments(
-        lattice.blocks,
-        lattice.attacks,
-        fixed,
-        model["register_logits"],
-        candidate_min,
-        local_seed,
-        model["tonal_logits"],
-        lattice.tonic_pc,
-        lattice.mode,
+    initial = (
+        lattice.blocks.copy()
+        if initialization == "source"
+        else rhythmic._randomize_mutable_segments(
+            lattice.blocks,
+            lattice.attacks,
+            fixed,
+            model["register_logits"],
+            candidate_min,
+            local_seed,
+            model["tonal_logits"],
+            lattice.tonic_pc,
+            lattice.mode,
+        )
     )
     generated = k3.rhythmic_gibbs_sample(
         initial,
@@ -159,12 +167,14 @@ def _generation_metrics(
         register_logits=model["register_logits"],
         features=model["features"],
         weights=model["weights"],
+        constraint_features=model["constraint_features"],
         sweeps=sweeps,
         seed=local_seed,
         tonal_logits=model["tonal_logits"],
         tonic_pc=lattice.tonic_pc,
         mode=lattice.mode,
         metric_levels=lattice.metric_levels,
+        strong_block_sweeps=strong_block_sweeps,
     )
     return lattice.piece_id, label, _metrics(generated, lattice)
 
@@ -198,17 +208,31 @@ def _markdown(result: dict[str, Any]) -> str:
     lines = [
         "# Audit génératif explicite de la basse et des sonorités",
         "",
-        f"`{result['experiment']['pieces']}` chorals de validation, "
+        f"`{result['experiment']['pieces']}` chorals de "
+        f"{result['experiment']['split_role']}, "
         f"`{result['experiment']['seeds_per_piece']}` graine(s), "
         f"`{result['experiment']['sweeps']}` balayages. Même soprano, rythme et "
         "blocs de bord pour Bach et chaque modèle. Test réservé non chargé.",
         "",
+    ]
+    if result["experiment"]["strong_block_labels"]:
+        lines.extend(
+            [
+                f"`{result['experiment']['strong_block_sweeps']}` passe(s) "
+                "conjointe(s) aux temps forts pour : "
+                f"`{', '.join(result['experiment']['strong_block_labels'])}`.",
+                "",
+            ]
+        )
+    lines.extend(
+        [
         "Chaque valeur est d'abord calculée par pièce, puis moyennée pour ne pas",
         "donner davantage de poids aux chorals longs.",
         "",
         "| Mesure | Bach | " + " | ".join(labels) + " |",
         "|---|" + "---:|" * (len(labels) + 1),
-    ]
+        ]
+    )
     for description, key, format_kind in metrics:
         source = result["summary"]["Bach"][key]["mean"]
         values = [result["summary"][label][key]["mean"] for label in labels]
@@ -257,8 +281,24 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--scores", type=Path, default=DEFAULT_SCORES)
     parser.add_argument("--seeds", default="5517")
     parser.add_argument("--sweeps", type=int, default=6)
+    parser.add_argument("--strong-block-sweeps", type=int, default=0)
+    parser.add_argument(
+        "--strong-block-labels",
+        default="",
+        help="Comma-separated model labels receiving the blocked passes.",
+    )
+    parser.add_argument(
+        "--initialization",
+        choices=("random", "source"),
+        default="random",
+    )
     parser.add_argument("--max-pieces", type=int, default=10)
     parser.add_argument("--piece-offset", type=int, default=0)
+    parser.add_argument(
+        "--split-role",
+        choices=("train", "validation"),
+        default="validation",
+    )
     parser.add_argument("--workers", type=int, default=1)
     parser.add_argument("--output-dir", type=Path, default=HERE / "results")
     parser.add_argument(
@@ -276,6 +316,14 @@ def main() -> int:
         if not separator or not label:
             raise ValueError("Models must use LABEL=PATH")
         model_paths[label] = Path(path)
+    strong_block_labels = {
+        label for label in args.strong_block_labels.split(",") if label
+    }
+    unknown_block_labels = strong_block_labels.difference(model_paths)
+    if unknown_block_labels:
+        raise ValueError(
+            f"Unknown strong-block model labels: {sorted(unknown_block_labels)}"
+        )
     payloads = {
         label: json.loads(path.read_text(encoding="utf-8"))
         for label, path in model_paths.items()
@@ -305,10 +353,19 @@ def main() -> int:
                 [rule["weight"] for rule in model["rules"]],
                 dtype=np.float64,
             ),
+            "constraint_features": tuple(
+                k3.feature_from_model_record(record)
+                for record in model.get("constraints", ())
+            ),
         }
     split_payload = json.loads(args.splits.read_text(encoding="utf-8"))
     splits = split_payload.get("grouped_split", split_payload)
-    piece_ids = list(splits["validation"])[
+    available_piece_ids = (
+        sorted(splits["train"], key=generative._stable_order)
+        if args.split_role == "train"
+        else list(splits["validation"])
+    )
+    piece_ids = available_piece_ids[
         args.piece_offset : args.piece_offset + args.max_pieces
     ]
     seeds = [int(value) for value in args.seeds.split(",") if value]
@@ -332,6 +389,12 @@ def main() -> int:
             candidate_max,
             seed,
             args.sweeps,
+            args.initialization,
+            (
+                args.strong_block_sweeps
+                if label in strong_block_labels
+                else 0
+            ),
         )
         for piece_id in piece_ids
         for label, model in prepared.items()
@@ -413,9 +476,13 @@ def main() -> int:
             "test_loaded": False,
             "pieces": len(piece_ids),
             "piece_ids": piece_ids,
+            "split_role": args.split_role,
             "seeds": seeds,
             "seeds_per_piece": len(seeds),
             "sweeps": args.sweeps,
+            "strong_block_sweeps": args.strong_block_sweeps,
+            "strong_block_labels": sorted(strong_block_labels),
+            "initialization": args.initialization,
             "workers": args.workers,
         },
         "models": {label: str(path.resolve()) for label, path in model_paths.items()},

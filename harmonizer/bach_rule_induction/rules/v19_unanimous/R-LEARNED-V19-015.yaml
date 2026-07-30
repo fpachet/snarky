@@ -1,0 +1,104 @@
+schema_version: 1
+id: R-LEARNED-V19-015
+title: 'toutes voix : mouvement adjacent de classe 1 (seconde mineure modulo l’octave)'
+lifecycle: SUPPORTED_PRETEST
+status: PREFER
+statement: 'toutes voix : mouvement adjacent de classe 1 (seconde mineure modulo l’octave)'
+scope:
+  voices: SATB
+  window:
+  - previous
+  - current
+  - following
+  attack_hold_semantics: true
+  corpus: music21-3.1.0-deepbach-352
+  split: variant-safe-251-50-51
+normalized_feature:
+  complexity: 1
+  key: any_voice_adjacent_abs_class:-1:-:1:-
+  kind: any_voice_adjacent_abs_class
+  label: any_voice_adjacent_abs_class(all_voices)=1
+  other_voice: null
+  second_value: null
+  target_voice: -1
+  value: 1
+conclusion:
+  kind: prefer
+  log_weight: 0.4119163779261201
+  absolute_prohibition: false
+selection:
+  complete_reinductions: 5
+  selected_in: 5
+  unanimous: true
+  calls_other_rules: false
+statistics:
+  train:
+    pieces: 251
+    decisions: 53604
+    testable_opportunities: 53604
+    piece_support: 251
+    observed_mean_on_testable: 3.7238452354301916
+    model_expected_mean_on_testable: 3.7236791915794574
+    postfit_residual_gradient: 0.0001660438507340436
+    postfit_residual_z: 0.06148947474894556
+  validation:
+    pieces: 50
+    decisions: 10414
+    testable_opportunities: 10414
+    piece_support: 50
+    observed_mean_on_testable: 3.74639907816401
+    model_expected_mean_on_testable: 3.737236165651532
+    postfit_residual_gradient: 0.009162912512477993
+    postfit_residual_z: 1.4929672632024982
+  test:
+    opened: false
+provenance:
+  model: v19_unanimous_full_model.json
+  origin: learned_from_bach_corpus
+  human_authored: false
+  preference_human_authored: false
+  feature_definition_human_authored: false
+  historical_rules_loaded: false
+snarky_factor:
+  file: ../../factor_bases/k3_v6_induced/v19_unanimous_full.factors
+  factor_group: k3_v19_unanimous
+  factor_id: F-K3-V19-CORE-015
+bach_examples:
+- piece: bach/bwv121.6
+  decision_ordinal: 107
+  voice: alto
+  chosen_midi: 66
+  chosen_activation_count: 14
+  maximum_alternative_activation_count: 17
+- piece: bach/bwv356
+  decision_ordinal: 211
+  voice: bass
+  chosen_midi: 51
+  chosen_activation_count: 13
+  maximum_alternative_activation_count: 13
+- piece: bach/bwv261
+  decision_ordinal: 51
+  voice: alto
+  chosen_midi: 67
+  chosen_activation_count: 13
+  maximum_alternative_activation_count: 13
+validation_exceptions:
+- piece: bach/bwv111.6
+  decision_ordinal: 59
+  voice: tenor
+  chosen_midi: 62
+  chosen_activation_count: 0
+  maximum_alternative_activation_count: 2
+- piece: bach/bwv162.6-lpz
+  decision_ordinal: 179
+  voice: alto
+  chosen_midi: 69
+  chosen_activation_count: 0
+  maximum_alternative_activation_count: 2
+- piece: bach/bwv179.6
+  decision_ordinal: 0
+  voice: bass
+  chosen_midi: 55
+  chosen_activation_count: 0
+  maximum_alternative_activation_count: 2
+deepbach_counterexamples: []

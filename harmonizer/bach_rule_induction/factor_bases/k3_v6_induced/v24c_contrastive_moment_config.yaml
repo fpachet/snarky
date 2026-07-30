@@ -1,0 +1,44 @@
+schema_version: 1
+id: K3-V24C-CONTRASTIVE-MOMENT-1
+status: FROZEN
+frozen_on: 2026-07-29
+purpose: >
+  Estimer les huit poids V24 par le gradient génératif MaxEnt
+  E_Bach[f] - E_modele[f], puisque leur pseudo-vraisemblance locale ne se
+  réplique pas et ne corrige pas les contextes hors corpus.
+
+baseline_model: v23_metric_harmony_full_model.json
+source_grammar: grammar_v24_residual_sonority.yaml
+
+sampling:
+  split: structure_train
+  pieces: 32
+  seeds: [24204]
+  sweeps: 6
+  initialization: source
+  update_schedule: sequential
+  fixed_soprano: true
+  fixed_boundary_blocks: true
+  workers: 8
+
+optimization:
+  iterations: 8
+  learning_rate: 0.5
+  l2: 0.01
+  weight_clip: 1.5
+  baseline_weights_frozen: true
+  residual_weights_initialization: zero
+  validation_used_during_updates: false
+
+evaluation:
+  validation_pieces: 10
+  validation_seed: 24204
+  validation_sweeps: 6
+  generation_metrics_used_for_stopping: false
+
+provenance_guards:
+  status_vocabulary_changed_after_v24b: false
+  human_authored_weight_signs: false
+  pseudo_likelihood_weights_reused: false
+  generated_states_used_as_hard_negatives: true
+  test_split_loaded: false

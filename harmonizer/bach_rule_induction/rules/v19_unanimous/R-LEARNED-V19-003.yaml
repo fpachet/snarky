@@ -1,0 +1,104 @@
+schema_version: 1
+id: R-LEARNED-V19-003
+title: 'au moins deux voix adjacentes : écart ordonné ≤ 2 demi-tons au bloc central'
+lifecycle: SUPPORTED_PRETEST
+status: AVOID
+statement: 'au moins deux voix adjacentes : écart ordonné ≤ 2 demi-tons au bloc central'
+scope:
+  voices: SATB
+  window:
+  - previous
+  - current
+  - following
+  attack_hold_semantics: true
+  corpus: music21-3.1.0-deepbach-352
+  split: variant-safe-251-50-51
+normalized_feature:
+  complexity: 1
+  key: any_adjacent_central_ordered_gap_le:-1:-:2:-
+  kind: any_adjacent_central_ordered_gap_le
+  label: any_adjacent_central_ordered_gap_le(all_voices)=2
+  other_voice: null
+  second_value: null
+  target_voice: -1
+  value: 2
+conclusion:
+  kind: avoid
+  log_weight: -0.7034326725688141
+  absolute_prohibition: false
+selection:
+  complete_reinductions: 5
+  selected_in: 5
+  unanimous: true
+  calls_other_rules: false
+statistics:
+  train:
+    pieces: 251
+    decisions: 53604
+    testable_opportunities: 53045
+    piece_support: 251
+    observed_mean_on_testable: 1.0330851164105948
+    model_expected_mean_on_testable: 1.0371844932176897
+    postfit_residual_gradient: -0.004056627168352091
+    postfit_residual_z: -2.4450066676520956
+  validation:
+    pieces: 50
+    decisions: 10414
+    testable_opportunities: 10339
+    piece_support: 50
+    observed_mean_on_testable: 0.8754231550440081
+    model_expected_mean_on_testable: 0.878034196727301
+    postfit_residual_gradient: -0.0025922373692687534
+    postfit_residual_z: -0.7136735659177733
+  test:
+    opened: false
+provenance:
+  model: v19_unanimous_full_model.json
+  origin: learned_from_bach_corpus
+  human_authored: false
+  preference_human_authored: false
+  feature_definition_human_authored: false
+  historical_rules_loaded: false
+snarky_factor:
+  file: ../../factor_bases/k3_v6_induced/v19_unanimous_full.factors
+  factor_group: k3_v19_unanimous
+  factor_id: F-K3-V19-CORE-003
+bach_examples:
+- piece: bach/bwv308
+  decision_ordinal: 0
+  voice: alto
+  chosen_midi: 65
+  chosen_activation_count: 0
+  maximum_alternative_activation_count: 2
+- piece: bach/bwv265
+  decision_ordinal: 7
+  voice: alto
+  chosen_midi: 65
+  chosen_activation_count: 0
+  maximum_alternative_activation_count: 2
+- piece: bach/bwv55.5
+  decision_ordinal: 4
+  voice: alto
+  chosen_midi: 69
+  chosen_activation_count: 0
+  maximum_alternative_activation_count: 1
+validation_exceptions:
+- piece: bach/bwv248.64-s
+  decision_ordinal: 204
+  voice: tenor
+  chosen_midi: 57
+  chosen_activation_count: 9
+  maximum_alternative_activation_count: 9
+- piece: bach/bwv260
+  decision_ordinal: 150
+  voice: bass
+  chosen_midi: 55
+  chosen_activation_count: 8
+  maximum_alternative_activation_count: 9
+- piece: bach/bwv168.6
+  decision_ordinal: 197
+  voice: alto
+  chosen_midi: 66
+  chosen_activation_count: 7
+  maximum_alternative_activation_count: 10
+deepbach_counterexamples: []
