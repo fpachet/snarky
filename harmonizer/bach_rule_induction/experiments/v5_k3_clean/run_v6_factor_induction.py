@@ -138,6 +138,36 @@ def _catalogue(
                 False,
             )
         ),
+        joint_weak_resolution_features=bool(
+            grammar.get("extensions", {}).get(
+                "joint_weak_resolution_features",
+                False,
+            )
+        ),
+        joint_strong_resolution_features=bool(
+            grammar.get("extensions", {}).get(
+                "joint_strong_resolution_features",
+                False,
+            )
+        ),
+        bass_trajectory_status_features=bool(
+            grammar.get("extensions", {}).get(
+                "bass_trajectory_status_features",
+                False,
+            )
+        ),
+        bass_motion_status_features=bool(
+            grammar.get("extensions", {}).get(
+                "bass_motion_status_features",
+                False,
+            )
+        ),
+        strong_succession_status_features=bool(
+            grammar.get("extensions", {}).get(
+                "strong_succession_status_features",
+                False,
+            )
+        ),
     )
     family_by_kind = _feature_family_map(grammar)
     catalogue = {

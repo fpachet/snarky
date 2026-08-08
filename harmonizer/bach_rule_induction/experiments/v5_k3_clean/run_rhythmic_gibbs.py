@@ -128,7 +128,10 @@ def _source_score_metadata(score: Any) -> dict[str, Any]:
     if len(declared_keys) != 1 or len(signatures) != 1:
         raise ValueError("Expected one declared key and time signature")
     declared = declared_keys[0]
-    key_signature = declared.tonic.name + ("m" if declared.mode == "minor" else "")
+    # music21 spells flats with ``-`` (for example ``B-``), whereas the
+    # Standard MIDI key-signature meta event used by Mido expects ``b``.
+    midi_tonic = declared.tonic.name.replace("-", "b")
+    key_signature = midi_tonic + ("m" if declared.mode == "minor" else "")
     quarter_bpms = [
         float(quarter_bpm)
         for mark in marks

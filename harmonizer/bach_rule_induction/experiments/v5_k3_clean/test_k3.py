@@ -8,18 +8,21 @@ import export_v5_16_factor_catalogue as factor_export
 import export_v5_16_factor_program as factor_program_export
 import fit_joint_pseudolikelihood as joint_pl
 import fit_v7_residual_factors as v7_fit
+import fit_v34_harmonic_budget as v34_budget
 import k3
 import local_tonality
 import numpy as np
 import pytest
 import refit_v6_generative_weights as v6_refit
 import run_exact_factor_reinduction as exact_reinduction
+import run_full_snarky_score_floor_generation as full_generation
 import run_k3_ablation as ablation
 import run_k3_null_max_calibration as calibration
 import run_rhythmic_gibbs as rhythmic
 import run_v6_factor_controllability as v6_control
 import run_v6_residual_feature_diagnostic as v6_residual
 import snarky_choice_bridge
+import v34_harmony
 
 
 def _dataset() -> k3.K3Dataset:
@@ -43,6 +46,22 @@ def _dataset() -> k3.K3Dataset:
 def test_model_version_ignores_k3_namespace_prefix() -> None:
     assert rhythmic._model_version("K3-V19-UNANIMOUS-FULL-1") == "V19"
     assert rhythmic._model_version("V5.7-K3-CONTEXTUAL") == "V5.7"
+
+
+def test_homorhythmic_provider_rejects_parallel_perfect_intervals() -> None:
+    violates = full_generation.JointHomorhythmicChoiceProvider
+    assert violates._violates_pairwise_voice_leading(
+        (72, 67, 60, 48),
+        (74, 69, 62, 50),
+    )
+
+
+def test_homorhythmic_provider_accepts_contrary_voice_leading() -> None:
+    violates = full_generation.JointHomorhythmicChoiceProvider
+    assert not violates._violates_pairwise_voice_leading(
+        (72, 67, 60, 48),
+        (71, 67, 62, 48),
+    )
 
 
 def test_catalogue_is_numeric_and_has_no_historical_rule_names() -> None:
@@ -374,11 +393,7 @@ def test_v10_grammar_extends_v6_without_mutating_it() -> None:
         / "factor_bases/k3_v6_induced/grammar_v10_interval_context.yaml"
     )
     grammar = exact_reinduction._load_grammar(grammar_path)
-    kinds = {
-        kind
-        for family in grammar["families"]
-        for kind in family["feature_kinds"]
-    }
+    kinds = {kind for family in grammar["families"] for kind in family["feature_kinds"]}
 
     assert grammar["id"] == "K3-V10-INTERVAL-CONTEXT-GRAMMAR-1"
     assert grammar["extensions"]["interval_context_licenses"]
@@ -392,11 +407,7 @@ def test_v13_grammar_adds_only_neutral_directed_metric_relations() -> None:
         / "factor_bases/k3_v6_induced/grammar_v13_directed_metric_context.yaml"
     )
     grammar = exact_reinduction._load_grammar(grammar_path)
-    kinds = {
-        kind
-        for family in grammar["families"]
-        for kind in family["feature_kinds"]
-    }
+    kinds = {kind for family in grammar["families"] for kind in family["feature_kinds"]}
 
     assert grammar["id"] == "K3-V13-DIRECTED-METRIC-CONTEXT-GRAMMAR-1"
     assert grammar["extensions"]["directed_metric_context_licenses"]
@@ -410,11 +421,7 @@ def test_v14_grammar_adds_full_directed_metric_trajectory_relations() -> None:
         / "factor_bases/k3_v6_induced/grammar_v14_directed_metric_trajectory.yaml"
     )
     grammar = exact_reinduction._load_grammar(grammar_path)
-    kinds = {
-        kind
-        for family in grammar["families"]
-        for kind in family["feature_kinds"]
-    }
+    kinds = {kind for family in grammar["families"] for kind in family["feature_kinds"]}
 
     assert grammar["id"] == "K3-V14-DIRECTED-METRIC-TRAJECTORY-GRAMMAR-1"
     assert grammar["extensions"]["directed_metric_trajectory_licenses"]
@@ -428,11 +435,7 @@ def test_v11_grammar_adds_train_defined_tonal_licences() -> None:
         / "factor_bases/k3_v6_induced/grammar_v11_tonal_licenses.yaml"
     )
     grammar = exact_reinduction._load_grammar(grammar_path)
-    kinds = {
-        kind
-        for family in grammar["families"]
-        for kind in family["feature_kinds"]
-    }
+    kinds = {kind for family in grammar["families"] for kind in family["feature_kinds"]}
 
     assert grammar["id"] == "K3-V11-TONAL-LICENSE-GRAMMAR-1"
     assert grammar["extensions"]["interval_context_licenses"]
@@ -782,6 +785,159 @@ def test_attack_segments_preserve_a_leading_hold_as_boundary_segment() -> None:
     assert soprano == [(0, 2, 0), (2, 3, 0), (3, 4, 0), (4, 5, 0)]
 
 
+def test_two_note_cycle_counts_distinguish_aba_from_ababab() -> None:
+    isolated = k3.two_note_cycle_counts([60, 62, 60, 65, 67])
+    continued = k3.two_note_cycle_counts([60, 62, 60, 62, 60, 62])
+
+    assert isolated["lag2_returns"] == 1
+    assert isolated["continued_cycles"] == 0
+    assert isolated["maximum_run_length"] == 3
+    assert continued["lag2_returns"] == 4
+    assert continued["continued_cycles"] == 3
+    assert continued["maximum_run_length"] == 6
+
+
+def test_attacked_pitch_sequence_ignores_holds() -> None:
+    blocks = np.asarray([[60], [60], [62], [62], [60]], dtype=np.int16)
+    attacks = np.asarray([[1], [0], [1], [0], [1]], dtype=bool)
+
+    assert k3.attacked_pitch_sequence(blocks, attacks, 0).tolist() == [60, 62, 60]
+
+
+def test_attack_cycle_factor_penalizes_only_the_abab_continuation() -> None:
+    import run_full_snarky_score_floor_generation as generation
+
+    segments = (
+        (0, 1, 3),
+        (1, 2, 3),
+        (2, 3, 3),
+        (3, 4, 3),
+    )
+    factor = generation.AttackCycleSequenceFactor(
+        factor_ids=("cycle",),
+        voice_log_weights=(None, None, None, -2.0),
+        source=Path("model.json"),
+    )
+    assignments = {
+        segments[0]: 48,
+        segments[1]: 50,
+        segments[2]: 48,
+    }
+    candidates = np.asarray([47, 48, 49, 50, 51], dtype=np.int16)
+
+    energies = factor.candidate_energies(
+        assignments,
+        segments[3],
+        candidates,
+        segments,
+    )
+
+    assert energies.tolist() == [0.0, 0.0, 0.0, -2.0, 0.0]
+
+
+def test_attack_cycle_factor_does_not_penalize_first_aba_return() -> None:
+    import run_full_snarky_score_floor_generation as generation
+
+    segments = (
+        (0, 1, 3),
+        (1, 2, 3),
+        (2, 3, 3),
+        (3, 4, 3),
+    )
+    factor = generation.AttackCycleSequenceFactor(
+        factor_ids=("cycle",),
+        voice_log_weights=(None, None, None, -2.0),
+        source=Path("model.json"),
+    )
+    assignments = {
+        segments[0]: 47,
+        segments[1]: 50,
+        segments[2]: 48,
+    }
+
+    energies = factor.candidate_energies(
+        assignments,
+        segments[3],
+        np.asarray([47, 48, 49, 50, 51], dtype=np.int16),
+        segments,
+    )
+
+    assert not energies.any()
+
+
+def test_v33_constraint_ablation_adds_only_two_strong_statuses() -> None:
+    import run_full_snarky_score_floor_generation as generation
+
+    baseline = generation._constraint_features("v22")
+    v33 = generation._constraint_features("v33_strict_strong_unlicensed")
+
+    assert v33[: len(baseline)] == baseline
+    assert [feature.value for _, feature in v33[len(baseline) :]] == [6, 7]
+    assert all(
+        feature.kind == "central_residual_strong_sonority_status"
+        for _, feature in v33[len(baseline) :]
+    )
+
+
+def test_strong_skeleton_search_order_assigns_strong_controllers_first() -> None:
+    import run_full_snarky_score_floor_generation as generation
+
+    attacks = np.ones((3, 4), dtype=bool)
+    levels = np.asarray([0, 2, 0], dtype=np.int8)
+
+    ordered = generation._search_ordered_segments(
+        attacks,
+        levels,
+        "strong_skeleton",
+    )
+
+    assert ordered[:3] == ((1, 2, 3), (1, 2, 2), (1, 2, 1))
+    assert len(ordered) == 9
+
+
+def test_v34_named_resolution_states_are_observable_and_deterministic() -> None:
+    dominant = np.asarray([67, 65, 62, 47], dtype=np.int16)  # G F D B
+    tonic = np.asarray([67, 64, 60, 48], dtype=np.int16)  # G E C C
+
+    current = v34_harmony.analyze_block(dominant, tonic_pc=0)
+    following = v34_harmony.analyze_block(tonic, tonic_pc=0)
+
+    assert current["family"] == "dominant_seventh"
+    assert current["root_degree"] == 7
+    assert following["family"] == "consonant_triad"
+    assert v34_harmony.resolution_outcome(current, following) == (
+        "triad_descending_fifth"
+    )
+
+
+def test_v34_chordal_seventh_resolution_is_voice_specific() -> None:
+    dominant = np.asarray([67, 65, 62, 47], dtype=np.int16)
+    resolved = np.asarray([67, 64, 60, 48], dtype=np.int16)
+    unresolved = np.asarray([67, 67, 60, 48], dtype=np.int16)
+    analysis = v34_harmony.analyze_block(dominant, tonic_pc=0)
+
+    assert v34_harmony.seventh_resolution_status(
+        dominant,
+        resolved,
+        analysis,
+    ) == "resolved_down"
+    assert v34_harmony.seventh_resolution_status(
+        dominant,
+        unresolved,
+        analysis,
+    ) == "not_resolved_down"
+
+
+def test_v34_binomial_budget_is_monotone_in_opportunities() -> None:
+    budgets = [
+        v34_budget._binomial_quantile(trials, 0.16, 0.95)
+        for trials in range(1, 30)
+    ]
+
+    assert budgets == sorted(budgets)
+    assert budgets[24] < 25
+
+
 def test_validated_attack_segments_reject_an_unrepresented_internal_attack() -> None:
     attacks = np.ones((5, 4), dtype=bool)
     attacks[2, 0] = False
@@ -804,8 +960,7 @@ def test_colored_segment_groups_have_disjoint_factor_scopes() -> None:
     assert any(len(group) > 1 for group in groups)
     for group in groups:
         scopes = [
-            set(k3.segment_energy_times(segment, attacks.shape[0]))
-            for segment in group
+            set(k3.segment_energy_times(segment, attacks.shape[0])) for segment in group
         ]
         for left in range(len(scopes)):
             for right in range(left + 1, len(scopes)):
@@ -1261,6 +1416,65 @@ def test_joint_segment_components_match_scalar_worlds() -> None:
     assert np.allclose(base_scores + factor_totals @ weights, expected)
 
 
+def test_batch_candidate_segment_components_match_scalar_contexts() -> None:
+    first = np.asarray(
+        [
+            [67, 64, 55, 48],
+            [69, 65, 57, 50],
+            [71, 67, 59, 52],
+            [72, 69, 60, 53],
+        ],
+        dtype=np.int16,
+    )
+    second = first.copy()
+    second[2] = (72, 67, 60, 48)
+    contexts = np.stack((first, second))
+    attacks = np.ones_like(first, dtype=bool)
+    candidates = np.arange(48, 75, dtype=np.int16)
+    register_logits = np.arange(4 * 27, dtype=np.float64).reshape(4, 27) / 100
+    features = (
+        k3.FeatureSpec("any_voice_adjacent_step_gt", -1, value=2),
+        k3.FeatureSpec("central_bass_pcset", -1, value=145),
+        k3.FeatureSpec("any_pair_central_abs_class", -1, value=2),
+    )
+    kwargs = {
+        "candidate_min": 48,
+        "candidate_max": 74,
+        "register_logits": register_logits,
+        "features": features,
+        "tonic_pc": 0,
+        "mode": 0,
+        "metric_levels": np.asarray([3, 1, 2, 3], dtype=np.int8),
+    }
+
+    batch_base, batch_totals = k3.batch_candidate_segment_components(
+        contexts,
+        attacks,
+        range(1, 3),
+        1,
+        2,
+        1,
+        candidates,
+        **kwargs,
+    )
+    scalar = tuple(
+        k3.candidate_segment_components(
+            context,
+            attacks,
+            range(1, 3),
+            1,
+            2,
+            1,
+            candidates,
+            **kwargs,
+        )
+        for context in contexts
+    )
+
+    assert np.array_equal(batch_base, np.stack([row[0] for row in scalar]))
+    assert np.array_equal(batch_totals, np.stack([row[1] for row in scalar]))
+
+
 def test_selected_candidate_feature_path_matches_full_masks() -> None:
     data = _dataset()
     data.tonic_pcs = np.asarray([0, 2], dtype=np.int8)
@@ -1552,9 +1766,7 @@ def test_vertical_status_extension_adds_only_two_named_triadic_factors() -> None
     for feature in baseline:
         added.pop(feature.key)
 
-    assert {feature.kind for feature in added.values()} == {
-        "central_triadic_metric"
-    }
+    assert {feature.kind for feature in added.values()} == {"central_triadic_metric"}
     assert {feature.second_value for feature in added.values()} == {0, 1}
     assert all(feature.complexity == 2 for feature in added.values())
 
@@ -1932,12 +2144,8 @@ def test_v24_residual_status_distinguishes_suspension_and_appoggiatura() -> None
         following=[76, 67, 60, 48],
     )
 
-    assert k3.central_residual_strong_sonority_statuses(
-        suspension
-    )[0, 0] == 4
-    assert k3.central_residual_strong_sonority_statuses(
-        appoggiatura
-    )[0, 0] == 5
+    assert k3.central_residual_strong_sonority_statuses(suspension)[0, 0] == 4
+    assert k3.central_residual_strong_sonority_statuses(appoggiatura)[0, 0] == 5
 
 
 def test_v24_residual_catalogue_is_one_exhaustive_eight_cell_group() -> None:
@@ -2017,3 +2225,147 @@ def test_v25_weak_catalogue_is_one_exhaustive_nine_cell_group() -> None:
     assert len(features) == 9
     assert activations[0, 0].sum() == 1
     assert activations[0, 0, 7]
+
+
+def test_v26_joint_status_distinguishes_following_sonority_quality() -> None:
+    acceptable = _residual_sonority_dataset(
+        [76, 68, 60, 48],
+        following=[76, 67, 60, 48],
+        metric_level=1,
+    )
+    unacceptable = _residual_sonority_dataset(
+        [76, 68, 60, 48],
+        following=[72, 61, 50, 39],
+        metric_level=1,
+    )
+
+    assert k3.central_joint_weak_resolution_statuses(acceptable)[0, 0] == 0
+    assert k3.central_joint_weak_resolution_statuses(unacceptable)[0, 0] == 1
+
+
+def test_v26_joint_catalogue_is_one_exhaustive_eighteen_cell_group() -> None:
+    data = _residual_sonority_dataset(
+        [76, 68, 60, 48],
+        following=[72, 61, 50, 39],
+        metric_level=1,
+    )
+    features = k3.joint_weak_resolution_feature_catalogue()
+    activations = k3.feature_matrix(data, features)
+
+    assert len(features) == 18
+    assert activations[0, 0].sum() == 1
+    assert activations[0, 0, 1]
+
+
+def test_v27_bass_status_separates_chord_tone_and_chromatic_passing() -> None:
+    chord = _residual_sonority_dataset([76, 67, 60, 48])
+    chromatic_passing = _residual_sonority_dataset(
+        [76, 67, 62, 49],
+        previous=[76, 67, 62, 48],
+        following=[76, 67, 62, 50],
+    )
+
+    assert k3.central_bass_trajectory_statuses(chord)[0, 0] == 0
+    assert k3.central_bass_trajectory_statuses(chromatic_passing)[0, 0] == 3
+
+
+def test_v27_bass_catalogue_is_one_exhaustive_ten_cell_group() -> None:
+    data = _residual_sonority_dataset(
+        [76, 67, 62, 49],
+        previous=[76, 67, 62, 48],
+        following=[76, 67, 62, 50],
+    )
+    features = k3.bass_trajectory_status_feature_catalogue()
+    activations = k3.feature_matrix(data, features)
+
+    assert len(features) == 10
+    assert activations[0, 0].sum() == 1
+    assert activations[0, 0, 3]
+
+
+def test_v28_bass_motion_does_not_hide_chromatic_chord_tone_arrival() -> None:
+    data = _residual_sonority_dataset(
+        [76, 67, 60, 48],
+        previous=[76, 67, 60, 47],
+        following=[76, 67, 60, 49],
+    )
+
+    assert k3.central_bass_trajectory_statuses(data)[0, 0] == 0
+    assert k3.central_bass_motion_statuses(data)[0, 0] == 2
+
+
+def test_v28_bass_motion_catalogue_is_one_exhaustive_eight_cell_group() -> None:
+    data = _residual_sonority_dataset(
+        [76, 67, 60, 48],
+        previous=[76, 67, 60, 47],
+        following=[76, 67, 60, 49],
+    )
+    features = k3.bass_motion_status_feature_catalogue()
+    activations = k3.feature_matrix(data, features)
+
+    assert len(features) == 8
+    assert activations[0, 0].sum() == 1
+    assert activations[0, 0, 2]
+
+
+def test_v29_strong_succession_crosses_sonority_tiers_and_bass_arrival() -> None:
+    data = _residual_sonority_dataset(
+        [76, 67, 60, 48],
+        previous=[74, 65, 59, 47],
+        metric_level=3,
+    )
+
+    status = k3.central_strong_succession_statuses(data)[0, 0]
+
+    assert (
+        k3.STRONG_SUCCESSION_STATUS_NAMES[status]
+        == "other_named_sonority__to__consonant_scaffold__with__semitone_arrival"
+    )
+
+
+def test_v29_strong_succession_is_exhaustive_only_on_strong_blocks() -> None:
+    strong = _residual_sonority_dataset(
+        [76, 67, 60, 48],
+        previous=[74, 65, 59, 47],
+        metric_level=3,
+    )
+    weak = _residual_sonority_dataset(
+        [76, 67, 60, 48],
+        previous=[74, 65, 59, 47],
+        metric_level=1,
+    )
+    features = k3.strong_succession_status_feature_catalogue()
+
+    assert len(features) == 36
+    assert k3.feature_matrix(strong, features)[0, 0].sum() == 1
+    assert k3.feature_matrix(weak, features)[0, 0].sum() == 0
+
+
+def test_v30_joint_strong_status_distinguishes_resolution_quality() -> None:
+    acceptable = _residual_sonority_dataset(
+        [76, 68, 60, 48],
+        following=[76, 67, 60, 48],
+        metric_level=3,
+    )
+    unacceptable = _residual_sonority_dataset(
+        [76, 68, 60, 48],
+        following=[72, 61, 50, 39],
+        metric_level=3,
+    )
+
+    assert k3.central_joint_strong_resolution_statuses(acceptable)[0, 0] == 0
+    assert k3.central_joint_strong_resolution_statuses(unacceptable)[0, 0] == 1
+
+
+def test_v30_joint_strong_catalogue_is_one_sixteen_cell_group() -> None:
+    data = _residual_sonority_dataset(
+        [76, 68, 60, 48],
+        following=[72, 61, 50, 39],
+        metric_level=3,
+    )
+    features = k3.joint_strong_resolution_feature_catalogue()
+    activations = k3.feature_matrix(data, features)
+
+    assert len(features) == 16
+    assert activations[0, 0].sum() == 1
+    assert activations[0, 0, 1]

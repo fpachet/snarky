@@ -1,0 +1,48 @@
+schema_version: 1
+id: K3-V28-BASS-MOTION-GRAMMAR-1
+status: FROZEN
+frozen_on: 2026-07-31
+extends: grammar_v27_bass_trajectory.yaml
+purpose: >
+  Séparer le mouvement de basse de son appartenance harmonique afin qu'une
+  note d'accord atteinte chromatiquement ne masque plus sa trajectoire.
+
+extensions:
+  bass_motion_status_features: true
+
+additional_generated_relations:
+  - bass_motion_status
+  - bass_attacked_repeat_or_hold
+  - bass_chromatic_resolution_shape
+  - bass_arrival_size_class
+
+families:
+  - id: bass_motion_status
+    feature_kinds:
+      - central_bass_motion_status
+    statuses:
+      - held_bass
+      - attacked_repeat
+      - chromatic_passing_or_neighbor
+      - chromatic_step_resolved
+      - chromatic_step_unresolved
+      - whole_tone_arrival
+      - small_skip_arrival
+      - leap_arrival
+    parameter_count: 8
+    complexity: 3
+    shared_block_potential: true
+    mutually_exclusive: true
+
+structure_learning:
+  maximum_clause_complexity: 5
+  group_learning: joint_only
+  individual_clause_selection: forbidden
+
+provenance_guards:
+  vocabulary_frozen_before_weight_learning: true
+  harmonic_and_motion_statuses_separate: true
+  generated_bwv108_6_used_for_weight_learning: false
+  no_status_is_an_absolute_prohibition: true
+  validation_effects_loaded: false
+  test_opened: false

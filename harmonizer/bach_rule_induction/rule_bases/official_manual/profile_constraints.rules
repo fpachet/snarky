@@ -1,0 +1,13 @@
+# Les profils sont des faits d'entrée. Ce groupe ne redéfinit aucune règle
+# musicale: il transforme seulement une violation déjà dérivée en conflit.
+
+GROUP official_manual_profile_constraints
+    RULE reject_hard_manual_violation
+    WHEN
+        ($scope violates $rule)
+        ($profile hard_rule $rule)
+    THEN
+        ADD (search state contradiction)
+        ADD (search violated_manual_rule SEQ[$profile $rule $scope])
+    END
+END_GROUP

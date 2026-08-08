@@ -1,0 +1,1071 @@
+{
+  "experiment": {
+    "id": "K3-TWO-LOOP-FULL-SNARKY-GENERATION-1",
+    "status": "FULL_GENERATION",
+    "gibbs_used_for_generation": false,
+    "lower_voice_source_used_for_search": false,
+    "test_loaded": false
+  },
+  "fragment": {
+    "piece_id": "bach/bwv108.6",
+    "blocks": 63,
+    "end_offset": 52.0,
+    "generated_segments": 189,
+    "scored_segments": 183,
+    "soprano_imposed": true,
+    "rhythm_imposed": true,
+    "homorhythmic_soprano_grid": true,
+    "all_voices_share_soprano_attacks": true,
+    "choice_unit": "propagated_reified_chord_domain"
+  },
+  "model": {
+    "source": "/Users/francoispachet/IdeaProjects/boojum/harmonizer/bach_rule_induction/factor_bases/k3_v6_induced/v23_metric_harmony_full_model.json",
+    "factor_count": 57,
+    "weight_estimator": "joint_conditional_mle",
+    "constraint_count": 23,
+    "constraint_status": "EMPIRICAL_PRETEST_FILTER",
+    "constraint_mode": "v22",
+    "forward_check": true,
+    "factor_choice_semantics": "exact_incremental_conditional_pseudolikelihood",
+    "boundary_factor": {
+      "source": "/Users/francoispachet/IdeaProjects/boojum/harmonizer/bach_rule_induction/factor_bases/k3_v6_induced/boundary_chord_factors.json",
+      "estimator": "leave_one_piece_out_smoothed_categorical",
+      "excluded_piece_id": "bach/bwv108.6",
+      "training_records_after_exclusion": 488,
+      "state": [
+        "quality",
+        "root_degree",
+        "inversion_interval"
+      ],
+      "global_unary_factors": [
+        "register",
+        "tonal_pitch_class"
+      ]
+    },
+    "search_order": "chronological",
+    "voice_ranges": {
+      "1": [
+        55,
+        74
+      ],
+      "2": [
+        50,
+        68
+      ],
+      "3": [
+        36,
+        64
+      ]
+    },
+    "voice_range_status": "EXACT_TRAIN_SUPPORT",
+    "threshold": -1.4124634927143713,
+    "threshold_policy": "strict_minimum",
+    "score_floor_mode": "offline_audit",
+    "score_floor_enforced": false,
+    "sequence_factor": null,
+    "harmonic_budget": null,
+    "official_manual_budgets": {
+      "profile": "pedagogical_strict",
+      "status": "FROZEN_AFTER_TEST_REPORT",
+      "activation": "complete_branch_constraint"
+    },
+    "vertical_harmonization": {
+      "every_block_checked": true,
+      "allowed_named_quality_indices": [
+        0,
+        1
+      ],
+      "vocabulary": "consonant_triads",
+      "incomplete_major_minor_triads_allowed": true,
+      "harmonic_skeleton_imposed": false
+    }
+  },
+  "search": {
+    "status": "solved",
+    "explored_nodes": 67,
+    "failed_branches": 3,
+    "backtracks": 3,
+    "score_rejections": 0,
+    "hard_constraint_rejections": 0,
+    "harmonic_dissonance_budget_rejections": 0,
+    "harmonic_chain_budget_rejections": 0,
+    "official_manual_budget_rejections": 0,
+    "official_manual_partial_rejections": 0,
+    "official_manual_complete_rejections": 0,
+    "official_manual_rejection_examples": [],
+    "homorhythmic_chord_rejections": 0,
+    "homorhythmic_chord_rejection_examples": [],
+    "provider_calls": 66,
+    "prefiltered_alternatives": 177,
+    "harmonic_budget_prefiltered": 0,
+    "manual_budget_prefiltered": 0,
+    "forward_check_rejections": 0,
+    "empty_domains": 3,
+    "component_cache_entries": 0,
+    "hard_prefilter_cache_entries": 198,
+    "batched_evaluation_cache_entries": 6636,
+    "reified_domain_propagation": {
+      "calls": 67,
+      "domain_removals": 5879,
+      "singleton_assignments": 0,
+      "empty_domains": 0,
+      "minimum_live_domain": 1,
+      "static_domain_sizes": [
+        158,
+        158,
+        158,
+        85,
+        116,
+        85,
+        116,
+        130,
+        138,
+        158,
+        138,
+        130,
+        138,
+        130,
+        116,
+        85,
+        116,
+        130,
+        138,
+        130,
+        138,
+        158,
+        158,
+        116,
+        116,
+        130,
+        138,
+        130,
+        116,
+        130,
+        138,
+        158,
+        150,
+        150,
+        130,
+        138,
+        130,
+        116,
+        85,
+        116,
+        130,
+        138,
+        158,
+        138,
+        130,
+        138,
+        130,
+        116,
+        85,
+        116,
+        130,
+        138,
+        85,
+        85,
+        85,
+        116,
+        116,
+        130,
+        138,
+        130,
+        116,
+        138,
+        158
+      ],
+      "compiled_pair_supports": 62
+    },
+    "batch_factor_evaluations": 198,
+    "factor_weighted_choices": 60,
+    "manual_factor_weighted_choices": 6,
+    "boundary_factor_weighted_choices": 2,
+    "boundary_energy_spreads": {
+      "opening": 23.996586855076416,
+      "closing": 12.56083940826152
+    },
+    "rejection_examples": []
+  },
+  "solution": {
+    "blocks": [
+      [
+        71,
+        66,
+        62,
+        59
+      ],
+      [
+        71,
+        67,
+        59,
+        52
+      ],
+      [
+        71,
+        67,
+        59,
+        52
+      ],
+      [
+        78,
+        66,
+        59,
+        51
+      ],
+      [
+        76,
+        69,
+        61,
+        49
+      ],
+      [
+        78,
+        66,
+        59,
+        50
+      ],
+      [
+        76,
+        69,
+        60,
+        52
+      ],
+      [
+        74,
+        65,
+        62,
+        45
+      ],
+      [
+        73,
+        69,
+        64,
+        49
+      ],
+      [
+        71,
+        64,
+        64,
+        55
+      ],
+      [
+        73,
+        69,
+        64,
+        49
+      ],
+      [
+        74,
+        65,
+        62,
+        45
+      ],
+      [
+        73,
+        69,
+        64,
+        49
+      ],
+      [
+        74,
+        65,
+        65,
+        46
+      ],
+      [
+        76,
+        68,
+        64,
+        47
+      ],
+      [
+        78,
+        71,
+        62,
+        47
+      ],
+      [
+        76,
+        67,
+        60,
+        48
+      ],
+      [
+        74,
+        71,
+        66,
+        50
+      ],
+      [
+        73,
+        68,
+        61,
+        52
+      ],
+      [
+        74,
+        65,
+        57,
+        53
+      ],
+      [
+        73,
+        70,
+        61,
+        53
+      ],
+      [
+        71,
+        71,
+        67,
+        52
+      ],
+      [
+        71,
+        71,
+        66,
+        50
+      ],
+      [
+        76,
+        71,
+        68,
+        52
+      ],
+      [
+        76,
+        72,
+        67,
+        52
+      ],
+      [
+        74,
+        69,
+        65,
+        53
+      ],
+      [
+        73,
+        66,
+        58,
+        54
+      ],
+      [
+        74,
+        71,
+        59,
+        54
+      ],
+      [
+        76,
+        64,
+        59,
+        55
+      ],
+      [
+        74,
+        71,
+        59,
+        55
+      ],
+      [
+        73,
+        64,
+        61,
+        56
+      ],
+      [
+        71,
+        68,
+        63,
+        56
+      ],
+      [
+        69,
+        65,
+        62,
+        57
+      ],
+      [
+        69,
+        69,
+        60,
+        53
+      ],
+      [
+        74,
+        66,
+        59,
+        47
+      ],
+      [
+        73,
+        69,
+        61,
+        54
+      ],
+      [
+        74,
+        66,
+        59,
+        47
+      ],
+      [
+        76,
+        69,
+        60,
+        52
+      ],
+      [
+        78,
+        66,
+        62,
+        45
+      ],
+      [
+        76,
+        69,
+        61,
+        49
+      ],
+      [
+        74,
+        62,
+        59,
+        42
+      ],
+      [
+        73,
+        65,
+        58,
+        49
+      ],
+      [
+        71,
+        68,
+        59,
+        52
+      ],
+      [
+        73,
+        64,
+        56,
+        56
+      ],
+      [
+        74,
+        67,
+        59,
+        50
+      ],
+      [
+        73,
+        61,
+        52,
+        44
+      ],
+      [
+        74,
+        65,
+        57,
+        38
+      ],
+      [
+        76,
+        68,
+        61,
+        44
+      ],
+      [
+        78,
+        71,
+        66,
+        50
+      ],
+      [
+        76,
+        67,
+        59,
+        43
+      ],
+      [
+        74,
+        71,
+        66,
+        50
+      ],
+      [
+        73,
+        66,
+        61,
+        45
+      ],
+      [
+        78,
+        69,
+        57,
+        38
+      ],
+      [
+        78,
+        66,
+        62,
+        45
+      ],
+      [
+        78,
+        69,
+        57,
+        38
+      ],
+      [
+        76,
+        64,
+        60,
+        43
+      ],
+      [
+        76,
+        67,
+        55,
+        36
+      ],
+      [
+        74,
+        62,
+        59,
+        42
+      ],
+      [
+        73,
+        65,
+        53,
+        46
+      ],
+      [
+        74,
+        62,
+        55,
+        47
+      ],
+      [
+        76,
+        68,
+        56,
+        47
+      ],
+      [
+        73,
+        61,
+        54,
+        46
+      ],
+      [
+        71,
+        63,
+        54,
+        47
+      ]
+    ],
+    "score": null,
+    "score_audit_status": "PENDING_COMPILED_OFFLINE_AUDIT",
+    "satisfies_threshold": null,
+    "adjacent_crossed_blocks": 0,
+    "exports": {
+      "musicxml": "/Users/francoispachet/IdeaProjects/boojum/harmonizer/generated/two_loop_full_bwv108_6_v42_complete_boundary_voicing.musicxml",
+      "midi": "/Users/francoispachet/IdeaProjects/boojum/harmonizer/generated/two_loop_full_bwv108_6_v42_complete_boundary_voicing.mid",
+      "exporter": "MuSES"
+    },
+    "harmonic_budget": null,
+    "official_manual": {
+      "source": "/Users/francoispachet/IdeaProjects/boojum/harmonizer/generated/two_loop_full_bwv108_6_v42_complete_boundary_voicing.musicxml",
+      "profile": "pedagogical_strict",
+      "frame_count": 63,
+      "violations": [],
+      "satisfactions": [
+        {
+          "scope": "SEQ[SEQ[position_0 position_1] soprano]",
+          "rule_id": "MANUAL-COMMON-TONE"
+        },
+        {
+          "scope": "SEQ[SEQ[position_2 position_3] tenor]",
+          "rule_id": "MANUAL-COMMON-TONE"
+        },
+        {
+          "scope": "SEQ[SEQ[position_8 position_9] tenor]",
+          "rule_id": "MANUAL-COMMON-TONE"
+        },
+        {
+          "scope": "SEQ[SEQ[position_9 position_10] tenor]",
+          "rule_id": "MANUAL-COMMON-TONE"
+        },
+        {
+          "scope": "SEQ[SEQ[position_21 position_22] soprano]",
+          "rule_id": "MANUAL-COMMON-TONE"
+        },
+        {
+          "scope": "SEQ[SEQ[position_21 position_22] alto]",
+          "rule_id": "MANUAL-COMMON-TONE"
+        },
+        {
+          "scope": "SEQ[SEQ[position_22 position_23] alto]",
+          "rule_id": "MANUAL-COMMON-TONE"
+        },
+        {
+          "scope": "SEQ[SEQ[position_27 position_28] tenor]",
+          "rule_id": "MANUAL-COMMON-TONE"
+        },
+        {
+          "scope": "SEQ[SEQ[position_32 position_33] soprano]",
+          "rule_id": "MANUAL-COMMON-TONE"
+        },
+        {
+          "scope": "SEQ[SEQ[position_52 position_53] soprano]",
+          "rule_id": "MANUAL-COMMON-TONE"
+        },
+        {
+          "scope": "SEQ[SEQ[position_53 position_54] soprano]",
+          "rule_id": "MANUAL-COMMON-TONE"
+        },
+        {
+          "scope": "SEQ[SEQ[position_55 position_56] soprano]",
+          "rule_id": "MANUAL-COMMON-TONE"
+        },
+        {
+          "scope": "SEQ[SEQ[position_61 position_62] tenor]",
+          "rule_id": "MANUAL-COMMON-TONE"
+        },
+        {
+          "scope": "SEQ[position_5 position_6]",
+          "rule_id": "MANUAL-CONTRARY-OUTER"
+        },
+        {
+          "scope": "SEQ[position_7 position_8]",
+          "rule_id": "MANUAL-CONTRARY-OUTER"
+        },
+        {
+          "scope": "SEQ[position_8 position_9]",
+          "rule_id": "MANUAL-CONTRARY-OUTER"
+        },
+        {
+          "scope": "SEQ[position_11 position_12]",
+          "rule_id": "MANUAL-CONTRARY-OUTER"
+        },
+        {
+          "scope": "SEQ[position_15 position_16]",
+          "rule_id": "MANUAL-CONTRARY-OUTER"
+        },
+        {
+          "scope": "SEQ[position_16 position_17]",
+          "rule_id": "MANUAL-CONTRARY-OUTER"
+        },
+        {
+          "scope": "SEQ[position_17 position_18]",
+          "rule_id": "MANUAL-CONTRARY-OUTER"
+        },
+        {
+          "scope": "SEQ[position_24 position_25]",
+          "rule_id": "MANUAL-CONTRARY-OUTER"
+        },
+        {
+          "scope": "SEQ[position_25 position_26]",
+          "rule_id": "MANUAL-CONTRARY-OUTER"
+        },
+        {
+          "scope": "SEQ[position_29 position_30]",
+          "rule_id": "MANUAL-CONTRARY-OUTER"
+        },
+        {
+          "scope": "SEQ[position_31 position_32]",
+          "rule_id": "MANUAL-CONTRARY-OUTER"
+        },
+        {
+          "scope": "SEQ[position_34 position_35]",
+          "rule_id": "MANUAL-CONTRARY-OUTER"
+        },
+        {
+          "scope": "SEQ[position_38 position_39]",
+          "rule_id": "MANUAL-CONTRARY-OUTER"
+        },
+        {
+          "scope": "SEQ[position_40 position_41]",
+          "rule_id": "MANUAL-CONTRARY-OUTER"
+        },
+        {
+          "scope": "SEQ[position_41 position_42]",
+          "rule_id": "MANUAL-CONTRARY-OUTER"
+        },
+        {
+          "scope": "SEQ[position_49 position_50]",
+          "rule_id": "MANUAL-CONTRARY-OUTER"
+        },
+        {
+          "scope": "SEQ[position_54 position_55]",
+          "rule_id": "MANUAL-CONTRARY-OUTER"
+        },
+        {
+          "scope": "SEQ[position_56 position_57]",
+          "rule_id": "MANUAL-CONTRARY-OUTER"
+        },
+        {
+          "scope": "SEQ[position_57 position_58]",
+          "rule_id": "MANUAL-CONTRARY-OUTER"
+        },
+        {
+          "scope": "SEQ[position_61 position_62]",
+          "rule_id": "MANUAL-CONTRARY-OUTER"
+        },
+        {
+          "scope": "SEQ[position_2 position_3]",
+          "rule_id": "MANUAL-CONTRARY-OUTER"
+        },
+        {
+          "scope": "SEQ[position_9 position_10]",
+          "rule_id": "MANUAL-CONTRARY-OUTER"
+        },
+        {
+          "scope": "SEQ[position_10 position_11]",
+          "rule_id": "MANUAL-CONTRARY-OUTER"
+        },
+        {
+          "scope": "SEQ[position_12 position_13]",
+          "rule_id": "MANUAL-CONTRARY-OUTER"
+        },
+        {
+          "scope": "SEQ[position_33 position_34]",
+          "rule_id": "MANUAL-CONTRARY-OUTER"
+        },
+        {
+          "scope": "SEQ[position_35 position_36]",
+          "rule_id": "MANUAL-CONTRARY-OUTER"
+        },
+        {
+          "scope": "SEQ[position_37 position_38]",
+          "rule_id": "MANUAL-CONTRARY-OUTER"
+        },
+        {
+          "scope": "SEQ[position_43 position_44]",
+          "rule_id": "MANUAL-CONTRARY-OUTER"
+        },
+        {
+          "scope": "SEQ[position_45 position_46]",
+          "rule_id": "MANUAL-CONTRARY-OUTER"
+        },
+        {
+          "scope": "SEQ[position_51 position_52]",
+          "rule_id": "MANUAL-CONTRARY-OUTER"
+        },
+        {
+          "scope": "SEQ[position_13 position_14]",
+          "rule_id": "MANUAL-LEADING-TONE"
+        },
+        {
+          "scope": "SEQ[position_20 position_21]",
+          "rule_id": "MANUAL-LEADING-TONE"
+        },
+        {
+          "scope": "SEQ[position_26 position_27]",
+          "rule_id": "MANUAL-LEADING-TONE"
+        },
+        {
+          "scope": "SEQ[position_41 position_42]",
+          "rule_id": "MANUAL-LEADING-TONE"
+        },
+        {
+          "scope": "SEQ[position_58 position_59]",
+          "rule_id": "MANUAL-LEADING-TONE"
+        },
+        {
+          "scope": "SEQ[position_61 position_62]",
+          "rule_id": "MANUAL-LEADING-TONE"
+        },
+        {
+          "scope": "SEQ[score soprano]",
+          "rule_id": "MANUAL-SINGABLE-LINE"
+        },
+        {
+          "scope": "SEQ[score alto]",
+          "rule_id": "MANUAL-SINGABLE-LINE"
+        },
+        {
+          "scope": "SEQ[score tenor]",
+          "rule_id": "MANUAL-SINGABLE-LINE"
+        },
+        {
+          "scope": "SEQ[score bass]",
+          "rule_id": "MANUAL-SINGABLE-LINE"
+        },
+        {
+          "scope": "SEQ[score alto]",
+          "rule_id": "MANUAL-ACTIVE-INNER-VOICE"
+        },
+        {
+          "scope": "SEQ[score tenor]",
+          "rule_id": "MANUAL-ACTIVE-INNER-VOICE"
+        }
+      ],
+      "factor_score": 12.128921898527313,
+      "factor_activations": [
+        {
+          "group": "official_manual_confirmed_tendency",
+          "factor": "manual_leading_tone_resolution",
+          "scope": "SEQ[position_13 position_14]",
+          "log_weight": 2.0214869830878857,
+          "witness_count": 1
+        },
+        {
+          "group": "official_manual_confirmed_tendency",
+          "factor": "manual_leading_tone_resolution",
+          "scope": "SEQ[position_20 position_21]",
+          "log_weight": 2.0214869830878857,
+          "witness_count": 1
+        },
+        {
+          "group": "official_manual_confirmed_tendency",
+          "factor": "manual_leading_tone_resolution",
+          "scope": "SEQ[position_26 position_27]",
+          "log_weight": 2.0214869830878857,
+          "witness_count": 1
+        },
+        {
+          "group": "official_manual_confirmed_tendency",
+          "factor": "manual_leading_tone_resolution",
+          "scope": "SEQ[position_41 position_42]",
+          "log_weight": 2.0214869830878857,
+          "witness_count": 1
+        },
+        {
+          "group": "official_manual_confirmed_tendency",
+          "factor": "manual_leading_tone_resolution",
+          "scope": "SEQ[position_58 position_59]",
+          "log_weight": 2.0214869830878857,
+          "witness_count": 1
+        },
+        {
+          "group": "official_manual_confirmed_tendency",
+          "factor": "manual_leading_tone_resolution",
+          "scope": "SEQ[position_61 position_62]",
+          "log_weight": 2.0214869830878857,
+          "witness_count": 1
+        }
+      ],
+      "hard_violations": [],
+      "contradiction": false,
+      "passes_profile": true,
+      "voice_summaries": [
+        {
+          "voice": "soprano",
+          "note_count": 63,
+          "unique_pitch_count": 6,
+          "maximum_leap": 7,
+          "step_count": 49,
+          "motion_count": 54,
+          "step_rate": 0.9074074074074074,
+          "longest_repeat_run": 3
+        },
+        {
+          "voice": "alto",
+          "note_count": 63,
+          "unique_pitch_count": 12,
+          "maximum_leap": 7,
+          "step_count": 5,
+          "motion_count": 59,
+          "step_rate": 0.0847457627118644,
+          "longest_repeat_run": 3
+        },
+        {
+          "voice": "tenor",
+          "note_count": 63,
+          "unique_pitch_count": 17,
+          "maximum_leap": 7,
+          "step_count": 32,
+          "motion_count": 55,
+          "step_rate": 0.5818181818181818,
+          "longest_repeat_run": 3
+        },
+        {
+          "voice": "bass",
+          "note_count": 63,
+          "unique_pitch_count": 19,
+          "maximum_leap": 7,
+          "step_count": 20,
+          "motion_count": 54,
+          "step_rate": 0.37037037037037035,
+          "longest_repeat_run": 2
+        }
+      ],
+      "criteria": [
+        {
+          "rule_id": "MANUAL-PARALLEL-FIFTH",
+          "violation_count": 0,
+          "satisfaction_count": 0,
+          "status": "hard"
+        },
+        {
+          "rule_id": "MANUAL-PARALLEL-OCTAVE",
+          "violation_count": 0,
+          "satisfaction_count": 0,
+          "status": "hard"
+        },
+        {
+          "rule_id": "MANUAL-DIRECT-FIFTH",
+          "violation_count": 0,
+          "satisfaction_count": 0,
+          "status": "hard"
+        },
+        {
+          "rule_id": "MANUAL-VOICE-CROSSING",
+          "violation_count": 0,
+          "satisfaction_count": 0,
+          "status": "hard"
+        },
+        {
+          "rule_id": "MANUAL-VOICE-OVERLAP",
+          "violation_count": 0,
+          "satisfaction_count": 0,
+          "status": "hard"
+        },
+        {
+          "rule_id": "MANUAL-COMMON-TONE",
+          "violation_count": 0,
+          "satisfaction_count": 13,
+          "status": "diagnostic_or_factor"
+        },
+        {
+          "rule_id": "MANUAL-CONTRARY-OUTER",
+          "violation_count": 0,
+          "satisfaction_count": 30,
+          "status": "diagnostic_or_factor"
+        },
+        {
+          "rule_id": "MANUAL-COMPENSATED-LEAP",
+          "violation_count": 0,
+          "satisfaction_count": 0,
+          "status": "hard"
+        },
+        {
+          "rule_id": "MANUAL-SUSPENSION-RESOLUTION",
+          "violation_count": 0,
+          "satisfaction_count": 0,
+          "status": "hard"
+        },
+        {
+          "rule_id": "MANUAL-LEADING-TONE",
+          "violation_count": 0,
+          "satisfaction_count": 6,
+          "status": "hard"
+        },
+        {
+          "rule_id": "MANUAL-SINGABLE-LINE",
+          "violation_count": 0,
+          "satisfaction_count": 4,
+          "status": "hard"
+        },
+        {
+          "rule_id": "MANUAL-ACTIVE-INNER-VOICE",
+          "violation_count": 0,
+          "satisfaction_count": 2,
+          "status": "hard"
+        }
+      ],
+      "empirical_metrics": [
+        {
+          "metric_id": "parallel_fifth_rate",
+          "value": 0.0,
+          "scaled_value": 0
+        },
+        {
+          "metric_id": "parallel_octave_rate",
+          "value": 0.0,
+          "scaled_value": 0
+        },
+        {
+          "metric_id": "direct_fifth_rate",
+          "value": 0.0,
+          "scaled_value": 0
+        },
+        {
+          "metric_id": "voice_crossing_rate",
+          "value": 0.0,
+          "scaled_value": 0
+        },
+        {
+          "metric_id": "voice_overlap_rate",
+          "value": 0.0,
+          "scaled_value": 0
+        },
+        {
+          "metric_id": "unresolved_leading_tone_ratio",
+          "value": 0.0,
+          "scaled_value": 0
+        },
+        {
+          "metric_id": "uncompensated_leap_ratio",
+          "value": 0.0,
+          "scaled_value": 0
+        },
+        {
+          "metric_id": "unresolved_suspension_ratio",
+          "value": 0.0,
+          "scaled_value": 0
+        },
+        {
+          "metric_id": "soprano_maximum_leap",
+          "value": 7.0,
+          "scaled_value": 7000000
+        },
+        {
+          "metric_id": "alto_maximum_leap",
+          "value": 7.0,
+          "scaled_value": 7000000
+        },
+        {
+          "metric_id": "alto_longest_repeat_run",
+          "value": 3.0,
+          "scaled_value": 3000000
+        },
+        {
+          "metric_id": "alto_step_deficit",
+          "value": 0.9152542372881356,
+          "scaled_value": 915254
+        },
+        {
+          "metric_id": "tenor_maximum_leap",
+          "value": 7.0,
+          "scaled_value": 7000000
+        },
+        {
+          "metric_id": "tenor_longest_repeat_run",
+          "value": 3.0,
+          "scaled_value": 3000000
+        },
+        {
+          "metric_id": "tenor_step_deficit",
+          "value": 0.4181818181818182,
+          "scaled_value": 418182
+        },
+        {
+          "metric_id": "bass_maximum_leap",
+          "value": 7.0,
+          "scaled_value": 7000000
+        },
+        {
+          "metric_id": "bass_longest_repeat_run",
+          "value": 2.0,
+          "scaled_value": 2000000
+        },
+        {
+          "metric_id": "bass_step_deficit",
+          "value": 0.6296296296296297,
+          "scaled_value": 629630
+        }
+      ],
+      "empirical_budget_exceedances": [],
+      "empirical_budget_violations": []
+    }
+  },
+  "diagnostic": {
+    "bach_used_for_search": false
+  }
+}

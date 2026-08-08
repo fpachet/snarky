@@ -1,0 +1,129 @@
+{
+  "experiment": {
+    "id": "K3-V33-STRONG-UNLICENSED-AUDIT-1",
+    "status": "PRE_CONSTRAINT_AUDIT",
+    "generated_piece_used_for_threshold_learning": false,
+    "weights_fitted": false,
+    "test_loaded": true
+  },
+  "statuses": [
+    "triad_plus_unlicensed",
+    "other_unlicensed"
+  ],
+  "bach_corpus": {
+    "train251": {
+      "pieces": 251,
+      "strong_interior_blocks": 8101,
+      "unlicensed_strong_blocks": 891,
+      "unlicensed_strong_rate": 0.10998642142945315,
+      "pieces_with_unlicensed": 216,
+      "maximum_unlicensed_in_one_piece": 55
+    },
+    "validation50": {
+      "pieces": 50,
+      "strong_interior_blocks": 1493,
+      "unlicensed_strong_blocks": 181,
+      "unlicensed_strong_rate": 0.12123241795043536,
+      "pieces_with_unlicensed": 45,
+      "maximum_unlicensed_in_one_piece": 12
+    },
+    "test51": {
+      "pieces": 51,
+      "strong_interior_blocks": 1579,
+      "unlicensed_strong_blocks": 158,
+      "unlicensed_strong_rate": 0.10006333122229259,
+      "pieces_with_unlicensed": 44,
+      "maximum_unlicensed_in_one_piece": 14
+    }
+  },
+  "paired_bwv108_6": {
+    "Bach": {
+      "strong_interior_blocks": 25,
+      "unlicensed_strong_blocks": 1,
+      "unlicensed_strong_rate": 0.04,
+      "status_counts": {
+        "triad_plus_unlicensed": 1
+      },
+      "examples": [
+        {
+          "block": 81,
+          "offset": 43.0,
+          "status": "triad_plus_unlicensed",
+          "pitches": [
+            78,
+            62,
+            61,
+            47
+          ]
+        }
+      ]
+    },
+    "V32": {
+      "strong_interior_blocks": 25,
+      "unlicensed_strong_blocks": 5,
+      "unlicensed_strong_rate": 0.2,
+      "status_counts": {
+        "exact_named_ambiguous": 5,
+        "triad_plus_unlicensed": 3,
+        "other_unlicensed": 2
+      },
+      "examples": [
+        {
+          "block": 5,
+          "offset": 3.0,
+          "status": "other_unlicensed",
+          "pitches": [
+            78,
+            66,
+            62,
+            49
+          ]
+        },
+        {
+          "block": 24,
+          "offset": 13.0,
+          "status": "triad_plus_unlicensed",
+          "pitches": [
+            76,
+            66,
+            62,
+            47
+          ]
+        },
+        {
+          "block": 44,
+          "offset": 23.0,
+          "status": "triad_plus_unlicensed",
+          "pitches": [
+            71,
+            66,
+            62,
+            49
+          ]
+        },
+        {
+          "block": 59,
+          "offset": 31.0,
+          "status": "triad_plus_unlicensed",
+          "pitches": [
+            76,
+            66,
+            62,
+            47
+          ]
+        },
+        {
+          "block": 85,
+          "offset": 45.0,
+          "status": "other_unlicensed",
+          "pitches": [
+            76,
+            66,
+            59,
+            47
+          ]
+        }
+      ]
+    }
+  }
+}

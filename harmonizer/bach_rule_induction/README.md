@@ -563,3 +563,129 @@ générative suffisante.
 
 Architecture, limites et suite :
 [`SNARKY_RULE_SEARCH_ARCHITECTURE.md`](SNARKY_RULE_SEARCH_ARCHITECTURE.md).
+
+La première expérience avec threshold appris valide la seconde boucle :
+la première solution sans seuil est rejetée, 21 contradictions de score
+déclenchent 21 backtracks, puis Snarky trouve une solution au-dessus du
+plancher strict. Cette solution reste trop répétitive, ce qui constitue un
+faux négatif explicite pour la prochaine induction. Voir
+[`TWO_LOOP_SCORE_FLOOR_EXPERIMENT.md`](factor_bases/k3_v6_induced/TWO_LOOP_SCORE_FLOOR_EXPERIMENT.md).
+
+## Checkpoint V26–V28 — résolution et basse
+
+V26 joint le rôle faible à la qualité de la sonorité suivante. V27 apprend le
+rôle harmonique et mélodique de la basse, puis V28 sépare explicitement son
+mouvement de son appartenance à l'accord. V27 et V28 sont confirmés sur 50
+chorals de validation, avec des intervalles bootstrap strictement positifs.
+
+Dans la génération complète appariée de BWV 108.6, V28 abaisse les demi-tons
+de basse de `81,52 %` à `60,87 %`, augmente les blocs triadiques de `39,80 %`
+à `45,92 %` et réduit les blocs forts non triadiques de `53,85 %` à
+`42,31 %`. La recherche effectue réellement 551 backtracks après propagation
+de domaine. L'écart restant avec Bach est conservé comme cible de la prochaine
+induction.
+
+Décision et audit :
+[`V27_V28_BASS_DECISION.md`](factor_bases/k3_v6_induced/V27_V28_BASS_DECISION.md),
+[`V28_SNARKY_GENERATION_AUDIT.md`](factor_bases/k3_v6_induced/V28_SNARKY_GENERATION_AUDIT.md).
+
+## Checkpoint V29–V30 — successions fortes
+
+V29 croise, dans une partition unique de 36 cellules, les types de sonorité
+précédente et courante avec l'arrivée de basse. Le groupe est confirmé sur 50
+chorals (`+0,011500`, IC 95 % `[+0,008226 ; +0,014722]`, `43/50` pièces).
+Dans la génération complète, il réduit les demi-tons de basse de `60,87 %` à
+`47,83 %`, mais ne réduit pas les blocs forts non triadiques.
+
+V30 ajoute la qualité de résolution aux huit statuts forts résiduels. Malgré
+une couverture complète, son gain tenu à part est indistinguable de zéro ; le
+groupe est rejeté et n'entre pas dans la base générative.
+
+Décision :
+[`V29_V30_STRONG_SUCCESSION_DECISION.md`](factor_bases/k3_v6_induced/V29_V30_STRONG_SUCCESSION_DECISION.md).
+
+## Checkpoint V31–V32 — cycles de deux notes attaquées
+
+L'audit de V29 distingue maintenant les simples retours `ABA` des
+continuations `ABAB`. Ces dernières sont très surreprésentées dans les trois
+voix générées. Un premier groupe ajouté à la pseudo-vraisemblance K3 est
+rejeté selon son protocole ; le résultat négatif est conservé.
+
+V32 apprend plutôt un petit modèle conditionnel sur son domaine naturel :
+parmi les retours `ABA`, quelle est la probabilité de continuer le cycle ?
+L'hypothèse est confirmée sur 219 chorals restés intacts. Le BIC retient deux
+facteurs sans effet de bord, un pour alto–ténor (`−1,699453`) et un pour la
+basse (`−2,420368`).
+
+Sur la génération appariée de BWV 108.6, le taux de continuation de basse
+passe de `13,33 %` à `1,11 %`. En contrepartie, les blocs forts non triadiques
+augmentent de `46,15 %` à `57,69 %`. Ce résultat démontre qu'un facteur local
+correct peut déplacer l'erreur si la recherche accepte la première solution
+au-dessus d'un score global compensatoire.
+
+V32 est donc retenu comme groupe explicatif mais pas comme meilleur générateur.
+La prochaine expérience doit imposer séparément une enveloppe séquentielle et
+un plancher de score harmonique fort afin que leurs violations provoquent de
+vrais backtracks.
+
+Résultats :
+[`V32_ATTACK_CYCLE_FACTOR_MODEL.md`](factor_bases/k3_v6_induced/V32_ATTACK_CYCLE_FACTOR_MODEL.md),
+[`V32_GENERATION_AUDIT.md`](factor_bases/k3_v6_induced/V32_GENERATION_AUDIT.md).
+
+## Checkpoint V33 — interdictions harmoniques contextuelles
+
+Les cinq sonorités fortes non licenciées de V32 ont été compilées en deux
+contraintes contextuelles strictes pour une ablation. Une propagation à un
+pas vérifie désormais qu'un choix conserve au moins une valeur possible pour
+le segment suivant.
+
+Snarky trouve une solution après 66 backtracks. Les cinq sonorités visées
+disparaissent, les dissonances fortes baissent de `1,077` à `0,885` et les
+blocs forts non triadiques de `57,69 %` à `50 %`. Les cycles V32 restent
+maîtrisés.
+
+L'interdiction absolue n'est toutefois pas une règle de Bach : les mêmes
+statuts occupent `10,999 %` des blocs forts du train et apparaissent une fois
+dans le BWV 108.6 authentique. V33 est donc conservé comme preuve causale, pas
+comme théorie promue. La suite doit apprendre un budget de groupe autorisant
+un petit nombre de ces événements et déclenchant le backtracking seulement
+au-delà de l'enveloppe du corpus.
+
+Audit :
+[`V33_GENERATION_AUDIT.md`](factor_bases/k3_v6_induced/V33_GENERATION_AUDIT.md).
+
+## Checkpoint V34 — résolution nommée et propagation harmonique
+
+V34 définit des états harmoniques observables sur deux temps forts et apprend
+une distribution compacte à trois issues. Le modèle est lisible, mais rejeté
+par la réplication : le taux d'accords nommés dissonants passe de `16,414 %`
+sur train à `14,599 %` sur validation, hors de l'intervalle préenregistré.
+
+Une ablation compile néanmoins ses quantiles comme budgets persistants dans
+Snarky. Deux recherches de 5 000 nœuds, chronologique puis « squelette fort
+d'abord », ne trouvent pas de solution. Le diagnostic est algorithmique : les
+trois voix d'un accord fort sont encore branchées séparément, ce qui produit
+des milliers de paires sans troisième voix compatible. V35 devra créer un
+choix conjoint d'accord dont le domaine est obtenu à partir des contraintes
+existantes, sans inventer une interdiction supplémentaire.
+
+Décision :
+[`V34_HARMONIC_SEARCH_DECISION.md`](factor_bases/k3_v6_induced/V34_HARMONIC_SEARCH_DECISION.md).
+
+## Expérience indépendante — base experte du manuel
+
+Une seconde voie valide Snarky sans dépendre de l'induction K3. La base
+[`official_manual`](rule_bases/official_manual/manifest.yaml) traduit les
+douze règles illustrées du manuel en quatre `RuleGroup`, deux `FactorGroup`
+purs, trois profils de contrainte et une interface de réparation par
+`CHOICE`. Elle n'importe ni la base historique ni la base apprise.
+
+Un lecteur MusicXML autonome transforme toute partition SATB en faits, puis
+un audit différentiel vérifie les douze exemples authentiques contre leurs
+mutations : 12 contrastes ciblés sur 12 passent. Un test séparé confirme
+qu'une violation dure provoque une contradiction et un vrai backtrack. Cette
+parité valide la traduction des exemples, pas encore la suffisance de la base
+pour caractériser le style.
+
+Protocole et résultats :
+[`official_manual_validation`](experiments/official_manual_validation/README.md).

@@ -54,6 +54,59 @@ RESIDUAL_WEAK_SONORITY_NAMES = (
     "triad_plus_unlicensed",
     "other_unlicensed",
 )
+WEAK_RESOLUTION_QUALITY_NAMES = (
+    "acceptable_following_sonority",
+    "unacceptable_following_sonority",
+)
+JOINT_WEAK_RESOLUTION_NAMES = tuple(
+    f"{weak}__{resolution}"
+    for weak in RESIDUAL_WEAK_SONORITY_NAMES
+    for resolution in WEAK_RESOLUTION_QUALITY_NAMES
+)
+JOINT_STRONG_RESOLUTION_NAMES = tuple(
+    f"{strong}__{resolution}"
+    for strong in RESIDUAL_STRONG_SONORITY_NAMES
+    for resolution in WEAK_RESOLUTION_QUALITY_NAMES
+)
+BASS_TRAJECTORY_STATUS_NAMES = (
+    "named_chord_bass",
+    "consonant_scaffold_chord_tone",
+    "diatonic_passing",
+    "chromatic_passing",
+    "diatonic_neighbor",
+    "chromatic_neighbor",
+    "prepared_step_resolution",
+    "attacked_step_resolution",
+    "other_diatonic",
+    "other_chromatic",
+)
+BASS_MOTION_STATUS_NAMES = (
+    "held_bass",
+    "attacked_repeat",
+    "chromatic_passing_or_neighbor",
+    "chromatic_step_resolved",
+    "chromatic_step_unresolved",
+    "whole_tone_arrival",
+    "small_skip_arrival",
+    "leap_arrival",
+)
+STRONG_SUCCESSION_SONORITY_NAMES = (
+    "consonant_scaffold",
+    "other_named_sonority",
+    "residual_sonority",
+)
+STRONG_SUCCESSION_BASS_ARRIVAL_NAMES = (
+    "repeated_bass",
+    "semitone_arrival",
+    "whole_tone_arrival",
+    "skip_or_leap_arrival",
+)
+STRONG_SUCCESSION_STATUS_NAMES = tuple(
+    f"{previous}__to__{current}__with__{arrival}"
+    for previous in STRONG_SUCCESSION_SONORITY_NAMES
+    for current in STRONG_SUCCESSION_SONORITY_NAMES
+    for arrival in STRONG_SUCCESSION_BASS_ARRIVAL_NAMES
+)
 NAMED_CHORD_STATUS_KINDS = {
     "central_named_chord_quality",
     "central_named_chord_root_degree",
@@ -80,6 +133,11 @@ SHARED_POTENTIAL_KINDS = {
     "central_unique_chord_family_inversion_strong",
     "central_residual_strong_sonority_status",
     "central_residual_weak_sonority_status",
+    "central_joint_weak_resolution_status",
+    "central_joint_strong_resolution_status",
+    "central_bass_trajectory_status",
+    "central_bass_motion_status",
+    "central_strong_succession_status",
     "bass_pcset_transition",
 }
 INTERVAL_CONTEXT_KINDS = {
@@ -775,13 +833,10 @@ def _named_chord_analysis_count_lookup() -> np.ndarray:
     return counts
 
 
-NAMED_CHORD_ANALYSIS_COUNT_BY_SIGNATURE = (
-    _named_chord_analysis_count_lookup()
-)
+NAMED_CHORD_ANALYSIS_COUNT_BY_SIGNATURE = _named_chord_analysis_count_lookup()
 
 
-def _consonant_triad_scaffold_lookups(
-) -> tuple[np.ndarray, np.ndarray, np.ndarray]:
+def _consonant_triad_scaffold_lookups() -> tuple[np.ndarray, np.ndarray, np.ndarray]:
     """Describe incomplete triads and strict triad-plus-one pcsets."""
 
     triad_signatures = {
@@ -794,18 +849,14 @@ def _consonant_triad_scaffold_lookups(
         if signature.bit_count() < 2:
             continue
         incomplete[signature] = any(
-            signature != triad
-            and signature & ~triad == 0
-            for triad in triad_signatures
+            signature != triad and signature & ~triad == 0 for triad in triad_signatures
         )
     analyses: list[set[tuple[int, int]]] = [set() for _ in range(4096)]
     for triad in triad_signatures:
         for foreign_pc in range(12):
             if triad & (1 << foreign_pc):
                 continue
-            analyses[triad | (1 << foreign_pc)].add(
-                (triad, foreign_pc)
-            )
+            analyses[triad | (1 << foreign_pc)].add((triad, foreign_pc))
     counts = np.zeros(4096, dtype=np.int8)
     foreign = np.full(4096, -1, dtype=np.int8)
     for signature, candidates in enumerate(analyses):
@@ -853,30 +904,17 @@ def central_residual_strong_sonority_statuses(
     signatures = central_tonic_pcset_signatures(dataset, candidates)
     levels = _context_array(dataset.metric_levels, "metric_levels")
     status = np.full(signatures.shape, -1, dtype=np.int8)
-    residual = (
-        (levels >= 2)[:, None]
-        & (NAMED_CHORD_ANALYSIS_COUNT_BY_SIGNATURE[signatures] != 1)
+    residual = (levels >= 2)[:, None] & (
+        NAMED_CHORD_ANALYSIS_COUNT_BY_SIGNATURE[signatures] != 1
     )
-    ambiguous_named = (
-        NAMED_CHORD_ANALYSIS_COUNT_BY_SIGNATURE[signatures] > 1
-    )
+    ambiguous_named = NAMED_CHORD_ANALYSIS_COUNT_BY_SIGNATURE[signatures] > 1
     status[residual & ambiguous_named] = 0
     incomplete = INCOMPLETE_CONSONANT_TRIAD_BY_SIGNATURE[signatures]
     status[residual & ~ambiguous_named & incomplete] = 1
     plus_count = TRIAD_PLUS_ONE_ANALYSIS_COUNT_BY_SIGNATURE[signatures]
     plus_ambiguous = plus_count > 1
-    status[
-        residual
-        & ~ambiguous_named
-        & ~incomplete
-        & plus_ambiguous
-    ] = 2
-    strict_plus = (
-        residual
-        & ~ambiguous_named
-        & ~incomplete
-        & (plus_count == 1)
-    )
+    status[residual & ~ambiguous_named & ~incomplete & plus_ambiguous] = 2
+    strict_plus = residual & ~ambiguous_named & ~incomplete & (plus_count == 1)
     if np.any(strict_plus):
         voices = dataset.voice_indices
         central = np.broadcast_to(
@@ -895,9 +933,7 @@ def central_residual_strong_sonority_statuses(
         ).copy()
         for voice in range(4):
             following[:, voice, :] = np.where(
-                ((voices == voice) & ~dataset.attacks[:, 2, voice])[
-                    :, None
-                ],
+                ((voices == voice) & ~dataset.attacks[:, 2, voice])[:, None],
                 candidates,
                 following[:, voice, :],
             )
@@ -910,9 +946,7 @@ def central_residual_strong_sonority_statuses(
             previous = dataset.blocks[:, 0, voice, None]
             incoming = central[:, voice, :] - previous
             outgoing = following[:, voice, :] - central[:, voice, :]
-            incoming_step = (
-                (np.abs(incoming) >= 1) & (np.abs(incoming) <= 2)
-            )
+            incoming_step = (np.abs(incoming) >= 1) & (np.abs(incoming) <= 2)
             outgoing_step = (
                 dataset.attacks[:, 2, voice, None]
                 & (np.abs(outgoing) >= 1)
@@ -920,14 +954,10 @@ def central_residual_strong_sonority_statuses(
             )
             prepared = central[:, voice, :] == previous
             passing = (
-                incoming_step
-                & outgoing_step
-                & (_sign(incoming) == _sign(outgoing))
+                incoming_step & outgoing_step & (_sign(incoming) == _sign(outgoing))
             )
             neighbor = (
-                incoming_step
-                & outgoing_step
-                & (following[:, voice, :] == previous)
+                incoming_step & outgoing_step & (following[:, voice, :] == previous)
             )
             passing_neighbor |= is_foreign & (passing | neighbor)
             suspension |= is_foreign & prepared & outgoing_step
@@ -960,9 +990,8 @@ def central_residual_weak_sonority_statuses(
     signatures = central_tonic_pcset_signatures(dataset, candidates)
     levels = _context_array(dataset.metric_levels, "metric_levels")
     status = np.full(signatures.shape, -1, dtype=np.int8)
-    residual = (
-        (levels < 2)[:, None]
-        & (NAMED_CHORD_ANALYSIS_COUNT_BY_SIGNATURE[signatures] != 1)
+    residual = (levels < 2)[:, None] & (
+        NAMED_CHORD_ANALYSIS_COUNT_BY_SIGNATURE[signatures] != 1
     )
     ambiguous_named = NAMED_CHORD_ANALYSIS_COUNT_BY_SIGNATURE[signatures] > 1
     status[residual & ambiguous_named] = 0
@@ -971,12 +1000,7 @@ def central_residual_weak_sonority_statuses(
     plus_count = TRIAD_PLUS_ONE_ANALYSIS_COUNT_BY_SIGNATURE[signatures]
     plus_ambiguous = plus_count > 1
     status[residual & ~ambiguous_named & ~incomplete & plus_ambiguous] = 2
-    strict_plus = (
-        residual
-        & ~ambiguous_named
-        & ~incomplete
-        & (plus_count == 1)
-    )
+    strict_plus = residual & ~ambiguous_named & ~incomplete & (plus_count == 1)
     if np.any(strict_plus):
         voices = dataset.voice_indices
         central = np.broadcast_to(
@@ -1017,14 +1041,10 @@ def central_residual_weak_sonority_statuses(
             )
             prepared = central[:, voice, :] == previous
             is_passing = (
-                incoming_step
-                & outgoing_step
-                & (_sign(incoming) == _sign(outgoing))
+                incoming_step & outgoing_step & (_sign(incoming) == _sign(outgoing))
             )
             is_neighbor = (
-                incoming_step
-                & outgoing_step
-                & (following[:, voice, :] == previous)
+                incoming_step & outgoing_step & (following[:, voice, :] == previous)
             )
             passing |= is_foreign & is_passing
             neighbor |= is_foreign & is_neighbor
@@ -1042,6 +1062,238 @@ def central_residual_weak_sonority_statuses(
         status[strict_plus & neighbor] = 4
         status[strict_plus & passing] = 3
     status[residual & (status < 0)] = 8
+    return status
+
+
+def following_tonic_pcset_signatures(
+    dataset: K3Dataset,
+    candidates: np.ndarray | None = None,
+) -> np.ndarray:
+    """Return candidate-aware tonic-relative pcsets at the following block."""
+
+    tonics = _context_array(dataset.tonic_pcs, "tonic_pcs")[:, None]
+    candidates = _candidate_values(dataset, candidates)
+    voices = dataset.voice_indices
+    signatures = np.zeros(
+        (dataset.size, candidates.shape[1]),
+        dtype=np.int16,
+    )
+    for voice in range(4):
+        held_candidate = ((voices == voice) & ~dataset.attacks[:, 2, voice])[:, None]
+        pitches = np.where(
+            held_candidate,
+            candidates,
+            dataset.blocks[:, 2, voice, None],
+        )
+        relative = (pitches - tonics) % 12
+        signatures |= np.left_shift(1, relative).astype(np.int16)
+    return signatures
+
+
+def central_joint_weak_resolution_statuses(
+    dataset: K3Dataset,
+    candidates: np.ndarray | None = None,
+) -> np.ndarray:
+    """Cross each V25 weak role with the quality of its next sonority.
+
+    A following sonority is acceptable when it has at least one exact named
+    chord analysis or is a subset of a consonant major/minor triad. The
+    predicate remains local to K3 and does not assign either outcome a sign.
+    """
+
+    weak = central_residual_weak_sonority_statuses(dataset, candidates)
+    following = following_tonic_pcset_signatures(dataset, candidates)
+    acceptable = (
+        NAMED_CHORD_ANALYSIS_COUNT_BY_SIGNATURE[following] > 0
+    ) | INCOMPLETE_CONSONANT_TRIAD_BY_SIGNATURE[following]
+    status = np.full(weak.shape, -1, dtype=np.int8)
+    residual = weak >= 0
+    status[residual] = weak[residual] * len(WEAK_RESOLUTION_QUALITY_NAMES) + (
+        ~acceptable[residual]
+    ).astype(np.int8)
+    return status
+
+
+def central_joint_strong_resolution_statuses(
+    dataset: K3Dataset,
+    candidates: np.ndarray | None = None,
+) -> np.ndarray:
+    """Cross each V24 strong residual role with its next-sonority quality."""
+
+    strong = central_residual_strong_sonority_statuses(dataset, candidates)
+    following = following_tonic_pcset_signatures(dataset, candidates)
+    acceptable = (
+        NAMED_CHORD_ANALYSIS_COUNT_BY_SIGNATURE[following] > 0
+    ) | INCOMPLETE_CONSONANT_TRIAD_BY_SIGNATURE[following]
+    status = np.full(strong.shape, -1, dtype=np.int8)
+    residual = strong >= 0
+    status[residual] = strong[residual] * len(WEAK_RESOLUTION_QUALITY_NAMES) + (
+        ~acceptable[residual]
+    ).astype(np.int8)
+    return status
+
+
+def central_bass_trajectory_statuses(
+    dataset: K3Dataset,
+    candidates: np.ndarray | None = None,
+) -> np.ndarray:
+    """Classify the bass by harmonic membership and local K3 trajectory."""
+
+    candidates = _candidate_values(dataset, candidates)
+    voices = dataset.voice_indices
+    central = np.where(
+        (voices == 3)[:, None],
+        candidates,
+        dataset.blocks[:, 1, 3, None],
+    )
+    following = np.where(
+        ((voices == 3) & ~dataset.attacks[:, 2, 3])[:, None],
+        candidates,
+        dataset.blocks[:, 2, 3, None],
+    )
+    previous = dataset.blocks[:, 0, 3, None]
+    incoming = central - previous
+    outgoing = following - central
+    incoming_step = (np.abs(incoming) >= 1) & (np.abs(incoming) <= 2)
+    outgoing_step = (
+        dataset.attacks[:, 2, 3, None]
+        & (np.abs(outgoing) >= 1)
+        & (np.abs(outgoing) <= 2)
+    )
+    passing = incoming_step & outgoing_step & (_sign(incoming) == _sign(outgoing))
+    neighbor = incoming_step & outgoing_step & (following == previous)
+    prepared = central == previous
+
+    tonics = _context_array(dataset.tonic_pcs, "tonic_pcs")[:, None]
+    modes = _context_array(dataset.modes, "modes")[:, None]
+    degree = (central - tonics) % 12
+    major_scale = np.isin(degree, (0, 2, 4, 5, 7, 9, 11))
+    minor_scale = np.isin(degree, (0, 2, 3, 5, 7, 8, 10))
+    diatonic = np.where(modes == 0, major_scale, minor_scale)
+
+    signatures = central_tonic_pcset_signatures(dataset, candidates)
+    named = NAMED_CHORD_ANALYSIS_COUNT_BY_SIGNATURE[signatures] > 0
+    incomplete = INCOMPLETE_CONSONANT_TRIAD_BY_SIGNATURE[signatures]
+    plus_count = TRIAD_PLUS_ONE_ANALYSIS_COUNT_BY_SIGNATURE[signatures]
+    foreign = TRIAD_PLUS_ONE_FOREIGN_PC_BY_SIGNATURE[signatures]
+    scaffold_chord_tone = incomplete | (
+        (plus_count == 1) & ((central - tonics) % 12 != foreign)
+    )
+
+    status = np.where(diatonic, 8, 9).astype(np.int8)
+    status = np.where(outgoing_step & ~prepared, 7, status)
+    status = np.where(outgoing_step & prepared, 6, status)
+    status = np.where(neighbor & diatonic, 4, status)
+    status = np.where(neighbor & ~diatonic, 5, status)
+    status = np.where(passing & diatonic, 2, status)
+    status = np.where(passing & ~diatonic, 3, status)
+    status = np.where(scaffold_chord_tone, 1, status)
+    status = np.where(named, 0, status)
+    return status
+
+
+def central_bass_motion_statuses(
+    dataset: K3Dataset,
+    candidates: np.ndarray | None = None,
+) -> np.ndarray:
+    """Classify bass motion independently of the current chord identity."""
+
+    candidates = _candidate_values(dataset, candidates)
+    voices = dataset.voice_indices
+    central = np.where(
+        (voices == 3)[:, None],
+        candidates,
+        dataset.blocks[:, 1, 3, None],
+    )
+    following = np.where(
+        ((voices == 3) & ~dataset.attacks[:, 2, 3])[:, None],
+        candidates,
+        dataset.blocks[:, 2, 3, None],
+    )
+    previous = dataset.blocks[:, 0, 3, None]
+    incoming = central - previous
+    outgoing = following - central
+    size = np.abs(incoming)
+    outgoing_step = (
+        dataset.attacks[:, 2, 3, None]
+        & (np.abs(outgoing) >= 1)
+        & (np.abs(outgoing) <= 2)
+    )
+    passing_or_neighbor = outgoing_step & (
+        (_sign(incoming) == _sign(outgoing)) | (following == previous)
+    )
+    attacked = dataset.attacks[:, 1, 3, None]
+
+    status = np.full(size.shape, 7, dtype=np.int8)
+    status = np.where((size >= 3) & (size <= 4), 6, status)
+    status = np.where(size == 2, 5, status)
+    status = np.where(size == 1, 4, status)
+    status = np.where((size == 1) & outgoing_step, 3, status)
+    status = np.where((size == 1) & passing_or_neighbor, 2, status)
+    status = np.where((size == 0) & attacked, 1, status)
+    status = np.where((size == 0) & ~attacked, 0, status)
+    return status
+
+
+def _sonority_tiers(signatures: np.ndarray) -> np.ndarray:
+    """Reduce pitch-class sets to three intelligible harmonic tiers."""
+
+    consonant_signatures = tuple(
+        _named_chord_signature(root, intervals)
+        for _, intervals in NAMED_CHORD_QUALITIES[:2]
+        for root in range(12)
+    )
+    consonant = np.isin(signatures, consonant_signatures) | (
+        INCOMPLETE_CONSONANT_TRIAD_BY_SIGNATURE[signatures]
+    )
+    named = NAMED_CHORD_ANALYSIS_COUNT_BY_SIGNATURE[signatures] > 0
+    tiers = np.full(signatures.shape, 2, dtype=np.int8)
+    tiers[named] = 1
+    tiers[consonant] = 0
+    return tiers
+
+
+def central_strong_succession_statuses(
+    dataset: K3Dataset,
+    candidates: np.ndarray | None = None,
+) -> np.ndarray:
+    """Classify a strong arrival by sonority tiers and bass motion.
+
+    The 36 cells form one exhaustive partition on strong central blocks:
+    three tiers before the decision, three candidate-aware tiers at the
+    decision, and four absolute bass-arrival classes. Weak central blocks
+    receive ``-1``.
+    """
+
+    candidates = _candidate_values(dataset, candidates)
+    previous_signatures = fixed_tonic_pcset_signatures(dataset, position=0)
+    current_signatures = central_tonic_pcset_signatures(dataset, candidates)
+    previous_tiers = _sonority_tiers(previous_signatures)
+    current_tiers = _sonority_tiers(current_signatures)
+
+    voices = dataset.voice_indices
+    current_bass = np.where(
+        (voices == 3)[:, None],
+        candidates,
+        dataset.blocks[:, 1, 3, None],
+    )
+    previous_bass = dataset.blocks[:, 0, 3, None]
+    absolute_arrival = np.abs(current_bass - previous_bass)
+    arrival = np.full(current_bass.shape, 3, dtype=np.int8)
+    arrival[absolute_arrival == 0] = 0
+    arrival[absolute_arrival == 1] = 1
+    arrival[absolute_arrival == 2] = 2
+
+    status = (
+        (
+            previous_tiers[:, None] * len(STRONG_SUCCESSION_SONORITY_NAMES)
+            + current_tiers
+        )
+        * len(STRONG_SUCCESSION_BASS_ARRIVAL_NAMES)
+        + arrival
+    ).astype(np.int8)
+    levels = _context_array(dataset.metric_levels, "metric_levels")
+    status[levels < 2, :] = -1
     return status
 
 
@@ -1065,8 +1317,7 @@ def _named_chord_status_mask(
             raise ValueError("Named chord status has an invalid quality")
         _, intervals = NAMED_CHORD_QUALITIES[quality_index]
         expected = [
-            _named_chord_signature(root_degree, intervals)
-            for root_degree in range(12)
+            _named_chord_signature(root_degree, intervals) for root_degree in range(12)
         ]
         return np.isin(signatures, expected)
 
@@ -1090,9 +1341,7 @@ def _named_chord_status_mask(
             raise ValueError("Named chord status has an invalid inversion")
         result = np.zeros_like(signatures, dtype=bool)
         for root_degree in range(12):
-            result |= (
-                signatures == _named_chord_signature(root_degree, intervals)
-            ) & (
+            result |= (signatures == _named_chord_signature(root_degree, intervals)) & (
                 bass_degrees == (root_degree + intervals[inversion]) % 12
             )
         return result
@@ -1242,8 +1491,7 @@ def _contextual_feature_mask(
             status = levels[:, None] >= 2
         elif feature.kind == "rare_tonal_bass_pcset":
             status = (
-                central_bass_pcset_signatures(dataset, candidates)
-                == vertical_signature
+                central_bass_pcset_signatures(dataset, candidates) == vertical_signature
             )
         else:
             raise ValueError(f"Unknown rare tonal feature: {feature.kind}")
@@ -1319,12 +1567,8 @@ def _contextual_feature_mask(
                 continue
             if inversion >= len(intervals):
                 continue
-            result |= (
-                (qualities == quality)
-                & (
-                    bass_degrees
-                    == (roots + intervals[inversion]) % 12
-                )
+            result |= (qualities == quality) & (
+                bass_degrees == (roots + intervals[inversion]) % 12
             )
         return result & (levels >= 2)[:, None]
     if feature.kind == "central_residual_strong_sonority_status":
@@ -1347,6 +1591,38 @@ def _contextual_feature_mask(
             )
             == value
         )
+    if feature.kind == "central_joint_weak_resolution_status":
+        if value not in range(len(JOINT_WEAK_RESOLUTION_NAMES)):
+            raise ValueError("Joint weak-resolution status is out of range")
+        return (
+            central_joint_weak_resolution_statuses(
+                dataset,
+                candidates,
+            )
+            == value
+        )
+    if feature.kind == "central_joint_strong_resolution_status":
+        if value not in range(len(JOINT_STRONG_RESOLUTION_NAMES)):
+            raise ValueError("Joint strong-resolution status is out of range")
+        return (
+            central_joint_strong_resolution_statuses(
+                dataset,
+                candidates,
+            )
+            == value
+        )
+    if feature.kind == "central_bass_trajectory_status":
+        if value not in range(len(BASS_TRAJECTORY_STATUS_NAMES)):
+            raise ValueError("Bass trajectory status is out of range")
+        return central_bass_trajectory_statuses(dataset, candidates) == value
+    if feature.kind == "central_bass_motion_status":
+        if value not in range(len(BASS_MOTION_STATUS_NAMES)):
+            raise ValueError("Bass motion status is out of range")
+        return central_bass_motion_statuses(dataset, candidates) == value
+    if feature.kind == "central_strong_succession_status":
+        if value not in range(len(STRONG_SUCCESSION_STATUS_NAMES)):
+            raise ValueError("Strong succession status is out of range")
+        return central_strong_succession_statuses(dataset, candidates) == value
     if feature.kind in NAMED_CHORD_STATUS_KINDS:
         return _named_chord_status_mask(dataset, feature, candidates)
     if feature.kind in NAMED_CHORD_TRANSITION_KINDS:
@@ -1354,19 +1630,13 @@ def _contextual_feature_mask(
             raise ValueError("A named root transition requires major/minor mode")
         previous_signatures = fixed_tonic_pcset_signatures(dataset, position=0)
         current_signatures = central_tonic_pcset_signatures(dataset, candidates)
-        previous_roots = NAMED_CHORD_UNIQUE_ROOT_BY_SIGNATURE[
-            previous_signatures
-        ]
-        current_roots = NAMED_CHORD_UNIQUE_ROOT_BY_SIGNATURE[
-            current_signatures
-        ]
+        previous_roots = NAMED_CHORD_UNIQUE_ROOT_BY_SIGNATURE[previous_signatures]
+        current_roots = NAMED_CHORD_UNIQUE_ROOT_BY_SIGNATURE[current_signatures]
         modes = _context_array(dataset.modes, "modes")
         applies = (modes == feature.second_value)[:, None]
         if feature.kind == "central_named_root_transition_mode":
             if feature.value not in range(144):
-                raise ValueError(
-                    "A named root transition must encode two degrees"
-                )
+                raise ValueError("A named root transition must encode two degrees")
             previous_degree, current_degree = divmod(feature.value, 12)
             return (
                 applies
@@ -1444,13 +1714,9 @@ def _contextual_feature_mask(
             feature.other_voice not in range(4)
             or feature.other_voice == feature.target_voice
         ):
-            raise ValueError(
-                "Directed pair trajectory features require another voice"
-            )
+            raise ValueError("Directed pair trajectory features require another voice")
         if feature.second_value not in {0, 1}:
-            raise ValueError(
-                "Directed pair trajectory features require weak/strong"
-            )
+            raise ValueError("Directed pair trajectory features require weak/strong")
         levels = _context_array(dataset.metric_levels, "metric_levels")
         voice = feature.target_voice
         other_voice = feature.other_voice
@@ -1480,9 +1746,7 @@ def _contextual_feature_mask(
             status = outgoing_step
         elif suffix == "target_passing":
             status = (
-                incoming_step
-                & outgoing_step
-                & (_sign(incoming) == _sign(outgoing))
+                incoming_step & outgoing_step & (_sign(incoming) == _sign(outgoing))
             )
         elif suffix == "target_neighbor":
             status = incoming_step & outgoing_step & (following == previous)
@@ -1505,9 +1769,7 @@ def _contextual_feature_mask(
         previous = dataset.blocks[:, 0, 3, None]
         metric = (levels >= 2) == bool(feature.second_value)
         return (
-            applies[:, None]
-            & metric[:, None]
-            & (np.abs(candidates - previous) > value)
+            applies[:, None] & metric[:, None] & (np.abs(candidates - previous) > value)
         )
     if feature.kind == "bass_tonic_transition_metric":
         if feature.second_value not in {0, 1}:
@@ -1552,6 +1814,11 @@ def _feature_mask_for_candidates(
         "central_unique_chord_family_inversion_strong",
         "central_residual_strong_sonority_status",
         "central_residual_weak_sonority_status",
+        "central_joint_weak_resolution_status",
+        "central_joint_strong_resolution_status",
+        "central_bass_trajectory_status",
+        "central_bass_motion_status",
+        "central_strong_succession_status",
         *NAMED_CHORD_STATUS_KINDS,
         *NAMED_CHORD_TRANSITION_KINDS,
         "bass_pcset_transition",
@@ -1688,9 +1955,7 @@ def _universal_feature_mask(
         if voice_rows.size == 0:
             continue
         voice_candidates = (
-            candidates
-            if candidates.shape[0] == 1
-            else candidates[voice_rows]
+            candidates if candidates.shape[0] == 1 else candidates[voice_rows]
         )
         voice_previous = dataset.blocks[voice_rows, 0, voice, None]
         for other in range(4):
@@ -1716,11 +1981,9 @@ def _universal_feature_mask(
                 )
                 incoming = voice_candidates - voice_previous
                 outgoing = following - voice_candidates
-                incoming_step = (np.abs(incoming) >= 1) & (
-                    np.abs(incoming) <= 2
-                )
-                outgoing_step = next_attack & (np.abs(outgoing) >= 1) & (
-                    np.abs(outgoing) <= 2
+                incoming_step = (np.abs(incoming) >= 1) & (np.abs(incoming) <= 2)
+                outgoing_step = (
+                    next_attack & (np.abs(outgoing) >= 1) & (np.abs(outgoing) <= 2)
                 )
                 if feature.kind.endswith("target_rearticulated"):
                     status = voice_candidates == voice_previous
@@ -1734,9 +1997,7 @@ def _universal_feature_mask(
                     )
                 elif feature.kind.endswith("target_neighbor"):
                     status = (
-                        incoming_step
-                        & outgoing_step
-                        & (following == voice_previous)
+                        incoming_step & outgoing_step & (following == voice_previous)
                     )
                 else:
                     other_held = ~dataset.attacks[
@@ -1768,9 +2029,7 @@ def _universal_feature_mask(
                             & (np.abs(other_outgoing) <= 2)
                         )
                     else:  # pragma: no cover - guarded by the kind set
-                        raise ValueError(
-                            f"Unknown interval context: {feature.kind}"
-                        )
+                        raise ValueError(f"Unknown interval context: {feature.kind}")
                 local = (target_class == value) & status
             elif feature.kind in {
                 "any_pair_abs_class_preserved_same_sign",
@@ -2001,6 +2260,11 @@ def contextual_feature_catalogue(
     unique_chord_family_inversion_strong_features: bool = False,
     residual_strong_sonority_features: bool = False,
     residual_weak_sonority_features: bool = False,
+    joint_weak_resolution_features: bool = False,
+    joint_strong_resolution_features: bool = False,
+    bass_trajectory_status_features: bool = False,
+    bass_motion_status_features: bool = False,
+    strong_succession_status_features: bool = False,
 ) -> tuple[FeatureSpec, ...]:
     """Generate readable context features and observed vertical fingerprints."""
 
@@ -2049,13 +2313,21 @@ def contextual_feature_catalogue(
     if bass_tonal_strong_mode_features:
         features.extend(bass_tonal_strong_mode_feature_catalogue())
     if unique_chord_family_inversion_strong_features:
-        features.extend(
-            unique_chord_family_inversion_strong_feature_catalogue()
-        )
+        features.extend(unique_chord_family_inversion_strong_feature_catalogue())
     if residual_strong_sonority_features:
         features.extend(residual_strong_sonority_feature_catalogue())
     if residual_weak_sonority_features:
         features.extend(residual_weak_sonority_feature_catalogue())
+    if joint_weak_resolution_features:
+        features.extend(joint_weak_resolution_feature_catalogue())
+    if joint_strong_resolution_features:
+        features.extend(joint_strong_resolution_feature_catalogue())
+    if bass_trajectory_status_features:
+        features.extend(bass_trajectory_status_feature_catalogue())
+    if bass_motion_status_features:
+        features.extend(bass_motion_status_feature_catalogue())
+    if strong_succession_status_features:
+        features.extend(strong_succession_status_feature_catalogue())
     features.extend(
         FeatureSpec("central_distinct_pc_count", -1, value=count)
         for count in range(1, 5)
@@ -2219,8 +2491,7 @@ def bass_tonal_strong_mode_feature_catalogue() -> tuple[FeatureSpec, ...]:
     )
 
 
-def unique_chord_family_inversion_strong_feature_catalogue(
-) -> tuple[FeatureSpec, ...]:
+def unique_chord_family_inversion_strong_feature_catalogue() -> tuple[FeatureSpec, ...]:
     """Generate 14 strong-beat statuses from strict named chord analyses."""
 
     statuses = (
@@ -2238,8 +2509,7 @@ def unique_chord_family_inversion_strong_feature_catalogue(
     )
 
 
-def residual_strong_sonority_feature_catalogue(
-) -> tuple[FeatureSpec, ...]:
+def residual_strong_sonority_feature_catalogue() -> tuple[FeatureSpec, ...]:
     """Generate the exhaustive V24 statuses for the V23 reference state."""
 
     return tuple(
@@ -2253,8 +2523,7 @@ def residual_strong_sonority_feature_catalogue(
     )
 
 
-def residual_weak_sonority_feature_catalogue(
-) -> tuple[FeatureSpec, ...]:
+def residual_weak_sonority_feature_catalogue() -> tuple[FeatureSpec, ...]:
     """Generate the exhaustive V25 statuses for the weak V23 reference."""
 
     return tuple(
@@ -2265,6 +2534,76 @@ def residual_weak_sonority_feature_catalogue(
             complexity=4,
         )
         for status in range(len(RESIDUAL_WEAK_SONORITY_NAMES))
+    )
+
+
+def joint_weak_resolution_feature_catalogue() -> tuple[FeatureSpec, ...]:
+    """Generate the exhaustive V26 weak-role × resolution partition."""
+
+    return tuple(
+        FeatureSpec(
+            "central_joint_weak_resolution_status",
+            -1,
+            value=status,
+            complexity=5,
+        )
+        for status in range(len(JOINT_WEAK_RESOLUTION_NAMES))
+    )
+
+
+def joint_strong_resolution_feature_catalogue() -> tuple[FeatureSpec, ...]:
+    """Generate the exhaustive V30 strong-role × resolution partition."""
+
+    return tuple(
+        FeatureSpec(
+            "central_joint_strong_resolution_status",
+            -1,
+            value=status,
+            complexity=5,
+        )
+        for status in range(len(JOINT_STRONG_RESOLUTION_NAMES))
+    )
+
+
+def bass_trajectory_status_feature_catalogue() -> tuple[FeatureSpec, ...]:
+    """Generate the exhaustive V27 bass-role partition."""
+
+    return tuple(
+        FeatureSpec(
+            "central_bass_trajectory_status",
+            -1,
+            value=status,
+            complexity=5,
+        )
+        for status in range(len(BASS_TRAJECTORY_STATUS_NAMES))
+    )
+
+
+def bass_motion_status_feature_catalogue() -> tuple[FeatureSpec, ...]:
+    """Generate the exhaustive V28 bass-motion partition."""
+
+    return tuple(
+        FeatureSpec(
+            "central_bass_motion_status",
+            -1,
+            value=status,
+            complexity=3,
+        )
+        for status in range(len(BASS_MOTION_STATUS_NAMES))
+    )
+
+
+def strong_succession_status_feature_catalogue() -> tuple[FeatureSpec, ...]:
+    """Generate the exhaustive V29 strong-arrival partition."""
+
+    return tuple(
+        FeatureSpec(
+            "central_strong_succession_status",
+            -1,
+            value=status,
+            complexity=5,
+        )
+        for status in range(len(STRONG_SUCCESSION_STATUS_NAMES))
     )
 
 
@@ -2506,9 +2845,7 @@ def conditional_nll_gradient(
     chosen = probs[np.arange(dataset.size), dataset.chosen_indices]
     loss = float(-np.log(np.maximum(chosen, 1e-12)).mean())
     probs[np.arange(dataset.size), dataset.chosen_indices] -= 1.0
-    gradient = (
-        np.einsum("ncr,nc->r", matrix, probs, optimize=True) / dataset.size
-    )
+    gradient = np.einsum("ncr,nc->r", matrix, probs, optimize=True) / dataset.size
     if l2:
         loss += 0.5 * l2 * float(np.dot(weights, weights))
         gradient += l2 * weights
@@ -2756,6 +3093,71 @@ def attack_segments(attacks: np.ndarray) -> tuple[tuple[int, int, int], ...]:
             for start, end in zip(starts, ends, strict=True)
         )
     return tuple(sorted(segments))
+
+
+def attacked_pitch_sequence(
+    blocks: np.ndarray,
+    attacks: np.ndarray,
+    voice: int,
+) -> np.ndarray:
+    """Return pitches articulated by one voice, excluding held blocks."""
+
+    if blocks.shape != attacks.shape or blocks.ndim != 2:
+        raise ValueError("Blocks and attacks must be matching time × voice arrays")
+    if voice not in range(blocks.shape[1]):
+        raise ValueError("Voice index is outside the score")
+    return blocks[np.flatnonzero(attacks[:, voice]), voice]
+
+
+def two_note_cycle_lengths(pitches: Sequence[int]) -> tuple[int, ...]:
+    """Return maximal non-unison ``ABAB…`` run lengths of at least three."""
+
+    values = np.asarray(pitches, dtype=np.int16)
+    runs: list[int] = []
+    start = 0
+    while start + 2 < values.size:
+        if values[start] == values[start + 2] and values[start] != values[start + 1]:
+            end = start + 3
+            while (
+                end < values.size
+                and values[end] == values[end - 2]
+                and values[end] != values[end - 1]
+            ):
+                end += 1
+            runs.append(end - start)
+            start = end - 2
+        else:
+            start += 1
+    return tuple(runs)
+
+
+def two_note_cycle_counts(pitches: Sequence[int]) -> dict[str, int]:
+    """Count lag-two returns and genuine continuations on attacked pitches."""
+
+    values = np.asarray(pitches, dtype=np.int16)
+    lag2 = sum(
+        values[index] == values[index - 2]
+        and values[index] != values[index - 1]
+        for index in range(2, values.size)
+    )
+    continued = sum(
+        values[index] == values[index - 2]
+        and values[index - 1] == values[index - 3]
+        and values[index] != values[index - 1]
+        for index in range(3, values.size)
+    )
+    runs = two_note_cycle_lengths(values)
+    return {
+        "attacks": int(values.size),
+        "lag2_opportunities": max(0, int(values.size) - 2),
+        "lag2_returns": int(lag2),
+        "continuation_opportunities": max(0, int(values.size) - 3),
+        "continued_cycles": int(continued),
+        "runs": len(runs),
+        "runs_ge4": sum(length >= 4 for length in runs),
+        "runs_ge5": sum(length >= 5 for length in runs),
+        "maximum_run_length": max(runs, default=0),
+    }
 
 
 def validated_attack_segments(
@@ -3123,9 +3525,7 @@ def candidate_segment_components(
         candidate_min=candidate_min,
         candidate_max=candidate_max,
         tonic_pcs=(
-            None
-            if base.tonic_pcs is None
-            else np.tile(base.tonic_pcs, candidate_count)
+            None if base.tonic_pcs is None else np.tile(base.tonic_pcs, candidate_count)
         ),
         modes=None if base.modes is None else np.tile(base.modes, candidate_count),
         metric_levels=(
@@ -3145,6 +3545,130 @@ def candidate_segment_components(
         register_logits=register_logits,
         features=features,
         tonal_logits=tonal_logits,
+    )
+
+
+def batch_candidate_segment_components(
+    block_contexts: np.ndarray,
+    attacks: np.ndarray,
+    central_times: Sequence[int],
+    start: int,
+    end: int,
+    voice: int,
+    candidates: np.ndarray,
+    *,
+    candidate_min: int,
+    candidate_max: int,
+    register_logits: np.ndarray,
+    features: Sequence[FeatureSpec],
+    tonal_logits: np.ndarray | None = None,
+    tonic_pc: int | None = None,
+    mode: int | None = None,
+    metric_levels: np.ndarray | None = None,
+) -> tuple[np.ndarray, np.ndarray]:
+    """Vectorize exact segment components over several complete contexts.
+
+    The scalar evaluator materializes the same candidate worlds independently
+    for every chord considered by one ``CHOICE``.  This routine stacks those
+    contexts before feature activation, so each feature family is dispatched
+    once over a larger NumPy batch.  Its result is exactly equivalent to
+    repeated :func:`candidate_segment_components` calls.
+    """
+
+    contexts = np.asarray(block_contexts, dtype=np.int16)
+    if contexts.ndim != 3 or contexts.shape[2] != 4:
+        raise ValueError("Expected block contexts with shape (context, time, 4)")
+    candidates = np.asarray(candidates, dtype=np.int16)
+    if candidates.ndim != 1 or candidates.size == 0:
+        raise ValueError("Expected one non-empty candidate pitch vector")
+    bases = tuple(
+        _decision_dataset(
+            blocks,
+            attacks,
+            central_times,
+            candidate_min,
+            candidate_max,
+            tonic_pc,
+            mode,
+            metric_levels,
+        )
+        for blocks in contexts
+    )
+    if not bases or all(base is None for base in bases):
+        return (
+            np.zeros((contexts.shape[0], candidates.size), dtype=np.float64),
+            np.zeros(
+                (contexts.shape[0], candidates.size, len(features)),
+                dtype=np.float64,
+            ),
+        )
+    if any(base is None for base in bases):
+        raise ValueError("All batched contexts must expose the same decisions")
+    concrete = tuple(base for base in bases if base is not None)
+    row_count = concrete[0].size
+    if any(base.size != row_count for base in concrete):
+        raise ValueError("Batched contexts must expose equal decision counts")
+    context_count = len(concrete)
+    candidate_count = candidates.size
+
+    def stacked(name: str) -> np.ndarray:
+        return np.stack([getattr(base, name) for base in concrete])
+
+    base_blocks = stacked("blocks")
+    base_offsets = stacked("offsets")
+    world_blocks = np.broadcast_to(
+        base_blocks[:, None, :, :, :],
+        (context_count, candidate_count, row_count, 3, 4),
+    ).copy()
+    changed_cells = (base_offsets >= start) & (base_offsets < end)
+    local_voice = world_blocks[:, :, :, :, voice]
+    local_voice[...] = np.where(
+        changed_cells[:, None, :, :],
+        candidates[None, :, None, None],
+        local_voice,
+    )
+
+    def repeated(name: str) -> np.ndarray:
+        values = stacked(name)
+        return np.repeat(values[:, None, ...], candidate_count, axis=1).reshape(
+            (-1, *values.shape[2:])
+        )
+
+    def repeated_optional(name: str) -> np.ndarray | None:
+        first = getattr(concrete[0], name)
+        if first is None:
+            return None
+        if any(getattr(base, name) is None for base in concrete):
+            raise ValueError(f"Inconsistent optional K3 context: {name}")
+        return repeated(name)
+
+    dataset = K3Dataset(
+        piece_ids=repeated("piece_ids"),
+        offsets=repeated("offsets"),
+        voice_indices=repeated("voice_indices"),
+        blocks=world_blocks.reshape((-1, 3, 4)),
+        attacks=repeated("attacks"),
+        candidate_min=candidate_min,
+        candidate_max=candidate_max,
+        tonic_pcs=repeated_optional("tonic_pcs"),
+        modes=repeated_optional("modes"),
+        metric_levels=repeated_optional("metric_levels"),
+    )
+    joint_groups = np.repeat(
+        np.arange(context_count * candidate_count, dtype=np.int32),
+        row_count,
+    )
+    base_scores, factor_totals = _candidate_world_components(
+        dataset,
+        joint_groups,
+        candidates=np.arange(context_count * candidate_count, dtype=np.int32),
+        register_logits=register_logits,
+        features=features,
+        tonal_logits=tonal_logits,
+    )
+    return (
+        base_scores.reshape((context_count, candidate_count)),
+        factor_totals.reshape((context_count, candidate_count, len(features))),
     )
 
 
@@ -3415,10 +3939,7 @@ def rhythmic_gibbs_sample(
         for _ in range(sweeps):
             for color in generator.permutation(len(color_groups)):
                 group = color_groups[int(color)]
-                pending = [
-                    (segment, select_pitch(segment))
-                    for segment in group
-                ]
+                pending = [(segment, select_pitch(segment)) for segment in group]
                 for (start, end, voice), selected in pending:
                     blocks[start:end, voice] = selected
 

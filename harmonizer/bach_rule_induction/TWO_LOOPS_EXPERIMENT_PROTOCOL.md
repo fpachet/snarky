@@ -324,7 +324,14 @@ prochaine expérience, il reste à geler dans un manifeste machine-readable :
 7. le domaine génératif complet, au-delà du POC `top-pitches` ;
 8. les budgets et la politique de parcours Snarky.
 
-Il manque également l'implémentation de la contrainte persistante de score et
-sa borne optimiste. Les artefacts V22/V24 actuels valident une partie de la
-compilation, mais ne constituent pas encore une instance complète de ce
+Une première implémentation expérimentale de la contrainte persistante de
+score et de sa borne optimiste existe maintenant dans
+[`run_two_loop_score_floor_experiment.py`](experiments/v5_k3_clean/run_two_loop_score_floor_experiment.py).
+Elle valide les contradictions de score et le backtracking sur un fragment
+court. La génération V28 étend ensuite la même architecture aux 98 blocs de
+BWV 108.6 : 101 facteurs appris, 23 contraintes empiriques, propagation des
+domaines et 551 backtracks. Il reste à promouvoir le score en composant
+générique, calibrer les fragments selon leur longueur et ajouter les seuils
+de groupes. Les artefacts V28 constituent donc une première instance complète
+à l'échelle d'un choral, mais pas encore l'implémentation générique finale du
 protocole.

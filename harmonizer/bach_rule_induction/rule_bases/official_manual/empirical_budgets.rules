@@ -1,0 +1,24 @@
+# Les valeurs et seuils sont des entiers à l'échelle déclarée dans
+# empirical_budgets.yaml. Ce groupe ne connaît aucune règle musicale : il
+# compare des métriques observées aux enveloppes gelées du corpus.
+
+GROUP official_manual_empirical_budgets
+    RULE reject_metric_above_empirical_budget
+    WHEN
+        (score observed_metric SEQ[$metric $value])
+        ($profile upper_budget SEQ[$metric $threshold $rule])
+        CONSTRAINT $value > $threshold
+    THEN
+        ADD (score exceeds_empirical_budget $metric)
+        ADD ($metric empirical_budget_rule $rule)
+        ADD (score exceeded_budget SEQ[$metric $value $threshold])
+    END
+
+    RULE classify_exceeded_budget_by_group
+    WHEN
+        (score exceeds_empirical_budget $metric)
+        ($metric empirical_budget_group $group)
+    THEN
+        ADD (SEQ[score $group] exceeds_empirical_budget $metric)
+    END
+END_GROUP

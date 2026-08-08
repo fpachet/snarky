@@ -50,6 +50,10 @@ Le dossier ne charge aucun fichier de `rules/` ni aucun manifeste de
   les facteurs appris en préférences de fenêtres, les filtres V22 en
   contraintes persistantes, puis confie propagation, choix et rollback à la
   recherche CSP de Snarky ;
+- `run_two_loop_score_floor_experiment.py` : calibre un threshold strict sur
+  les pseudo-vraisemblances exactes du modèle MLE V23, propage une borne
+  optimiste du score et transforme un plancher devenu inaccessible en
+  contradiction Snarky et backtrack ;
 - `export_v5_16_factor_program.py` : migration du POC gelé vers le DSL pur
   `FACTOR` ;
 - `run_v6_factor_induction.py` : génération de colonnes depuis la grammaire
@@ -265,6 +269,56 @@ Résultats principaux :
 - [`../../factor_bases/k3_v6_induced/V24_RESIDUAL_SONORITY_DECISION.md`](../../factor_bases/k3_v6_induced/V24_RESIDUAL_SONORITY_DECISION.md),
   rejet conditionnel, calibration MaxEnt générative, validation V23–V24,
   ablation du Gibbs conjoint et compilation Snarky du vocabulaire résiduel ;
+- [`run_full_snarky_score_floor_generation.py`](run_full_snarky_score_floor_generation.py),
+  génération Snarky des 229 segments d'alto, ténor et basse sur les 98 blocs
+  de BWV 108.6, avec soprano et rythme seuls imposés ;
+- [`../../factor_bases/k3_v6_induced/TWO_LOOP_FULL_GENERATION.md`](../../factor_bases/k3_v6_induced/TWO_LOOP_FULL_GENERATION.md),
+  résultat et diagnostic de cette première génération complète ;
+- [`../../factor_bases/k3_v6_induced/V26_JOINT_WEAK_RESOLUTION_DECISION.md`](../../factor_bases/k3_v6_induced/V26_JOINT_WEAK_RESOLUTION_DECISION.md),
+  induction conjointe du rôle faible et de la qualité de résolution ;
+- [`../../factor_bases/k3_v6_induced/V27_V28_BASS_DECISION.md`](../../factor_bases/k3_v6_induced/V27_V28_BASS_DECISION.md),
+  séparation apprise entre appartenance harmonique, trajectoire et mouvement
+  de basse, avec confirmation sur 50 chorals ;
+- [`../../factor_bases/k3_v6_induced/V28_SNARKY_GENERATION_AUDIT.md`](../../factor_bases/k3_v6_induced/V28_SNARKY_GENERATION_AUDIT.md),
+  audit apparié Bach/V23/V26/V27/V28 de la génération complète ;
+- [`../../factor_bases/k3_v6_induced/V29_V30_STRONG_SUCCESSION_DECISION.md`](../../factor_bases/k3_v6_induced/V29_V30_STRONG_SUCCESSION_DECISION.md),
+  confirmation V29, génération appariée et rejet du groupe V30 ;
+- [`audit_v31_two_note_cycles.py`](audit_v31_two_note_cycles.py),
+  audit des retours `ABA` et des continuations `ABAB` sur notes attaquées ;
+- [`run_v31_cycle_induction.py`](run_v31_cycle_induction.py),
+  premier groupe K3 de cycles, conservé comme résultat négatif selon le
+  protocole de découverte ;
+- [`fit_v31_cycle_conditional.py`](fit_v31_cycle_conditional.py),
+  réplication ponctuelle stricte V31, rejetée sans relâchement rétrospectif ;
+- [`fit_v32_cycle_factor.py`](fit_v32_cycle_factor.py),
+  confirmation indépendante sur les 219 chorals d'apprentissage restants et
+  MLE parcimonieux de deux facteurs finis alto–ténor/basse ;
+- [`../../factor_bases/k3_v6_induced/V32_ATTACK_CYCLE_FACTOR_MODEL.md`](../../factor_bases/k3_v6_induced/V32_ATTACK_CYCLE_FACTOR_MODEL.md),
+  définition, estimation et confirmation du groupe séquentiel V32 ;
+- [`../../factor_bases/k3_v6_induced/V32_GENERATION_AUDIT.md`](../../factor_bases/k3_v6_induced/V32_GENERATION_AUDIT.md),
+  audit causal V29/V32 : suppression des cycles, mais dégradation harmonique
+  qui interdit de promouvoir V32 comme modèle global ;
+- [`audit_v33_strong_unlicensed.py`](audit_v33_strong_unlicensed.py),
+  fréquence corpus des statuts forts `triad_plus_unlicensed` et
+  `other_unlicensed` avant toute transformation en contrainte ;
+- [`audit_v33_generation.py`](audit_v33_generation.py),
+  audit apparié Bach/V29/V32/V33 de l'ablation stricte ;
+- [`../../factor_bases/k3_v6_induced/V33_GENERATION_AUDIT.md`](../../factor_bases/k3_v6_induced/V33_GENERATION_AUDIT.md),
+  suppression causale des cinq statuts visés, 66 backtracks et décision de ne
+  pas promouvoir une interdiction absolue contredite par Bach ;
+- [`audit_v34_named_resolution.py`](audit_v34_named_resolution.py),
+  extraction déterministe des familles d'accords nommés, de leur sonorité
+  forte suivante et des résolutions de voix observables ;
+- [`fit_v34_harmonic_budget.py`](fit_v34_harmonic_budget.py),
+  MLE catégoriel, sélection BIC, réplication et budgets binomiaux V34 ;
+- [`../../factor_bases/k3_v6_induced/V34_HARMONIC_SEARCH_DECISION.md`](../../factor_bases/k3_v6_induced/V34_HARMONIC_SEARCH_DECISION.md),
+  rejet statistique du modèle et diagnostic des deux recherches Snarky
+  bornées sans génération complète ;
+- [`audit_v29_strong_succession_coverage.py`](audit_v29_strong_succession_coverage.py)
+  et [`audit_v30_joint_strong_resolution_coverage.py`](audit_v30_joint_strong_resolution_coverage.py),
+  audits de couverture exécutés avant l'ajustement des poids ;
+- [`export_v29_strong_succession.py`](export_v29_strong_succession.py),
+  export des 137 facteurs confirmés V29 vers Snarky ;
 - [`../../../generated/v24_contrastive_bwv108_6_seed_22304_piano.mp3`](../../../generated/v24_contrastive_bwv108_6_seed_22304_piano.mp3),
   exemple V24 BWV 108.6 à 30 balayages, rendu au piano acoustique ;
 - [`../../../generated/v16_rank5_local_piano/README.md`](../../../generated/v16_rank5_local_piano/README.md),

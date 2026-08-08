@@ -1,0 +1,26 @@
+# Interface générique pour tester CHOICE et backtracking sur des réalisations
+# déjà auditées. Le générateur de candidats reste une couche séparée.
+
+GROUP official_manual_choose_repair
+    RULE choose_repair_candidate
+    WHEN
+        (repair problem $problem)
+        NOT EXISTS ($problem selected $known)
+    THEN
+        CHOICE ($problem selected $candidate) WEIGHT $weight
+        FROM
+            ($problem candidate $candidate)
+            ($candidate repair_weight $weight)
+        END_CHOICE
+    END
+END_GROUP
+GROUP official_manual_validate_repair
+    RULE reject_repair_with_hard_violation
+    WHEN
+        ($problem selected $candidate)
+        ($candidate hard_violation $rule)
+    THEN
+        ADD (search state contradiction)
+        ADD ($candidate rejected_by $rule)
+    END
+END_GROUP

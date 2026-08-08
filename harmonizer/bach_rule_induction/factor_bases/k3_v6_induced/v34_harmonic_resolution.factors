@@ -1,0 +1,31 @@
+# Generated from v34_harmonic_budget_model.json.
+FACTOR_GROUP named_dissonance_next_strong_outcome
+    FACTOR F-K3-V34-NEXT-TRIAD
+    SCOPE $scope
+    LOG_WEIGHT -0.38737342027166877
+    WHEN
+        ($scope k3_factor_active F-K3-V34-NEXT-TRIAD)
+    END_FACTOR
+
+    FACTOR F-K3-V34-NEXT-NAMED-DISSONANT
+    SCOPE $scope
+    LOG_WEIGHT -1.840624151822202
+    WHEN
+        ($scope k3_factor_active F-K3-V34-NEXT-NAMED-DISSONANT)
+    END_FACTOR
+
+    FACTOR F-K3-V34-NEXT-RESIDUAL
+    SCOPE $scope
+    LOG_WEIGHT -1.8174212547425381
+    WHEN
+        ($scope k3_factor_active F-K3-V34-NEXT-RESIDUAL)
+    END_FACTOR
+
+    FACTOR F-K3-V34-STRONG-NAMED-DISSONANT
+    SCOPE $scope
+    LOG_WEIGHT -1.6277491151436101
+    WHEN
+        ($scope k3_factor_active F-K3-V34-STRONG-NAMED-DISSONANT)
+    END_FACTOR
+
+END_FACTOR_GROUP

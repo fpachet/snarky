@@ -119,6 +119,52 @@ facts = (
 result = ForwardEngine(rules).run(facts)
 ```
 
+Relation variables make it possible to express the same kind of reasoning
+once for every relation having a given property. This second rulebase keeps
+the immediate `parent_of` relation intact, promotes it to `ancestor_of`, and
+declares only `ancestor_of` to be transitive:
+
+```python
+from snarky import Fact, ForwardEngine, parse_rules, parse_term
+
+rules = parse_rules(
+    """
+    RULE parent_implies_ancestor
+    WHEN
+        ($x parent_of $y)
+    THEN
+        ADD ($x ancestor_of $y)
+    END
+
+    RULE transitive_relation
+    WHEN
+        ($relation is_transitive TRUE)
+        ($x $relation $y)
+        ($y $relation $z)
+        $x != $z
+    THEN
+        ADD ($x $relation $z)
+    END
+    """
+)
+facts = (
+    Fact(parse_term("(ancestor_of is_transitive TRUE)")),
+    Fact(parse_term("(alice parent_of bob)")),
+    Fact(parse_term("(bob parent_of clara)")),
+    Fact(parse_term("(clara parent_of david)")),
+)
+result = ForwardEngine(rules).run(facts)
+
+assert Fact(parse_term("(alice ancestor_of david)")) in result.facts
+```
+
+The variable `$relation` occurs in relation position in
+`($x $relation $y)`: it denotes a relation rather than an individual term,
+which makes `transitive_relation` an order-2 rule. Newly inferred
+`ancestor_of` facts can activate the rule again, so the engine computes the
+complete transitive closure. The same rule can serve any other relation
+declared with `($relation is_transitive TRUE)`.
+
 The default engine uses semi-naive instantiation. A separate exhaustive
 strategy remains the executable semantic reference and a useful diagnostic
 oracle.

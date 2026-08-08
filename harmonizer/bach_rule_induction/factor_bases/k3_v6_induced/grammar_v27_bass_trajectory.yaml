@@ -1,0 +1,53 @@
+schema_version: 1
+id: K3-V27-BASS-TRAJECTORY-GRAMMAR-1
+status: FROZEN
+frozen_on: 2026-07-31
+extends: grammar_v26_joint_weak_resolution.yaml
+purpose: >
+  Décrire la basse par une partition K3 unique combinant appartenance
+  harmonique, mouvement de passage ou broderie, préparation, résolution
+  conjointe et statut diatonique ou chromatique.
+
+extensions:
+  bass_trajectory_status_features: true
+
+additional_generated_relations:
+  - bass_trajectory_status
+  - bass_named_chord_tone
+  - bass_consonant_scaffold_tone
+  - bass_diatonic_or_chromatic_passing
+  - bass_diatonic_or_chromatic_neighbor
+  - bass_prepared_or_attacked_step_resolution
+
+families:
+  - id: bass_trajectory_status
+    feature_kinds:
+      - central_bass_trajectory_status
+    statuses:
+      - named_chord_bass
+      - consonant_scaffold_chord_tone
+      - diatonic_passing
+      - chromatic_passing
+      - diatonic_neighbor
+      - chromatic_neighbor
+      - prepared_step_resolution
+      - attacked_step_resolution
+      - other_diatonic
+      - other_chromatic
+    parameter_count: 10
+    complexity: 5
+    shared_block_potential: true
+    mutually_exclusive: true
+
+structure_learning:
+  maximum_clause_complexity: 5
+  group_learning: joint_only
+  individual_clause_selection: forbidden
+
+provenance_guards:
+  vocabulary_frozen_before_weight_learning: true
+  generated_bwv108_6_used_for_weight_learning: false
+  expert_defines_status_vocabulary_only: true
+  no_status_is_an_absolute_prohibition: true
+  validation_effects_loaded: false
+  test_opened: false

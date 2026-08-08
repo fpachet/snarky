@@ -1,0 +1,145 @@
+{
+  "experiment": {
+    "id": "K3-V31-ATTACK-CYCLE-CONDITIONAL-1",
+    "status": "REJECTED",
+    "hypothesis_source": "V29_GENERATIVE_FAILURE",
+    "training_pieces": 32,
+    "test_pieces": 51,
+    "validation_reused_for_fit": false,
+    "test_loaded": true
+  },
+  "definition": {
+    "activation_domain": "current attacked note is a lag-2 return",
+    "positive_event": "return continues a pre-existing ABAB cycle",
+    "history_attacks": 3,
+    "scope": "one lower voice"
+  },
+  "corpus": {
+    "train32": {
+      "pieces": 32,
+      "by_voice": {
+        "Soprano": {
+          "lag2_returns": 316,
+          "continued_cycles": 44,
+          "continuation_given_return": 0.13924050632911392,
+          "wilson_95_interval": [
+            0.10538617956817851,
+            0.18176064360892946
+          ]
+        },
+        "Alto": {
+          "lag2_returns": 352,
+          "continued_cycles": 49,
+          "continuation_given_return": 0.13920454545454544,
+          "wilson_95_interval": [
+            0.10692283850270692,
+            0.179276130999639
+          ]
+        },
+        "Tenor": {
+          "lag2_returns": 339,
+          "continued_cycles": 51,
+          "continuation_given_return": 0.1504424778761062,
+          "wilson_95_interval": [
+            0.116314257512567,
+            0.19240411973611096
+          ]
+        },
+        "Bass": {
+          "lag2_returns": 263,
+          "continued_cycles": 23,
+          "continuation_given_return": 0.08745247148288973,
+          "wilson_95_interval": [
+            0.05898016781621757,
+            0.12780287197440737
+          ]
+        }
+      },
+      "lower_voices_shared": {
+        "lag2_returns": 954,
+        "continued_cycles": 123,
+        "continuation_given_return": 0.1289308176100629,
+        "wilson_95_interval": [
+          0.10914393075012749,
+          0.15169407800374493
+        ]
+      }
+    },
+    "test51": {
+      "pieces": 51,
+      "by_voice": {
+        "Soprano": {
+          "lag2_returns": 443,
+          "continued_cycles": 58,
+          "continuation_given_return": 0.1309255079006772,
+          "wilson_95_interval": [
+            0.10266182278512356,
+            0.16553499838044192
+          ]
+        },
+        "Alto": {
+          "lag2_returns": 491,
+          "continued_cycles": 81,
+          "continuation_given_return": 0.164969450101833,
+          "wilson_95_interval": [
+            0.13476550773249016,
+            0.20037508298504472
+          ]
+        },
+        "Tenor": {
+          "lag2_returns": 482,
+          "continued_cycles": 89,
+          "continuation_given_return": 0.18464730290456433,
+          "wilson_95_interval": [
+            0.15254869507262087,
+            0.2217327819797626
+          ]
+        },
+        "Bass": {
+          "lag2_returns": 364,
+          "continued_cycles": 33,
+          "continuation_given_return": 0.09065934065934066,
+          "wilson_95_interval": [
+            0.06528257808838005,
+            0.12458579358621859
+          ]
+        }
+      },
+      "lower_voices_shared": {
+        "lag2_returns": 1337,
+        "continued_cycles": 203,
+        "continuation_given_return": 0.1518324607329843,
+        "wilson_95_interval": [
+          0.13359604829692676,
+          0.17206384618542367
+        ]
+      }
+    }
+  },
+  "training_granularity": {
+    "shared_log_likelihood": -366.6691073259806,
+    "voice_specific_log_likelihood": -363.603051881954,
+    "shared_bic": 740.1988783234094,
+    "voice_specific_bic": 747.7880947782529,
+    "selected": "shared_lower_voice_factor"
+  },
+  "confirmation": {
+    "rule": "test shared rate lies inside train Wilson 95% interval",
+    "train_interval": [
+      0.10914393075012749,
+      0.15169407800374493
+    ],
+    "test_rate": 0.1518324607329843,
+    "confirmed": false
+  },
+  "factor": {
+    "id": "F-K3-V31-ATTACK-CYCLE-CONTINUATION",
+    "group": "attacked_two_note_cycle",
+    "estimator": "conditional_binomial_mle",
+    "probability": 0.1289308176100629,
+    "log_weight": -1.9104454394830308,
+    "human_authored": false,
+    "feature_definition_human_authored": true,
+    "activation_has_side_effects": false
+  }
+}

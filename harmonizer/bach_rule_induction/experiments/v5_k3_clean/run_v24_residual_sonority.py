@@ -70,6 +70,16 @@ def _status_names(feature_kind: str) -> tuple[str, ...]:
         return k3.RESIDUAL_STRONG_SONORITY_NAMES
     if feature_kind == "central_residual_weak_sonority_status":
         return k3.RESIDUAL_WEAK_SONORITY_NAMES
+    if feature_kind == "central_joint_weak_resolution_status":
+        return k3.JOINT_WEAK_RESOLUTION_NAMES
+    if feature_kind == "central_joint_strong_resolution_status":
+        return k3.JOINT_STRONG_RESOLUTION_NAMES
+    if feature_kind == "central_bass_trajectory_status":
+        return k3.BASS_TRAJECTORY_STATUS_NAMES
+    if feature_kind == "central_bass_motion_status":
+        return k3.BASS_MOTION_STATUS_NAMES
+    if feature_kind == "central_strong_succession_status":
+        return k3.STRONG_SUCCESSION_STATUS_NAMES
     raise ValueError(f"Unknown residual-sonority group: {feature_kind}")
 
 
@@ -352,6 +362,11 @@ def main() -> int:
                     strict=True,
                 )
             ],
+        },
+        "selected_parameters": {
+            "register_logits": selected_parameters.register.tolist(),
+            "tonal_logits": selected_parameters.tonal.tolist(),
+            "factor_weights": selected_parameters.factor_weights.tolist(),
         },
     }
     _clean_path(path)

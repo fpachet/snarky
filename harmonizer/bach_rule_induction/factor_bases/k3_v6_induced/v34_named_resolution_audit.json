@@ -1,0 +1,513 @@
+{
+  "experiment": {
+    "id": "K3-V34-NAMED-RESOLUTION-AUDIT-1",
+    "status": "PRE_GRAMMAR_AUDIT",
+    "redundant_with_v29_v30": false,
+    "weights_fitted": false,
+    "generated_piece_used_for_weight_learning": false,
+    "test_loaded": true
+  },
+  "grammar": {
+    "families": [
+      "dominant_seventh",
+      "common_seventh",
+      "diminished_family",
+      "altered_named",
+      "ambiguous_named"
+    ],
+    "resolution_outcomes": [
+      "triad_descending_fifth",
+      "triad_step_root",
+      "triad_repeated_root",
+      "triad_other_root_motion",
+      "triad_after_ambiguous_root",
+      "next_named_dissonant",
+      "next_residual"
+    ],
+    "separate_voice_leading_observables": [
+      "seventh_resolution",
+      "leading_tone_resolution",
+      "tritone_resolution"
+    ]
+  },
+  "bach_corpus": {
+    "train251": {
+      "transitions": 1342,
+      "families": {
+        "altered_named": 1,
+        "ambiguous_named": 107,
+        "common_seventh": 439,
+        "diminished_family": 435,
+        "dominant_seventh": 360
+      },
+      "family_resolution": {
+        "altered_named__triad_other_root_motion": 1,
+        "ambiguous_named__next_named_dissonant": 29,
+        "ambiguous_named__next_residual": 21,
+        "ambiguous_named__triad_after_ambiguous_root": 57,
+        "common_seventh__next_named_dissonant": 68,
+        "common_seventh__next_residual": 50,
+        "common_seventh__triad_descending_fifth": 49,
+        "common_seventh__triad_other_root_motion": 49,
+        "common_seventh__triad_repeated_root": 2,
+        "common_seventh__triad_step_root": 221,
+        "diminished_family__next_named_dissonant": 59,
+        "diminished_family__next_residual": 82,
+        "diminished_family__triad_descending_fifth": 49,
+        "diminished_family__triad_other_root_motion": 60,
+        "diminished_family__triad_repeated_root": 3,
+        "diminished_family__triad_step_root": 182,
+        "dominant_seventh__next_named_dissonant": 57,
+        "dominant_seventh__next_residual": 65,
+        "dominant_seventh__triad_descending_fifth": 133,
+        "dominant_seventh__triad_other_root_motion": 32,
+        "dominant_seventh__triad_repeated_root": 17,
+        "dominant_seventh__triad_step_root": 56
+      },
+      "seventh_resolution": {
+        "not_applicable": 301,
+        "not_resolved_down": 750,
+        "resolved_down": 291
+      },
+      "leading_tone_resolution": {
+        "not_applicable": 1031,
+        "not_resolved_to_tonic": 219,
+        "resolved_to_tonic": 92
+      },
+      "tritone_resolution": {
+        "not_applicable": 469,
+        "not_resolved_by_contrary_steps": 698,
+        "resolved_by_contrary_steps": 175
+      },
+      "pieces": 251,
+      "pieces_with_transitions": 238
+    },
+    "validation50": {
+      "transitions": 220,
+      "families": {
+        "ambiguous_named": 19,
+        "common_seventh": 80,
+        "diminished_family": 56,
+        "dominant_seventh": 65
+      },
+      "family_resolution": {
+        "ambiguous_named__next_named_dissonant": 2,
+        "ambiguous_named__next_residual": 4,
+        "ambiguous_named__triad_after_ambiguous_root": 13,
+        "common_seventh__next_named_dissonant": 11,
+        "common_seventh__next_residual": 9,
+        "common_seventh__triad_descending_fifth": 7,
+        "common_seventh__triad_other_root_motion": 6,
+        "common_seventh__triad_step_root": 47,
+        "diminished_family__next_named_dissonant": 7,
+        "diminished_family__next_residual": 5,
+        "diminished_family__triad_descending_fifth": 7,
+        "diminished_family__triad_other_root_motion": 8,
+        "diminished_family__triad_step_root": 29,
+        "dominant_seventh__next_named_dissonant": 8,
+        "dominant_seventh__next_residual": 9,
+        "dominant_seventh__triad_descending_fifth": 21,
+        "dominant_seventh__triad_other_root_motion": 10,
+        "dominant_seventh__triad_repeated_root": 6,
+        "dominant_seventh__triad_step_root": 11
+      },
+      "seventh_resolution": {
+        "not_applicable": 36,
+        "not_resolved_down": 146,
+        "resolved_down": 38
+      },
+      "leading_tone_resolution": {
+        "not_applicable": 173,
+        "not_resolved_to_tonic": 32,
+        "resolved_to_tonic": 15
+      },
+      "tritone_resolution": {
+        "not_applicable": 83,
+        "not_resolved_by_contrary_steps": 113,
+        "resolved_by_contrary_steps": 24
+      },
+      "pieces": 50,
+      "pieces_with_transitions": 49
+    },
+    "test51": {
+      "transitions": 197,
+      "families": {
+        "ambiguous_named": 10,
+        "common_seventh": 76,
+        "diminished_family": 60,
+        "dominant_seventh": 51
+      },
+      "family_resolution": {
+        "ambiguous_named__triad_after_ambiguous_root": 10,
+        "common_seventh__next_named_dissonant": 9,
+        "common_seventh__next_residual": 7,
+        "common_seventh__triad_descending_fifth": 12,
+        "common_seventh__triad_other_root_motion": 8,
+        "common_seventh__triad_repeated_root": 1,
+        "common_seventh__triad_step_root": 39,
+        "diminished_family__next_named_dissonant": 9,
+        "diminished_family__next_residual": 15,
+        "diminished_family__triad_descending_fifth": 3,
+        "diminished_family__triad_other_root_motion": 7,
+        "diminished_family__triad_step_root": 26,
+        "dominant_seventh__next_named_dissonant": 3,
+        "dominant_seventh__next_residual": 10,
+        "dominant_seventh__triad_descending_fifth": 16,
+        "dominant_seventh__triad_other_root_motion": 5,
+        "dominant_seventh__triad_repeated_root": 5,
+        "dominant_seventh__triad_step_root": 12
+      },
+      "seventh_resolution": {
+        "not_applicable": 36,
+        "not_resolved_down": 115,
+        "resolved_down": 46
+      },
+      "leading_tone_resolution": {
+        "not_applicable": 133,
+        "not_resolved_to_tonic": 41,
+        "resolved_to_tonic": 23
+      },
+      "tritone_resolution": {
+        "not_applicable": 79,
+        "not_resolved_by_contrary_steps": 85,
+        "resolved_by_contrary_steps": 33
+      },
+      "pieces": 51,
+      "pieces_with_transitions": 43
+    }
+  },
+  "paired_bwv108_6": {
+    "Bach": {
+      "transitions": 6,
+      "families": {
+        "common_seventh": 2,
+        "diminished_family": 1,
+        "dominant_seventh": 3
+      },
+      "family_resolution": {
+        "common_seventh__triad_step_root": 2,
+        "diminished_family__triad_step_root": 1,
+        "dominant_seventh__triad_step_root": 3
+      },
+      "seventh_resolution": {
+        "not_resolved_down": 5,
+        "resolved_down": 1
+      },
+      "leading_tone_resolution": {
+        "not_applicable": 6
+      },
+      "tritone_resolution": {
+        "not_applicable": 2,
+        "not_resolved_by_contrary_steps": 4
+      },
+      "rows": [
+        {
+          "current_time": 24,
+          "following_time": 28,
+          "current_offset": 13.0,
+          "following_offset": 15.0,
+          "family": "dominant_seventh",
+          "quality": 4,
+          "quality_name": "dominant_seventh",
+          "root_degree": 5,
+          "inversion_interval": 4,
+          "resolution_outcome": "triad_step_root",
+          "seventh_resolution": "resolved_down",
+          "leading_tone_resolution": "not_applicable",
+          "tritone_resolution": "not_resolved_by_contrary_steps"
+        },
+        {
+          "current_time": 44,
+          "following_time": 48,
+          "current_offset": 23.0,
+          "following_offset": 25.0,
+          "family": "common_seventh",
+          "quality": 6,
+          "quality_name": "minor_seventh",
+          "root_degree": 0,
+          "inversion_interval": 3,
+          "resolution_outcome": "triad_step_root",
+          "seventh_resolution": "not_resolved_down",
+          "leading_tone_resolution": "not_applicable",
+          "tritone_resolution": "not_applicable"
+        },
+        {
+          "current_time": 59,
+          "following_time": 63,
+          "current_offset": 31.0,
+          "following_offset": 33.0,
+          "family": "dominant_seventh",
+          "quality": 4,
+          "quality_name": "dominant_seventh",
+          "root_degree": 5,
+          "inversion_interval": 4,
+          "resolution_outcome": "triad_step_root",
+          "seventh_resolution": "not_resolved_down",
+          "leading_tone_resolution": "not_applicable",
+          "tritone_resolution": "not_resolved_by_contrary_steps"
+        },
+        {
+          "current_time": 66,
+          "following_time": 70,
+          "current_offset": 35.0,
+          "following_offset": 37.0,
+          "family": "dominant_seventh",
+          "quality": 4,
+          "quality_name": "dominant_seventh",
+          "root_degree": 5,
+          "inversion_interval": 4,
+          "resolution_outcome": "triad_step_root",
+          "seventh_resolution": "not_resolved_down",
+          "leading_tone_resolution": "not_applicable",
+          "tritone_resolution": "not_resolved_by_contrary_steps"
+        },
+        {
+          "current_time": 74,
+          "following_time": 78,
+          "current_offset": 39.0,
+          "following_offset": 41.0,
+          "family": "common_seventh",
+          "quality": 6,
+          "quality_name": "minor_seventh",
+          "root_degree": 5,
+          "inversion_interval": 7,
+          "resolution_outcome": "triad_step_root",
+          "seventh_resolution": "not_resolved_down",
+          "leading_tone_resolution": "not_applicable",
+          "tritone_resolution": "not_applicable"
+        },
+        {
+          "current_time": 93,
+          "following_time": 97,
+          "current_offset": 49.0,
+          "following_offset": 51.0,
+          "family": "diminished_family",
+          "quality": 7,
+          "quality_name": "half_diminished_seventh",
+          "root_degree": 2,
+          "inversion_interval": 3,
+          "resolution_outcome": "triad_step_root",
+          "seventh_resolution": "not_resolved_down",
+          "leading_tone_resolution": "not_applicable",
+          "tritone_resolution": "not_resolved_by_contrary_steps"
+        }
+      ]
+    },
+    "V33": {
+      "transitions": 12,
+      "families": {
+        "ambiguous_named": 4,
+        "common_seventh": 3,
+        "diminished_family": 1,
+        "dominant_seventh": 4
+      },
+      "family_resolution": {
+        "ambiguous_named__next_named_dissonant": 1,
+        "ambiguous_named__triad_after_ambiguous_root": 3,
+        "common_seventh__next_named_dissonant": 2,
+        "common_seventh__triad_other_root_motion": 1,
+        "diminished_family__triad_step_root": 1,
+        "dominant_seventh__next_named_dissonant": 2,
+        "dominant_seventh__triad_other_root_motion": 1,
+        "dominant_seventh__triad_step_root": 1
+      },
+      "seventh_resolution": {
+        "not_applicable": 4,
+        "not_resolved_down": 6,
+        "resolved_down": 2
+      },
+      "leading_tone_resolution": {
+        "not_applicable": 6,
+        "not_resolved_to_tonic": 3,
+        "resolved_to_tonic": 3
+      },
+      "tritone_resolution": {
+        "not_applicable": 3,
+        "not_resolved_by_contrary_steps": 5,
+        "resolved_by_contrary_steps": 4
+      },
+      "rows": [
+        {
+          "current_time": 5,
+          "following_time": 9,
+          "current_offset": 3.0,
+          "following_offset": 5.0,
+          "family": "common_seventh",
+          "quality": 5,
+          "quality_name": "major_seventh",
+          "root_degree": 3,
+          "inversion_interval": 11,
+          "resolution_outcome": "triad_other_root_motion",
+          "seventh_resolution": "resolved_down",
+          "leading_tone_resolution": "not_applicable",
+          "tritone_resolution": "not_applicable"
+        },
+        {
+          "current_time": 13,
+          "following_time": 16,
+          "current_offset": 7.0,
+          "following_offset": 9.0,
+          "family": "dominant_seventh",
+          "quality": 4,
+          "quality_name": "dominant_seventh",
+          "root_degree": 7,
+          "inversion_interval": 4,
+          "resolution_outcome": "triad_other_root_motion",
+          "seventh_resolution": "not_resolved_down",
+          "leading_tone_resolution": "not_resolved_to_tonic",
+          "tritone_resolution": "resolved_by_contrary_steps"
+        },
+        {
+          "current_time": 24,
+          "following_time": 28,
+          "current_offset": 13.0,
+          "following_offset": 15.0,
+          "family": "common_seventh",
+          "quality": 6,
+          "quality_name": "minor_seventh",
+          "root_degree": 5,
+          "inversion_interval": 7,
+          "resolution_outcome": "next_named_dissonant",
+          "seventh_resolution": "not_resolved_down",
+          "leading_tone_resolution": "not_applicable",
+          "tritone_resolution": "not_applicable"
+        },
+        {
+          "current_time": 28,
+          "following_time": 31,
+          "current_offset": 15.0,
+          "following_offset": 17.0,
+          "family": "ambiguous_named",
+          "quality": -1,
+          "quality_name": null,
+          "root_degree": -1,
+          "inversion_interval": -1,
+          "resolution_outcome": "triad_after_ambiguous_root",
+          "seventh_resolution": "not_applicable",
+          "leading_tone_resolution": "resolved_to_tonic",
+          "tritone_resolution": "resolved_by_contrary_steps"
+        },
+        {
+          "current_time": 35,
+          "following_time": 39,
+          "current_offset": 19.0,
+          "following_offset": 21.0,
+          "family": "dominant_seventh",
+          "quality": 4,
+          "quality_name": "dominant_seventh",
+          "root_degree": 5,
+          "inversion_interval": 7,
+          "resolution_outcome": "triad_step_root",
+          "seventh_resolution": "not_resolved_down",
+          "leading_tone_resolution": "not_applicable",
+          "tritone_resolution": "not_resolved_by_contrary_steps"
+        },
+        {
+          "current_time": 44,
+          "following_time": 48,
+          "current_offset": 23.0,
+          "following_offset": 25.0,
+          "family": "diminished_family",
+          "quality": 7,
+          "quality_name": "half_diminished_seventh",
+          "root_degree": 2,
+          "inversion_interval": 0,
+          "resolution_outcome": "triad_step_root",
+          "seventh_resolution": "resolved_down",
+          "leading_tone_resolution": "not_applicable",
+          "tritone_resolution": "not_resolved_by_contrary_steps"
+        },
+        {
+          "current_time": 59,
+          "following_time": 63,
+          "current_offset": 31.0,
+          "following_offset": 33.0,
+          "family": "common_seventh",
+          "quality": 6,
+          "quality_name": "minor_seventh",
+          "root_degree": 5,
+          "inversion_interval": 7,
+          "resolution_outcome": "next_named_dissonant",
+          "seventh_resolution": "not_resolved_down",
+          "leading_tone_resolution": "not_applicable",
+          "tritone_resolution": "not_applicable"
+        },
+        {
+          "current_time": 63,
+          "following_time": 66,
+          "current_offset": 33.0,
+          "following_offset": 35.0,
+          "family": "ambiguous_named",
+          "quality": -1,
+          "quality_name": null,
+          "root_degree": -1,
+          "inversion_interval": -1,
+          "resolution_outcome": "triad_after_ambiguous_root",
+          "seventh_resolution": "not_applicable",
+          "leading_tone_resolution": "not_resolved_to_tonic",
+          "tritone_resolution": "resolved_by_contrary_steps"
+        },
+        {
+          "current_time": 74,
+          "following_time": 78,
+          "current_offset": 39.0,
+          "following_offset": 41.0,
+          "family": "dominant_seventh",
+          "quality": 4,
+          "quality_name": "dominant_seventh",
+          "root_degree": 7,
+          "inversion_interval": 4,
+          "resolution_outcome": "next_named_dissonant",
+          "seventh_resolution": "not_resolved_down",
+          "leading_tone_resolution": "not_resolved_to_tonic",
+          "tritone_resolution": "not_resolved_by_contrary_steps"
+        },
+        {
+          "current_time": 78,
+          "following_time": 81,
+          "current_offset": 41.0,
+          "following_offset": 43.0,
+          "family": "ambiguous_named",
+          "quality": -1,
+          "quality_name": null,
+          "root_degree": -1,
+          "inversion_interval": -1,
+          "resolution_outcome": "triad_after_ambiguous_root",
+          "seventh_resolution": "not_applicable",
+          "leading_tone_resolution": "resolved_to_tonic",
+          "tritone_resolution": "resolved_by_contrary_steps"
+        },
+        {
+          "current_time": 89,
+          "following_time": 93,
+          "current_offset": 47.0,
+          "following_offset": 49.0,
+          "family": "dominant_seventh",
+          "quality": 4,
+          "quality_name": "dominant_seventh",
+          "root_degree": 10,
+          "inversion_interval": 0,
+          "resolution_outcome": "next_named_dissonant",
+          "seventh_resolution": "not_resolved_down",
+          "leading_tone_resolution": "not_applicable",
+          "tritone_resolution": "not_resolved_by_contrary_steps"
+        },
+        {
+          "current_time": 93,
+          "following_time": 97,
+          "current_offset": 49.0,
+          "following_offset": 51.0,
+          "family": "ambiguous_named",
+          "quality": -1,
+          "quality_name": null,
+          "root_degree": -1,
+          "inversion_interval": -1,
+          "resolution_outcome": "next_named_dissonant",
+          "seventh_resolution": "not_applicable",
+          "leading_tone_resolution": "resolved_to_tonic",
+          "tritone_resolution": "not_resolved_by_contrary_steps"
+        }
+      ]
+    }
+  }
+}

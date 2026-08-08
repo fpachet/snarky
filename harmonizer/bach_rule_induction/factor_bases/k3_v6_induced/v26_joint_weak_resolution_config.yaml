@@ -1,0 +1,49 @@
+schema_version: 1
+id: K3-V26-JOINT-WEAK-RESOLUTION-GROUP-1
+status: FROZEN
+frozen_on: 2026-07-31
+baseline_model: v24_contrastive_moment_model.json
+baseline_label: socle V24 réajusté
+source_grammar: grammar_v26_joint_weak_resolution.yaml
+source_exact_cache: ../../experiments/v5_k3_clean/work/k3-exact-v26-selected-32x10.npz
+
+group:
+  id: joint_weak_resolution_status
+  feature_kind: central_joint_weak_resolution_status
+  size: 18
+  label: groupe V26 faible × résolution
+  learning: joint
+  reference_state: strict_unique_named_chord
+  shared_block_potential: true
+  matrix_shape: [9, 2]
+  l1_inside_group: 0.0005
+  l2_group_scaled_by_sqrt_size: true
+
+coverage:
+  split: structure_train_32
+  minimum_testable_opportunities: 100
+  minimum_piece_support: 5
+  require_all_cells_testable: true
+
+estimation:
+  objective: exact_conditional_pseudolikelihood
+  optimizer: adam_plus_sparse_group_proximal
+  learning_rate: 0.02
+  steps_baseline_prefit: 120
+  steps_comparison: 180
+  return_checkpoint: best_validation_during_discovery
+  l1_baseline_by_clause_complexity: 0.001
+  l2: 0.001
+  group_penalty_path: [0.6, 0.3, 0.1, 0.03, 0.0]
+
+selection:
+  criterion: paired_bootstrap_then_piece_disjoint_stability
+  paired_bootstrap_resamples: 100000
+  paired_bootstrap_seed: 26031
+  minimum_positive_piece_fraction: 0.6
+
+learning_protocol:
+  conditional_objective: exact_pseudolikelihood
+  validation_used_during_updates: false
+  generated_bwv108_6_used_for_learning: false
+  test_opened: false

@@ -1,0 +1,33 @@
+schema_version: 1
+profiles:
+  diagnostic:
+    description: Dérive et score tous les diagnostics sans rejeter la partition.
+    hard_rules: []
+    factor_groups:
+      - official_manual_confirmed_voice_leading
+      - official_manual_confirmed_tendency
+  bach_empirical:
+    description: >
+      Conserve les règles graduées comme facteurs. Les enveloppes globales
+      doivent être calibrées sur validation avant de devenir bloquantes.
+    hard_rules: []
+    empirical_budgets_file: empirical_budgets.yaml
+    factor_groups:
+      - official_manual_confirmed_voice_leading
+      - official_manual_confirmed_tendency
+  pedagogical_strict:
+    description: Profil d'exercice volontairement plus strict que Bach.
+    hard_rules:
+      - MANUAL-PARALLEL-FIFTH
+      - MANUAL-PARALLEL-OCTAVE
+      - MANUAL-DIRECT-FIFTH
+      - MANUAL-VOICE-CROSSING
+      - MANUAL-VOICE-OVERLAP
+      - MANUAL-COMPENSATED-LEAP
+      - MANUAL-SUSPENSION-RESOLUTION
+      - MANUAL-LEADING-TONE
+      - MANUAL-SINGABLE-LINE
+      - MANUAL-ACTIVE-INNER-VOICE
+    factor_groups:
+      - official_manual_confirmed_voice_leading
+      - official_manual_confirmed_tendency

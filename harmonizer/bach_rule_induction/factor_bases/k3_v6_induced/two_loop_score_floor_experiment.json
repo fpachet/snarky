@@ -1,0 +1,483 @@
+{
+  "experiment": {
+    "id": "K3-TWO-LOOP-SCORE-FLOOR-1",
+    "status": "METHOD_VALIDATION",
+    "model": "/Users/francoispachet/IdeaProjects/boojum/harmonizer/bach_rule_induction/factor_bases/k3_v6_induced/v23_metric_harmony_full_model.json",
+    "catalogue": "/Users/francoispachet/IdeaProjects/boojum/harmonizer/bach_rule_induction/factor_bases/k3_v6_induced/v23_metric_harmony_full_factors.yaml",
+    "factor_count": 57,
+    "weight_estimator": "joint_conditional_mle",
+    "gibbs_used_for_generation": false,
+    "bach_reference_used_for_search": false,
+    "test_loaded": false
+  },
+  "calibration": {
+    "split": "validation",
+    "policy": "strict_minimum",
+    "piece_count": 10,
+    "accepted_piece_count": 10,
+    "decision_mean": -0.7984028941296729,
+    "threshold": -1.4124634927143713,
+    "piece_scores": [
+      {
+        "piece_id": "bach/bwv111.6",
+        "mean_log_pseudolikelihood": -0.7148961465833028,
+        "decisions": 274
+      },
+      {
+        "piece_id": "bach/bwv112.5",
+        "mean_log_pseudolikelihood": -0.5660123494855328,
+        "decisions": 224
+      },
+      {
+        "piece_id": "bach/bwv133.6",
+        "mean_log_pseudolikelihood": -0.6867568602635284,
+        "decisions": 173
+      },
+      {
+        "piece_id": "bach/bwv151.5",
+        "mean_log_pseudolikelihood": -0.5930779516610184,
+        "decisions": 121
+      },
+      {
+        "piece_id": "bach/bwv162.6-lpz",
+        "mean_log_pseudolikelihood": -0.6993639631325872,
+        "decisions": 219
+      },
+      {
+        "piece_id": "bach/bwv168.6",
+        "mean_log_pseudolikelihood": -1.1467723659730924,
+        "decisions": 218
+      },
+      {
+        "piece_id": "bach/bwv179.6",
+        "mean_log_pseudolikelihood": -1.4124634927143713,
+        "decisions": 213
+      },
+      {
+        "piece_id": "bach/bwv180.7",
+        "mean_log_pseudolikelihood": -0.8318519056459437,
+        "decisions": 254
+      },
+      {
+        "piece_id": "bach/bwv184.5",
+        "mean_log_pseudolikelihood": -0.5847734588522427,
+        "decisions": 238
+      },
+      {
+        "piece_id": "bach/bwv197.10",
+        "mean_log_pseudolikelihood": -0.6587179410195789,
+        "decisions": 169
+      }
+    ]
+  },
+  "fragment": {
+    "piece_id": "bach/bwv108.6",
+    "start": 0,
+    "blocks": 6,
+    "top_pitches_per_lower_voice": 3,
+    "score_opportunities": 8
+  },
+  "hard_constraints": {
+    "learned_pretest_predicates": 23,
+    "normalization_role": "generation_filter_only_not_mle_denominator",
+    "root_propagation": {
+      "initial_candidates": 4646,
+      "remaining_candidates": 4646,
+      "candidate_removals": 0,
+      "by_constraint": []
+    }
+  },
+  "search": {
+    "status": "solved",
+    "explored_nodes": 32,
+    "failed_branches": 21,
+    "backtracks": 21,
+    "score_rejections": 21,
+    "early_score_rejections": 0,
+    "solution_count": 1,
+    "score_rejection_examples": [
+      {
+        "fixed_blocks": 6,
+        "scored_segments": 8,
+        "segment_count": 8,
+        "optimistic_total": -17.510527091110934,
+        "required_total": -11.29970794171497,
+        "optimistic_mean_if_complete": -2.1888158863888667
+      },
+      {
+        "fixed_blocks": 6,
+        "scored_segments": 8,
+        "segment_count": 8,
+        "optimistic_total": -14.703840857972496,
+        "required_total": -11.29970794171497,
+        "optimistic_mean_if_complete": -1.837980107246562
+      },
+      {
+        "fixed_blocks": 6,
+        "scored_segments": 8,
+        "segment_count": 8,
+        "optimistic_total": -18.860311793302753,
+        "required_total": -11.29970794171497,
+        "optimistic_mean_if_complete": -2.357538974162844
+      },
+      {
+        "fixed_blocks": 6,
+        "scored_segments": 8,
+        "segment_count": 8,
+        "optimistic_total": -20.111465994280113,
+        "required_total": -11.29970794171497,
+        "optimistic_mean_if_complete": -2.513933249285014
+      },
+      {
+        "fixed_blocks": 6,
+        "scored_segments": 8,
+        "segment_count": 8,
+        "optimistic_total": -16.131692767482516,
+        "required_total": -11.29970794171497,
+        "optimistic_mean_if_complete": -2.0164615959353145
+      },
+      {
+        "fixed_blocks": 6,
+        "scored_segments": 8,
+        "segment_count": 8,
+        "optimistic_total": -20.232811052800585,
+        "required_total": -11.29970794171497,
+        "optimistic_mean_if_complete": -2.529101381600073
+      },
+      {
+        "fixed_blocks": 6,
+        "scored_segments": 8,
+        "segment_count": 8,
+        "optimistic_total": -17.827960138938018,
+        "required_total": -11.29970794171497,
+        "optimistic_mean_if_complete": -2.228495017367252
+      },
+      {
+        "fixed_blocks": 6,
+        "scored_segments": 8,
+        "segment_count": 8,
+        "optimistic_total": -15.186133649231174,
+        "required_total": -11.29970794171497,
+        "optimistic_mean_if_complete": -1.8982667061538967
+      },
+      {
+        "fixed_blocks": 6,
+        "scored_segments": 8,
+        "segment_count": 8,
+        "optimistic_total": -18.081118700018052,
+        "required_total": -11.29970794171497,
+        "optimistic_mean_if_complete": -2.2601398375022566
+      },
+      {
+        "fixed_blocks": 6,
+        "scored_segments": 8,
+        "segment_count": 8,
+        "optimistic_total": -15.571640592428437,
+        "required_total": -11.29970794171497,
+        "optimistic_mean_if_complete": -1.9464550740535547
+      }
+    ]
+  },
+  "comparison": {
+    "without_floor": {
+      "blocks": [
+        [
+          71,
+          66,
+          62,
+          47
+        ],
+        [
+          71,
+          66,
+          62,
+          47
+        ],
+        [
+          71,
+          66,
+          62,
+          47
+        ],
+        [
+          71,
+          59,
+          59,
+          47
+        ],
+        [
+          71,
+          59,
+          59,
+          47
+        ],
+        [
+          78,
+          66,
+          62,
+          59
+        ]
+      ],
+      "score": {
+        "total": -17.510527091110934,
+        "mean": -2.1888158863888667,
+        "contributions": [
+          {
+            "start": 1,
+            "end": 2,
+            "voice": 3,
+            "log_probability": -1.566628190231712
+          },
+          {
+            "start": 1,
+            "end": 3,
+            "voice": 1,
+            "log_probability": -0.0957328981724827
+          },
+          {
+            "start": 1,
+            "end": 3,
+            "voice": 2,
+            "log_probability": -0.7355294796402888
+          },
+          {
+            "start": 2,
+            "end": 3,
+            "voice": 3,
+            "log_probability": -2.276461013303396
+          },
+          {
+            "start": 3,
+            "end": 4,
+            "voice": 3,
+            "log_probability": -3.74252529781566
+          },
+          {
+            "start": 3,
+            "end": 5,
+            "voice": 1,
+            "log_probability": -3.717030261731873
+          },
+          {
+            "start": 3,
+            "end": 5,
+            "voice": 2,
+            "log_probability": -2.495269613428688
+          },
+          {
+            "start": 4,
+            "end": 5,
+            "voice": 3,
+            "log_probability": -2.8813503367868343
+          }
+        ]
+      },
+      "satisfies_threshold": false
+    },
+    "bach_reference": {
+      "blocks": [
+        [
+          71,
+          66,
+          62,
+          47
+        ],
+        [
+          71,
+          67,
+          64,
+          52
+        ],
+        [
+          71,
+          67,
+          64,
+          54
+        ],
+        [
+          71,
+          67,
+          64,
+          55
+        ],
+        [
+          71,
+          67,
+          64,
+          57
+        ],
+        [
+          78,
+          66,
+          62,
+          59
+        ]
+      ],
+      "score": {
+        "total": -2.2198020669438123,
+        "mean": -0.27747525836797654,
+        "contributions": [
+          {
+            "start": 1,
+            "end": 2,
+            "voice": 3,
+            "log_probability": -0.040114470269656866
+          },
+          {
+            "start": 1,
+            "end": 3,
+            "voice": 1,
+            "log_probability": -0.23067377197655253
+          },
+          {
+            "start": 1,
+            "end": 3,
+            "voice": 2,
+            "log_probability": -0.047501935663810786
+          },
+          {
+            "start": 2,
+            "end": 3,
+            "voice": 3,
+            "log_probability": -0.09559055668103432
+          },
+          {
+            "start": 3,
+            "end": 4,
+            "voice": 3,
+            "log_probability": -0.025302990216685552
+          },
+          {
+            "start": 3,
+            "end": 5,
+            "voice": 1,
+            "log_probability": -0.24054908374715422
+          },
+          {
+            "start": 3,
+            "end": 5,
+            "voice": 2,
+            "log_probability": -1.1651155894587402
+          },
+          {
+            "start": 4,
+            "end": 5,
+            "voice": 3,
+            "log_probability": -0.37495366893017795
+          }
+        ]
+      },
+      "used_for_search": false
+    }
+  },
+  "solution": {
+    "blocks": [
+      [
+        71,
+        66,
+        62,
+        47
+      ],
+      [
+        71,
+        66,
+        62,
+        47
+      ],
+      [
+        71,
+        66,
+        62,
+        47
+      ],
+      [
+        71,
+        66,
+        62,
+        47
+      ],
+      [
+        71,
+        66,
+        62,
+        47
+      ],
+      [
+        78,
+        66,
+        62,
+        59
+      ]
+    ],
+    "score": {
+      "total": -10.218911820686207,
+      "mean": -1.277363977585776,
+      "contributions": [
+        {
+          "start": 1,
+          "end": 2,
+          "voice": 3,
+          "log_probability": -1.566628190231712
+        },
+        {
+          "start": 1,
+          "end": 3,
+          "voice": 1,
+          "log_probability": -0.19191343886117196
+        },
+        {
+          "start": 1,
+          "end": 3,
+          "voice": 2,
+          "log_probability": -0.7750872546982877
+        },
+        {
+          "start": 2,
+          "end": 3,
+          "voice": 3,
+          "log_probability": -2.416564733674918
+        },
+        {
+          "start": 3,
+          "end": 4,
+          "voice": 3,
+          "log_probability": -2.3307704053372067
+        },
+        {
+          "start": 3,
+          "end": 5,
+          "voice": 1,
+          "log_probability": -0.38953514538930856
+        },
+        {
+          "start": 3,
+          "end": 5,
+          "voice": 2,
+          "log_probability": -0.7106163668621502
+        },
+        {
+          "start": 4,
+          "end": 5,
+          "voice": 3,
+          "log_probability": -1.8377962856314525
+        }
+      ]
+    },
+    "log_choice_weight": -1.985826273973894,
+    "decisions": 3,
+    "satisfies_threshold": true,
+    "exports": {
+      "musicxml": "/Users/francoispachet/IdeaProjects/boojum/harmonizer/generated/two_loop_score_floor_bwv108_6.musicxml",
+      "midi": "/Users/francoispachet/IdeaProjects/boojum/harmonizer/generated/two_loop_score_floor_bwv108_6.mid",
+      "exporter": "MuSES"
+    }
+  },
+  "checks": {
+    "calibration_coverage_matches_policy": true,
+    "unconstrained_first_solution_rejected": true,
+    "score_contradiction_observed": true,
+    "backtrack_observed": true,
+    "satisfying_solution_found": true,
+    "status": "PASS"
+  }
+}

@@ -1856,3 +1856,249 @@ désormais deux boucles : induction/MLE/calibration, puis
 propagation/score/backtracking. Leur contrat, les formules du score, les
 conditions de gel et les tests d'interface sont définis dans
 [`TWO_LOOPS_EXPERIMENT_PROTOCOL.md`](TWO_LOOPS_EXPERIMENT_PROTOCOL.md).
+
+## 22. Première expérience des deux boucles
+
+Le socle V23 est choisi pour cette validation méthodologique car ses 57 poids
+retenus proviennent du MLE conditionnel conjoint, contrairement aux huit
+corrections génératives ultérieures de V24. Les conditionnelles exactes déjà
+calculées sur dix chorals de calibration donnent un threshold strict égal au
+minimum des scores moyens : `−1,412463`, avec couverture `10/10`.
+
+Sur un fragment de six blocs de BWV 108.6, la recherche sans seuil retourne
+une solution à `−2,188816`. La contrainte persistante de score la rejette,
+ainsi que vingt autres branches. Snarky effectue donc 21 backtracks et trouve
+une solution à `−1,277364`, au-dessus du threshold. Bach atteint `−0,277475`
+sur le même fragment, mais n'est consulté qu'après la recherche.
+
+Dans ce fragment très court, toutes les portées conditionnelles exactes se
+recouvrent : les 21 contradictions sont donc détectées sur des assignations
+complètes. Le propagateur calcule déjà une borne optimiste partielle, mais son
+élagage anticipé devra être mesuré sur une séquence plus longue.
+
+Un contrôle de huit blocs avec deux hauteurs candidates par voix termine en
+`7,8 s`, avec 137 contradictions et 137 backtracks, encore tous sur des
+assignations complètes. Le contrôle de dix blocs n'a pas terminé en 90 secondes
+et a été interrompu pendant le recalcul des conditionnelles. Avant une
+campagne longue, il faut donc mettre en cache les composantes factorielles par
+segment et état de frontière ; ce problème de performance est distinct de la
+validité du threshold.
+
+Le mécanisme de la seconde boucle est validé : un score appris peut provoquer
+une contradiction et un backtrack sans optimisation du maximum global. La
+solution retenue reste néanmoins excessivement répétitive. La prochaine boucle
+doit donc apprendre ou calibrer un groupe spécifique distinguant tenue,
+répétition attaquée et stagnation harmonique, puis tester un seuil de groupe
+sans modifier le threshold global après observation.
+
+## 23. Première génération complète à soprano imposé
+
+Le même moteur couvre désormais les 98 blocs et les 52 noires de BWV 108.6.
+Le soprano, les attaques, les durées et la métrique sont imposés ; Snarky
+choisit les 229 segments des trois voix inférieures. Les hauteurs originales
+d'alto, ténor et basse ne sont pas accessibles à la recherche et ne sont
+chargées qu'après résolution pour le diagnostic Bach.
+
+Les domaines de hauteur sont les supports exacts observés sur le train :
+alto `55–74`, ténor `50–68`, basse `36–64`. Ce sont des statuts de voix appris,
+pas des bornes déduites du choral cible. La première branche complète est
+admise en 230 nœuds, sans backtrack, avec un score moyen `−0,961994`, contre le
+seuil strict `−1,412463` et `−0,851950` pour Bach.
+
+Ce résultat constitue une vraie génération, mais aussi un contre-exemple
+informatif : un croisement ténor–basse demeure au dernier bloc. Les 23 filtres
+V22 n'interdisent pas ce cas et le score ne couvre pas les segments de bord.
+La prochaine induction devra donc décider, sur train et sans correction
+postérieure de cet exemple, si l'ordre des voix aux cadences est une contrainte
+exacte, une obligation contextuelle ou un facteur pondéré.
+
+## 24. Inductions V26–V28 : résolution et basse
+
+V26 apprend une partition de 18 états
+`rôle de la sonorité faible × qualité de la résolution suivante`. Le groupe
+améliore 8 des 10 chorals de validation et ramène, sur la génération appariée,
+les résolutions faibles inacceptables de `28,13 %` à `4,55 %`. Les accords
+forts et la basse restent cependant trop éloignés de Bach.
+
+V27 introduit dix statuts de trajectoire de basse. Sa confirmation terminale
+sur 50 chorals est positive (`+0,007331` NLL, IC 95 %
+`[+0,004941 ; +0,009671]`), mais son statut harmonique prioritaire masque
+encore les mouvements chromatiques vers une note d'accord.
+
+V28 sépare donc le mouvement de l'appartenance harmonique avec huit états
+supplémentaires. La confirmation sur 50 chorals est également positive
+(`+0,006836`, IC `[+0,004376 ; +0,009328]`). La génération complète termine
+après 551 backtracks grâce au préfiltrage des domaines par les contraintes K3.
+Par rapport à V26, les demi-tons de basse passent de `81,52 %` à `60,87 %`,
+les blocs triadiques de `39,80 %` à `45,92 %` et les blocs forts non
+triadiques de `53,85 %` à `42,31 %`.
+
+V28 devient le meilleur candidat de la boucle, sans être assimilé à une
+solution finale : Bach reste respectivement à `29,35 %`, `56,12 %` et
+`26,92 %` sur ces mesures. La prochaine induction doit cibler les transitions
+d'accord fortes et la distribution des grands sauts de basse, en conservant
+des groupes séparés et lisibles.
+
+## 25. Inductions V29–V30 : successions fortes
+
+V29 croise trois types de sonorité précédente, trois types de sonorité
+courante et quatre tailles d'arrivée de basse. Les 36 états sont exclusifs et
+entièrement couverts. Le gain tenu à part est confirmé sur 50 chorals
+(`+0,011500`, IC 95 % `[+0,008226 ; +0,014722]`, `43/50`).
+
+La génération V29 améliore fortement la trajectoire de basse mais pas la
+proportion d'accords forts non triadiques. Elle montre qu'un facteur peut être
+explicatif localement sans améliorer toutes les propriétés d'une solution
+globale.
+
+V30 teste alors seize états rôle fort résiduel × qualité de résolution. Le
+groupe est entièrement couvert mais rejeté : le meilleur gain de découverte
+est petit, instable et son intervalle bootstrap traverse zéro. La prochaine
+hypothèse doit raffiner les accords nommés non consonants, en distinguant les
+accords de septième communs des familles altérées, avec une complexité plus
+faible qu'une table complète de transitions.
+
+## 26. V31–V32 : cycles attaqués et seuils de groupe
+
+L'audit visuel de V29 a révélé une lacune que `bass_repeat_rate` ne pouvait
+pas voir : des cycles `ABAB` sans répétition immédiate. Sur BWV 108.6, le taux
+de continuation atteint `16,13 %` à l'alto, `13,24 %` au ténor et `13,33 %`
+à la basse, contre `3,23 %`, `0 %` et `0 %` chez Bach.
+
+Le premier ajout au catalogue K3 général (V31) est rejeté sur les dix pièces
+de découverte, même si son contrôle terminal est positif. Une seconde
+formulation isole donc le domaine pertinent :
+`P(continuation ABAB | retour ABA)`. Le premier critère de réplication
+ponctuelle reste rejeté, de très peu (`12,893 %` sur train contre `15,183 %`
+sur test), et ce verdict est conservé.
+
+V32 gèle ensuite une hypothèse qualitative avant de charger les 219 chorals
+d'apprentissage restants : la continuation doit rester rare et le taux appris
+sur 32 chorals doit mieux prédire ce holdout qu'un modèle neutre. Le holdout
+donne `13,556 %` et confirme l'hypothèse. Le BIC retient deux poids lisibles :
+
+- alto–ténor : `−1,699453` ;
+- basse : `−2,420368`.
+
+Dans Snarky, ces deux facteurs ramènent les continuations de BWV 108.6 à
+`4,84 %`, `4,41 %` et `1,11 %`. Cependant, les accords forts non triadiques
+passent de `46,15 %` à `57,69 %`. V32 corrige donc bien la propriété apprise,
+mais n'est pas promu comme solution globale.
+
+La prochaine expérience ne doit pas réajuster ces poids après écoute. Elle
+doit compiler deux contrôles persistants et indépendants :
+
+1. une enveloppe de fréquence pour le groupe séquentiel V32 ;
+2. un plancher calibré pour le sous-score harmonique fort.
+
+Le moteur devra backtracker tant qu'une solution complète n'appartient pas
+simultanément aux deux enveloppes. Le score total seul ne peut plus masquer
+la dégradation d'un groupe par l'amélioration d'un autre.
+
+## 27. V33 : ablation des sonorités fortes non licenciées
+
+Avant de durcir les deux statuts `triad_plus_unlicensed` et
+`other_unlicensed`, l'audit corpus trouve un taux de `10,999 %` dans les 251
+chorals de train. BWV 108.6 authentique en contient un sur 25 blocs forts
+intérieurs, contre cinq pour V32. Une interdiction absolue ne peut donc pas
+être présentée comme une règle apprise de Bach.
+
+V33 l'exécute néanmoins comme ablation causale. Les deux statuts deviennent
+des contraintes contextuelles K3. Un contrôle de support à un pas est ajouté
+à la propagation : avant chaque choix, le moteur vérifie que la variable
+suivante conserve au moins une valeur compatible.
+
+La recherche termine en 298 nœuds avec 66 backtracks. Les cinq sonorités
+visées disparaissent. Par rapport à V32 :
+
+- dissonances fortes : `1,077 → 0,885` par bloc ;
+- blocs forts non triadiques : `57,69 % → 50 %` ;
+- blocs triadiques : `40,82 % → 42,86 %` ;
+- continuations ABAB de basse : `1,11 % → 0 %`.
+
+L'ablation est positive mais non promue : l'harmonie reste loin de Bach
+(`26,92 %` de blocs forts non triadiques), et l'interdiction rejette aussi
+des cas authentiques. V34 devra apprendre sur train un budget de statuts non
+licenciés conditionnel au nombre de blocs forts, puis combiner :
+
+1. ce budget persistant ;
+2. le groupe séquentiel V32 ;
+3. un plancher propre au sous-score harmonique fort.
+
+Le budget devra provoquer une contradiction seulement lorsqu'aucune
+continuation de la branche ne peut encore revenir dans l'enveloppe autorisée.
+
+## 28. V34 : état harmonique observable et limite du choix note par note
+
+V34 remplace l'impression de « mauvais accord » par un état entièrement
+observable sur deux temps forts : famille d'accord nommé dissonant et type de
+sonorité suivante. Le BIC retient trois issues communes aux familles. Sur le
+train, `16,414 %` des transitions fortes partent d'un accord nommé dissonant
+et `15,872 %` de celles-ci enchaînent vers un autre accord nommé dissonant.
+
+La confirmation stricte échoue : les deux taux baissent hors train. Les poids
+et les budgets restent donc une ablation, jamais une règle promue. Le moteur
+les compile néanmoins en comptes persistants et les propage dès qu'une
+transition devient décidable.
+
+Deux recherches bornées à 5 000 nœuds échouent : l'ordre chronologique produit
+4 600 domaines vides ; l'ordre « squelette fort puis notes faibles » en
+produit 4 674. Ce n'est pas une raison pour relâcher les seuils. Le conflit
+vient de l'unité de choix : trois décisions indépendantes basse–ténor–alto
+énumèrent trop de paires verticales sans complétion possible.
+
+V35 devra compiler chaque temps fort comme une variable d'accord conjointe,
+dont le domaine est propagé depuis les contraintes V33 existantes. Il ne faut
+pas ajouter la contrainte manuelle « accord nommé obligatoire », car les
+sonorités résiduelles licenciées existent dans Bach. Les facteurs appris, le
+seuil et les partitions de corpus resteront gelés pour isoler l'effet de cette
+compilation.
+
+## 30. Budgets empiriques du manuel et première génération
+
+Les dix-huit métriques unilatérales du manuel ont été calibrées au quantile
+95 % sur les 251 chorals de train. Toutes sont restées sous la limite de 15 %
+de dépassement préenregistrée sur les 50 chorals de validation. Les imposer
+séparément ne serait pas scientifiquement correct : l'acceptation conjointe du
+test tomberait à 49 % par accumulation des erreurs marginales.
+
+Les dépassements sont donc comptés dans cinq familles déclaratives séparées :
+contrepoint, tendances, sauts, répétitions et mouvement conjoint. Les budgets
+familiaux acceptent simultanément 94 % du train, 96 % de la validation et
+86,3 % du test final. Ils sont maintenant gelés.
+
+Snarky a généré une nouvelle réalisation complète après 69 backtracks, dont
+cinq rejets attribuables au profil du manuel. Le saut maximal du ténor passe
+de 16 à 12 demi-tons et la répétition maximale de basse de 4 à 3. Un seul
+dépassement demeure, la répétition d'alto de longueur 8 ; il est autorisé par
+le budget de famille appris. La partition satisfait le profil
+`bach_empirical`, mais cette conformité ne prouve toujours pas que les accords
+sont stylistiquement suffisants. La prochaine mesure doit porter sur un lot
+de générations gelées, pas sur un nouvel ajustement après écoute de ce cas.
+
+## 29. Validation indépendante par la base experte officielle
+
+Avant V35, une expérience orthogonale sépare deux questions qui avaient été
+confondues : le langage Snarky peut-il exprimer et faire respecter une théorie
+experte, et cette théorie suffit-elle à produire Bach ?
+
+La base `S-OFFICIAL-MANUAL` traduit les douze chapitres illustrés du manuel.
+Son contrat comporte quatre couches explicitement séparées :
+
+1. faits observables extraits directement du MusicXML ;
+2. `RuleGroup` dérivant satisfactions et violations ;
+3. `FactorGroup` purs, sans chaînage ni effet de bord ;
+4. profil transformant une sélection de violations en contradictions.
+
+Les douze couples authentique/contre-exemple passent le test différentiel. Le
+moteur de choix backtracke également d'un candidat mieux pondéré mais invalide
+vers un candidat valide. Le langage et le mécanisme de recherche sont donc
+suffisants pour cette première spécification.
+
+L'audit complet de BWV 108.6 montre toutefois que la fonction d'acceptation ne
+l'est pas : seuls cinq phénomènes portent un poids, et le score partiel classe
+encore V33 au-dessus de Bach malgré des répétitions internes et suspensions
+nettement plus mauvaises. La prochaine phase est une calibration corpus des
+budgets de groupe, avec train/validation/test gelés. Ce travail ne doit ni
+modifier les douze prédicats après observation du test, ni transformer toutes
+les préférences du manuel en interdictions absolues.

@@ -1,0 +1,223 @@
+{
+  "experiment": {
+    "id": "K3-V34-HARMONIC-BUDGET-1",
+    "status": "REJECTED",
+    "test_split_used_for_fit": false,
+    "generated_piece_used_for_fit": false
+  },
+  "definition": {
+    "scope": "current strong beat and next strong beat",
+    "current_domain": "deterministic named dissonant chord",
+    "outcomes": [
+      "next_triad",
+      "next_named_dissonant",
+      "next_residual"
+    ]
+  },
+  "corpus": {
+    "train251": {
+      "pieces": 251,
+      "strong_transition_opportunities": 8176,
+      "dissonant_named_transitions": 1342,
+      "dissonant_named_rate": 0.1641389432485323,
+      "dissonant_named_wilson_95_interval": [
+        0.15626821033760377,
+        0.17232513372070593
+      ],
+      "dissonant_to_dissonant_chains": 213,
+      "chain_given_dissonant_rate": 0.1587183308494784,
+      "chain_wilson_95_interval": [
+        0.14014567047752768,
+        0.17923924369902516
+      ],
+      "outcomes": {
+        "next_triad": 911,
+        "next_named_dissonant": 213,
+        "next_residual": 218
+      },
+      "family_outcomes": {
+        "dominant_seventh": {
+          "next_triad": 238,
+          "next_named_dissonant": 57,
+          "next_residual": 65
+        },
+        "common_seventh": {
+          "next_triad": 321,
+          "next_named_dissonant": 68,
+          "next_residual": 50
+        },
+        "diminished_family": {
+          "next_triad": 294,
+          "next_named_dissonant": 59,
+          "next_residual": 82
+        },
+        "ambiguous_named": {
+          "next_triad": 57,
+          "next_named_dissonant": 29,
+          "next_residual": 21
+        },
+        "altered_named": {
+          "next_triad": 1,
+          "next_named_dissonant": 0,
+          "next_residual": 0
+        }
+      }
+    },
+    "validation50": {
+      "pieces": 50,
+      "strong_transition_opportunities": 1507,
+      "dissonant_named_transitions": 220,
+      "dissonant_named_rate": 0.145985401459854,
+      "dissonant_named_wilson_95_interval": [
+        0.1290584336301213,
+        0.16471260119913209
+      ],
+      "dissonant_to_dissonant_chains": 28,
+      "chain_given_dissonant_rate": 0.12727272727272726,
+      "chain_wilson_95_interval": [
+        0.08954310041045346,
+        0.1777954843895567
+      ],
+      "outcomes": {
+        "next_triad": 165,
+        "next_named_dissonant": 28,
+        "next_residual": 27
+      },
+      "family_outcomes": {
+        "dominant_seventh": {
+          "next_triad": 48,
+          "next_named_dissonant": 8,
+          "next_residual": 9
+        },
+        "diminished_family": {
+          "next_triad": 44,
+          "next_named_dissonant": 7,
+          "next_residual": 5
+        },
+        "common_seventh": {
+          "next_triad": 60,
+          "next_named_dissonant": 11,
+          "next_residual": 9
+        },
+        "ambiguous_named": {
+          "next_triad": 13,
+          "next_named_dissonant": 2,
+          "next_residual": 4
+        }
+      }
+    },
+    "test51": {
+      "pieces": 51,
+      "strong_transition_opportunities": 1598,
+      "dissonant_named_transitions": 197,
+      "dissonant_named_rate": 0.123279098873592,
+      "dissonant_named_wilson_95_interval": [
+        0.10805765455649838,
+        0.140307410931064
+      ],
+      "dissonant_to_dissonant_chains": 21,
+      "chain_given_dissonant_rate": 0.1065989847715736,
+      "chain_wilson_95_interval": [
+        0.07078559774393295,
+        0.1574613941364644
+      ],
+      "outcomes": {
+        "next_triad": 144,
+        "next_named_dissonant": 21,
+        "next_residual": 32
+      },
+      "family_outcomes": {
+        "common_seventh": {
+          "next_triad": 60,
+          "next_named_dissonant": 9,
+          "next_residual": 7
+        },
+        "ambiguous_named": {
+          "next_triad": 10,
+          "next_named_dissonant": 0,
+          "next_residual": 0
+        },
+        "dominant_seventh": {
+          "next_triad": 38,
+          "next_named_dissonant": 3,
+          "next_residual": 10
+        },
+        "diminished_family": {
+          "next_triad": 36,
+          "next_named_dissonant": 9,
+          "next_residual": 15
+        }
+      }
+    }
+  },
+  "granularity": {
+    "outcome_names": [
+      "next_triad",
+      "next_named_dissonant",
+      "next_residual"
+    ],
+    "pooled_log_likelihood": -1141.1479637394925,
+    "family_log_likelihood": -1128.5725009892958,
+    "pooled_parameter_count": 2,
+    "family_parameter_count": 10,
+    "pooled_bic": 2296.6997601140483,
+    "family_bic": 2329.164165153908,
+    "selected": "pooled_outcome_model"
+  },
+  "confirmation": {
+    "rule": "validation rates lie inside train Wilson 95% intervals",
+    "dissonant_rate_confirmed": false,
+    "chain_rate_confirmed": false,
+    "confirmed": false,
+    "ablation_interpretation": "rates_lower_on_validation_than_train; train budgets are conservative"
+  },
+  "factors": [
+    {
+      "id": "F-K3-V34-NEXT-TRIAD",
+      "outcome": "next_triad",
+      "probability": 0.6788375558867362,
+      "log_weight": -0.38737342027166877,
+      "estimator": "categorical_mle",
+      "human_authored": false,
+      "feature_definition_human_authored": true
+    },
+    {
+      "id": "F-K3-V34-NEXT-NAMED-DISSONANT",
+      "outcome": "next_named_dissonant",
+      "probability": 0.1587183308494784,
+      "log_weight": -1.840624151822202,
+      "estimator": "categorical_mle",
+      "human_authored": false,
+      "feature_definition_human_authored": true
+    },
+    {
+      "id": "F-K3-V34-NEXT-RESIDUAL",
+      "outcome": "next_residual",
+      "probability": 0.16244411326378538,
+      "log_weight": -1.8174212547425381,
+      "estimator": "categorical_mle",
+      "human_authored": false,
+      "feature_definition_human_authored": true
+    },
+    {
+      "id": "F-K3-V34-STRONG-NAMED-DISSONANT",
+      "outcome": "strong_named_dissonant",
+      "probability": 0.1641389432485323,
+      "log_weight": -1.62774911514361,
+      "estimator": "binomial_mle_log_odds",
+      "human_authored": false,
+      "feature_definition_human_authored": true
+    }
+  ],
+  "budgets": {
+    "quantile": 0.95,
+    "dissonant_named_probability": 0.1641389432485323,
+    "chain_given_dissonant_probability": 0.1587183308494784,
+    "semantics": "binomial_upper_quantile"
+  },
+  "example_budget_25": {
+    "strong_transition_opportunities": 25,
+    "maximum_dissonant_named": 7,
+    "maximum_dissonant_chains": 3
+  }
+}
