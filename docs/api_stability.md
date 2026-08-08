@@ -16,6 +16,11 @@ from snarky import *
 Stable names remain available from the package root and follow the
 compatibility policy in [versioning.md](versioning.md).
 
+The existing surface and its documented semantics are frozen as the
+[Snarky Core 0.1 baseline](core_0_1_baseline.md). This is a compatibility
+baseline identified by a repository commit, not a public release or
+redistribution authorization.
+
 ## Advanced API
 
 Advanced names expose search policies, propagation state, low-level
@@ -58,6 +63,13 @@ provisional before 1.0. Its constraint models—including
 `LexLessEqualConstraint`—are exported from `csp_solver`, but are not part of
 Snarky's stable core API. Their import paths and signatures may therefore
 evolve between minor releases.
+
+Probabilistic constraint learning, learned factor parameters, conditional MLE,
+partition functions, exact probabilistic sampling, and regular belief
+propagation are also outside the frozen Core. They must remain in explicit
+experimental modules or declarations until their semantics and conformance
+suite are accepted. In particular, they may not reinterpret the stable
+`CHOICE` weight as a globally normalized probability.
 
 ## Top-level transition
 

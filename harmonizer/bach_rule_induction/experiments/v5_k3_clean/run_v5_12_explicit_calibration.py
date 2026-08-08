@@ -8,8 +8,9 @@ import copy
 import json
 import math
 from collections import Counter
+from collections.abc import Iterable
 from pathlib import Path
-from typing import Any, Iterable
+from typing import Any
 
 import k3
 import numpy as np
@@ -112,7 +113,9 @@ def _supported_features(
     minimum_piece_support: int,
 ) -> tuple[k3.FeatureSpec, ...]:
     metric_counts = Counter((strong, current) for _, strong, current, _ in contexts)
-    transition_counts = Counter((current, following) for _, _, current, following in contexts)
+    transition_counts = Counter(
+        (current, following) for _, _, current, following in contexts
+    )
     metric_pieces: dict[tuple[int, int], set[str]] = {}
     transition_pieces: dict[tuple[int, int], set[str]] = {}
     for piece_id, strong, current, following in contexts:

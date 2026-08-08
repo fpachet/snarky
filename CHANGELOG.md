@@ -8,6 +8,9 @@ details are documented in [docs/versioning.md](docs/versioning.md).
 
 ### Added
 
+- A frozen Snarky Core 0.1 compatibility baseline separating the established
+  symbolic language from experimental probabilistic learning and regular-BP
+  work, without authorizing a public release tag.
 - Explicit stable, advanced, integration, and experimental API categories.
 - Differential and property-based coverage of mutable inference behavior.
 - Isolated installation smoke testing for built wheels.

@@ -16,6 +16,13 @@ to a pre-1.0 research package.
 - A 1.0 release will freeze the stable-core contract under normal Semantic
   Versioning rules.
 
+Before 1.0, the repository nevertheless maintains a concrete
+[Snarky Core 0.1 baseline](core_0_1_baseline.md). Existing Core behavior is
+protected by the compatibility and deprecation rules below, while advanced
+and experimental research may continue independently. The baseline is
+identified by its repository commit until the release gates permit a public
+version tag.
+
 Compatibility covers documented call signatures, import locations, return
 types, deterministic ordering, and the semantics of facts, mutation,
 refraction, checkpoints, and search results. Runtime performance is tested for
@@ -54,4 +61,3 @@ A deprecation must:
 4. emit a targeted warning when that can be done without disrupting hot paths;
 5. be removed only in a later minor release before 1.0, or a major release
    after 1.0.
-
