@@ -62,11 +62,31 @@ ruff check .
 mypy src
 ```
 
-For installed-console validation of persistent constraints, install the
-optional companion from this checkout with `python -m pip install ./csp_solver`.
-Research unit tests use `python -m pip install -e ".[dev,research]"` followed
-by `pytest harmonizer/bach_rule_induction/experiments`. See the
-[current status and validation map](docs/project_status.md).
+To use persistent constraints through the installed console outside the
+checkout, install the optional CSP companion after the core:
+
+```sh
+python -m pip install ./csp_solver
+snarky check csp_solver/magic_square.constraints
+```
+
+The companion bundles its rule and constraint data. Reinstall it after
+editing its sources; `python -m snarky` from the checkout uses the current
+sources directly.
+
+Choose the test scope explicitly:
+
+| Scope | Command |
+|---|---|
+| Complete core/application suite | `pytest` |
+| Shorter feedback loop | `pytest -m "not slow"` |
+| Expensive harmonizer integrations | `pytest -m slow --durations=10` |
+| Research unit and fixture tests | `pytest harmonizer/bach_rule_induction/experiments` |
+
+Research tests additionally require `python -m pip install -e ".[dev,research]"`.
+They run separately in CI. For a locked environment, use
+`uv sync --frozen --extra dev --extra research` and prefix commands with
+`uv run --frozen`. See the [validation map](docs/project_status.md) for details.
 
 The project has not yet declared a redistribution license. See
 [publication status](LICENSE_STATUS.md) before copying or redistributing it.
@@ -334,6 +354,23 @@ logical equivalence is always checked before a change is accepted.
 
 The [current status map](docs/project_status.md) distinguishes frozen Core 0.1,
 application prototypes, tested research code, and proposed probabilistic APIs.
+
+The September 2026 review fixes are implemented:
+
+- custom propagators reach a complete fixed point before search proceeds;
+- saved results preserve their explanations across rollback, and assumptions
+  update dependent minimum proof depths reversibly;
+- finite numeric terms round-trip through exponent-aware parsing;
+- the optional CSP companion supports installed-console constraint validation;
+- factor explanations preserve witness order without quadratic support scans.
+
+The [recorded benchmark](benchmarks/results/factor_supports_review_2026-09-08.json)
+reduced the 4,000-witness shared-scope evaluator median from 1.467 s to
+0.00937 s. This result is specific to that synthetic workload. The
+[validation record](docs/project_status.md#review-fix-validation--8-september-2026)
+documents local tests and distinguishes them from remote CI execution.
+The [runtime tutorials](docs/runtime_tutorial.md) provide executable examples
+of propagation, saved proofs, and factor/choice boundaries.
 
 The consolidation through parser decomposition and API stabilization is
 complete. Work still required before a public tagged release is tracked in

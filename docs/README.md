@@ -9,6 +9,15 @@ Each document has one primary language. Existing French implementation notes
 are retained as research history; they are not the publication entry point and
 should not be mechanically mixed with English sections.
 
+## Start here
+
+- [Project status and validation map](project_status.md): completed review
+  fixes, compatibility boundaries, test scopes, and remaining research work.
+- [Runtime boundary tutorials](runtime_tutorial.md): executable examples of
+  custom propagation, saved explanations, and factor/choice semantics.
+- [Language validation and formatting](language_tooling.md): console usage
+  and installation of the optional CSP companion.
+
 ## Publication guides in English
 
 - [Architecture](architecture.md)
@@ -61,8 +70,3 @@ PDFs, presentations, theses, and third-party rule corpora are reference
 material, not automatically redistributable project documentation. Their
 origin and release decision are recorded in
 [the third-party audit](../THIRD_PARTY.md).
-
-## Current status and practical tutorials
-
-- [Project status and validation map](project_status.md)
-- [Runtime boundary tutorials](runtime_tutorial.md)

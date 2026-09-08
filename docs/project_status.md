@@ -43,6 +43,23 @@ sources, checks documentation links, builds the core and CSP distributions,
 and exercises the installed console with and without the companion. See
 [contribution instructions](../CONTRIBUTING.md) for the local packaging gate.
 
+## Completed review actions
+
+| Action | Result | Regression coverage |
+|---|---|---|
+| Propagation closure | Custom propagators reschedule on their own relevant changes; iterations remain bounded | Search observes closure, interacting filters, non-convergence |
+| Saved explanations | Session and group results own isolated provenance copies | Mutation and repeated rollback preserve saved proofs |
+| Minimum proof depths | Assumptions and shorter rule proofs update dependent depths reversibly | Assumption, shorter proof, descendant, and rollback cases |
+| Numeric round trips | Exponent notation works in terms and arithmetic; non-finite numbers are rejected | Generated finite floats, signed zero, exponent limits, overflow errors |
+| Installed CLI | Optional `snarky-csp` distribution includes required model data | Clean console invocation before/after installation, invalid constraints, four queens |
+| Factor support collection | Ordered dictionary membership replaces quadratic list scans | Scores, scopes, witness counts, support order, and interleaved timing samples |
+| Test infrastructure | Separate research job, Python 3.12/3.13 core matrix, expensive integration markers | Explicit test scopes documented above |
+
+The executable [runtime tutorials](runtime_tutorial.md) demonstrate the
+corrected boundaries. [Changelog](../CHANGELOG.md) entries describe the
+user-facing behavior; [benchmark documentation](../benchmarks/README.md)
+explains the measurement scope.
+
 ## Review-fix validation — 8 September 2026
 
 Local validation used Python 3.13.11. The full configured run passed 671 tests

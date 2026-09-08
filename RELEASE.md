@@ -15,6 +15,8 @@ open.
 ## Version and documentation
 
 - [ ] Choose a Semantic Versioning number and update `pyproject.toml`.
+- [ ] If distributing the CSP companion, update `csp_solver/pyproject.toml`
+      and verify its supported core-version range.
 - [ ] Move relevant entries from `Unreleased` in `CHANGELOG.md`.
 - [ ] Review the stable, advanced, integration, and experimental API lists.
 - [ ] Verify README examples and all local documentation links.
@@ -23,14 +25,23 @@ open.
 ## Quality and distribution
 
 ```sh
+python -m snarky check --syntax-only --format .
 ruff check .
 mypy src
 pytest
+pytest harmonizer/bach_rule_induction/experiments
 python scripts/check_markdown_links.py
 python -m build --outdir dist
+python -m build --outdir dist/csp csp_solver
 python scripts/check_distribution.py dist
-python scripts/check_wheel_install.py dist
+python scripts/check_wheel_install.py dist \
+  --companion dist/csp/snarky_csp-0.1.0-py3-none-any.whl
 ```
+
+Install `.[dev,research]` first, or use the locked environment described in
+[CONTRIBUTING.md](CONTRIBUTING.md). Adjust the companion wheel filename when
+its version changes. The isolated check exercises both core-only console
+usage and the installed CSP companion with its packaged rule data.
 
 - [ ] Run representative differential benchmarks and archive raw results.
 - [ ] Inspect wheel and sdist contents.

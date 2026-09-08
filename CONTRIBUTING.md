@@ -31,7 +31,8 @@ uv sync --frozen --extra dev --extra research
 uv run --frozen pytest harmonizer/bach_rule_induction/experiments --durations=10
 ```
 
-Alternatively, use `python -m pip install -e ".[dev,research]"` and `pytest`.
+Alternatively, use `python -m pip install -e ".[dev,research]"` followed by
+`pytest harmonizer/bach_rule_induction/experiments`.
 These tests use synthetic and tracked fixtures, not a new corpus-training run.
 Music21, MuSES, and the historical DeepBach environment are only needed for
 their corresponding corpus/export experiments; see those experiment guides.
