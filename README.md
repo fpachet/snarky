@@ -56,11 +56,17 @@ For development:
 
 ```sh
 python -m pip install -e ".[dev]"
-snarky check --syntax-only --format .
+python -m snarky check --syntax-only --format .
 pytest
 ruff check .
 mypy src
 ```
+
+For installed-console validation of persistent constraints, install the
+optional companion from this checkout with `python -m pip install ./csp_solver`.
+Research unit tests use `python -m pip install -e ".[dev,research]"` followed
+by `pytest harmonizer/bach_rule_induction/experiments`. See the
+[current status and validation map](docs/project_status.md).
 
 The project has not yet declared a redistribution license. See
 [publication status](LICENSE_STATUS.md) before copying or redistributing it.
@@ -272,6 +278,7 @@ the [finite-CSP guide](csp_solver/README.md) for formulations and commands.
 - [Textual syntax](docs/syntax.md)
 - [Language validation and formatting](docs/language_tooling.md)
 - [Semantics](docs/semantics.md)
+- [Runtime boundary tutorials](docs/runtime_tutorial.md)
 - [Learned-factor language plan](docs/learned_factor_language_plan.md)
 - [Finite-CSP solver optimization plan](docs/solver_optimization_plan.md)
 - [API stability](docs/api_stability.md)
@@ -324,6 +331,9 @@ and the historical result files. Performance figures are environment-specific;
 logical equivalence is always checked before a change is accepted.
 
 ## Project status
+
+The [current status map](docs/project_status.md) distinguishes frozen Core 0.1,
+application prototypes, tested research code, and proposed probabilistic APIs.
 
 The consolidation through parser decomposition and API stabilization is
 complete. Work still required before a public tagged release is tracked in

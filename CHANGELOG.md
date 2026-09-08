@@ -6,6 +6,31 @@ details are documented in [docs/versioning.md](docs/versioning.md).
 
 ## [Unreleased]
 
+### Fixed
+
+- Custom deterministic propagators now requeue after their own relevant
+  changes until the joint fixed point is reached, with bounded iteration.
+- Saved session and group results retain isolated provenance across mutation
+  and rollback. External assumptions shorten existing and dependent proof
+  depths with reversible updates.
+- Finite numbers round-trip through term rendering and parsing, including
+  exponent notation in arithmetic. Non-finite numeric terms are rejected and
+  arithmetic overflow retains the public evaluation-error family.
+- The optional local `snarky-csp` distribution bundles required rule data and
+  enables installed-console constraint validation. Isolated installation
+  checks exercise the actual CLI with and without the companion.
+- Factor explanation support deduplication uses ordered dictionary membership
+  instead of quadratic list scans, preserving supports and witness counts.
+
+### Validation and documentation
+
+- Added a locked optional research dependency and a separate CI job covering
+  the experiment tests; core CI now checks Python 3.12 and 3.13.
+- Marked expensive harmonizer integrations, added executable runtime boundary
+  tutorials, and consolidated the current status and validation map.
+- Added an interleaved evaluator benchmark with raw samples and checks of
+  scores, scopes, support ordering, and witness counts.
+
 ### Added
 
 - A frozen Snarky Core 0.1 compatibility baseline separating the established

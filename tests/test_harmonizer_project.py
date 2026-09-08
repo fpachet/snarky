@@ -17,6 +17,8 @@ from snarky import (
     Triple,
 )
 
+pytestmark = pytest.mark.slow
+
 
 def test_first_harmonizer_returns_legal_weighted_satb_solutions() -> None:
     model = build_harmonizer_model()

@@ -61,3 +61,8 @@ PDFs, presentations, theses, and third-party rule corpora are reference
 material, not automatically redistributable project documentation. Their
 origin and release decision are recorded in
 [the third-party audit](../THIRD_PARTY.md).
+
+## Current status and practical tutorials
+
+- [Project status and validation map](project_status.md)
+- [Runtime boundary tutorials](runtime_tutorial.md)

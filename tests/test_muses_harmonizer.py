@@ -17,6 +17,8 @@ from snarky.integrations import (
     MusesTemporalNoteCodec,
 )
 
+pytestmark = pytest.mark.slow
+
 
 class FakeTemporalNote:
     def __init__(

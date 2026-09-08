@@ -10,6 +10,10 @@ A term is an immutable `Atom`, `Number`, `Variable`, `Status`,
 `FiniteSequence`, `FiniteSet`, `Triple`, or `Proposition`. Compound terms are
 recursive. All terms are structurally comparable and hashable.
 
+Numeric terms are finite integers or floats. Non-finite floats are rejected;
+decimal exponent notation such as `1e-7` and `2E+3` is supported in terms and
+arithmetic expressions. Overflow in arithmetic raises `ArithmeticEvaluationError`.
+
 `FiniteSequence` is ordered and retains duplicates. `FiniteSet` removes
 duplicates and compares independently of insertion order, while retaining its
 first insertion order for deterministic rendering.
@@ -238,6 +242,10 @@ with equivalent logical state.
 `ForwardEngine(rules).run(facts)` is the convenience form that creates a fresh
 session and saturates an implicit `default` group.
 
+Materialized session and group results contain isolated provenance copies,
+so later mutation or rollback cannot change a saved explanation. Internal
+clients may skip materialization with `run_group(..., materialize_result=False)`.
+
 ## Explicit search
 
 Forward chaining never introduces implicit problem-level backtracking.
@@ -295,6 +303,11 @@ forward chaining; it does not create hypotheses or search branches.
 Initial facts have proof depth zero. A derivation records its group, rule,
 substitution, premise facts, cycle, and proof depth. Multiple derivations may
 support one fact, and `proof_depth` returns the shortest known proof.
+
+Assuming a previously derived fact lowers its minimum depth to zero and
+updates dependent minimum depths reversibly. Historical derivation records
+keep their depths at firing time; `Provenance.depth()` and
+`minimal_derivation()` use the currently known minimum premise depths.
 
 Every effective addition or removal also produces a chronological
 `InferenceEvent`. Events remain available after later removals so a

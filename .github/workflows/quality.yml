@@ -16,6 +16,10 @@ concurrency:
 jobs:
   validate:
     runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version: ["3.12", "3.13"]
     steps:
       - name: Check out repository
         uses: actions/checkout@v6
@@ -23,7 +27,7 @@ jobs:
       - name: Set up Python
         uses: actions/setup-python@v6
         with:
-          python-version: "3.12"
+          python-version: ${{ matrix.python-version }}
           cache: pip
 
       - name: Install package and development tools
@@ -37,17 +41,40 @@ jobs:
       - name: Type check
         run: mypy src
 
-      - name: Test
-        run: pytest
+      - name: Test core and application checks
+        run: pytest -m "not slow" --durations=10
+
+      - name: Test expensive integrations
+        run: pytest -m slow --durations=10
+
+      - name: Validate textual sources
+        run: python -m snarky check --syntax-only --format .
 
       - name: Check documentation links
         run: python scripts/check_markdown_links.py
 
       - name: Build distributions
-        run: python -m build --outdir dist
+        run: |
+          python -m build --outdir dist
+          python -m build --outdir dist/csp csp_solver
 
       - name: Check distribution contents
         run: python scripts/check_distribution.py dist
 
       - name: Test installed wheel
-        run: python scripts/check_wheel_install.py dist
+        run: >-
+          python scripts/check_wheel_install.py dist
+          --companion dist/csp/snarky_csp-0.1.0-py3-none-any.whl
+
+  research:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.12"
+          cache: pip
+      - name: Install optional research test dependencies
+        run: python -m pip install -e ".[dev,research]"
+      - name: Test research code with synthetic and tracked fixtures
+        run: pytest harmonizer/bach_rule_induction/experiments --durations=10
