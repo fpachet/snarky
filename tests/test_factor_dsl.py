@@ -29,6 +29,34 @@ def _facts() -> tuple[Fact, ...]:
     )
 
 
+def test_factor_explanations_preserve_order_and_shared_supports() -> None:
+    (group,) = parse_factor_groups(
+        """
+        FACTOR_GROUP many
+            FACTOR witnesses
+            SCOPE shared
+            LOG_WEIGHT 0.5
+            WHEN
+                enabled
+                ($item kind item)
+            END_FACTOR
+        END_FACTOR_GROUP
+        """
+    )
+    enabled = Fact(Atom("enabled"))
+    witnesses = tuple(
+        Fact(Triple(Atom(f"item_{i}"), Atom("kind"), Atom("item")))
+        for i in reversed(range(100))
+    )
+    result = evaluate_factor_model(FactorModel("test", (group,)),
+                                   (enabled, *witnesses))
+    assert len(result.activations) == 1
+    activation = result.activations[0]
+    assert activation.support_facts == (enabled, *witnesses)
+    assert activation.witness_count == 100
+    assert result.log_score == 0.5
+
+
 def _factor_text() -> str:
     return """
     FACTOR_GROUP learned_bach

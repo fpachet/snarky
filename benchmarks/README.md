@@ -37,6 +37,21 @@ chord-generating harmonizer measure different workloads.
 
 ## Benchmark catalogue
 
+The factor-support microbenchmark compares one committed evaluator with the
+working tree using the same current matcher, alternating measurement order
+and checking every score, witness count, and ordered support list:
+
+```sh
+python -m benchmarks.factor_supports --baseline-ref 1a453ad \
+  --output benchmarks/results/factor_supports_review_2026-09-08.json
+```
+
+The [recorded review comparison](results/factor_supports_review_2026-09-08.json)
+reduces the 4,000-witness median from 1.467 s to 0.00937 s for this synthetic
+shared-scope case. This is an evaluator microbenchmark, not an end-to-end
+harmonization speedup. The record includes raw samples, source hash, commit,
+environment, and dirty-checkout status.
+
 ### Applications and search
 
 | Module | Comparison |

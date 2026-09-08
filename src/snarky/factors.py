@@ -175,17 +175,16 @@ def evaluate_factor_model(
                 (AddFact(Atom("__factor_query_result__")),),
             )
             matches = query_strategy.instantiate(query, snapshot)
-            grounded: dict[Term, tuple[list[Fact], int]] = {}
+            grounded: dict[Term, tuple[dict[Fact, None], int]] = {}
             for match in matches:
                 scope = match.substitution.apply(factor.definition.scope)
                 if not is_ground(scope):
                     raise ValueError(
                         f"factor {factor.name!r} produced a non-ground scope"
                     )
-                support, count = grounded.setdefault(scope, ([], 0))
+                support, count = grounded.setdefault(scope, ({}, 0))
                 for fact in match.premise_facts:
-                    if fact not in support:
-                        support.append(fact)
+                    support[fact] = None
                 grounded[scope] = (support, count + 1)
             for scope, (support, count) in grounded.items():
                 activations.append(
