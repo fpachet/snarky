@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import math
 from dataclasses import dataclass
 from enum import StrEnum
 
@@ -34,11 +35,13 @@ class Atom(_PreHashed):
 
 @dataclass(frozen=True, slots=True)
 class Number(_PreHashed):
-    """A numeric term kept distinct from symbolic atoms."""
+    """A finite numeric term kept distinct from symbolic atoms."""
 
     value: int | float
 
     def __post_init__(self) -> None:
+        if isinstance(self.value, float) and not math.isfinite(self.value):
+            raise ValueError("numeric terms must be finite")
         object.__setattr__(self, "_hash", hash((self.value,)))
 
     def __hash__(self) -> int:

@@ -1,6 +1,11 @@
 import pytest
 
-from snarky import ParseError, parse_arithmetic_expression
+from snarky import (
+    ParseError,
+    Substitution,
+    evaluate_arithmetic,
+    parse_arithmetic_expression,
+)
 from snarky.expressions import (
     BinaryArithmeticExpression,
     BinaryArithmeticOperator,
@@ -79,3 +84,15 @@ def test_arithmetic_parser_preserves_error_families(
 ) -> None:
     with pytest.raises(ParseError, match=message):
         parse_arithmetic_expression(text)
+
+
+def test_arithmetic_exponents_do_not_consume_adjacent_operators() -> None:
+    result = evaluate_arithmetic(
+        parse_arithmetic_expression("-1e-7 + 2E+3*2 - 1e2"), Substitution()
+    )
+    assert result == Number(-1e-7 + 4000 - 100)
+
+
+def test_overflowing_arithmetic_literal_has_a_parse_error() -> None:
+    with pytest.raises(ParseError, match="finite"):
+        parse_arithmetic_expression("1e999 + 1")

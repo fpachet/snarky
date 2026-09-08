@@ -67,6 +67,18 @@ def evaluate_arithmetic(
 ) -> Number:
     """Evaluate a ground numeric expression without using ``eval``."""
 
+    try:
+        return _evaluate_arithmetic(expression, substitution)
+    except ArithmeticEvaluationError:
+        raise
+    except (OverflowError, ValueError) as error:
+        raise ArithmeticEvaluationError(str(error)) from error
+
+
+def _evaluate_arithmetic(
+    expression: NumericExpression,
+    substitution: TermBindings,
+) -> Number:
     if isinstance(expression, Number):
         return expression
     if isinstance(expression, Variable):

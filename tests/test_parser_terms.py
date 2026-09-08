@@ -1,4 +1,8 @@
+import math
+
 import pytest
+from hypothesis import given
+from hypothesis import strategies as st
 
 from snarky import ParseError, parse_term
 from snarky.parser import (
@@ -26,6 +30,7 @@ from snarky.terms import (
     Status,
     Triple,
     Variable,
+    render_term,
 )
 
 
@@ -76,3 +81,28 @@ def test_token_parser_preserves_position_for_composed_parsers() -> None:
 def test_term_parser_preserves_error_families(text: str, message: str) -> None:
     with pytest.raises(ParseError, match=message):
         parse_term(text)
+
+
+@given(st.floats(allow_nan=False, allow_infinity=False))
+def test_finite_float_round_trip_in_recursive_terms(value: float) -> None:
+    term = Triple(Atom("sample"), Atom("value"), FiniteSequence((Number(value),)))
+    assert parse_term(render_term(term)) == term
+
+
+@pytest.mark.parametrize("value", [1e-7, 1e20, -1e-300, 5e-324, -0.0])
+def test_float_exponent_boundaries_and_signed_zero(value: float) -> None:
+    result = parse_term(render_term(Number(value)))
+    assert isinstance(result, Number)
+    assert result.value == value
+    assert math.copysign(1, result.value) == math.copysign(1, value)
+
+
+@pytest.mark.parametrize("value", [float("inf"), float("-inf"), float("nan")])
+def test_numeric_terms_reject_non_finite_values(value: float) -> None:
+    with pytest.raises(ValueError, match="finite"):
+        Number(value)
+
+
+def test_overflowing_numeric_literal_has_a_parse_error() -> None:
+    with pytest.raises(ParseError, match="finite"):
+        parse_term("1e999")
