@@ -1,6 +1,15 @@
 from dataclasses import dataclass
 
-from snarky import Atom, Fact, InferenceSession, Triple
+import pytest
+
+from snarky import (
+    Atom,
+    ChoiceSearchStatus,
+    Fact,
+    InferenceSession,
+    SessionChoiceSearch,
+    Triple,
+)
 from snarky.choice_fixed_point import JointFixedPointScheduler
 
 
@@ -67,3 +76,53 @@ def test_scheduler_ignores_add_then_retract_net_zero_delta() -> None:
     scheduler.run(InferenceSession(()))
 
     assert observed.calls == 1
+
+
+def test_search_observes_a_custom_propagators_complete_fixed_point() -> None:
+    initial = tuple(Fact(Atom(value)) for value in ("a", "b", "c"))
+
+    def narrow(session: InferenceSession) -> None:
+        if len(session.facts) > 1:
+            session.retract(session.facts[-1])
+
+    session = InferenceSession(initial)
+    result = SessionChoiceSearch(
+        groups=(),
+        choices=lambda current: (),
+        goal=lambda current: len(current.facts) == 1,
+        propagators=(narrow,),
+    ).solve(session)
+
+    assert result.status is ChoiceSearchStatus.SOLVED
+    assert result.solutions[0].session.facts == initial[:1]
+    assert session.facts == initial
+
+
+def test_interacting_propagators_reach_closure() -> None:
+    a, b, c = (Fact(Atom(value)) for value in ("a", "b", "c"))
+
+    def first(session: InferenceSession) -> None:
+        if b not in session.facts:
+            session.retract(a)
+
+    def second(session: InferenceSession) -> None:
+        session.retract(c if c in session.facts else b)
+
+    session = InferenceSession((a, b, c))
+    JointFixedPointScheduler((), (first, second), maximum_rounds=10).run(session)
+    assert session.facts == ()
+
+
+def test_non_converging_propagator_hits_iteration_guard() -> None:
+    fact = Fact(Atom("toggle"))
+
+    def toggle(session: InferenceSession) -> None:
+        if fact in session.facts:
+            session.retract(fact)
+        else:
+            session.assume(fact)
+
+    with pytest.raises(RuntimeError, match="did not stabilize"):
+        JointFixedPointScheduler((), (toggle,), maximum_rounds=3).run(
+            InferenceSession(())
+        )
