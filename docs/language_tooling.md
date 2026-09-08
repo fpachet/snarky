@@ -9,6 +9,17 @@ Snarky ships one command-line tool for its textual source formats:
 The command is installed with the `snarky` package. The equivalent
 source-tree invocation is `python -m snarky`.
 
+Constraint validation uses the optional `snarky-csp` companion. After
+installing the core, install it from the checkout with:
+
+```sh
+python -m pip install ./csp_solver
+```
+
+The console executable can then validate constraints from any directory.
+For development without installing the companion, run `python -m snarky check`
+from the checkout root. Pytest's import path is not an installation mechanism.
+
 ## Validate sources
 
 Validate one file or recursively discover supported files below directories:
@@ -98,7 +109,7 @@ not validate.
 Require both valid and canonically formatted source without changing files:
 
 ```sh
-snarky check --syntax-only --format .
+python -m snarky check --syntax-only --format .
 ```
 
 File discovery ignores build, cache, virtual-environment, dependency, and

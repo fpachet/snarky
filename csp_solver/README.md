@@ -442,3 +442,18 @@ and [the benchmark guide](../benchmarks/README.md) for current protocols. The
 [solver optimization plan](../docs/solver_optimization_plan.md) records the
 measured bottlenecks, implemented scheduling/kernel work, and the criteria for
 future incremental optimizations.
+
+## Installing the optional companion
+
+From the repository root, install the core and then the companion:
+
+```sh
+python -m pip install -e .
+python -m pip install ./csp_solver
+```
+
+The local `snarky-csp` distribution contains its Python modules and required
+rule/constraint data. It enables `snarky check model.constraints` outside the
+checkout and does not add dependencies to the core installation. Reinstall
+the companion after editing it, or use module execution from the checkout.
+Both distributions remain subject to the repository's pre-release status.

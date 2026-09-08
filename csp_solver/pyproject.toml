@@ -1,0 +1,19 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "snarky-csp"
+version = "0.1.0"
+description = "Optional finite-domain constraint companion for Snarky"
+requires-python = ">=3.12"
+dependencies = ["snarky>=0.1.0,<0.2"]
+
+[tool.hatch.build.targets.wheel]
+include = ["/*.py", "/*.rules", "/*.constraints"]
+
+[tool.hatch.build.targets.wheel.sources]
+"" = "csp_solver"
+
+[tool.hatch.build.targets.sdist]
+include = ["/*.py", "/*.rules", "/*.constraints", "/pyproject.toml", "/README.md"]

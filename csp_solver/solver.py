@@ -538,11 +538,9 @@ def assignment_from_solution(
 def finite_csp_rule_library() -> FiniteCSPRuleLibrary:
     """Load individually selectable groups implementing the CSP protocol."""
 
-    root = Path(__file__).resolve().parents[1]
-    decision_text = (root / "csp_solver" / "rules.rules").read_text()
-    binary_text = (
-        root / "rulebases" / "constraints" / "binary" / "rules.rules"
-    ).read_text()
+    root = Path(__file__).resolve().parent
+    decision_text = (root / "rules.rules").read_text(encoding="utf-8")
+    binary_text = (root / "binary.rules").read_text(encoding="utf-8")
     (choices,) = parse_rule_groups(decision_text)
     binary_constraints, domains, problems = parse_rule_groups(binary_text)
     return FiniteCSPRuleLibrary(

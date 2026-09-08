@@ -316,10 +316,14 @@ def _parse_rules_source(text: str) -> tuple[Any, ...]:
 def _parse_constraint_source(text: str) -> tuple[Any, ...]:
     try:
         module = import_module("csp_solver.constraint_syntax")
-    except ImportError as error:
+    except ModuleNotFoundError as error:
+        if error.name not in {"csp_solver", "csp_solver.constraint_syntax"}:
+            raise
         raise ParseError(
             "persistent-constraint validation requires the companion "
-            "`csp_solver` package"
+            "`snarky-csp` package; from the source checkout install it with "
+            "`python -m pip install ./csp_solver`, or run "
+            "`python -m snarky check` from the checkout root"
         ) from error
     parse_constraint_templates = cast(
         Callable[[str], tuple[Any, ...]],
