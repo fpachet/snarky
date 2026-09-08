@@ -472,7 +472,7 @@ class InferenceSession:
                 self._fired_activation_total - start_fired_count
             ),
             stop_reason=stop_reason,
-            provenance=self._provenance,
+            provenance=self._provenance.clone(),
             removed_facts=tuple(
                 event.fact
                 for event in events
