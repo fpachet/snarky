@@ -23,6 +23,7 @@ from .model import (
 from .oracle import enumerate_model
 from .product_objective import RationalProductObjective
 from .search import solve
+from .variable_markov import MarkovGeneration, MarkovGraph, MarkovOptimum, NGramModel
 
 __all__ = [
     "FactConstraint",
@@ -35,6 +36,10 @@ __all__ = [
     "InferenceSummary",
     "LinearObjective",
     "MarkovCosts",
+    "MarkovGeneration",
+    "MarkovGraph",
+    "MarkovOptimum",
+    "NGramModel",
     "Measure",
     "ModelDocument",
     "PredicateConstraint",

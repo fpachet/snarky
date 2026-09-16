@@ -56,9 +56,9 @@ and
 rounding conventions are not fully recovered; scores are not claimed to reproduce
 all published numbers. The simplification map is a proposed reviewable variant.
 
-The four-mode reference specification and variable-order implementations are
-still pending; completing the fixed-order slice does not close plan stages 2–3
-in full. Python rational objectives are available; parsed rational-objective syntax,
+The four-mode reference specification and variable-order implementation are
+now available in the [melody follow-up](markov_melody_examples.md), with an
+independent raw-window oracle and sparse suffix-state compilation. Python rational objectives are available; parsed rational-objective syntax,
 product explanation objects and automatic direct-DP dispatch remain future work.
 The independent DP solves the two tractable cases much faster than native search:
 this is evidence for dispatching supported models directly or reusing its witness,
@@ -73,11 +73,13 @@ external-witness record remains separate from the new solver-generated proof.
 
 ## Next actions
 
-1. Complete the independent four-mode scorer and edge-case specification.
+1. Completed: four-mode scorer, edge-case specification, melody optima, forbidden
+   longer words, contour controls and fixed-prefix continuation.
 2. Apply the planned linear-inequality optimization with exhaustive support tests.
 3. Reuse DP witnesses/messages on tractable cases and extend the validated bounds
    to higher-order applications where their proof obligations hold.
-4. Add incremental table supports and variable-order controls against the reference.
+4. Variable-order controls are now checked against the independent reference.
+   Further incremental table-support work remains a profile-driven extension.
 5. Proceed with measured GCC, equality-sum and all-different improvements.
 6. Close the remaining variable-order reproduction gates, broad performance
    comparisons and documented numerical guarantees. The first-order Boulez proof
@@ -85,3 +87,15 @@ external-witness record remains separate from the new solver-generated proof.
 
 Validation and commit details for this slice are recorded in the performance
 report. No source changes were made to LSDB.
+
+## Melody follow-up, 16 September 2026
+
+All four printed melodies are optimal under the stated, documented formulas.
+Table 6 has numeric discrepancies retained in the [reproduction guide](markov_melody_examples.md).
+The suffix-state DP and ordinary CSP both prove all four optima. Sparse product
+and integer chain bounds now avoid dense state-pair preparation on these models.
+Contour and continuation examples are independently checked; their generated
+traces are new demonstrations, not recovered original gestures. See the
+[performance record](performance_melody_2026-09-16.md) for raw samples, provenance
+and validation. These results do not close the remaining general constraint
+library optimization or parsed-language work.

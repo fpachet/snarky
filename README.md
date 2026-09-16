@@ -11,6 +11,9 @@ Its [finite model language](docs/finite_language.md) combines positive rules,
 constraints and factors in one declarative model, with explicit query semantics.
 The [performance ledger](docs/performance_baseline.md) preserves measurements
 for comparing future changes. Bach work is outside the redesign portfolio.
+The [Markov melody examples](docs/markov_melody_examples.md) reproduce the four
+2011 scoring modes, forbidden patterns, contour control and continuation using
+exact objectives and the ordinary CSP engine.
 
 Snarky is a research prototype: its core inference and finite-domain
 constraint semantics are extensively tested. Adaptive strategy selection,

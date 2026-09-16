@@ -33,6 +33,12 @@ details are documented in [docs/versioning.md](docs/versioning.md).
 
 ### Added
 
+- Exact variable-order Markov training, four scoring modes, forbidden patterns,
+  rational contour objectives and fixed-prefix continuation; sparse suffix-state
+  DP and compilation into ordinary CSP constraints/factors.
+- Sparse product and integer chain bounds for large sparse transition models,
+  with independent melody oracles and archived performance records.
+
 - An opt-in `snarky.finite` runtime with standalone reversible domains, the full
   existing persistent constraint vocabulary, native integer optimization,
   coordinated positive rule closure and pure factor objectives.

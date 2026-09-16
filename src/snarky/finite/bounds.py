@@ -24,6 +24,7 @@ from .product_objective import (
     RationalProductObjective,
     supports_product_chain,
 )
+from .sparse_chain import SparseSumChainBound, supports_sparse_sum
 
 
 class NoObjectiveCompletion(Exception):
@@ -176,5 +177,7 @@ def compile_objective_bound(
             count *= size
         estimated += count
     if estimated > max_edges:
+        if width == 1 and supports_sparse_sum(model, max_edges):
+            return SparseSumChainBound(model, deadline=deadline)
         return objective.bounds
     return ChainBound(model, width, cache_limit=max_edges, deadline=deadline)

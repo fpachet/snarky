@@ -395,3 +395,11 @@ The [Boulez optimization follow-up](performance_boulez_2026-09-16.md) records th
 subsequent exact assignment bound, seeded/unseeded comparisons, completed proof
 and contemporaneous rule/CSP/mixed controls. It preserves the earlier time-limited
 Blues baseline rather than replacing its measurements.
+
+## Variable-order melody extension
+
+The [16 September melody report](performance_melody_2026-09-16.md) adds the four
+2011 melody objectives, copy prevention, contour controls and chunk continuation.
+Its collector retains exact scores, independent oracle comparisons, separate
+construction/search/allocation records and a full source archive. It extends,
+rather than replaces, the original rule/CSP/mixed portfolios.

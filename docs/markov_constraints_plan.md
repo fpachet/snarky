@@ -320,3 +320,14 @@ large costs, and difficult-to-prove instances as well as the musical examples.
 - [Efficient Implementation of GCC with Costs (CP 2024)](https://arxiv.org/abs/2502.02688): later cost-aware filtering research, not evidence that ordinary GCC alone bounds Markov transitions.
 - [Current fixed-order compiler](../src/snarky/finite/markov.py), [completion bounds](../src/snarky/finite/bounds.py), [native propagation](../src/snarky/finite/propagation.py), and [shared filtering kernels](../src/snarky/finite/kernels.py).
 - [Finite semantics](finite_model_contract.md), [language](finite_language.md), and [completed performance comparison](performance_comparison_2026-09-16.md).
+
+## Implemented melody slice, 16 September 2026
+
+The [four-mode and control examples](markov_melody_examples.md) implement the
+variable-order scoring reference, sparse suffix-state DP, ordinary CSP compiler,
+forbidden words, rational contour objectives and chunk continuation. Exact
+optima match every printed melody, although several Table 6 scores do not match
+the paper's formulas under the documented conventions.
+[Repeatable measurements](performance_melody_2026-09-16.md) accompany the code;
+this closes the melody reproduction slice, not the outstanding general GCC,
+sum, all-different, language or solver-backend investigations.

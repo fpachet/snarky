@@ -88,6 +88,23 @@ assert permutation_result.objective_bound == Fraction(30)
 assert permutation_result.incumbent_history[0].value == 1
 print("isolated permutation bound and validated warm start: ok")
 
+from snarky.finite import MarkovGeneration, NGramModel
+source = NGramModel.train([tuple(map(Number, [0, 1, 0, 2, 1, 2, 0]))], 3)
+for mode in ("fixed", "smoothing", "max_order", "algebraic"):
+    request = MarkovGeneration(
+        source, (source.alphabet,) * 3, mode=mode, order=1 if mode == "fixed" else 2,
+        forbidden_order=3, prefix=(Number(0),),
+        contour=(1, 2, 0), alpha=Fraction(1, 2),
+    )
+    graph = request.graph()
+    expected = graph.optimum()
+    assert expected is not None
+    actual = solve(graph.compile(), Query(QueryKind.MAXIMIZE))
+    assert actual.status is ResultStatus.OPTIMAL
+    assert actual.incumbent.objective_value == expected.score
+print("isolated variable-order Markov, contour and prefix controls: ok")
+
+
 from snarky.finite import negative_log2_measure
 cost_model = markov_probe_model()
 probability_model = replace(

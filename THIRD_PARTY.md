@@ -123,3 +123,14 @@ Before adding any external artifact, record:
    distribution, or only a private reference collection.
 
 Unknown is a valid audit result, but never an implicit permission.
+
+## Pachet–Roy melody research fixture
+
+[`benchmarks/data/di_meola_v1/`](benchmarks/data/di_meola_v1/README.md) contains a
+numeric transcription of Figure 1, Figures 2–3, Table 6 and the four generated
+melodies from Pachet and Roy, *Markov constraints: steerable generation of Markov
+sequences*, Constraints 16, 148–172 (2011), DOI `10.1007/s10601-010-9101-4`.
+The article states Creative Commons Attribution Noncommercial on p. 170; the
+local README preserves attribution and describes the transcription. No external
+book, recording or paper PDF is included. Retain as attributed noncommercial
+research material; exclude from Python source/wheel distributions.

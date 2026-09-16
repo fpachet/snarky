@@ -109,12 +109,30 @@ class ProductChainBound:
         self.edges: list[dict[Term | None, tuple[tuple[Term, Fraction], ...]]] = []
         for i, variable in enumerate(model.variables):
             previous = model.variables[i - 1].domain if i else (None,)
+            # A zero-default pair factor gives a sparse superset of every
+            # positive edge. Other factors can only remove or reweight edges.
+            support = _sparse_pair(layers[i])
+            candidates: dict[Term | None, list[Term]] | None = None
+            if support is not None:
+                candidates = {}
+                left_index = support.variables.index(self.names[i - 1])
+                for row, value in support.values.items():
+                    if value:
+                        candidates.setdefault(row[left_index], []).append(
+                            row[1 - left_index]
+                        )
+            right_domain = frozenset(variable.domain)
             adjacency = {}
             for left in previous:
                 if deadline is not None and perf_counter() >= deadline:
                     raise TimeoutError("product bound compilation time limit")
                 successors = []
-                for right in variable.domain:
+                rights = (
+                    variable.domain if candidates is None else candidates.get(left, ())
+                )
+                for right in rights:
+                    if right not in right_domain:
+                        continue
                     assignment: dict[Term, Term] = {variable.name: right}
                     if i:
                         assert left is not None
@@ -177,7 +195,22 @@ def supports_product_chain(model: FiniteModel, max_edges: int) -> bool:
         if indices and max(indices) - min(indices) > 1:
             return False
     sizes = [len(v.domain) for v in model.variables]
-    return (
-        sum(size * (sizes[i - 1] if i else 1) for i, size in enumerate(sizes))
-        <= max_edges
+    volume = 0
+    for i, size in enumerate(sizes):
+        dense = size * (sizes[i - 1] if i else 1)
+        layer = [
+            f
+            for f in model.objective.factors
+            if f.variables and max(positions[v] for v in f.variables) == i
+        ]
+        sparse = _sparse_pair(layer)
+        volume += min(dense, len(sparse.values)) if sparse is not None else dense
+    return volume <= max_edges
+
+
+def _sparse_pair(factors: list[WeightTable]) -> WeightTable | None:
+    return min(
+        (f for f in factors if len(f.variables) == 2 and not f.default),
+        key=lambda f: len(f.values),
+        default=None,
     )
