@@ -331,3 +331,8 @@ the paper's formulas under the documented conventions.
 [Repeatable measurements](performance_melody_2026-09-16.md) accompany the code;
 this closes the melody reproduction slice, not the outstanding general GCC,
 sum, all-different, language or solver-backend investigations.
+
+The [post-Prune CSP roadmap](csp_optimization_roadmap_2026-09-16.md) now orders
+those general solver investigations using the broader measured portfolio. It
+preserves exact Boulez/melody results as regression gates and distinguishes
+Python execution costs, propagation strength, search policy and model changes.

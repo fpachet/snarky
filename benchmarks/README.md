@@ -59,6 +59,11 @@ Profile Python preparation, propagation, allocation/copying and scheduling separ
 before selecting optimizations. Preserve the original measurements when adding
 these controlled comparisons.
 
+The [active optimization roadmap](../docs/csp_optimization_roadmap_2026-09-16.md)
+defines the diagnostic workloads, phase order, new runtime large-domain probes,
+native NValue ablation and regression gates. Its additions are planned; they do
+not alter the frozen Prune comparison or imply new measured results.
+
 The factor-support microbenchmark compares one committed evaluator with the
 working tree using the same current matcher, alternating measurement order
 and checking every score, witness count, and ordered support list:

@@ -28,6 +28,9 @@ should not be mechanically mixed with English sections.
 - [Prune CSP comparison](performance_prune_2026-09-16.md): shared models, optimization,
   global constraints, independently validated Rust/Python implementation timings,
   interpretation limits and explicit coverage gaps.
+- [Active CSP optimization roadmap](csp_optimization_roadmap_2026-09-16.md):
+  evidence-based priorities, native NValue, compact domains, diagnostics, search
+  and propagation improvements with explicit acceptance gates.
 - [Redesign implementation evidence](redesign_progress.md)
 - [Markov constraints action plan](markov_constraints_plan.md): audited LSDB Blues,
   four scoring modes, numerical guarantees, and ordered solver improvements.
@@ -45,7 +48,7 @@ should not be mechanically mixed with English sections.
 - [Probabilistic constraint learning and exact generation](probabilistic_constraint_learning_spec.md)
 - [Rule programs and sequential steps](rule_programs.md)
 - [Persistent finite-domain constraints](persistent_constraints.md)
-- [Finite-CSP solver optimization plan](solver_optimization_plan.md)
+- [Legacy finite-CSP optimization history](solver_optimization_plan.md)
 - [LORE, LAURE, CLAIRE, and Snarky](caseau_rules_constraints.md)
 - [API stability](api_stability.md)
 - [Versioning and compatibility](versioning.md)

@@ -344,6 +344,12 @@ the cost of either language. Follow-up work separates search effort, propagation
 strength and Python implementation overhead; the objective is an efficient Python
 CSP engine, with Prune providing an external performance reference.
 
+The [CSP optimization roadmap](docs/csp_optimization_roadmap_2026-09-16.md)
+orders the follow-up: slow-case diagnostics, arithmetic and Python overhead,
+native NValue, search/optimization, compact integer domains, then further globals
+where profiles justify them. It defines correctness and performance gates for
+each stage while preserving rule, mixed-model and Markov behavior.
+
 Correctness tests compare optimized strategies with the executable reference
 implementation across mutation, negation, search, propagation, and
 application scenarios.

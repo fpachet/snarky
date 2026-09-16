@@ -428,3 +428,8 @@ values removed on controlled states), and cheaper Python execution (profiling an
 paired timings at equivalent work). Counter definitions must be reconciled before
 cross-solver comparisons. Improving Snarky's Python engine is the immediate goal;
 absolute parity with a Rust solver is not a prerequisite for accepting an improvement.
+
+The [active CSP optimization roadmap](csp_optimization_roadmap_2026-09-16.md)
+defines the follow-up order and per-phase acceptance evidence. New diagnostics,
+NValue variants and compact-domain workloads supplement this baseline under
+separate labels; they do not replace historical measurements.

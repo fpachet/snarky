@@ -240,6 +240,11 @@ these measurements must not be silently combined with upstream timing tables.
 
 ## Validation and next measurements
 
+The [active CSP optimization roadmap](csp_optimization_roadmap_2026-09-16.md)
+turns the evidence below into ordered implementation phases and acceptance gates.
+It also adds genuine runtime large-domain probes, since the upstream chains
+are compiler-solved, and a native NValue/decomposition comparison.
+
 The non-Bach regression run passed **966 tests, with three skips**, in 219.15 s.
 The final focused bridge/collector suite passed **47 tests**, including exhaustive
 primitive/decomposition oracles, aliasing, constants, Boolean channeling, NValue,
