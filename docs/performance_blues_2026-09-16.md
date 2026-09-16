@@ -1,5 +1,9 @@
 # First-order Blues baseline — 2026-09-16
 
+Historical baseline: the later [Boulez report](performance_boulez_2026-09-16.md)
+proves the two-family optimum. For the consolidated current results, sequences
+and paper-ready tables, use the [research handoff](research/blues_villani_2026-09-16/README.md).
+
 These are initial application measurements, not a controlled cross-version speedup
 study. Each final case has three fresh-state runs, a five-second search budget,
 MRV variable selection, objective value ordering, and exact rational arithmetic.
@@ -79,7 +83,8 @@ and sequences. The final collector checks its sources did not change during the 
 
 These records extend the [performance ledger](performance_baseline.md). They do
 not replace the frozen rule/CSP/mixed portfolio or establish general performance
-promotion. Variable-order scoring and a proved Boulez optimum remain open.
+promotion. Variable-order scoring and a proved Boulez optimum were open at this
+baseline; both are addressed by the subsequent melody and Boulez reports.
 
 ## Validation of this application slice
 

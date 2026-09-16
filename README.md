@@ -14,6 +14,8 @@ for comparing future changes. Bach work is outside the redesign portfolio.
 The [Markov melody examples](docs/markov_melody_examples.md) reproduce the four
 2011 scoring modes, forbidden patterns, contour control and continuation using
 exact objectives and the ordinary CSP engine.
+The [Blues research handoff](docs/research/blues_villani_2026-09-16/README.md)
+collects ordinary, exotic and Boulez results, performance evidence and LaTeX tables.
 
 Snarky is a research prototype: its core inference and finite-domain
 constraint semantics are extensively tested. Adaptive strategy selection,

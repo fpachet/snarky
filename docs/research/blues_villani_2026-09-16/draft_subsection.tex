@@ -1,0 +1,37 @@
+% Editorial draft; include explicitly when integrating into the manuscript.
+\paragraph{Revisiting the Blues optimization examples.}
+We reconstructed the first-order chord-generation experiments of
+\cite{DBLP:journals/constraints/PachetR11} using Snarky, a Python symbolic
+inference and finite-domain constraint engine. The training set comprises 22
+C-normalized Blues choruses selected from LSDB, represented by 24 half-bar symbols
+per chorus and augmented through all 12 transpositions. Tune/take multiplicities
+and sequence boundaries are retained. For Boulez Blues, both training and
+generation use the 24 dominant-seventh and minor chords, under an explicitly
+documented reduction of chord qualities before frequency estimation.
+Every generated sequence starts on C7, has F7 at position 9, and ends on G7 at
+position 24. The exotic example additionally requires exactly one F-sharp seventh;
+Boulez Blues instead requires all 24 chords to be different.
+
+The objective is the exact rational product of the initial symbol marginal and
+23 empirical first-order transition probabilities. Ordinary and exotic optima
+are independently verified by dynamic programming, with an occurrence counter in
+the latter case. For Boulez Blues, completed branch-and-bound regenerates the
+exact chord sequence printed in Table~5 of the 2011 paper and certifies its
+optimality under the reconstructed model. Its natural-log score is
+$-46.921592$, compared with the historical reported value $-46.74$.
+This difference reflects distinct corpus or preprocessing conventions; the full
+historical preprocessing has not been recovered, and identity of the trained
+probability models is not claimed.
+
+An exact maximum-product assignment relaxation provides an admissible bound for
+the all-different path problem. In three unseeded measurements, native preparation
+and search complete in a median of $1.732$ seconds and 209 nodes; the optimal
+incumbent is reached at a median controller time of $0.272$ seconds. A chain-bound
+reference and a controller-only ablation both time out at five seconds without
+reaching that score. These measurements use Python 3.13.11 on an arm64 macOS host;
+training and model construction are excluded. They demonstrate an improvement in
+solution quality and proof completion within a fixed budget, not a measured
+speedup ratio against the historical Backtalk implementation.
+
+% Data attribution also requires the SMC 2016 corpus publication; see README.md.
+% Include results_table.tex and/or chord_grids.tex separately where desired.

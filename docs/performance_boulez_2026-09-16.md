@@ -153,5 +153,9 @@ Sudoku fixture needed to recreate the archived workloads. An initial collection
 stopped because the reference checkout lacked that Sudoku input; the reported
 collection was restarted from scratch after restoring it, with no engine changes.
 
-Variable-order modes, generic incremental table filtering and further global
-constraint optimizations remain separate follow-up work.
+Variable-order modes were subsequently implemented in the
+[melody follow-up](markov_melody_examples.md). Generic incremental table filtering
+and further global constraint optimizations remain separate follow-up work.
+
+For a portable summary of all Blues results, sequences, local probabilities and
+LaTeX tables, see the [Villani research handoff](research/blues_villani_2026-09-16/README.md).
