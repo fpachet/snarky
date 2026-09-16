@@ -1,4 +1,4 @@
-"""Audit LSDB's selected Blues and build two explicit half-bar corpora.
+"""Audit LSDB's selected Blues and build explicit half-bar corpus variants.
 
 The source data remain external to Snarky's distributions. The generated compact
 research fixture carries its own attribution and licence alongside the JSON.
@@ -27,6 +27,13 @@ SIMPLIFICATION = {
     "diminished": "half-diminished",
     "half-diminished": "half-diminished",
 }
+BOULEZ_SIMPLIFICATION = {
+    "dominant": "dominant",
+    "minor": "minor",
+    "major": "dominant",
+    "diminished": "minor",
+    "half-diminished": "minor",
+}
 
 
 def chord_symbol(root: int, kind: str) -> str:
@@ -45,7 +52,7 @@ def audit_and_extract(source: Path, lsdb_root: Path) -> dict:
     sequences = data["sequences"]
     require(len(sequences) == 22, "expected the selected 22 references")
     require(len({s["id"] for s in sequences}) == 22, "duplicate reference id")
-    records, changes = [], []
+    records, changes, boulez_changes = [], [], []
     kinds: Counter[str] = Counter()
     for sequence in sequences:
         identifier = sequence["id"]
@@ -61,7 +68,7 @@ def audit_and_extract(source: Path, lsdb_root: Path) -> dict:
             and sequence["duration_quarter_notes"] == 48,
             f"invalid chorus dimensions: {identifier}",
         )
-        raw_chords, reduced_chords, positions = [], [], []
+        raw_chords, reduced_chords, boulez_chords, positions = [], [], [], []
         tonic = sequence["tonic_pc"]
         for number, bar in enumerate(sequence["bars"], 1):
             require(bar["bar"] == number, f"bar numbering: {identifier}")
@@ -91,11 +98,14 @@ def audit_and_extract(source: Path, lsdb_root: Path) -> dict:
                 require(symbol == chord["symbol_in_C"], "symbol transposition mismatch")
                 reduced_kind = SIMPLIFICATION[kind]
                 reduced = chord_symbol(root, reduced_kind)
+                boulez_kind = BOULEZ_SIMPLIFICATION[kind]
+                boulez = chord_symbol(root, boulez_kind)
                 kinds[kind] += 1
                 for half in range(int(chord["duration"] / 2)):
                     position = len(raw_chords) + 1
                     raw_chords.append(symbol)
                     reduced_chords.append(reduced)
+                    boulez_chords.append(boulez)
                     positions.append([root, kind])
                     if kind != reduced_kind:
                         changes.append(
@@ -106,6 +116,17 @@ def audit_and_extract(source: Path, lsdb_root: Path) -> dict:
                                 "beat": chord["beat"] + half * 2,
                                 "from": symbol,
                                 "to": reduced,
+                            }
+                        )
+                    if kind != boulez_kind:
+                        boulez_changes.append(
+                            {
+                                "sequence": identifier,
+                                "position": position,
+                                "bar": number,
+                                "beat": chord["beat"] + half * 2,
+                                "from": symbol,
+                                "to": boulez,
                             }
                         )
             require(cursor == 5, f"incomplete bar: {identifier}/{number}")
@@ -122,11 +143,12 @@ def audit_and_extract(source: Path, lsdb_root: Path) -> dict:
                 "weight": 1,
                 "source_faithful": raw_chords,
                 "paper_style_proposed": reduced_chords,
+                "boulez_two_family_proposed": boulez_chords,
                 "root_kind": positions,
             }
         )
     return {
-        "schema_version": 1,
+        "schema_version": 2,
         "source": "LSDB data/reference/omnibook_blues/references.json",
         "source_sha256": hashlib.sha256(raw).hexdigest(),
         "licence": "CC BY-NC-SA 2.0 UK; see LICENCE.txt",
@@ -141,16 +163,24 @@ def audit_and_extract(source: Path, lsdb_root: Path) -> dict:
             "Proposed map for review, not a recovered historical mapping"
         ),
         "simplification": SIMPLIFICATION,
+        "boulez_simplification": BOULEZ_SIMPLIFICATION,
         "source_segment_kinds": dict(sorted(kinds.items())),
         "changes": changes,
+        "boulez_changes": boulez_changes,
         "sequences": records,
     }
 
 
 def training_sequences(corpus: dict, variant: str, *, all_keys: bool) -> tuple:
     """Retain tune/take multiplicity and optionally augment by all 12 keys once."""
-    if variant not in ("source_faithful", "paper_style_proposed"):
+    maps = {
+        "source_faithful": {kind: kind for kind in SUFFIXES},
+        "paper_style_proposed": SIMPLIFICATION,
+        "boulez_two_family_proposed": BOULEZ_SIMPLIFICATION,
+    }
+    if variant not in maps:
         raise ValueError("unknown corpus variant")
+    simplification = maps[variant]
     result = []
     for record in corpus["sequences"]:
         for shift in range(12 if all_keys else 1):
@@ -158,9 +188,7 @@ def training_sequences(corpus: dict, variant: str, *, all_keys: bool) -> tuple:
                 tuple(
                     chord_symbol(
                         root + shift,
-                        SIMPLIFICATION[kind]
-                        if variant == "paper_style_proposed"
-                        else kind,
+                        simplification[kind],
                     )
                     for root, kind in record["root_kind"]
                 )
@@ -186,6 +214,7 @@ def main() -> None:
             {
                 "references": len(corpus["sequences"]),
                 "changed_half_bars": len(corpus["changes"]),
+                "boulez_changed_half_bars": len(corpus["boulez_changes"]),
                 "source_sha256": corpus["source_sha256"],
             }
         )

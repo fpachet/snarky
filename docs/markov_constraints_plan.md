@@ -72,7 +72,14 @@ Read the existing export, without modifying LSDB sources:
 
 It contains 50 transcriptions with alternate takes and all choruses retained.
 The paper describes 22 Blues sequences, 24 half-bar symbols per sequence, and
-three chord qualities. Select by musical form and provenance, not a title substring.
+three chord qualities in its corpus description. For Boulez generation, the
+user clarified that only two families are allowed: dominant seventh and minor.
+The 24 positions and all-different over 12 roots × two families require each of
+these 24 chords exactly once. Keep the generated alphabet distinct from training
+preprocessing. The user also requested two-family training: reduce the corpus
+before counting probabilities, using the version 2 fixture and explicit map
+(major→dominant, diminished/half-diminished→minor, roots preserved).
+Select by musical form and provenance, not a title substring.
 Do not assume the local corpus is exactly the historical training set.
 
 Produce a manifest specifying source identifiers/hashes, title, take, chorus/bar

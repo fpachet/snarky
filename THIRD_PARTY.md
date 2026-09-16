@@ -90,8 +90,8 @@ documented rights decision before a tagged corpus release.
 
 ### Omnibook Blues research fixture
 
-`benchmarks/data/omnibook_blues_v1` derives from the user's LSDB reference set.
-Its [audit and attribution](benchmarks/data/omnibook_blues_v1/README.md) record the
+`benchmarks/data/omnibook_blues_v1` and `benchmarks/data/omnibook_blues_v2` derive from the user's LSDB reference set.
+Its [audit and attribution](benchmarks/data/omnibook_blues_v2/README.md) record the
 source checksum, individual XML checksums, providers, publication citation and
 modifications. The accompanying [licence notice](benchmarks/data/omnibook_blues_v1/LICENCE.txt)
 specifies [CC BY-NC-SA 2.0 UK](https://creativecommons.org/licenses/by-nc-sa/2.0/uk/).

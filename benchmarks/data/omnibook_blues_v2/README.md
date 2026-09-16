@@ -1,4 +1,4 @@
-# LSDB Omnibook Blues: two explicit corpus variants
+# LSDB Omnibook Blues: two-family Boulez training added
 
 This compact research fixture derives from the user's selected LSDB references:
 `data/reference/omnibook_blues/references.json`, SHA-256
@@ -17,25 +17,35 @@ chords in this selection; future inputs containing them are rejected for explici
 handling rather than silently simplified. LSDB's independent source XML audit is
 documented in its reference-set README.
 
+Version 2 preserves every source-faithful and three-family sequence from version 1,
+and adds `boulez_two_family_proposed`, its transformation map and position audit.
+
 ## Variants and proposed simplification
 
-| Source family | Source-faithful variant | Proposed paper-style variant |
-|---|---|---|
-| Dominant seventh | `C7` | `C7` |
-| Minor triad | `Cm` | `Cm` |
-| Major triad | `C` | `C7` |
-| Diminished triad | `Cdim` | `C-7b5` |
-| Half-diminished seventh | `C-7b5` | `C-7b5` |
+| Source family | Source-faithful | Three-family proposed | Boulez two-family proposed |
+|---|---|---|---|
+| Dominant seventh | `C7` | `C7` | `C7` |
+| Minor triad | `Cm` | `Cm` | `Cm` |
+| Major triad | `C` | `C7` | `C7` |
+| Diminished triad | `Cdim` | `C-7b5` | `Cm` |
+| Half-diminished seventh | `C-7b5` | `C-7b5` | `Cm` |
 
 Roots stay fixed. Major-to-dominant and diminished-to-half-diminished add a
-seventh; they are deliberate modeling transformations, not source corrections.
-The user requested both variants with an explicit map for review. The map remains
+seventh. The Boulez reduction raises the diminished fifth and omits the
+half-diminished seventh to retain the minor family. These are deliberate modeling
+transformations, not source corrections. The user requested explicit maps for review. The map remains
 **proposed**, not an authenticated reconstruction of historical preprocessing.
 Source notes such as Visa's minor dominant-root chord are preserved.
 
-There are 31 changed half-bar positions in nine references: C→C7 (24), F→F7 (2),
-A→A7 (2), Gbdim→Gb-7b5 (2), Ebdim→Eb-7b5 (1). The source segment inventory is
+The three-family variant has 31 changed half-bar positions in nine references:
+C→C7 (24), F→F7 (2), A→A7 (2), Gbdim→Gb-7b5 (2), Ebdim→Eb-7b5 (1). The source segment inventory is
 218 dominant, 77 minor, 15 major, three diminished and three half-diminished.
+
+The two-family variant changes 34 of 528 half-bar positions across nine references:
+C→C7 (24), F→F7 (2), A→A7 (2), Gbdim→Gbm (2), Ebdim→Ebm (1),
+B-7b5→Bm (3). Every change is recorded in `boulez_changes`. Two-family training
+is requested by the user; the mapping of diminished families to minor is explicit
+and proposed for review, not an authenticated historical convention.
 
 After notation normalization and transposition, Back Home Blues matches the
 sequence printed in §2.1 of the paper. Blues for Alice matches after the proposed
@@ -47,8 +57,8 @@ retrieved during this audit. See the [2011 paper](https://www.francoispachet.fr/
 
 The first-order benchmark trains from all 12 transpositions of each reference
 exactly once: 264 sequences, 6,336 symbols. This yields 60 source-faithful symbols
-or 36 proposed paper-style symbols. `Gb7` is the pitch-class equivalent of the
-paper's `F#7`; spelling is consistently flat-preferred.
+or 36 proposed paper-style symbols, and exactly 24 two-family Boulez symbols.
+`Gb7` is the pitch-class equivalent of the paper's `F#7`; spelling is consistently flat-preferred.
 
 Initial probabilities use the corpus symbol marginal, rather than only the first
 symbol of each chorus. Conditional probabilities use within-chorus adjacent-pair
@@ -56,13 +66,21 @@ counts. The final chord does not connect to the next training sequence. Counts,
 weights, comparisons and bounds use exact rational arithmetic. No smoothing,
 terminal factor, or silent source correction is applied.
 
-## Boulez follow-on
+## Boulez training and generation
 
-This first fixture is preserved. The [version 2 fixture](../omnibook_blues_v2/README.md)
-adds the requested two-family Boulez training corpus and its explicit review map.
-Boulez generation also uses exactly 24 symbols: 12 roots × dominant seventh/minor.
-The original benchmarks allowed all training symbols in Boulez generation;
-those Boulez results are superseded by the corrected model and training corpus.
+The chord reduction occurs **before counting** initial and transition frequencies.
+Counts for merged chord symbols are pooled and probabilities recomputed from the
+reduced corpus. This is different from filtering a larger trained alphabet.
+All 12 transpositions are still used, with the same tune/take weights and boundaries.
+
+Both training and generation now use the same 24-symbol alphabet: dominant seventh
+and minor on all 12 roots. The 24 positions with all-different form a permutation
+of those chords, with C7/F7/G7 anchors at positions 1/9/24.
+
+The current benchmark runs ordinary and exotic controls on all three variants,
+and the headline Boulez case on the two-family corpus. Earlier wider-alphabet and
+intermediate generation-only Boulez experiments remain labeled historical records.
+Their scores and timings are not comparisons on the same statistical model.
 
 ## Reproduction
 
@@ -73,10 +91,8 @@ From the Snarky checkout, with a fresh output directory:
   --lsdb-root ../lsdb --output /tmp/omnibook_blues_audit
 ```
 
-The current importer produces the version 2 fixture; compare its output with
-[version 2](../omnibook_blues_v2/README.md). Version 1 is preserved with its
-original source snapshots in the benchmark records. The importer refuses to
-overwrite existing versioned output. LSDB source files are only read.
+Compare generated JSON and licence with this version 2 fixture. The importer
+refuses to overwrite existing versioned output. LSDB source files are only read.
 
 ## Attribution and distribution
 

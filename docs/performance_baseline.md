@@ -384,8 +384,9 @@ The [Markov constraints action plan](markov_constraints_plan.md) defines the nex
 application portfolio and optimization order. Its Blues measurements will form a
 separate versioned portfolio; no new application timings are claimed by that plan.
 
-The [first-order Blues baseline](performance_blues_2026-09-16.md) now records both
+The [first-order Blues baseline](performance_blues_2026-09-16.md) now records all three
 LSDB corpus variants, exact rational-product optimization, and the first
 count-aware bound improvement. Ordinary and exotic cases are proved; Boulez
-remains time-limited. These initial measurements do not replace the broader paired
+uses corrected two-family training and generation, and remains time-limited.
+These initial measurements do not replace the broader paired
 regression portfolio or its memory gates.

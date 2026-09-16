@@ -15,7 +15,7 @@ from fractions import Fraction
 from pathlib import Path
 from time import perf_counter
 
-from benchmarks.blues_corpus import training_sequences
+from benchmarks.blues_corpus import ROOTS, training_sequences
 from snarky import Atom
 from snarky.finite import (
     FiniteModel,
@@ -34,7 +34,8 @@ from snarky.finite.constraints import (
     TableConstraint,
 )
 
-CORPUS = Path(__file__).parent / "data/omnibook_blues_v1/corpus.json"
+CORPUS = Path(__file__).parent / "data/omnibook_blues_v2/corpus.json"
+BOULEZ_ALPHABET = frozenset(root + suffix for root in ROOTS for suffix in ("7", "m"))
 
 
 @dataclass(frozen=True)
@@ -111,8 +112,16 @@ def reference_dp(
     return max(candidates, key=lambda value: value[0]) if candidates else None
 
 
-def blues_domains(source: FirstOrderModel) -> tuple[tuple[str, ...], ...]:
-    alphabet = tuple(sorted(source.alphabet, key=lambda s: (-source.initial[s], s)))
+def blues_domains(
+    source: FirstOrderModel, case: str = "ordinary"
+) -> tuple[tuple[str, ...], ...]:
+    """Restrict Boulez generation to all 24 seventh/minor chords, without retraining."""
+    if case not in ("ordinary", "exotic", "boulez"):
+        raise ValueError("unknown Blues case")
+    allowed = BOULEZ_ALPHABET if case == "boulez" else frozenset(source.alphabet)
+    alphabet = tuple(
+        sorted(set(source.alphabet) & allowed, key=lambda s: (-source.initial[s], s))
+    )
     anchors = {0: "C7", 8: "F7", 23: "G7"}
     if not set(anchors.values()) <= set(alphabet):
         raise ValueError("training alphabet lacks a Blues anchor")
@@ -123,7 +132,7 @@ def native_model(source: FirstOrderModel, case: str) -> FiniteModel:
     if case not in ("ordinary", "exotic", "boulez"):
         raise ValueError("unknown Blues case")
     names = tuple(Atom(f"x{i}") for i in range(24))
-    domains = blues_domains(source)
+    domains = blues_domains(source, case)
     initial = {(Atom(s),): p for s, p in source.initial.items()}
     transitions = {tuple(map(Atom, pair)): p for pair, p in source.transitions.items()}
     constraints: list = [TableConstraint(Atom("initial"), names[:1], tuple(initial))]
@@ -167,7 +176,7 @@ def validate_solution(source: FirstOrderModel, case: str, result, names: tuple) 
     if case == "exotic":
         assert sequence.count("Gb7") == 1
     if case == "boulez":
-        assert len(set(sequence)) == 24
+        assert set(sequence) == BOULEZ_ALPHABET
 
 
 def run(corpus: Path, repeat: int, seconds: float) -> dict:
@@ -181,7 +190,11 @@ def run(corpus: Path, repeat: int, seconds: float) -> dict:
         Path(__file__).with_name("blues_corpus.py"),
     ]
     payload = {
-        "portfolio": "omnibook_blues_v1",
+        "portfolio": "omnibook_blues_v3_boulez_two_family_training",
+        "boulez_generation_alphabet": sorted(BOULEZ_ALPHABET),
+        "boulez_training": (
+            "boulez_two_family_proposed: reduce corpus before counting transitions"
+        ),
         "started_at": datetime.now(UTC).isoformat(),
         "measurement_class": "initial application baseline; not a paired speedup study",
         "python": platform.python_version(),
@@ -202,23 +215,33 @@ def run(corpus: Path, repeat: int, seconds: float) -> dict:
         "policy": "mrv; objective value order; auto bound",
         "cases": [],
     }
-    for variant in ("source_faithful", "paper_style_proposed"):
+    for variant in (
+        "source_faithful",
+        "paper_style_proposed",
+        "boulez_two_family_proposed",
+    ):
         start = perf_counter()
         source = train(training_sequences(data, variant, all_keys=True))
         training = perf_counter() - start
-        for case in ("ordinary", "exotic", "boulez"):
+        cases = (
+            ("ordinary", "exotic", "boulez")
+            if variant == "boulez_two_family_proposed"
+            else ("ordinary", "exotic")
+        )
+        for case in cases:
             start = perf_counter()
             model = native_model(source, case)
             construction = perf_counter() - start
             start = perf_counter()
             reference = reference_dp(
-                source, blues_domains(source), "Gb7" if case == "exotic" else None
+                source, blues_domains(source, case), "Gb7" if case == "exotic" else None
             )
             reference_time = perf_counter() - start
             record = {
                 "variant": variant,
                 "case": case,
                 "alphabet": len(source.alphabet),
+                "generation_alphabet": len(set().union(*blues_domains(source, case))),
                 "transitions": len(source.transitions),
                 "training_seconds": training,
                 "construction_seconds": construction,

@@ -6,14 +6,33 @@ MRV variable selection, objective value ordering, and exact rational arithmetic.
 Times include native preparation and search; corpus training and model construction
 are recorded separately. This baseline has no isolated memory measurements yet.
 
+## Corrected Boulez alphabet
+
+Boulez training and generation now both use 12 roots × two families (dominant
+seventh and minor). All-different on 24 positions requires every chord exactly
+once. As requested by the user, the version 2 corpus reduces chord families before
+counting transitions. The explicit proposed map sends major to dominant seventh
+and diminished/half-diminished to minor, preserving roots. It changes 34 half-bars
+in nine references. No historical equivalence of this map is claimed.
+
+The original preflight and count-aware records allowed 60 or 36 generated symbols.
+Their Boulez rows are **superseded modeling results**, not valid measurements of
+the intended Boulez problem. An intermediate 24-symbol generation-only experiment
+retained the larger training alphabets; it is superseded by the requested training
+reduction. All records remain archived for traceability. Ordinary and exotic
+results remain valid for their respective corpora. These changes are not a solver
+speedup claim, and scores from different trained models cannot be compared as
+algorithmic improvements.
+
 | Corpus | Control | Median preparation + search | Nodes | Result | Best log score |
 |---|---|---:|---:|---|---:|
-| Source-faithful | ordinary | 1.058 s | 22 | Proved optimal | -20.536927 |
-| Source-faithful | exotic | 1.787 s | 22 | Proved optimal | -28.051704 |
-| Source-faithful | boulez | 5.009 s | 4572–4603 | Feasible; time limit, unproved | -54.155994 |
-| Proposed paper-style | ordinary | 0.661 s | 22 | Proved optimal | -20.428036 |
-| Proposed paper-style | exotic | 1.201 s | 22 | Proved optimal | -28.191003 |
-| Proposed paper-style | boulez | 5.006 s | 5995–6052 | Feasible; time limit, unproved | -56.526924 |
+| Source-faithful | ordinary | 0.965 s | 22 | Proved optimal | -20.536927 |
+| Source-faithful | exotic | 1.802 s | 22 | Proved optimal | -28.051704 |
+| Three-family proposed | ordinary | 0.650 s | 22 | Proved optimal | -20.428036 |
+| Three-family proposed | exotic | 1.200 s | 22 | Proved optimal | -28.191003 |
+| Two-family proposed | ordinary | 0.586 s | 22 | Proved optimal | -20.428036 |
+| Two-family proposed | exotic | 1.131 s | 22 | Proved optimal | -28.213666 |
+| Two-family proposed | boulez | 5.006 s | 6486–6578 | Feasible; time limit, unproved | -63.195230 |
 
 Log scores use natural logarithms for display only. All objective comparisons and
 proofs use exact rational products. Corpus variants define different statistical
@@ -22,17 +41,17 @@ models: their scores do not establish that one algorithm or corpus is better.
 ## Independent checks
 
 Each returned sequence is rescored outside the objective implementation and checked
-for its anchors, exact count or all-different property. Native optima for ordinary
-and exotic Blues equal an independent exact dynamic program. That DP relaxes
+for its anchors, exact count or complete 24-chord Boulez permutation. Native
+optima for ordinary and exotic Blues equal an independent exact dynamic program. That DP relaxes
 all-different for Boulez Blues and provides only an upper bound for that case.
 The DP reference took roughly 7–24 ms for the two tractable cases; the native
 controller still has considerable opportunity to reuse a DP witness and messages.
 
-## First bound improvement
+## Earlier bound improvement
 
 The preserved preflight omitted count from its chain relaxation. At five seconds,
 both exotic cases were feasible but unproved, after about 6,000 nodes. Adding one
-small equality-count state gives proved optima in 22 nodes in all three final runs.
+small equality-count state gives proved optima in 22 nodes in all three count-aware runs.
 The initial preflight has one sample per case and no fixed hash seed; therefore
 we report the changed proof outcome and work counts, not a timing speedup factor.
 Boulez remains limited because the chain relaxation omits distinctness.
@@ -50,9 +69,13 @@ and sequences. The final collector checks its sources did not change during the 
 
 - [Initial preflight](../benchmarks/results/blues_first_order_2026-09-16_pre_counter.json)
 - [Preflight source snapshot](../benchmarks/results/blues_first_order_2026-09-16_pre_counter.source.tar.gz)
-- [Three-run count-aware baseline](../benchmarks/results/blues_first_order_2026-09-16_counter.json)
+- [Earlier three-run count-aware baseline (Boulez superseded)](../benchmarks/results/blues_first_order_2026-09-16_counter.json)
 - [Count-aware source snapshot](../benchmarks/results/blues_first_order_2026-09-16_counter.source.tar.gz)
-- [Corpus audit and proposed simplification](../benchmarks/data/omnibook_blues_v1/README.md)
+- [Intermediate generation-only experiment (superseded)](../benchmarks/results/blues_first_order_2026-09-16_boulez24.json)
+- [Generation-only source snapshot](../benchmarks/results/blues_first_order_2026-09-16_boulez24.source.tar.gz)
+- [Two-family training and generation baseline](../benchmarks/results/blues_first_order_2026-09-16_boulez_training24.json)
+- [Two-family training source snapshot](../benchmarks/results/blues_first_order_2026-09-16_boulez_training24.source.tar.gz)
+- [Corpus audit and proposed simplification](../benchmarks/data/omnibook_blues_v2/README.md)
 
 These records extend the [performance ledger](performance_baseline.md). They do
 not replace the frozen rule/CSP/mixed portfolio or establish general performance
@@ -60,9 +83,17 @@ promotion. Variable-order scoring and a proved Boulez optimum remain open.
 
 ## Validation of this application slice
 
-[Validation record](../tests/fixtures/blues_validation_2026-09-16.json):
+Before the alphabet correction, the [validation record](../tests/fixtures/blues_validation_2026-09-16.json) reported:
 844 non-Bach tests passed, three optional integrations skipped, in 208.17 seconds
 on Python 3.13. The 54 focused native/product/corpus/bound tests also passed on
 Python 3.12. Ruff, mypy (90 modules), textual formatting, local Markdown links,
 distribution-content checks, and isolated wheel/companion checks on both Python
 versions passed. These checks include the new rational-product installed example.
+
+The correction changes corpus preparation, application domains and validation;
+no engine code changes. The focused product and Blues suite passed 22 tests on
+Python 3.13 and Python 3.12, including rejection of both historical out-of-alphabet
+incumbents, preservation of the original corpus variants and pooling counts before
+training. All 21 fresh benchmark runs passed independent sequence and objective
+validation. Ruff and local Markdown link checks also passed. The full suite was
+not rerun for this application-only correction.

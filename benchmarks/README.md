@@ -316,8 +316,8 @@ base tables for a new record with `python -m benchmarks.report_redesign RECORD.j
 
 ## LSDB Blues: exact first-order optimization
 
-The [corpus audit](data/omnibook_blues_v1/README.md) describes the source-faithful
-and proposed paper-style variants and the exact training conventions. Run:
+The [corpus audit](data/omnibook_blues_v2/README.md) describes the source-faithful
+and proposed three-family/two-family variants and the exact training conventions. Run:
 
 ```sh
 PYTHONHASHSEED=0 PYTHONPATH=src:. .venv/bin/python -m benchmarks.blues_markov \
@@ -326,7 +326,8 @@ PYTHONHASHSEED=0 PYTHONPATH=src:. .venv/bin/python -m benchmarks.blues_markov \
 
 This compares native rational-product optimization to an independent DP for
 ordinary and exactly-one-F-sharp-seventh Blues. For Boulez Blues the DP omits
-all-different and is only an upper bound. See the
+all-different and is only an upper bound. Its training and generation both use the
+24-symbol two-family corpus. See the
 [initial performance report](../docs/performance_blues_2026-09-16.md) for results,
 source snapshots and remaining work. The research corpus is not packaged with
 Snarky; no LSDB installation is needed to run the committed compact fixture.
