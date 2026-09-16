@@ -18,6 +18,7 @@ from .constraints import PersistentConstraint
 from .factors import FactorObjective, TableFactor
 from .model import FactConstraint, FiniteModel, GuardedConstraint, PredicateConstraint
 from .predicates import accepts
+from .product_assignment import ProductPermutationBound, supports_product_permutation
 from .product_objective import (
     ProductChainBound,
     RationalProductObjective,
@@ -137,13 +138,16 @@ def compile_objective_bound(
     max_window: int = 2,
     max_edges: int = 100000,
     deadline: float | None = None,
+    use_permutation: bool = True,
 ) -> ObjectiveBound:
     """Prefer an affordable chain relaxation; otherwise use the objective's bounds."""
     objective = model.objective
     if objective is None:
         return lambda domains: None
     if isinstance(objective, RationalProductObjective):
-        if supports_product_chain(model, max_edges):
+        if max_window >= 1 and supports_product_chain(model, max_edges):
+            if use_permutation and supports_product_permutation(model):
+                return ProductPermutationBound(model, deadline=deadline)
             return ProductChainBound(model, deadline=deadline)
         return objective.bounds
     if not isinstance(objective, FactorObjective) or any(

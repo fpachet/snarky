@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from collections.abc import Iterator
+from collections.abc import Iterator, Mapping
 from dataclasses import dataclass
 from fractions import Fraction
 from time import perf_counter
@@ -60,9 +60,15 @@ def solve(
     policy: str = "dom_wdeg",
     bounding: str = "auto",
     value_policy: str = "declared",
+    initial_assignment: Mapping[Term, Term] | None = None,
 ) -> QueryResult:
     """Run native domains, adding the rule coordinator only for mixed models."""
     query = Query() if query is None else query
+    if initial_assignment is not None and query.kind not in (
+        QueryKind.MINIMIZE,
+        QueryKind.MAXIMIZE,
+    ):
+        raise ValueError("initial assignment requires an optimization query")
     if query.kind in (QueryKind.PARTITION, QueryKind.SAMPLE_EXACT):
         from .inference import infer
 
@@ -78,6 +84,7 @@ def solve(
             policy=policy,
             bounding=bounding,
             value_policy=value_policy,
+            initial_assignment=initial_assignment,
         )
     return search(
         NativeState(model),
@@ -87,6 +94,7 @@ def solve(
         policy=policy,
         bounding=bounding,
         value_policy=value_policy,
+        initial_assignment=initial_assignment,
     )
 
 
@@ -99,6 +107,7 @@ def search[Checkpoint](
     policy: str = "dom_wdeg",
     bounding: str = "auto",
     value_policy: str = "declared",
+    initial_assignment: Mapping[Term, Term] | None = None,
 ) -> QueryResult:
     """The controller owns incumbents; state checkpoints own only branch state."""
     model = state.model
@@ -110,17 +119,24 @@ def search[Checkpoint](
             diagnostic="unsupported query",
         )
     optimizing = query.kind in (QueryKind.MINIMIZE, QueryKind.MAXIMIZE)
+    if initial_assignment is not None and not optimizing:
+        raise ValueError("initial assignment requires an optimization query")
     if optimizing and model.objective is None:
         raise ValueError("optimization requires an explicit objective")
     if policy not in ("mrv", "dom_wdeg"):
         raise ValueError("unknown native search policy")
-    if bounding not in ("auto", "local"):
-        raise ValueError("bounding must be auto or local")
+    if bounding not in ("auto", "chain", "local"):
+        raise ValueError("bounding must be auto, chain or local")
     if value_policy not in ("declared", "objective"):
         raise ValueError("value_policy must be declared or objective")
     if value_policy == "objective" and not optimizing:
         raise ValueError("objective value ordering requires an optimization query")
     names = tuple(var.name for var in model.variables)
+    if initial_assignment is not None and (
+        set(initial_assignment) != set(names)
+        or any(initial_assignment[v] not in state.domains.values(v) for v in names)
+    ):
+        raise ValueError("initial assignment must cover current domains exactly")
     if variable_order is not None and (
         len(variable_order) != len(names) or set(variable_order) != set(names)
     ):
@@ -166,8 +182,31 @@ def search[Checkpoint](
         return False
 
     try:
-        if bounding == "auto" and optimizing:
-            objective_bound = compile_objective_bound(model, deadline=deadline)
+        if initial_assignment is not None:
+            seed_checkpoint = state.checkpoint()
+            try:
+                for name in names:
+                    state.restrict(name, initial_assignment[name])
+                if not state.propagate(deadline=deadline):
+                    raise ValueError("initial assignment is infeasible")
+                seed_solution = state.solution()
+                if not feasible(model, seed_solution.assignment, seed_solution.facts):
+                    raise ValueError("initial assignment is infeasible")
+                assert seed_solution.objective_value is not None
+                solutions.append(seed_solution)
+                history.append(seed_solution.objective_value)
+                milestones.append(
+                    IncumbentRecord(
+                        seed_solution.objective_value, 0, perf_counter() - started
+                    )
+                )
+            finally:
+                state.rollback(seed_checkpoint)
+                state.release(seed_checkpoint)
+        if bounding != "local" and optimizing:
+            objective_bound = compile_objective_bound(
+                model, deadline=deadline, use_permutation=bounding == "auto"
+            )
         while True:
             if query.max_nodes is not None and explored >= query.max_nodes:
                 termination = Termination.NODE_LIMIT
@@ -293,6 +332,16 @@ def search[Checkpoint](
                             else -interval[1]
                         )
                     )
+                    if interval is not None and solutions:
+                        incumbent = solutions[0].objective_value
+                        assert incumbent is not None
+                        if (
+                            interval[0] >= incumbent
+                            if query.kind is QueryKind.MINIMIZE
+                            else interval[1] <= incumbent
+                        ):
+                            pruned += 1
+                            continue
                     ranked.append((priority, symbol))
                 values = tuple(
                     symbol for _, symbol in sorted(ranked, key=lambda item: item[0])
@@ -302,6 +351,9 @@ def search[Checkpoint](
                 break
     except TimeoutError:
         termination = Termination.TIME_LIMIT
+    except InferenceLimitError as error:
+        termination = Termination.RESOURCE_LIMIT
+        diagnostic = str(error)
     finally:
         for frame in reversed(frames):
             state.rollback(frame.checkpoint)

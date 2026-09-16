@@ -109,3 +109,7 @@ This is an external feasible witness, not a new solver run or proof of optimalit
 The measured search has a substantial incumbent-quality gap in addition to its
 unresolved proof. Future warm-start runs must be labeled separately. See the
 [paper review](markov_paper_review.md) for semantics and validation implications.
+
+The subsequent [Boulez optimization report](performance_boulez_2026-09-16.md)
+closes this gap: unseeded search regenerates Table 5 and proves it optimal for the
+current two-family corpus. The tables above remain the original baseline.

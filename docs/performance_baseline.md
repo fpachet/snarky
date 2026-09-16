@@ -390,3 +390,8 @@ count-aware bound improvement. Ordinary and exotic cases are proved; Boulez
 uses corrected two-family training and generation, and remains time-limited.
 These initial measurements do not replace the broader paired
 regression portfolio or its memory gates.
+
+The [Boulez optimization follow-up](performance_boulez_2026-09-16.md) records the
+subsequent exact assignment bound, seeded/unseeded comparisons, completed proof
+and contemporaneous rule/CSP/mixed controls. It preserves the earlier time-limited
+Blues baseline rather than replacing its measurements.

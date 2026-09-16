@@ -27,6 +27,10 @@ Updated 2026-09-16. This records the first fixed-order application slice of the
   also reduces training to these families before counting; the explicit review map
   changes 34 half-bars in nine references. Earlier wider-alphabet and intermediate
   generation-only Boulez records are superseded for the headline experiment.
+- Added an exact rational assignment relaxation for whole-alphabet permutation
+  chains, objective candidate pruning and validated warm starts. The unseeded
+  solver regenerates the published Table 5 sequence and proves its optimality
+  under the current two-family corpus. See the [follow-up report](performance_boulez_2026-09-16.md).
 - Added bounded chain compilation and max-product completion bounds. Including
   a small equality count closes the exotic Blues proof in 22 nodes, where the
   initial count-relaxed implementation remained unproved at five seconds.
@@ -44,8 +48,11 @@ new music-library dependency was introduced.
 - [Corpus/training/DP tests](../tests/test_blues_markov.py)
 
 Ordinary and exotic Blues have independently confirmed exact optima in both
-original variants and the added two-family control. Boulez Blues has independently checked feasible solutions, but no
-optimality proof within the five-second baseline budget. The original corpus and
+original variants and the added two-family control. The original Boulez baseline
+had feasible solutions but no
+proof within five seconds. The assignment-bound follow-up closes that proof for
+the two-family corpus; the old measurements remain unchanged. The original corpus
+and
 rounding conventions are not fully recovered; scores are not claimed to reproduce
 all published numbers. The simplification map is a proposed reviewable variant.
 
@@ -59,20 +66,22 @@ not evidence that the general CSP path has achieved that speed.
 
 The [published-paper review](markov_paper_review.md) also validates Table 5 under
 our current model at log score -46.921592. Our five-second two-family incumbent
-was -63.195230: incumbent quality, as well as proof time, needs improvement. This
-external feasible witness is recorded separately and has not been presented as a
-solver-generated improvement or an optimum for our corpus.
+was -63.195230. The follow-up now rediscovers this witness without seeding and
+proves it optimal; it closes both the incumbent-quality and proof gaps for this
+model. The original
+external-witness record remains separate from the new solver-generated proof.
 
 ## Next actions
 
 1. Complete the independent four-mode scorer and edge-case specification.
 2. Apply the planned linear-inequality optimization with exhaustive support tests.
-3. Validate warm starts, reuse DP witnesses/messages, and profile Boulez incumbent
-   discovery and proof separately against the known published witness.
+3. Reuse DP witnesses/messages on tractable cases and extend the validated bounds
+   to higher-order applications where their proof obligations hold.
 4. Add incremental table supports and variable-order controls against the reference.
 5. Proceed with measured GCC, equality-sum and all-different improvements.
-6. Close the full reproduction gates, including headline Boulez optimality proof,
-   broad performance regression comparisons and documented numerical guarantees.
+6. Close the remaining variable-order reproduction gates, broad performance
+   comparisons and documented numerical guarantees. The first-order Boulez proof
+   is now complete for the documented two-family corpus.
 
 Validation and commit details for this slice are recorded in the performance
 report. No source changes were made to LSDB.

@@ -315,3 +315,35 @@ caller state. Messages are recomputed, not yet maintained incrementally.
 See the [Blues corpus audit](../benchmarks/data/omnibook_blues_v1/README.md) and
 [Markov implementation progress](markov_constraints_progress.md) for the initial
 application and the remaining variable-order work.
+
+### Permutation-chain product bounds and warm starts
+
+For a rational-product objective with only unary/adjacent-pair factors, automatic
+bounding now recognizes a hard all-different constraint covering every variable,
+an alphabet with exactly as many values as variables (at most 64), and fixed
+distinct first and last values. Larger instances retain the existing fallback. It uses a successor/predecessor assignment relaxation. Each edge
+receives its greatest compatible positional weight; disconnected cycles and other
+hard constraints are relaxed. The initial factor and constants are included once.
+Thus every feasible path induces a matching with at least its objective value.
+A multiplicative Hungarian algorithm computes the maximum matching product using
+rational arithmetic only. Zero denotes absence of a positive-weight matching, not
+hard infeasibility. The conservative lower bound remains zero for minimization.
+
+`bounding="chain"` disables this recognition and selects the prior chain relaxation
+(subject to the same size/scope fallback). `bounding="local"` still selects local
+bounds. Objective value ordering now also omits candidates whose completion bound
+cannot strictly improve the incumbent; optimization returns one optimum.
+
+`solve(..., initial_assignment={variable: value, ...})` and `search` accept a complete
+warm start for minimization/maximization. Every value must belong to the current
+domains. The controller temporarily installs the assignment, propagates rules and
+constraints, validates all complete constraints, and computes the objective itself.
+Invalid seeds raise `ValueError` with branch state restored. A valid seed survives
+later search limits; a timeout before its validation finishes cannot produce an
+accepted seed. Seed validation shares the query's time budget. Its incumbent
+history entry has node count zero; seed propagation is included in revision counts.
+
+The assignment alone is supplied, never trusted objective values or derived facts.
+Seed provenance is the caller's responsibility and must be reported in benchmarks.
+These additions are Python API features; textual warm-start declarations are not
+part of this change.

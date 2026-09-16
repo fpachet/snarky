@@ -1,0 +1,33 @@
+Pre-optimization e5e25cf, five-second unseeded Boulez run with cProfile.
+Instrumented timing; not a latency measurement.
+
+Wed Sep 16 15:21:52 2026    /tmp/boulez_profile.prof
+
+         23618406 function calls (23601888 primitive calls) in 5.007 seconds
+
+   Ordered by: cumulative time
+   List reduced from 139 to 22 due to restriction <22>
+
+   ncalls  tottime  percall  cumtime  percall filename:lineno(function)
+        1    0.000    0.000    5.016    5.016 search.py:54(solve)
+        1    0.029    0.029    5.001    5.001 search.py:93(search)
+     3564    0.773    0.000    2.361    0.001 product_objective.py:131(__call__)
+     2023    0.188    0.000    2.311    0.001 propagation.py:115(propagate)
+    22704    0.016    0.000    1.613    0.000 propagation.py:168(_revise)
+     3914    0.260    0.000    1.311    0.000 kernels.py:37(_revise_all_different_with_matching)
+   398134    0.117    0.000    0.572    0.000 fractions.py:666(forward)
+   386816    0.070    0.000    0.557    0.000 fractions.py:1012(__gt__)
+     3914    0.104    0.000    0.535    0.000 kernels.py:76(_maximum_matching)
+   390276    0.225    0.000    0.492    0.000 fractions.py:986(_richcmp)
+ 10219428    0.486    0.000    0.486    0.000 terms.py:29(__hash__)
+   398134    0.210    0.000    0.428    0.000 fractions.py:795(_mul)
+  1218157    0.277    0.000    0.368    0.000 {method 'get' of 'dict' objects}
+     3511    0.028    0.000    0.325    0.000 kernels.py:145(_strongly_connected_components)
+84264/72386    0.181    0.000    0.293    0.000 kernels.py:156(visit)
+    18790    0.069    0.000    0.282    0.000 propagation.py:50(revise)
+   200211    0.187    0.000    0.277    0.000 domains.py:48(values)
+   123583    0.120    0.000    0.260    0.000 domains.py:85(retain)
+    12990    0.029    0.000    0.252    0.000 {built-in method builtins.sorted}
+   879116    0.119    0.000    0.227    0.000 {built-in method builtins.isinstance}
+    93936    0.037    0.000    0.192    0.000 kernels.py:83(<lambda>)
+   416316    0.124    0.000    0.166    0.000 fractions.py:203(__new__)

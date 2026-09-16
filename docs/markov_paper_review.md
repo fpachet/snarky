@@ -148,3 +148,11 @@ global history, so the general CSP path remains useful for Boulez. Keep both pat
 Chunk continuation (§3.6.1) uses fixed preceding context; viewpoint projections
 (§3.6.2) connect actual objects to modeled attributes. Both remain explicit release
 requirements, without implying global optimality across separately optimized chunks.
+
+## Follow-up outcome
+
+The [optimization follow-up](performance_boulez_2026-09-16.md) adds exact assignment
+bounds and regenerates Table 5 without a warm start, with a completed optimality
+proof under our two-family corpus. The search gap discussed above describes the
+preserved pre-optimization baseline. The corpus-identity and scoring-convention
+cautions still apply.

@@ -331,3 +331,26 @@ all-different and is only an upper bound. Its training and generation both use t
 [initial performance report](../docs/performance_blues_2026-09-16.md) for results,
 source snapshots and remaining work. The research corpus is not packaged with
 Snarky; no LSDB installation is needed to run the committed compact fixture.
+
+### Boulez assignment-bound comparison
+
+The [paired collector](boulez_optimization.py) compares the frozen pre-optimization
+source, the new controller with its chain bound, and automatic assignment bounds
+with and without the published Table 5 warm start. It records independent sequence
+validation, exact scores, first-solution/target/proof times, and separate traced
+allocation runs. Existing rule/CSP/mixed control workloads are run on both sources.
+
+```sh
+mkdir -p /tmp/snarky-boulez-reference-e5e25cf
+git archive e5e25cf src csp_solver sudoku rulebases benchmarks pyproject.toml \
+  third_party/test_rulebases/clips-6.4.2/clips_examples_642/sudoku/puzzles/grid3x3-p7.clp | \
+  tar -x -C /tmp/snarky-boulez-reference-e5e25cf
+PYTHONHASHSEED=0 PYTHONPATH=src:. .venv/bin/python -m benchmarks.boulez_optimization \
+  --repeat 3 --seconds 5 --output /tmp/boulez_new_comparison.json
+```
+
+Use a fresh output path. The collector archives both source states, including dirty
+candidate files, and checks their hashes remain unchanged. The output embeds the
+published-witness record needed by the worker; when reproducing an archive alone,
+restore it as `benchmarks/results/blues_published_witness_2026-09-16.json`.
+Restore the embedded Sudoku input to its recorded path as well.

@@ -159,6 +159,12 @@ Record an unoptimized application baseline: training, compilation, first solutio
 incumbent history, final bound, proof time, nodes, and memory. A timeout with a
 validated incumbent is valid baseline evidence, not an optimality claim.
 
+The Boulez follow-up now adds exact successor/predecessor assignment bounds and
+validated warm starts; its measurements and proof are tracked in
+[the optimization report](performance_boulez_2026-09-16.md). The generic library
+optimizations below remain separate, measured work rather than prerequisites for
+this fixed-order proof.
+
 **Gate:** tiny models match the oracle; all returned Blues solutions satisfy their
 controls and are independently rescored. The three realistic benchmark cases run
 with declared budgets, including unresolved cases. Preserve this first baseline.

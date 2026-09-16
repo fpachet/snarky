@@ -65,6 +65,29 @@ assert product_result.objective_bound == Fraction(2, 3)
 assert product_result.arithmetic == "rational_product"
 print("isolated exact rational-product optimization: ok")
 
+names = tuple(Atom("p" + str(i)) for i in range(4))
+symbols = tuple(Number(i) for i in range(4))
+edges = {(symbols[a], symbols[b]): Fraction(w) for a, b, w in
+         ((0, 1, 1), (1, 2, 1), (2, 3, 1), (0, 2, 2), (2, 1, 3), (1, 3, 5))}
+permutation_model = FiniteModel(
+    "installed_permutation",
+    tuple(FiniteVariable(name, symbols[:1] if i == 0 else
+                         symbols[-1:] if i == 3 else symbols)
+          for i, name in enumerate(names)),
+    (AllDifferentConstraint(Atom("permutation"), names),),
+    objective=RationalProductObjective(tuple(
+        WeightTable("edge" + str(i), names[i:i+2], edges) for i in range(3)
+    )),
+)
+permutation_result = solve(
+    permutation_model, Query(QueryKind.MAXIMIZE), value_policy="objective",
+    initial_assignment=dict(zip(names, symbols)),
+)
+assert permutation_result.status is ResultStatus.OPTIMAL
+assert permutation_result.objective_bound == Fraction(30)
+assert permutation_result.incumbent_history[0].value == 1
+print("isolated permutation bound and validated warm start: ok")
+
 from snarky.finite import negative_log2_measure
 cost_model = markov_probe_model()
 probability_model = replace(
