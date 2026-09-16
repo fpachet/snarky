@@ -33,6 +33,11 @@ details are documented in [docs/versioning.md](docs/versioning.md).
 
 ### Added
 
+- Exact Régin filtering now uses compact bitset graphs for bounded value
+  alphabets, retaining the exact sparse fallback. Native propagation avoids
+  rebuilding unchanged domain masks. The
+  [all-different report](docs/performance_csp_alldiff_2026-09-16.md) records paired
+  performance, correctness oracles, and refreshed external comparisons.
 - Native `NValueConstraint` in finite and legacy CSP execution, with literal or
   variable counts, constants, aliases, empty scopes, textual declarations and
   rollback support. Matching/cover bounds and a budgeted feasibility check replace

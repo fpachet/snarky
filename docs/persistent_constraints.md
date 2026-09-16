@@ -79,6 +79,15 @@ variable/value matching with Hopcroft–Karp and applies Régin-style alternatin
 graph filtering through strongly connected components and paths to free
 values.
 
+For scopes with at most 2,048 distinct candidate values, the alternating graph
+can use compact integer IDs and bitset reachability/component partitions. This
+path is selected for at most 64 values or at least four domain entries per value;
+larger sparse graphs and wider alphabets retain sparse traversal. Both paths
+establish the same exact
+supported values; the representation threshold does not weaken consistency.
+The IDs depend on the number of actual candidates, not on integer magnitude.
+See the [all-different performance report](performance_csp_alldiff_2026-09-16.md).
+
 ### `NVALUE`
 
 `NValueConstraint(name, scope, count, constants=())` requires `count` to equal

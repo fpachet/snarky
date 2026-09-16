@@ -39,6 +39,10 @@ should not be mechanically mixed with English sections.
   repeated performance/compatibility measurements.
 - [Native NValue](performance_csp_nvalue_2026-09-16.md): exact distinct-count
   semantics, bounded cover filtering, decomposition ablation and a fresh Prune run.
+- [All-different and propagation costs](performance_csp_alldiff_2026-09-16.md):
+  exact bitset graph filtering, unchanged-domain shortcut and new measurements.
+- [Refreshed CLAIRE comparisons](performance_claire_2026-09-16.md): historical
+  rule/choice workloads and a separately labelled native-global queens variant.
 - [Redesign implementation evidence](redesign_progress.md)
 - [Markov constraints action plan](markov_constraints_plan.md): audited LSDB Blues,
   four scoring modes, numerical guarantees, and ordered solver improvements.

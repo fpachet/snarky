@@ -1,6 +1,9 @@
 # Prune / Snarky benchmark baseline — 16 September 2026
 
-This baseline is frozen. The [native NValue report](performance_csp_nvalue_2026-09-16.md)
+This baseline is frozen. The latest
+[all-different report](performance_csp_alldiff_2026-09-16.md) records faster queens,
+Latin and FT06 runs with completion still **52/59 versus 59/59**. The
+[native NValue report](performance_csp_nvalue_2026-09-16.md)
 records a fresh full rerun: Snarky **52/59**, Prune **59/59**. The
 [second optimization report](performance_csp_equality_2026-09-16.md)
 records the intermediate 48/59 Snarky result and a six-case Prune comparison;

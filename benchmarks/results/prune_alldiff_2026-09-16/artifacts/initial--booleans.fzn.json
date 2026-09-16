@@ -1,0 +1,17 @@
+{
+  "variables": {
+    "p" : { "type" : "bool" },
+    "q" : { "type" : "bool" },
+    "p_as_int" : { "type" : "int", "domain" : [[0, 1]], "defined" : true }
+  },
+  "arrays": {
+
+  },
+  "constraints": [
+    { "id" : "bool_clause", "args" : [["p"], ["q"]]},
+    { "id" : "bool2int", "args" : ["p", "p_as_int"], "defines" : "p_as_int"}
+  ],
+  "output": ["p", "q", "p_as_int"],
+  "solve": { "method" : "satisfy" },
+  "version": "1.0"
+}

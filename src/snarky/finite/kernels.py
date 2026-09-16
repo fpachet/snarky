@@ -22,6 +22,88 @@ from .constraints import (
     TableConstraint,
 )
 
+# Two dense bit graphs require at most about one MiB of bit payload. Larger
+# alphabets keep the sparse graph path; never allocate bits by numeric magnitude.
+_ALL_DIFFERENT_BIT_VALUES = 2048
+# Flood partitions can revisit long sparse chains quadratically. Preserve
+# Tarjan's sparse traversal there instead of paying for repeated bitset floods.
+_ALL_DIFFERENT_SPARSE_AFTER = 64
+
+
+def _bit_reachable(graph: list[int], seeds: int, allowed: int) -> int:
+    reached = seeds & allowed
+    pending = reached
+    while pending:
+        bit = pending & -pending
+        pending ^= bit
+        added = graph[bit.bit_length() - 1] & allowed & ~reached
+        reached |= added
+        pending |= added
+    return reached
+
+
+def _bit_components(graph: list[int], reverse: list[int], allowed: int) -> list[int]:
+    """SCC membership masks, using iterative forward/backward partitions.
+
+    No SCC can cross the forward-reachable partition of a pivot. Within that
+    partition, vertices also reaching the pivot form exactly its component.
+    Bitset floods process a whole adjacency row at once. Worst-case work is
+    quadratic in the bounded number of vertices, rather than linear in edges.
+    """
+    components = [0] * len(graph)
+    regions = [allowed] if allowed else []
+    while regions:
+        region = regions.pop()
+        pivot = region & -region
+        forward = _bit_reachable(graph, pivot, region)
+        component = _bit_reachable(reverse, pivot, forward)
+        remaining = component
+        while remaining:
+            bit = remaining & -remaining
+            remaining ^= bit
+            components[bit.bit_length() - 1] = component
+        for rest in (region & ~forward, forward & ~component):
+            if rest:
+                regions.append(rest)
+    return components
+
+
+def _filter_all_different_bits(
+    scoped: dict[Term, set[Term]], matching: dict[Term, Term], all_values: set[Term]
+) -> None:
+    """The same alternating value graph and exact supports, using compact IDs."""
+    values = tuple(matching.values())
+    values += tuple(all_values.difference(values))
+    positions = {value: index for index, value in enumerate(values)}
+    bits = [1 << index for index in range(len(values))]
+    graph = [0] * len(values)
+    reverse = [0] * len(values)
+    masks = []
+    for index, variable in enumerate(matching):
+        mask = 0
+        own = bits[index]
+        for value in scoped[variable]:
+            target = positions[value]
+            mask |= bits[target]
+            reverse[target] |= own
+        masks.append(mask)
+        graph[index] = mask
+    # Matched self-loops do not change reachability or components.
+    universe = (1 << len(values)) - 1
+    free = universe ^ ((1 << len(matching)) - 1)
+    reaches_free = _bit_reachable(reverse, free, universe)
+    if reaches_free == universe:
+        return
+    components = _bit_components(graph, reverse, universe & ~reaches_free)
+    for index, variable in enumerate(matching):
+        supported = masks[index] & (reaches_free | components[index] | bits[index])
+        if supported != masks[index]:
+            scoped[variable].intersection_update(
+                value
+                for value in tuple(scoped[variable])
+                if bits[positions[value]] & supported
+            )
+
 
 def _revise_all_different(
     constraint: AllDifferentConstraint,
@@ -49,6 +131,12 @@ def _revise_all_different_with_matching(
     # is supported iff it belongs to an alternating cycle or can lead to a
     # free value.
     all_values = {value for values in scoped.values() for value in values}
+    if len(all_values) <= _ALL_DIFFERENT_BIT_VALUES and (
+        len(all_values) <= _ALL_DIFFERENT_SPARSE_AFTER
+        or sum(map(len, scoped.values())) >= 4 * len(all_values)
+    ):
+        _filter_all_different_bits(scoped, matching, all_values)
+        return True, matching
     matched_values = frozenset(matching.values())
     graph: dict[Term, set[Term]] = {value: set() for value in all_values}
     for variable, matched in matching.items():

@@ -285,6 +285,10 @@ maps these precedents to Snarky's current fixed-point, `CHOICE`, checkpoint,
 and rollback semantics and identifies where the present project may still
 contribute.
 
+The [refreshed CLAIRE benchmarks](docs/performance_claire_2026-09-16.md) report
+current rule/choice workloads and a separately labelled native-global CSP
+formulation, with explicit timing and interpreter limitations.
+
 ## Research applications
 
 | Project | Purpose |
@@ -365,6 +369,11 @@ Dominating Queens cases move from five-second timeouts to **0.12–0.19 s**,
 including startup, with roughly **16–19×** smaller traced root-memory peaks.
 Optimization remains **3/5 versus 5/5**. The report preserves the decomposition
 ablation, remaining timeouts and small-case regressions.
+The [all-different slice](docs/performance_csp_alldiff_2026-09-16.md) reduces graph
+and unchanged-domain work while preserving exact filtering and search counts.
+Paired runs improve queens 50 **1.55×**, incremental Latin 16 **1.77×**, and FT06
+optimization **1.28×**. A fresh full Prune run retains **52/59 versus 59/59**;
+the seven remaining timeouts still require further work.
 
 Correctness tests compare optimized strategies with the executable reference
 implementation across mutation, negation, search, propagation, and

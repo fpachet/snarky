@@ -1,5 +1,10 @@
 # LORE, LAURE, CLAIRE, and Snarky
 
+For measured current implementations, see the
+[September 2026 CLAIRE comparison](performance_claire_2026-09-16.md). It preserves
+the historical rule-based workloads and separately reports Snarky's native-global
+CSP formulation; it does not equate interpreted and compiled CLAIRE performance.
+
 Snarky's combination of rules, constraints, choices, and reversible search has
 an important direct precedent in Yves Caseau's work. The project should not
 present that general combination as new.

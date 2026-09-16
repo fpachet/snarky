@@ -159,7 +159,11 @@ class NativeState:
                 self.failure = cause
                 return False
             for var, values in scoped.items():
-                self.domains.retain(var, values, cause)
+                # Revision kernels only remove from these copies of current
+                # domains. Equal cardinality therefore means no change; avoid
+                # rebuilding a domain mask for every unaffected incident scope.
+                if len(values) != self.domains.size(var):
+                    self.domains.retain(var, values, cause)
             for var in self.domains.take_changed():
                 for incident in (*self._adjacency[var], *self._guarded):
                     if incident not in queued:

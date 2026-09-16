@@ -459,3 +459,13 @@ ablation and separate root-allocation runs isolate the representation/propagatio
 change; traced peaks fall roughly 16–19× on these cases. The two easy NValue cases
 retain small overhead/memory regressions. Optimization remains 3/5 versus 5/5;
 rule, legacy, mixed and exact Boulez controls retain their results and search work.
+
+The [all-different slice](performance_csp_alldiff_2026-09-16.md) preserves exact
+Régin support while replacing bounded value graphs with bitsets and skipping
+unchanged native domain-mask reconstruction. Paired medians improve queens 50
+1.55×, incremental Latin 16 1.77× and FT06 optimization 1.28×, with unchanged
+search counters and solutions. A shortcut ablation identifies the FT06 gain's
+source. The new full Prune run remains 52/59 versus 59/59; all 52 completed Snarky
+workloads preserve search counts and outputs against the prior full record.
+The [CLAIRE refresh](performance_claire_2026-09-16.md) adds separate native-global
+queens measurements alongside the historical rule/choice workloads.

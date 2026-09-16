@@ -19,6 +19,16 @@ remains at **59/59**. Optimization remains **3/5 versus 5/5**.
 A general propagation resource budget, search/objective improvements and compact
 domains remain open.
 
+The [fourth slice](performance_csp_alldiff_2026-09-16.md) promotes a measured P6
+all-different hotspot: bounded bitset graphs preserve exact Régin filtering.
+A P2 shortcut avoids rebuilding unchanged native domain masks. These reduce
+work per revision without changing branching or introducing objective cuts.
+P4's search/bounding work and P5's compact-domain contract remain open. Fresh
+queens profiles still show numeric conversion, matching and domain materialization
+as material costs. Next, investigate immutable numeric/index views under P2 and
+propagated improving objective cuts under P4, each with a separate ablation; do
+not infer that faster graph traversal fixes the seven remaining timeouts.
+
 ## Objective and boundaries
 
 Make Snarky's Python CSP and exact optimization engine materially more efficient,

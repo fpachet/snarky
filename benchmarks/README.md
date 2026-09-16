@@ -75,6 +75,12 @@ runtime, use `benchmarks.csp_followup compare --reference-source . --only nvalue
 with `--reference-nvalue decomposed --candidate-nvalue native`. The bridge also
 accepts `--nvalue decomposed` directly. Keep encoding choices in measurement
 records: changing them can change variables, constraints, search trees and counters.
+The [all-different slice](../docs/performance_csp_alldiff_2026-09-16.md) adds exact
+bitset graph filtering and avoids rebuilding unchanged domain masks. Its paired
+comparison keeps both NValue encodings native; a separate ablation isolates the
+mask shortcut. The [CLAIRE refresh](../docs/performance_claire_2026-09-16.md)
+retains the historical rule protocols and labels the native-global queens model
+as a different formulation.
 
 The factor-support microbenchmark compares one committed evaluator with the
 working tree using the same current matcher, alternating measurement order
@@ -98,7 +104,9 @@ environment, and dirty-checkout status.
 | `prune_comparison` | Prune/Snarky same-model pure CSP and optimization, with independent Gecode validation |
 | `csp_followup` | Frozen Prune models: separate CPU/allocation diagnostics and paired Python runtime measurements |
 | `csp_controls` | Same-worker rule, legacy CSP, mixed, Markov and Boulez compatibility/performance controls |
+| `all_different_graphs` | Dense/free/sparse graph stress cases for adaptive, forced sparse and forced bitset filtering |
 | `claire_n_queens` | normalized N-Queens comparison with CLAIRE4 |
+| `claire_refresh` | alternating fresh-worker CLAIRE controls plus a separate native-global queens variant |
 | `claire_talarian_filter` | normalized Talarian rule-filter comparison with CLAIRE4 |
 | `claire_triangle_closure` | streamed multi-premise triangle closure with CLAIRE4 |
 | `incremental_conjunctions` | cold and streamed three-premise joins |
