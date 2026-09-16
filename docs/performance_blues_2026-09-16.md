@@ -97,3 +97,15 @@ incumbents, preservation of the original corpus variants and pooling counts befo
 training. All 21 fresh benchmark runs passed independent sequence and objective
 validation. Ruff and local Markdown link checks also passed. The full suite was
 not rerun for this application-only correction.
+
+## Published witness cross-check
+
+Reading Table 5 of the supplied published paper exposed a stronger feasible
+sequence under the current two-family model: log score -46.921592, versus
+-63.195230 from our five-second search. All 24 symbols, anchors and positive
+transitions were independently checked. The [rescoring record](../benchmarks/results/blues_published_witness_2026-09-16.json)
+contains exact products and local probabilities for all three corpus variants.
+This is an external feasible witness, not a new solver run or proof of optimality.
+The measured search has a substantial incumbent-quality gap in addition to its
+unresolved proof. Future warm-start runs must be labeled separately. See the
+[paper review](markov_paper_review.md) for semantics and validation implications.

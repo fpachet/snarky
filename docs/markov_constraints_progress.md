@@ -57,11 +57,18 @@ The independent DP solves the two tractable cases much faster than native search
 this is evidence for dispatching supported models directly or reusing its witness,
 not evidence that the general CSP path has achieved that speed.
 
+The [published-paper review](markov_paper_review.md) also validates Table 5 under
+our current model at log score -46.921592. Our five-second two-family incumbent
+was -63.195230: incumbent quality, as well as proof time, needs improvement. This
+external feasible witness is recorded separately and has not been presented as a
+solver-generated improvement or an optimum for our corpus.
+
 ## Next actions
 
 1. Complete the independent four-mode scorer and edge-case specification.
 2. Apply the planned linear-inequality optimization with exhaustive support tests.
-3. Reuse DP witnesses and messages, and profile the Boulez proof bottleneck.
+3. Validate warm starts, reuse DP witnesses/messages, and profile Boulez incumbent
+   discovery and proof separately against the known published witness.
 4. Add incremental table supports and variable-order controls against the reference.
 5. Proceed with measured GCC, equality-sum and all-different improvements.
 6. Close the full reproduction gates, including headline Boulez optimality proof,

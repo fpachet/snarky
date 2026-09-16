@@ -11,6 +11,11 @@ LSDB input is now `data/reference/omnibook_blues/references.json` (with
 `references_in_C.txt` as its readable counterpart), rather than the unselected
 50-transcription export mentioned in the original stage-1 discovery below.
 
+The [published-paper review](markov_paper_review.md) adds page-specific semantics,
+a validated Table 5 witness, and an incumbent-quality checkpoint. It supplements
+the stage order below: first measure the gap to the known feasible witness, then
+complete the four-mode reference before attributing gains to generic propagation.
+
 ## Final objective
 
 Generate finite sequences learned from a corpus, satisfying declared control
@@ -38,14 +43,16 @@ Already available: native reversible domains, incident-constraint scheduling,
 integer branch-and-bound, table factors, fixed-order integer Markov costs,
 bounded-window completion bounds, mixed rules, and exhaustive small-instance tests.
 
+Exact rational-product objectives and a first-order trainer are now available;
+the remaining corpus and scoring details are recorded in the progress report.
+
 Native tables already have bitset support indexes. All-different already has
 Régin-style filtering and matching reuse. SUM already has a nonnegative bitset
 path. These are starting points to improve, not missing features to recreate.
 
-Still required: corpus training, the full score semantics, exact optimization of
-general count-derived probabilities, variable-order support controls, and real
-Blues application measurements. Rational probabilistic inference already present
-in the engine does not by itself provide rational-product branch-and-bound.
+Still required: full score semantics, higher-order training, variable-order support
+controls, and stronger incumbent discovery/proof on Boulez. Existing rational-product
+branch-and-bound supplies exact arithmetic, but does not complete these features.
 
 ## 0. Freeze reference and acceptance protocol
 
@@ -123,6 +130,11 @@ Snarky's propagation and objective code. Include cases where the four modes pref
 different sequences. Define support indicators and their false case explicitly;
 turning off a control variable must not let search evade the declared score.
 
+Use the paper's Figure 1 melody corpus and Section 4.1 solutions as additional
+fixtures after independently checking their transcription. Cross-score all four
+solutions under all four modes. Test forbidden order 5 as absence of observed
+six-symbol windows; merely limiting the scorer to order 4 is insufficient.
+
 **Gate:** hand-calculated and exhaustive examples establish support, selected
 orders, complete scores, ties, and forbidden-order behavior for all four modes.
 
@@ -150,6 +162,15 @@ validated incumbent is valid baseline evidence, not an optimality claim.
 **Gate:** tiny models match the oracle; all returned Blues solutions satisfy their
 controls and are independently rescored. The three realistic benchmark cases run
 with declared budgets, including unresolved cases. Preserve this first baseline.
+
+### Immediate checkpoint: published feasible witness
+
+Table 5 is feasible under our current two-family model and scores -46.921592,
+while the five-second search returned -63.195230. Preserve this external witness;
+measure time to reach its score in unseeded runs. Add validated warm-start support
+and separately labeled seeded runs. Neither rescoring the witness nor installing
+it as an incumbent constitutes an optimality proof. Profile solution discovery and
+proof separately before assuming propagation is the only bottleneck.
 
 ## 4. Remove unnecessary work in linear inequalities
 
