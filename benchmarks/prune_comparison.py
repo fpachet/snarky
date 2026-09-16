@@ -307,6 +307,7 @@ def collect(args):
                 "dom_wdeg; declared ascending values; FlatZinc search "
                 "annotations not translated"
             ),
+            "snarky_nvalue_encoding": "native",
             "prune_policy": (
                 "upstream defaults and declared annotations; automatic "
                 "portfolio where unannotated"

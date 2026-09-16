@@ -451,3 +451,11 @@ feasibility 7.26×. All 47 mutually completed workloads preserve search counts a
 solutions. Separate cache ablation, CPU profiles, memory traces, rule/mixed/Boulez
 controls and a fresh focused Prune comparison accompany the record. Small timing
 regressions and bounded cache-storage increases are explicitly retained.
+
+The [native NValue slice](performance_csp_nvalue_2026-09-16.md) reaches **52/59**
+in a fresh full comparison against Prune's **59/59**. All four Dominating Queens
+timeouts become completions in 0.12–0.19 s including startup. A same-source encoding
+ablation and separate root-allocation runs isolate the representation/propagation
+change; traced peaks fall roughly 16–19× on these cases. The two easy NValue cases
+retain small overhead/memory regressions. Optimization remains 3/5 versus 5/5;
+rule, legacy, mixed and exact Boulez controls retain their results and search work.

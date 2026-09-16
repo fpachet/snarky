@@ -1,0 +1,5 @@
+output ["{\n","  \"start\" : ",showJSON(start),",\n  \"left_before_right\" : ",showJSON(left_before_right),"\n}\n"];
+set of int: resource_pair = 1..90;
+array [resource_pair] of int: left_before_right;
+set of int: operation = 1..36;
+array [operation] of int: start;

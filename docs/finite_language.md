@@ -103,6 +103,7 @@ existing persistent vocabulary is available directly in the core package:
 | `COMPARE` | `LEFT`, `RIGHT`, `OPERATOR` | `x`, `y`, `LESS_THAN` |
 | `ELEMENT` | `INDEX`, `ARRAY`, `VALUE` | `i`, `SEQ[x y z]`, `v`; index is one-based |
 | `COUNT` | `SCOPE`, `VALUE`, `OPERATOR`, `TARGET` | `SEQ[x y]`, `a`, `EQUAL`, `1` |
+| `NVALUE` | `SCOPE`, `TARGET`; optional `CONSTANTS` | `SEQ[x y]`, `k` or `2`, `SEQ[red]` |
 | `GCC` | `SCOPE`, `BOUNDS` | `SEQ[x y]`, `SEQ[SEQ[a 1 2] SEQ[b 0 1]]` |
 | `TABLE` | `SCOPE`, one or more `ALLOW` rows | `SEQ[x y]`, `ALLOW SEQ[1 2]` |
 | `LEX_LESS_EQUAL` | `LEFT`, `RIGHT` | `SEQ[x y]`, `SEQ[z w]` |
@@ -110,7 +111,10 @@ existing persistent vocabulary is available directly in the core package:
 
 Aggregate operators are `EQUAL`, `LESS_EQUAL`, `GREATER_EQUAL`. Binary comparison
 operators are `LESS_THAN`, `LESS_EQUAL`, `NOT_EQUAL`. Coefficients, targets and
-cardinality bounds are integers. Names and scopes are validated by the ordinary
+cardinality bounds are integers, except that `NVALUE TARGET` may name an integer
+decision variable. `NVALUE` counts distinct assigned scope values plus optional
+literal constants; repeated references are deduplicated and empty scopes are
+valid. Names and scopes are validated by the ordinary
 Python model constructors; undeclared variables and duplicate names fail.
 
 A persistent constraint may also have `GUARD fact`, activating it when that

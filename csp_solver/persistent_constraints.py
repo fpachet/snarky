@@ -48,6 +48,9 @@ from snarky.finite.constraints import (
     LinearSumConstraint as LinearSumConstraint,
 )
 from snarky.finite.constraints import (
+    NValueConstraint as NValueConstraint,
+)
+from snarky.finite.constraints import (
     PersistentConstraint as PersistentConstraint,
 )
 from snarky.finite.constraints import (
@@ -134,6 +137,7 @@ from snarky.finite.kernels import (
 from snarky.finite.kernels import (
     _strongly_connected_components as _strongly_connected_components,
 )
+from snarky.finite.nvalue import revise_nvalue as _revise_nvalue
 
 from .finite_domain_projection import FiniteDomainProjection
 
@@ -412,6 +416,8 @@ def _revise(
         consistent = _revise_binary_comparison(constraint, domains)
     elif isinstance(constraint, ElementConstraint):
         consistent = _revise_element(constraint, domains)
+    elif isinstance(constraint, NValueConstraint):
+        consistent = _revise_nvalue(constraint, domains)
     elif isinstance(constraint, CountConstraint):
         consistent = _revise_count(constraint, domains)
     elif isinstance(constraint, GlobalCardinalityConstraint):

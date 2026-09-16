@@ -15,6 +15,7 @@ from .constraints import (
     GlobalCardinalityConstraint,
     LexLessEqualConstraint,
     LinearSumConstraint,
+    NValueConstraint,
     PersistentConstraint,
     SumConstraint,
     TableConstraint,
@@ -66,6 +67,16 @@ def accepts(constraint: PersistentConstraint, assignment: Mapping[Term, Term]) -
         return (
             1 <= index <= len(constraint.array)
             and assignment[constraint.array[index - 1]] == assignment[constraint.value]
+        )
+    if isinstance(constraint, NValueConstraint):
+        target = (
+            constraint.count
+            if isinstance(constraint.count, int)
+            else integer(assignment[constraint.count])
+        )
+        return (
+            len({assignment[v] for v in constraint.scope} | set(constraint.constants))
+            == target
         )
     if isinstance(constraint, CountConstraint):
         return compare(

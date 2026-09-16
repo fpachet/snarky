@@ -1,10 +1,10 @@
 """Strict benchmark-only FlatZinc JSON bridge to Snarky's native finite runtime.
 
 This is not a general FlatZinc frontend. Unsupported constructs and impractical
-explicit domains fail before allocation. NValue uses a declared Boolean/table
-encoding (or all-different for the exact permutation case), not a native NValue
-propagator. Search annotations are retained in records but Snarky uses its own
-configured search policy. The same compiled JSON is supplied to Prune.
+explicit domains fail before allocation. NValue uses the native constraint by
+default; the historical Boolean/table decomposition is available explicitly.
+Search annotations are retained in records but Snarky uses its own configured
+search policy. The same compiled JSON is supplied to Prune.
 """
 
 from __future__ import annotations
@@ -43,8 +43,17 @@ class UnsupportedModel(ValueError):
 
 class Bridge:
     def __init__(
-        self, document, *, max_domain=10000, max_total_domain=1000000, max_table=250000
+        self,
+        document,
+        *,
+        max_domain=10000,
+        max_total_domain=1000000,
+        max_table=250000,
+        nvalue_encoding="native",
     ):
+        if nvalue_encoding not in ("native", "decomposed"):
+            raise ValueError("unknown NValue encoding")
+        self.nvalue_encoding = nvalue_encoding
         self.document = document
         self.max_table = max_table
         self.variables = {}
@@ -185,6 +194,19 @@ class Bridge:
             )
 
     def nvalue(self, target, values):
+        if self.nvalue_encoding == "native":
+            from snarky.finite.constraints import NValueConstraint
+
+            scope = tuple(self.variable(v) for v in values if isinstance(v, str))
+            constants = tuple(Number(int(v)) for v in values if not isinstance(v, str))
+            count = (
+                int(target) if type(target) in (int, bool) else self.variable(target)
+            )
+            self.constraints.append(
+                NValueConstraint(Atom(self.name("nvalue")), scope, count, constants)
+            )
+            self.lowerings["nvalue_native"] += 1
+            return
         scope = tuple(dict.fromkeys(self.variable(v) for v in values))
         alphabet = sorted(
             {n.value for v in scope for n in self.variables[v.name].domain}
@@ -362,11 +384,12 @@ def worker():
     parser.add_argument("model", type=Path)
     parser.add_argument("--all", action="store_true")
     parser.add_argument("--policy", default="dom_wdeg", choices=("dom_wdeg", "mrv"))
+    parser.add_argument("--nvalue", choices=("native", "decomposed"), default="native")
     args = parser.parse_args()
     started = perf_counter()
     document = json.loads(args.model.read_text())
     try:
-        bridge = Bridge(document)
+        bridge = Bridge(document, nvalue_encoding=args.nvalue)
     except UnsupportedModel as error:
         print(
             json.dumps({"status": "unsupported", "diagnostic": str(error)}),

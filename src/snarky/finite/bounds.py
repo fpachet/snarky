@@ -68,13 +68,15 @@ class ChainBound:
                 c, (FactConstraint, GuardedConstraint, PredicateConstraint)
             )
         )
+        self._constant_feasible = all(accepts(c, {}) for c in hard if not c.variables)
         self.layers = tuple(
             _Layer(
                 self.names[max(0, time - width) : time + 1],
                 tuple(
                     c
                     for c in hard
-                    if max(positions[v] for v in c.variables) == time
+                    if c.variables
+                    and max(positions[v] for v in c.variables) == time
                     and min(positions[v] for v in c.variables) >= time - width
                 ),
                 tuple(
@@ -106,6 +108,8 @@ class ChainBound:
         return cost
 
     def __call__(self, domains: Mapping[Term, frozenset[Term]]) -> tuple[int, int]:
+        if not self._constant_feasible:
+            raise NoObjectiveCompletion("a constant constraint is false")
         current: dict[tuple[Term, ...], tuple[int, int]] = {
             (): (self.offset, self.offset)
         }

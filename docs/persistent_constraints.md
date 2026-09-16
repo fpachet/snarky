@@ -79,6 +79,47 @@ variable/value matching with Hopcroft–Karp and applies Régin-style alternatin
 graph filtering through strongly connected components and paths to free
 values.
 
+### `NVALUE`
+
+`NValueConstraint(name, scope, count, constants=())` requires `count` to equal
+the number of distinct assigned scope values, including the literal `constants`.
+The count is a Python integer or a decision-variable name. Repeated scope
+references and constants are deduplicated; the count variable may occur in the
+scope. Empty scopes are permitted: without constants, their count is zero.
+Values may be arbitrary ground terms; a count variable has integer candidates.
+The class is exported by both `snarky.finite` and `csp_solver`.
+
+In a finite `MODEL` document:
+
+```text
+CONSTRAINT palette
+KIND NVALUE
+SCOPE SEQ[x y z]
+TARGET k
+CONSTANTS SEQ[red]
+END_CONSTRAINT
+```
+
+`TARGET 2` fixes the count; `CONSTANTS` is optional. In legacy fact-derived
+templates, use the usual `SCOPE ... FROM ... END_SCOPE` query and `TARGET`.
+Represent literal values there by singleton-domain variables. As with other
+fact-derived templates, an empty scope query produces no instance; explicit
+empty-scope constraints can be declared through Python or `MODEL`.
+
+Filtering combines mandatory values, disjoint-domain and cover-capacity lower
+bounds, a maximum-matching upper bound, forced occurrences, and tight-count
+specializations. Count one uses intersection; the maximum possible count uses
+the existing Régin all-different filter after removing literals. A bounded
+at-most-count cover search can prove infeasibility. Exhausting its budget leaves
+unproved candidates in place. This is sound filtering, **not general domain
+consistency**. Complete assignments are checked by an independent exact evaluator.
+Scratch state is local to each revision, and both runtimes restore reductions
+and their explanations on rollback. See the
+[NValue performance report](performance_csp_nvalue_2026-09-16.md).
+
+This persistent constraint is distinct from the existing `NVALUE ... OF SEQ[...]`
+matcher premise, which constrains one rule instantiation.
+
 ### `SUM`
 
 ```text

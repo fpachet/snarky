@@ -12,8 +12,12 @@ optimizing the legacy fact-backed CSP path.
 
 The [second slice](performance_csp_equality_2026-09-16.md) adds shared exact
 signed equality filtering with bounded bitsets/sparse fallback and mask-tagged
-domain projections. A general propagation resource budget, native NValue,
-search/objective improvements and compact domains remain open.
+domain projections. The [third slice](performance_csp_nvalue_2026-09-16.md)
+implements native NValue, bounded cover checks and a decomposition ablation.
+The fresh full run reaches **52/59**, including all six NValue cases, while Prune
+remains at **59/59**. Optimization remains **3/5 versus 5/5**.
+A general propagation resource budget, search/objective improvements and compact
+domains remain open.
 
 ## Objective and boundaries
 
@@ -167,6 +171,14 @@ and legacy callers remain covered by the regression gate.
 
 ### P3 — native NValue as a first-class constraint
 
+**Implemented first version:** native and legacy APIs, both textual surfaces,
+independent exact evaluation, matching/disjoint-domain/cover bounds, tight-count
+specializations and budgeted cover feasibility. The historical encoding remains
+selectable. See the [implementation and measurements](performance_csp_nvalue_2026-09-16.md).
+Scratch state is rebuilt per revision. Connected-component decomposition and
+incremental support/matching reuse remain possible follow-ups, subject to profiles.
+The scope below records the original plan; it does not imply general GAC.
+
 Add `NValueConstraint` with an exact evaluator for
 `k = |{x1, ..., xn}|`, where k may be a constant or finite variable. Cover empty
 scopes, constants, repeated references, holes and k sharing a scoped variable.
@@ -309,7 +321,8 @@ those profiles, and introduce native NValue. Start the compact-domain contract
 review during P0 so that its later implementation fits the same reversible store.
 
 The [first-slice report](performance_csp_arithmetic_2026-09-16.md) records its
-implemented subset and paired evidence. P0 matched-policy comparisons, the rest
-of P1 weighted-equality work, general P2 domain views, native NValue and compact
-domains remain open. The measured setup fix is a small P2 improvement promoted
-by the P0 profile, not completion of that phase.
+implemented subset and paired evidence. The second slice implements P1 exact
+weighted equalities and a P2 domain-projection cache; the third implements the
+first P3 native NValue version. P0 matched-policy comparisons, general P2 domain
+views, P4 search/objective improvements and P5 compact domains remain open.
+These measured improvements do not imply completion of every item in those phases.

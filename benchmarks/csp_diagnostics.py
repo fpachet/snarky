@@ -126,7 +126,7 @@ def worker(args):
         profiler.enable()
     emit("construction_start", force=True)
     document = json.loads(args.model.read_text())
-    bridge = Bridge(document)
+    bridge = Bridge(document, nvalue_encoding=args.nvalue)
     constructed = perf_counter()
     state = (
         MeasuredState(bridge.model) if args.diagnostic else NativeState(bridge.model)
@@ -175,6 +175,10 @@ def worker(args):
     elif not result.solutions:
         output += "=====UNKNOWN=====\n"
     record = dict(
+        nvalue_encoding=args.nvalue,
+        variables=len(bridge.model.variables),
+        constraints=len(bridge.model.constraints),
+        lowerings=dict(bridge.lowerings),
         status=result.status.value,
         termination=result.termination.value,
         complete=result.complete,
@@ -219,6 +223,7 @@ def main():
     parser.add_argument("--diagnostic", action="store_true")
     parser.add_argument("--profile", type=Path)
     parser.add_argument("--allocation", action="store_true")
+    parser.add_argument("--nvalue", choices=["native", "decomposed"], default="native")
     args = parser.parse_args()
     if args.profile and args.allocation:
         parser.error("CPU and allocation profiles must use separate runs")

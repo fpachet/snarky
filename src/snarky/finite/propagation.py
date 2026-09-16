@@ -18,6 +18,7 @@ from .constraints import (
     GlobalCardinalityConstraint,
     LexLessEqualConstraint,
     LinearSumConstraint,
+    NValueConstraint,
     PersistentConstraint,
     SumConstraint,
     TableConstraint,
@@ -32,6 +33,7 @@ from .model import (
     Solution,
     score_solution,
 )
+from .nvalue import revise_nvalue
 
 
 class TableSupports:
@@ -190,6 +192,8 @@ class NativeState:
             return kernels._revise_binary_comparison(constraint, scoped)
         if isinstance(constraint, ElementConstraint):
             return kernels._revise_element(constraint, scoped)
+        if isinstance(constraint, NValueConstraint):
+            return revise_nvalue(constraint, scoped)
         if isinstance(constraint, CountConstraint):
             return kernels._revise_count(constraint, scoped)
         if isinstance(constraint, GlobalCardinalityConstraint):

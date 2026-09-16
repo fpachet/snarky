@@ -24,7 +24,7 @@ def document(constraints, domains=None, solve_spec=None):
     }
 
 
-def compare(doc):
+def compare(doc, *, nvalue_encoding="native"):
     names = list(doc["variables"])
     domains = [
         range(v["domain"][0][0], v["domain"][0][1] + 1)
@@ -40,7 +40,7 @@ def compare(doc):
         except AssertionError:
             continue
         expected.add(row)
-    bridge = Bridge(doc)
+    bridge = Bridge(doc, nvalue_encoding=nvalue_encoding)
     actual = solve(bridge.model, Query(QueryKind.ENUMERATE))
     assert actual.complete
     projected = [
@@ -73,14 +73,18 @@ def test_all_different_with_constants_and_repeated_variables(values):
     compare(document([("fzn_all_different_int", [values])]))
 
 
-@pytest.mark.parametrize("count", [0, 1, 2, 3, 4, "n"])
-@pytest.mark.parametrize("values", [["x", "y", "z"], ["x", "y", "x"], ["x", 0, "y"]])
-def test_nvalue_encoding_exactly_matches_distinct_count(count, values):
+@pytest.mark.parametrize("encoding", ["native", "decomposed"])
+@pytest.mark.parametrize("count", [0, 1, 2, 3, 4, "n", "x"])
+@pytest.mark.parametrize(
+    "values", [["x", "y", "z"], ["x", "y", "x"], ["x", 0, "y"], [], [0, 1, 0]]
+)
+def test_nvalue_encoding_exactly_matches_distinct_count(count, values, encoding):
     compare(
         document(
             [("fzn_nvalue", [count, values])],
             {"x": range(3), "y": range(3), "z": range(2), "n": range(4)},
-        )
+        ),
+        nvalue_encoding=encoding,
     )
 
 

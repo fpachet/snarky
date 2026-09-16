@@ -185,7 +185,9 @@ def infer_regular(
     alphabet = tuple(
         dict.fromkeys(value for var in model.variables for value in var.domain)
     )
-    if any(not var.domain for var in model.variables):
+    if any(not var.domain for var in model.variables) or any(
+        not accepts(c, {}) for c in hard_constraints if not c.variables
+    ):
         return QueryResult(
             ResultStatus.ZERO_MASS,
             Termination.EXHAUSTED,
@@ -199,7 +201,9 @@ def infer_regular(
         alphabet = (Atom("__empty_sequence__"),)
     hard = {
         t: tuple(
-            c for c in hard_constraints if max(positions[v] for v in c.variables) == t
+            c
+            for c in hard_constraints
+            if c.variables and max(positions[v] for v in c.variables) == t
         )
         for t in range(len(names))
     }

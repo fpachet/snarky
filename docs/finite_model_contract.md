@@ -39,7 +39,7 @@ the deterministic closure of context and assignment facts. Constraints are
 predicates over that configuration. Propagation is an implementation of pruning,
 not the definition of feasibility; native solutions are independently checked.
 
-Existing all-different, sum, linear sum, comparison, element, count, GCC, table,
+Existing all-different, sum, linear sum, comparison, element, count, NValue, GCC, table,
 and lexicographic constraints have direct complete-assignment evaluators in
 `finite/predicates.py`. `FactConstraint` requires or forbids ground closed facts.
 `PredicateConstraint` admits a named, trusted Python callback over an immutable
@@ -49,6 +49,14 @@ ground fact is present. The coordinator alternates propagation and positive rule
 closure to a joint fixed point. Checkpoints cover both stores, so facts,
 derivations, domain reductions and their reasons roll back together. A forbidden
 fact can reject a partial branch; a required fact is checked only on completion.
+
+Native `NValueConstraint` counts distinct assigned scope values plus optional
+literal constants. Its count may be fixed or variable, including a variable also
+in the scope. Repeated references do not add multiplicity; empty scopes are valid.
+The finite text form uses `KIND NVALUE`, `SCOPE SEQ[...]`, `TARGET k` (or an integer)
+and optional `CONSTANTS SEQ[...]`. Its bounded propagator is sound but does not
+promise general domain consistency; complete-assignment semantics remain exact.
+See [the persistent vocabulary](persistent_constraints.md#nvalue) for details.
 
 Callbacks must return a Boolean and obey the documented purity contract; no
 arbitrary Python is parsed from the model language. A callback without a

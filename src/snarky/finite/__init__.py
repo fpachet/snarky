@@ -1,5 +1,6 @@
 """Experimental declarative finite models; independent of legacy CHOICE weights."""
 
+from .constraints import NValueConstraint
 from .factors import FactorObjective, IntegerFactor, ScoreContribution, TableFactor
 from .inference import InferenceSummary, infer
 from .language import ModelDocument, QueryRequest, parse_model_document
@@ -40,6 +41,7 @@ __all__ = [
     "MarkovGraph",
     "MarkovOptimum",
     "NGramModel",
+    "NValueConstraint",
     "Measure",
     "ModelDocument",
     "PredicateConstraint",

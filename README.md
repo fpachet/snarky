@@ -47,7 +47,7 @@ behavior and modern extensions are documented separately.
   backtracking;
 - premise-local finite-domain filtering plus persistent `ALL_DIFFERENT`,
   `SUM`, `LINEAR_SUM`, `LESS_EQUAL`, `LESS_THAN`, `NOT_EQUAL`, `ELEMENT`,
-  `COUNT`, `GCC`, `TABLE`, and `LEX_LESS_EQUAL` constraints;
+  `COUNT`, `NVALUE`, `GCC`, `TABLE`, and `LEX_LESS_EQUAL` constraints;
 - reference, indexed, semi-naive, constraint-filtered, and adaptive
   instantiation strategies;
 - compiled event handlers for simple rules and safe factorized
@@ -359,6 +359,12 @@ equality filtering and reusable domain projections. Magic sequence 40 now finish
 in about 0.35 s, raising completion to 48/59; 40-item bin-packing feasibility takes
 about 0.26 s. The report
 separates cache-only gains, optimization proofs and unresolved timeouts.
+The [native NValue slice](docs/performance_csp_nvalue_2026-09-16.md) raises Snarky's
+completion to **52/59**, versus Prune's **59/59** in a fresh full rerun. Four
+Dominating Queens cases move from five-second timeouts to **0.12–0.19 s**,
+including startup, with roughly **16–19×** smaller traced root-memory peaks.
+Optimization remains **3/5 versus 5/5**. The report preserves the decomposition
+ablation, remaining timeouts and small-case regressions.
 
 Correctness tests compare optimized strategies with the executable reference
 implementation across mutation, negation, search, propagation, and

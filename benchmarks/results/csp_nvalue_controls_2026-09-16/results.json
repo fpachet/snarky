@@ -1,0 +1,2865 @@
+{
+  "started_at": "2026-09-16T18:59:20.193518+00:00",
+  "python": "3.13.11 | packaged by Anaconda, Inc. | (main, Dec 10 2025, 21:21:08) [Clang 20.1.8 ]",
+  "platform": "macOS-15.7.7-arm64-arm-64bit-Mach-O",
+  "sources": {
+    "reference": "b0e388d5517161dd8efa3b44ff9ca604d73afa9e2e2148c54f436212cb00ee82",
+    "candidate": "f360879fd488519fec292a3881844257e9d601d93dd030c9e2c131b8b2676371"
+  },
+  "reference_ref": "e296d09",
+  "candidate_commit": "e296d0970b230fae422aabbc2a4276f74b4a43c2",
+  "candidate_dirty": true,
+  "shared_workload_root": "/Users/francoispachet/IdeaProjects/boojum",
+  "protocol": "same worker and workloads; three alternating pairs; workers warm up before each measurement, Boulez has one discarded paired warmup; search/preparation timing excludes startup",
+  "cases": [
+    {
+      "case": "rules/small/triangle_closure:indexed",
+      "mode": "rules",
+      "samples": [
+        {
+          "command": [
+            "/Users/francoispachet/IdeaProjects/boojum/.venv/bin/python",
+            "/Users/francoispachet/IdeaProjects/boojum/benchmarks/redesign_comparison.py",
+            "--worker",
+            "--checkout",
+            "/private/tmp/snarky-csp-full-e296d09",
+            "--case",
+            "rules/small/triangle_closure:indexed",
+            "--mode",
+            "rules",
+            "--repeat",
+            "1"
+          ],
+          "seconds": 0.21195441600866616,
+          "returncode": 0,
+          "timed_out": false,
+          "stdout": "{\"runs\": [{\"preparation_seconds\": 0.0009190409909933805, \"search_seconds\": 0.00019033398712053895, \"total_seconds\": 0.0011093749781139195, \"preparation_peak_traced_bytes\": null, \"search_peak_traced_bytes\": null, \"observation\": {\"output\": \"4ed97ea8fbed2b248270bf7dfae9ef70a548021ada3a910567dfc72b02745341\", \"facts\": 8, \"activations\": 2, \"match_attempts\": 8}}], \"memory\": false}\n",
+          "stderr": "",
+          "engine": "reference",
+          "iteration": 0,
+          "result": {
+            "runs": [
+              {
+                "preparation_seconds": 0.0009190409909933805,
+                "search_seconds": 0.00019033398712053895,
+                "total_seconds": 0.0011093749781139195,
+                "preparation_peak_traced_bytes": null,
+                "search_peak_traced_bytes": null,
+                "observation": {
+                  "output": "4ed97ea8fbed2b248270bf7dfae9ef70a548021ada3a910567dfc72b02745341",
+                  "facts": 8,
+                  "activations": 2,
+                  "match_attempts": 8
+                }
+              }
+            ],
+            "memory": false
+          }
+        },
+        {
+          "command": [
+            "/Users/francoispachet/IdeaProjects/boojum/.venv/bin/python",
+            "/Users/francoispachet/IdeaProjects/boojum/benchmarks/redesign_comparison.py",
+            "--worker",
+            "--checkout",
+            "/Users/francoispachet/IdeaProjects/boojum",
+            "--case",
+            "rules/small/triangle_closure:indexed",
+            "--mode",
+            "rules",
+            "--repeat",
+            "1"
+          ],
+          "seconds": 0.12980554197565652,
+          "returncode": 0,
+          "timed_out": false,
+          "stdout": "{\"runs\": [{\"preparation_seconds\": 0.0009327919979114085, \"search_seconds\": 0.00021708299755118787, \"total_seconds\": 0.0011498749954625964, \"preparation_peak_traced_bytes\": null, \"search_peak_traced_bytes\": null, \"observation\": {\"output\": \"4ed97ea8fbed2b248270bf7dfae9ef70a548021ada3a910567dfc72b02745341\", \"facts\": 8, \"activations\": 2, \"match_attempts\": 8}}], \"memory\": false}\n",
+          "stderr": "",
+          "engine": "candidate",
+          "iteration": 0,
+          "result": {
+            "runs": [
+              {
+                "preparation_seconds": 0.0009327919979114085,
+                "search_seconds": 0.00021708299755118787,
+                "total_seconds": 0.0011498749954625964,
+                "preparation_peak_traced_bytes": null,
+                "search_peak_traced_bytes": null,
+                "observation": {
+                  "output": "4ed97ea8fbed2b248270bf7dfae9ef70a548021ada3a910567dfc72b02745341",
+                  "facts": 8,
+                  "activations": 2,
+                  "match_attempts": 8
+                }
+              }
+            ],
+            "memory": false
+          }
+        },
+        {
+          "command": [
+            "/Users/francoispachet/IdeaProjects/boojum/.venv/bin/python",
+            "/Users/francoispachet/IdeaProjects/boojum/benchmarks/redesign_comparison.py",
+            "--worker",
+            "--checkout",
+            "/Users/francoispachet/IdeaProjects/boojum",
+            "--case",
+            "rules/small/triangle_closure:indexed",
+            "--mode",
+            "rules",
+            "--repeat",
+            "1"
+          ],
+          "seconds": 0.13351845799479634,
+          "returncode": 0,
+          "timed_out": false,
+          "stdout": "{\"runs\": [{\"preparation_seconds\": 0.0010987909918185323, \"search_seconds\": 0.00021200001356191933, \"total_seconds\": 0.0013107910053804517, \"preparation_peak_traced_bytes\": null, \"search_peak_traced_bytes\": null, \"observation\": {\"output\": \"4ed97ea8fbed2b248270bf7dfae9ef70a548021ada3a910567dfc72b02745341\", \"facts\": 8, \"activations\": 2, \"match_attempts\": 8}}], \"memory\": false}\n",
+          "stderr": "",
+          "engine": "candidate",
+          "iteration": 1,
+          "result": {
+            "runs": [
+              {
+                "preparation_seconds": 0.0010987909918185323,
+                "search_seconds": 0.00021200001356191933,
+                "total_seconds": 0.0013107910053804517,
+                "preparation_peak_traced_bytes": null,
+                "search_peak_traced_bytes": null,
+                "observation": {
+                  "output": "4ed97ea8fbed2b248270bf7dfae9ef70a548021ada3a910567dfc72b02745341",
+                  "facts": 8,
+                  "activations": 2,
+                  "match_attempts": 8
+                }
+              }
+            ],
+            "memory": false
+          }
+        },
+        {
+          "command": [
+            "/Users/francoispachet/IdeaProjects/boojum/.venv/bin/python",
+            "/Users/francoispachet/IdeaProjects/boojum/benchmarks/redesign_comparison.py",
+            "--worker",
+            "--checkout",
+            "/private/tmp/snarky-csp-full-e296d09",
+            "--case",
+            "rules/small/triangle_closure:indexed",
+            "--mode",
+            "rules",
+            "--repeat",
+            "1"
+          ],
+          "seconds": 0.14293654201901518,
+          "returncode": 0,
+          "timed_out": false,
+          "stdout": "{\"runs\": [{\"preparation_seconds\": 0.0008537079847883433, \"search_seconds\": 0.0001714999962132424, \"total_seconds\": 0.0010252079810015857, \"preparation_peak_traced_bytes\": null, \"search_peak_traced_bytes\": null, \"observation\": {\"output\": \"4ed97ea8fbed2b248270bf7dfae9ef70a548021ada3a910567dfc72b02745341\", \"facts\": 8, \"activations\": 2, \"match_attempts\": 8}}], \"memory\": false}\n",
+          "stderr": "",
+          "engine": "reference",
+          "iteration": 1,
+          "result": {
+            "runs": [
+              {
+                "preparation_seconds": 0.0008537079847883433,
+                "search_seconds": 0.0001714999962132424,
+                "total_seconds": 0.0010252079810015857,
+                "preparation_peak_traced_bytes": null,
+                "search_peak_traced_bytes": null,
+                "observation": {
+                  "output": "4ed97ea8fbed2b248270bf7dfae9ef70a548021ada3a910567dfc72b02745341",
+                  "facts": 8,
+                  "activations": 2,
+                  "match_attempts": 8
+                }
+              }
+            ],
+            "memory": false
+          }
+        },
+        {
+          "command": [
+            "/Users/francoispachet/IdeaProjects/boojum/.venv/bin/python",
+            "/Users/francoispachet/IdeaProjects/boojum/benchmarks/redesign_comparison.py",
+            "--worker",
+            "--checkout",
+            "/private/tmp/snarky-csp-full-e296d09",
+            "--case",
+            "rules/small/triangle_closure:indexed",
+            "--mode",
+            "rules",
+            "--repeat",
+            "1"
+          ],
+          "seconds": 0.1270281659963075,
+          "returncode": 0,
+          "timed_out": false,
+          "stdout": "{\"runs\": [{\"preparation_seconds\": 0.0008801659860182554, \"search_seconds\": 0.0002589169889688492, \"total_seconds\": 0.0011390829749871045, \"preparation_peak_traced_bytes\": null, \"search_peak_traced_bytes\": null, \"observation\": {\"output\": \"4ed97ea8fbed2b248270bf7dfae9ef70a548021ada3a910567dfc72b02745341\", \"facts\": 8, \"activations\": 2, \"match_attempts\": 8}}], \"memory\": false}\n",
+          "stderr": "",
+          "engine": "reference",
+          "iteration": 2,
+          "result": {
+            "runs": [
+              {
+                "preparation_seconds": 0.0008801659860182554,
+                "search_seconds": 0.0002589169889688492,
+                "total_seconds": 0.0011390829749871045,
+                "preparation_peak_traced_bytes": null,
+                "search_peak_traced_bytes": null,
+                "observation": {
+                  "output": "4ed97ea8fbed2b248270bf7dfae9ef70a548021ada3a910567dfc72b02745341",
+                  "facts": 8,
+                  "activations": 2,
+                  "match_attempts": 8
+                }
+              }
+            ],
+            "memory": false
+          }
+        },
+        {
+          "command": [
+            "/Users/francoispachet/IdeaProjects/boojum/.venv/bin/python",
+            "/Users/francoispachet/IdeaProjects/boojum/benchmarks/redesign_comparison.py",
+            "--worker",
+            "--checkout",
+            "/Users/francoispachet/IdeaProjects/boojum",
+            "--case",
+            "rules/small/triangle_closure:indexed",
+            "--mode",
+            "rules",
+            "--repeat",
+            "1"
+          ],
+          "seconds": 0.13624375002109446,
+          "returncode": 0,
+          "timed_out": false,
+          "stdout": "{\"runs\": [{\"preparation_seconds\": 0.0009405829769093543, \"search_seconds\": 0.00021658302284777164, \"total_seconds\": 0.001157165999757126, \"preparation_peak_traced_bytes\": null, \"search_peak_traced_bytes\": null, \"observation\": {\"output\": \"4ed97ea8fbed2b248270bf7dfae9ef70a548021ada3a910567dfc72b02745341\", \"facts\": 8, \"activations\": 2, \"match_attempts\": 8}}], \"memory\": false}\n",
+          "stderr": "",
+          "engine": "candidate",
+          "iteration": 2,
+          "result": {
+            "runs": [
+              {
+                "preparation_seconds": 0.0009405829769093543,
+                "search_seconds": 0.00021658302284777164,
+                "total_seconds": 0.001157165999757126,
+                "preparation_peak_traced_bytes": null,
+                "search_peak_traced_bytes": null,
+                "observation": {
+                  "output": "4ed97ea8fbed2b248270bf7dfae9ef70a548021ada3a910567dfc72b02745341",
+                  "facts": 8,
+                  "activations": 2,
+                  "match_attempts": 8
+                }
+              }
+            ],
+            "memory": false
+          }
+        }
+      ],
+      "warmups": [],
+      "medians": {
+        "reference": 0.0011093749781139195,
+        "candidate": 0.001157165999757126
+      },
+      "same_observation": true,
+      "speedup": 0.9586999430909332
+    },
+    {
+      "case": "joins/25x8/streamed",
+      "mode": "rules",
+      "samples": [
+        {
+          "command": [
+            "/Users/francoispachet/IdeaProjects/boojum/.venv/bin/python",
+            "/Users/francoispachet/IdeaProjects/boojum/benchmarks/redesign_comparison.py",
+            "--worker",
+            "--checkout",
+            "/private/tmp/snarky-csp-full-e296d09",
+            "--case",
+            "joins/25x8/streamed",
+            "--mode",
+            "rules",
+            "--repeat",
+            "1"
+          ],
+          "seconds": 0.4083431250182912,
+          "returncode": 0,
+          "timed_out": false,
+          "stdout": "{\"runs\": [{\"preparation_seconds\": 0.006998917000601068, \"search_seconds\": 0.10712758300360292, \"total_seconds\": 0.11412650000420399, \"preparation_peak_traced_bytes\": null, \"search_peak_traced_bytes\": null, \"observation\": {\"output\": \"9452146428000d778e060b1e85bd618fe6faf080fca0744fdcc0cc81b0119f0a\", \"facts\": 3600, \"outputs\": 1600, \"match_attempts\": 4800}}], \"memory\": false}\n",
+          "stderr": "",
+          "engine": "reference",
+          "iteration": 0,
+          "result": {
+            "runs": [
+              {
+                "preparation_seconds": 0.006998917000601068,
+                "search_seconds": 0.10712758300360292,
+                "total_seconds": 0.11412650000420399,
+                "preparation_peak_traced_bytes": null,
+                "search_peak_traced_bytes": null,
+                "observation": {
+                  "output": "9452146428000d778e060b1e85bd618fe6faf080fca0744fdcc0cc81b0119f0a",
+                  "facts": 3600,
+                  "outputs": 1600,
+                  "match_attempts": 4800
+                }
+              }
+            ],
+            "memory": false
+          }
+        },
+        {
+          "command": [
+            "/Users/francoispachet/IdeaProjects/boojum/.venv/bin/python",
+            "/Users/francoispachet/IdeaProjects/boojum/benchmarks/redesign_comparison.py",
+            "--worker",
+            "--checkout",
+            "/Users/francoispachet/IdeaProjects/boojum",
+            "--case",
+            "joins/25x8/streamed",
+            "--mode",
+            "rules",
+            "--repeat",
+            "1"
+          ],
+          "seconds": 0.37563749999389984,
+          "returncode": 0,
+          "timed_out": false,
+          "stdout": "{\"runs\": [{\"preparation_seconds\": 0.006882584013510495, \"search_seconds\": 0.10530766600277275, \"total_seconds\": 0.11219025001628324, \"preparation_peak_traced_bytes\": null, \"search_peak_traced_bytes\": null, \"observation\": {\"output\": \"9452146428000d778e060b1e85bd618fe6faf080fca0744fdcc0cc81b0119f0a\", \"facts\": 3600, \"outputs\": 1600, \"match_attempts\": 4800}}], \"memory\": false}\n",
+          "stderr": "",
+          "engine": "candidate",
+          "iteration": 0,
+          "result": {
+            "runs": [
+              {
+                "preparation_seconds": 0.006882584013510495,
+                "search_seconds": 0.10530766600277275,
+                "total_seconds": 0.11219025001628324,
+                "preparation_peak_traced_bytes": null,
+                "search_peak_traced_bytes": null,
+                "observation": {
+                  "output": "9452146428000d778e060b1e85bd618fe6faf080fca0744fdcc0cc81b0119f0a",
+                  "facts": 3600,
+                  "outputs": 1600,
+                  "match_attempts": 4800
+                }
+              }
+            ],
+            "memory": false
+          }
+        },
+        {
+          "command": [
+            "/Users/francoispachet/IdeaProjects/boojum/.venv/bin/python",
+            "/Users/francoispachet/IdeaProjects/boojum/benchmarks/redesign_comparison.py",
+            "--worker",
+            "--checkout",
+            "/Users/francoispachet/IdeaProjects/boojum",
+            "--case",
+            "joins/25x8/streamed",
+            "--mode",
+            "rules",
+            "--repeat",
+            "1"
+          ],
+          "seconds": 0.3761164169991389,
+          "returncode": 0,
+          "timed_out": false,
+          "stdout": "{\"runs\": [{\"preparation_seconds\": 0.007167832984123379, \"search_seconds\": 0.10697666701162234, \"total_seconds\": 0.11414449999574572, \"preparation_peak_traced_bytes\": null, \"search_peak_traced_bytes\": null, \"observation\": {\"output\": \"9452146428000d778e060b1e85bd618fe6faf080fca0744fdcc0cc81b0119f0a\", \"facts\": 3600, \"outputs\": 1600, \"match_attempts\": 4800}}], \"memory\": false}\n",
+          "stderr": "",
+          "engine": "candidate",
+          "iteration": 1,
+          "result": {
+            "runs": [
+              {
+                "preparation_seconds": 0.007167832984123379,
+                "search_seconds": 0.10697666701162234,
+                "total_seconds": 0.11414449999574572,
+                "preparation_peak_traced_bytes": null,
+                "search_peak_traced_bytes": null,
+                "observation": {
+                  "output": "9452146428000d778e060b1e85bd618fe6faf080fca0744fdcc0cc81b0119f0a",
+                  "facts": 3600,
+                  "outputs": 1600,
+                  "match_attempts": 4800
+                }
+              }
+            ],
+            "memory": false
+          }
+        },
+        {
+          "command": [
+            "/Users/francoispachet/IdeaProjects/boojum/.venv/bin/python",
+            "/Users/francoispachet/IdeaProjects/boojum/benchmarks/redesign_comparison.py",
+            "--worker",
+            "--checkout",
+            "/private/tmp/snarky-csp-full-e296d09",
+            "--case",
+            "joins/25x8/streamed",
+            "--mode",
+            "rules",
+            "--repeat",
+            "1"
+          ],
+          "seconds": 0.3846792920085136,
+          "returncode": 0,
+          "timed_out": false,
+          "stdout": "{\"runs\": [{\"preparation_seconds\": 0.0068884580105077475, \"search_seconds\": 0.10685720801120624, \"total_seconds\": 0.11374566602171399, \"preparation_peak_traced_bytes\": null, \"search_peak_traced_bytes\": null, \"observation\": {\"output\": \"9452146428000d778e060b1e85bd618fe6faf080fca0744fdcc0cc81b0119f0a\", \"facts\": 3600, \"outputs\": 1600, \"match_attempts\": 4800}}], \"memory\": false}\n",
+          "stderr": "",
+          "engine": "reference",
+          "iteration": 1,
+          "result": {
+            "runs": [
+              {
+                "preparation_seconds": 0.0068884580105077475,
+                "search_seconds": 0.10685720801120624,
+                "total_seconds": 0.11374566602171399,
+                "preparation_peak_traced_bytes": null,
+                "search_peak_traced_bytes": null,
+                "observation": {
+                  "output": "9452146428000d778e060b1e85bd618fe6faf080fca0744fdcc0cc81b0119f0a",
+                  "facts": 3600,
+                  "outputs": 1600,
+                  "match_attempts": 4800
+                }
+              }
+            ],
+            "memory": false
+          }
+        },
+        {
+          "command": [
+            "/Users/francoispachet/IdeaProjects/boojum/.venv/bin/python",
+            "/Users/francoispachet/IdeaProjects/boojum/benchmarks/redesign_comparison.py",
+            "--worker",
+            "--checkout",
+            "/private/tmp/snarky-csp-full-e296d09",
+            "--case",
+            "joins/25x8/streamed",
+            "--mode",
+            "rules",
+            "--repeat",
+            "1"
+          ],
+          "seconds": 0.3754394589923322,
+          "returncode": 0,
+          "timed_out": false,
+          "stdout": "{\"runs\": [{\"preparation_seconds\": 0.00692629101104103, \"search_seconds\": 0.10758099998929538, \"total_seconds\": 0.11450729100033641, \"preparation_peak_traced_bytes\": null, \"search_peak_traced_bytes\": null, \"observation\": {\"output\": \"9452146428000d778e060b1e85bd618fe6faf080fca0744fdcc0cc81b0119f0a\", \"facts\": 3600, \"outputs\": 1600, \"match_attempts\": 4800}}], \"memory\": false}\n",
+          "stderr": "",
+          "engine": "reference",
+          "iteration": 2,
+          "result": {
+            "runs": [
+              {
+                "preparation_seconds": 0.00692629101104103,
+                "search_seconds": 0.10758099998929538,
+                "total_seconds": 0.11450729100033641,
+                "preparation_peak_traced_bytes": null,
+                "search_peak_traced_bytes": null,
+                "observation": {
+                  "output": "9452146428000d778e060b1e85bd618fe6faf080fca0744fdcc0cc81b0119f0a",
+                  "facts": 3600,
+                  "outputs": 1600,
+                  "match_attempts": 4800
+                }
+              }
+            ],
+            "memory": false
+          }
+        },
+        {
+          "command": [
+            "/Users/francoispachet/IdeaProjects/boojum/.venv/bin/python",
+            "/Users/francoispachet/IdeaProjects/boojum/benchmarks/redesign_comparison.py",
+            "--worker",
+            "--checkout",
+            "/Users/francoispachet/IdeaProjects/boojum",
+            "--case",
+            "joins/25x8/streamed",
+            "--mode",
+            "rules",
+            "--repeat",
+            "1"
+          ],
+          "seconds": 0.3745300830050837,
+          "returncode": 0,
+          "timed_out": false,
+          "stdout": "{\"runs\": [{\"preparation_seconds\": 0.006963791995076463, \"search_seconds\": 0.1059516670065932, \"total_seconds\": 0.11291545900166966, \"preparation_peak_traced_bytes\": null, \"search_peak_traced_bytes\": null, \"observation\": {\"output\": \"9452146428000d778e060b1e85bd618fe6faf080fca0744fdcc0cc81b0119f0a\", \"facts\": 3600, \"outputs\": 1600, \"match_attempts\": 4800}}], \"memory\": false}\n",
+          "stderr": "",
+          "engine": "candidate",
+          "iteration": 2,
+          "result": {
+            "runs": [
+              {
+                "preparation_seconds": 0.006963791995076463,
+                "search_seconds": 0.1059516670065932,
+                "total_seconds": 0.11291545900166966,
+                "preparation_peak_traced_bytes": null,
+                "search_peak_traced_bytes": null,
+                "observation": {
+                  "output": "9452146428000d778e060b1e85bd618fe6faf080fca0744fdcc0cc81b0119f0a",
+                  "facts": 3600,
+                  "outputs": 1600,
+                  "match_attempts": 4800
+                }
+              }
+            ],
+            "memory": false
+          }
+        }
+      ],
+      "warmups": [],
+      "medians": {
+        "reference": 0.11412650000420399,
+        "candidate": 0.11291545900166966
+      },
+      "same_observation": true,
+      "speedup": 1.0107252010773513
+    },
+    {
+      "case": "magic4",
+      "mode": "legacy",
+      "samples": [
+        {
+          "command": [
+            "/Users/francoispachet/IdeaProjects/boojum/.venv/bin/python",
+            "/Users/francoispachet/IdeaProjects/boojum/benchmarks/redesign_comparison.py",
+            "--worker",
+            "--checkout",
+            "/private/tmp/snarky-csp-full-e296d09",
+            "--case",
+            "magic4",
+            "--mode",
+            "legacy",
+            "--repeat",
+            "1"
+          ],
+          "seconds": 1.0872097079991363,
+          "returncode": 0,
+          "timed_out": false,
+          "stdout": "{\"runs\": [{\"preparation_seconds\": 0.0017327090026810765, \"search_seconds\": 0.4483072500152048, \"total_seconds\": 0.45003995901788585, \"preparation_peak_traced_bytes\": null, \"search_peak_traced_bytes\": null, \"observation\": {\"output\": \"95b917bb1bc526e11c983829fffebbe1ca7160146bac17abdfd47b8ac73a75d1\", \"assignment\": [[\"cell_1_1\", \"1\"], [\"cell_1_2\", \"10\"], [\"cell_1_3\", \"15\"], [\"cell_1_4\", \"8\"], [\"cell_2_1\", \"12\"], [\"cell_2_2\", \"13\"], [\"cell_2_3\", \"6\"], [\"cell_2_4\", \"3\"], [\"cell_3_1\", \"5\"], [\"cell_3_2\", \"4\"], [\"cell_3_3\", \"11\"], [\"cell_3_4\", \"14\"], [\"cell_4_1\", \"16\"], [\"cell_4_2\", \"7\"], [\"cell_4_3\", \"2\"], [\"cell_4_4\", \"9\"]], \"nodes\": 252, \"failures\": 188}}], \"memory\": false}\n",
+          "stderr": "",
+          "engine": "reference",
+          "iteration": 0,
+          "result": {
+            "runs": [
+              {
+                "preparation_seconds": 0.0017327090026810765,
+                "search_seconds": 0.4483072500152048,
+                "total_seconds": 0.45003995901788585,
+                "preparation_peak_traced_bytes": null,
+                "search_peak_traced_bytes": null,
+                "observation": {
+                  "output": "95b917bb1bc526e11c983829fffebbe1ca7160146bac17abdfd47b8ac73a75d1",
+                  "assignment": [
+                    [
+                      "cell_1_1",
+                      "1"
+                    ],
+                    [
+                      "cell_1_2",
+                      "10"
+                    ],
+                    [
+                      "cell_1_3",
+                      "15"
+                    ],
+                    [
+                      "cell_1_4",
+                      "8"
+                    ],
+                    [
+                      "cell_2_1",
+                      "12"
+                    ],
+                    [
+                      "cell_2_2",
+                      "13"
+                    ],
+                    [
+                      "cell_2_3",
+                      "6"
+                    ],
+                    [
+                      "cell_2_4",
+                      "3"
+                    ],
+                    [
+                      "cell_3_1",
+                      "5"
+                    ],
+                    [
+                      "cell_3_2",
+                      "4"
+                    ],
+                    [
+                      "cell_3_3",
+                      "11"
+                    ],
+                    [
+                      "cell_3_4",
+                      "14"
+                    ],
+                    [
+                      "cell_4_1",
+                      "16"
+                    ],
+                    [
+                      "cell_4_2",
+                      "7"
+                    ],
+                    [
+                      "cell_4_3",
+                      "2"
+                    ],
+                    [
+                      "cell_4_4",
+                      "9"
+                    ]
+                  ],
+                  "nodes": 252,
+                  "failures": 188
+                }
+              }
+            ],
+            "memory": false
+          }
+        },
+        {
+          "command": [
+            "/Users/francoispachet/IdeaProjects/boojum/.venv/bin/python",
+            "/Users/francoispachet/IdeaProjects/boojum/benchmarks/redesign_comparison.py",
+            "--worker",
+            "--checkout",
+            "/Users/francoispachet/IdeaProjects/boojum",
+            "--case",
+            "magic4",
+            "--mode",
+            "legacy",
+            "--repeat",
+            "1"
+          ],
+          "seconds": 1.0350399169838056,
+          "returncode": 0,
+          "timed_out": false,
+          "stdout": "{\"runs\": [{\"preparation_seconds\": 0.0017984579899348319, \"search_seconds\": 0.4349776250019204, \"total_seconds\": 0.4367760829918552, \"preparation_peak_traced_bytes\": null, \"search_peak_traced_bytes\": null, \"observation\": {\"output\": \"95b917bb1bc526e11c983829fffebbe1ca7160146bac17abdfd47b8ac73a75d1\", \"assignment\": [[\"cell_1_1\", \"1\"], [\"cell_1_2\", \"10\"], [\"cell_1_3\", \"15\"], [\"cell_1_4\", \"8\"], [\"cell_2_1\", \"12\"], [\"cell_2_2\", \"13\"], [\"cell_2_3\", \"6\"], [\"cell_2_4\", \"3\"], [\"cell_3_1\", \"5\"], [\"cell_3_2\", \"4\"], [\"cell_3_3\", \"11\"], [\"cell_3_4\", \"14\"], [\"cell_4_1\", \"16\"], [\"cell_4_2\", \"7\"], [\"cell_4_3\", \"2\"], [\"cell_4_4\", \"9\"]], \"nodes\": 252, \"failures\": 188}}], \"memory\": false}\n",
+          "stderr": "",
+          "engine": "candidate",
+          "iteration": 0,
+          "result": {
+            "runs": [
+              {
+                "preparation_seconds": 0.0017984579899348319,
+                "search_seconds": 0.4349776250019204,
+                "total_seconds": 0.4367760829918552,
+                "preparation_peak_traced_bytes": null,
+                "search_peak_traced_bytes": null,
+                "observation": {
+                  "output": "95b917bb1bc526e11c983829fffebbe1ca7160146bac17abdfd47b8ac73a75d1",
+                  "assignment": [
+                    [
+                      "cell_1_1",
+                      "1"
+                    ],
+                    [
+                      "cell_1_2",
+                      "10"
+                    ],
+                    [
+                      "cell_1_3",
+                      "15"
+                    ],
+                    [
+                      "cell_1_4",
+                      "8"
+                    ],
+                    [
+                      "cell_2_1",
+                      "12"
+                    ],
+                    [
+                      "cell_2_2",
+                      "13"
+                    ],
+                    [
+                      "cell_2_3",
+                      "6"
+                    ],
+                    [
+                      "cell_2_4",
+                      "3"
+                    ],
+                    [
+                      "cell_3_1",
+                      "5"
+                    ],
+                    [
+                      "cell_3_2",
+                      "4"
+                    ],
+                    [
+                      "cell_3_3",
+                      "11"
+                    ],
+                    [
+                      "cell_3_4",
+                      "14"
+                    ],
+                    [
+                      "cell_4_1",
+                      "16"
+                    ],
+                    [
+                      "cell_4_2",
+                      "7"
+                    ],
+                    [
+                      "cell_4_3",
+                      "2"
+                    ],
+                    [
+                      "cell_4_4",
+                      "9"
+                    ]
+                  ],
+                  "nodes": 252,
+                  "failures": 188
+                }
+              }
+            ],
+            "memory": false
+          }
+        },
+        {
+          "command": [
+            "/Users/francoispachet/IdeaProjects/boojum/.venv/bin/python",
+            "/Users/francoispachet/IdeaProjects/boojum/benchmarks/redesign_comparison.py",
+            "--worker",
+            "--checkout",
+            "/Users/francoispachet/IdeaProjects/boojum",
+            "--case",
+            "magic4",
+            "--mode",
+            "legacy",
+            "--repeat",
+            "1"
+          ],
+          "seconds": 1.0299472080077976,
+          "returncode": 0,
+          "timed_out": false,
+          "stdout": "{\"runs\": [{\"preparation_seconds\": 0.001541208999697119, \"search_seconds\": 0.44124224997358397, \"total_seconds\": 0.4427834589732811, \"preparation_peak_traced_bytes\": null, \"search_peak_traced_bytes\": null, \"observation\": {\"output\": \"95b917bb1bc526e11c983829fffebbe1ca7160146bac17abdfd47b8ac73a75d1\", \"assignment\": [[\"cell_1_1\", \"1\"], [\"cell_1_2\", \"10\"], [\"cell_1_3\", \"15\"], [\"cell_1_4\", \"8\"], [\"cell_2_1\", \"12\"], [\"cell_2_2\", \"13\"], [\"cell_2_3\", \"6\"], [\"cell_2_4\", \"3\"], [\"cell_3_1\", \"5\"], [\"cell_3_2\", \"4\"], [\"cell_3_3\", \"11\"], [\"cell_3_4\", \"14\"], [\"cell_4_1\", \"16\"], [\"cell_4_2\", \"7\"], [\"cell_4_3\", \"2\"], [\"cell_4_4\", \"9\"]], \"nodes\": 252, \"failures\": 188}}], \"memory\": false}\n",
+          "stderr": "",
+          "engine": "candidate",
+          "iteration": 1,
+          "result": {
+            "runs": [
+              {
+                "preparation_seconds": 0.001541208999697119,
+                "search_seconds": 0.44124224997358397,
+                "total_seconds": 0.4427834589732811,
+                "preparation_peak_traced_bytes": null,
+                "search_peak_traced_bytes": null,
+                "observation": {
+                  "output": "95b917bb1bc526e11c983829fffebbe1ca7160146bac17abdfd47b8ac73a75d1",
+                  "assignment": [
+                    [
+                      "cell_1_1",
+                      "1"
+                    ],
+                    [
+                      "cell_1_2",
+                      "10"
+                    ],
+                    [
+                      "cell_1_3",
+                      "15"
+                    ],
+                    [
+                      "cell_1_4",
+                      "8"
+                    ],
+                    [
+                      "cell_2_1",
+                      "12"
+                    ],
+                    [
+                      "cell_2_2",
+                      "13"
+                    ],
+                    [
+                      "cell_2_3",
+                      "6"
+                    ],
+                    [
+                      "cell_2_4",
+                      "3"
+                    ],
+                    [
+                      "cell_3_1",
+                      "5"
+                    ],
+                    [
+                      "cell_3_2",
+                      "4"
+                    ],
+                    [
+                      "cell_3_3",
+                      "11"
+                    ],
+                    [
+                      "cell_3_4",
+                      "14"
+                    ],
+                    [
+                      "cell_4_1",
+                      "16"
+                    ],
+                    [
+                      "cell_4_2",
+                      "7"
+                    ],
+                    [
+                      "cell_4_3",
+                      "2"
+                    ],
+                    [
+                      "cell_4_4",
+                      "9"
+                    ]
+                  ],
+                  "nodes": 252,
+                  "failures": 188
+                }
+              }
+            ],
+            "memory": false
+          }
+        },
+        {
+          "command": [
+            "/Users/francoispachet/IdeaProjects/boojum/.venv/bin/python",
+            "/Users/francoispachet/IdeaProjects/boojum/benchmarks/redesign_comparison.py",
+            "--worker",
+            "--checkout",
+            "/private/tmp/snarky-csp-full-e296d09",
+            "--case",
+            "magic4",
+            "--mode",
+            "legacy",
+            "--repeat",
+            "1"
+          ],
+          "seconds": 1.0355174170108512,
+          "returncode": 0,
+          "timed_out": false,
+          "stdout": "{\"runs\": [{\"preparation_seconds\": 0.0015879999846220016, \"search_seconds\": 0.44265174999600276, \"total_seconds\": 0.44423974998062477, \"preparation_peak_traced_bytes\": null, \"search_peak_traced_bytes\": null, \"observation\": {\"output\": \"95b917bb1bc526e11c983829fffebbe1ca7160146bac17abdfd47b8ac73a75d1\", \"assignment\": [[\"cell_1_1\", \"1\"], [\"cell_1_2\", \"10\"], [\"cell_1_3\", \"15\"], [\"cell_1_4\", \"8\"], [\"cell_2_1\", \"12\"], [\"cell_2_2\", \"13\"], [\"cell_2_3\", \"6\"], [\"cell_2_4\", \"3\"], [\"cell_3_1\", \"5\"], [\"cell_3_2\", \"4\"], [\"cell_3_3\", \"11\"], [\"cell_3_4\", \"14\"], [\"cell_4_1\", \"16\"], [\"cell_4_2\", \"7\"], [\"cell_4_3\", \"2\"], [\"cell_4_4\", \"9\"]], \"nodes\": 252, \"failures\": 188}}], \"memory\": false}\n",
+          "stderr": "",
+          "engine": "reference",
+          "iteration": 1,
+          "result": {
+            "runs": [
+              {
+                "preparation_seconds": 0.0015879999846220016,
+                "search_seconds": 0.44265174999600276,
+                "total_seconds": 0.44423974998062477,
+                "preparation_peak_traced_bytes": null,
+                "search_peak_traced_bytes": null,
+                "observation": {
+                  "output": "95b917bb1bc526e11c983829fffebbe1ca7160146bac17abdfd47b8ac73a75d1",
+                  "assignment": [
+                    [
+                      "cell_1_1",
+                      "1"
+                    ],
+                    [
+                      "cell_1_2",
+                      "10"
+                    ],
+                    [
+                      "cell_1_3",
+                      "15"
+                    ],
+                    [
+                      "cell_1_4",
+                      "8"
+                    ],
+                    [
+                      "cell_2_1",
+                      "12"
+                    ],
+                    [
+                      "cell_2_2",
+                      "13"
+                    ],
+                    [
+                      "cell_2_3",
+                      "6"
+                    ],
+                    [
+                      "cell_2_4",
+                      "3"
+                    ],
+                    [
+                      "cell_3_1",
+                      "5"
+                    ],
+                    [
+                      "cell_3_2",
+                      "4"
+                    ],
+                    [
+                      "cell_3_3",
+                      "11"
+                    ],
+                    [
+                      "cell_3_4",
+                      "14"
+                    ],
+                    [
+                      "cell_4_1",
+                      "16"
+                    ],
+                    [
+                      "cell_4_2",
+                      "7"
+                    ],
+                    [
+                      "cell_4_3",
+                      "2"
+                    ],
+                    [
+                      "cell_4_4",
+                      "9"
+                    ]
+                  ],
+                  "nodes": 252,
+                  "failures": 188
+                }
+              }
+            ],
+            "memory": false
+          }
+        },
+        {
+          "command": [
+            "/Users/francoispachet/IdeaProjects/boojum/.venv/bin/python",
+            "/Users/francoispachet/IdeaProjects/boojum/benchmarks/redesign_comparison.py",
+            "--worker",
+            "--checkout",
+            "/private/tmp/snarky-csp-full-e296d09",
+            "--case",
+            "magic4",
+            "--mode",
+            "legacy",
+            "--repeat",
+            "1"
+          ],
+          "seconds": 1.0369182919966988,
+          "returncode": 0,
+          "timed_out": false,
+          "stdout": "{\"runs\": [{\"preparation_seconds\": 0.001638958987314254, \"search_seconds\": 0.44193475000793114, \"total_seconds\": 0.4435737089952454, \"preparation_peak_traced_bytes\": null, \"search_peak_traced_bytes\": null, \"observation\": {\"output\": \"95b917bb1bc526e11c983829fffebbe1ca7160146bac17abdfd47b8ac73a75d1\", \"assignment\": [[\"cell_1_1\", \"1\"], [\"cell_1_2\", \"10\"], [\"cell_1_3\", \"15\"], [\"cell_1_4\", \"8\"], [\"cell_2_1\", \"12\"], [\"cell_2_2\", \"13\"], [\"cell_2_3\", \"6\"], [\"cell_2_4\", \"3\"], [\"cell_3_1\", \"5\"], [\"cell_3_2\", \"4\"], [\"cell_3_3\", \"11\"], [\"cell_3_4\", \"14\"], [\"cell_4_1\", \"16\"], [\"cell_4_2\", \"7\"], [\"cell_4_3\", \"2\"], [\"cell_4_4\", \"9\"]], \"nodes\": 252, \"failures\": 188}}], \"memory\": false}\n",
+          "stderr": "",
+          "engine": "reference",
+          "iteration": 2,
+          "result": {
+            "runs": [
+              {
+                "preparation_seconds": 0.001638958987314254,
+                "search_seconds": 0.44193475000793114,
+                "total_seconds": 0.4435737089952454,
+                "preparation_peak_traced_bytes": null,
+                "search_peak_traced_bytes": null,
+                "observation": {
+                  "output": "95b917bb1bc526e11c983829fffebbe1ca7160146bac17abdfd47b8ac73a75d1",
+                  "assignment": [
+                    [
+                      "cell_1_1",
+                      "1"
+                    ],
+                    [
+                      "cell_1_2",
+                      "10"
+                    ],
+                    [
+                      "cell_1_3",
+                      "15"
+                    ],
+                    [
+                      "cell_1_4",
+                      "8"
+                    ],
+                    [
+                      "cell_2_1",
+                      "12"
+                    ],
+                    [
+                      "cell_2_2",
+                      "13"
+                    ],
+                    [
+                      "cell_2_3",
+                      "6"
+                    ],
+                    [
+                      "cell_2_4",
+                      "3"
+                    ],
+                    [
+                      "cell_3_1",
+                      "5"
+                    ],
+                    [
+                      "cell_3_2",
+                      "4"
+                    ],
+                    [
+                      "cell_3_3",
+                      "11"
+                    ],
+                    [
+                      "cell_3_4",
+                      "14"
+                    ],
+                    [
+                      "cell_4_1",
+                      "16"
+                    ],
+                    [
+                      "cell_4_2",
+                      "7"
+                    ],
+                    [
+                      "cell_4_3",
+                      "2"
+                    ],
+                    [
+                      "cell_4_4",
+                      "9"
+                    ]
+                  ],
+                  "nodes": 252,
+                  "failures": 188
+                }
+              }
+            ],
+            "memory": false
+          }
+        },
+        {
+          "command": [
+            "/Users/francoispachet/IdeaProjects/boojum/.venv/bin/python",
+            "/Users/francoispachet/IdeaProjects/boojum/benchmarks/redesign_comparison.py",
+            "--worker",
+            "--checkout",
+            "/Users/francoispachet/IdeaProjects/boojum",
+            "--case",
+            "magic4",
+            "--mode",
+            "legacy",
+            "--repeat",
+            "1"
+          ],
+          "seconds": 1.0292637500097044,
+          "returncode": 0,
+          "timed_out": false,
+          "stdout": "{\"runs\": [{\"preparation_seconds\": 0.0018057500128634274, \"search_seconds\": 0.44065345800481737, \"total_seconds\": 0.4424592080176808, \"preparation_peak_traced_bytes\": null, \"search_peak_traced_bytes\": null, \"observation\": {\"output\": \"95b917bb1bc526e11c983829fffebbe1ca7160146bac17abdfd47b8ac73a75d1\", \"assignment\": [[\"cell_1_1\", \"1\"], [\"cell_1_2\", \"10\"], [\"cell_1_3\", \"15\"], [\"cell_1_4\", \"8\"], [\"cell_2_1\", \"12\"], [\"cell_2_2\", \"13\"], [\"cell_2_3\", \"6\"], [\"cell_2_4\", \"3\"], [\"cell_3_1\", \"5\"], [\"cell_3_2\", \"4\"], [\"cell_3_3\", \"11\"], [\"cell_3_4\", \"14\"], [\"cell_4_1\", \"16\"], [\"cell_4_2\", \"7\"], [\"cell_4_3\", \"2\"], [\"cell_4_4\", \"9\"]], \"nodes\": 252, \"failures\": 188}}], \"memory\": false}\n",
+          "stderr": "",
+          "engine": "candidate",
+          "iteration": 2,
+          "result": {
+            "runs": [
+              {
+                "preparation_seconds": 0.0018057500128634274,
+                "search_seconds": 0.44065345800481737,
+                "total_seconds": 0.4424592080176808,
+                "preparation_peak_traced_bytes": null,
+                "search_peak_traced_bytes": null,
+                "observation": {
+                  "output": "95b917bb1bc526e11c983829fffebbe1ca7160146bac17abdfd47b8ac73a75d1",
+                  "assignment": [
+                    [
+                      "cell_1_1",
+                      "1"
+                    ],
+                    [
+                      "cell_1_2",
+                      "10"
+                    ],
+                    [
+                      "cell_1_3",
+                      "15"
+                    ],
+                    [
+                      "cell_1_4",
+                      "8"
+                    ],
+                    [
+                      "cell_2_1",
+                      "12"
+                    ],
+                    [
+                      "cell_2_2",
+                      "13"
+                    ],
+                    [
+                      "cell_2_3",
+                      "6"
+                    ],
+                    [
+                      "cell_2_4",
+                      "3"
+                    ],
+                    [
+                      "cell_3_1",
+                      "5"
+                    ],
+                    [
+                      "cell_3_2",
+                      "4"
+                    ],
+                    [
+                      "cell_3_3",
+                      "11"
+                    ],
+                    [
+                      "cell_3_4",
+                      "14"
+                    ],
+                    [
+                      "cell_4_1",
+                      "16"
+                    ],
+                    [
+                      "cell_4_2",
+                      "7"
+                    ],
+                    [
+                      "cell_4_3",
+                      "2"
+                    ],
+                    [
+                      "cell_4_4",
+                      "9"
+                    ]
+                  ],
+                  "nodes": 252,
+                  "failures": 188
+                }
+              }
+            ],
+            "memory": false
+          }
+        }
+      ],
+      "warmups": [],
+      "medians": {
+        "reference": 0.44423974998062477,
+        "candidate": 0.4424592080176808
+      },
+      "same_observation": true,
+      "speedup": 1.0040241946165416
+    },
+    {
+      "case": "mixed_magic3",
+      "mode": "mixed",
+      "samples": [
+        {
+          "command": [
+            "/Users/francoispachet/IdeaProjects/boojum/.venv/bin/python",
+            "/Users/francoispachet/IdeaProjects/boojum/benchmarks/redesign_comparison.py",
+            "--worker",
+            "--checkout",
+            "/private/tmp/snarky-csp-full-e296d09",
+            "--case",
+            "mixed_magic3",
+            "--mode",
+            "mixed",
+            "--repeat",
+            "1"
+          ],
+          "seconds": 0.14866258300025947,
+          "returncode": 0,
+          "timed_out": false,
+          "stdout": "{\"runs\": [{\"preparation_seconds\": 3.3625023206695914e-05, \"search_seconds\": 0.0024156250001396984, \"total_seconds\": 0.0024492500233463943, \"preparation_peak_traced_bytes\": null, \"search_peak_traced_bytes\": null, \"observation\": {\"output\": \"edc266db4d75a4b6a2a332c9b45b353a52464fc6621c896b3cafcea91cb81cdf\", \"assignment\": [[\"cell_1_1\", \"2\"], [\"cell_1_2\", \"7\"], [\"cell_1_3\", \"6\"], [\"cell_2_1\", \"9\"], [\"cell_2_2\", \"5\"], [\"cell_2_3\", \"1\"], [\"cell_3_1\", \"4\"], [\"cell_3_2\", \"3\"], [\"cell_3_3\", \"8\"]], \"nodes\": 4, \"failures\": 1}}], \"memory\": false}\n",
+          "stderr": "",
+          "engine": "reference",
+          "iteration": 0,
+          "result": {
+            "runs": [
+              {
+                "preparation_seconds": 3.3625023206695914e-05,
+                "search_seconds": 0.0024156250001396984,
+                "total_seconds": 0.0024492500233463943,
+                "preparation_peak_traced_bytes": null,
+                "search_peak_traced_bytes": null,
+                "observation": {
+                  "output": "edc266db4d75a4b6a2a332c9b45b353a52464fc6621c896b3cafcea91cb81cdf",
+                  "assignment": [
+                    [
+                      "cell_1_1",
+                      "2"
+                    ],
+                    [
+                      "cell_1_2",
+                      "7"
+                    ],
+                    [
+                      "cell_1_3",
+                      "6"
+                    ],
+                    [
+                      "cell_2_1",
+                      "9"
+                    ],
+                    [
+                      "cell_2_2",
+                      "5"
+                    ],
+                    [
+                      "cell_2_3",
+                      "1"
+                    ],
+                    [
+                      "cell_3_1",
+                      "4"
+                    ],
+                    [
+                      "cell_3_2",
+                      "3"
+                    ],
+                    [
+                      "cell_3_3",
+                      "8"
+                    ]
+                  ],
+                  "nodes": 4,
+                  "failures": 1
+                }
+              }
+            ],
+            "memory": false
+          }
+        },
+        {
+          "command": [
+            "/Users/francoispachet/IdeaProjects/boojum/.venv/bin/python",
+            "/Users/francoispachet/IdeaProjects/boojum/benchmarks/redesign_comparison.py",
+            "--worker",
+            "--checkout",
+            "/Users/francoispachet/IdeaProjects/boojum",
+            "--case",
+            "mixed_magic3",
+            "--mode",
+            "mixed",
+            "--repeat",
+            "1"
+          ],
+          "seconds": 0.15062541601946577,
+          "returncode": 0,
+          "timed_out": false,
+          "stdout": "{\"runs\": [{\"preparation_seconds\": 4.1417020838707685e-05, \"search_seconds\": 0.002818249980919063, \"total_seconds\": 0.0028596670017577708, \"preparation_peak_traced_bytes\": null, \"search_peak_traced_bytes\": null, \"observation\": {\"output\": \"edc266db4d75a4b6a2a332c9b45b353a52464fc6621c896b3cafcea91cb81cdf\", \"assignment\": [[\"cell_1_1\", \"2\"], [\"cell_1_2\", \"7\"], [\"cell_1_3\", \"6\"], [\"cell_2_1\", \"9\"], [\"cell_2_2\", \"5\"], [\"cell_2_3\", \"1\"], [\"cell_3_1\", \"4\"], [\"cell_3_2\", \"3\"], [\"cell_3_3\", \"8\"]], \"nodes\": 4, \"failures\": 1}}], \"memory\": false}\n",
+          "stderr": "",
+          "engine": "candidate",
+          "iteration": 0,
+          "result": {
+            "runs": [
+              {
+                "preparation_seconds": 4.1417020838707685e-05,
+                "search_seconds": 0.002818249980919063,
+                "total_seconds": 0.0028596670017577708,
+                "preparation_peak_traced_bytes": null,
+                "search_peak_traced_bytes": null,
+                "observation": {
+                  "output": "edc266db4d75a4b6a2a332c9b45b353a52464fc6621c896b3cafcea91cb81cdf",
+                  "assignment": [
+                    [
+                      "cell_1_1",
+                      "2"
+                    ],
+                    [
+                      "cell_1_2",
+                      "7"
+                    ],
+                    [
+                      "cell_1_3",
+                      "6"
+                    ],
+                    [
+                      "cell_2_1",
+                      "9"
+                    ],
+                    [
+                      "cell_2_2",
+                      "5"
+                    ],
+                    [
+                      "cell_2_3",
+                      "1"
+                    ],
+                    [
+                      "cell_3_1",
+                      "4"
+                    ],
+                    [
+                      "cell_3_2",
+                      "3"
+                    ],
+                    [
+                      "cell_3_3",
+                      "8"
+                    ]
+                  ],
+                  "nodes": 4,
+                  "failures": 1
+                }
+              }
+            ],
+            "memory": false
+          }
+        },
+        {
+          "command": [
+            "/Users/francoispachet/IdeaProjects/boojum/.venv/bin/python",
+            "/Users/francoispachet/IdeaProjects/boojum/benchmarks/redesign_comparison.py",
+            "--worker",
+            "--checkout",
+            "/Users/francoispachet/IdeaProjects/boojum",
+            "--case",
+            "mixed_magic3",
+            "--mode",
+            "mixed",
+            "--repeat",
+            "1"
+          ],
+          "seconds": 0.20890912500908598,
+          "returncode": 0,
+          "timed_out": false,
+          "stdout": "{\"runs\": [{\"preparation_seconds\": 3.441600711084902e-05, \"search_seconds\": 0.002414666989352554, \"total_seconds\": 0.002449082996463403, \"preparation_peak_traced_bytes\": null, \"search_peak_traced_bytes\": null, \"observation\": {\"output\": \"edc266db4d75a4b6a2a332c9b45b353a52464fc6621c896b3cafcea91cb81cdf\", \"assignment\": [[\"cell_1_1\", \"2\"], [\"cell_1_2\", \"7\"], [\"cell_1_3\", \"6\"], [\"cell_2_1\", \"9\"], [\"cell_2_2\", \"5\"], [\"cell_2_3\", \"1\"], [\"cell_3_1\", \"4\"], [\"cell_3_2\", \"3\"], [\"cell_3_3\", \"8\"]], \"nodes\": 4, \"failures\": 1}}], \"memory\": false}\n",
+          "stderr": "",
+          "engine": "candidate",
+          "iteration": 1,
+          "result": {
+            "runs": [
+              {
+                "preparation_seconds": 3.441600711084902e-05,
+                "search_seconds": 0.002414666989352554,
+                "total_seconds": 0.002449082996463403,
+                "preparation_peak_traced_bytes": null,
+                "search_peak_traced_bytes": null,
+                "observation": {
+                  "output": "edc266db4d75a4b6a2a332c9b45b353a52464fc6621c896b3cafcea91cb81cdf",
+                  "assignment": [
+                    [
+                      "cell_1_1",
+                      "2"
+                    ],
+                    [
+                      "cell_1_2",
+                      "7"
+                    ],
+                    [
+                      "cell_1_3",
+                      "6"
+                    ],
+                    [
+                      "cell_2_1",
+                      "9"
+                    ],
+                    [
+                      "cell_2_2",
+                      "5"
+                    ],
+                    [
+                      "cell_2_3",
+                      "1"
+                    ],
+                    [
+                      "cell_3_1",
+                      "4"
+                    ],
+                    [
+                      "cell_3_2",
+                      "3"
+                    ],
+                    [
+                      "cell_3_3",
+                      "8"
+                    ]
+                  ],
+                  "nodes": 4,
+                  "failures": 1
+                }
+              }
+            ],
+            "memory": false
+          }
+        },
+        {
+          "command": [
+            "/Users/francoispachet/IdeaProjects/boojum/.venv/bin/python",
+            "/Users/francoispachet/IdeaProjects/boojum/benchmarks/redesign_comparison.py",
+            "--worker",
+            "--checkout",
+            "/private/tmp/snarky-csp-full-e296d09",
+            "--case",
+            "mixed_magic3",
+            "--mode",
+            "mixed",
+            "--repeat",
+            "1"
+          ],
+          "seconds": 0.15314020798541605,
+          "returncode": 0,
+          "timed_out": false,
+          "stdout": "{\"runs\": [{\"preparation_seconds\": 6.162497447803617e-05, \"search_seconds\": 0.002584875008324161, \"total_seconds\": 0.0026464999828021973, \"preparation_peak_traced_bytes\": null, \"search_peak_traced_bytes\": null, \"observation\": {\"output\": \"edc266db4d75a4b6a2a332c9b45b353a52464fc6621c896b3cafcea91cb81cdf\", \"assignment\": [[\"cell_1_1\", \"2\"], [\"cell_1_2\", \"7\"], [\"cell_1_3\", \"6\"], [\"cell_2_1\", \"9\"], [\"cell_2_2\", \"5\"], [\"cell_2_3\", \"1\"], [\"cell_3_1\", \"4\"], [\"cell_3_2\", \"3\"], [\"cell_3_3\", \"8\"]], \"nodes\": 4, \"failures\": 1}}], \"memory\": false}\n",
+          "stderr": "",
+          "engine": "reference",
+          "iteration": 1,
+          "result": {
+            "runs": [
+              {
+                "preparation_seconds": 6.162497447803617e-05,
+                "search_seconds": 0.002584875008324161,
+                "total_seconds": 0.0026464999828021973,
+                "preparation_peak_traced_bytes": null,
+                "search_peak_traced_bytes": null,
+                "observation": {
+                  "output": "edc266db4d75a4b6a2a332c9b45b353a52464fc6621c896b3cafcea91cb81cdf",
+                  "assignment": [
+                    [
+                      "cell_1_1",
+                      "2"
+                    ],
+                    [
+                      "cell_1_2",
+                      "7"
+                    ],
+                    [
+                      "cell_1_3",
+                      "6"
+                    ],
+                    [
+                      "cell_2_1",
+                      "9"
+                    ],
+                    [
+                      "cell_2_2",
+                      "5"
+                    ],
+                    [
+                      "cell_2_3",
+                      "1"
+                    ],
+                    [
+                      "cell_3_1",
+                      "4"
+                    ],
+                    [
+                      "cell_3_2",
+                      "3"
+                    ],
+                    [
+                      "cell_3_3",
+                      "8"
+                    ]
+                  ],
+                  "nodes": 4,
+                  "failures": 1
+                }
+              }
+            ],
+            "memory": false
+          }
+        },
+        {
+          "command": [
+            "/Users/francoispachet/IdeaProjects/boojum/.venv/bin/python",
+            "/Users/francoispachet/IdeaProjects/boojum/benchmarks/redesign_comparison.py",
+            "--worker",
+            "--checkout",
+            "/private/tmp/snarky-csp-full-e296d09",
+            "--case",
+            "mixed_magic3",
+            "--mode",
+            "mixed",
+            "--repeat",
+            "1"
+          ],
+          "seconds": 0.15264033299172297,
+          "returncode": 0,
+          "timed_out": false,
+          "stdout": "{\"runs\": [{\"preparation_seconds\": 4.824998904950917e-05, \"search_seconds\": 0.0025205420097336173, \"total_seconds\": 0.0025687919987831265, \"preparation_peak_traced_bytes\": null, \"search_peak_traced_bytes\": null, \"observation\": {\"output\": \"edc266db4d75a4b6a2a332c9b45b353a52464fc6621c896b3cafcea91cb81cdf\", \"assignment\": [[\"cell_1_1\", \"2\"], [\"cell_1_2\", \"7\"], [\"cell_1_3\", \"6\"], [\"cell_2_1\", \"9\"], [\"cell_2_2\", \"5\"], [\"cell_2_3\", \"1\"], [\"cell_3_1\", \"4\"], [\"cell_3_2\", \"3\"], [\"cell_3_3\", \"8\"]], \"nodes\": 4, \"failures\": 1}}], \"memory\": false}\n",
+          "stderr": "",
+          "engine": "reference",
+          "iteration": 2,
+          "result": {
+            "runs": [
+              {
+                "preparation_seconds": 4.824998904950917e-05,
+                "search_seconds": 0.0025205420097336173,
+                "total_seconds": 0.0025687919987831265,
+                "preparation_peak_traced_bytes": null,
+                "search_peak_traced_bytes": null,
+                "observation": {
+                  "output": "edc266db4d75a4b6a2a332c9b45b353a52464fc6621c896b3cafcea91cb81cdf",
+                  "assignment": [
+                    [
+                      "cell_1_1",
+                      "2"
+                    ],
+                    [
+                      "cell_1_2",
+                      "7"
+                    ],
+                    [
+                      "cell_1_3",
+                      "6"
+                    ],
+                    [
+                      "cell_2_1",
+                      "9"
+                    ],
+                    [
+                      "cell_2_2",
+                      "5"
+                    ],
+                    [
+                      "cell_2_3",
+                      "1"
+                    ],
+                    [
+                      "cell_3_1",
+                      "4"
+                    ],
+                    [
+                      "cell_3_2",
+                      "3"
+                    ],
+                    [
+                      "cell_3_3",
+                      "8"
+                    ]
+                  ],
+                  "nodes": 4,
+                  "failures": 1
+                }
+              }
+            ],
+            "memory": false
+          }
+        },
+        {
+          "command": [
+            "/Users/francoispachet/IdeaProjects/boojum/.venv/bin/python",
+            "/Users/francoispachet/IdeaProjects/boojum/benchmarks/redesign_comparison.py",
+            "--worker",
+            "--checkout",
+            "/Users/francoispachet/IdeaProjects/boojum",
+            "--case",
+            "mixed_magic3",
+            "--mode",
+            "mixed",
+            "--repeat",
+            "1"
+          ],
+          "seconds": 0.14685387499048375,
+          "returncode": 0,
+          "timed_out": false,
+          "stdout": "{\"runs\": [{\"preparation_seconds\": 3.649998689070344e-05, \"search_seconds\": 0.0027565839991439134, \"total_seconds\": 0.002793083986034617, \"preparation_peak_traced_bytes\": null, \"search_peak_traced_bytes\": null, \"observation\": {\"output\": \"edc266db4d75a4b6a2a332c9b45b353a52464fc6621c896b3cafcea91cb81cdf\", \"assignment\": [[\"cell_1_1\", \"2\"], [\"cell_1_2\", \"7\"], [\"cell_1_3\", \"6\"], [\"cell_2_1\", \"9\"], [\"cell_2_2\", \"5\"], [\"cell_2_3\", \"1\"], [\"cell_3_1\", \"4\"], [\"cell_3_2\", \"3\"], [\"cell_3_3\", \"8\"]], \"nodes\": 4, \"failures\": 1}}], \"memory\": false}\n",
+          "stderr": "",
+          "engine": "candidate",
+          "iteration": 2,
+          "result": {
+            "runs": [
+              {
+                "preparation_seconds": 3.649998689070344e-05,
+                "search_seconds": 0.0027565839991439134,
+                "total_seconds": 0.002793083986034617,
+                "preparation_peak_traced_bytes": null,
+                "search_peak_traced_bytes": null,
+                "observation": {
+                  "output": "edc266db4d75a4b6a2a332c9b45b353a52464fc6621c896b3cafcea91cb81cdf",
+                  "assignment": [
+                    [
+                      "cell_1_1",
+                      "2"
+                    ],
+                    [
+                      "cell_1_2",
+                      "7"
+                    ],
+                    [
+                      "cell_1_3",
+                      "6"
+                    ],
+                    [
+                      "cell_2_1",
+                      "9"
+                    ],
+                    [
+                      "cell_2_2",
+                      "5"
+                    ],
+                    [
+                      "cell_2_3",
+                      "1"
+                    ],
+                    [
+                      "cell_3_1",
+                      "4"
+                    ],
+                    [
+                      "cell_3_2",
+                      "3"
+                    ],
+                    [
+                      "cell_3_3",
+                      "8"
+                    ]
+                  ],
+                  "nodes": 4,
+                  "failures": 1
+                }
+              }
+            ],
+            "memory": false
+          }
+        }
+      ],
+      "warmups": [],
+      "medians": {
+        "reference": 0.0025687919987831265,
+        "candidate": 0.002793083986034617
+      },
+      "same_observation": true,
+      "speedup": 0.9196973709444659
+    },
+    {
+      "case": "markov33x8",
+      "mode": "native",
+      "samples": [
+        {
+          "command": [
+            "/Users/francoispachet/IdeaProjects/boojum/.venv/bin/python",
+            "/Users/francoispachet/IdeaProjects/boojum/benchmarks/redesign_comparison.py",
+            "--worker",
+            "--checkout",
+            "/private/tmp/snarky-csp-full-e296d09",
+            "--case",
+            "markov33x8",
+            "--mode",
+            "native",
+            "--repeat",
+            "1"
+          ],
+          "seconds": 0.42587954198825173,
+          "returncode": 0,
+          "timed_out": false,
+          "stdout": "{\"runs\": [{\"preparation_seconds\": 0.0012705419794656336, \"search_seconds\": 0.13988462500856258, \"total_seconds\": 0.1411551669880282, \"preparation_peak_traced_bytes\": null, \"search_peak_traced_bytes\": null, \"observation\": {\"objective\": 35, \"proved\": true, \"termination\": \"exhausted\", \"bound\": 35, \"nodes\": 32, \"failures\": 0, \"runs\": 1, \"first_incumbent_seconds\": 0.13964516701526009, \"output\": \"5f27fa93a5cc8b76af57205013ad6195b8bd599145cdbe1438a6a929d677000b\", \"known_optimum\": 35}}], \"memory\": false}\n",
+          "stderr": "",
+          "engine": "reference",
+          "iteration": 0,
+          "result": {
+            "runs": [
+              {
+                "preparation_seconds": 0.0012705419794656336,
+                "search_seconds": 0.13988462500856258,
+                "total_seconds": 0.1411551669880282,
+                "preparation_peak_traced_bytes": null,
+                "search_peak_traced_bytes": null,
+                "observation": {
+                  "objective": 35,
+                  "proved": true,
+                  "termination": "exhausted",
+                  "bound": 35,
+                  "nodes": 32,
+                  "failures": 0,
+                  "runs": 1,
+                  "first_incumbent_seconds": 0.13964516701526009,
+                  "output": "5f27fa93a5cc8b76af57205013ad6195b8bd599145cdbe1438a6a929d677000b",
+                  "known_optimum": 35
+                }
+              }
+            ],
+            "memory": false
+          }
+        },
+        {
+          "command": [
+            "/Users/francoispachet/IdeaProjects/boojum/.venv/bin/python",
+            "/Users/francoispachet/IdeaProjects/boojum/benchmarks/redesign_comparison.py",
+            "--worker",
+            "--checkout",
+            "/Users/francoispachet/IdeaProjects/boojum",
+            "--case",
+            "markov33x8",
+            "--mode",
+            "native",
+            "--repeat",
+            "1"
+          ],
+          "seconds": 0.4214314999990165,
+          "returncode": 0,
+          "timed_out": false,
+          "stdout": "{\"runs\": [{\"preparation_seconds\": 0.0011944999860133976, \"search_seconds\": 0.13832112500676885, \"total_seconds\": 0.13951562499278225, \"preparation_peak_traced_bytes\": null, \"search_peak_traced_bytes\": null, \"observation\": {\"objective\": 35, \"proved\": true, \"termination\": \"exhausted\", \"bound\": 35, \"nodes\": 32, \"failures\": 0, \"runs\": 1, \"first_incumbent_seconds\": 0.1381029589974787, \"output\": \"5f27fa93a5cc8b76af57205013ad6195b8bd599145cdbe1438a6a929d677000b\", \"known_optimum\": 35}}], \"memory\": false}\n",
+          "stderr": "",
+          "engine": "candidate",
+          "iteration": 0,
+          "result": {
+            "runs": [
+              {
+                "preparation_seconds": 0.0011944999860133976,
+                "search_seconds": 0.13832112500676885,
+                "total_seconds": 0.13951562499278225,
+                "preparation_peak_traced_bytes": null,
+                "search_peak_traced_bytes": null,
+                "observation": {
+                  "objective": 35,
+                  "proved": true,
+                  "termination": "exhausted",
+                  "bound": 35,
+                  "nodes": 32,
+                  "failures": 0,
+                  "runs": 1,
+                  "first_incumbent_seconds": 0.1381029589974787,
+                  "output": "5f27fa93a5cc8b76af57205013ad6195b8bd599145cdbe1438a6a929d677000b",
+                  "known_optimum": 35
+                }
+              }
+            ],
+            "memory": false
+          }
+        },
+        {
+          "command": [
+            "/Users/francoispachet/IdeaProjects/boojum/.venv/bin/python",
+            "/Users/francoispachet/IdeaProjects/boojum/benchmarks/redesign_comparison.py",
+            "--worker",
+            "--checkout",
+            "/Users/francoispachet/IdeaProjects/boojum",
+            "--case",
+            "markov33x8",
+            "--mode",
+            "native",
+            "--repeat",
+            "1"
+          ],
+          "seconds": 0.42223050000029616,
+          "returncode": 0,
+          "timed_out": false,
+          "stdout": "{\"runs\": [{\"preparation_seconds\": 0.001130707998527214, \"search_seconds\": 0.13894483301555738, \"total_seconds\": 0.1400755410140846, \"preparation_peak_traced_bytes\": null, \"search_peak_traced_bytes\": null, \"observation\": {\"objective\": 35, \"proved\": true, \"termination\": \"exhausted\", \"bound\": 35, \"nodes\": 32, \"failures\": 0, \"runs\": 1, \"first_incumbent_seconds\": 0.1387321669899393, \"output\": \"5f27fa93a5cc8b76af57205013ad6195b8bd599145cdbe1438a6a929d677000b\", \"known_optimum\": 35}}], \"memory\": false}\n",
+          "stderr": "",
+          "engine": "candidate",
+          "iteration": 1,
+          "result": {
+            "runs": [
+              {
+                "preparation_seconds": 0.001130707998527214,
+                "search_seconds": 0.13894483301555738,
+                "total_seconds": 0.1400755410140846,
+                "preparation_peak_traced_bytes": null,
+                "search_peak_traced_bytes": null,
+                "observation": {
+                  "objective": 35,
+                  "proved": true,
+                  "termination": "exhausted",
+                  "bound": 35,
+                  "nodes": 32,
+                  "failures": 0,
+                  "runs": 1,
+                  "first_incumbent_seconds": 0.1387321669899393,
+                  "output": "5f27fa93a5cc8b76af57205013ad6195b8bd599145cdbe1438a6a929d677000b",
+                  "known_optimum": 35
+                }
+              }
+            ],
+            "memory": false
+          }
+        },
+        {
+          "command": [
+            "/Users/francoispachet/IdeaProjects/boojum/.venv/bin/python",
+            "/Users/francoispachet/IdeaProjects/boojum/benchmarks/redesign_comparison.py",
+            "--worker",
+            "--checkout",
+            "/private/tmp/snarky-csp-full-e296d09",
+            "--case",
+            "markov33x8",
+            "--mode",
+            "native",
+            "--repeat",
+            "1"
+          ],
+          "seconds": 0.4194084579939954,
+          "returncode": 0,
+          "timed_out": false,
+          "stdout": "{\"runs\": [{\"preparation_seconds\": 0.0011520410189405084, \"search_seconds\": 0.13880891699227504, \"total_seconds\": 0.13996095801121555, \"preparation_peak_traced_bytes\": null, \"search_peak_traced_bytes\": null, \"observation\": {\"objective\": 35, \"proved\": true, \"termination\": \"exhausted\", \"bound\": 35, \"nodes\": 32, \"failures\": 0, \"runs\": 1, \"first_incumbent_seconds\": 0.138614541006973, \"output\": \"5f27fa93a5cc8b76af57205013ad6195b8bd599145cdbe1438a6a929d677000b\", \"known_optimum\": 35}}], \"memory\": false}\n",
+          "stderr": "",
+          "engine": "reference",
+          "iteration": 1,
+          "result": {
+            "runs": [
+              {
+                "preparation_seconds": 0.0011520410189405084,
+                "search_seconds": 0.13880891699227504,
+                "total_seconds": 0.13996095801121555,
+                "preparation_peak_traced_bytes": null,
+                "search_peak_traced_bytes": null,
+                "observation": {
+                  "objective": 35,
+                  "proved": true,
+                  "termination": "exhausted",
+                  "bound": 35,
+                  "nodes": 32,
+                  "failures": 0,
+                  "runs": 1,
+                  "first_incumbent_seconds": 0.138614541006973,
+                  "output": "5f27fa93a5cc8b76af57205013ad6195b8bd599145cdbe1438a6a929d677000b",
+                  "known_optimum": 35
+                }
+              }
+            ],
+            "memory": false
+          }
+        },
+        {
+          "command": [
+            "/Users/francoispachet/IdeaProjects/boojum/.venv/bin/python",
+            "/Users/francoispachet/IdeaProjects/boojum/benchmarks/redesign_comparison.py",
+            "--worker",
+            "--checkout",
+            "/private/tmp/snarky-csp-full-e296d09",
+            "--case",
+            "markov33x8",
+            "--mode",
+            "native",
+            "--repeat",
+            "1"
+          ],
+          "seconds": 0.41904458397766575,
+          "returncode": 0,
+          "timed_out": false,
+          "stdout": "{\"runs\": [{\"preparation_seconds\": 0.0011299169855192304, \"search_seconds\": 0.13801050002803095, \"total_seconds\": 0.13914041701355018, \"preparation_peak_traced_bytes\": null, \"search_peak_traced_bytes\": null, \"observation\": {\"objective\": 35, \"proved\": true, \"termination\": \"exhausted\", \"bound\": 35, \"nodes\": 32, \"failures\": 0, \"runs\": 1, \"first_incumbent_seconds\": 0.13780395800131373, \"output\": \"5f27fa93a5cc8b76af57205013ad6195b8bd599145cdbe1438a6a929d677000b\", \"known_optimum\": 35}}], \"memory\": false}\n",
+          "stderr": "",
+          "engine": "reference",
+          "iteration": 2,
+          "result": {
+            "runs": [
+              {
+                "preparation_seconds": 0.0011299169855192304,
+                "search_seconds": 0.13801050002803095,
+                "total_seconds": 0.13914041701355018,
+                "preparation_peak_traced_bytes": null,
+                "search_peak_traced_bytes": null,
+                "observation": {
+                  "objective": 35,
+                  "proved": true,
+                  "termination": "exhausted",
+                  "bound": 35,
+                  "nodes": 32,
+                  "failures": 0,
+                  "runs": 1,
+                  "first_incumbent_seconds": 0.13780395800131373,
+                  "output": "5f27fa93a5cc8b76af57205013ad6195b8bd599145cdbe1438a6a929d677000b",
+                  "known_optimum": 35
+                }
+              }
+            ],
+            "memory": false
+          }
+        },
+        {
+          "command": [
+            "/Users/francoispachet/IdeaProjects/boojum/.venv/bin/python",
+            "/Users/francoispachet/IdeaProjects/boojum/benchmarks/redesign_comparison.py",
+            "--worker",
+            "--checkout",
+            "/Users/francoispachet/IdeaProjects/boojum",
+            "--case",
+            "markov33x8",
+            "--mode",
+            "native",
+            "--repeat",
+            "1"
+          ],
+          "seconds": 0.4186284580209758,
+          "returncode": 0,
+          "timed_out": false,
+          "stdout": "{\"runs\": [{\"preparation_seconds\": 0.0011819999781437218, \"search_seconds\": 0.1386689580103848, \"total_seconds\": 0.13985095798852853, \"preparation_peak_traced_bytes\": null, \"search_peak_traced_bytes\": null, \"observation\": {\"objective\": 35, \"proved\": true, \"termination\": \"exhausted\", \"bound\": 35, \"nodes\": 32, \"failures\": 0, \"runs\": 1, \"first_incumbent_seconds\": 0.13847574999090284, \"output\": \"5f27fa93a5cc8b76af57205013ad6195b8bd599145cdbe1438a6a929d677000b\", \"known_optimum\": 35}}], \"memory\": false}\n",
+          "stderr": "",
+          "engine": "candidate",
+          "iteration": 2,
+          "result": {
+            "runs": [
+              {
+                "preparation_seconds": 0.0011819999781437218,
+                "search_seconds": 0.1386689580103848,
+                "total_seconds": 0.13985095798852853,
+                "preparation_peak_traced_bytes": null,
+                "search_peak_traced_bytes": null,
+                "observation": {
+                  "objective": 35,
+                  "proved": true,
+                  "termination": "exhausted",
+                  "bound": 35,
+                  "nodes": 32,
+                  "failures": 0,
+                  "runs": 1,
+                  "first_incumbent_seconds": 0.13847574999090284,
+                  "output": "5f27fa93a5cc8b76af57205013ad6195b8bd599145cdbe1438a6a929d677000b",
+                  "known_optimum": 35
+                }
+              }
+            ],
+            "memory": false
+          }
+        }
+      ],
+      "warmups": [],
+      "medians": {
+        "reference": 0.13996095801121555,
+        "candidate": 0.13985095798852853
+      },
+      "same_observation": true,
+      "speedup": 1.0007865517996384
+    },
+    {
+      "case": "boulez",
+      "mode": "auto",
+      "samples": [
+        {
+          "command": [
+            "/Users/francoispachet/IdeaProjects/boojum/.venv/bin/python",
+            "/Users/francoispachet/IdeaProjects/boojum/benchmarks/boulez_optimization.py",
+            "--worker",
+            "--checkout",
+            "/private/tmp/snarky-csp-full-e296d09",
+            "--mode",
+            "auto",
+            "--seconds",
+            "10"
+          ],
+          "seconds": 1.8365807920054067,
+          "returncode": 0,
+          "timed_out": false,
+          "stdout": "{\"status\": \"optimal\", \"termination\": \"exhausted\", \"backend\": \"native\", \"arithmetic\": \"rational_product\", \"complete\": true, \"objective_bound\": \"55914539936246868146107748625/13344832588479756870916478934403139802829834682368\", \"solutions\": [{\"assignment\": {\"x0\": \"C7\", \"x1\": \"Fm\", \"x2\": \"Bb7\", \"x3\": \"Ebm\", \"x4\": \"Ab7\", \"x5\": \"Db7\", \"x6\": \"Dbm\", \"x7\": \"Cm\", \"x8\": \"F7\", \"x9\": \"Bbm\", \"x10\": \"Eb7\", \"x11\": \"Abm\", \"x12\": \"Gm\", \"x13\": \"Gbm\", \"x14\": \"B7\", \"x15\": \"Gb7\", \"x16\": \"Bm\", \"x17\": \"E7\", \"x18\": \"Am\", \"x19\": \"D7\", \"x20\": \"Em\", \"x21\": \"A7\", \"x22\": \"Dm\", \"x23\": \"G7\"}, \"objective\": \"55914539936246868146107748625/13344832588479756870916478934403139802829834682368\"}], \"explored_nodes\": 209, \"failed_branches\": 1, \"pruned_branches\": 639, \"constraint_revisions\": 4994, \"elapsed_seconds\": 1.685536459001014, \"diagnostic\": \"\", \"incumbents\": [{\"value\": \"39321780734652925735570474845/13344832588479756870916478934403139802829834682368\", \"nodes\": 19, \"elapsed_seconds\": 0.1721595000126399}, {\"value\": \"55914539936246868146107748625/13344832588479756870916478934403139802829834682368\", \"nodes\": 55, \"elapsed_seconds\": 0.2608984170074109}], \"training_seconds\": 0.002180125011363998, \"construction_seconds\": 0.009354624984553084, \"prepare_and_search_seconds\": 1.6913072500028647, \"traced_peak_bytes\": null, \"seeded\": false, \"bound_policy\": \"auto\", \"target_product\": \"55914539936246868146107748625/13344832588479756870916478934403139802829834682368\", \"first_solution_seconds\": 0.1721595000126399, \"target_reached_seconds\": 0.2608984170074109, \"corpus_sha256\": \"348f35b2fbd365387d333f2f5b6872744bdad9b705d5f4e99cf02f31157bbb6b\", \"log_probability\": -46.921591738232166, \"sequence\": [\"C7\", \"Fm\", \"Bb7\", \"Ebm\", \"Ab7\", \"Db7\", \"Dbm\", \"Cm\", \"F7\", \"Bbm\", \"Eb7\", \"Abm\", \"Gm\", \"Gbm\", \"B7\", \"Gb7\", \"Bm\", \"E7\", \"Am\", \"D7\", \"Em\", \"A7\", \"Dm\", \"G7\"], \"equals_published_sequence\": true}\n",
+          "stderr": "",
+          "engine": "reference",
+          "iteration": 0,
+          "result": {
+            "status": "optimal",
+            "termination": "exhausted",
+            "backend": "native",
+            "arithmetic": "rational_product",
+            "complete": true,
+            "objective_bound": "55914539936246868146107748625/13344832588479756870916478934403139802829834682368",
+            "solutions": [
+              {
+                "assignment": {
+                  "x0": "C7",
+                  "x1": "Fm",
+                  "x2": "Bb7",
+                  "x3": "Ebm",
+                  "x4": "Ab7",
+                  "x5": "Db7",
+                  "x6": "Dbm",
+                  "x7": "Cm",
+                  "x8": "F7",
+                  "x9": "Bbm",
+                  "x10": "Eb7",
+                  "x11": "Abm",
+                  "x12": "Gm",
+                  "x13": "Gbm",
+                  "x14": "B7",
+                  "x15": "Gb7",
+                  "x16": "Bm",
+                  "x17": "E7",
+                  "x18": "Am",
+                  "x19": "D7",
+                  "x20": "Em",
+                  "x21": "A7",
+                  "x22": "Dm",
+                  "x23": "G7"
+                },
+                "objective": "55914539936246868146107748625/13344832588479756870916478934403139802829834682368"
+              }
+            ],
+            "explored_nodes": 209,
+            "failed_branches": 1,
+            "pruned_branches": 639,
+            "constraint_revisions": 4994,
+            "elapsed_seconds": 1.685536459001014,
+            "diagnostic": "",
+            "incumbents": [
+              {
+                "value": "39321780734652925735570474845/13344832588479756870916478934403139802829834682368",
+                "nodes": 19,
+                "elapsed_seconds": 0.1721595000126399
+              },
+              {
+                "value": "55914539936246868146107748625/13344832588479756870916478934403139802829834682368",
+                "nodes": 55,
+                "elapsed_seconds": 0.2608984170074109
+              }
+            ],
+            "training_seconds": 0.002180125011363998,
+            "construction_seconds": 0.009354624984553084,
+            "prepare_and_search_seconds": 1.6913072500028647,
+            "traced_peak_bytes": null,
+            "seeded": false,
+            "bound_policy": "auto",
+            "target_product": "55914539936246868146107748625/13344832588479756870916478934403139802829834682368",
+            "first_solution_seconds": 0.1721595000126399,
+            "target_reached_seconds": 0.2608984170074109,
+            "corpus_sha256": "348f35b2fbd365387d333f2f5b6872744bdad9b705d5f4e99cf02f31157bbb6b",
+            "log_probability": -46.921591738232166,
+            "sequence": [
+              "C7",
+              "Fm",
+              "Bb7",
+              "Ebm",
+              "Ab7",
+              "Db7",
+              "Dbm",
+              "Cm",
+              "F7",
+              "Bbm",
+              "Eb7",
+              "Abm",
+              "Gm",
+              "Gbm",
+              "B7",
+              "Gb7",
+              "Bm",
+              "E7",
+              "Am",
+              "D7",
+              "Em",
+              "A7",
+              "Dm",
+              "G7"
+            ],
+            "equals_published_sequence": true
+          }
+        },
+        {
+          "command": [
+            "/Users/francoispachet/IdeaProjects/boojum/.venv/bin/python",
+            "/Users/francoispachet/IdeaProjects/boojum/benchmarks/boulez_optimization.py",
+            "--worker",
+            "--checkout",
+            "/Users/francoispachet/IdeaProjects/boojum",
+            "--mode",
+            "auto",
+            "--seconds",
+            "10"
+          ],
+          "seconds": 1.8381358750048093,
+          "returncode": 0,
+          "timed_out": false,
+          "stdout": "{\"status\": \"optimal\", \"termination\": \"exhausted\", \"backend\": \"native\", \"arithmetic\": \"rational_product\", \"complete\": true, \"objective_bound\": \"55914539936246868146107748625/13344832588479756870916478934403139802829834682368\", \"solutions\": [{\"assignment\": {\"x0\": \"C7\", \"x1\": \"Fm\", \"x2\": \"Bb7\", \"x3\": \"Ebm\", \"x4\": \"Ab7\", \"x5\": \"Db7\", \"x6\": \"Dbm\", \"x7\": \"Cm\", \"x8\": \"F7\", \"x9\": \"Bbm\", \"x10\": \"Eb7\", \"x11\": \"Abm\", \"x12\": \"Gm\", \"x13\": \"Gbm\", \"x14\": \"B7\", \"x15\": \"Gb7\", \"x16\": \"Bm\", \"x17\": \"E7\", \"x18\": \"Am\", \"x19\": \"D7\", \"x20\": \"Em\", \"x21\": \"A7\", \"x22\": \"Dm\", \"x23\": \"G7\"}, \"objective\": \"55914539936246868146107748625/13344832588479756870916478934403139802829834682368\"}], \"explored_nodes\": 209, \"failed_branches\": 1, \"pruned_branches\": 639, \"constraint_revisions\": 4994, \"elapsed_seconds\": 1.6897200839885045, \"diagnostic\": \"\", \"incumbents\": [{\"value\": \"39321780734652925735570474845/13344832588479756870916478934403139802829834682368\", \"nodes\": 19, \"elapsed_seconds\": 0.17357833398273215}, {\"value\": \"55914539936246868146107748625/13344832588479756870916478934403139802829834682368\", \"nodes\": 55, \"elapsed_seconds\": 0.26288866699906066}], \"training_seconds\": 0.0023765410005580634, \"construction_seconds\": 0.010032333986600861, \"prepare_and_search_seconds\": 1.6955099169863388, \"traced_peak_bytes\": null, \"seeded\": false, \"bound_policy\": \"auto\", \"target_product\": \"55914539936246868146107748625/13344832588479756870916478934403139802829834682368\", \"first_solution_seconds\": 0.17357833398273215, \"target_reached_seconds\": 0.26288866699906066, \"corpus_sha256\": \"348f35b2fbd365387d333f2f5b6872744bdad9b705d5f4e99cf02f31157bbb6b\", \"log_probability\": -46.921591738232166, \"sequence\": [\"C7\", \"Fm\", \"Bb7\", \"Ebm\", \"Ab7\", \"Db7\", \"Dbm\", \"Cm\", \"F7\", \"Bbm\", \"Eb7\", \"Abm\", \"Gm\", \"Gbm\", \"B7\", \"Gb7\", \"Bm\", \"E7\", \"Am\", \"D7\", \"Em\", \"A7\", \"Dm\", \"G7\"], \"equals_published_sequence\": true}\n",
+          "stderr": "",
+          "engine": "candidate",
+          "iteration": 0,
+          "result": {
+            "status": "optimal",
+            "termination": "exhausted",
+            "backend": "native",
+            "arithmetic": "rational_product",
+            "complete": true,
+            "objective_bound": "55914539936246868146107748625/13344832588479756870916478934403139802829834682368",
+            "solutions": [
+              {
+                "assignment": {
+                  "x0": "C7",
+                  "x1": "Fm",
+                  "x2": "Bb7",
+                  "x3": "Ebm",
+                  "x4": "Ab7",
+                  "x5": "Db7",
+                  "x6": "Dbm",
+                  "x7": "Cm",
+                  "x8": "F7",
+                  "x9": "Bbm",
+                  "x10": "Eb7",
+                  "x11": "Abm",
+                  "x12": "Gm",
+                  "x13": "Gbm",
+                  "x14": "B7",
+                  "x15": "Gb7",
+                  "x16": "Bm",
+                  "x17": "E7",
+                  "x18": "Am",
+                  "x19": "D7",
+                  "x20": "Em",
+                  "x21": "A7",
+                  "x22": "Dm",
+                  "x23": "G7"
+                },
+                "objective": "55914539936246868146107748625/13344832588479756870916478934403139802829834682368"
+              }
+            ],
+            "explored_nodes": 209,
+            "failed_branches": 1,
+            "pruned_branches": 639,
+            "constraint_revisions": 4994,
+            "elapsed_seconds": 1.6897200839885045,
+            "diagnostic": "",
+            "incumbents": [
+              {
+                "value": "39321780734652925735570474845/13344832588479756870916478934403139802829834682368",
+                "nodes": 19,
+                "elapsed_seconds": 0.17357833398273215
+              },
+              {
+                "value": "55914539936246868146107748625/13344832588479756870916478934403139802829834682368",
+                "nodes": 55,
+                "elapsed_seconds": 0.26288866699906066
+              }
+            ],
+            "training_seconds": 0.0023765410005580634,
+            "construction_seconds": 0.010032333986600861,
+            "prepare_and_search_seconds": 1.6955099169863388,
+            "traced_peak_bytes": null,
+            "seeded": false,
+            "bound_policy": "auto",
+            "target_product": "55914539936246868146107748625/13344832588479756870916478934403139802829834682368",
+            "first_solution_seconds": 0.17357833398273215,
+            "target_reached_seconds": 0.26288866699906066,
+            "corpus_sha256": "348f35b2fbd365387d333f2f5b6872744bdad9b705d5f4e99cf02f31157bbb6b",
+            "log_probability": -46.921591738232166,
+            "sequence": [
+              "C7",
+              "Fm",
+              "Bb7",
+              "Ebm",
+              "Ab7",
+              "Db7",
+              "Dbm",
+              "Cm",
+              "F7",
+              "Bbm",
+              "Eb7",
+              "Abm",
+              "Gm",
+              "Gbm",
+              "B7",
+              "Gb7",
+              "Bm",
+              "E7",
+              "Am",
+              "D7",
+              "Em",
+              "A7",
+              "Dm",
+              "G7"
+            ],
+            "equals_published_sequence": true
+          }
+        },
+        {
+          "command": [
+            "/Users/francoispachet/IdeaProjects/boojum/.venv/bin/python",
+            "/Users/francoispachet/IdeaProjects/boojum/benchmarks/boulez_optimization.py",
+            "--worker",
+            "--checkout",
+            "/Users/francoispachet/IdeaProjects/boojum",
+            "--mode",
+            "auto",
+            "--seconds",
+            "10"
+          ],
+          "seconds": 1.8327357500093058,
+          "returncode": 0,
+          "timed_out": false,
+          "stdout": "{\"status\": \"optimal\", \"termination\": \"exhausted\", \"backend\": \"native\", \"arithmetic\": \"rational_product\", \"complete\": true, \"objective_bound\": \"55914539936246868146107748625/13344832588479756870916478934403139802829834682368\", \"solutions\": [{\"assignment\": {\"x0\": \"C7\", \"x1\": \"Fm\", \"x2\": \"Bb7\", \"x3\": \"Ebm\", \"x4\": \"Ab7\", \"x5\": \"Db7\", \"x6\": \"Dbm\", \"x7\": \"Cm\", \"x8\": \"F7\", \"x9\": \"Bbm\", \"x10\": \"Eb7\", \"x11\": \"Abm\", \"x12\": \"Gm\", \"x13\": \"Gbm\", \"x14\": \"B7\", \"x15\": \"Gb7\", \"x16\": \"Bm\", \"x17\": \"E7\", \"x18\": \"Am\", \"x19\": \"D7\", \"x20\": \"Em\", \"x21\": \"A7\", \"x22\": \"Dm\", \"x23\": \"G7\"}, \"objective\": \"55914539936246868146107748625/13344832588479756870916478934403139802829834682368\"}], \"explored_nodes\": 209, \"failed_branches\": 1, \"pruned_branches\": 639, \"constraint_revisions\": 4994, \"elapsed_seconds\": 1.683820125006605, \"diagnostic\": \"\", \"incumbents\": [{\"value\": \"39321780734652925735570474845/13344832588479756870916478934403139802829834682368\", \"nodes\": 19, \"elapsed_seconds\": 0.17270024999743327}, {\"value\": \"55914539936246868146107748625/13344832588479756870916478934403139802829834682368\", \"nodes\": 55, \"elapsed_seconds\": 0.26345883301110007}], \"training_seconds\": 0.0022870420070830733, \"construction_seconds\": 0.009615749993827194, \"prepare_and_search_seconds\": 1.6894867079972755, \"traced_peak_bytes\": null, \"seeded\": false, \"bound_policy\": \"auto\", \"target_product\": \"55914539936246868146107748625/13344832588479756870916478934403139802829834682368\", \"first_solution_seconds\": 0.17270024999743327, \"target_reached_seconds\": 0.26345883301110007, \"corpus_sha256\": \"348f35b2fbd365387d333f2f5b6872744bdad9b705d5f4e99cf02f31157bbb6b\", \"log_probability\": -46.921591738232166, \"sequence\": [\"C7\", \"Fm\", \"Bb7\", \"Ebm\", \"Ab7\", \"Db7\", \"Dbm\", \"Cm\", \"F7\", \"Bbm\", \"Eb7\", \"Abm\", \"Gm\", \"Gbm\", \"B7\", \"Gb7\", \"Bm\", \"E7\", \"Am\", \"D7\", \"Em\", \"A7\", \"Dm\", \"G7\"], \"equals_published_sequence\": true}\n",
+          "stderr": "",
+          "engine": "candidate",
+          "iteration": 1,
+          "result": {
+            "status": "optimal",
+            "termination": "exhausted",
+            "backend": "native",
+            "arithmetic": "rational_product",
+            "complete": true,
+            "objective_bound": "55914539936246868146107748625/13344832588479756870916478934403139802829834682368",
+            "solutions": [
+              {
+                "assignment": {
+                  "x0": "C7",
+                  "x1": "Fm",
+                  "x2": "Bb7",
+                  "x3": "Ebm",
+                  "x4": "Ab7",
+                  "x5": "Db7",
+                  "x6": "Dbm",
+                  "x7": "Cm",
+                  "x8": "F7",
+                  "x9": "Bbm",
+                  "x10": "Eb7",
+                  "x11": "Abm",
+                  "x12": "Gm",
+                  "x13": "Gbm",
+                  "x14": "B7",
+                  "x15": "Gb7",
+                  "x16": "Bm",
+                  "x17": "E7",
+                  "x18": "Am",
+                  "x19": "D7",
+                  "x20": "Em",
+                  "x21": "A7",
+                  "x22": "Dm",
+                  "x23": "G7"
+                },
+                "objective": "55914539936246868146107748625/13344832588479756870916478934403139802829834682368"
+              }
+            ],
+            "explored_nodes": 209,
+            "failed_branches": 1,
+            "pruned_branches": 639,
+            "constraint_revisions": 4994,
+            "elapsed_seconds": 1.683820125006605,
+            "diagnostic": "",
+            "incumbents": [
+              {
+                "value": "39321780734652925735570474845/13344832588479756870916478934403139802829834682368",
+                "nodes": 19,
+                "elapsed_seconds": 0.17270024999743327
+              },
+              {
+                "value": "55914539936246868146107748625/13344832588479756870916478934403139802829834682368",
+                "nodes": 55,
+                "elapsed_seconds": 0.26345883301110007
+              }
+            ],
+            "training_seconds": 0.0022870420070830733,
+            "construction_seconds": 0.009615749993827194,
+            "prepare_and_search_seconds": 1.6894867079972755,
+            "traced_peak_bytes": null,
+            "seeded": false,
+            "bound_policy": "auto",
+            "target_product": "55914539936246868146107748625/13344832588479756870916478934403139802829834682368",
+            "first_solution_seconds": 0.17270024999743327,
+            "target_reached_seconds": 0.26345883301110007,
+            "corpus_sha256": "348f35b2fbd365387d333f2f5b6872744bdad9b705d5f4e99cf02f31157bbb6b",
+            "log_probability": -46.921591738232166,
+            "sequence": [
+              "C7",
+              "Fm",
+              "Bb7",
+              "Ebm",
+              "Ab7",
+              "Db7",
+              "Dbm",
+              "Cm",
+              "F7",
+              "Bbm",
+              "Eb7",
+              "Abm",
+              "Gm",
+              "Gbm",
+              "B7",
+              "Gb7",
+              "Bm",
+              "E7",
+              "Am",
+              "D7",
+              "Em",
+              "A7",
+              "Dm",
+              "G7"
+            ],
+            "equals_published_sequence": true
+          }
+        },
+        {
+          "command": [
+            "/Users/francoispachet/IdeaProjects/boojum/.venv/bin/python",
+            "/Users/francoispachet/IdeaProjects/boojum/benchmarks/boulez_optimization.py",
+            "--worker",
+            "--checkout",
+            "/private/tmp/snarky-csp-full-e296d09",
+            "--mode",
+            "auto",
+            "--seconds",
+            "10"
+          ],
+          "seconds": 1.8430957500240766,
+          "returncode": 0,
+          "timed_out": false,
+          "stdout": "{\"status\": \"optimal\", \"termination\": \"exhausted\", \"backend\": \"native\", \"arithmetic\": \"rational_product\", \"complete\": true, \"objective_bound\": \"55914539936246868146107748625/13344832588479756870916478934403139802829834682368\", \"solutions\": [{\"assignment\": {\"x0\": \"C7\", \"x1\": \"Fm\", \"x2\": \"Bb7\", \"x3\": \"Ebm\", \"x4\": \"Ab7\", \"x5\": \"Db7\", \"x6\": \"Dbm\", \"x7\": \"Cm\", \"x8\": \"F7\", \"x9\": \"Bbm\", \"x10\": \"Eb7\", \"x11\": \"Abm\", \"x12\": \"Gm\", \"x13\": \"Gbm\", \"x14\": \"B7\", \"x15\": \"Gb7\", \"x16\": \"Bm\", \"x17\": \"E7\", \"x18\": \"Am\", \"x19\": \"D7\", \"x20\": \"Em\", \"x21\": \"A7\", \"x22\": \"Dm\", \"x23\": \"G7\"}, \"objective\": \"55914539936246868146107748625/13344832588479756870916478934403139802829834682368\"}], \"explored_nodes\": 209, \"failed_branches\": 1, \"pruned_branches\": 639, \"constraint_revisions\": 4994, \"elapsed_seconds\": 1.69315562499105, \"diagnostic\": \"\", \"incumbents\": [{\"value\": \"39321780734652925735570474845/13344832588479756870916478934403139802829834682368\", \"nodes\": 19, \"elapsed_seconds\": 0.1738967080018483}, {\"value\": \"55914539936246868146107748625/13344832588479756870916478934403139802829834682368\", \"nodes\": 55, \"elapsed_seconds\": 0.26341058299294673}], \"training_seconds\": 0.002123165992088616, \"construction_seconds\": 0.009633542009396479, \"prepare_and_search_seconds\": 1.6987766670063138, \"traced_peak_bytes\": null, \"seeded\": false, \"bound_policy\": \"auto\", \"target_product\": \"55914539936246868146107748625/13344832588479756870916478934403139802829834682368\", \"first_solution_seconds\": 0.1738967080018483, \"target_reached_seconds\": 0.26341058299294673, \"corpus_sha256\": \"348f35b2fbd365387d333f2f5b6872744bdad9b705d5f4e99cf02f31157bbb6b\", \"log_probability\": -46.921591738232166, \"sequence\": [\"C7\", \"Fm\", \"Bb7\", \"Ebm\", \"Ab7\", \"Db7\", \"Dbm\", \"Cm\", \"F7\", \"Bbm\", \"Eb7\", \"Abm\", \"Gm\", \"Gbm\", \"B7\", \"Gb7\", \"Bm\", \"E7\", \"Am\", \"D7\", \"Em\", \"A7\", \"Dm\", \"G7\"], \"equals_published_sequence\": true}\n",
+          "stderr": "",
+          "engine": "reference",
+          "iteration": 1,
+          "result": {
+            "status": "optimal",
+            "termination": "exhausted",
+            "backend": "native",
+            "arithmetic": "rational_product",
+            "complete": true,
+            "objective_bound": "55914539936246868146107748625/13344832588479756870916478934403139802829834682368",
+            "solutions": [
+              {
+                "assignment": {
+                  "x0": "C7",
+                  "x1": "Fm",
+                  "x2": "Bb7",
+                  "x3": "Ebm",
+                  "x4": "Ab7",
+                  "x5": "Db7",
+                  "x6": "Dbm",
+                  "x7": "Cm",
+                  "x8": "F7",
+                  "x9": "Bbm",
+                  "x10": "Eb7",
+                  "x11": "Abm",
+                  "x12": "Gm",
+                  "x13": "Gbm",
+                  "x14": "B7",
+                  "x15": "Gb7",
+                  "x16": "Bm",
+                  "x17": "E7",
+                  "x18": "Am",
+                  "x19": "D7",
+                  "x20": "Em",
+                  "x21": "A7",
+                  "x22": "Dm",
+                  "x23": "G7"
+                },
+                "objective": "55914539936246868146107748625/13344832588479756870916478934403139802829834682368"
+              }
+            ],
+            "explored_nodes": 209,
+            "failed_branches": 1,
+            "pruned_branches": 639,
+            "constraint_revisions": 4994,
+            "elapsed_seconds": 1.69315562499105,
+            "diagnostic": "",
+            "incumbents": [
+              {
+                "value": "39321780734652925735570474845/13344832588479756870916478934403139802829834682368",
+                "nodes": 19,
+                "elapsed_seconds": 0.1738967080018483
+              },
+              {
+                "value": "55914539936246868146107748625/13344832588479756870916478934403139802829834682368",
+                "nodes": 55,
+                "elapsed_seconds": 0.26341058299294673
+              }
+            ],
+            "training_seconds": 0.002123165992088616,
+            "construction_seconds": 0.009633542009396479,
+            "prepare_and_search_seconds": 1.6987766670063138,
+            "traced_peak_bytes": null,
+            "seeded": false,
+            "bound_policy": "auto",
+            "target_product": "55914539936246868146107748625/13344832588479756870916478934403139802829834682368",
+            "first_solution_seconds": 0.1738967080018483,
+            "target_reached_seconds": 0.26341058299294673,
+            "corpus_sha256": "348f35b2fbd365387d333f2f5b6872744bdad9b705d5f4e99cf02f31157bbb6b",
+            "log_probability": -46.921591738232166,
+            "sequence": [
+              "C7",
+              "Fm",
+              "Bb7",
+              "Ebm",
+              "Ab7",
+              "Db7",
+              "Dbm",
+              "Cm",
+              "F7",
+              "Bbm",
+              "Eb7",
+              "Abm",
+              "Gm",
+              "Gbm",
+              "B7",
+              "Gb7",
+              "Bm",
+              "E7",
+              "Am",
+              "D7",
+              "Em",
+              "A7",
+              "Dm",
+              "G7"
+            ],
+            "equals_published_sequence": true
+          }
+        },
+        {
+          "command": [
+            "/Users/francoispachet/IdeaProjects/boojum/.venv/bin/python",
+            "/Users/francoispachet/IdeaProjects/boojum/benchmarks/boulez_optimization.py",
+            "--worker",
+            "--checkout",
+            "/private/tmp/snarky-csp-full-e296d09",
+            "--mode",
+            "auto",
+            "--seconds",
+            "10"
+          ],
+          "seconds": 1.8245929580007214,
+          "returncode": 0,
+          "timed_out": false,
+          "stdout": "{\"status\": \"optimal\", \"termination\": \"exhausted\", \"backend\": \"native\", \"arithmetic\": \"rational_product\", \"complete\": true, \"objective_bound\": \"55914539936246868146107748625/13344832588479756870916478934403139802829834682368\", \"solutions\": [{\"assignment\": {\"x0\": \"C7\", \"x1\": \"Fm\", \"x2\": \"Bb7\", \"x3\": \"Ebm\", \"x4\": \"Ab7\", \"x5\": \"Db7\", \"x6\": \"Dbm\", \"x7\": \"Cm\", \"x8\": \"F7\", \"x9\": \"Bbm\", \"x10\": \"Eb7\", \"x11\": \"Abm\", \"x12\": \"Gm\", \"x13\": \"Gbm\", \"x14\": \"B7\", \"x15\": \"Gb7\", \"x16\": \"Bm\", \"x17\": \"E7\", \"x18\": \"Am\", \"x19\": \"D7\", \"x20\": \"Em\", \"x21\": \"A7\", \"x22\": \"Dm\", \"x23\": \"G7\"}, \"objective\": \"55914539936246868146107748625/13344832588479756870916478934403139802829834682368\"}], \"explored_nodes\": 209, \"failed_branches\": 1, \"pruned_branches\": 639, \"constraint_revisions\": 4994, \"elapsed_seconds\": 1.6737732920155395, \"diagnostic\": \"\", \"incumbents\": [{\"value\": \"39321780734652925735570474845/13344832588479756870916478934403139802829834682368\", \"nodes\": 19, \"elapsed_seconds\": 0.17207141700782813}, {\"value\": \"55914539936246868146107748625/13344832588479756870916478934403139802829834682368\", \"nodes\": 55, \"elapsed_seconds\": 0.26154670800315216}], \"training_seconds\": 0.002364374988246709, \"construction_seconds\": 0.009678500005975366, \"prepare_and_search_seconds\": 1.6794568339828402, \"traced_peak_bytes\": null, \"seeded\": false, \"bound_policy\": \"auto\", \"target_product\": \"55914539936246868146107748625/13344832588479756870916478934403139802829834682368\", \"first_solution_seconds\": 0.17207141700782813, \"target_reached_seconds\": 0.26154670800315216, \"corpus_sha256\": \"348f35b2fbd365387d333f2f5b6872744bdad9b705d5f4e99cf02f31157bbb6b\", \"log_probability\": -46.921591738232166, \"sequence\": [\"C7\", \"Fm\", \"Bb7\", \"Ebm\", \"Ab7\", \"Db7\", \"Dbm\", \"Cm\", \"F7\", \"Bbm\", \"Eb7\", \"Abm\", \"Gm\", \"Gbm\", \"B7\", \"Gb7\", \"Bm\", \"E7\", \"Am\", \"D7\", \"Em\", \"A7\", \"Dm\", \"G7\"], \"equals_published_sequence\": true}\n",
+          "stderr": "",
+          "engine": "reference",
+          "iteration": 2,
+          "result": {
+            "status": "optimal",
+            "termination": "exhausted",
+            "backend": "native",
+            "arithmetic": "rational_product",
+            "complete": true,
+            "objective_bound": "55914539936246868146107748625/13344832588479756870916478934403139802829834682368",
+            "solutions": [
+              {
+                "assignment": {
+                  "x0": "C7",
+                  "x1": "Fm",
+                  "x2": "Bb7",
+                  "x3": "Ebm",
+                  "x4": "Ab7",
+                  "x5": "Db7",
+                  "x6": "Dbm",
+                  "x7": "Cm",
+                  "x8": "F7",
+                  "x9": "Bbm",
+                  "x10": "Eb7",
+                  "x11": "Abm",
+                  "x12": "Gm",
+                  "x13": "Gbm",
+                  "x14": "B7",
+                  "x15": "Gb7",
+                  "x16": "Bm",
+                  "x17": "E7",
+                  "x18": "Am",
+                  "x19": "D7",
+                  "x20": "Em",
+                  "x21": "A7",
+                  "x22": "Dm",
+                  "x23": "G7"
+                },
+                "objective": "55914539936246868146107748625/13344832588479756870916478934403139802829834682368"
+              }
+            ],
+            "explored_nodes": 209,
+            "failed_branches": 1,
+            "pruned_branches": 639,
+            "constraint_revisions": 4994,
+            "elapsed_seconds": 1.6737732920155395,
+            "diagnostic": "",
+            "incumbents": [
+              {
+                "value": "39321780734652925735570474845/13344832588479756870916478934403139802829834682368",
+                "nodes": 19,
+                "elapsed_seconds": 0.17207141700782813
+              },
+              {
+                "value": "55914539936246868146107748625/13344832588479756870916478934403139802829834682368",
+                "nodes": 55,
+                "elapsed_seconds": 0.26154670800315216
+              }
+            ],
+            "training_seconds": 0.002364374988246709,
+            "construction_seconds": 0.009678500005975366,
+            "prepare_and_search_seconds": 1.6794568339828402,
+            "traced_peak_bytes": null,
+            "seeded": false,
+            "bound_policy": "auto",
+            "target_product": "55914539936246868146107748625/13344832588479756870916478934403139802829834682368",
+            "first_solution_seconds": 0.17207141700782813,
+            "target_reached_seconds": 0.26154670800315216,
+            "corpus_sha256": "348f35b2fbd365387d333f2f5b6872744bdad9b705d5f4e99cf02f31157bbb6b",
+            "log_probability": -46.921591738232166,
+            "sequence": [
+              "C7",
+              "Fm",
+              "Bb7",
+              "Ebm",
+              "Ab7",
+              "Db7",
+              "Dbm",
+              "Cm",
+              "F7",
+              "Bbm",
+              "Eb7",
+              "Abm",
+              "Gm",
+              "Gbm",
+              "B7",
+              "Gb7",
+              "Bm",
+              "E7",
+              "Am",
+              "D7",
+              "Em",
+              "A7",
+              "Dm",
+              "G7"
+            ],
+            "equals_published_sequence": true
+          }
+        },
+        {
+          "command": [
+            "/Users/francoispachet/IdeaProjects/boojum/.venv/bin/python",
+            "/Users/francoispachet/IdeaProjects/boojum/benchmarks/boulez_optimization.py",
+            "--worker",
+            "--checkout",
+            "/Users/francoispachet/IdeaProjects/boojum",
+            "--mode",
+            "auto",
+            "--seconds",
+            "10"
+          ],
+          "seconds": 1.834796417009784,
+          "returncode": 0,
+          "timed_out": false,
+          "stdout": "{\"status\": \"optimal\", \"termination\": \"exhausted\", \"backend\": \"native\", \"arithmetic\": \"rational_product\", \"complete\": true, \"objective_bound\": \"55914539936246868146107748625/13344832588479756870916478934403139802829834682368\", \"solutions\": [{\"assignment\": {\"x0\": \"C7\", \"x1\": \"Fm\", \"x2\": \"Bb7\", \"x3\": \"Ebm\", \"x4\": \"Ab7\", \"x5\": \"Db7\", \"x6\": \"Dbm\", \"x7\": \"Cm\", \"x8\": \"F7\", \"x9\": \"Bbm\", \"x10\": \"Eb7\", \"x11\": \"Abm\", \"x12\": \"Gm\", \"x13\": \"Gbm\", \"x14\": \"B7\", \"x15\": \"Gb7\", \"x16\": \"Bm\", \"x17\": \"E7\", \"x18\": \"Am\", \"x19\": \"D7\", \"x20\": \"Em\", \"x21\": \"A7\", \"x22\": \"Dm\", \"x23\": \"G7\"}, \"objective\": \"55914539936246868146107748625/13344832588479756870916478934403139802829834682368\"}], \"explored_nodes\": 209, \"failed_branches\": 1, \"pruned_branches\": 639, \"constraint_revisions\": 4994, \"elapsed_seconds\": 1.68198733398458, \"diagnostic\": \"\", \"incumbents\": [{\"value\": \"39321780734652925735570474845/13344832588479756870916478934403139802829834682368\", \"nodes\": 19, \"elapsed_seconds\": 0.1739830420119688}, {\"value\": \"55914539936246868146107748625/13344832588479756870916478934403139802829834682368\", \"nodes\": 55, \"elapsed_seconds\": 0.2626918340101838}], \"training_seconds\": 0.002401083998847753, \"construction_seconds\": 0.009401000017533079, \"prepare_and_search_seconds\": 1.687812624993967, \"traced_peak_bytes\": null, \"seeded\": false, \"bound_policy\": \"auto\", \"target_product\": \"55914539936246868146107748625/13344832588479756870916478934403139802829834682368\", \"first_solution_seconds\": 0.1739830420119688, \"target_reached_seconds\": 0.2626918340101838, \"corpus_sha256\": \"348f35b2fbd365387d333f2f5b6872744bdad9b705d5f4e99cf02f31157bbb6b\", \"log_probability\": -46.921591738232166, \"sequence\": [\"C7\", \"Fm\", \"Bb7\", \"Ebm\", \"Ab7\", \"Db7\", \"Dbm\", \"Cm\", \"F7\", \"Bbm\", \"Eb7\", \"Abm\", \"Gm\", \"Gbm\", \"B7\", \"Gb7\", \"Bm\", \"E7\", \"Am\", \"D7\", \"Em\", \"A7\", \"Dm\", \"G7\"], \"equals_published_sequence\": true}\n",
+          "stderr": "",
+          "engine": "candidate",
+          "iteration": 2,
+          "result": {
+            "status": "optimal",
+            "termination": "exhausted",
+            "backend": "native",
+            "arithmetic": "rational_product",
+            "complete": true,
+            "objective_bound": "55914539936246868146107748625/13344832588479756870916478934403139802829834682368",
+            "solutions": [
+              {
+                "assignment": {
+                  "x0": "C7",
+                  "x1": "Fm",
+                  "x2": "Bb7",
+                  "x3": "Ebm",
+                  "x4": "Ab7",
+                  "x5": "Db7",
+                  "x6": "Dbm",
+                  "x7": "Cm",
+                  "x8": "F7",
+                  "x9": "Bbm",
+                  "x10": "Eb7",
+                  "x11": "Abm",
+                  "x12": "Gm",
+                  "x13": "Gbm",
+                  "x14": "B7",
+                  "x15": "Gb7",
+                  "x16": "Bm",
+                  "x17": "E7",
+                  "x18": "Am",
+                  "x19": "D7",
+                  "x20": "Em",
+                  "x21": "A7",
+                  "x22": "Dm",
+                  "x23": "G7"
+                },
+                "objective": "55914539936246868146107748625/13344832588479756870916478934403139802829834682368"
+              }
+            ],
+            "explored_nodes": 209,
+            "failed_branches": 1,
+            "pruned_branches": 639,
+            "constraint_revisions": 4994,
+            "elapsed_seconds": 1.68198733398458,
+            "diagnostic": "",
+            "incumbents": [
+              {
+                "value": "39321780734652925735570474845/13344832588479756870916478934403139802829834682368",
+                "nodes": 19,
+                "elapsed_seconds": 0.1739830420119688
+              },
+              {
+                "value": "55914539936246868146107748625/13344832588479756870916478934403139802829834682368",
+                "nodes": 55,
+                "elapsed_seconds": 0.2626918340101838
+              }
+            ],
+            "training_seconds": 0.002401083998847753,
+            "construction_seconds": 0.009401000017533079,
+            "prepare_and_search_seconds": 1.687812624993967,
+            "traced_peak_bytes": null,
+            "seeded": false,
+            "bound_policy": "auto",
+            "target_product": "55914539936246868146107748625/13344832588479756870916478934403139802829834682368",
+            "first_solution_seconds": 0.1739830420119688,
+            "target_reached_seconds": 0.2626918340101838,
+            "corpus_sha256": "348f35b2fbd365387d333f2f5b6872744bdad9b705d5f4e99cf02f31157bbb6b",
+            "log_probability": -46.921591738232166,
+            "sequence": [
+              "C7",
+              "Fm",
+              "Bb7",
+              "Ebm",
+              "Ab7",
+              "Db7",
+              "Dbm",
+              "Cm",
+              "F7",
+              "Bbm",
+              "Eb7",
+              "Abm",
+              "Gm",
+              "Gbm",
+              "B7",
+              "Gb7",
+              "Bm",
+              "E7",
+              "Am",
+              "D7",
+              "Em",
+              "A7",
+              "Dm",
+              "G7"
+            ],
+            "equals_published_sequence": true
+          }
+        }
+      ],
+      "warmups": [
+        {
+          "command": [
+            "/Users/francoispachet/IdeaProjects/boojum/.venv/bin/python",
+            "/Users/francoispachet/IdeaProjects/boojum/benchmarks/boulez_optimization.py",
+            "--worker",
+            "--checkout",
+            "/Users/francoispachet/IdeaProjects/boojum",
+            "--mode",
+            "auto",
+            "--seconds",
+            "10"
+          ],
+          "seconds": 1.8356194579973817,
+          "returncode": 0,
+          "timed_out": false,
+          "stdout": "{\"status\": \"optimal\", \"termination\": \"exhausted\", \"backend\": \"native\", \"arithmetic\": \"rational_product\", \"complete\": true, \"objective_bound\": \"55914539936246868146107748625/13344832588479756870916478934403139802829834682368\", \"solutions\": [{\"assignment\": {\"x0\": \"C7\", \"x1\": \"Fm\", \"x2\": \"Bb7\", \"x3\": \"Ebm\", \"x4\": \"Ab7\", \"x5\": \"Db7\", \"x6\": \"Dbm\", \"x7\": \"Cm\", \"x8\": \"F7\", \"x9\": \"Bbm\", \"x10\": \"Eb7\", \"x11\": \"Abm\", \"x12\": \"Gm\", \"x13\": \"Gbm\", \"x14\": \"B7\", \"x15\": \"Gb7\", \"x16\": \"Bm\", \"x17\": \"E7\", \"x18\": \"Am\", \"x19\": \"D7\", \"x20\": \"Em\", \"x21\": \"A7\", \"x22\": \"Dm\", \"x23\": \"G7\"}, \"objective\": \"55914539936246868146107748625/13344832588479756870916478934403139802829834682368\"}], \"explored_nodes\": 209, \"failed_branches\": 1, \"pruned_branches\": 639, \"constraint_revisions\": 4994, \"elapsed_seconds\": 1.6869099170144182, \"diagnostic\": \"\", \"incumbents\": [{\"value\": \"39321780734652925735570474845/13344832588479756870916478934403139802829834682368\", \"nodes\": 19, \"elapsed_seconds\": 0.1720344580244273}, {\"value\": \"55914539936246868146107748625/13344832588479756870916478934403139802829834682368\", \"nodes\": 55, \"elapsed_seconds\": 0.26014729202142917}], \"training_seconds\": 0.0021079580183140934, \"construction_seconds\": 0.009832583979004994, \"prepare_and_search_seconds\": 1.6926798339991365, \"traced_peak_bytes\": null, \"seeded\": false, \"bound_policy\": \"auto\", \"target_product\": \"55914539936246868146107748625/13344832588479756870916478934403139802829834682368\", \"first_solution_seconds\": 0.1720344580244273, \"target_reached_seconds\": 0.26014729202142917, \"corpus_sha256\": \"348f35b2fbd365387d333f2f5b6872744bdad9b705d5f4e99cf02f31157bbb6b\", \"log_probability\": -46.921591738232166, \"sequence\": [\"C7\", \"Fm\", \"Bb7\", \"Ebm\", \"Ab7\", \"Db7\", \"Dbm\", \"Cm\", \"F7\", \"Bbm\", \"Eb7\", \"Abm\", \"Gm\", \"Gbm\", \"B7\", \"Gb7\", \"Bm\", \"E7\", \"Am\", \"D7\", \"Em\", \"A7\", \"Dm\", \"G7\"], \"equals_published_sequence\": true}\n",
+          "stderr": "",
+          "engine": "candidate",
+          "iteration": -1,
+          "result": {
+            "status": "optimal",
+            "termination": "exhausted",
+            "backend": "native",
+            "arithmetic": "rational_product",
+            "complete": true,
+            "objective_bound": "55914539936246868146107748625/13344832588479756870916478934403139802829834682368",
+            "solutions": [
+              {
+                "assignment": {
+                  "x0": "C7",
+                  "x1": "Fm",
+                  "x2": "Bb7",
+                  "x3": "Ebm",
+                  "x4": "Ab7",
+                  "x5": "Db7",
+                  "x6": "Dbm",
+                  "x7": "Cm",
+                  "x8": "F7",
+                  "x9": "Bbm",
+                  "x10": "Eb7",
+                  "x11": "Abm",
+                  "x12": "Gm",
+                  "x13": "Gbm",
+                  "x14": "B7",
+                  "x15": "Gb7",
+                  "x16": "Bm",
+                  "x17": "E7",
+                  "x18": "Am",
+                  "x19": "D7",
+                  "x20": "Em",
+                  "x21": "A7",
+                  "x22": "Dm",
+                  "x23": "G7"
+                },
+                "objective": "55914539936246868146107748625/13344832588479756870916478934403139802829834682368"
+              }
+            ],
+            "explored_nodes": 209,
+            "failed_branches": 1,
+            "pruned_branches": 639,
+            "constraint_revisions": 4994,
+            "elapsed_seconds": 1.6869099170144182,
+            "diagnostic": "",
+            "incumbents": [
+              {
+                "value": "39321780734652925735570474845/13344832588479756870916478934403139802829834682368",
+                "nodes": 19,
+                "elapsed_seconds": 0.1720344580244273
+              },
+              {
+                "value": "55914539936246868146107748625/13344832588479756870916478934403139802829834682368",
+                "nodes": 55,
+                "elapsed_seconds": 0.26014729202142917
+              }
+            ],
+            "training_seconds": 0.0021079580183140934,
+            "construction_seconds": 0.009832583979004994,
+            "prepare_and_search_seconds": 1.6926798339991365,
+            "traced_peak_bytes": null,
+            "seeded": false,
+            "bound_policy": "auto",
+            "target_product": "55914539936246868146107748625/13344832588479756870916478934403139802829834682368",
+            "first_solution_seconds": 0.1720344580244273,
+            "target_reached_seconds": 0.26014729202142917,
+            "corpus_sha256": "348f35b2fbd365387d333f2f5b6872744bdad9b705d5f4e99cf02f31157bbb6b",
+            "log_probability": -46.921591738232166,
+            "sequence": [
+              "C7",
+              "Fm",
+              "Bb7",
+              "Ebm",
+              "Ab7",
+              "Db7",
+              "Dbm",
+              "Cm",
+              "F7",
+              "Bbm",
+              "Eb7",
+              "Abm",
+              "Gm",
+              "Gbm",
+              "B7",
+              "Gb7",
+              "Bm",
+              "E7",
+              "Am",
+              "D7",
+              "Em",
+              "A7",
+              "Dm",
+              "G7"
+            ],
+            "equals_published_sequence": true
+          }
+        },
+        {
+          "command": [
+            "/Users/francoispachet/IdeaProjects/boojum/.venv/bin/python",
+            "/Users/francoispachet/IdeaProjects/boojum/benchmarks/boulez_optimization.py",
+            "--worker",
+            "--checkout",
+            "/private/tmp/snarky-csp-full-e296d09",
+            "--mode",
+            "auto",
+            "--seconds",
+            "10"
+          ],
+          "seconds": 1.8610043749795295,
+          "returncode": 0,
+          "timed_out": false,
+          "stdout": "{\"status\": \"optimal\", \"termination\": \"exhausted\", \"backend\": \"native\", \"arithmetic\": \"rational_product\", \"complete\": true, \"objective_bound\": \"55914539936246868146107748625/13344832588479756870916478934403139802829834682368\", \"solutions\": [{\"assignment\": {\"x0\": \"C7\", \"x1\": \"Fm\", \"x2\": \"Bb7\", \"x3\": \"Ebm\", \"x4\": \"Ab7\", \"x5\": \"Db7\", \"x6\": \"Dbm\", \"x7\": \"Cm\", \"x8\": \"F7\", \"x9\": \"Bbm\", \"x10\": \"Eb7\", \"x11\": \"Abm\", \"x12\": \"Gm\", \"x13\": \"Gbm\", \"x14\": \"B7\", \"x15\": \"Gb7\", \"x16\": \"Bm\", \"x17\": \"E7\", \"x18\": \"Am\", \"x19\": \"D7\", \"x20\": \"Em\", \"x21\": \"A7\", \"x22\": \"Dm\", \"x23\": \"G7\"}, \"objective\": \"55914539936246868146107748625/13344832588479756870916478934403139802829834682368\"}], \"explored_nodes\": 209, \"failed_branches\": 1, \"pruned_branches\": 639, \"constraint_revisions\": 4994, \"elapsed_seconds\": 1.7044973750016652, \"diagnostic\": \"\", \"incumbents\": [{\"value\": \"39321780734652925735570474845/13344832588479756870916478934403139802829834682368\", \"nodes\": 19, \"elapsed_seconds\": 0.1752247079857625}, {\"value\": \"55914539936246868146107748625/13344832588479756870916478934403139802829834682368\", \"nodes\": 55, \"elapsed_seconds\": 0.2653200830100104}], \"training_seconds\": 0.002233292005257681, \"construction_seconds\": 0.00966208300087601, \"prepare_and_search_seconds\": 1.710198125016177, \"traced_peak_bytes\": null, \"seeded\": false, \"bound_policy\": \"auto\", \"target_product\": \"55914539936246868146107748625/13344832588479756870916478934403139802829834682368\", \"first_solution_seconds\": 0.1752247079857625, \"target_reached_seconds\": 0.2653200830100104, \"corpus_sha256\": \"348f35b2fbd365387d333f2f5b6872744bdad9b705d5f4e99cf02f31157bbb6b\", \"log_probability\": -46.921591738232166, \"sequence\": [\"C7\", \"Fm\", \"Bb7\", \"Ebm\", \"Ab7\", \"Db7\", \"Dbm\", \"Cm\", \"F7\", \"Bbm\", \"Eb7\", \"Abm\", \"Gm\", \"Gbm\", \"B7\", \"Gb7\", \"Bm\", \"E7\", \"Am\", \"D7\", \"Em\", \"A7\", \"Dm\", \"G7\"], \"equals_published_sequence\": true}\n",
+          "stderr": "",
+          "engine": "reference",
+          "iteration": -1,
+          "result": {
+            "status": "optimal",
+            "termination": "exhausted",
+            "backend": "native",
+            "arithmetic": "rational_product",
+            "complete": true,
+            "objective_bound": "55914539936246868146107748625/13344832588479756870916478934403139802829834682368",
+            "solutions": [
+              {
+                "assignment": {
+                  "x0": "C7",
+                  "x1": "Fm",
+                  "x2": "Bb7",
+                  "x3": "Ebm",
+                  "x4": "Ab7",
+                  "x5": "Db7",
+                  "x6": "Dbm",
+                  "x7": "Cm",
+                  "x8": "F7",
+                  "x9": "Bbm",
+                  "x10": "Eb7",
+                  "x11": "Abm",
+                  "x12": "Gm",
+                  "x13": "Gbm",
+                  "x14": "B7",
+                  "x15": "Gb7",
+                  "x16": "Bm",
+                  "x17": "E7",
+                  "x18": "Am",
+                  "x19": "D7",
+                  "x20": "Em",
+                  "x21": "A7",
+                  "x22": "Dm",
+                  "x23": "G7"
+                },
+                "objective": "55914539936246868146107748625/13344832588479756870916478934403139802829834682368"
+              }
+            ],
+            "explored_nodes": 209,
+            "failed_branches": 1,
+            "pruned_branches": 639,
+            "constraint_revisions": 4994,
+            "elapsed_seconds": 1.7044973750016652,
+            "diagnostic": "",
+            "incumbents": [
+              {
+                "value": "39321780734652925735570474845/13344832588479756870916478934403139802829834682368",
+                "nodes": 19,
+                "elapsed_seconds": 0.1752247079857625
+              },
+              {
+                "value": "55914539936246868146107748625/13344832588479756870916478934403139802829834682368",
+                "nodes": 55,
+                "elapsed_seconds": 0.2653200830100104
+              }
+            ],
+            "training_seconds": 0.002233292005257681,
+            "construction_seconds": 0.00966208300087601,
+            "prepare_and_search_seconds": 1.710198125016177,
+            "traced_peak_bytes": null,
+            "seeded": false,
+            "bound_policy": "auto",
+            "target_product": "55914539936246868146107748625/13344832588479756870916478934403139802829834682368",
+            "first_solution_seconds": 0.1752247079857625,
+            "target_reached_seconds": 0.2653200830100104,
+            "corpus_sha256": "348f35b2fbd365387d333f2f5b6872744bdad9b705d5f4e99cf02f31157bbb6b",
+            "log_probability": -46.921591738232166,
+            "sequence": [
+              "C7",
+              "Fm",
+              "Bb7",
+              "Ebm",
+              "Ab7",
+              "Db7",
+              "Dbm",
+              "Cm",
+              "F7",
+              "Bbm",
+              "Eb7",
+              "Abm",
+              "Gm",
+              "Gbm",
+              "B7",
+              "Gb7",
+              "Bm",
+              "E7",
+              "Am",
+              "D7",
+              "Em",
+              "A7",
+              "Dm",
+              "G7"
+            ],
+            "equals_published_sequence": true
+          }
+        }
+      ],
+      "medians": {
+        "reference": 1.6913072500028647,
+        "candidate": 1.6894867079972755
+      },
+      "same_observation": true,
+      "speedup": 1.0010775710734934
+    }
+  ],
+  "boulez_witness_sha256": "d303cdc014a99b65221868d3e33fde7350ec53ba7ef9788fe9bc0667c9c226f2",
+  "finished_at": "2026-09-16T18:59:47.951572+00:00"
+}

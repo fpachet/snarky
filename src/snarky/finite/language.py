@@ -15,7 +15,7 @@ from ..parser import ParseError, parse_factor_groups, parse_rule_groups, parse_t
 from ..parser_actions import _parse_fact_template
 from ..parser_premises import _parse_premise_block
 from ..rules import RuleGroup
-from ..terms import Atom, FiniteSequence, Term
+from ..terms import Atom, FiniteSequence, Number, Term
 from .constraints import (
     AllDifferentConstraint,
     BinaryComparisonConstraint,
@@ -26,6 +26,7 @@ from .constraints import (
     GlobalCardinalityConstraint,
     LexLessEqualConstraint,
     LinearSumConstraint,
+    NValueConstraint,
     PersistentConstraint,
     SumConstraint,
     TableConstraint,
@@ -260,6 +261,14 @@ def _constraint(name: Atom, lines: list[str]) -> Constraint:
             _atom(fields.take("INDEX")),
             _sequence(fields.take("ARRAY")),
             _atom(fields.take("VALUE")),
+        )
+    elif kind == "NVALUE":
+        target = parse_term(fields.take("TARGET"))
+        constraint = NValueConstraint(
+            name,
+            _sequence(fields.take("SCOPE")),
+            integer(target) if isinstance(target, Number) else target,
+            _sequence(fields.take("CONSTANTS", "SEQ[]")),
         )
     elif kind == "COUNT":
         constraint = CountConstraint(

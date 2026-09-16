@@ -44,6 +44,14 @@ assert result.status is ResultStatus.OPTIMAL
 assert result.incumbent.objective_value == -3
 print("isolated native CSP optimization without companion: ok")
 
+from dataclasses import replace
+from snarky.finite import NValueConstraint
+nvalue_model = replace(model, constraints=(NValueConstraint(Atom("one"), (x, y), 1),))
+nvalue_result = solve(nvalue_model, Query(QueryKind.MINIMIZE))
+assert nvalue_result.status is ResultStatus.OPTIMAL
+assert nvalue_result.incumbent.objective_value == -2
+print("isolated native NValue optimization: ok")
+
 from snarky.finite.examples import scheduling_model, markov_probe_model
 mixed = solve(scheduling_model(), Query(QueryKind.MAXIMIZE))
 assert mixed.status is ResultStatus.OPTIMAL and mixed.incumbent.objective_value == 5

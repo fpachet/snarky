@@ -37,6 +37,8 @@ should not be mechanically mixed with English sections.
 - [Second CSP optimization slice](performance_csp_equality_2026-09-16.md):
   exact weighted equalities, reusable domain projections, cache ablation and
   repeated performance/compatibility measurements.
+- [Native NValue](performance_csp_nvalue_2026-09-16.md): exact distinct-count
+  semantics, bounded cover filtering, decomposition ablation and a fresh Prune run.
 - [Redesign implementation evidence](redesign_progress.md)
 - [Markov constraints action plan](markov_constraints_plan.md): audited LSDB Blues,
   four scoring modes, numerical guarantees, and ordered solver improvements.

@@ -33,6 +33,11 @@ details are documented in [docs/versioning.md](docs/versioning.md).
 
 ### Added
 
+- Native `NValueConstraint` in finite and legacy CSP execution, with literal or
+  variable counts, constants, aliases, empty scopes, textual declarations and
+  rollback support. Matching/cover bounds and a budgeted feasibility check replace
+  the benchmark's Boolean decomposition by default; `--nvalue decomposed` retains
+  it for ablation. See the [NValue report](docs/performance_csp_nvalue_2026-09-16.md).
 - Shared exact SUM/weighted-equality filtering with signed normalization,
   bounded bitsets and a sparse fallback, plus reusable immutable native-domain
   projections that remain correct across rollback. The

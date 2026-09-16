@@ -5,7 +5,7 @@ from __future__ import annotations
 from dataclasses import dataclass
 from enum import StrEnum
 
-from ..terms import Atom, Term
+from ..terms import Atom, Term, is_ground
 
 
 @dataclass(frozen=True, slots=True)
@@ -161,6 +161,37 @@ class CountConstraint:
 
 
 @dataclass(frozen=True, slots=True)
+class NValueConstraint:
+    """Count distinct values of ``scope`` plus literal ``constants``.
+
+    ``count`` is a Python integer or a decision-variable name. Repeated scope
+    references and constants are deduplicated; an empty scope is permitted.
+    The count variable may also occur in the scope.
+    """
+
+    name: Atom
+    scope: tuple[Term, ...]
+    count: int | Term
+    constants: tuple[Term, ...] = ()
+
+    def __post_init__(self) -> None:
+        if isinstance(self.count, bool):
+            raise ValueError("NVALUE count must be an integer or a variable")
+        if any(not is_ground(value) for value in self.constants):
+            raise ValueError("NVALUE constants must be ground terms")
+        object.__setattr__(self, "scope", tuple(dict.fromkeys(self.scope)))
+        object.__setattr__(self, "constants", tuple(dict.fromkeys(self.constants)))
+
+    @property
+    def variables(self) -> tuple[Term, ...]:
+        return tuple(
+            dict.fromkeys(
+                self.scope if isinstance(self.count, int) else (*self.scope, self.count)
+            )
+        )
+
+
+@dataclass(frozen=True, slots=True)
 class GlobalCardinalityConstraint:
     """Bound the number of occurrences of selected values in a scope.
 
@@ -236,6 +267,7 @@ type PersistentConstraint = (
     | BinaryComparisonConstraint
     | ElementConstraint
     | CountConstraint
+    | NValueConstraint
     | GlobalCardinalityConstraint
     | TableConstraint
     | LexLessEqualConstraint

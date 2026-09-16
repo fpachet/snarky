@@ -35,6 +35,7 @@ from .persistent_constraints import (
     GlobalCardinalityConstraint,
     LexLessEqualConstraint,
     LinearSumConstraint,
+    NValueConstraint,
     PersistentConstraint,
     SumConstraint,
     TableConstraint,
@@ -50,6 +51,7 @@ _BOUNDS_RE = re.compile(r"BOUNDS\s+(?P<projection>.+)\Z")
 class PersistentConstraintKind(StrEnum):
     ALL_DIFFERENT = "ALL_DIFFERENT"
     COUNT = "COUNT"
+    NVALUE = "NVALUE"
     ELEMENT = "ELEMENT"
     GCC = "GCC"
     LESS_EQUAL = "LESS_EQUAL"
@@ -123,6 +125,7 @@ class PersistentConstraintTemplate:
         if self.kind in ordered_kinds and self.scope_order is None:
             raise ValueError(f"{self.kind} requires SCOPE ... ORDER BY ...")
         target_kinds = {
+            PersistentConstraintKind.NVALUE,
             PersistentConstraintKind.SUM,
             PersistentConstraintKind.LINEAR_SUM,
             PersistentConstraintKind.COUNT,
@@ -311,7 +314,7 @@ def parse_constraint_templates(
         bounds: tuple[Premise, ...] = ()
         tuples_projection: Term | None = None
         tuples: tuple[Premise, ...] = ()
-        if kind is PersistentConstraintKind.SUM:
+        if kind in (PersistentConstraintKind.SUM, PersistentConstraintKind.NVALUE):
             target, position = _read_term_clause(
                 lines, position, "TARGET", kind, name
             )
@@ -631,6 +634,23 @@ def _instantiate_template(
                     variables[0],
                     variables[1],
                     BinaryComparisonOperator(template.kind.value),
+                )
+            )
+        elif template.kind is PersistentConstraintKind.NVALUE:
+            variables = tuple(dict.fromkeys(row[1] for row in rows))
+            targets = {row[2] for row in rows}
+            if len(targets) != 1:
+                raise ValueError(
+                    f"NVALUE template {template.name!r} has inconsistent targets"
+                )
+            target = next(iter(targets))
+            if target is None:
+                raise AssertionError("validated NVALUE target is absent")
+            output.append(
+                NValueConstraint(
+                    name, variables,
+                    _integer(target, "NVALUE target")
+                    if isinstance(target, Number) else target,
                 )
             )
         elif template.kind is PersistentConstraintKind.COUNT:

@@ -51,7 +51,8 @@ present in the pinned upstream revision and remain explicitly unfilled.
 
 Prune is compiled Rust and Snarky's finite solver is Python. The process timings
 compare those complete implementations, including their different search policies
-and native NValue versus decomposition. They establish observed completion and
+and, in the original baseline, native NValue versus decomposition. They establish
+observed completion and
 latency, but do not isolate language overhead or rank the underlying algorithms.
 Use matched branching and comparable node/failure definitions to investigate search
 effectiveness; use controlled domain reductions to compare propagation strength.
@@ -64,10 +65,16 @@ defines the diagnostic workloads, phase order, new runtime large-domain probes,
 native NValue ablation and regression gates. The
 [first implemented slice](../docs/performance_csp_arithmetic_2026-09-16.md)
 adds separate diagnostic and paired Python/Python records. The original Prune
-comparison remains frozen; native NValue and compact domains remain planned.
+comparison remains frozen; compact domains remain planned.
 The [second slice](../docs/performance_csp_equality_2026-09-16.md) records exact
 weighted-equality filtering and domain-projection reuse, including an equality-only
 cache ablation and separate allocation runs.
+The [third slice](../docs/performance_csp_nvalue_2026-09-16.md) adds native NValue
+and a fresh full Prune comparison. To isolate the encoding change on the same
+runtime, use `benchmarks.csp_followup compare --reference-source . --only nvalue/`
+with `--reference-nvalue decomposed --candidate-nvalue native`. The bridge also
+accepts `--nvalue decomposed` directly. Keep encoding choices in measurement
+records: changing them can change variables, constraints, search trees and counters.
 
 The factor-support microbenchmark compares one committed evaluator with the
 working tree using the same current matcher, alternating measurement order

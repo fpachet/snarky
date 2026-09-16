@@ -170,7 +170,10 @@ def collect(args):
                 "timings; CPU/allocation diagnostics separate from "
                 "uninstrumented comparisons"
             ),
-            policy="dom_wdeg; declared values; no search-policy changes",
+            policy="dom_wdeg; declared values; encodings may change search trees",
+            nvalue_encoding=dict(
+                reference=args.reference_nvalue, candidate=args.candidate_nvalue
+            ),
         ),
         cases=[],
     )
@@ -196,6 +199,10 @@ def collect(args):
                         sources[engine],
                         "--model",
                         artifact,
+                        "--nvalue",
+                        args.reference_nvalue
+                        if engine == "reference"
+                        else args.candidate_nvalue,
                     ]
                     if mode == "all":
                         command.append("--all")
@@ -309,6 +316,12 @@ def main():
     parser.add_argument("--output", type=Path, required=True)
     parser.add_argument("--reference-source", type=Path)
     parser.add_argument("--reference-ref", default="88c366f")
+    parser.add_argument(
+        "--reference-nvalue", choices=["native", "decomposed"], default="decomposed"
+    )
+    parser.add_argument(
+        "--candidate-nvalue", choices=["native", "decomposed"], default="native"
+    )
     parser.add_argument("--minizinc", type=Path, default=Path(DEFAULT_MINIZINC))
     parser.add_argument("--only", action="append", default=[])
     parser.add_argument("--seconds", type=float, default=2)
