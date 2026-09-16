@@ -354,6 +354,11 @@ adds interrupted-search diagnostics and improves exact arithmetic and search
 setup. Paired Python/Python measurements show 1.88× faster FT06 optimization
 and 1.43× faster 50 queens, with unchanged search counts. Completion remains
 47/59 at five seconds; the report also records small-case overhead and timeouts.
+The [second slice](docs/performance_csp_equality_2026-09-16.md) adds exact weighted
+equality filtering and reusable domain projections. Magic sequence 40 now finishes
+in about 0.35 s, raising completion to 48/59; 40-item bin-packing feasibility takes
+about 0.26 s. The report
+separates cache-only gains, optimization proofs and unresolved timeouts.
 
 Correctness tests compare optimized strategies with the executable reference
 implementation across mutation, negation, search, propagation, and

@@ -87,8 +87,10 @@ KIND SUM
 TARGET $integer
 ```
 
-The propagator computes exact reachable prefix and suffix sums. A candidate is
-retained only when the remaining variables can reach the complementary sum.
+The propagator computes exact reachable prefixes and backward completion sets.
+A candidate is retained only when the remaining variables can reach the
+complementary sum. Signed contributions are normalized; bounded spans use
+bitsets and wider spans use exact sparse sets.
 
 ### `LINEAR_SUM`
 
@@ -108,14 +110,16 @@ This constrains
 `coefficient[1] * variable[1] + ... + coefficient[n] * variable[n]`.
 Coefficients are signed, non-zero integers; variables are distinct and have
 integer `Number` domains. `OPERATOR` is `EQUAL`, `LESS_EQUAL`, or
-`GREATER_EQUAL`, and `TARGET` resolves to an integer. Exact reachable
-prefix/suffix sums establish GAC. For inequalities, an individual candidate
-has support precisely when the minimum or maximum reachable remainder can
-satisfy the bound.
+`GREATER_EQUAL`, and `TARGET` resolves to an integer. Exact prefix/backward
+support checks establish GAC for equality. For inequalities, an individual
+candidate has support precisely when the sum of the other variables' minimum
+or maximum contributions satisfies the bound; no reachable-sum table is needed.
 
-`SUM` remains the concise and bitset-optimized form for unit coefficients and
-equality. It is semantically equivalent to a `LINEAR_SUM` with every
-coefficient equal to one and `OPERATOR EQUAL`.
+`SUM` remains the concise form for unit coefficients and equality. It shares the
+exact equality kernel with `LINEAR_SUM` and is semantically equivalent to setting
+every coefficient to one and `OPERATOR EQUAL`. The
+[equality performance report](performance_csp_equality_2026-09-16.md) describes
+representation limits and the sparse fallback.
 
 ### Binary comparisons
 

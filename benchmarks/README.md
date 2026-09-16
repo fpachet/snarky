@@ -65,6 +65,9 @@ native NValue ablation and regression gates. The
 [first implemented slice](../docs/performance_csp_arithmetic_2026-09-16.md)
 adds separate diagnostic and paired Python/Python records. The original Prune
 comparison remains frozen; native NValue and compact domains remain planned.
+The [second slice](../docs/performance_csp_equality_2026-09-16.md) records exact
+weighted-equality filtering and domain-projection reuse, including an equality-only
+cache ablation and separate allocation runs.
 
 The factor-support microbenchmark compares one committed evaluator with the
 working tree using the same current matcher, alternating measurement order

@@ -219,51 +219,7 @@ def _revise_sum(
             return False
         numeric_domains.append((variable, converted))
 
-    if constraint.target >= 0 and all(
-        all(value >= 0 for value in values.values()) for _, values in numeric_domains
-    ):
-        maximum_sum = sum(max(values.values()) for _, values in numeric_domains)
-        if constraint.target > maximum_sum:
-            return False
-        if maximum_sum <= 1_000_000:
-            return _revise_nonnegative_sum_bitsets(
-                constraint,
-                domains,
-                numeric_domains,
-            )
-
-    prefix: list[set[int]] = [{0}]
-    for _, values in numeric_domains:
-        prefix.append(
-            {partial + value for partial in prefix[-1] for value in values.values()}
-        )
-    if constraint.target not in prefix[-1]:
-        return False
-
-    suffix: list[set[int]] = [set() for _ in range(len(numeric_domains) + 1)]
-    suffix[-1] = {0}
-    for index in range(len(numeric_domains) - 1, -1, -1):
-        suffix[index] = {
-            value + partial
-            for value in numeric_domains[index][1].values()
-            for partial in suffix[index + 1]
-        }
-
-    for index, (variable, values) in enumerate(numeric_domains):
-        possible_remainders = {
-            left_sum + right_sum
-            for left_sum in prefix[index]
-            for right_sum in suffix[index + 1]
-        }
-        supported = {
-            term
-            for term, numeric_value in values.items()
-            if constraint.target - numeric_value in possible_remainders
-        }
-        domains[variable].intersection_update(supported)
-        if not domains[variable]:
-            return False
-    return True
+    return _revise_integer_equality(constraint.target, domains, numeric_domains)
 
 
 def _revise_linear_sum(
@@ -322,38 +278,155 @@ def _revise_linear_sum(
             )
         return all(domains[variable] for variable, _ in weighted_domains)
 
-    prefix: list[set[int]] = [{0}]
-    for _, values in weighted_domains:
-        prefix.append(
-            {partial + value for partial in prefix[-1] for value in values.values()}
-        )
-    if not any(
-        _aggregate_accepts(constraint.operator, total, constraint.target)
-        for total in prefix[-1]
-    ):
+    return _revise_integer_equality(constraint.target, domains, weighted_domains)
+
+
+# Bound integer shifts and stored prefix bits before allocating dense tables.
+# Wider/sparser inputs retain exact sparse filtering; these are representation
+# limits, not limits on the integer values admitted by the constraint.
+_EQUALITY_MAX_BITS = 262_144
+_EQUALITY_TOTAL_BITS = 32_000_000
+
+
+def _revise_integer_equality(
+    target: int,
+    domains: dict[Term, set[Term]],
+    contributions: list[tuple[Term, dict[Term, int]]],
+) -> bool:
+    """Exact independent-variable supports, including signed and sparse sums."""
+    minima = [min(values.values()) for _, values in contributions]
+    maxima = [max(values.values()) for _, values in contributions]
+    lower, upper = sum(minima), sum(maxima)
+    if not lower <= target <= upper:
         return False
 
-    suffix: list[set[int]] = [set() for _ in range(len(weighted_domains) + 1)]
-    suffix[-1] = {0}
-    for position in range(len(weighted_domains) - 1, -1, -1):
-        suffix[position] = {
-            value + partial
-            for value in weighted_domains[position][1].values()
-            for partial in suffix[position + 1]
+    # Bounds remove impossible candidates before sizing a dense representation.
+    # New offsets then remove fixed terms and arbitrarily large translations.
+    normalized: list[tuple[Term, dict[Term, int]]] = []
+    divisor = 0
+    span = 0
+    residual = target
+    for (variable, values), minimum, maximum in zip(
+        contributions, minima, maxima, strict=True
+    ):
+        values = {
+            term: value
+            for term, value in values.items()
+            if target - upper + maximum <= value <= target - lower + minimum
         }
+        if not values:
+            return False
+        offset = min(values.values())
+        residual -= offset
+        shifted = {term: value - offset for term, value in values.items()}
+        span += max(shifted.values())
+        divisor = math.gcd(divisor, *shifted.values())
+        normalized.append((variable, shifted))
+    if not 0 <= residual <= span:
+        return False
+    if divisor == 0:
+        # All surviving contributions are fixed; no arithmetic table is needed.
+        for variable, values in normalized:
+            domains[variable].intersection_update(values)
+        return residual == 0
+    if residual % divisor:
+        return False
+    if divisor != 1:
+        residual //= divisor
+        span //= divisor
+        normalized = [
+            (variable, {term: value // divisor for term, value in values.items()})
+            for variable, values in normalized
+        ]
+    if residual > span - residual:
+        # Reflect each contribution so that a near-upper-bound target also uses
+        # a small nonnegative target. This is a bijection of all assignments.
+        reflected = []
+        for variable, values in normalized:
+            maximum = max(values.values())
+            reflected.append(
+                (variable, {term: maximum - value for term, value in values.items()})
+            )
+        normalized = reflected
+        residual = span - residual
 
-    for position, (variable, values) in enumerate(weighted_domains):
-        remainders = {
-            left + right for left in prefix[position] for right in suffix[position + 1]
-        }
+    width = residual + 1
+    if (
+        width <= _EQUALITY_MAX_BITS
+        and width * (len(normalized) + 2) <= _EQUALITY_TOTAL_BITS
+    ):
+        return _revise_equality_bitsets(residual, domains, normalized)
+    return _revise_equality_sparse(residual, domains, normalized)
+
+
+def _revise_equality_bitsets(
+    target: int,
+    domains: dict[Term, set[Term]],
+    contributions: list[tuple[Term, dict[Term, int]]],
+) -> bool:
+    """Intersect reachable prefixes with reflected suffixes, without sumsets."""
+    mask = (1 << (target + 1)) - 1
+    prefix = [1]
+    for _, values in contributions:
+        reachable = 0
+        for value in values.values():
+            if value <= target:
+                reachable |= (prefix[-1] << value) & mask
+        prefix.append(reachable)
+    if not prefix[-1] & (1 << target):
+        return False
+
+    # Bit j in backward means the remaining suffix can complete a partial sum j.
+    # For a candidate v, support exists iff prefix & (backward >> v) is nonzero.
+    backward = 1 << target
+    for index in range(len(contributions) - 1, -1, -1):
+        variable, values = contributions[index]
         supported = {
             term
-            for term, contribution in values.items()
-            if constraint.target - contribution in remainders
+            for term, value in values.items()
+            if value <= target and prefix[index] & (backward >> value)
         }
         domains[variable].intersection_update(supported)
-        if not domains[variable]:
-            return False
+        reachable = 0
+        for term in supported:
+            reachable |= backward >> values[term]
+        backward = reachable
+    return True
+
+
+def _revise_equality_sparse(
+    target: int,
+    domains: dict[Term, set[Term]],
+    contributions: list[tuple[Term, dict[Term, int]]],
+) -> bool:
+    """Exact fallback for large normalized spans, with target-truncated sums."""
+    prefix: list[set[int]] = [{0}]
+    for _, values in contributions:
+        prefix.append(
+            {a + b for a in prefix[-1] for b in values.values() if a + b <= target}
+        )
+    if target not in prefix[-1]:
+        return False
+    backward = {target}
+    for index in range(len(contributions) - 1, -1, -1):
+        variable, values = contributions[index]
+        before = prefix[index]
+        supported = {
+            term
+            for term, value in values.items()
+            if (
+                any(partial + value in backward for partial in before)
+                if len(before) <= len(backward)
+                else any(remainder - value in before for remainder in backward)
+            )
+        }
+        domains[variable].intersection_update(supported)
+        backward = {
+            remainder - values[term]
+            for remainder in backward
+            for term in supported
+            if remainder >= values[term]
+        }
     return True
 
 
@@ -704,43 +777,8 @@ def _revise_nonnegative_sum_bitsets(
     domains: dict[Term, set[Term]],
     numeric_domains: list[tuple[Term, dict[Term, int]]],
 ) -> bool:
-    """Establish exact support with integer reachable-sum bitsets."""
-
-    prefix = [1]
-    for _, values in numeric_domains:
-        reachable = 0
-        for value in values.values():
-            reachable |= prefix[-1] << value
-        prefix.append(reachable)
-    if not prefix[-1] & (1 << constraint.target):
-        return False
-
-    suffix = [0] * (len(numeric_domains) + 1)
-    suffix[-1] = 1
-    for index in range(len(numeric_domains) - 1, -1, -1):
-        reachable = 0
-        for value in numeric_domains[index][1].values():
-            reachable |= suffix[index + 1] << value
-        suffix[index] = reachable
-
-    for index, (variable, values) in enumerate(numeric_domains):
-        remainders = _bitset_sumset(
-            prefix[index],
-            suffix[index + 1],
-            constraint.target,
-        )
-        supported = {
-            term
-            for term, value in values.items()
-            if (
-                constraint.target >= value
-                and remainders & (1 << (constraint.target - value))
-            )
-        }
-        domains[variable].intersection_update(supported)
-        if not domains[variable]:
-            return False
-    return True
+    """Compatibility entry point for the shared exact integer-sum filter."""
+    return _revise_integer_equality(constraint.target, domains, numeric_domains)
 
 
 def _bitset_sumset(left: int, right: int, limit: int) -> int:

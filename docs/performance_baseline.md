@@ -443,3 +443,11 @@ Completion remains 47/59 at five seconds. FT06 optimization improves from 2.594 
 to 1.382 s and 50 queens from 1.249 s to 0.874 s, with identical nodes, failures,
 revisions and solutions. Small-case regressions and the follow-up repeat are
 retained alongside the gains.
+
+The [second equality/cache slice](performance_csp_equality_2026-09-16.md), compared
+with `d5f9a2d`, raises completion to 48/59: magic sequence 40 finishes in about
+0.35 s instead of timing out. Magic sequence 20 improves 6.28× and 40-item packing
+feasibility 7.26×. All 47 mutually completed workloads preserve search counts and
+solutions. Separate cache ablation, CPU profiles, memory traces, rule/mixed/Boulez
+controls and a fresh focused Prune comparison accompany the record. Small timing
+regressions and bounded cache-storage increases are explicitly retained.

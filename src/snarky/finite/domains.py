@@ -38,6 +38,12 @@ class FiniteDomains:
         self._masks = {
             var: (1 << len(values)) - 1 for var, values in self._values.items()
         }
+        # One immutable projection per variable, keyed by the actual mask.
+        # Comparing the mask also handles rollback and sibling branches without
+        # trailing a cache or accumulating projections for past search states.
+        self._value_cache = {
+            var: (self._masks[var], values) for var, values in self._values.items()
+        }
         self._trail: list[tuple[Term, int]] = []
         self._checkpoints: list[DomainCheckpoint] = []
         self._owner = object()
@@ -47,13 +53,19 @@ class FiniteDomains:
 
     def values(self, variable: Term) -> tuple[Term, ...]:
         mask = self._masks[variable]
+        cached_mask, cached_values = self._value_cache[variable]
+        if cached_mask == mask:
+            return cached_values
+        original_mask = mask
         values = self._values[variable]
         selected = []
         while mask:
             bit = mask & -mask
             selected.append(values[bit.bit_length() - 1])
             mask ^= bit
-        return tuple(selected)
+        result = tuple(selected)
+        self._value_cache[variable] = (original_mask, result)
+        return result
 
     def size(self, variable: Term) -> int:
         return self._masks[variable].bit_count()

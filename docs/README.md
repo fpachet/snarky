@@ -34,6 +34,9 @@ should not be mechanically mixed with English sections.
 - [First CSP optimization slice](performance_csp_arithmetic_2026-09-16.md):
   slow-case profiles, progress observations, exact arithmetic filtering and
   paired Python/Python performance and compatibility controls.
+- [Second CSP optimization slice](performance_csp_equality_2026-09-16.md):
+  exact weighted equalities, reusable domain projections, cache ablation and
+  repeated performance/compatibility measurements.
 - [Redesign implementation evidence](redesign_progress.md)
 - [Markov constraints action plan](markov_constraints_plan.md): audited LSDB Blues,
   four scoring modes, numerical guarantees, and ordered solver improvements.

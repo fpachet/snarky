@@ -33,6 +33,11 @@ details are documented in [docs/versioning.md](docs/versioning.md).
 
 ### Added
 
+- Shared exact SUM/weighted-equality filtering with signed normalization,
+  bounded bitsets and a sparse fallback, plus reusable immutable native-domain
+  projections that remain correct across rollback. The
+  [second CSP report](docs/performance_csp_equality_2026-09-16.md) records paired
+  measurements and a separate projection-cache ablation.
 - Opt-in finite-search progress observations, flushed diagnostic records and
   archived before/after CSP profiles. Exact arithmetic fast paths avoid reachable
   sums for inequalities and binary channels; search builds its incident index

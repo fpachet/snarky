@@ -10,6 +10,11 @@ at `5f66b0b`, and the existing rule/CSP/mixed and Markov regression portfolios.
 The earlier [solver plan](solver_optimization_plan.md) remains the history of
 optimizing the legacy fact-backed CSP path.
 
+The [second slice](performance_csp_equality_2026-09-16.md) adds shared exact
+signed equality filtering with bounded bitsets/sparse fallback and mask-tagged
+domain projections. A general propagation resource budget, native NValue,
+search/objective improvements and compact domains remain open.
+
 ## Objective and boundaries
 
 Make Snarky's Python CSP and exact optimization engine materially more efficient,

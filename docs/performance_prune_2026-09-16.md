@@ -1,5 +1,9 @@
 # Prune / Snarky benchmark baseline — 16 September 2026
 
+This baseline is frozen. The [second optimization report](performance_csp_equality_2026-09-16.md)
+records the newer 48/59 Snarky result and a fresh six-case Prune comparison;
+the historical results below are unchanged.
+
 This portfolio runs the same FlatZinc JSON input through Prune and Snarky's native
 finite CSP/optimization API. It exercises pure CSP without forward chaining.
 The runtime is unchanged: this addition comprises fixtures, a strict benchmark
