@@ -1,0 +1,53 @@
+{
+  "schema_version": 1,
+  "defaults": {
+    "warmup_runs": 1,
+    "measured_runs": 5,
+    "timeout_seconds": 10.0,
+    "correctness_timeout_seconds": 120.0
+  },
+  "instances": [
+    {
+      "name": "all_different_global_10",
+      "model": "benchmarks/models/all_different_pigeonhole.mzn",
+      "data": ["benchmarks/data/all_different_global_10.dzn"],
+      "modes": ["first"],
+      "correctness": "first"
+    },
+    {
+      "name": "all_different_global_12",
+      "model": "benchmarks/models/all_different_pigeonhole.mzn",
+      "data": ["benchmarks/data/all_different_global_12.dzn"],
+      "modes": ["first"],
+      "correctness": "first"
+    },
+    {
+      "name": "all_different_global_16",
+      "model": "benchmarks/models/all_different_pigeonhole.mzn",
+      "data": ["benchmarks/data/all_different_global_16.dzn"],
+      "modes": ["first"],
+      "correctness": "first"
+    },
+    {
+      "name": "all_different_pairwise_10",
+      "model": "benchmarks/models/all_different_pigeonhole.mzn",
+      "data": ["benchmarks/data/all_different_pairwise_10.dzn"],
+      "modes": ["first"],
+      "correctness": "first"
+    },
+    {
+      "name": "all_different_permutation_global_16",
+      "model": "benchmarks/models/all_different_pigeonhole.mzn",
+      "data": ["benchmarks/data/all_different_permutation_global_16.dzn"],
+      "modes": ["first"],
+      "correctness": "first"
+    },
+    {
+      "name": "all_different_permutation_pairwise_16",
+      "model": "benchmarks/models/all_different_pigeonhole.mzn",
+      "data": ["benchmarks/data/all_different_permutation_pairwise_16.dzn"],
+      "modes": ["first"],
+      "correctness": "first"
+    }
+  ]
+}

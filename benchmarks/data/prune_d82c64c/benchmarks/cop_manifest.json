@@ -1,0 +1,71 @@
+{
+  "schema_version": 1,
+  "defaults": {
+    "warmup_runs": 1,
+    "measured_runs": 3,
+    "timeout_seconds": 30.0,
+    "correctness_timeout_seconds": 120.0
+  },
+  "instances": [
+    {
+      "name": "golomb_opt_6",
+      "model": "benchmarks/models/golomb_ruler_opt.mzn",
+      "data": ["benchmarks/data/golomb_opt_6.dzn"],
+      "modes": ["first"],
+      "correctness": "optimal",
+      "objective": {
+        "field": "objective",
+        "direction": "minimize",
+        "optimum": 17
+      }
+    },
+    {
+      "name": "golomb_opt_7",
+      "model": "benchmarks/models/golomb_ruler_opt.mzn",
+      "data": ["benchmarks/data/golomb_opt_7.dzn"],
+      "modes": ["first"],
+      "correctness": "optimal",
+      "objective": {
+        "field": "objective",
+        "direction": "minimize",
+        "optimum": 25
+      }
+    },
+    {
+      "name": "jobshop_ft06_opt",
+      "model": "benchmarks/models/jobshop_opt.mzn",
+      "data": ["benchmarks/data/jobshop_ft06_opt.dzn"],
+      "modes": ["first"],
+      "correctness": "optimal",
+      "objective": {
+        "field": "objective",
+        "direction": "minimize",
+        "optimum": 55
+      }
+    },
+    {
+      "name": "knapsack_20_opt",
+      "model": "benchmarks/models/knapsack_opt.mzn",
+      "data": ["benchmarks/data/knapsack_20.dzn"],
+      "modes": ["first"],
+      "correctness": "optimal",
+      "objective": {
+        "field": "objective",
+        "direction": "maximize",
+        "optimum": 111
+      }
+    },
+    {
+      "name": "bin_packing_20_opt",
+      "model": "benchmarks/models/bin_packing_opt.mzn",
+      "data": ["benchmarks/data/bin_packing_20.dzn"],
+      "modes": ["first"],
+      "correctness": "optimal",
+      "objective": {
+        "field": "objective",
+        "direction": "minimize",
+        "optimum": 6
+      }
+    }
+  ]
+}

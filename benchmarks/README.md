@@ -42,6 +42,13 @@ chord-generating harmonizer measure different workloads.
 
 ## Benchmark catalogue
 
+The [Prune comparison](../docs/performance_prune_2026-09-16.md) imports 54 upstream
+CSP/optimization instances (59 instance/mode workloads), runs both engines on
+identical FlatZinc JSON, and checks results independently with Gecode. It records
+timeouts, startup overhead, the NValue decomposition, and compiler-solved cases.
+The requested CSPLib and reserved validation suites (31 more instances) are not
+present in the pinned upstream revision and remain explicitly unfilled.
+
 The factor-support microbenchmark compares one committed evaluator with the
 working tree using the same current matcher, alternating measurement order
 and checking every score, witness count, and ordered support list:
@@ -61,6 +68,7 @@ environment, and dirty-checkout status.
 
 | Module | Comparison |
 |---|---|
+| `prune_comparison` | Prune/Snarky same-model pure CSP and optimization, with independent Gecode validation |
 | `claire_n_queens` | normalized N-Queens comparison with CLAIRE4 |
 | `claire_talarian_filter` | normalized Talarian rule-filter comparison with CLAIRE4 |
 | `claire_triangle_closure` | streamed multi-premise triangle closure with CLAIRE4 |

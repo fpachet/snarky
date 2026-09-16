@@ -134,3 +134,16 @@ The article states Creative Commons Attribution Noncommercial on p. 170; the
 local README preserves attribution and describes the transcription. No external
 book, recording or paper PDF is included. Retain as attributed noncommercial
 research material; exclude from Python source/wheel distributions.
+
+## Prune CSP benchmark models
+
+[`benchmarks/data/prune_d82c64c/`](benchmarks/data/prune_d82c64c/README.md)
+contains models, parameters, manifests, MiniZinc declarations and Cargo.lock from
+Pierre Roy's [Prune](https://github.com/ynosound-dev/prune), revision
+`d82c64c29e823513845e56a54e22e21606c0698c` (copyright 2026 Pierre Roy).
+Upstream declares **MIT OR Apache-2.0**; both complete notices are bundled.
+The unmodified imported files have SHA-256 hashes in `PROVENANCE.json`.
+Retain these notices when redistributing the benchmark fixtures. The fixtures
+are excluded from Snarky's Python distributions by the existing package whitelist.
+The benchmark runner records its temporary MiniZinc syntax compatibility patch
+separately; no upstream solver code is copied into the Snarky runtime.

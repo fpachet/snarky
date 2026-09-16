@@ -403,3 +403,18 @@ The [16 September melody report](performance_melody_2026-09-16.md) adds the four
 Its collector retains exact scores, independent oracle comparisons, separate
 construction/search/allocation records and a full source archive. It extends,
 rather than replaces, the original rule/CSP/mixed portfolios.
+
+## Prune CSP/optimization portfolio
+
+The [16 September Prune comparison](performance_prune_2026-09-16.md) adds 54
+upstream instances and 59 instance/mode workloads, using shared FlatZinc JSON and
+independent Gecode validation. It preserves process timings, separate Snarky
+preparation/search statistics, hard timeouts and source snapshots. The requested
+CSPLib and reserved suites are absent from the pinned upstream revision; 31
+instances remain to be supplied. Native NValue, compact large domains and search
+annotations are explicit capability differences. Compiler-solved domain chains
+are not evidence of native billion-value domain support.
+
+This is an additional unchanged-runtime baseline, not an accepted optimization.
+Future candidates should retain these outcomes and use contemporaneous paired
+runs; raw Prune process time and Snarky internal solve time are different scopes.

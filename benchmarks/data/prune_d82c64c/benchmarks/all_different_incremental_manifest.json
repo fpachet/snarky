@@ -1,0 +1,32 @@
+{
+  "schema_version": 1,
+  "defaults": {
+    "warmup_runs": 2,
+    "measured_runs": 9,
+    "timeout_seconds": 30.0,
+    "correctness_timeout_seconds": 120.0
+  },
+  "instances": [
+    {
+      "name": "all_different_incremental_10",
+      "model": "benchmarks/models/all_different_incremental.mzn",
+      "data": ["benchmarks/data/all_different_incremental_10.dzn"],
+      "modes": ["first"],
+      "correctness": "first"
+    },
+    {
+      "name": "all_different_incremental_12",
+      "model": "benchmarks/models/all_different_incremental.mzn",
+      "data": ["benchmarks/data/all_different_incremental_12.dzn"],
+      "modes": ["first"],
+      "correctness": "first"
+    },
+    {
+      "name": "all_different_incremental_16",
+      "model": "benchmarks/models/all_different_incremental.mzn",
+      "data": ["benchmarks/data/all_different_incremental_16.dzn"],
+      "modes": ["first"],
+      "correctness": "first"
+    }
+  ]
+}

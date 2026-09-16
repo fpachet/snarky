@@ -334,6 +334,10 @@ imports remain compatible during the 0.1 series.
 
 ## Reproducibility and performance
 
+The [Prune comparison](docs/performance_prune_2026-09-16.md) adds a shared-model
+pure CSP/optimization portfolio with independent Gecode validation, recorded
+timeouts, and explicit coverage and solver-capability differences.
+
 Correctness tests compare optimized strategies with the executable reference
 implementation across mutation, negation, search, propagation, and
 application scenarios.

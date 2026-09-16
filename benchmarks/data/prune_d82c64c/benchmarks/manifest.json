@@ -1,0 +1,48 @@
+{
+  "schema_version": 1,
+  "defaults": {
+    "warmup_runs": 2,
+    "measured_runs": 10,
+    "timeout_seconds": 10.0,
+    "correctness_timeout_seconds": 60.0
+  },
+  "instances": [
+    {
+      "name": "booleans",
+      "model": "minizinc/corpus/booleans.mzn",
+      "modes": ["first", "all"]
+    },
+    {
+      "name": "latin_square",
+      "model": "minizinc/corpus/latin_square.mzn",
+      "modes": ["first", "all"]
+    },
+    {
+      "name": "linear",
+      "model": "minizinc/corpus/linear.mzn",
+      "modes": ["first", "all"]
+    },
+    {
+      "name": "magic_square",
+      "model": "minizinc/corpus/magic_square.mzn",
+      "modes": ["first", "all"]
+    },
+    {
+      "name": "pigeonhole",
+      "model": "minizinc/corpus/pigeonhole.mzn",
+      "modes": ["all"]
+    },
+    {
+      "name": "queens",
+      "model": "minizinc/corpus/queens.mzn",
+      "modes": ["first", "all"]
+    },
+    {
+      "name": "queens_104",
+      "model": "benchmarks/models/queens.mzn",
+      "data": ["benchmarks/data/queens_104.dzn"],
+      "modes": ["first"],
+      "correctness": "first"
+    }
+  ]
+}

@@ -1,0 +1,53 @@
+{
+  "schema_version": 1,
+  "defaults": {
+    "warmup_runs": 1,
+    "measured_runs": 5,
+    "timeout_seconds": 30.0,
+    "correctness_timeout_seconds": 120.0
+  },
+  "instances": [
+    {
+      "name": "nvalue_permutation_16_sat",
+      "model": "benchmarks/models/nvalue_pigeonhole.mzn",
+      "data": ["benchmarks/data/nvalue_permutation_16_sat.dzn"],
+      "modes": ["first"],
+      "correctness": "first"
+    },
+    {
+      "name": "nvalue_pigeonhole_16_unsat",
+      "model": "benchmarks/models/nvalue_pigeonhole.mzn",
+      "data": ["benchmarks/data/nvalue_pigeonhole_16_unsat.dzn"],
+      "modes": ["first"],
+      "correctness": "first"
+    },
+    {
+      "name": "nvalue_queens_6_sat",
+      "model": "benchmarks/models/dominating_queens_nvalue.mzn",
+      "data": ["benchmarks/data/nvalue_queens_6_sat.dzn"],
+      "modes": ["first"],
+      "correctness": "first"
+    },
+    {
+      "name": "nvalue_queens_7_sat",
+      "model": "benchmarks/models/dominating_queens_nvalue.mzn",
+      "data": ["benchmarks/data/nvalue_queens_7_sat.dzn"],
+      "modes": ["first"],
+      "correctness": "first"
+    },
+    {
+      "name": "nvalue_queens_6_unsat",
+      "model": "benchmarks/models/dominating_queens_nvalue.mzn",
+      "data": ["benchmarks/data/nvalue_queens_6_unsat.dzn"],
+      "modes": ["first"],
+      "correctness": "first"
+    },
+    {
+      "name": "nvalue_queens_8_sat",
+      "model": "benchmarks/models/dominating_queens_nvalue.mzn",
+      "data": ["benchmarks/data/nvalue_queens_8_sat.dzn"],
+      "modes": ["first"],
+      "correctness": "first"
+    }
+  ]
+}
