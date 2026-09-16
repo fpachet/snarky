@@ -28,6 +28,8 @@ should not be mechanically mixed with English sections.
 - [Redesign implementation evidence](redesign_progress.md)
 - [Markov constraints action plan](markov_constraints_plan.md): audited LSDB Blues,
   four scoring modes, numerical guarantees, and ordered solver improvements.
+- [Markov implementation progress](markov_constraints_progress.md): corpus audit,
+  exact first-order Blues optimization, and remaining acceptance gates.
 - [Declarative finite model contract](finite_model_contract.md)
 - [Finite model language and migration](finite_language.md)
 - [Textual syntax](syntax.md)

@@ -54,6 +54,17 @@ print("isolated mixed factor and Markov examples: ok")
 
 from dataclasses import replace
 from fractions import Fraction
+from snarky.finite import RationalProductObjective, WeightTable
+product_model = replace(model, objective=RationalProductObjective((
+    WeightTable("preference", (x,), {(Number(1),): Fraction(1, 3),
+                                    (Number(2),): Fraction(2, 3)}),
+)))
+product_result = solve(product_model, Query(QueryKind.MAXIMIZE))
+assert product_result.status is ResultStatus.OPTIMAL
+assert product_result.objective_bound == Fraction(2, 3)
+assert product_result.arithmetic == "rational_product"
+print("isolated exact rational-product optimization: ok")
+
 from snarky.finite import negative_log2_measure
 cost_model = markov_probe_model()
 probability_model = replace(

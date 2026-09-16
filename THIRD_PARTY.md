@@ -88,6 +88,20 @@ documented rights decision before a tagged corpus release.
 
 ## Generated and first-party research artifacts
 
+### Omnibook Blues research fixture
+
+`benchmarks/data/omnibook_blues_v1` derives from the user's LSDB reference set.
+Its [audit and attribution](benchmarks/data/omnibook_blues_v1/README.md) record the
+source checksum, individual XML checksums, providers, publication citation and
+modifications. The accompanying [licence notice](benchmarks/data/omnibook_blues_v1/LICENCE.txt)
+specifies [CC BY-NC-SA 2.0 UK](https://creativecommons.org/licenses/by-nc-sa/2.0/uk/).
+Identity with all historical 2011 training sequences is not established. The user
+authorized use and repository push. Keep this attributed research fixture outside
+Python wheels and source distributions. Generated Blues benchmark source archives
+inherit the dataset notice when they include the fixture.
+
+### Other artifacts
+
 - `harmonizer/generated/` contains reproducible MIDI and MusicXML outputs.
   They are ignored by Git and regenerated with
   `python -m harmonizer.example_muses`.

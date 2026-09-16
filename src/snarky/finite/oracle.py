@@ -24,6 +24,7 @@ from .model import (
     score_solution,
 )
 from .predicates import accepts
+from .product_objective import RationalProductObjective
 
 
 def feasible(
@@ -125,6 +126,9 @@ def enumerate_model(model: FiniteModel, query: Query | None = None) -> QueryResu
         termination,
         tuple(solutions),
         explored,
+        arithmetic="rational_product"
+        if isinstance(model.objective, RationalProductObjective)
+        else "integer",
         objective_bound=(
             solutions[0].objective_value
             if optimizing and complete and solutions

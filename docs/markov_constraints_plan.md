@@ -5,6 +5,12 @@ Status: planned, 2026-09-16. This is the application follow-on to the completed
 implemented. Stages are ordered; complete each acceptance gate before relying on
 its result in the next stage.
 
+The first fixed-order application slice and its remaining gates are tracked in
+[Markov implementation progress](markov_constraints_progress.md). The confirmed
+LSDB input is now `data/reference/omnibook_blues/references.json` (with
+`references_in_C.txt` as its readable counterpart), rather than the unselected
+50-transcription export mentioned in the original stage-1 discovery below.
+
 ## Final objective
 
 Generate finite sequences learned from a corpus, satisfying declared control

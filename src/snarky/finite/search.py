@@ -1,15 +1,16 @@
-"""Iterative reversible DFS and integer branch-and-bound over problem states."""
+"""Iterative reversible DFS and exact numeric branch-and-bound over problem states."""
 
 from __future__ import annotations
 
 from collections.abc import Iterator
 from dataclasses import dataclass
+from fractions import Fraction
 from time import perf_counter
 from typing import Protocol
 
 from ..engine.group_execution import InferenceLimitError
 from ..terms import Atom, Term
-from .bounds import NoObjectiveCompletion, compile_objective_bound
+from .bounds import NoObjectiveCompletion, ObjectiveBound, compile_objective_bound
 from .domains import FiniteDomains
 from .model import (
     FiniteModel,
@@ -22,6 +23,7 @@ from .model import (
     Termination,
 )
 from .oracle import feasible
+from .product_objective import RationalProductObjective
 from .propagation import NativeState
 
 
@@ -138,13 +140,9 @@ def search[Checkpoint](
         for var in names
     }
     solutions: list[Solution] = []
-    history: list[int] = []
-    objective_bound = (
-        compile_objective_bound(model, deadline=deadline)
-        if bounding == "auto" and optimizing
-        else model.objective.bounds
-        if model.objective is not None
-        else lambda domains: None
+    history: list[int | Fraction] = []
+    objective_bound: ObjectiveBound = (
+        model.objective.bounds if model.objective is not None else lambda domains: None
     )
     milestones: list[IncumbentRecord] = []
     frames: list[_Frame[Checkpoint]] = []
@@ -168,6 +166,8 @@ def search[Checkpoint](
         return False
 
     try:
+        if bounding == "auto" and optimizing:
+            objective_bound = compile_objective_bound(model, deadline=deadline)
         while True:
             if query.max_nodes is not None and explored >= query.max_nodes:
                 termination = Termination.NODE_LIMIT
@@ -324,6 +324,9 @@ def search[Checkpoint](
         explored,
         backend="native",
         objective_bound=global_bound,
+        arithmetic="rational_product"
+        if isinstance(model.objective, RationalProductObjective)
+        else "integer",
         failed_branches=failed,
         pruned_branches=pruned,
         constraint_revisions=state.revisions,

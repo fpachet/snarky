@@ -1,0 +1,59 @@
+{
+  "date": "2026-09-16",
+  "python": "3.13.11",
+  "reference_commit": "01a0061",
+  "source_hashes": {
+    "src/snarky/finite/__init__.py": "1a31975ad9ef28f431b8cdbfa575b7c8c8019928d3df7e114f18cbd157156316",
+    "src/snarky/finite/bounds.py": "716b4e92a2b1e69e0c0e8e25ab667e9edf843a518617bf9d44bb27fcca1b0fdf",
+    "src/snarky/finite/cli.py": "bd99ac0223b6657e376f4ea8a22ae0659e2fa5ecd502eb11b4d45c272a53100f",
+    "src/snarky/finite/closure.py": "357fdf029c11781291a50930f5455f65568b3a7e5af0636db176840fa76e345d",
+    "src/snarky/finite/constraints.py": "0e715913cb8092731dbca2b06d3564932aefdcc978a7cd61f7a6db538f1f0d4c",
+    "src/snarky/finite/domains.py": "5f20dd9acd3debd1f1ec0d19a3781a298fe927d651e82a3a7b5e857625c08e65",
+    "src/snarky/finite/examples.py": "6cced54da964f1141ed91423fed98dcbf44487a33516ab4d49c8ebb966bf41e0",
+    "src/snarky/finite/factors.py": "736f643bf07de0903ca0a54b0ff32316c3d4c8355aee9305625e82c732e81997",
+    "src/snarky/finite/inference.py": "0280f74cd5b17efa3264b5db3261dfd759bb99529edf3dd8262f9a04cacf4957",
+    "src/snarky/finite/kernels.py": "4fec11955015ad59044128fff07c1f2a2d7ee5a0a3fe89faa44f5a616e2d8a40",
+    "src/snarky/finite/language.py": "01407742d1cdd26bc735f36bc43888f9b218840b3d9cdbc95cc95616f4058a77",
+    "src/snarky/finite/markov.py": "d4e30a450c2bec3644a17bd6a1c3b346938746abe6d20036a5dbf5029df2d474",
+    "src/snarky/finite/measure.py": "729c603de0b3872ad6ac6ca0b1e5fad2052995375b147b448f5311677a6a3a4a",
+    "src/snarky/finite/mixed.py": "4c3a44ab18471f873585718b0628ce07fd457f73f1af717f39a2252015d85d99",
+    "src/snarky/finite/model.py": "71b66c9d3177e000328660468390fff61d18d2ac9dcb4849814946521b8b6b09",
+    "src/snarky/finite/oracle.py": "366867ad43317c25e39b4c2625d9f1c78f93598744afe36e44c72f10b0cde0e2",
+    "src/snarky/finite/predicates.py": "b8dcaa7597d2616ae8b5cd748978d40b3159d3c712cc4e0e57b4eb03354fdc64",
+    "src/snarky/finite/product_objective.py": "2cf2c69a90b44c980bf605c630fccce3cc73024064dee6e48565c765f3199133",
+    "src/snarky/finite/propagation.py": "5e577b1215f7fca5d3b64b60f848a6d1c4c96c937abff6bb397aea19b10243f8",
+    "src/snarky/finite/regular.py": "b469c655c24ce22bde782a5697cfaa4f620ee3ee7c972feda8260c75856eb486",
+    "src/snarky/finite/search.py": "43d47e3eff5bd5beea74e736fc5c18d44313b1a5c011179f3192b57ecb98804a",
+    "benchmarks/blues_corpus.py": "3448f4793356d2fb294c0aaa403703e4bb3934ed25450a74098146cac63b0a8d",
+    "benchmarks/blues_markov.py": "65ddbd5916ae408ed8dc1d75079959aea935b26b0a4429aea3cc00133c1993bd",
+    "tests/test_product_objective.py": "5001991614f03a1edcd1263ab0b2b3a01d75a88c1088f92491e5aeb1f68f97ed",
+    "tests/test_blues_markov.py": "c1b74c41c936e99124ab06e6f72b7c0d9d4b3facd37ca84fa2e2c3c034f7b436"
+  },
+  "checks": {
+    "full_non_bach": {
+      "passed": 844,
+      "skipped": 3,
+      "seconds": 208.17,
+      "log": "........................................................................ [  8%]\n........................................................................ [ 17%]\n........................................................................ [ 25%]\n........................................................................ [ 34%]\n........................................................................ [ 42%]\n...............s.......s....s........................................... [ 51%]\n........................................................................ [ 59%]\n........................................................................ [ 68%]\n........................................................................ [ 76%]\n........................................................................ [ 85%]\n........................................................................ [ 93%]\n.......................................................                  [100%]\n============================= slowest 5 durations ==============================\n30.38s call     tests/test_harmonizer_project.py::test_long_form_harmonization_uses_a_prolonged_predominant\n27.50s call     tests/test_harmonizer_project.py::test_eight_bar_form_derives_a_plan_from_the_soprano_in_two_steps\n20.31s call     tests/test_harmonizer_project.py::test_appoggiatura_is_relative_to_metric_level_and_selected_harmony\n18.31s call     tests/test_harmonizer_project.py::test_lower_direction_new_role_candidates_are_derived[melody1-metric_levels1-escape_tone-derive_lower_escape_tone]\n16.78s call     tests/test_harmonizer_project.py::test_lower_direction_new_role_candidates_are_derived[melody0-metric_levels0-appoggiatura-derive_lower_appoggiatura]\n844 passed, 3 skipped in 208.17s (0:03:28)\n"
+    },
+    "python312_focused": {
+      "passed": 54,
+      "log": "......................................................                   [100%]\n"
+    },
+    "wheel_python313": "WARNING: The directory '/Users/francoispachet/Library/Caches/pip' or its parent directory is not owned or is not writable by the current user. The cache has been disabled. Check the permissions and owner of that directory. If executing pip with sudo, you should use sudo's -H flag.\nProcessing /private/tmp/snarky-blues-dist/snarky-0.1.0-py3-none-any.whl\nInstalling collected packages: snarky\nSuccessfully installed snarky-0.1.0\nisolated wheel import and inference: ok\nisolated native CSP optimization without companion: ok\nisolated mixed factor and Markov examples: ok\nisolated exact rational-product optimization: ok\nisolated rational partition and exact sampling: ok\nisolated packaged MODEL examples: ok\nchecked 2 file(s)\nchecked 1 file(s)\nWARNING: The directory '/Users/francoispachet/Library/Caches/pip' or its parent directory is not owned or is not writable by the current user. The cache has been disabled. Check the permissions and owner of that directory. If executing pip with sudo, you should use sudo's -H flag.\nProcessing /private/tmp/snarky-redesign-delivery/csp/snarky_csp-0.1.0-py3-none-any.whl\nInstalling collected packages: snarky-csp\nSuccessfully installed snarky-csp-0.1.0\nchecked 2 file(s)\nchecked 1 file(s)\nisolated companion rules and solving: ok\nisolated companion-to-native adapter: ok\nisolated console validation (companion=False): ok\nisolated console validation (companion=True): ok\n",
+    "wheel_python312": "WARNING: The directory '/Users/francoispachet/Library/Caches/pip' or its parent directory is not owned or is not writable by the current user. The cache has been disabled. Check the permissions and owner of that directory. If executing pip with sudo, you should use sudo's -H flag.\nProcessing /private/tmp/snarky-blues-dist/snarky-0.1.0-py3-none-any.whl\nInstalling collected packages: snarky\nSuccessfully installed snarky-0.1.0\nisolated wheel import and inference: ok\nisolated native CSP optimization without companion: ok\nisolated mixed factor and Markov examples: ok\nisolated exact rational-product optimization: ok\nisolated rational partition and exact sampling: ok\nisolated packaged MODEL examples: ok\nchecked 2 file(s)\nchecked 1 file(s)\nWARNING: The directory '/Users/francoispachet/Library/Caches/pip' or its parent directory is not owned or is not writable by the current user. The cache has been disabled. Check the permissions and owner of that directory. If executing pip with sudo, you should use sudo's -H flag.\nProcessing /private/tmp/snarky-redesign-delivery/csp/snarky_csp-0.1.0-py3-none-any.whl\nInstalling collected packages: snarky-csp\nSuccessfully installed snarky-csp-0.1.0\nchecked 2 file(s)\nchecked 1 file(s)\nisolated companion rules and solving: ok\nisolated companion-to-native adapter: ok\nisolated console validation (companion=False): ok\nisolated console validation (companion=True): ok\n",
+    "lint": "ruff check . passed",
+    "typing": "mypy src passed, 90 modules",
+    "distributions": "check_distribution.py /tmp/snarky-blues-dist passed",
+    "textual": [
+      "checked 305 file(s)"
+    ],
+    "links": "check_markdown_links.py passed"
+  },
+  "known_limitations": [
+    "Boulez optimality not proved in five-second benchmark",
+    "Other three Markov score modes remain pending",
+    "Paper-style simplification proposed; full historical corpus identity unverified",
+    "New product objective currently Python API only; no full paired performance or memory promotion claimed"
+  ]
+}

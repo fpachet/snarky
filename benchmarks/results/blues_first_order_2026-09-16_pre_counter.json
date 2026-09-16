@@ -1,0 +1,783 @@
+{
+  "portfolio": "omnibook_blues_v1",
+  "python": "3.13.11",
+  "platform": "macOS-15.7.7-arm64-arm-64bit-Mach-O",
+  "commit": "01a0061715e2f6f70d59adb34745eb945da50ab4",
+  "dirty": true,
+  "corpus_sha256": "b4bb8631efc3eca29776ac6f38603541acef0f197deace5576c8053f32933854",
+  "source_hashes": {
+    "src/snarky/finite/__init__.py": "1a31975ad9ef28f431b8cdbfa575b7c8c8019928d3df7e114f18cbd157156316",
+    "src/snarky/finite/bounds.py": "716b4e92a2b1e69e0c0e8e25ab667e9edf843a518617bf9d44bb27fcca1b0fdf",
+    "src/snarky/finite/cli.py": "bd99ac0223b6657e376f4ea8a22ae0659e2fa5ecd502eb11b4d45c272a53100f",
+    "src/snarky/finite/closure.py": "357fdf029c11781291a50930f5455f65568b3a7e5af0636db176840fa76e345d",
+    "src/snarky/finite/constraints.py": "0e715913cb8092731dbca2b06d3564932aefdcc978a7cd61f7a6db538f1f0d4c",
+    "src/snarky/finite/domains.py": "5f20dd9acd3debd1f1ec0d19a3781a298fe927d651e82a3a7b5e857625c08e65",
+    "src/snarky/finite/examples.py": "6cced54da964f1141ed91423fed98dcbf44487a33516ab4d49c8ebb966bf41e0",
+    "src/snarky/finite/factors.py": "736f643bf07de0903ca0a54b0ff32316c3d4c8355aee9305625e82c732e81997",
+    "src/snarky/finite/inference.py": "0280f74cd5b17efa3264b5db3261dfd759bb99529edf3dd8262f9a04cacf4957",
+    "src/snarky/finite/kernels.py": "4fec11955015ad59044128fff07c1f2a2d7ee5a0a3fe89faa44f5a616e2d8a40",
+    "src/snarky/finite/language.py": "01407742d1cdd26bc735f36bc43888f9b218840b3d9cdbc95cc95616f4058a77",
+    "src/snarky/finite/markov.py": "d4e30a450c2bec3644a17bd6a1c3b346938746abe6d20036a5dbf5029df2d474",
+    "src/snarky/finite/measure.py": "729c603de0b3872ad6ac6ca0b1e5fad2052995375b147b448f5311677a6a3a4a",
+    "src/snarky/finite/mixed.py": "4c3a44ab18471f873585718b0628ce07fd457f73f1af717f39a2252015d85d99",
+    "src/snarky/finite/model.py": "71b66c9d3177e000328660468390fff61d18d2ac9dcb4849814946521b8b6b09",
+    "src/snarky/finite/oracle.py": "366867ad43317c25e39b4c2625d9f1c78f93598744afe36e44c72f10b0cde0e2",
+    "src/snarky/finite/predicates.py": "b8dcaa7597d2616ae8b5cd748978d40b3159d3c712cc4e0e57b4eb03354fdc64",
+    "src/snarky/finite/product_objective.py": "49ce757deca2cdd6d9f88119c96eee839a041b72fcb1c93cfd85664c2dc95200",
+    "src/snarky/finite/propagation.py": "5e577b1215f7fca5d3b64b60f848a6d1c4c96c937abff6bb397aea19b10243f8",
+    "src/snarky/finite/regular.py": "b469c655c24ce22bde782a5697cfaa4f620ee3ee7c972feda8260c75856eb486",
+    "src/snarky/finite/search.py": "43d47e3eff5bd5beea74e736fc5c18d44313b1a5c011179f3192b57ecb98804a",
+    "benchmarks/blues_markov.py": "ffc1730738cc3fec1526ba2eafb73d985a15263c09e81ec5d0103e1d12261301",
+    "benchmarks/blues_corpus.py": "3448f4793356d2fb294c0aaa403703e4bb3934ed25450a74098146cac63b0a8d"
+  },
+  "repeat": 1,
+  "search_time_limit_seconds": 5.0,
+  "initial": "corpus symbol marginal",
+  "augmentation": "all 12 keys, once",
+  "policy": "mrv; objective value order; auto bound",
+  "cases": [
+    {
+      "variant": "source_faithful",
+      "case": "ordinary",
+      "alphabet": 60,
+      "transitions": 408,
+      "training_seconds": 0.0021125829953234643,
+      "construction_seconds": 0.015139666997129098,
+      "reference_seconds": 0.010677542013581842,
+      "reference_role": "exact_optimum",
+      "reference_product": "114936244705997301624160016510663452011823/95396216644069012960129843200000000000000000000000",
+      "runs": [
+        {
+          "status": "optimal",
+          "termination": "exhausted",
+          "backend": "native",
+          "arithmetic": "rational_product",
+          "complete": true,
+          "objective_bound": "114936244705997301624160016510663452011823/95396216644069012960129843200000000000000000000000",
+          "solutions": [
+            {
+              "assignment": {
+                "x0": "C7",
+                "x1": "C7",
+                "x2": "C7",
+                "x3": "C7",
+                "x4": "C7",
+                "x5": "C7",
+                "x6": "C7",
+                "x7": "C7",
+                "x8": "F7",
+                "x9": "C7",
+                "x10": "C7",
+                "x11": "C7",
+                "x12": "C7",
+                "x13": "C7",
+                "x14": "C7",
+                "x15": "C7",
+                "x16": "C7",
+                "x17": "C7",
+                "x18": "C7",
+                "x19": "C7",
+                "x20": "C7",
+                "x21": "C7",
+                "x22": "C7",
+                "x23": "G7"
+              },
+              "objective": "114936244705997301624160016510663452011823/95396216644069012960129843200000000000000000000000"
+            }
+          ],
+          "explored_nodes": 22,
+          "failed_branches": 0,
+          "pruned_branches": 0,
+          "constraint_revisions": 180,
+          "elapsed_seconds": 0.9323548749962356,
+          "diagnostic": "",
+          "incumbents": [
+            {
+              "value": "114936244705997301624160016510663452011823/95396216644069012960129843200000000000000000000000",
+              "nodes": 22,
+              "elapsed_seconds": 0.9322662499907892
+            }
+          ],
+          "prepare_and_search_seconds": 0.9408630830002949,
+          "log_probability": -20.536927176026012,
+          "sequence": [
+            "C7",
+            "C7",
+            "C7",
+            "C7",
+            "C7",
+            "C7",
+            "C7",
+            "C7",
+            "F7",
+            "C7",
+            "C7",
+            "C7",
+            "C7",
+            "C7",
+            "C7",
+            "C7",
+            "C7",
+            "C7",
+            "C7",
+            "C7",
+            "C7",
+            "C7",
+            "C7",
+            "G7"
+          ]
+        }
+      ]
+    },
+    {
+      "variant": "source_faithful",
+      "case": "exotic",
+      "alphabet": 60,
+      "transitions": 408,
+      "training_seconds": 0.0021125829953234643,
+      "construction_seconds": 0.013437541987514123,
+      "reference_seconds": 0.02379904198460281,
+      "reference_role": "exact_optimum",
+      "reference_product": "351935772330415805619943207/535998495712080489828109516800000000000",
+      "runs": [
+        {
+          "status": "feasible",
+          "termination": "time_limit",
+          "backend": "native",
+          "arithmetic": "rational_product",
+          "complete": false,
+          "objective_bound": "114936244705997301624160016510663452011823/95396216644069012960129843200000000000000000000000",
+          "solutions": [
+            {
+              "assignment": {
+                "x0": "C7",
+                "x1": "C7",
+                "x2": "C7",
+                "x3": "C7",
+                "x4": "C7",
+                "x5": "C7",
+                "x6": "C7",
+                "x7": "C7",
+                "x8": "F7",
+                "x9": "Bbm",
+                "x10": "Eb7",
+                "x11": "Abm",
+                "x12": "Db7",
+                "x13": "Gb7",
+                "x14": "Abm",
+                "x15": "Gm",
+                "x16": "C7",
+                "x17": "C7",
+                "x18": "C7",
+                "x19": "C7",
+                "x20": "C7",
+                "x21": "C7",
+                "x22": "C7",
+                "x23": "G7"
+              },
+              "objective": "16349016332803861515617361707/74444235515566734698348544000000000000000"
+            }
+          ],
+          "explored_nodes": 6345,
+          "failed_branches": 1997,
+          "pruned_branches": 3766,
+          "constraint_revisions": 57787,
+          "elapsed_seconds": 5.000070999987656,
+          "diagnostic": "",
+          "incumbents": [
+            {
+              "value": "295453012865754714123444519161536519/171713189959324223328233717760000000000000000000000",
+              "nodes": 19,
+              "elapsed_seconds": 0.9276253329881001
+            },
+            {
+              "value": "82597990736861815522349599989247/6281232371625943240173158400000000000000000000",
+              "nodes": 22,
+              "elapsed_seconds": 0.9290326659975108
+            },
+            {
+              "value": "87123908037511778016724920536603/1046872061937657206695526400000000000000000000",
+              "nodes": 100,
+              "elapsed_seconds": 0.9705861659895163
+            },
+            {
+              "value": "16349016332803861515617361707/74444235515566734698348544000000000000000",
+              "nodes": 3419,
+              "elapsed_seconds": 3.0240945410041604
+            }
+          ],
+          "prepare_and_search_seconds": 5.008241542003816,
+          "log_probability": -29.14690371206396,
+          "sequence": [
+            "C7",
+            "C7",
+            "C7",
+            "C7",
+            "C7",
+            "C7",
+            "C7",
+            "C7",
+            "F7",
+            "Bbm",
+            "Eb7",
+            "Abm",
+            "Db7",
+            "Gb7",
+            "Abm",
+            "Gm",
+            "C7",
+            "C7",
+            "C7",
+            "C7",
+            "C7",
+            "C7",
+            "C7",
+            "G7"
+          ]
+        }
+      ]
+    },
+    {
+      "variant": "source_faithful",
+      "case": "boulez",
+      "alphabet": 60,
+      "transitions": 408,
+      "training_seconds": 0.0021125829953234643,
+      "construction_seconds": 0.012888209021184593,
+      "reference_seconds": 0.010666457994375378,
+      "reference_role": "relaxed_upper_bound",
+      "reference_product": "114936244705997301624160016510663452011823/95396216644069012960129843200000000000000000000000",
+      "runs": [
+        {
+          "status": "feasible",
+          "termination": "time_limit",
+          "backend": "native",
+          "arithmetic": "rational_product",
+          "complete": false,
+          "objective_bound": "21568069939200094131011449898792165887/508779822101701402454025830400000000000000000000",
+          "solutions": [
+            {
+              "assignment": {
+                "x0": "C7",
+                "x1": "G",
+                "x2": "Am",
+                "x3": "Abm",
+                "x4": "Db7",
+                "x5": "Gbm",
+                "x6": "Fm",
+                "x7": "Bb7",
+                "x8": "F7",
+                "x9": "Bm",
+                "x10": "E7",
+                "x11": "A7",
+                "x12": "Dm",
+                "x13": "Dbm",
+                "x14": "Gb7",
+                "x15": "B7",
+                "x16": "Ebm",
+                "x17": "Ab7",
+                "x18": "Bbm",
+                "x19": "Eb7",
+                "x20": "Bb",
+                "x21": "A-7b5",
+                "x22": "D7",
+                "x23": "G7"
+              },
+              "objective": "15367/5084383835316195164160000000"
+            }
+          ],
+          "explored_nodes": 4638,
+          "failed_branches": 570,
+          "pruned_branches": 3111,
+          "constraint_revisions": 65725,
+          "elapsed_seconds": 5.000121791003039,
+          "diagnostic": "",
+          "incumbents": [
+            {
+              "value": "127/648788562318993653760000000000",
+              "nodes": 22,
+              "elapsed_seconds": 0.41168587500578724
+            },
+            {
+              "value": "1397/1564043855590431129600000000000",
+              "nodes": 29,
+              "elapsed_seconds": 0.4140173330088146
+            },
+            {
+              "value": "127/104269590372695408640000000000",
+              "nodes": 39,
+              "elapsed_seconds": 0.41917120802099817
+            },
+            {
+              "value": "1397/251364191077033574400000000000",
+              "nodes": 47,
+              "elapsed_seconds": 0.42152504101977684
+            },
+            {
+              "value": "127/19698744770118549504000000000",
+              "nodes": 63,
+              "elapsed_seconds": 0.4280763750139158
+            },
+            {
+              "value": "1397/131379683869596214886400000000",
+              "nodes": 84,
+              "elapsed_seconds": 0.44027762502082624
+            },
+            {
+              "value": "1397/53863755230792908800000000000",
+              "nodes": 94,
+              "elapsed_seconds": 0.44568620799691416
+            },
+            {
+              "value": "1397/11916524614022332416000000000",
+              "nodes": 98,
+              "elapsed_seconds": 0.4472590830118861
+            },
+            {
+              "value": "15367/105572960252354101248000000000",
+              "nodes": 123,
+              "elapsed_seconds": 0.46054254099726677
+            },
+            {
+              "value": "127/333662689192625307648000000",
+              "nodes": 200,
+              "elapsed_seconds": 0.4941111660155002
+            },
+            {
+              "value": "127/198608743567038873600000000",
+              "nodes": 236,
+              "elapsed_seconds": 0.5109753750148229
+            },
+            {
+              "value": "127/56493153725735501824000000",
+              "nodes": 251,
+              "elapsed_seconds": 0.5164760829939041
+            },
+            {
+              "value": "15367/5084383835316195164160000000",
+              "nodes": 3245,
+              "elapsed_seconds": 3.4080447909946088
+            }
+          ],
+          "prepare_and_search_seconds": 5.00860895801452,
+          "log_probability": -54.15599372794655,
+          "sequence": [
+            "C7",
+            "G",
+            "Am",
+            "Abm",
+            "Db7",
+            "Gbm",
+            "Fm",
+            "Bb7",
+            "F7",
+            "Bm",
+            "E7",
+            "A7",
+            "Dm",
+            "Dbm",
+            "Gb7",
+            "B7",
+            "Ebm",
+            "Ab7",
+            "Bbm",
+            "Eb7",
+            "Bb",
+            "A-7b5",
+            "D7",
+            "G7"
+          ]
+        }
+      ]
+    },
+    {
+      "variant": "paper_style_proposed",
+      "case": "ordinary",
+      "alphabet": 36,
+      "transitions": 288,
+      "training_seconds": 0.0018052920058835298,
+      "construction_seconds": 0.009956875001080334,
+      "reference_seconds": 0.0068833749974146485,
+      "reference_role": "exact_optimum",
+      "reference_product": "19687895954026470642685310221040468384856001875/14654886251457672017098780960774335393978395451056979968",
+      "runs": [
+        {
+          "status": "optimal",
+          "termination": "exhausted",
+          "backend": "native",
+          "arithmetic": "rational_product",
+          "complete": true,
+          "objective_bound": "19687895954026470642685310221040468384856001875/14654886251457672017098780960774335393978395451056979968",
+          "solutions": [
+            {
+              "assignment": {
+                "x0": "C7",
+                "x1": "C7",
+                "x2": "C7",
+                "x3": "C7",
+                "x4": "C7",
+                "x5": "C7",
+                "x6": "C7",
+                "x7": "C7",
+                "x8": "F7",
+                "x9": "C7",
+                "x10": "C7",
+                "x11": "C7",
+                "x12": "C7",
+                "x13": "C7",
+                "x14": "C7",
+                "x15": "C7",
+                "x16": "C7",
+                "x17": "C7",
+                "x18": "C7",
+                "x19": "C7",
+                "x20": "C7",
+                "x21": "C7",
+                "x22": "C7",
+                "x23": "G7"
+              },
+              "objective": "19687895954026470642685310221040468384856001875/14654886251457672017098780960774335393978395451056979968"
+            }
+          ],
+          "explored_nodes": 22,
+          "failed_branches": 0,
+          "pruned_branches": 0,
+          "constraint_revisions": 150,
+          "elapsed_seconds": 0.6021488750120625,
+          "diagnostic": "",
+          "incumbents": [
+            {
+              "value": "19687895954026470642685310221040468384856001875/14654886251457672017098780960774335393978395451056979968",
+              "nodes": 22,
+              "elapsed_seconds": 0.6020713330071885
+            }
+          ],
+          "prepare_and_search_seconds": 0.6082008329976816,
+          "log_probability": -20.428035620988425,
+          "sequence": [
+            "C7",
+            "C7",
+            "C7",
+            "C7",
+            "C7",
+            "C7",
+            "C7",
+            "C7",
+            "F7",
+            "C7",
+            "C7",
+            "C7",
+            "C7",
+            "C7",
+            "C7",
+            "C7",
+            "C7",
+            "C7",
+            "C7",
+            "C7",
+            "C7",
+            "C7",
+            "C7",
+            "G7"
+          ]
+        }
+      ]
+    },
+    {
+      "variant": "paper_style_proposed",
+      "case": "exotic",
+      "alphabet": 36,
+      "transitions": 288,
+      "training_seconds": 0.0018052920058835298,
+      "construction_seconds": 0.013664666999829933,
+      "reference_seconds": 0.013297416997374967,
+      "reference_role": "exact_optimum",
+      "reference_product": "1512928314068492827029159706912043787/2648594649981656942109136697635546891018513154048",
+      "runs": [
+        {
+          "status": "feasible",
+          "termination": "time_limit",
+          "backend": "native",
+          "arithmetic": "rational_product",
+          "complete": false,
+          "objective_bound": "19687895954026470642685310221040468384856001875/14654886251457672017098780960774335393978395451056979968",
+          "solutions": [
+            {
+              "assignment": {
+                "x0": "C7",
+                "x1": "C7",
+                "x2": "C7",
+                "x3": "C7",
+                "x4": "C7",
+                "x5": "C7",
+                "x6": "C7",
+                "x7": "C7",
+                "x8": "F7",
+                "x9": "Bbm",
+                "x10": "Eb7",
+                "x11": "Abm",
+                "x12": "Db7",
+                "x13": "Gb7",
+                "x14": "Abm",
+                "x15": "Gm",
+                "x16": "C7",
+                "x17": "C7",
+                "x18": "C7",
+                "x19": "C7",
+                "x20": "C7",
+                "x21": "C7",
+                "x22": "C7",
+                "x23": "G7"
+              },
+              "objective": "148383353879794488804782971254835063725/593285201595891155032446620270362503588146946506752"
+            }
+          ],
+          "explored_nodes": 6130,
+          "failed_branches": 1571,
+          "pruned_branches": 3916,
+          "constraint_revisions": 54573,
+          "elapsed_seconds": 5.000065874977736,
+          "diagnostic": "",
+          "incumbents": [
+            {
+              "value": "491701702072260168784476904746414230775/43611097357935467794533517579092506220788082966265856",
+              "nodes": 20,
+              "elapsed_seconds": 0.6214419159805402
+            },
+            {
+              "value": "5786950801311985063386535878938567485275/402840651883610094267031255163576139936351776678084608",
+              "nodes": 24,
+              "elapsed_seconds": 0.6228318329958711
+            },
+            {
+              "value": "9191039507966093924202145219490666006025/604325206245677196581393029310281871916634863961112576",
+              "nodes": 39,
+              "elapsed_seconds": 0.6290234999905806
+            },
+            {
+              "value": "113469623555136962027186978018403284025/1557539191354838135519054199253303793599574391652352",
+              "nodes": 58,
+              "elapsed_seconds": 0.6352466660027858
+            },
+            {
+              "value": "1335450184918150399243046741293515573525/14387166138700360509536830541556290712012563452788736",
+              "nodes": 150,
+              "elapsed_seconds": 0.6843081660044845
+            },
+            {
+              "value": "14552982784364459478930637565378054326875/132895885157479618727268042940561200803744916017512448",
+              "nodes": 867,
+              "elapsed_seconds": 1.1192451249808073
+            },
+            {
+              "value": "12607735950570773558576330890933698225/64228420262055180846146564917662012107198943985664",
+              "nodes": 1808,
+              "elapsed_seconds": 1.7790107079781592
+            },
+            {
+              "value": "148383353879794488804782971254835063725/593285201595891155032446620270362503588146946506752",
+              "nodes": 4309,
+              "elapsed_seconds": 3.5487128749955446
+            }
+          ],
+          "prepare_and_search_seconds": 5.00608008299605,
+          "log_probability": -29.016897192529925,
+          "sequence": [
+            "C7",
+            "C7",
+            "C7",
+            "C7",
+            "C7",
+            "C7",
+            "C7",
+            "C7",
+            "F7",
+            "Bbm",
+            "Eb7",
+            "Abm",
+            "Db7",
+            "Gb7",
+            "Abm",
+            "Gm",
+            "C7",
+            "C7",
+            "C7",
+            "C7",
+            "C7",
+            "C7",
+            "C7",
+            "G7"
+          ]
+        }
+      ]
+    },
+    {
+      "variant": "paper_style_proposed",
+      "case": "boulez",
+      "alphabet": 36,
+      "transitions": 288,
+      "training_seconds": 0.0018052920058835298,
+      "construction_seconds": 0.009095334011362866,
+      "reference_seconds": 0.006530458020279184,
+      "reference_role": "relaxed_upper_bound",
+      "reference_product": "19687895954026470642685310221040468384856001875/14654886251457672017098780960774335393978395451056979968",
+      "runs": [
+        {
+          "status": "feasible",
+          "termination": "time_limit",
+          "backend": "native",
+          "arithmetic": "rational_product",
+          "complete": false,
+          "objective_bound": "60578141397004525054416339141662979645710775/1208650412491354393162786058620563743833269727922225152",
+          "solutions": [
+            {
+              "assignment": {
+                "x0": "C7",
+                "x1": "Gm",
+                "x2": "Gbm",
+                "x3": "Fm",
+                "x4": "Em",
+                "x5": "A7",
+                "x6": "Dbm",
+                "x7": "Cm",
+                "x8": "F7",
+                "x9": "Gb-7b5",
+                "x10": "B7",
+                "x11": "E7",
+                "x12": "Am",
+                "x13": "D7",
+                "x14": "Db-7b5",
+                "x15": "Gb7",
+                "x16": "Abm",
+                "x17": "Db7",
+                "x18": "Ebm",
+                "x19": "Ab7",
+                "x20": "Bbm",
+                "x21": "Eb7",
+                "x22": "Bb7",
+                "x23": "G7"
+              },
+              "objective": "61481193789929504175/217807917153152906338033218410172083137937408"
+            }
+          ],
+          "explored_nodes": 6150,
+          "failed_branches": 847,
+          "pruned_branches": 3340,
+          "constraint_revisions": 93492,
+          "elapsed_seconds": 5.000098207994597,
+          "diagnostic": "",
+          "incumbents": [
+            {
+              "value": "334240973439609375/149416231167062893747890787829378049032625061888",
+              "nodes": 15,
+              "elapsed_seconds": 0.257304375001695
+            },
+            {
+              "value": "111413657813203125/5336293970252246205281813851049216036879466496",
+              "nodes": 19,
+              "elapsed_seconds": 0.261110124993138
+            },
+            {
+              "value": "1002722920318828125/18677028895882861718486348478672256129078132736",
+              "nodes": 21,
+              "elapsed_seconds": 0.2619453330116812
+            },
+            {
+              "value": "39106193892434296875/149416231167062893747890787829378049032625061888",
+              "nodes": 27,
+              "elapsed_seconds": 0.26480533301946707
+            },
+            {
+              "value": "601633752191296875/1334073492563061551320453462762304009219866624",
+              "nodes": 545,
+              "elapsed_seconds": 0.62559945799876
+            },
+            {
+              "value": "334240973439609375/667036746281530775660226731381152004609933312",
+              "nodes": 669,
+              "elapsed_seconds": 0.7047992910083849
+            },
+            {
+              "value": "96558503438109375/190581927509008793045779066108900572745695232",
+              "nodes": 682,
+              "elapsed_seconds": 0.709812332992442
+            },
+            {
+              "value": "13035397964144765625/3049310840144140688732465057742409163931123712",
+              "nodes": 978,
+              "elapsed_seconds": 0.9081796660029795
+            },
+            {
+              "value": "847300867669409765625/170761407048071878569018043233574913180142927872",
+              "nodes": 985,
+              "elapsed_seconds": 0.9111839999968652
+            },
+            {
+              "value": "681851585816803125/108903958576576453169016609205086041568968704",
+              "nodes": 1676,
+              "elapsed_seconds": 1.3754614159988705
+            },
+            {
+              "value": "1772814123123688125/220053359598030771351827375300998599458947072",
+              "nodes": 1679,
+              "elapsed_seconds": 1.3764000000082888
+            },
+            {
+              "value": "11045995690232210625/1334073492563061551320453462762304009219866624",
+              "nodes": 1786,
+              "elapsed_seconds": 1.4369997910107486
+            },
+            {
+              "value": "207419252405471510625/6098621680288281377464930115484818327862247424",
+              "nodes": 1819,
+              "elapsed_seconds": 1.456470833014464
+            },
+            {
+              "value": "239329906621697896875/3049310840144140688732465057742409163931123712",
+              "nodes": 1826,
+              "elapsed_seconds": 1.4584521659999155
+            },
+            {
+              "value": "12518795115596505375/108903958576576453169016609205086041568968704",
+              "nodes": 5694,
+              "elapsed_seconds": 4.691130582999904
+            },
+            {
+              "value": "61481193789929504175/217807917153152906338033218410172083137937408",
+              "nodes": 5806,
+              "elapsed_seconds": 4.754581125016557
+            }
+          ],
+          "prepare_and_search_seconds": 5.006321624998236,
+          "log_probability": -56.52692445624584,
+          "sequence": [
+            "C7",
+            "Gm",
+            "Gbm",
+            "Fm",
+            "Em",
+            "A7",
+            "Dbm",
+            "Cm",
+            "F7",
+            "Gb-7b5",
+            "B7",
+            "E7",
+            "Am",
+            "D7",
+            "Db-7b5",
+            "Gb7",
+            "Abm",
+            "Db7",
+            "Ebm",
+            "Ab7",
+            "Bbm",
+            "Eb7",
+            "Bb7",
+            "G7"
+          ]
+        }
+      ]
+    }
+  ]
+}

@@ -10,6 +10,7 @@ from __future__ import annotations
 
 from collections.abc import Callable, Mapping
 from dataclasses import dataclass
+from fractions import Fraction
 from time import perf_counter
 
 from ..terms import Term
@@ -17,13 +18,20 @@ from .constraints import PersistentConstraint
 from .factors import FactorObjective, TableFactor
 from .model import FactConstraint, FiniteModel, GuardedConstraint, PredicateConstraint
 from .predicates import accepts
+from .product_objective import (
+    ProductChainBound,
+    RationalProductObjective,
+    supports_product_chain,
+)
 
 
 class NoObjectiveCompletion(Exception):
     """Even the relaxed problem has no completion; the branch is infeasible."""
 
 
-type ObjectiveBound = Callable[[Mapping[Term, frozenset[Term]]], tuple[int, int] | None]
+type ObjectiveBound = Callable[
+    [Mapping[Term, frozenset[Term]]], tuple[int | Fraction, int | Fraction] | None
+]
 
 
 @dataclass(frozen=True, slots=True)
@@ -134,6 +142,10 @@ def compile_objective_bound(
     objective = model.objective
     if objective is None:
         return lambda domains: None
+    if isinstance(objective, RationalProductObjective):
+        if supports_product_chain(model, max_edges):
+            return ProductChainBound(model, deadline=deadline)
+        return objective.bounds
     if not isinstance(objective, FactorObjective) or any(
         not isinstance(f, TableFactor) for f in objective.factors
     ):

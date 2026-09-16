@@ -35,7 +35,7 @@ def result_payload(result: QueryResult, *, explain: bool = False) -> dict[str, A
             "assignment": {
                 render_term(k): render_term(v) for k, v in solution.assignment.items()
             },
-            "objective": solution.objective_value,
+            "objective": _number(solution.objective_value),
         }
         if explain:
             item["facts"] = sorted(_fact(fact) for fact in solution.facts)
@@ -74,7 +74,7 @@ def result_payload(result: QueryResult, *, explain: bool = False) -> dict[str, A
         "backend": result.backend,
         "arithmetic": result.arithmetic,
         "complete": result.complete,
-        "objective_bound": result.objective_bound,
+        "objective_bound": _number(result.objective_bound),
         "solutions": solutions,
         "explored_nodes": result.explored_nodes,
         "failed_branches": result.failed_branches,
@@ -84,7 +84,7 @@ def result_payload(result: QueryResult, *, explain: bool = False) -> dict[str, A
         "diagnostic": result.diagnostic,
         "incumbents": [
             {
-                "value": point.value,
+                "value": _number(point.value),
                 "nodes": point.explored_nodes,
                 "elapsed_seconds": point.elapsed_seconds,
             }

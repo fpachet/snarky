@@ -21,6 +21,7 @@ from .model import (
     Termination,
 )
 from .oracle import enumerate_model
+from .product_objective import RationalProductObjective
 from .search import solve
 
 __all__ = [
@@ -42,6 +43,7 @@ __all__ = [
     "QueryResult",
     "QueryRequest",
     "ResultStatus",
+    "RationalProductObjective",
     "ScoreContribution",
     "Solution",
     "Termination",

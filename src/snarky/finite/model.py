@@ -5,6 +5,7 @@ from __future__ import annotations
 from collections.abc import Callable, Mapping
 from dataclasses import dataclass
 from enum import StrEnum
+from fractions import Fraction
 from types import MappingProxyType
 from typing import TYPE_CHECKING
 
@@ -25,6 +26,7 @@ from .constraints import PersistentConstraint
 from .factors import FactorObjective, ScoreContribution
 from .measure import Measure
 from .predicates import integer
+from .product_objective import RationalProductObjective
 
 if TYPE_CHECKING:
     from ..engine.provenance import Derivation
@@ -158,7 +160,9 @@ class FiniteModel:
     constraints: tuple[Constraint, ...] = ()
     context: tuple[Fact, ...] = ()
     rules: tuple[RuleGroup, ...] = ()
-    objective: LinearObjective | FactorObjective | None = None
+    objective: LinearObjective | FactorObjective | RationalProductObjective | None = (
+        None
+    )
     measure: Measure | None = None
 
     def __post_init__(self) -> None:
@@ -262,7 +266,7 @@ class Termination(StrEnum):
 class Solution:
     assignment: Mapping[Term, Term]
     facts: frozenset[Fact]
-    objective_value: int | None = None
+    objective_value: int | Fraction | None = None
     derivations: tuple[Derivation, ...] = ()
     reductions: tuple[DomainRemoval, ...] = ()
     contributions: tuple[ScoreContribution, ...] = ()
@@ -280,7 +284,7 @@ def score_solution(
     facts: frozenset[Fact],
     *,
     reference: bool = False,
-) -> tuple[int | None, tuple[ScoreContribution, ...]]:
+) -> tuple[int | Fraction | None, tuple[ScoreContribution, ...]]:
     """Evaluate once on the complete snapshot, separately from search decisions."""
     if isinstance(model.objective, FactorObjective):
         contributions = model.objective.contributions(
@@ -295,7 +299,7 @@ def score_solution(
 
 @dataclass(frozen=True, slots=True)
 class IncumbentRecord:
-    value: int
+    value: int | Fraction
     explored_nodes: int
     elapsed_seconds: float
 
@@ -307,13 +311,13 @@ class QueryResult:
     solutions: tuple[Solution, ...] = ()
     explored_nodes: int = 0
     backend: str = "enumeration"
-    objective_bound: int | None = None
+    objective_bound: int | Fraction | None = None
     arithmetic: str = "integer"
     diagnostic: str = ""
     failed_branches: int = 0
     pruned_branches: int = 0
     constraint_revisions: int = 0
-    incumbent_values: tuple[int, ...] = ()
+    incumbent_values: tuple[int | Fraction, ...] = ()
     incumbent_history: tuple[IncumbentRecord, ...] = ()
     elapsed_seconds: float | None = None
     inference: InferenceDistribution | None = None

@@ -16,7 +16,8 @@ same objects. Existing CSP search remains available as the legacy implementation
 product, computes deterministic closure, checks complete constraint predicates,
 and evaluates the explicit objective. It performs no constraint propagation or
 objective-bound pruning. The native `solve` uses domain bit masks, an incident
-propagation queue, reversible iterative DFS, and integer branch-and-bound.
+propagation queue, reversible iterative DFS, and exact integer or rational-product
+branch-and-bound.
 
 The native backend supports pure finite CSPs and mixed models. Pure CSPs use no
 inference session. Mixed models coordinate the existing incremental matcher with
@@ -282,3 +283,35 @@ reference = infer(model, backend="enumeration")
 regular = infer(model, backend="regular_bp")
 sampled = infer(model, Query(QueryKind.SAMPLE_EXACT, sample_count=10, seed=7))
 ```
+
+## Exact rational-product optimization (Blues follow-on)
+
+The Python API also accepts `RationalProductObjective(tuple_of_WeightTable)`.
+It multiplies nonnegative exact rational table weights, independently of any
+sampling measure or search decisions. An empty product is one. Zero objective
+weight remains feasible unless a hard constraint forbids that assignment.
+Missing table rows receive the declared default. Prefer `Fraction` inputs for
+count-derived probabilities; floating inputs retain their exact binary value.
+
+Both native search and exhaustive enumeration support minimization and
+maximization. Their values, bounds and incumbent histories use `Fraction` and
+report `arithmetic="rational_product"`. JSON result projection renders fractions
+as numerator/denominator strings. Integer objective results are unchanged.
+The parsed MODEL objective syntax remains integer-based; rational-product
+objectives currently require the Python API. Additive factor contribution
+explanations are not generated for products; the Blues benchmark records each
+local probability separately.
+
+Local bounds multiply factor extrema. For unary and adjacent-pair factors under
+an explicit preparation budget, auto bounding compiles a max-product chain
+relaxation and optionally includes one equality COUNT with target 0 through 4.
+All other hard constraints are relaxed, while current variable domains are
+respected. Its upper bound is exact for that relaxation, including the selected
+count; its lower bound is conservatively zero. A zero upper bound never implies
+hard infeasibility. Wider factors fall back to independent bounds. Compilation
+and message-passing timeouts return UNKNOWN or an existing incumbent and restore
+caller state. Messages are recomputed, not yet maintained incrementally.
+
+See the [Blues corpus audit](../benchmarks/data/omnibook_blues_v1/README.md) and
+[Markov implementation progress](markov_constraints_progress.md) for the initial
+application and the remaining variable-order work.
