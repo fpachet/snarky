@@ -114,6 +114,30 @@ occur at safe boundaries and are cooperative, not preemptive thread cancellation
 The native time budget covers search; immutable model/table preparation occurs
 before that timer and is measured separately in performance comparisons.
 
+## Observing search progress
+
+`solve(..., on_progress=callback)` and `finite.search.search(...,
+on_progress=callback)` optionally deliver frozen `SearchProgress` observations.
+The type lives in `snarky.finite.search`. Events are `start`, `node`, `bound`,
+`incumbent` and `finished`; they expose entered-node, failure, pruning and revision
+counts, depth, elapsed time, an incumbent if available, and the propagated root
+objective bound. A node event precedes propagation, so its entered node may still
+be unfinished. Incumbent events follow complete feasibility and objective checks.
+
+`root_objective_bound` stays the root bound even when the final result proves a
+tighter optimum. Only `progress.result` on `finished` carries a `QueryResult` and
+its completion status. Earlier observations are not proofs or remaining-frontier
+bounds. The observer is disabled by default; its time counts when enabled.
+Callbacks are trusted code, must not mutate search state, and exceptions unwind
+native or mixed checkpoints. Partition and exact-sampling queries reject this
+DFS-specific observation option.
+
+The [diagnostic worker](../benchmarks/csp_diagnostics.py) flushes progress records
+and validated optimization incumbents before completion. Its collector preserves
+partial logs on an external kill and flags a truncated final JSON line. CPU and
+allocation instrumentation are separate from normal latency runs; see the
+[first optimization report](performance_csp_arithmetic_2026-09-16.md).
+
 ## Compatibility and migration
 
 `csp_solver.native.native_model` explicitly translates initial legacy candidate

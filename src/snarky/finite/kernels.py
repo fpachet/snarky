@@ -283,6 +283,45 @@ def _revise_linear_sum(
             return False
         weighted_domains.append((variable, converted))
 
+    if constraint.operator is not ConstraintOperator.EQUAL:
+        # For an inequality, each value has support exactly when the other
+        # independent variables can take their extremal contributions. Holes,
+        # negative coefficients and arbitrary-size integers need no sum DP.
+        lower = constraint.operator is ConstraintOperator.LESS_EQUAL
+        extremum = min if lower else max
+        extrema = [extremum(values.values()) for _, values in weighted_domains]
+        total = sum(extrema)
+        if not _aggregate_accepts(constraint.operator, total, constraint.target):
+            return False
+        for (variable, values), own in zip(weighted_domains, extrema, strict=True):
+            remainder = total - own
+            domains[variable].intersection_update(
+                term
+                for term, contribution in values.items()
+                if (
+                    contribution + remainder <= constraint.target
+                    if lower
+                    else contribution + remainder >= constraint.target
+                )
+            )
+        return True
+
+    if len(weighted_domains) <= 2:
+        # Unary tests and binary affine channels have direct exact supports.
+        # Compute both supports from the original contribution maps.
+        for position, (variable, values) in enumerate(weighted_domains):
+            other = (
+                {0}
+                if len(weighted_domains) == 1
+                else set(weighted_domains[1 - position][1].values())
+            )
+            domains[variable].intersection_update(
+                term
+                for term, contribution in values.items()
+                if constraint.target - contribution in other
+            )
+        return all(domains[variable] for variable, _ in weighted_domains)
+
     prefix: list[set[int]] = [{0}]
     for _, values in weighted_domains:
         prefix.append(
@@ -307,26 +346,11 @@ def _revise_linear_sum(
         remainders = {
             left + right for left in prefix[position] for right in suffix[position + 1]
         }
-        if constraint.operator is ConstraintOperator.EQUAL:
-            supported = {
-                term
-                for term, contribution in values.items()
-                if constraint.target - contribution in remainders
-            }
-        elif constraint.operator is ConstraintOperator.LESS_EQUAL:
-            minimum = min(remainders)
-            supported = {
-                term
-                for term, contribution in values.items()
-                if contribution + minimum <= constraint.target
-            }
-        else:
-            maximum = max(remainders)
-            supported = {
-                term
-                for term, contribution in values.items()
-                if contribution + maximum >= constraint.target
-            }
+        supported = {
+            term
+            for term, contribution in values.items()
+            if constraint.target - contribution in remainders
+        }
         domains[variable].intersection_update(supported)
         if not domains[variable]:
             return False
@@ -344,14 +368,13 @@ def _revise_binary_comparison(
     if not left_domain or not right_domain:
         return False
     if constraint.operator is BinaryComparisonOperator.NOT_EQUAL:
-        supported_left = {
-            left for left in left_domain if any(left != right for right in right_domain)
-        }
-        supported_right = {
-            right
-            for right in right_domain
-            if any(left != right for left in left_domain)
-        }
+        left_singleton = next(iter(left_domain)) if len(left_domain) == 1 else None
+        right_singleton = next(iter(right_domain)) if len(right_domain) == 1 else None
+        if right_singleton is not None:
+            left_domain.discard(right_singleton)
+        if left_singleton is not None:
+            right_domain.discard(left_singleton)
+        return bool(left_domain and right_domain)
     else:
         left_values = {
             term: _numeric_candidate(
@@ -369,27 +392,21 @@ def _revise_binary_comparison(
             )
             for term in right_domain
         }
+        maximum_right = max(right_values.values())
+        minimum_left = min(left_values.values())
         if constraint.operator is BinaryComparisonOperator.LESS_EQUAL:
             supported_left = {
-                term
-                for term, left in left_values.items()
-                if any(left <= right for right in right_values.values())
+                term for term, left in left_values.items() if left <= maximum_right
             }
             supported_right = {
-                term
-                for term, right in right_values.items()
-                if any(left <= right for left in left_values.values())
+                term for term, right in right_values.items() if minimum_left <= right
             }
         else:
             supported_left = {
-                term
-                for term, left in left_values.items()
-                if any(left < right for right in right_values.values())
+                term for term, left in left_values.items() if left < maximum_right
             }
             supported_right = {
-                term
-                for term, right in right_values.items()
-                if any(left < right for left in left_values.values())
+                term for term, right in right_values.items() if minimum_left < right
             }
     left_domain.intersection_update(supported_left)
     right_domain.intersection_update(supported_right)

@@ -1,7 +1,10 @@
 # CSP optimization roadmap after the Prune baseline
 
-Status: **planned**, 16 September 2026. No solver change or new performance claim
-is made by this document. This is the active plan for the Python finite runtime,
+Status: **in progress**, 16 September 2026. The
+[first diagnostic/arithmetic slice](performance_csp_arithmetic_2026-09-16.md)
+implements opt-in observations, profiles slow cases, improves exact inequality
+and binary filtering, and removes a profiled incident-index setup cost. The
+remaining phases below are planned. This is the active plan for the Python finite runtime,
 based on the [Prune baseline](performance_prune_2026-09-16.md), source inspection
 at `5f66b0b`, and the existing rule/CSP/mixed and Markov regression portfolios.
 The earlier [solver plan](solver_optimization_plan.md) remains the history of
@@ -299,3 +302,9 @@ by P1 signed linear inequalities and direct binary channels with exhaustive supp
 oracles. Then tackle equality-sum and domain-materialization costs identified by
 those profiles, and introduce native NValue. Start the compact-domain contract
 review during P0 so that its later implementation fits the same reversible store.
+
+The [first-slice report](performance_csp_arithmetic_2026-09-16.md) records its
+implemented subset and paired evidence. P0 matched-policy comparisons, the rest
+of P1 weighted-equality work, general P2 domain views, native NValue and compact
+domains remain open. The measured setup fix is a small P2 improvement promoted
+by the P0 profile, not completion of that phase.

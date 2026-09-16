@@ -3,6 +3,8 @@
 from dataclasses import replace
 from itertools import permutations
 
+import pytest
+
 from snarky import Atom, EngineLimits, Fact, Number, Triple, parse_rule_groups
 from snarky.finite import (
     FactConstraint,
@@ -108,6 +110,22 @@ def test_mixed_search_facts_solutions_and_optima_match_independent_oracle():
             )
             assert best.status is ResultStatus.OPTIMAL
             assert best.incumbent.objective_value == best.objective_bound == 4
+
+
+def test_progress_observer_exception_restores_mixed_facts_and_domains():
+    state = MixedState(allocation())
+    before = state.domains.snapshot()
+    facts = tuple(state.session.facts)
+
+    def observe(event):
+        if event.event == "incumbent":
+            raise RuntimeError("observer interrupted mixed search")
+
+    with pytest.raises(RuntimeError, match="observer interrupted"):
+        search(state, Query(QueryKind.MINIMIZE), on_progress=observe)
+    assert state.domains.snapshot() == before
+    assert tuple(state.session.facts) == facts
+    assert state.domains.removals == ()
 
 
 def test_failed_derivations_and_restrictions_restore_together_across_siblings():

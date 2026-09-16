@@ -433,3 +433,13 @@ The [active CSP optimization roadmap](csp_optimization_roadmap_2026-09-16.md)
 defines the follow-up order and per-phase acceptance evidence. New diagnostics,
 NValue variants and compact-domain workloads supplement this baseline under
 separate labels; they do not replace historical measurements.
+
+The [first arithmetic and setup slice](performance_csp_arithmetic_2026-09-16.md)
+adds opt-in progress observations, before/after profiles, exact inequality and
+binary-channel improvements and a linear incident-index construction. Its paired
+comparison holds Python, inputs and search policy fixed; rule/mixed/Markov controls
+and separate allocation diagnostics accompany the CSP records.
+Completion remains 47/59 at five seconds. FT06 optimization improves from 2.594 s
+to 1.382 s and 50 queens from 1.249 s to 0.874 s, with identical nodes, failures,
+revisions and solutions. Small-case regressions and the follow-up repeat are
+retained alongside the gains.

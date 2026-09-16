@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from collections.abc import Iterator, Mapping
+from collections.abc import Callable, Iterator, Mapping
 from dataclasses import dataclass
 from fractions import Fraction
 from time import perf_counter
@@ -51,6 +51,27 @@ class _Frame[Checkpoint]:
     values: Iterator[Term]
 
 
+@dataclass(frozen=True, slots=True)
+class SearchProgress:
+    """Opt-in observation of DFS, not a proof or a remaining-frontier bound.
+
+    Nodes count entered nodes, including a currently unfinished propagation.
+    Only ``result`` on the final event carries a termination/proof status.
+    Observers must not mutate search state. Exceptions unwind checkpoints.
+    """
+
+    event: str
+    explored_nodes: int
+    failed_branches: int
+    pruned_branches: int
+    constraint_revisions: int
+    depth: int
+    elapsed_seconds: float
+    incumbent: Solution | None
+    root_objective_bound: int | Fraction | None
+    result: QueryResult | None = None
+
+
 def solve(
     model: FiniteModel,
     query: Query | None = None,
@@ -61,6 +82,7 @@ def solve(
     bounding: str = "auto",
     value_policy: str = "declared",
     initial_assignment: Mapping[Term, Term] | None = None,
+    on_progress: Callable[[SearchProgress], None] | None = None,
 ) -> QueryResult:
     """Run native domains, adding the rule coordinator only for mixed models."""
     query = Query() if query is None else query
@@ -70,6 +92,8 @@ def solve(
     ):
         raise ValueError("initial assignment requires an optimization query")
     if query.kind in (QueryKind.PARTITION, QueryKind.SAMPLE_EXACT):
+        if on_progress is not None:
+            raise ValueError("progress observation requires a DFS search query")
         from .inference import infer
 
         return infer(model, query, backend="weighted_search")
@@ -85,6 +109,7 @@ def solve(
             bounding=bounding,
             value_policy=value_policy,
             initial_assignment=initial_assignment,
+            on_progress=on_progress,
         )
     return search(
         NativeState(model),
@@ -95,6 +120,7 @@ def solve(
         bounding=bounding,
         value_policy=value_policy,
         initial_assignment=initial_assignment,
+        on_progress=on_progress,
     )
 
 
@@ -108,6 +134,7 @@ def search[Checkpoint](
     bounding: str = "auto",
     value_policy: str = "declared",
     initial_assignment: Mapping[Term, Term] | None = None,
+    on_progress: Callable[[SearchProgress], None] | None = None,
 ) -> QueryResult:
     """The controller owns incumbents; state checkpoints own only branch state."""
     model = state.model
@@ -147,14 +174,12 @@ def search[Checkpoint](
         None if query.time_limit_seconds is None else started + query.time_limit_seconds
     )
     weights = {constraint.name: 1 for constraint in model.constraints}
-    incident = {
-        var: [
-            constraint.name
-            for constraint in model.constraints
-            if var in constraint.variables
-        ]
-        for var in names
-    }
+    # Visit each scope once, preserving constraint order and the old membership
+    # semantics for scopes with repeated references (e.g. predicates).
+    incident: dict[Term, list[Atom]] = {var: [] for var in names}
+    for constraint in model.constraints:
+        for var in dict.fromkeys(constraint.variables):
+            incident[var].append(constraint.name)
     solutions: list[Solution] = []
     history: list[int | Fraction] = []
     objective_bound: ObjectiveBound = (
@@ -164,9 +189,27 @@ def search[Checkpoint](
     frames: list[_Frame[Checkpoint]] = []
     explored = failed = pruned = 0
     global_bound = None
+    observed_root_bound = None
     termination = Termination.EXHAUSTED
     diagnostic = ""
     root = state.checkpoint()
+
+    def emit(event: str, result: QueryResult | None = None) -> None:
+        if on_progress is not None:
+            on_progress(
+                SearchProgress(
+                    event,
+                    explored,
+                    failed,
+                    pruned,
+                    state.revisions,
+                    len(frames),
+                    perf_counter() - started,
+                    solutions[0] if solutions else None,
+                    observed_root_bound,
+                    result,
+                )
+            )
 
     def advance() -> bool:
         while frames:
@@ -182,6 +225,7 @@ def search[Checkpoint](
         return False
 
     try:
+        emit("start")
         if initial_assignment is not None:
             seed_checkpoint = state.checkpoint()
             try:
@@ -200,6 +244,7 @@ def search[Checkpoint](
                         seed_solution.objective_value, 0, perf_counter() - started
                     )
                 )
+                emit("incumbent")
             finally:
                 state.rollback(seed_checkpoint)
                 state.release(seed_checkpoint)
@@ -215,6 +260,8 @@ def search[Checkpoint](
                 termination = Termination.TIME_LIMIT
                 break
             explored += 1
+            if on_progress is not None:
+                emit("node")
             try:
                 consistent = state.propagate(deadline=deadline)
             except TimeoutError:
@@ -247,6 +294,9 @@ def search[Checkpoint](
                 )
                 if explored == 1:
                     global_bound = bound
+                    observed_root_bound = bound
+                if on_progress is not None:
+                    emit("bound")
                 incumbent = solutions[0].objective_value if solutions else None
                 if (
                     bound is not None
@@ -280,6 +330,7 @@ def search[Checkpoint](
                                     value, explored, perf_counter() - started
                                 )
                             )
+                            emit("incumbent")
                             if global_bound is not None and value == global_bound:
                                 # The root relaxation bounds every remaining branch.
                                 # Reaching it proves optimality without visiting them.
@@ -369,7 +420,7 @@ def search[Checkpoint](
         global_bound = solutions[0].objective_value
     else:
         status = ResultStatus.FEASIBLE
-    return QueryResult(
+    result = QueryResult(
         status,
         termination,
         tuple(solutions),
@@ -387,3 +438,5 @@ def search[Checkpoint](
         elapsed_seconds=perf_counter() - started,
         diagnostic=diagnostic,
     )
+    emit("finished", result)
+    return result

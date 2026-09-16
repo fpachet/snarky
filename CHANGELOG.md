@@ -33,6 +33,11 @@ details are documented in [docs/versioning.md](docs/versioning.md).
 
 ### Added
 
+- Opt-in finite-search progress observations, flushed diagnostic records and
+  archived before/after CSP profiles. Exact arithmetic fast paths avoid reachable
+  sums for inequalities and binary channels; search builds its incident index
+  in one pass. The [performance report](docs/performance_csp_arithmetic_2026-09-16.md)
+  records gains, regressions and unchanged proof/search results.
 - Exact variable-order Markov training, four scoring modes, forbidden patterns,
   rational contour objectives and fixed-prefix continuation; sparse suffix-state
   DP and compilation into ordinary CSP constraints/factors.

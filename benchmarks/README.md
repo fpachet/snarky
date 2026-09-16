@@ -61,8 +61,10 @@ these controlled comparisons.
 
 The [active optimization roadmap](../docs/csp_optimization_roadmap_2026-09-16.md)
 defines the diagnostic workloads, phase order, new runtime large-domain probes,
-native NValue ablation and regression gates. Its additions are planned; they do
-not alter the frozen Prune comparison or imply new measured results.
+native NValue ablation and regression gates. The
+[first implemented slice](../docs/performance_csp_arithmetic_2026-09-16.md)
+adds separate diagnostic and paired Python/Python records. The original Prune
+comparison remains frozen; native NValue and compact domains remain planned.
 
 The factor-support microbenchmark compares one committed evaluator with the
 working tree using the same current matcher, alternating measurement order
@@ -84,6 +86,8 @@ environment, and dirty-checkout status.
 | Module | Comparison |
 |---|---|
 | `prune_comparison` | Prune/Snarky same-model pure CSP and optimization, with independent Gecode validation |
+| `csp_followup` | Frozen Prune models: separate CPU/allocation diagnostics and paired Python runtime measurements |
+| `csp_controls` | Same-worker rule, legacy CSP, mixed, Markov and Boulez compatibility/performance controls |
 | `claire_n_queens` | normalized N-Queens comparison with CLAIRE4 |
 | `claire_talarian_filter` | normalized Talarian rule-filter comparison with CLAIRE4 |
 | `claire_triangle_closure` | streamed multi-premise triangle closure with CLAIRE4 |

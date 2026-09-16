@@ -349,6 +349,11 @@ orders the follow-up: slow-case diagnostics, arithmetic and Python overhead,
 native NValue, search/optimization, compact integer domains, then further globals
 where profiles justify them. It defines correctness and performance gates for
 each stage while preserving rule, mixed-model and Markov behavior.
+The [first implemented slice](docs/performance_csp_arithmetic_2026-09-16.md)
+adds interrupted-search diagnostics and improves exact arithmetic and search
+setup. Paired Python/Python measurements show 1.88× faster FT06 optimization
+and 1.43× faster 50 queens, with unchanged search counts. Completion remains
+47/59 at five seconds; the report also records small-case overhead and timeouts.
 
 Correctness tests compare optimized strategies with the executable reference
 implementation across mutation, negation, search, propagation, and
