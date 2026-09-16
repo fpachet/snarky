@@ -5,6 +5,12 @@ finite CSP/optimization API. It exercises pure CSP without forward chaining.
 The runtime is unchanged: this addition comprises fixtures, a strict benchmark
 adapter, a measurement collector, correctness tests, and recorded evidence.
 
+**Prune is compiled Rust; Snarky's finite solver is implemented in Python.**
+Throughout this report, Snarky's "native" finite runtime means its direct Python
+CSP API, without the forward-chaining bridge; it does not mean machine-code
+execution. The measurements compare complete implementations and are an external
+performance reference for improving the Python engine.
+
 At the common five-second limit, **Prune completes 59/59 workloads; Snarky
 completes 47/59**, in all three measured repetitions. Snarky proves three of five
 optimization cases; Prune proves all five. Prune has lower median process time
@@ -15,8 +21,31 @@ Python startup dominates the smallest Snarky runs (roughly 0.12 s versus
 0.003–0.004 s for Prune), but it does not explain the larger gaps: FT06
 optimization takes 2.739 s versus 0.0085 s, with 2.618 s spent inside Snarky's
 native preparation/search alone. Queens 50 takes 1.315 s versus 0.0116 s;
-queens 104/150 exceed Snarky's limit. This is a useful correctness and regression
-baseline, but Snarky is not yet competitive with Prune on this general CSP portfolio.
+queens 104/150 exceed Snarky's limit. These are observed implementation gaps on
+this portfolio. They do not establish that Snarky's algorithms are worse, or how
+much of the gap is caused by Python execution, search policy or constraint encoding.
+
+## Interpreting the Rust/Python comparison
+
+Identical input models and independent correctness checks make the baseline useful
+for comparing end-to-end completion and latency. They do not ensure identical
+search trees, equivalent propagators, or equal work per node. Removing startup
+from a timing still leaves Python execution and allocation costs inside the solve.
+Conversely, the language difference alone does not explain a measured gap without
+profiling and controlled comparisons; no universal Rust/Python multiplier is assumed.
+
+| Question | Evidence needed in follow-up runs | Current limitation |
+|---|---|---|
+| How effective is search? | Nodes and failures under matched variable/value ordering, branching, symmetry breaking, objective bounds and stopping conditions | Snarky uses dom/wdeg; Prune retains annotations and its default portfolio. The current run does not match these policies. |
+| How strong and costly is propagation? | Retained domains after the same reductions, supported-value oracles, and filtering work on controlled states | Native NValue and its Snarky decomposition differ; propagator-call and revision counts need compatible definitions. |
+| Where does implementation time go? | Separate startup, construction and solve timings; profiles of propagation, allocation, copying and scheduling; paired Snarky runs with equivalent work | Current phase timings are coarse and do not attribute the remaining gap to particular Python operations. |
+
+Raw counters are retained where available, but node, failure and propagation
+definitions must be reconciled before cross-solver ratios are interpreted.
+Useful Python optimizations should reduce work or its execution cost while
+preserving semantics. Matching Prune's absolute Rust speed is a separate objective,
+not a requirement for an efficient Python implementation or a reason by itself
+to rewrite the engine in Rust.
 
 ## Coverage and provenance
 
@@ -221,12 +250,27 @@ Commands and outcomes are retained in the
 [validation record](../benchmarks/results/prune_comparison_2026-09-16/validation.json)
 and adjacent regression log.
 
-The first follow-up should profile native preparation, propagation and search
-separately on the cases that miss the cap. Then compare bounded linear filtering,
-native NValue, compact domains, cheaper all-different updates, and search-policy
-changes as separate candidates. Scheduling and packing may benefit from stronger
-problem-specific globals rather than only faster linear decompositions. Do not
-attribute a timeout to one propagator without profiling and ablation.
+The next measurements should proceed in this order:
+
+1. Profile Snarky's Python preparation, propagation and search separately on
+   completed slow cases and bounded runs of timed-out cases. Measure allocation,
+   copying and scheduling in separate instrumented runs so profiling does not
+   contaminate the latency baseline.
+2. Add a controlled search comparison: match branching policies, value order,
+   symmetry breaking, bounds and termination criteria where both engines permit
+   it, and document any remaining differences. Reconcile counter definitions
+   before using nodes and failures to assess search effectiveness. This controlled
+   comparison is planned; it is not implemented by the current collector.
+3. Compare individual propagators on the same domain states and reduction traces,
+   validating retained values against small exhaustive oracles. Separate stronger
+   filtering from cheaper execution of equivalent filtering, and compare NValue
+   encodings explicitly.
+4. Select optimizations from that evidence and benchmark each against unchanged
+   Snarky on the same Python version. Candidates include bounded linear filtering,
+   native NValue, compact domains, cheaper all-different updates and reduced
+   allocation/copying. Evaluate search-policy changes separately. Scheduling and
+   packing may benefit from stronger problem-specific globals. Attribute benefits
+   through profiles and ablation, preserving regressions and timeouts in the report.
 
 Preserve this baseline and the original rule/CSP/mixed regression portfolios.
 Freeze each candidate before running the missing reserved validation suite when

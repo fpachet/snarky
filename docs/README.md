@@ -26,7 +26,8 @@ should not be mechanically mixed with English sections.
 - [Redesign performance baseline](performance_baseline.md): fixed non-Bach workloads,
   fresh timings, comparison protocol, and optimization ledger.
 - [Prune CSP comparison](performance_prune_2026-09-16.md): shared models, optimization,
-  global constraints, independently validated timings and explicit coverage gaps.
+  global constraints, independently validated Rust/Python implementation timings,
+  interpretation limits and explicit coverage gaps.
 - [Redesign implementation evidence](redesign_progress.md)
 - [Markov constraints action plan](markov_constraints_plan.md): audited LSDB Blues,
   four scoring modes, numerical guarantees, and ordered solver improvements.

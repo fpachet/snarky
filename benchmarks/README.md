@@ -49,6 +49,16 @@ timeouts, startup overhead, the NValue decomposition, and compiler-solved cases.
 The requested CSPLib and reserved validation suites (31 more instances) are not
 present in the pinned upstream revision and remain explicitly unfilled.
 
+Prune is compiled Rust and Snarky's finite solver is Python. The process timings
+compare those complete implementations, including their different search policies
+and native NValue versus decomposition. They establish observed completion and
+latency, but do not isolate language overhead or rank the underlying algorithms.
+Use matched branching and comparable node/failure definitions to investigate search
+effectiveness; use controlled domain reductions to compare propagation strength.
+Profile Python preparation, propagation, allocation/copying and scheduling separately
+before selecting optimizations. Preserve the original measurements when adding
+these controlled comparisons.
+
 The factor-support microbenchmark compares one committed evaluator with the
 working tree using the same current matcher, alternating measurement order
 and checking every score, witness count, and ordered support list:

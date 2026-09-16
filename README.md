@@ -336,7 +336,13 @@ imports remain compatible during the 0.1 series.
 
 The [Prune comparison](docs/performance_prune_2026-09-16.md) adds a shared-model
 pure CSP/optimization portfolio with independent Gecode validation, recorded
-timeouts, and explicit coverage and solver-capability differences.
+timeouts, and explicit coverage and solver-capability differences. **Prune is
+compiled Rust; Snarky's finite solver is implemented in Python.** These timings
+compare complete implementations with different search policies and some different
+constraint encodings. They do not establish an algorithm-quality ranking or isolate
+the cost of either language. Follow-up work separates search effort, propagation
+strength and Python implementation overhead; the objective is an efficient Python
+CSP engine, with Prune providing an external performance reference.
 
 Correctness tests compare optimized strategies with the executable reference
 implementation across mutation, negation, search, propagation, and

@@ -418,3 +418,13 @@ are not evidence of native billion-value domain support.
 This is an additional unchanged-runtime baseline, not an accepted optimization.
 Future candidates should retain these outcomes and use contemporaneous paired
 runs; raw Prune process time and Snarky internal solve time are different scopes.
+
+Prune's release binary is compiled Rust; Snarky's direct finite runtime is Python.
+The recorded gap combines implementation overhead, search policy and constraint
+encoding/propagation differences. It neither ranks the algorithms nor measures a
+language-only speed factor. Follow-up acceptance should distinguish better search
+(comparable nodes/failures under matched policies), stronger propagation (unsupported
+values removed on controlled states), and cheaper Python execution (profiling and
+paired timings at equivalent work). Counter definitions must be reconciled before
+cross-solver comparisons. Improving Snarky's Python engine is the immediate goal;
+absolute parity with a Rust solver is not a prerequisite for accepting an improvement.
