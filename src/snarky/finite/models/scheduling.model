@@ -1,0 +1,45 @@
+MODEL scheduling
+    VARIABLE setup DOMAIN SEQ[1 2 3]
+    VARIABLE delivery DOMAIN SEQ[1 2 3]
+
+    GROUP scheduling
+        RULE late_setup
+        WHEN
+            (setup value 3)
+        THEN
+            ADD (shift needs overtime)
+        END
+    END_GROUP
+
+    CONSTRAINT separate_slots
+        KIND ALL_DIFFERENT
+        SCOPE SEQ[setup delivery]
+    END_CONSTRAINT
+    CONSTRAINT late_delivery_policy
+        KIND TABLE
+        SCOPE SEQ[delivery]
+        GUARD (shift needs overtime)
+        ALLOW SEQ[2]
+    END_CONSTRAINT
+
+    OBJECTIVE FACTORS
+        TABLE_FACTOR preferred_delivery
+            SCOPE SEQ[delivery]
+            DEFAULT 0
+            ROW SEQ[2] SCORE 5
+        END_TABLE_FACTOR
+        INTEGER_FACTOR overtime_cost
+            SCOPE shift
+            WEIGHT -8
+            WHEN
+                (shift needs overtime)
+        END_FACTOR
+    END_OBJECTIVE
+
+    QUERY optimum MAXIMIZE
+        BACKEND native
+    END_QUERY
+    QUERY all ENUMERATE
+        BACKEND enumeration
+    END_QUERY
+END_MODEL

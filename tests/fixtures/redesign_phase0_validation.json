@@ -1,0 +1,23 @@
+{
+  "reference_commit": "2fbdd9d0e70ad5dc45fbf4dc5472510f84365f5c",
+  "command": ".venv/bin/python scripts/check_redesign.py --durations=10 --junitxml=/tmp/snarky-redesign-phase0.xml",
+  "tests": 708,
+  "failures": 0,
+  "errors": 0,
+  "skipped": 3,
+  "seconds": 212.807,
+  "skips": [
+    {
+      "test": "tests.test_muses_codec.test_real_muses_objects_when_optional_dependency_is_available",
+      "reason": "could not import 'muses.base.temporals': No module named 'muses'"
+    },
+    {
+      "test": "tests.test_muses_harmonizer.test_real_muses_metric_projection_when_optional_dependency_is_available",
+      "reason": "could not import 'muses': No module named 'muses'"
+    },
+    {
+      "test": "tests.test_muses_harmonizer.test_real_muses_piece_and_exports_when_optional_dependency_is_available",
+      "reason": "could not import 'muses.base.temporals': No module named 'muses'"
+    }
+  ]
+}

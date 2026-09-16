@@ -1,0 +1,80 @@
+MODEL four_queens
+    VARIABLE q0 DOMAIN SEQ[1 2 3 4]
+    VARIABLE q1 DOMAIN SEQ[1 2 3 4]
+    VARIABLE q2 DOMAIN SEQ[1 2 3 4]
+    VARIABLE q3 DOMAIN SEQ[1 2 3 4]
+    CONSTRAINT rows
+        KIND ALL_DIFFERENT
+        SCOPE SEQ[q0 q1 q2 q3]
+    END_CONSTRAINT
+    CONSTRAINT diagonal_0_1
+        KIND TABLE
+        SCOPE SEQ[q0 q1]
+        ALLOW SEQ[1 3]
+        ALLOW SEQ[1 4]
+        ALLOW SEQ[2 4]
+        ALLOW SEQ[3 1]
+        ALLOW SEQ[4 1]
+        ALLOW SEQ[4 2]
+    END_CONSTRAINT
+    CONSTRAINT diagonal_0_2
+        KIND TABLE
+        SCOPE SEQ[q0 q2]
+        ALLOW SEQ[1 2]
+        ALLOW SEQ[1 4]
+        ALLOW SEQ[2 1]
+        ALLOW SEQ[2 3]
+        ALLOW SEQ[3 2]
+        ALLOW SEQ[3 4]
+        ALLOW SEQ[4 1]
+        ALLOW SEQ[4 3]
+    END_CONSTRAINT
+    CONSTRAINT diagonal_0_3
+        KIND TABLE
+        SCOPE SEQ[q0 q3]
+        ALLOW SEQ[1 2]
+        ALLOW SEQ[1 3]
+        ALLOW SEQ[2 1]
+        ALLOW SEQ[2 3]
+        ALLOW SEQ[2 4]
+        ALLOW SEQ[3 1]
+        ALLOW SEQ[3 2]
+        ALLOW SEQ[3 4]
+        ALLOW SEQ[4 2]
+        ALLOW SEQ[4 3]
+    END_CONSTRAINT
+    CONSTRAINT diagonal_1_2
+        KIND TABLE
+        SCOPE SEQ[q1 q2]
+        ALLOW SEQ[1 3]
+        ALLOW SEQ[1 4]
+        ALLOW SEQ[2 4]
+        ALLOW SEQ[3 1]
+        ALLOW SEQ[4 1]
+        ALLOW SEQ[4 2]
+    END_CONSTRAINT
+    CONSTRAINT diagonal_1_3
+        KIND TABLE
+        SCOPE SEQ[q1 q3]
+        ALLOW SEQ[1 2]
+        ALLOW SEQ[1 4]
+        ALLOW SEQ[2 1]
+        ALLOW SEQ[2 3]
+        ALLOW SEQ[3 2]
+        ALLOW SEQ[3 4]
+        ALLOW SEQ[4 1]
+        ALLOW SEQ[4 3]
+    END_CONSTRAINT
+    CONSTRAINT diagonal_2_3
+        KIND TABLE
+        SCOPE SEQ[q2 q3]
+        ALLOW SEQ[1 3]
+        ALLOW SEQ[1 4]
+        ALLOW SEQ[2 4]
+        ALLOW SEQ[3 1]
+        ALLOW SEQ[4 1]
+        ALLOW SEQ[4 2]
+    END_CONSTRAINT
+    QUERY all ENUMERATE
+    END_QUERY
+END_MODEL

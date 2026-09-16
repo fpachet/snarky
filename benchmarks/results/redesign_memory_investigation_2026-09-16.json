@@ -1,0 +1,175 @@
+{
+  "kind": "completion_bound_memory_investigation",
+  "candidate_sources": {
+    "archive": "redesign_comparison_2026-09-16_corrected.candidate.tar.gz",
+    "sha256": "b091563a32c5ca2fd9793b452015509f80c41586c1178366910239af4d78e66d"
+  },
+  "started_at": "2026-09-16T12:15:23.723290+00:00",
+  "case": "scaling/long_second_order",
+  "method": "two additional sequential isolated tracemalloc pairs; same 3-second query limits; instrumented outcomes retained",
+  "pairs": [
+    {
+      "local": {
+        "runs": [
+          {
+            "preparation_seconds": 0.13819020800292492,
+            "search_seconds": 3.0429242920072284,
+            "total_seconds": 3.1811145000101533,
+            "preparation_peak_traced_bytes": 999819,
+            "search_peak_traced_bytes": 1201703,
+            "observation": {
+              "status": "feasible",
+              "termination": "time_limit",
+              "objective": 199,
+              "bound": 0,
+              "proved": false,
+              "relaxed_chain_optimum": 2,
+              "nodes": 63,
+              "failures": 0,
+              "pruned": 1,
+              "revisions": 409,
+              "first_incumbent_seconds": 2.996476125001209,
+              "incumbent_values": [
+                199
+              ]
+            }
+          }
+        ],
+        "memory": true
+      },
+      "auto": {
+        "runs": [
+          {
+            "preparation_seconds": 0.13939662498887628,
+            "search_seconds": 3.007744458009256,
+            "total_seconds": 3.1471410829981323,
+            "preparation_peak_traced_bytes": 999819,
+            "search_peak_traced_bytes": 6243079,
+            "observation": {
+              "status": "unknown",
+              "termination": "time_limit",
+              "objective": null,
+              "bound": 2,
+              "proved": false,
+              "relaxed_chain_optimum": 2,
+              "nodes": 47,
+              "failures": 0,
+              "pruned": 0,
+              "revisions": 335,
+              "first_incumbent_seconds": null,
+              "incumbent_values": []
+            }
+          }
+        ],
+        "memory": true
+      }
+    },
+    {
+      "auto": {
+        "runs": [
+          {
+            "preparation_seconds": 0.13883645899477415,
+            "search_seconds": 3.0082994580152445,
+            "total_seconds": 3.1471359170100186,
+            "preparation_peak_traced_bytes": 999819,
+            "search_peak_traced_bytes": 6243079,
+            "observation": {
+              "status": "unknown",
+              "termination": "time_limit",
+              "objective": null,
+              "bound": 2,
+              "proved": false,
+              "relaxed_chain_optimum": 2,
+              "nodes": 48,
+              "failures": 0,
+              "pruned": 0,
+              "revisions": 340,
+              "first_incumbent_seconds": null,
+              "incumbent_values": []
+            }
+          }
+        ],
+        "memory": true
+      },
+      "local": {
+        "runs": [
+          {
+            "preparation_seconds": 0.13784716700320132,
+            "search_seconds": 3.0436829999962356,
+            "total_seconds": 3.181530166999437,
+            "preparation_peak_traced_bytes": 999819,
+            "search_peak_traced_bytes": 1201703,
+            "observation": {
+              "status": "feasible",
+              "termination": "time_limit",
+              "objective": 199,
+              "bound": 0,
+              "proved": false,
+              "relaxed_chain_optimum": 2,
+              "nodes": 63,
+              "failures": 0,
+              "pruned": 1,
+              "revisions": 409,
+              "first_incumbent_seconds": 2.9975739160145167,
+              "incumbent_values": [
+                199
+              ]
+            }
+          }
+        ],
+        "memory": true
+      }
+    }
+  ],
+  "cache_inspection": {
+    "cached_edges": 31816,
+    "cache_limit": 100000,
+    "window": 2,
+    "variables": 64,
+    "outcome": {
+      "status": "feasible",
+      "termination": "node_limit",
+      "objective": 161,
+      "bound": 2,
+      "proved": false,
+      "relaxed_chain_optimum": 2,
+      "nodes": 1000,
+      "failures": 0,
+      "pruned": 719,
+      "revisions": 5524,
+      "first_incumbent_seconds": 1.0011430000013206,
+      "incumbent_values": [
+        199,
+        198,
+        195,
+        193,
+        192,
+        191,
+        187,
+        185,
+        184,
+        182,
+        181,
+        180,
+        178,
+        177,
+        176,
+        175,
+        174,
+        173,
+        172,
+        171,
+        169,
+        168,
+        167,
+        166,
+        165,
+        164,
+        162,
+        161
+      ]
+    },
+    "method": "separate untraced call with cache-size observation; not a timing sample"
+  },
+  "finished_at": "2026-09-16T12:15:48.666324+00:00"
+}

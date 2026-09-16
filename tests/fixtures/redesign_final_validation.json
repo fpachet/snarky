@@ -1,0 +1,94 @@
+{
+  "reference_commit": "2fbdd9d0e70ad5dc45fbf4dc5472510f84365f5c",
+  "working_tree_dirty": true,
+  "finite_sources_sha256": "6258f191ae10b90faeb5cd9b8549ef35b5995c00bad83b01b57db9f5fda46910",
+  "finite_source_files": [
+    "src/snarky/finite/__init__.py",
+    "src/snarky/finite/bounds.py",
+    "src/snarky/finite/cli.py",
+    "src/snarky/finite/closure.py",
+    "src/snarky/finite/constraints.py",
+    "src/snarky/finite/domains.py",
+    "src/snarky/finite/examples.py",
+    "src/snarky/finite/factors.py",
+    "src/snarky/finite/inference.py",
+    "src/snarky/finite/kernels.py",
+    "src/snarky/finite/language.py",
+    "src/snarky/finite/markov.py",
+    "src/snarky/finite/measure.py",
+    "src/snarky/finite/mixed.py",
+    "src/snarky/finite/model.py",
+    "src/snarky/finite/models/four_queens.model",
+    "src/snarky/finite/models/linear.model",
+    "src/snarky/finite/models/probability.model",
+    "src/snarky/finite/models/rules.model",
+    "src/snarky/finite/models/scheduling.model",
+    "src/snarky/finite/oracle.py",
+    "src/snarky/finite/predicates.py",
+    "src/snarky/finite/propagation.py",
+    "src/snarky/finite/regular.py",
+    "src/snarky/finite/search.py"
+  ],
+  "python": "3.13.11",
+  "command": "PYTHONPATH=/Users/francoispachet/IdeaProjects/vo_regular_bp .venv/bin/python scripts/check_redesign.py --junitxml=/tmp/snarky-redesign-final.xml",
+  "tests": 828,
+  "failures": 0,
+  "errors": 0,
+  "skipped": 3,
+  "seconds": 212.572,
+  "optional_bp_commit": "2f172dd4d6985f2ca21bdb978a870700d1535169",
+  "skips": [
+    {
+      "test": "tests.test_muses_codec.test_real_muses_objects_when_optional_dependency_is_available",
+      "reason": "could not import 'muses.base.temporals': No module named 'muses'"
+    },
+    {
+      "test": "tests.test_muses_harmonizer.test_real_muses_metric_projection_when_optional_dependency_is_available",
+      "reason": "could not import 'muses': No module named 'muses'"
+    },
+    {
+      "test": "tests.test_muses_harmonizer.test_real_muses_piece_and_exports_when_optional_dependency_is_available",
+      "reason": "could not import 'muses.base.temporals': No module named 'muses'"
+    }
+  ],
+  "python_312_focused": {
+    "passed": 123,
+    "seconds": 2.26,
+    "environment": "Python 3.12.9; reused pure Python pytest dependencies on PYTHONPATH with plugin autoload disabled. An earlier autoload-enabled attempt failed during teardown because the Python 3.13 Hypothesis native extension cannot load on 3.12; no engine test failed. Installed-wheel checks below used clean interpreter-specific virtual environments."
+  },
+  "installed_wheels": {
+    "python_versions": [
+      "3.12.9",
+      "3.13.11"
+    ],
+    "checks": [
+      "core import/rules",
+      "native CSP optimization",
+      "mixed rule/constraint/factor scheduling",
+      "Markov optimization",
+      "rational partition and sampling",
+      "regular-BP agreement from pinned sibling wheel",
+      "companion-to-native adapter",
+      "installed CLI validation",
+      "five packaged MODEL examples",
+      "installed MODEL check/run CLI"
+    ],
+    "directory": "/tmp/snarky-redesign-delivery",
+    "regular_reference_archive": "/tmp/snarky-regular-reference",
+    "result": "all passed",
+    "artifact_sha256": {
+      "/tmp/snarky-redesign-delivery/snarky-0.1.0-py3-none-any.whl": "108e0002d9aef4d47256ed04db9c0f502bf21e10dde806a5dc0afd9f4a12b194",
+      "/tmp/snarky-redesign-delivery/csp/snarky_csp-0.1.0-py3-none-any.whl": "7db2d1a966acb1d7bc1c3236a4a76d6fc579fb6949e39be32da317b6da3573f2",
+      "/tmp/snarky-redesign-build-inference/regular/vo_regular_bp-0.1.1-py3-none-any.whl": "91576d9e1910950606fc05e7b424ccdab6ff061c0a23c43ed533653d5655f93c"
+    }
+  },
+  "static_checks": {
+    "ruff": "passed whole repository",
+    "mypy": "passed 89 core source files",
+    "textual_sources": "305 checked",
+    "markdown_links": "passed"
+  },
+  "validation_note": "Final runtime checks include residual chain-bound oracles, objective-guided search, text/Python parity, and generated nested mixed rollback. Benchmark and documentation work does not alter runtime sources.",
+  "performance_record": "benchmarks/results/redesign_comparison_2026-09-16_corrected.json",
+  "performance_decision": "Accept additive runtime within declared scope; rule budgets preserved and matched-search CSP improved. Completion-cache memory increase reproduced and explicitly accepted as a selectable policy tradeoff."
+}

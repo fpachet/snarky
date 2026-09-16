@@ -13,6 +13,18 @@ Do not overwrite a historical record with results from another environment.
 Create a new dated file and interpret it through
 [`../README.md`](../README.md).
 
+## Redesign baseline — 2026-09-16
+
+[`redesign_baseline_2026-09-16.json`](redesign_baseline_2026-09-16.json)
+records 17 non-Bach rule, incremental-join, CSP, and mixed Sudoku cases against
+runtime commit `2fbdd9d`. Each has one discarded warmup and seven retained
+samples, with stable work counters. The checkout was dirty with documentation
+and the new collector; runtime sources were unchanged. Source and collector
+hashes are recorded. This is an initial local baseline, not a paired comparison.
+
+The [performance document](../../docs/performance_baseline.md) gives the timing
+boundaries, full table, validation limitations, comparison protocol, and ledger.
+
 ## Dependency-scheduler baseline — 2026-07-27
 
 The complete baseline before event-handler specialization uses Python 3.13.11
@@ -149,3 +161,21 @@ uses follow-up commit `570f54d`, three clean runs, all 12 documented
 rulebases, and the three primary strategies. Every application oracle passes;
 the semi-naive four-queens scenario exercises two factorized event
 evaluations, while focused MEA rules deliberately remain unspecialized.
+
+
+Native Markov redesign scaling: [finite_markov_2026-09-16.json](finite_markov_2026-09-16.json)
+contains six synthetic cases, seven samples per case, incumbent/proof evidence and
+isolated Python-allocation measurements. Four runs hit the node limit; they are
+retained explicitly. See the [performance document](../../docs/performance_baseline.md).
+
+Unified redesign comparison:
+[redesign_comparison_2026-09-16_corrected.json](redesign_comparison_2026-09-16_corrected.json)
+contains 30 comparisons, three alternating paired sessions, seven samples per
+side/session and 60 isolated allocation samples. Adjacent
+[reference](redesign_comparison_2026-09-16_corrected.reference.tar.gz) and
+[candidate](redesign_comparison_2026-09-16_corrected.candidate.tar.gz) source archives
+preserve the measured code. The [report](../../docs/performance_comparison_2026-09-16.md)
+records acceptance, incomplete proofs and the reproduced
+[completion-cache memory tradeoff](redesign_memory_investigation_2026-09-16.json).
+The earlier `redesign_comparison_2026-09-16.partial.json` is an interrupted harness
+record, retained for provenance, not a completed comparison.

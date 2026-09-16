@@ -9,20 +9,130 @@ rebuilds its branch-local cache.
 
 from __future__ import annotations
 
-import math
 from collections import deque
-from collections.abc import Mapping
 from dataclasses import dataclass, field
-from enum import StrEnum
 from weakref import WeakKeyDictionary
 
 from snarky import (
     Atom,
     Fact,
     InferenceSession,
-    Number,
     Term,
     Triple,
+)
+from snarky.finite.constraints import (
+    AllDifferentConstraint as AllDifferentConstraint,
+)
+from snarky.finite.constraints import (
+    BinaryComparisonConstraint as BinaryComparisonConstraint,
+)
+from snarky.finite.constraints import (
+    BinaryComparisonOperator as BinaryComparisonOperator,
+)
+from snarky.finite.constraints import (
+    ConstraintOperator as ConstraintOperator,
+)
+from snarky.finite.constraints import (
+    CountConstraint as CountConstraint,
+)
+from snarky.finite.constraints import (
+    ElementConstraint as ElementConstraint,
+)
+from snarky.finite.constraints import (
+    GlobalCardinalityConstraint as GlobalCardinalityConstraint,
+)
+from snarky.finite.constraints import (
+    LexLessEqualConstraint as LexLessEqualConstraint,
+)
+from snarky.finite.constraints import (
+    LinearSumConstraint as LinearSumConstraint,
+)
+from snarky.finite.constraints import (
+    PersistentConstraint as PersistentConstraint,
+)
+from snarky.finite.constraints import (
+    SumConstraint as SumConstraint,
+)
+from snarky.finite.constraints import (
+    TableConstraint as TableConstraint,
+)
+from snarky.finite.kernels import (
+    _aggregate_accepts as _aggregate_accepts,
+)
+from snarky.finite.kernels import (
+    _bitset_sumset as _bitset_sumset,
+)
+from snarky.finite.kernels import (
+    _FlowEdge as _FlowEdge,
+)
+from snarky.finite.kernels import (
+    _has_feasible_circulation as _has_feasible_circulation,
+)
+from snarky.finite.kernels import (
+    _has_gcc_assignment as _has_gcc_assignment,
+)
+from snarky.finite.kernels import (
+    _integer_candidate as _integer_candidate,
+)
+from snarky.finite.kernels import (
+    _interval_can_satisfy as _interval_can_satisfy,
+)
+from snarky.finite.kernels import (
+    _lex_numeric_value as _lex_numeric_value,
+)
+from snarky.finite.kernels import (
+    _maximum_flow as _maximum_flow,
+)
+from snarky.finite.kernels import (
+    _maximum_matching as _maximum_matching,
+)
+from snarky.finite.kernels import (
+    _nodes_reaching as _nodes_reaching,
+)
+from snarky.finite.kernels import (
+    _numeric_candidate as _numeric_candidate,
+)
+from snarky.finite.kernels import (
+    _revise_aliased_lex_less_equal_bounds as _revise_aliased_lex_less_equal_bounds,
+)
+from snarky.finite.kernels import (
+    _revise_all_different as _revise_all_different,
+)
+from snarky.finite.kernels import (
+    _revise_all_different_with_matching as _revise_all_different_with_matching,
+)
+from snarky.finite.kernels import (
+    _revise_binary_comparison as _revise_binary_comparison,
+)
+from snarky.finite.kernels import (
+    _revise_count as _revise_count,
+)
+from snarky.finite.kernels import (
+    _revise_disjoint_lex_less_equal as _revise_disjoint_lex_less_equal,
+)
+from snarky.finite.kernels import (
+    _revise_element as _revise_element,
+)
+from snarky.finite.kernels import (
+    _revise_gcc as _revise_gcc,
+)
+from snarky.finite.kernels import (
+    _revise_lex_less_equal as _revise_lex_less_equal,
+)
+from snarky.finite.kernels import (
+    _revise_linear_sum as _revise_linear_sum,
+)
+from snarky.finite.kernels import (
+    _revise_nonnegative_sum_bitsets as _revise_nonnegative_sum_bitsets,
+)
+from snarky.finite.kernels import (
+    _revise_sum as _revise_sum,
+)
+from snarky.finite.kernels import (
+    _revise_table as _revise_table,
+)
+from snarky.finite.kernels import (
+    _strongly_connected_components as _strongly_connected_components,
 )
 
 from .finite_domain_projection import FiniteDomainProjection
@@ -32,242 +142,6 @@ STATE = Atom("state")
 CONTRADICTION = Atom("contradiction")
 VIOLATED_CONSTRAINT = Atom("violated_constraint")
 EMPTY_DOMAIN = Atom("empty_domain")
-
-
-@dataclass(frozen=True, slots=True)
-class AllDifferentConstraint:
-    """Require the scoped variables to take pairwise-distinct values."""
-
-    name: Atom
-    variables: tuple[Term, ...]
-
-    def __post_init__(self) -> None:
-        _validate_scope("ALL_DIFFERENT", self.variables)
-        object.__setattr__(self, "variables", tuple(self.variables))
-
-
-@dataclass(frozen=True, slots=True)
-class SumConstraint:
-    """Require the scoped integer variables to sum exactly to ``target``."""
-
-    name: Atom
-    variables: tuple[Term, ...]
-    target: int
-
-    def __post_init__(self) -> None:
-        _validate_scope("SUM", self.variables)
-        object.__setattr__(self, "variables", tuple(self.variables))
-
-
-class ConstraintOperator(StrEnum):
-    """Comparison operators shared by numeric aggregate constraints."""
-
-    EQUAL = "EQUAL"
-    LESS_EQUAL = "LESS_EQUAL"
-    GREATER_EQUAL = "GREATER_EQUAL"
-
-
-class BinaryComparisonOperator(StrEnum):
-    """Operators supported by persistent binary comparisons."""
-
-    LESS_EQUAL = "LESS_EQUAL"
-    LESS_THAN = "LESS_THAN"
-    NOT_EQUAL = "NOT_EQUAL"
-
-
-@dataclass(frozen=True, slots=True)
-class LinearSumConstraint:
-    """Constrain an integer weighted sum with ``=``, ``<=``, or ``>=``."""
-
-    name: Atom
-    terms: tuple[tuple[int, Term], ...]
-    operator: ConstraintOperator
-    target: int
-
-    def __post_init__(self) -> None:
-        terms = tuple(self.terms)
-        if not terms:
-            raise ValueError("LINEAR_SUM requires at least one term")
-        if any(
-            isinstance(coefficient, bool)
-            or not isinstance(coefficient, int)
-            or coefficient == 0
-            for coefficient, _ in terms
-        ):
-            raise ValueError(
-                "LINEAR_SUM coefficients must be non-zero integers"
-            )
-        variables = tuple(variable for _, variable in terms)
-        _validate_scope("LINEAR_SUM", variables)
-        if isinstance(self.target, bool) or not isinstance(self.target, int):
-            raise ValueError("LINEAR_SUM target must be an integer")
-        object.__setattr__(self, "terms", terms)
-        object.__setattr__(
-            self,
-            "operator",
-            ConstraintOperator(self.operator),
-        )
-
-    @property
-    def variables(self) -> tuple[Term, ...]:
-        """Return the variables participating in the weighted sum."""
-
-        return tuple(variable for _, variable in self.terms)
-
-
-@dataclass(frozen=True, slots=True)
-class BinaryComparisonConstraint:
-    """Compare two finite-domain variables."""
-
-    name: Atom
-    left: Term
-    right: Term
-    operator: BinaryComparisonOperator
-
-    def __post_init__(self) -> None:
-        if self.left == self.right:
-            raise ValueError("binary comparison variables must be distinct")
-        object.__setattr__(
-            self,
-            "operator",
-            BinaryComparisonOperator(self.operator),
-        )
-
-    @property
-    def variables(self) -> tuple[Term, Term]:
-        """Return the two compared variables."""
-
-        return (self.left, self.right)
-
-
-@dataclass(frozen=True, slots=True)
-class ElementConstraint:
-    """Require ``value`` to equal ``array[index]`` using one-based indices."""
-
-    name: Atom
-    index: Term
-    array: tuple[Term, ...]
-    value: Term
-
-    def __post_init__(self) -> None:
-        array = tuple(self.array)
-        _validate_scope("ELEMENT array", array)
-        variables = (self.index, *array, self.value)
-        if len(set(variables)) != len(variables):
-            raise ValueError(
-                "ELEMENT index, array, and value variables must be distinct"
-            )
-        object.__setattr__(self, "array", array)
-
-    @property
-    def variables(self) -> tuple[Term, ...]:
-        """Return index, array, and result variables."""
-
-        return (self.index, *self.array, self.value)
-
-
-@dataclass(frozen=True, slots=True)
-class CountConstraint:
-    """Count occurrences of one value in a finite-domain scope."""
-
-    name: Atom
-    variables: tuple[Term, ...]
-    value: Term
-    operator: ConstraintOperator
-    target: int
-
-    def __post_init__(self) -> None:
-        _validate_scope("COUNT", self.variables)
-        if isinstance(self.target, bool) or not isinstance(self.target, int):
-            raise ValueError("COUNT target must be an integer")
-        object.__setattr__(self, "variables", tuple(self.variables))
-        object.__setattr__(
-            self,
-            "operator",
-            ConstraintOperator(self.operator),
-        )
-
-
-@dataclass(frozen=True, slots=True)
-class GlobalCardinalityConstraint:
-    """Bound the number of occurrences of selected values in a scope.
-
-    ``bounds`` contains ``(value, lower, upper)`` triples. Values without an
-    explicit entry retain the default interval ``[0, number of variables]``.
-    """
-
-    name: Atom
-    variables: tuple[Term, ...]
-    bounds: tuple[tuple[Term, int, int], ...]
-
-    def __post_init__(self) -> None:
-        _validate_scope("GCC", self.variables)
-        bounds = tuple(self.bounds)
-        values = tuple(value for value, _, _ in bounds)
-        if len(set(values)) != len(values):
-            raise ValueError("GCC values must have unique bounds")
-        for _, lower, upper in bounds:
-            if lower < 0 or upper < lower:
-                raise ValueError("GCC bounds require 0 <= lower <= upper")
-        object.__setattr__(self, "variables", tuple(self.variables))
-        object.__setattr__(self, "bounds", bounds)
-
-
-@dataclass(frozen=True, slots=True)
-class TableConstraint:
-    """Require the scoped variables to match one allowed tuple."""
-
-    name: Atom
-    variables: tuple[Term, ...]
-    allowed: tuple[tuple[Term, ...], ...]
-
-    def __post_init__(self) -> None:
-        _validate_scope("TABLE", self.variables)
-        allowed = tuple(tuple(row) for row in self.allowed)
-        if not allowed:
-            raise ValueError("TABLE requires at least one allowed tuple")
-        if any(len(row) != len(self.variables) for row in allowed):
-            raise ValueError("TABLE tuple arity must match its scope")
-        object.__setattr__(self, "variables", tuple(self.variables))
-        object.__setattr__(self, "allowed", tuple(dict.fromkeys(allowed)))
-
-
-@dataclass(frozen=True, slots=True)
-class LexLessEqualConstraint:
-    """Require one sequence of numeric variables to be lexicographically <= another."""
-
-    name: Atom
-    left: tuple[Term, ...]
-    right: tuple[Term, ...]
-
-    def __post_init__(self) -> None:
-        left = tuple(self.left)
-        right = tuple(self.right)
-        if not left or len(left) != len(right):
-            raise ValueError(
-                "LEX_LESS_EQUAL requires non-empty sequences of equal length"
-            )
-        object.__setattr__(self, "left", left)
-        object.__setattr__(self, "right", right)
-
-    @property
-    def variables(self) -> tuple[Term, ...]:
-        """Return the distinct variables observed by this constraint."""
-
-        return tuple(dict.fromkeys((*self.left, *self.right)))
-
-
-type PersistentConstraint = (
-    AllDifferentConstraint
-    | SumConstraint
-    | LinearSumConstraint
-    | BinaryComparisonConstraint
-    | ElementConstraint
-    | CountConstraint
-    | GlobalCardinalityConstraint
-    | TableConstraint
-    | LexLessEqualConstraint
-)
 
 
 @dataclass(frozen=True, slots=True)
@@ -283,13 +157,9 @@ class CandidateRemovalExplanation:
 class _CachedPropagationState:
     domains: dict[Term, set[Term]]
     violated: PersistentConstraint | None = None
-    removal_causes: dict[tuple[Term, Term], Atom] = field(
-        default_factory=dict
-    )
+    removal_causes: dict[tuple[Term, Term], Atom] = field(default_factory=dict)
     generation: int = 0
-    all_different_matchings: dict[int, dict[Term, Term]] = field(
-        default_factory=dict
-    )
+    all_different_matchings: dict[int, dict[Term, Term]] = field(default_factory=dict)
 
 
 class PersistentConstraintPropagator:
@@ -321,15 +191,12 @@ class PersistentConstraintPropagator:
             for variable in constraint.variables
         }
         self._variables = frozenset(scoped)
-        adjacency: dict[Term, list[int]] = {
-            variable: [] for variable in scoped
-        }
+        adjacency: dict[Term, list[int]] = {variable: [] for variable in scoped}
         for index, constraint in enumerate(self.constraints):
             for variable in constraint.variables:
                 adjacency[variable].append(index)
         self._adjacency = {
-            variable: tuple(indices)
-            for variable, indices in adjacency.items()
+            variable: tuple(indices) for variable, indices in adjacency.items()
         }
         self._states: WeakKeyDictionary[
             InferenceSession,
@@ -345,35 +212,23 @@ class PersistentConstraintPropagator:
             for variable, candidates in snapshot.candidates.items()
         }
         current = {
-            variable: set(visible.get(variable, ()))
-            for variable in self._variables
+            variable: set(visible.get(variable, ())) for variable in self._variables
         }
         state = self._states.get(session)
-        if (
-            state is not None
-            and state.generation != snapshot.cursor.generation
-        ):
+        if state is not None and state.generation != snapshot.cursor.generation:
             # A rollback starts another journal generation. Causes from the
             # abandoned branch must never be attributed to its sibling.
             state.removal_causes.clear()
             state.generation = snapshot.cursor.generation
         widened = state is None or any(
-            current[variable] - state.domains[variable]
-            for variable in self._variables
+            current[variable] - state.domains[variable] for variable in self._variables
         )
         queued: set[int]
 
         if widened:
-            reusable_matchings = (
-                {}
-                if state is None
-                else state.all_different_matchings
-            )
+            reusable_matchings = {} if state is None else state.all_different_matchings
             state = _CachedPropagationState(
-                {
-                    variable: set(values)
-                    for variable, values in current.items()
-                },
+                {variable: set(values) for variable, values in current.items()},
                 generation=snapshot.cursor.generation,
                 all_different_matchings=reusable_matchings,
             )
@@ -501,14 +356,6 @@ class PersistentConstraintPropagator:
         )
 
 
-def _validate_scope(kind: str, variables: tuple[Term, ...]) -> None:
-    variables = tuple(variables)
-    if not variables:
-        raise ValueError(f"{kind} requires at least one variable")
-    if len(set(variables)) != len(variables):
-        raise ValueError(f"{kind} variables must be distinct")
-
-
 def _schedule(
     indices: tuple[int, ...],
     pending: deque[int],
@@ -539,8 +386,7 @@ def _revise(
     state: _CachedPropagationState | None = None,
 ) -> tuple[set[Term], set[tuple[Term, Term]], bool]:
     before = {
-        variable: frozenset(domains[variable])
-        for variable in constraint.variables
+        variable: frozenset(domains[variable]) for variable in constraint.variables
     }
     if isinstance(constraint, AllDifferentConstraint):
         previous_matching = (
@@ -585,1001 +431,3 @@ def _revise(
         for value in previous - domains[variable]
     }
     return changed, removed, consistent
-
-
-def _revise_all_different(
-    constraint: AllDifferentConstraint,
-    domains: dict[Term, set[Term]],
-) -> bool:
-    consistent, _ = _revise_all_different_with_matching(
-        constraint,
-        domains,
-    )
-    return consistent
-
-
-def _revise_all_different_with_matching(
-    constraint: AllDifferentConstraint,
-    domains: dict[Term, set[Term]],
-    previous_matching: Mapping[Term, Term] | None = None,
-) -> tuple[bool, dict[Term, Term] | None]:
-    scoped = {
-        variable: domains[variable]
-        for variable in constraint.variables
-    }
-    matching = _maximum_matching(scoped, previous_matching)
-    if matching is None:
-        return False, None
-
-    # Régin filtering represented on the value graph. For each variable,
-    # direct its matched value toward every alternative value. An alternative
-    # is supported iff it belongs to an alternating cycle or can lead to a
-    # free value.
-    all_values = {
-        value for values in scoped.values() for value in values
-    }
-    matched_values = frozenset(matching.values())
-    graph: dict[Term, set[Term]] = {
-        value: set() for value in all_values
-    }
-    for variable, matched in matching.items():
-        graph[matched].update(scoped[variable] - {matched})
-    components = _strongly_connected_components(graph)
-    free_values = all_values - matched_values
-    can_reach_free = _nodes_reaching(graph, free_values)
-
-    for variable, matched in matching.items():
-        supported = {
-            value
-            for value in scoped[variable]
-            if (
-                value == matched
-                or components[value] == components[matched]
-                or value in can_reach_free
-            )
-        }
-        domains[variable].intersection_update(supported)
-        if not domains[variable]:
-            return False, None
-    return True, matching
-
-
-def _maximum_matching(
-    domains: Mapping[Term, set[Term]],
-    initial: Mapping[Term, Term] | None = None,
-) -> dict[Term, Term] | None:
-    """Return a complete variable-to-value matching using Hopcroft--Karp."""
-
-    variables = tuple(
-        sorted(domains, key=lambda item: (len(domains[item]), repr(item)))
-    )
-    if any(not domains[variable] for variable in variables):
-        return None
-    pair_variable: dict[Term, Term | None] = {
-        variable: None for variable in variables
-    }
-    pair_value: dict[Term, Term] = {}
-    if initial is not None:
-        for variable in variables:
-            value = initial.get(variable)
-            if (
-                value is None
-                or value not in domains[variable]
-                or value in pair_value
-            ):
-                continue
-            pair_variable[variable] = value
-            pair_value[value] = variable
-    distance: dict[Term, int] = {}
-    infinity = len(variables) + 1
-
-    def breadth_first() -> bool:
-        queue: deque[Term] = deque()
-        found = False
-        for variable in variables:
-            if pair_variable[variable] is None:
-                distance[variable] = 0
-                queue.append(variable)
-            else:
-                distance[variable] = infinity
-        while queue:
-            variable = queue.popleft()
-            for value in domains[variable]:
-                owner = pair_value.get(value)
-                if owner is None:
-                    found = True
-                elif distance[owner] == infinity:
-                    distance[owner] = distance[variable] + 1
-                    queue.append(owner)
-        return found
-
-    def depth_first(variable: Term) -> bool:
-        for value in sorted(domains[variable], key=repr):
-            owner = pair_value.get(value)
-            if owner is None or (
-                distance[owner] == distance[variable] + 1
-                and depth_first(owner)
-            ):
-                pair_variable[variable] = value
-                pair_value[value] = variable
-                return True
-        distance[variable] = infinity
-        return False
-
-    cardinality = len(pair_value)
-    while breadth_first():
-        for variable in variables:
-            if pair_variable[variable] is None and depth_first(variable):
-                cardinality += 1
-    if cardinality != len(variables):
-        return None
-    return {
-        variable: value
-        for variable, value in pair_variable.items()
-        if value is not None
-    }
-
-
-def _strongly_connected_components(
-    graph: Mapping[Term, set[Term]],
-) -> dict[Term, int]:
-    index = 0
-    indices: dict[Term, int] = {}
-    lowlinks: dict[Term, int] = {}
-    stack: list[Term] = []
-    on_stack: set[Term] = set()
-    output: dict[Term, int] = {}
-    component = 0
-
-    def visit(node: Term) -> None:
-        nonlocal component, index
-        indices[node] = index
-        lowlinks[node] = index
-        index += 1
-        stack.append(node)
-        on_stack.add(node)
-        for successor in graph[node]:
-            if successor not in indices:
-                visit(successor)
-                lowlinks[node] = min(lowlinks[node], lowlinks[successor])
-            elif successor in on_stack:
-                lowlinks[node] = min(lowlinks[node], indices[successor])
-        if lowlinks[node] != indices[node]:
-            return
-        while True:
-            member = stack.pop()
-            on_stack.remove(member)
-            output[member] = component
-            if member == node:
-                break
-        component += 1
-
-    for node in graph:
-        if node not in indices:
-            visit(node)
-    return output
-
-
-def _nodes_reaching(
-    graph: Mapping[Term, set[Term]],
-    targets: set[Term],
-) -> frozenset[Term]:
-    reverse: dict[Term, set[Term]] = {
-        node: set() for node in graph
-    }
-    for node, successors in graph.items():
-        for successor in successors:
-            reverse[successor].add(node)
-    reached = set(targets)
-    pending = deque(targets)
-    while pending:
-        node = pending.popleft()
-        for predecessor in reverse[node]:
-            if predecessor not in reached:
-                reached.add(predecessor)
-                pending.append(predecessor)
-    return frozenset(reached)
-
-
-def _revise_sum(
-    constraint: SumConstraint,
-    domains: dict[Term, set[Term]],
-) -> bool:
-    numeric_domains: list[tuple[Term, dict[Term, int]]] = []
-    for variable in constraint.variables:
-        converted: dict[Term, int] = {}
-        for value in domains[variable]:
-            if not isinstance(value, Number) or not isinstance(value.value, int):
-                raise TypeError(
-                    f"SUM constraint {constraint.name.name!r} requires "
-                    "integer Number candidates"
-                )
-            converted[value] = value.value
-        if not converted:
-            return False
-        numeric_domains.append((variable, converted))
-
-    if constraint.target >= 0 and all(
-        all(value >= 0 for value in values.values())
-        for _, values in numeric_domains
-    ):
-        maximum_sum = sum(
-            max(values.values()) for _, values in numeric_domains
-        )
-        if constraint.target > maximum_sum:
-            return False
-        if maximum_sum <= 1_000_000:
-            return _revise_nonnegative_sum_bitsets(
-                constraint,
-                domains,
-                numeric_domains,
-            )
-
-    prefix: list[set[int]] = [{0}]
-    for _, values in numeric_domains:
-        prefix.append(
-            {
-                partial + value
-                for partial in prefix[-1]
-                for value in values.values()
-            }
-        )
-    if constraint.target not in prefix[-1]:
-        return False
-
-    suffix: list[set[int]] = [set() for _ in range(len(numeric_domains) + 1)]
-    suffix[-1] = {0}
-    for index in range(len(numeric_domains) - 1, -1, -1):
-        suffix[index] = {
-            value + partial
-            for value in numeric_domains[index][1].values()
-            for partial in suffix[index + 1]
-        }
-
-    for index, (variable, values) in enumerate(numeric_domains):
-        possible_remainders = {
-            left_sum + right_sum
-            for left_sum in prefix[index]
-            for right_sum in suffix[index + 1]
-        }
-        supported = {
-            term
-            for term, numeric_value in values.items()
-            if constraint.target - numeric_value in possible_remainders
-        }
-        domains[variable].intersection_update(supported)
-        if not domains[variable]:
-            return False
-    return True
-
-
-def _revise_linear_sum(
-    constraint: LinearSumConstraint,
-    domains: dict[Term, set[Term]],
-) -> bool:
-    """Establish GAC for an integer weighted sum."""
-
-    weighted_domains: list[tuple[Term, dict[Term, int]]] = []
-    for coefficient, variable in constraint.terms:
-        converted = {
-            value: coefficient
-            * _integer_candidate("LINEAR_SUM", constraint.name, value)
-            for value in domains[variable]
-        }
-        if not converted:
-            return False
-        weighted_domains.append((variable, converted))
-
-    prefix: list[set[int]] = [{0}]
-    for _, values in weighted_domains:
-        prefix.append(
-            {
-                partial + value
-                for partial in prefix[-1]
-                for value in values.values()
-            }
-        )
-    if not any(
-        _aggregate_accepts(constraint.operator, total, constraint.target)
-        for total in prefix[-1]
-    ):
-        return False
-
-    suffix: list[set[int]] = [set() for _ in range(len(weighted_domains) + 1)]
-    suffix[-1] = {0}
-    for position in range(len(weighted_domains) - 1, -1, -1):
-        suffix[position] = {
-            value + partial
-            for value in weighted_domains[position][1].values()
-            for partial in suffix[position + 1]
-        }
-
-    for position, (variable, values) in enumerate(weighted_domains):
-        remainders = {
-            left + right
-            for left in prefix[position]
-            for right in suffix[position + 1]
-        }
-        if constraint.operator is ConstraintOperator.EQUAL:
-            supported = {
-                term
-                for term, contribution in values.items()
-                if constraint.target - contribution in remainders
-            }
-        elif constraint.operator is ConstraintOperator.LESS_EQUAL:
-            minimum = min(remainders)
-            supported = {
-                term
-                for term, contribution in values.items()
-                if contribution + minimum <= constraint.target
-            }
-        else:
-            maximum = max(remainders)
-            supported = {
-                term
-                for term, contribution in values.items()
-                if contribution + maximum >= constraint.target
-            }
-        domains[variable].intersection_update(supported)
-        if not domains[variable]:
-            return False
-    return True
-
-
-def _revise_binary_comparison(
-    constraint: BinaryComparisonConstraint,
-    domains: dict[Term, set[Term]],
-) -> bool:
-    """Establish GAC for a binary comparison."""
-
-    left_domain = domains[constraint.left]
-    right_domain = domains[constraint.right]
-    if not left_domain or not right_domain:
-        return False
-    if constraint.operator is BinaryComparisonOperator.NOT_EQUAL:
-        supported_left = {
-            left
-            for left in left_domain
-            if any(left != right for right in right_domain)
-        }
-        supported_right = {
-            right
-            for right in right_domain
-            if any(left != right for left in left_domain)
-        }
-    else:
-        left_values = {
-            term: _numeric_candidate(
-                constraint.operator.value,
-                constraint.name,
-                term,
-            )
-            for term in left_domain
-        }
-        right_values = {
-            term: _numeric_candidate(
-                constraint.operator.value,
-                constraint.name,
-                term,
-            )
-            for term in right_domain
-        }
-        if constraint.operator is BinaryComparisonOperator.LESS_EQUAL:
-            supported_left = {
-                term
-                for term, left in left_values.items()
-                if any(left <= right for right in right_values.values())
-            }
-            supported_right = {
-                term
-                for term, right in right_values.items()
-                if any(left <= right for left in left_values.values())
-            }
-        else:
-            supported_left = {
-                term
-                for term, left in left_values.items()
-                if any(left < right for right in right_values.values())
-            }
-            supported_right = {
-                term
-                for term, right in right_values.items()
-                if any(left < right for left in left_values.values())
-            }
-    left_domain.intersection_update(supported_left)
-    right_domain.intersection_update(supported_right)
-    return bool(left_domain and right_domain)
-
-
-def _revise_element(
-    constraint: ElementConstraint,
-    domains: dict[Term, set[Term]],
-) -> bool:
-    """Establish GAC for one-based ``value = array[index]``."""
-
-    index_domain = domains[constraint.index]
-    value_domain = domains[constraint.value]
-    if not index_domain or not value_domain:
-        return False
-    positions: dict[Term, int] = {}
-    for candidate in index_domain:
-        index = _integer_candidate("ELEMENT index", constraint.name, candidate)
-        if 1 <= index <= len(constraint.array):
-            positions[candidate] = index - 1
-    supported_indices = {
-        candidate
-        for candidate, position in positions.items()
-        if domains[constraint.array[position]] & value_domain
-    }
-    index_domain.intersection_update(supported_indices)
-    if not index_domain:
-        return False
-
-    selected_positions = {
-        positions[candidate] for candidate in index_domain
-    }
-    value_domain.intersection_update(
-        value
-        for position in selected_positions
-        for value in domains[constraint.array[position]]
-    )
-    if not value_domain:
-        return False
-
-    if len(selected_positions) == 1:
-        position = next(iter(selected_positions))
-        array_domain = domains[constraint.array[position]]
-        supported = array_domain & value_domain
-        array_domain.intersection_update(supported)
-        value_domain.intersection_update(supported)
-        if not array_domain or not value_domain:
-            return False
-    return True
-
-
-def _revise_count(
-    constraint: CountConstraint,
-    domains: dict[Term, set[Term]],
-) -> bool:
-    """Establish GAC for an occurrence count compared with a constant."""
-
-    if any(not domains[variable] for variable in constraint.variables):
-        return False
-    minimum = sum(
-        domains[variable] == {constraint.value}
-        for variable in constraint.variables
-    )
-    maximum = sum(
-        constraint.value in domains[variable]
-        for variable in constraint.variables
-    )
-    if not _interval_can_satisfy(
-        constraint.operator,
-        minimum,
-        maximum,
-        constraint.target,
-    ):
-        return False
-
-    for variable in constraint.variables:
-        domain = domains[variable]
-        other_minimum = minimum - (domain == {constraint.value})
-        other_maximum = maximum - (constraint.value in domain)
-        supported = set()
-        for candidate in domain:
-            contribution = candidate == constraint.value
-            if _interval_can_satisfy(
-                constraint.operator,
-                other_minimum + contribution,
-                other_maximum + contribution,
-                constraint.target,
-            ):
-                supported.add(candidate)
-        domain.intersection_update(supported)
-        if not domain:
-            return False
-    return True
-
-
-def _aggregate_accepts(
-    operator: ConstraintOperator,
-    value: int,
-    target: int,
-) -> bool:
-    if operator is ConstraintOperator.EQUAL:
-        return value == target
-    if operator is ConstraintOperator.LESS_EQUAL:
-        return value <= target
-    return value >= target
-
-
-def _interval_can_satisfy(
-    operator: ConstraintOperator,
-    minimum: int,
-    maximum: int,
-    target: int,
-) -> bool:
-    if operator is ConstraintOperator.EQUAL:
-        return minimum <= target <= maximum
-    if operator is ConstraintOperator.LESS_EQUAL:
-        return minimum <= target
-    return maximum >= target
-
-
-def _integer_candidate(kind: str, name: Atom, value: Term) -> int:
-    if (
-        not isinstance(value, Number)
-        or isinstance(value.value, bool)
-        or not isinstance(value.value, int)
-    ):
-        raise TypeError(
-            f"{kind} constraint {name.name!r} requires integer "
-            "Number candidates"
-        )
-    return value.value
-
-
-def _numeric_candidate(
-    kind: str,
-    name: Atom,
-    value: Term,
-) -> int | float:
-    if (
-        not isinstance(value, Number)
-        or isinstance(value.value, bool)
-        or not isinstance(value.value, (int, float))
-        or not math.isfinite(value.value)
-    ):
-        raise TypeError(
-            f"{kind} constraint {name.name!r} requires numeric "
-            "Number candidates"
-        )
-    return value.value
-
-
-def _revise_lex_less_equal(
-    constraint: LexLessEqualConstraint,
-    domains: dict[Term, set[Term]],
-) -> bool:
-    """Establish GAC for disjoint sequences, with safe alias-aware bounds."""
-
-    variables = constraint.variables
-    if any(not domains[variable] for variable in variables):
-        return False
-    numeric_domains = {
-        variable: {
-            value: _lex_numeric_value(constraint, value)
-            for value in domains[variable]
-        }
-        for variable in variables
-    }
-    if len(variables) == 2 * len(constraint.left):
-        return _revise_disjoint_lex_less_equal(
-            constraint,
-            domains,
-            numeric_domains,
-        )
-    return _revise_aliased_lex_less_equal_bounds(
-        constraint,
-        domains,
-        numeric_domains,
-    )
-
-
-def _revise_disjoint_lex_less_equal(
-    constraint: LexLessEqualConstraint,
-    domains: dict[Term, set[Term]],
-    numeric_domains: Mapping[Term, Mapping[Term, int | float]],
-) -> bool:
-    """Establish GAC when every sequence position has distinct variables."""
-
-    size = len(constraint.left)
-    equality_possible = [False] * size
-    strict_possible = [False] * size
-    suffix_feasible = [False] * (size + 1)
-    suffix_feasible[size] = True
-    for position in range(size - 1, -1, -1):
-        left = constraint.left[position]
-        right = constraint.right[position]
-        equality_possible[position] = bool(
-            domains[left] & domains[right]
-        )
-        strict_possible[position] = (
-            min(numeric_domains[left].values())
-            < max(numeric_domains[right].values())
-        )
-        suffix_feasible[position] = (
-            strict_possible[position]
-            or (
-                equality_possible[position]
-                and suffix_feasible[position + 1]
-            )
-        )
-    if not suffix_feasible[0]:
-        return False
-
-    prefix_equal = True
-    prefix_less = False
-    for position, (left, right) in enumerate(
-        zip(constraint.left, constraint.right, strict=True)
-    ):
-        if not prefix_less:
-            left_min = min(numeric_domains[left].values())
-            right_max = max(numeric_domains[right].values())
-            supported_left = {
-                value
-                for value, numeric in numeric_domains[left].items()
-                if prefix_equal
-                and (
-                    numeric < right_max
-                    or (
-                        value in domains[right]
-                        and suffix_feasible[position + 1]
-                    )
-                )
-            }
-            supported_right = {
-                value
-                for value, numeric in numeric_domains[right].items()
-                if prefix_equal
-                and (
-                    left_min < numeric
-                    or (
-                        value in domains[left]
-                        and suffix_feasible[position + 1]
-                    )
-                )
-            }
-            domains[left].intersection_update(supported_left)
-            domains[right].intersection_update(supported_right)
-            if not domains[left] or not domains[right]:
-                return False
-        prefix_less = prefix_less or (
-            prefix_equal and strict_possible[position]
-        )
-        prefix_equal = (
-            prefix_equal and equality_possible[position]
-        )
-    return True
-
-
-def _revise_aliased_lex_less_equal_bounds(
-    constraint: LexLessEqualConstraint,
-    domains: dict[Term, set[Term]],
-    numeric_domains: Mapping[Term, Mapping[Term, int | float]],
-) -> bool:
-    """Apply numeric bounds filtering at the first non-fixed position.
-
-    The linear propagator is intentionally conservative after an ambiguous
-    equality: representing both the equal and strictly-less continuations
-    would require reification. It is exact once the preceding pairs are fixed
-    equal, and is cheap enough for large symmetry-breaking vectors.
-    """
-
-    for left, right in zip(constraint.left, constraint.right, strict=True):
-        if left == right:
-            continue
-        left_values = numeric_domains[left]
-        right_values = numeric_domains[right]
-        left_min = min(left_values.values())
-        left_max = max(left_values.values())
-        right_min = min(right_values.values())
-        right_max = max(right_values.values())
-        if left_max < right_min:
-            return True
-        if left_min > right_max:
-            return False
-
-        domains[left].intersection_update(
-            value
-            for value, numeric in left_values.items()
-            if numeric <= right_max
-        )
-        domains[right].intersection_update(
-            value
-            for value, numeric in right_values.items()
-            if numeric >= left_min
-        )
-        if not domains[left] or not domains[right]:
-            return False
-        if (
-            len(domains[left]) == 1
-            and domains[left] == domains[right]
-        ):
-            continue
-        return True
-    return True
-
-
-def _lex_numeric_value(
-    constraint: LexLessEqualConstraint,
-    value: Term,
-) -> int | float:
-    if (
-        not isinstance(value, Number)
-        or isinstance(value.value, bool)
-        or not isinstance(value.value, (int, float))
-        or not math.isfinite(value.value)
-    ):
-        raise TypeError(
-            f"LEX_LESS_EQUAL constraint {constraint.name.name!r} requires "
-            "numeric Number candidates"
-        )
-    return value.value
-
-
-def _revise_nonnegative_sum_bitsets(
-    constraint: SumConstraint,
-    domains: dict[Term, set[Term]],
-    numeric_domains: list[tuple[Term, dict[Term, int]]],
-) -> bool:
-    """Establish exact support with integer reachable-sum bitsets."""
-
-    prefix = [1]
-    for _, values in numeric_domains:
-        reachable = 0
-        for value in values.values():
-            reachable |= prefix[-1] << value
-        prefix.append(reachable)
-    if not prefix[-1] & (1 << constraint.target):
-        return False
-
-    suffix = [0] * (len(numeric_domains) + 1)
-    suffix[-1] = 1
-    for index in range(len(numeric_domains) - 1, -1, -1):
-        reachable = 0
-        for value in numeric_domains[index][1].values():
-            reachable |= suffix[index + 1] << value
-        suffix[index] = reachable
-
-    for index, (variable, values) in enumerate(numeric_domains):
-        remainders = _bitset_sumset(
-            prefix[index],
-            suffix[index + 1],
-            constraint.target,
-        )
-        supported = {
-            term
-            for term, value in values.items()
-            if (
-                constraint.target >= value
-                and remainders
-                & (1 << (constraint.target - value))
-            )
-        }
-        domains[variable].intersection_update(supported)
-        if not domains[variable]:
-            return False
-    return True
-
-
-def _bitset_sumset(left: int, right: int, limit: int) -> int:
-    """Return reachable pairwise sums up to *limit* as one bitset."""
-
-    if limit < 0:
-        return 0
-    if left.bit_count() > right.bit_count():
-        left, right = right, left
-    reachable = 0
-    candidates = left
-    while candidates:
-        least = candidates & -candidates
-        reachable |= right << (least.bit_length() - 1)
-        candidates ^= least
-    return reachable & ((1 << (limit + 1)) - 1)
-
-
-def _revise_gcc(
-    constraint: GlobalCardinalityConstraint,
-    domains: dict[Term, set[Term]],
-) -> bool:
-    scoped = {
-        variable: domains[variable]
-        for variable in constraint.variables
-    }
-    explicit = {
-        value: (lower, upper)
-        for value, lower, upper in constraint.bounds
-    }
-    if not _has_gcc_assignment(scoped, explicit):
-        return False
-    for variable in constraint.variables:
-        supported = {
-            value
-            for value in domains[variable]
-            if _has_gcc_assignment(
-                scoped,
-                explicit,
-                forced=(variable, value),
-            )
-        }
-        domains[variable].intersection_update(supported)
-        if not domains[variable]:
-            return False
-    return True
-
-
-def _revise_table(
-    constraint: TableConstraint,
-    domains: dict[Term, set[Term]],
-) -> bool:
-    active = tuple(
-        row
-        for row in constraint.allowed
-        if all(
-            value in domains[variable]
-            for variable, value in zip(
-                constraint.variables,
-                row,
-                strict=True,
-            )
-        )
-    )
-    if not active:
-        return False
-    for position, variable in enumerate(constraint.variables):
-        domains[variable].intersection_update(
-            row[position] for row in active
-        )
-        if not domains[variable]:
-            return False
-    return True
-
-
-def _has_gcc_assignment(
-    domains: Mapping[Term, set[Term]],
-    explicit_bounds: Mapping[Term, tuple[int, int]],
-    *,
-    forced: tuple[Term, Term] | None = None,
-) -> bool:
-    restricted = {
-        variable: set(values) for variable, values in domains.items()
-    }
-    if forced is not None:
-        variable, value = forced
-        if value not in restricted[variable]:
-            return False
-        restricted[variable] = {value}
-    if any(not values for values in restricted.values()):
-        return False
-
-    all_values = {
-        value for values in restricted.values() for value in values
-    } | explicit_bounds.keys()
-    size = len(restricted)
-    bounds = {
-        value: explicit_bounds.get(value, (0, size))
-        for value in all_values
-    }
-    if sum(lower for lower, _ in bounds.values()) > size:
-        return False
-    if sum(upper for _, upper in bounds.values()) < size:
-        return False
-
-    source = ("gcc-source",)
-    sink = ("gcc-sink",)
-    edges: list[tuple[object, object, int, int]] = []
-    for variable, values in restricted.items():
-        variable_node = ("variable", variable)
-        edges.append((source, variable_node, 1, 1))
-        edges.extend(
-            (variable_node, ("value", value), 0, 1)
-            for value in values
-        )
-    edges.extend(
-        (
-            ("value", value),
-            sink,
-            lower,
-            min(upper, size),
-        )
-        for value, (lower, upper) in bounds.items()
-    )
-    edges.append((sink, source, 0, size))
-    return _has_feasible_circulation(edges)
-
-
-@dataclass(slots=True)
-class _FlowEdge:
-    target: int
-    reverse: int
-    capacity: int
-
-
-def _has_feasible_circulation(
-    edges: list[tuple[object, object, int, int]],
-) -> bool:
-    nodes = {
-        node
-        for source, target, _, _ in edges
-        for node in (source, target)
-    }
-    super_source = ("super-source",)
-    super_sink = ("super-sink",)
-    nodes.update((super_source, super_sink))
-    indices = {
-        node: index
-        for index, node in enumerate(sorted(nodes, key=repr))
-    }
-    graph: list[list[_FlowEdge]] = [[] for _ in indices]
-    demands = {node: 0 for node in nodes}
-
-    def add_edge(source: object, target: object, capacity: int) -> None:
-        source_index = indices[source]
-        target_index = indices[target]
-        forward = _FlowEdge(target_index, len(graph[target_index]), capacity)
-        backward = _FlowEdge(source_index, len(graph[source_index]), 0)
-        graph[source_index].append(forward)
-        graph[target_index].append(backward)
-
-    for source, target, lower, upper in edges:
-        if upper < lower:
-            return False
-        add_edge(source, target, upper - lower)
-        demands[source] -= lower
-        demands[target] += lower
-
-    required = 0
-    for node, demand in demands.items():
-        if node in {super_source, super_sink}:
-            continue
-        if demand > 0:
-            add_edge(super_source, node, demand)
-            required += demand
-        elif demand < 0:
-            add_edge(node, super_sink, -demand)
-    return (
-        _maximum_flow(
-            graph,
-            indices[super_source],
-            indices[super_sink],
-        )
-        == required
-    )
-
-
-def _maximum_flow(
-    graph: list[list[_FlowEdge]],
-    source: int,
-    sink: int,
-) -> int:
-    total = 0
-    while True:
-        levels = [-1] * len(graph)
-        levels[source] = 0
-        pending = deque((source,))
-        while pending:
-            node = pending.popleft()
-            for edge in graph[node]:
-                if edge.capacity > 0 and levels[edge.target] < 0:
-                    levels[edge.target] = levels[node] + 1
-                    pending.append(edge.target)
-        if levels[sink] < 0:
-            return total
-        positions = [0] * len(graph)
-
-        def send(
-            node: int,
-            available: int,
-            *,
-            phase_levels: list[int] = levels,
-            phase_positions: list[int] = positions,
-        ) -> int:
-            if node == sink:
-                return available
-            while phase_positions[node] < len(graph[node]):
-                edge = graph[node][phase_positions[node]]
-                if (
-                    edge.capacity > 0
-                    and phase_levels[edge.target] == phase_levels[node] + 1
-                ):
-                    sent = send(edge.target, min(available, edge.capacity))
-                    if sent:
-                        edge.capacity -= sent
-                        graph[edge.target][edge.reverse].capacity += sent
-                        return sent
-                phase_positions[node] += 1
-            return 0
-
-        while (sent := send(source, 1 << 60)) > 0:
-            total += sent

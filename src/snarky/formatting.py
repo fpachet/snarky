@@ -54,7 +54,21 @@ def _canonical_terminator(line: str, stack: list[_Block]) -> str:
 
 def _close_before(line: str, stack: list[_Block]) -> None:
     expected: str | None = None
-    if line == "THEN":
+    model_ends = {
+        "END_MODEL": "MODEL", "END_CONSTRAINT": "MODEL_CONSTRAINT",
+        "END_OBJECTIVE": "OBJECTIVE", "END_MEASURE": "MEASURE",
+        "END_QUERY": "QUERY", "END_TABLE_FACTOR": "TABLE_FACTOR",
+        "END_BASE_TABLE": "BASE_TABLE", "END_LOG_TABLE": "LOG_TABLE",
+        "END_FACTOR_GROUP": "FACTOR_GROUP",
+    }
+    if line in model_ends:
+        expected = model_ends[line]
+    elif line == "END_FACTOR":
+        for block in reversed(stack):
+            if block.kind in {"FACTOR", "INTEGER_FACTOR"}:
+                expected = block.kind
+                break
+    elif line == "THEN":
         expected = "WHEN"
     elif line == "END_GROUP":
         expected = "GROUP"
@@ -90,7 +104,18 @@ def _pop_through(stack: list[_Block], expected: str) -> None:
 
 
 def _open_after(line: str, stack: list[_Block]) -> None:
-    if line.startswith("PROGRAM "):
+    if line.startswith("MODEL "):
+        stack.append(_Block("MODEL"))
+    elif line == "MEASURE":
+        stack.append(_Block("MEASURE"))
+    elif line.startswith("CONSTRAINT ") and any(b.kind == "MODEL" for b in stack):
+        stack.append(_Block("MODEL_CONSTRAINT"))
+    elif line.partition(" ")[0] in {
+        "OBJECTIVE", "QUERY", "TABLE_FACTOR", "BASE_TABLE", "LOG_TABLE",
+        "INTEGER_FACTOR", "FACTOR", "FACTOR_GROUP",
+    }:
+        stack.append(_Block(line.partition(" ")[0]))
+    elif line.startswith("PROGRAM "):
         stack.append(_Block("PROGRAM"))
     elif line.startswith("STEP "):
         stack.append(_Block("STEP"))

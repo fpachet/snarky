@@ -8,6 +8,11 @@ They are not universal performance claims. Wall-clock values depend on Python,
 hardware, operating system, background load, and benchmark parameters.
 Algorithmic counters and output equivalence are usually more portable.
 
+For the upcoming redesign, use the [performance baseline and comparison
+ledger](../docs/performance_baseline.md). It defines a fixed non-Bach portfolio
+collected by `python -m benchmarks.redesign_baseline`, with raw samples and
+explicit timing boundaries.
+
 ## Reproduction protocol
 
 Run benchmarks from the repository root in a clean environment:
@@ -63,6 +68,7 @@ environment, and dirty-checkout status.
 | `choice_search` | CSP and harmonizer integration across search traversals |
 | `choice_trail` | lazy forked DFS versus reversible-trail DFS on N-queens |
 | `choice_formulations` | extensional versus intensional N-queens and harmony transitions |
+| `finite_markov` | native fixed-order Markov optimization scaling, limits, separate preparation/search and allocation tracing |
 | `classical_csp` | magic squares, Latin squares, and constraints-only versus hybrid Sudoku |
 | `csp_harmonizer_next` | generic Sudoku search and note-variable harmonizer |
 | `muses_harmonizer` | symbolic harmony core versus complete MuSES object bridge |
@@ -300,3 +306,10 @@ oracle, and avoid application-specific shortcuts in the generic engine. The
 [finite-CSP solver optimization plan](../docs/solver_optimization_plan.md)
 records the current profile, completed dependency scheduling and `SUM` bitset
 work, and the acceptance boundary for future incremental state.
+
+The [paired redesign collector](redesign_comparison.py) compares preserved
+reference and candidate sources, matched-search CSPs, mixed overhead and bounded
+Markov optimization. See the [comparison report](../docs/performance_comparison_2026-09-16.md)
+for the measured decision, full timing scopes and memory tradeoff. Generate the
+base tables for a new record with `python -m benchmarks.report_redesign RECORD.json
+--output REPORT.md`, then append the correctness evidence and acceptance decision.

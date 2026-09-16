@@ -1,0 +1,18 @@
+{
+  "schema_version": 1,
+  "reference_commit": "2fbdd9d0e70ad5dc45fbf4dc5472510f84365f5c",
+  "include": ["tests/test_*.py", "sudoku/tests/test_*.py"],
+  "exclude": {
+    "tests/test_learned_rule_generator.py": "Bach learned generator and trained rule artifacts; separate project",
+    "tests/test_learned_rule_profiles.py": "Bach learned/hybrid profiles; separate project",
+    "tests/test_official_manual_rulebase.py": "Bach empirical generation and external manual corpus; separate project"
+  },
+  "outside_roots": {
+    "harmonizer/bach_rule_induction/experiments": "All Bach research experiments are outside the redesign gate"
+  },
+  "notes": [
+    "Generic harmonizer examples remain compatibility tests and require no Bach corpus.",
+    "Synthetic factor tests remain included even if a fixture label mentions Bach.",
+    "New test modules under the include patterns enter the gate automatically."
+  ]
+}

@@ -25,6 +25,10 @@ def main(argv: Sequence[str] | None = None) -> int:
         return _check(arguments)
     if arguments.command == "format":
         return _format(arguments)
+    if arguments.command == "run":
+        from .finite.cli import run_document
+
+        return run_document(arguments.path, arguments.query, explain=arguments.explain)
     parser.error("a command is required")
     return 2
 
@@ -38,7 +42,7 @@ def _argument_parser() -> argparse.ArgumentParser:
 
     check = commands.add_parser(
         "check",
-        help="validate .rules, .constraints, and .program files",
+        help="validate .rules, .constraints, .program, and .model files",
     )
     check.add_argument("paths", nargs="*", default=["."])
     check.add_argument(
@@ -74,6 +78,12 @@ def _argument_parser() -> argparse.ArgumentParser:
         action="store_true",
         help="print unified diffs without writing files",
     )
+    run = commands.add_parser("run", help="execute a finite .model query")
+    run.add_argument("path", help="MODEL source file")
+    run.add_argument("--query", help="query name (required for multiple queries)")
+    run.add_argument(
+        "--explain", action="store_true", help="include proof and score details"
+    )
     return parser
 
 
@@ -87,16 +97,11 @@ def _check(arguments: argparse.Namespace) -> int:
     for diagnostic in result.diagnostics:
         print(diagnostic.render(), file=sys.stderr)
     if result.ok:
-        suffix = (
-            f", {len(result.warnings)} warning(s)"
-            if result.warnings
-            else ""
-        )
+        suffix = f", {len(result.warnings)} warning(s)" if result.warnings else ""
         print(f"checked {len(result.files)} file(s){suffix}")
         return 0
     print(
-        f"found {len(result.errors)} error(s) in "
-        f"{len(result.files)} file(s)",
+        f"found {len(result.errors)} error(s) in {len(result.files)} file(s)",
         file=sys.stderr,
     )
     return 1

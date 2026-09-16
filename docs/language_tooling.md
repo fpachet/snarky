@@ -4,12 +4,13 @@ Snarky ships one command-line tool for its textual source formats:
 
 - `.rules` for rules and rule groups;
 - `.constraints` for persistent finite-domain templates;
-- `.program` for orchestration manifests.
+- `.program` for orchestration manifests;
+- `.model` for declarative finite models and queries.
 
 The command is installed with the `snarky` package. The equivalent
 source-tree invocation is `python -m snarky`.
 
-Constraint validation uses the optional `snarky-csp` companion. After
+Legacy `.constraints` validation uses the optional `snarky-csp` companion. After
 installing the core, install it from the checkout with:
 
 ```sh
@@ -19,6 +20,12 @@ python -m pip install ./csp_solver
 The console executable can then validate constraints from any directory.
 For development without installing the companion, run `python -m snarky check`
 from the checkout root. Pytest's import path is not an installation mechanism.
+
+Declarative `.model` constraints are part of the core package and require no
+companion. See the [finite language tutorial](finite_language.md) for rule-only,
+CSP, mixed optimization and probability examples. Execute a named query with
+`snarky run example.model --query best --explain`; `check` and `format` also
+support this format.
 
 ## Validate sources
 

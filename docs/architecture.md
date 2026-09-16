@@ -7,6 +7,10 @@ components to evolve independently.
 
 ## Layers
 
+The operational pipeline remains available unchanged. The additive declarative
+runtime is described after it; both share immutable symbolic objects and the
+existing matcher implementation.
+
 ```text
 application rulebases and orchestration
                 |
@@ -20,6 +24,35 @@ application rulebases and orchestration
                 |
  terms, facts, matching, substitutions
 ```
+
+### Declarative finite runtime
+
+```mermaid
+flowchart TD
+    Model[Immutable finite model] --> Domains[Native domains and propagation]
+    Model --> Rules[Positive rule definitions]
+    Model --> Factors[Pure objectives and measures]
+    Domains -->|singleton facts| Closure[Mixed closure coordinator]
+    Rules --> Closure
+    Closure -->|positive guarded constraints| Domains
+    Search[Generic search and query controller] -->|checkpoint and rollback| Domains
+    Search -->|coordinated checkpoint and rollback| Closure
+    Factors -->|score and admissible bounds| Search
+    Search --> Results[Solutions, evidence and proof status]
+```
+
+Pure CSPs instantiate only native problem state; no inference session is needed.
+Mixed models add the closure coordinator and existing incremental matcher. The
+search controller owns incumbents outside reversible branch state. Compiled table
+supports and local bound caches depend only on immutable definitions; domains,
+derived facts, proofs and reductions restore together across sibling branches.
+
+The independent finite enumerator defines a small executable reference using
+complete predicates and positive closure. Generic weighted search and an optional
+regular-BP adapter consume the same model/query contract. A backend must reject
+unsupported features explicitly. See the [finite contract](finite_model_contract.md)
+for the admitted rule fragment, exact integer objectives, probability arithmetic
+and the separate [language surface](finite_language.md).
 
 ### Language model
 

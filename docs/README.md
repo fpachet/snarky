@@ -21,6 +21,15 @@ should not be mechanically mixed with English sections.
 ## Publication guides in English
 
 - [Architecture](architecture.md)
+- [Unified redesign plan](redesign_plan.md): final objectives, runtime separation,
+  migration phases, and conformance gates.
+- [Redesign performance baseline](performance_baseline.md): fixed non-Bach workloads,
+  fresh timings, comparison protocol, and optimization ledger.
+- [Redesign implementation evidence](redesign_progress.md)
+- [Markov constraints action plan](markov_constraints_plan.md): audited LSDB Blues,
+  four scoring modes, numerical guarantees, and ordered solver improvements.
+- [Declarative finite model contract](finite_model_contract.md)
+- [Finite model language and migration](finite_language.md)
 - [Textual syntax](syntax.md)
 - [Language validation and formatting](language_tooling.md)
 - [Reference semantics](semantics.md)

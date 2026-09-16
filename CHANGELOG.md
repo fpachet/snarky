@@ -33,6 +33,17 @@ details are documented in [docs/versioning.md](docs/versioning.md).
 
 ### Added
 
+- An opt-in `snarky.finite` runtime with standalone reversible domains, the full
+  existing persistent constraint vocabulary, native integer optimization,
+  coordinated positive rule closure and pure factor objectives.
+- A `.model` language, shared Python/text model validation, installed examples,
+  and `snarky run` with explicit query, proof, limit and explanation output.
+- Fixed-order Markov costs, bounded-window completion bounds and optional
+  objective-guided value order; generic finite probability inference and an
+  optional public regular-BP adapter with declared arithmetic and capabilities.
+- A non-Bach conformance manifest, complete rulebase references, exhaustive
+  mixed/optimization oracles and reproducible performance baselines.
+
 - A frozen Snarky Core 0.1 compatibility baseline separating the established
   symbolic language from experimental probabilistic learning and regular-BP
   work, without authorizing a public release tag.

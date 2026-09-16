@@ -1,0 +1,334 @@
+"""Iterative reversible DFS and integer branch-and-bound over problem states."""
+
+from __future__ import annotations
+
+from collections.abc import Iterator
+from dataclasses import dataclass
+from time import perf_counter
+from typing import Protocol
+
+from ..engine.group_execution import InferenceLimitError
+from ..terms import Atom, Term
+from .bounds import NoObjectiveCompletion, compile_objective_bound
+from .domains import FiniteDomains
+from .model import (
+    FiniteModel,
+    IncumbentRecord,
+    Query,
+    QueryKind,
+    QueryResult,
+    ResultStatus,
+    Solution,
+    Termination,
+)
+from .oracle import feasible
+from .propagation import NativeState
+
+
+class SearchState[Checkpoint](Protocol):
+    model: FiniteModel
+    domains: FiniteDomains
+
+    @property
+    def failure(self) -> Atom | None: ...
+    @property
+    def revisions(self) -> int: ...
+
+    def checkpoint(self) -> Checkpoint: ...
+    def rollback(self, checkpoint: Checkpoint) -> None: ...
+    def release(self, checkpoint: Checkpoint) -> None: ...
+    def restrict(self, variable: Term, value: Term) -> None: ...
+    def propagate(self, *, deadline: float | None = None) -> bool: ...
+    def solution(self) -> Solution: ...
+
+
+@dataclass(slots=True)
+class _Frame[Checkpoint]:
+    checkpoint: Checkpoint
+    variable: Term
+    values: Iterator[Term]
+
+
+def solve(
+    model: FiniteModel,
+    query: Query | None = None,
+    *,
+    variable_order: tuple[Atom, ...] | None = None,
+    reverse_values: bool = False,
+    policy: str = "dom_wdeg",
+    bounding: str = "auto",
+    value_policy: str = "declared",
+) -> QueryResult:
+    """Run native domains, adding the rule coordinator only for mixed models."""
+    query = Query() if query is None else query
+    if query.kind in (QueryKind.PARTITION, QueryKind.SAMPLE_EXACT):
+        from .inference import infer
+
+        return infer(model, query, backend="weighted_search")
+    if model.rules:
+        from .mixed import MixedState
+
+        return search(
+            MixedState(model),
+            query,
+            variable_order=variable_order,
+            reverse_values=reverse_values,
+            policy=policy,
+            bounding=bounding,
+            value_policy=value_policy,
+        )
+    return search(
+        NativeState(model),
+        query,
+        variable_order=variable_order,
+        reverse_values=reverse_values,
+        policy=policy,
+        bounding=bounding,
+        value_policy=value_policy,
+    )
+
+
+def search[Checkpoint](
+    state: SearchState[Checkpoint],
+    query: Query,
+    *,
+    variable_order: tuple[Atom, ...] | None = None,
+    reverse_values: bool = False,
+    policy: str = "dom_wdeg",
+    bounding: str = "auto",
+    value_policy: str = "declared",
+) -> QueryResult:
+    """The controller owns incumbents; state checkpoints own only branch state."""
+    model = state.model
+    if query.kind in (QueryKind.PARTITION, QueryKind.SAMPLE_EXACT):
+        return QueryResult(
+            ResultStatus.UNSUPPORTED,
+            Termination.UNSUPPORTED,
+            backend="native",
+            diagnostic="unsupported query",
+        )
+    optimizing = query.kind in (QueryKind.MINIMIZE, QueryKind.MAXIMIZE)
+    if optimizing and model.objective is None:
+        raise ValueError("optimization requires an explicit objective")
+    if policy not in ("mrv", "dom_wdeg"):
+        raise ValueError("unknown native search policy")
+    if bounding not in ("auto", "local"):
+        raise ValueError("bounding must be auto or local")
+    if value_policy not in ("declared", "objective"):
+        raise ValueError("value_policy must be declared or objective")
+    if value_policy == "objective" and not optimizing:
+        raise ValueError("objective value ordering requires an optimization query")
+    names = tuple(var.name for var in model.variables)
+    if variable_order is not None and (
+        len(variable_order) != len(names) or set(variable_order) != set(names)
+    ):
+        raise ValueError("variable_order must contain every variable exactly once")
+    names = names if variable_order is None else variable_order
+    started = perf_counter()
+    deadline = (
+        None if query.time_limit_seconds is None else started + query.time_limit_seconds
+    )
+    weights = {constraint.name: 1 for constraint in model.constraints}
+    incident = {
+        var: [
+            constraint.name
+            for constraint in model.constraints
+            if var in constraint.variables
+        ]
+        for var in names
+    }
+    solutions: list[Solution] = []
+    history: list[int] = []
+    objective_bound = (
+        compile_objective_bound(model, deadline=deadline)
+        if bounding == "auto" and optimizing
+        else model.objective.bounds
+        if model.objective is not None
+        else lambda domains: None
+    )
+    milestones: list[IncumbentRecord] = []
+    frames: list[_Frame[Checkpoint]] = []
+    explored = failed = pruned = 0
+    global_bound = None
+    termination = Termination.EXHAUSTED
+    diagnostic = ""
+    root = state.checkpoint()
+
+    def advance() -> bool:
+        while frames:
+            frame = frames[-1]
+            state.rollback(frame.checkpoint)
+            value = next(frame.values, None)
+            if value is None:
+                state.release(frame.checkpoint)
+                frames.pop()
+                continue
+            state.restrict(frame.variable, value)
+            return True
+        return False
+
+    try:
+        while True:
+            if query.max_nodes is not None and explored >= query.max_nodes:
+                termination = Termination.NODE_LIMIT
+                break
+            if deadline is not None and perf_counter() >= deadline:
+                termination = Termination.TIME_LIMIT
+                break
+            explored += 1
+            try:
+                consistent = state.propagate(deadline=deadline)
+            except TimeoutError:
+                termination = Termination.TIME_LIMIT
+                break
+            except InferenceLimitError as error:
+                termination = Termination.RESOURCE_LIMIT
+                diagnostic = str(error)
+                break
+            if not consistent:
+                failed += 1
+                if state.failure in weights:
+                    weights[state.failure] += 1
+                if not advance():
+                    break
+                continue
+            if optimizing:
+                assert model.objective is not None
+                try:
+                    bounds = objective_bound(state.domains.snapshot())
+                except NoObjectiveCompletion:
+                    failed += 1
+                    if not advance():
+                        break
+                    continue
+                bound = (
+                    None
+                    if bounds is None
+                    else bounds[0 if query.kind is QueryKind.MINIMIZE else 1]
+                )
+                if explored == 1:
+                    global_bound = bound
+                incumbent = solutions[0].objective_value if solutions else None
+                if (
+                    bound is not None
+                    and incumbent is not None
+                    and (
+                        bound >= incumbent
+                        if query.kind is QueryKind.MINIMIZE
+                        else bound <= incumbent
+                    )
+                ):
+                    pruned += 1
+                    if not advance():
+                        break
+                    continue
+            if state.domains.complete:
+                solution = state.solution()
+                if feasible(model, solution.assignment, solution.facts):
+                    value = solution.objective_value
+                    if optimizing:
+                        assert value is not None
+                        previous = solutions[0].objective_value if solutions else None
+                        if previous is None or (
+                            value < previous
+                            if query.kind is QueryKind.MINIMIZE
+                            else value > previous
+                        ):
+                            solutions[:] = [solution]
+                            history.append(value)
+                            milestones.append(
+                                IncumbentRecord(
+                                    value, explored, perf_counter() - started
+                                )
+                            )
+                            if global_bound is not None and value == global_bound:
+                                # The root relaxation bounds every remaining branch.
+                                # Reaching it proves optimality without visiting them.
+                                break
+                    else:
+                        solutions.append(solution)
+                        if query.kind is QueryKind.SOLVE or (
+                            query.max_solutions is not None
+                            and len(solutions) >= query.max_solutions
+                        ):
+                            termination = Termination.SOLUTION_LIMIT
+                            break
+                else:
+                    failed += 1
+                if not advance():
+                    break
+                continue
+            unresolved = [var for var in names if state.domains.size(var) > 1]
+            if variable_order is not None:
+                variable = unresolved[0]
+            else:
+                variable = min(
+                    unresolved,
+                    key=lambda var: (
+                        state.domains.size(var)
+                        / max(1, sum(weights[c] for c in incident[var]))
+                        if policy == "dom_wdeg"
+                        else state.domains.size(var)
+                    ),
+                )
+            values = state.domains.values(variable)
+            if reverse_values:
+                values = values[::-1]
+            if value_policy == "objective":
+                current_domains = dict(state.domains.snapshot())
+                ranked = []
+                for symbol in values:
+                    current_domains[variable] = frozenset((symbol,))
+                    try:
+                        interval = objective_bound(current_domains)
+                    except NoObjectiveCompletion:
+                        pruned += 1
+                        continue
+                    priority = (
+                        0
+                        if interval is None
+                        else (
+                            interval[0]
+                            if query.kind is QueryKind.MINIMIZE
+                            else -interval[1]
+                        )
+                    )
+                    ranked.append((priority, symbol))
+                values = tuple(
+                    symbol for _, symbol in sorted(ranked, key=lambda item: item[0])
+                )
+            frames.append(_Frame(state.checkpoint(), variable, iter(values)))
+            if not advance():
+                break
+    except TimeoutError:
+        termination = Termination.TIME_LIMIT
+    finally:
+        for frame in reversed(frames):
+            state.rollback(frame.checkpoint)
+            state.release(frame.checkpoint)
+        state.rollback(root)
+        state.release(root)
+
+    complete = termination is Termination.EXHAUSTED
+    if not solutions:
+        status = ResultStatus.INFEASIBLE if complete else ResultStatus.UNKNOWN
+    elif optimizing and complete:
+        status = ResultStatus.OPTIMAL
+        global_bound = solutions[0].objective_value
+    else:
+        status = ResultStatus.FEASIBLE
+    return QueryResult(
+        status,
+        termination,
+        tuple(solutions),
+        explored,
+        backend="native",
+        objective_bound=global_bound,
+        failed_branches=failed,
+        pruned_branches=pruned,
+        constraint_revisions=state.revisions,
+        incumbent_values=tuple(history),
+        incumbent_history=tuple(milestones),
+        elapsed_seconds=perf_counter() - started,
+        diagnostic=diagnostic,
+    )

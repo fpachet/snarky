@@ -21,7 +21,7 @@ from .parser import (
 )
 from .rules import RuleGroup
 
-SUPPORTED_SUFFIXES = frozenset({".rules", ".constraints", ".program"})
+SUPPORTED_SUFFIXES = frozenset({".rules", ".constraints", ".program", ".model"})
 DEFAULT_EXCLUDED_DIRECTORIES = frozenset(
     {
         ".git",
@@ -173,7 +173,7 @@ def validate_paths(
                     DiagnosticSeverity.ERROR,
                     "SNK003",
                     f"unsupported Snarky source suffix {path.suffix!r}",
-                    help="use .rules, .constraints, or .program",
+                    help="use .rules, .constraints, .program, or .model",
                 )
             )
     group_names: set[str] = set()
@@ -203,6 +203,8 @@ def validate_paths(
                 parsed = _parse_rules_source(text)
                 if parsed and isinstance(parsed[0], RuleGroup):
                     group_names.update(group.name for group in parsed)
+            elif path.suffix == ".model":
+                _parse_model_source(text)
             else:
                 templates = _parse_constraint_source(text)
                 constraint_names.update(
@@ -285,6 +287,8 @@ def validate_source(
         elif source_path.suffix == ".program":
             groups, constraints = _program_references(text)
             _parse_program_source(text, groups, constraints)
+        elif source_path.suffix == ".model":
+            _parse_model_source(text)
         else:
             diagnostics.append(
                 Diagnostic(
@@ -294,12 +298,18 @@ def validate_source(
                     DiagnosticSeverity.ERROR,
                     "SNK003",
                     f"unsupported Snarky source suffix {source_path.suffix!r}",
-                    help="use .rules, .constraints, or .program",
+                    help="use .rules, .constraints, .program, or .model",
                 )
             )
     except (ParseError, ValueError) as error:
         diagnostics.append(_diagnostic_from_error(source_path, text, error))
     return tuple(diagnostics)
+
+
+def _parse_model_source(text: str) -> None:
+    from .finite.language import parse_model_document
+
+    parse_model_document(text)
 
 
 def _parse_rules_source(text: str) -> tuple[Any, ...]:
@@ -461,6 +471,12 @@ def _reference_diagnostic(
 
 def _locate_error(text: str, message: str) -> tuple[int, int, str]:
     lines = text.splitlines()
+    explicit = re.match(r"line (\d+):", message)
+    if explicit is not None:
+        number = int(explicit.group(1))
+        if 1 <= number <= len(lines):
+            raw = lines[number - 1]
+            return number, _first_column(raw), raw
     significant = [
         (number, line, line.strip())
         for number, line in enumerate(lines, start=1)

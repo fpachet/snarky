@@ -5,6 +5,13 @@ Jean-Louis Laurière's SNARK and Jean-Luc Dormoy's BOOJUM. It combines
 production rules, recursive terms, finite-domain propagation, explicit
 weighted choices, and reversible search in one explainable runtime.
 
+The opt-in `snarky.finite` API also provides standalone CSP solving, integer
+branch-and-bound, pure factor objectives and supported probability queries.
+Its [finite model language](docs/finite_language.md) combines positive rules,
+constraints and factors in one declarative model, with explicit query semantics.
+The [performance ledger](docs/performance_baseline.md) preserves measurements
+for comparing future changes. Bach work is outside the redesign portfolio.
+
 Snarky is a research prototype: its core inference and finite-domain
 constraint semantics are extensively tested. Adaptive strategy selection,
 selected search policies, and the pre-1.0 `csp_solver` public API remain
@@ -79,6 +86,7 @@ Choose the test scope explicitly:
 | Scope | Command |
 |---|---|
 | Complete core/application suite | `pytest` |
+| Non-Bach redesign conformance | `python scripts/check_redesign.py` |
 | Shorter feedback loop | `pytest -m "not slow"` |
 | Expensive harmonizer integrations | `pytest -m slow --durations=10` |
 | Research unit and fixture tests | `pytest harmonizer/bach_rule_induction/experiments` |

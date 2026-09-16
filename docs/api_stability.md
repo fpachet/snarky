@@ -71,6 +71,21 @@ experimental modules or declarations until their semantics and conformance
 suite are accepted. In particular, they may not reinterpret the stable
 `CHOICE` weight as a globally normalized probability.
 
+The implemented `snarky.finite` namespace is the opt-in, pre-1.0 declarative
+surface. Its [model contract](finite_model_contract.md) and
+[textual language](finite_language.md) specify the supported fragment; its public
+imports are listed in `snarky.finite.__all__`, separately from the package-root
+categories above. `FiniteModel`, objectives, measures and queries share one
+validated meaning across the supported backends. Domain, kernel, closure and
+compiled-bound modules are implementation details; `SearchState` is the advanced
+controller extension protocol. Callback constraints must obey their purity contract.
+
+This is an additive implementation, not a replacement of the frozen operational
+Core or a new public release. Legacy CSP imports remain compatibility aliases
+for the extracted constraint classes. Existing sessions and application search
+remain available. Promotion into the frozen top-level API requires a separate
+versioning decision; performance validation does not imply that decision.
+
 ## Top-level transition
 
 Before version 0.1.0, the package root re-exported every public implementation

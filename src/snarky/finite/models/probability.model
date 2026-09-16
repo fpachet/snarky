@@ -1,0 +1,32 @@
+MODEL conditioned_markov
+    VARIABLE x DOMAIN SEQ[a b]
+    VARIABLE y DOMAIN SEQ[a b]
+    CONSTRAINT distinct
+        KIND ALL_DIFFERENT
+        SCOPE SEQ[x y]
+    END_CONSTRAINT
+    MEASURE
+        BASE_TABLE initial
+            SCOPE SEQ[x]
+            ROW SEQ[a] WEIGHT 1/3
+            ROW SEQ[b] WEIGHT 2/3
+        END_BASE_TABLE
+        BASE_TABLE transition
+            SCOPE SEQ[x y]
+            ROW SEQ[a a] WEIGHT 1/4
+            ROW SEQ[a b] WEIGHT 3/4
+            ROW SEQ[b a] WEIGHT 1/2
+            ROW SEQ[b b] WEIGHT 1/2
+        END_BASE_TABLE
+    END_MEASURE
+    QUERY partition PARTITION
+        BACKEND weighted_search
+    END_QUERY
+    QUERY regular PARTITION
+        BACKEND regular_bp
+    END_QUERY
+    QUERY draw SAMPLE_EXACT
+        SAMPLE_COUNT 5
+        SEED 7
+    END_QUERY
+END_MODEL
