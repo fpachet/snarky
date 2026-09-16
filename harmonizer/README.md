@@ -7,10 +7,10 @@ contextual weights, reversible branches, and traceable contradictions.
 It is a research prototype rather than a complete implementation of Pierre
 Roy's 1998 profile.
 
-## Bach corpus rule induction
+## Bach side project
 
 The separate
-[`bach_rule_induction/`](bach_rule_induction/README.md) research workspace
+[`bach_rule_induction/`](bach_rule_induction/README.md) side project
 contains the plan for learning human-readable rules from Bach chorales,
 reconstructing Ebcioğlu's CHORAL baseline, and comparing Snarky with DeepBach.
 Rules learned there are not part of the harmonizer baseline until they have

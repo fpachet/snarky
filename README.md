@@ -10,7 +10,8 @@ branch-and-bound, pure factor objectives and supported probability queries.
 Its [finite model language](docs/finite_language.md) combines positive rules,
 constraints and factors in one declarative model, with explicit query semantics.
 The [performance ledger](docs/performance_baseline.md) preserves measurements
-for comparing future changes. Bach work is outside the redesign portfolio.
+for comparing future changes. The Bach experiment is a separate side project,
+outside Snarky's main application and redesign portfolio.
 The [Markov melody examples](docs/markov_melody_examples.md) reproduce the four
 2011 scoring modes, forbidden patterns, contour control and continuation using
 exact objectives and the ordinary CSP engine.
@@ -289,10 +290,16 @@ contribute.
 | Project | Purpose |
 |---|---|
 | [Finite CSP](csp_solver/README.md) | Classical puzzles, sequencing, scheduling, coloring, and reproducible CSP benchmarks through declarative constraints, rules, and choices |
+| [Markov constraints](docs/markov_constraints_application.md) | Ordinary, exotic and Boulez Blues; four melody scoring modes, forbidden patterns, contour control and continuation, with exact optimization and measured performance |
 | [Sudoku](sudoku/README.md) | progressive, explainable human techniques followed by explicit search |
 | [Four-part harmonizer](harmonizer/README.md) | SATB generation with tonal rules, hierarchical metre, declarative melodic roles, and MuSES integration |
 | [Rulebase catalogue](rulebases/README.md) | executable pedagogical and historically motivated examples |
 | [Spinoza](spinoza/README.md) | French-language formalization of Part III of the *Ethics* |
+
+The [Bach experiment](harmonizer/bach_rule_induction/README.md) is a separate
+side project with its own corpus, learning protocols and acceptance criteria.
+The generic four-part harmonizer remains an engine application and compatibility
+case study.
 
 Spinoza intentionally remains in French because its corpus, formalization, and
 reports are tied to French primary material. Publication-facing engine and

@@ -49,10 +49,18 @@ should not be mechanically mixed with English sections.
 - [Strategy lifecycle](strategy_lifecycle.md)
 - [Consolidation plan](consolidation_plan.md)
 - [Benchmark guide](../benchmarks/README.md)
+
+## Applications
+
+- [Markov constraints](markov_constraints_application.md): exact Blues and melody
+  optimization, paper reproductions, control examples and performance records.
 - [Finite CSP](../csp_solver/README.md)
 - [Sudoku](../sudoku/README.md)
 - [Four-part harmonizer](../harmonizer/README.md)
 - [Rulebase catalogue](../rulebases/README.md)
+
+The [Bach experiment](../harmonizer/bach_rule_induction/README.md) is a separate
+side project, with independent corpus, learning and generation protocols.
 
 ## Focused French research notes
 

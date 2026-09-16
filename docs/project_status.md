@@ -9,10 +9,17 @@ own dated protocols and promotion decisions.
 | [Core 0.1](core_0_1_baseline.md) | Frozen symbolic language and supported API; not a public release | Differential semantics, rollback/provenance, parser, and installed-package tests |
 | [CSP](../csp_solver/README.md) | Optional installable companion; experimental Python API | Independent solution oracles, propagator support oracles, installed rule data |
 | [Unified finite runtime](finite_model_contract.md) | Opt-in core namespace and `.model` language; native CSP/optimization, positive mixed closure and factors | Non-Bach manifest, exhaustive oracles, installed examples and paired performance evidence in [redesign progress](redesign_progress.md) |
+| [Markov constraints](markov_constraints_application.md) | Exact first-order Blues optimization and fixed- and variable-order melody modes; Python API and research examples | Independent DP/exhaustive oracles, completed Boulez proof, mixed-constraint tests and archived performance evidence |
 | [Sudoku](../sudoku/README.md) | Explainable reference techniques plus optional search | Reference puzzles and explanation replay |
 | [Harmonizer](../harmonizer/README.md) | C-major SATB prototype with documented limits | Conformance checks and expensive integration examples |
-| [Bach learning](../harmonizer/bach_rule_induction/README.md) | Multiple experimental tracks with separately versioned checkpoints | Unit tests plus each track's corpus, statistical, and generation protocol |
 | [Probabilistic extension](probabilistic_constraint_learning_spec.md) | Generic finite inference and optional regular-BP adapter implemented in `snarky.finite`; learning remains research | Partition/marginal/conditional-mass agreement and explicit arithmetic/capabilities; separate from frozen CHOICE semantics |
+
+## Bach side project
+
+The [Bach experiment](../harmonizer/bach_rule_induction/README.md) is a separate
+side project, outside the main Snarky application and redesign portfolio. Its
+learning experiments retain their own corpus, statistical and generation gates.
+The generic SATB harmonizer remains an engine application and compatibility case.
 
 The Bach research README identifies the executable V19 and explanatory V20B
 checkpoints for its K3 track and links subsequent decisions. Those labels are

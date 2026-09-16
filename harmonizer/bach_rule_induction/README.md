@@ -4,6 +4,10 @@ Ce dossier est le point d'entrée du projet de recherche visant à extraire des
 règles lisibles des chorals de Bach, à les compiler pour Snarky et à les
 comparer à CHORAL et DeepBach.
 
+Cette expérience constitue un projet annexe, distinct de la liste principale
+des applications de Snarky et de son programme de refonte. Elle conserve ses
+propres corpus, protocoles d’apprentissage et critères de validation.
+
 Le projet est volontairement séparé du prototype
 [`harmonizer/`](../README.md) : les règles apprises n'entreront dans
 l'harmoniseur principal qu'après validation, avec une provenance et des tests
