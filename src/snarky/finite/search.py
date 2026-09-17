@@ -11,10 +11,12 @@ from typing import Protocol
 from ..engine.group_execution import InferenceLimitError
 from ..terms import Atom, Term
 from .bounds import NoObjectiveCompletion, ObjectiveBound, compile_objective_bound
+from .constraints import ConstraintOperator, LinearSumConstraint
 from .domains import FiniteDomains
 from .model import (
     FiniteModel,
     IncumbentRecord,
+    LinearObjective,
     Query,
     QueryKind,
     QueryResult,
@@ -40,7 +42,12 @@ class SearchState[Checkpoint](Protocol):
     def rollback(self, checkpoint: Checkpoint) -> None: ...
     def release(self, checkpoint: Checkpoint) -> None: ...
     def restrict(self, variable: Term, value: Term) -> None: ...
-    def propagate(self, *, deadline: float | None = None) -> bool: ...
+    def propagate(
+        self,
+        *,
+        deadline: float | None = None,
+        objective_cut: LinearSumConstraint | None = None,
+    ) -> bool: ...
     def solution(self) -> Solution: ...
 
 
@@ -81,6 +88,7 @@ def solve(
     policy: str = "dom_wdeg",
     bounding: str = "auto",
     value_policy: str = "declared",
+    objective_propagation: bool = True,
     initial_assignment: Mapping[Term, Term] | None = None,
     on_progress: Callable[[SearchProgress], None] | None = None,
 ) -> QueryResult:
@@ -108,6 +116,7 @@ def solve(
             policy=policy,
             bounding=bounding,
             value_policy=value_policy,
+            objective_propagation=objective_propagation,
             initial_assignment=initial_assignment,
             on_progress=on_progress,
         )
@@ -119,6 +128,7 @@ def solve(
         policy=policy,
         bounding=bounding,
         value_policy=value_policy,
+        objective_propagation=objective_propagation,
         initial_assignment=initial_assignment,
         on_progress=on_progress,
     )
@@ -133,6 +143,7 @@ def search[Checkpoint](
     policy: str = "dom_wdeg",
     bounding: str = "auto",
     value_policy: str = "declared",
+    objective_propagation: bool = True,
     initial_assignment: Mapping[Term, Term] | None = None,
     on_progress: Callable[[SearchProgress], None] | None = None,
 ) -> QueryResult:
@@ -192,6 +203,12 @@ def search[Checkpoint](
     observed_root_bound = None
     termination = Termination.EXHAUSTED
     diagnostic = ""
+    objective_cut = None
+    cut_incumbent = None
+    cut_name = Atom("__objective_cut")
+    constraint_names = {constraint.name for constraint in model.constraints}
+    while cut_name in constraint_names:
+        cut_name = Atom(cut_name.name + "_")
     root = state.checkpoint()
 
     def emit(event: str, result: QueryResult | None = None) -> None:
@@ -263,7 +280,33 @@ def search[Checkpoint](
             if on_progress is not None:
                 emit("node")
             try:
-                consistent = state.propagate(deadline=deadline)
+                if (
+                    optimizing
+                    and objective_propagation
+                    and isinstance(model.objective, LinearObjective)
+                    and model.objective.terms
+                    and solutions
+                ):
+                    incumbent = solutions[0].objective_value
+                    if incumbent != cut_incumbent:
+                        assert isinstance(incumbent, int)
+                        minimizing = query.kind is QueryKind.MINIMIZE
+                        objective_cut = LinearSumConstraint(
+                            cut_name,
+                            model.objective.terms,
+                            ConstraintOperator.LESS_EQUAL
+                            if minimizing
+                            else ConstraintOperator.GREATER_EQUAL,
+                            incumbent
+                            - model.objective.offset
+                            + (-1 if minimizing else 1),
+                        )
+                        cut_incumbent = incumbent
+                consistent = (
+                    state.propagate(deadline=deadline)
+                    if objective_cut is None
+                    else state.propagate(deadline=deadline, objective_cut=objective_cut)
+                )
             except TimeoutError:
                 termination = Termination.TIME_LIMIT
                 break

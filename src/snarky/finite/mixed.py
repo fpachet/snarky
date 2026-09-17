@@ -13,6 +13,7 @@ from ..engine.session_state import SessionCheckpoint
 from ..facts import Fact
 from ..instantiation import SemiNaiveInstantiationStrategy
 from ..terms import Atom, Term
+from .constraints import LinearSumConstraint
 from .model import FactConstraint, FiniteModel, Solution, score_solution
 from .propagation import NativeCheckpoint, NativeState
 
@@ -94,13 +95,19 @@ class MixedState:
                     queued.add(target)
                     pending.append(target)
 
-    def propagate(self, *, deadline: float | None = None) -> bool:
+    def propagate(
+        self,
+        *,
+        deadline: float | None = None,
+        objective_cut: LinearSumConstraint | None = None,
+    ) -> bool:
         while True:
             before_removals = len(self.domains.removals)
             before_events = self.session.event_count
             if not self._native.propagate(
                 deadline=deadline,
                 facts=frozenset(self.session.facts),
+                objective_cut=objective_cut,
             ):
                 return False
             self._close_rules(deadline)

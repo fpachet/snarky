@@ -374,6 +374,10 @@ and unchanged-domain work while preserving exact filtering and search counts.
 Paired runs improve queens 50 **1.55×**, incremental Latin 16 **1.77×**, and FT06
 optimization **1.28×**. A fresh full Prune run retains **52/59 versus 59/59**;
 the seven remaining timeouts still require further work.
+The [incumbent-cut follow-up](docs/performance_csp_objective_2026-09-17.md) now
+propagates improving integer objective bounds through native and mixed constraints.
+FT06 improves about **1.10×** in the paired run; the two hard optimization cases
+still time out at five seconds.
 
 Correctness tests compare optimized strategies with the executable reference
 implementation across mutation, negation, search, propagation, and

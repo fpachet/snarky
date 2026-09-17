@@ -33,6 +33,11 @@ details are documented in [docs/versioning.md](docs/versioning.md).
 
 ### Added
 
+- Native and mixed integer linear optimization now propagates strict incumbent
+  cuts through the ordinary constraint queue, including after rollback.
+  `objective_propagation=False` retains bound-check-only behavior for ablation.
+  See the [objective-cut report](docs/performance_csp_objective_2026-09-17.md).
+
 - Exact Régin filtering now uses compact bitset graphs for bounded value
   alphabets, retaining the exact sparse fallback. Native propagation avoids
   rebuilding unchanged domain masks. The

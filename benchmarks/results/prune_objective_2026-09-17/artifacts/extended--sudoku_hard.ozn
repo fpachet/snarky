@@ -1,0 +1,4 @@
+output ["{\n","  \"grid\" : ",concat(["[",join(", ",[showJSON(slice_1d(grid,[X_INTRODUCED_109_..X_INTRODUCED_109_,index_set_2of2(grid)],index_set_2of2(grid))) | X_INTRODUCED_109_ in index_set_1of2(grid)]),"]"]),"\n}\n"];
+set of int: cell = 1..9;
+array [1..81] of int: X_INTRODUCED_0_;
+array [cell,cell] of int: grid = array2d(1..9,1..9,X_INTRODUCED_0_);

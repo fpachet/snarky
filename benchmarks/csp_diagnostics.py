@@ -144,6 +144,12 @@ def worker(args):
         "maximize": QueryKind.MAXIMIZE,
     }[document["solve"]["method"]]
     options = dict(policy="dom_wdeg")
+    cut_available = "objective_propagation" in inspect.signature(search).parameters
+    if args.objective_propagation == "on" and not cut_available:
+        raise ValueError("selected runtime has no objective propagation")
+    cut_enabled = cut_available and args.objective_propagation != "off"
+    if cut_available:
+        options["objective_propagation"] = cut_enabled
     hook_available = "on_progress" in inspect.signature(search).parameters
     if args.diagnostic and hook_available:
         options["on_progress"] = observe
@@ -176,6 +182,7 @@ def worker(args):
         output += "=====UNKNOWN=====\n"
     record = dict(
         nvalue_encoding=args.nvalue,
+        objective_propagation=cut_enabled,
         variables=len(bridge.model.variables),
         constraints=len(bridge.model.constraints),
         lowerings=dict(bridge.lowerings),
@@ -224,6 +231,9 @@ def main():
     parser.add_argument("--profile", type=Path)
     parser.add_argument("--allocation", action="store_true")
     parser.add_argument("--nvalue", choices=["native", "decomposed"], default="native")
+    parser.add_argument(
+        "--objective-propagation", choices=["auto", "on", "off"], default="auto"
+    )
     args = parser.parse_args()
     if args.profile and args.allocation:
         parser.error("CPU and allocation profiles must use separate runs")

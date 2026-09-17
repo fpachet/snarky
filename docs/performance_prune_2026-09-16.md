@@ -1,6 +1,9 @@
 # Prune / Snarky benchmark baseline — 16 September 2026
 
 This baseline is frozen. The latest
+[objective-cut report](performance_csp_objective_2026-09-17.md) records a modest
+FT06 gain, Snarky still at 52/59, and Prune at 59/58/59 across three repetitions
+(one bin-packing timeout near the five-second threshold). The
 [all-different report](performance_csp_alldiff_2026-09-16.md) records faster queens,
 Latin and FT06 runs with completion still **52/59 versus 59/59**. The
 [native NValue report](performance_csp_nvalue_2026-09-16.md)

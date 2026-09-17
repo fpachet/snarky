@@ -119,6 +119,7 @@ class NativeState:
         *,
         deadline: float | None = None,
         facts: frozenset[Fact] | None = None,
+        objective_cut: LinearSumConstraint | None = None,
     ) -> bool:
         changed = self.domains.take_changed()
         indices = (
@@ -128,7 +129,14 @@ class NativeState:
         )
         self._initialized = True
         indices.update(self._guarded)
-        pending = deque(sorted(indices))
+        # The search controller supplies its latest incumbent cut on every call,
+        # including after rollback. Only the resulting domain reductions trail;
+        # neither the immutable model nor checkpoint state owns the incumbent.
+        cut_index = len(self.model.constraints)
+        cut_variables = frozenset(objective_cut.variables) if objective_cut else ()
+        pending = deque(
+            ([cut_index] if objective_cut is not None else []) + sorted(indices)
+        )
         queued = set(pending)
         while pending:
             if deadline is not None and perf_counter() >= deadline:
@@ -136,7 +144,10 @@ class NativeState:
                 raise TimeoutError("constraint propagation time limit")
             index = pending.popleft()
             queued.remove(index)
-            constraint = self.model.constraints[index]
+            constraint = (
+                objective_cut if index == cut_index else self.model.constraints[index]
+            )
+            assert constraint is not None
             cause = constraint.name
             if isinstance(constraint, GuardedConstraint):
                 known = self.closed_facts() if facts is None else facts
@@ -165,6 +176,9 @@ class NativeState:
                 if len(values) != self.domains.size(var):
                     self.domains.retain(var, values, cause)
             for var in self.domains.take_changed():
+                if var in cut_variables and cut_index not in queued:
+                    queued.add(cut_index)
+                    pending.append(cut_index)
                 for incident in (*self._adjacency[var], *self._guarded):
                     if incident not in queued:
                         queued.add(incident)

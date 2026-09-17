@@ -469,3 +469,12 @@ source. The new full Prune run remains 52/59 versus 59/59; all 52 completed Snar
 workloads preserve search counts and outputs against the prior full record.
 The [CLAIRE refresh](performance_claire_2026-09-16.md) adds separate native-global
 queens measurements alongside the historical rule/choice workloads.
+
+The [objective-cut follow-up](performance_csp_objective_2026-09-17.md) connects
+integer incumbents to the ordinary native/mixed propagation queue. FT06 improves
+1.10× against the previous runtime and 1.11× in a same-source on/off ablation,
+with 8.6% fewer revisions and the same 615 nodes. Snarky remains 52/59 and 3/5
+optimization proofs. The fresh Prune run completes 59, 58 and 59 workloads; one
+bin-packing repetition exceeds five seconds. All samples and this threshold
+variability are retained. Knapsack still lacks a proof; packing finds no incumbent
+in the separate profiled budget, so objective propagation cannot yet help it.

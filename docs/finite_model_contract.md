@@ -95,6 +95,32 @@ the caller's domain state on exhaustion, early solution, limits, or exceptions.
 MRV and dom/wdeg select variables; an explicit variable order or reversed value
 order changes traversal without changing the model.
 
+For a nonconstant `LinearObjective`, `solve` and `search` also propagate a strict
+improving cut after an incumbent is found (or an initial assignment is validated).
+Minimization uses `sum(terms) <= incumbent - offset - 1`; maximization uses
+`sum(terms) >= incumbent - offset + 1`. Integer arithmetic handles signed
+coefficients and arbitrary-size offsets exactly. Repeated objective terms have
+already been combined by the model contract.
+
+The cut enters the ordinary incident queue before existing constraints and is
+rescheduled when its variables change. Cost-variable reductions therefore reach
+defining sums, tables, other constraints and the mixed rule/domain fixed point.
+The controller retains the latest cut across backtracking and supplies it on each
+propagation call; domain reductions and derived facts remain reversible. The
+immutable model is unchanged, and search restores the caller's state on every exit.
+The cut has a unique synthetic explanation name, `__objective_cut` with underscores
+added if necessary. Cut failures count as failed branches and cut revisions count
+as constraint revisions; they do not increase an original constraint's search weight.
+
+`objective_propagation=False` selects the former bound-check-only behavior for
+controlled ablations. Feasibility/enumeration queries are unaffected. Constant
+objectives use existing bound termination, without an empty linear constraint.
+Factor and rational-product objectives retain their existing admissible bound
+checks; this option does not synthesize cost variables or translate those objectives.
+A strict cut seeks one optimal witness and does not enumerate all tied optima.
+Custom `SearchState` implementations must accept the optional `objective_cut`
+argument when enabling this feature; the provided native and mixed states do so.
+
 `bounding="auto"` compiles an admissible min/max chain relaxation for table
 objectives whose scopes span at most two preceding model variables and whose
 initial edge-volume estimate is at most 100,000. It includes unconditional hard

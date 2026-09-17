@@ -174,6 +174,10 @@ def collect(args):
             nvalue_encoding=dict(
                 reference=args.reference_nvalue, candidate=args.candidate_nvalue
             ),
+            objective_propagation=dict(
+                reference=args.reference_objective_propagation,
+                candidate=args.candidate_objective_propagation,
+            ),
         ),
         cases=[],
     )
@@ -203,6 +207,10 @@ def collect(args):
                         args.reference_nvalue
                         if engine == "reference"
                         else args.candidate_nvalue,
+                        "--objective-propagation",
+                        args.reference_objective_propagation
+                        if engine == "reference"
+                        else args.candidate_objective_propagation,
                     ]
                     if mode == "all":
                         command.append("--all")
@@ -323,6 +331,16 @@ def main():
         "--candidate-nvalue", choices=["native", "decomposed"], default="native"
     )
     parser.add_argument("--minizinc", type=Path, default=Path(DEFAULT_MINIZINC))
+    parser.add_argument(
+        "--reference-objective-propagation",
+        choices=["auto", "on", "off"],
+        default="auto",
+    )
+    parser.add_argument(
+        "--candidate-objective-propagation",
+        choices=["auto", "on", "off"],
+        default="auto",
+    )
     parser.add_argument("--only", action="append", default=[])
     parser.add_argument("--seconds", type=float, default=2)
     parser.add_argument("--hard-seconds", type=float, default=10)

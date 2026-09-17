@@ -25,9 +25,16 @@ A P2 shortcut avoids rebuilding unchanged native domain masks. These reduce
 work per revision without changing branching or introducing objective cuts.
 P4's search/bounding work and P5's compact-domain contract remain open. Fresh
 queens profiles still show numeric conversion, matching and domain materialization
-as material costs. Next, investigate immutable numeric/index views under P2 and
-propagated improving objective cuts under P4, each with a separate ablation; do
-not infer that faster graph traversal fixes the seven remaining timeouts.
+as material costs. This identified immutable numeric/index views under P2 and
+propagated improving objective cuts under P4 as follow-ups; faster graph traversal
+alone did not remove the seven remaining timeouts.
+
+The [fifth slice](performance_csp_objective_2026-09-17.md) implements P4's
+propagated improving cuts for integer linear objectives, including mixed models
+and rollback-safe incumbent handling. FT06's paired gain is about 1.10×; knapsack
+and packing still time out at five seconds. The next investigation is incumbent
+quality and variable/value ordering, measured separately from propagation cost.
+P2 numeric/index views and P5 compact domains remain open.
 
 ## Objective and boundaries
 
@@ -77,8 +84,9 @@ Source inspection already identifies actionable candidates:
   enumerated values; removals and snapshots materialize values. They are compact
   for a small alphabet, not for an interval containing a billion integers.
 - [Search](../src/snarky/finite/search.py) materializes branch values and objective
-  snapshots. Integer branch-and-bound exists, but the generic controller checks
-  bounds rather than propagating a persistent improving linear-objective cut.
+  snapshots. At the baseline, integer branch-and-bound checked bounds without
+  propagating an improving cut. The fifth slice now supplies that mechanism for
+  integer linear objectives; stronger bounds and ordering remain open.
 - Matching reuse for all-different, table support bitsets, incident scheduling,
   and the nonnegative SUM bitset path already exist. Improve those implementations;
   do not schedule them as missing features. GCC still repeats flow support checks.
@@ -227,7 +235,8 @@ value ordering on frozen training cases. Existing learned-impact behavior in the
 legacy solver must not be assumed to exist in the direct finite solver. Promote
 policies by portfolio evidence, not one favorable puzzle.
 
-For integer linear objectives, propagate an improving incumbent cut where safe:
+**Implemented in the fifth slice:** integer linear objectives propagate an
+improving incumbent cut:
 minimize f with f <= incumbent-1; maximize f with f >= incumbent+1. Include offsets
 and signed terms exactly. Manage the global incumbent independently from reversible
 branch state; apply the current cut after rollback without retaining stale branch

@@ -41,6 +41,8 @@ should not be mechanically mixed with English sections.
   semantics, bounded cover filtering, decomposition ablation and a fresh Prune run.
 - [All-different and propagation costs](performance_csp_alldiff_2026-09-16.md):
   exact bitset graph filtering, unchanged-domain shortcut and new measurements.
+- [Propagated incumbent cuts](performance_csp_objective_2026-09-17.md): exact
+  integer improving cuts, rollback/fixed-point tests and measured optimization impact.
 - [Refreshed CLAIRE comparisons](performance_claire_2026-09-16.md): historical
   rule/choice workloads and a separately labelled native-global queens variant.
 - [Redesign implementation evidence](redesign_progress.md)
