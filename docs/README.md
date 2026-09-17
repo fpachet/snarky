@@ -46,6 +46,9 @@ should not be mechanically mixed with English sections.
 - [Compiled numeric masks](performance_csp_numeric_2026-09-17.md): shared integer
   contributions, direct arithmetic support masks, rollback-safe extrema caches,
   paired timings, memory costs and refreshed Prune measurements.
+- [ALICE-inspired magic-square deductions](performance_alice_magic_2026-09-17.md):
+  certified sum cancellation and elimination, with search-policy controls;
+  historical timings at `104d903`, without changing engine defaults.
 - [Refreshed CLAIRE comparisons](performance_claire_2026-09-16.md): historical
   rule/choice workloads and a separately labelled native-global queens variant.
 - [Redesign implementation evidence](redesign_progress.md)

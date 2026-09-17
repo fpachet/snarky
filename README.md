@@ -386,6 +386,11 @@ solutions and search counters. Compiled caches increase traced peak memory in
 the measured prefixes. A fresh full run remains **52/59 versus Prune's 59/59**;
 optimization remains **3/5 versus 5/5**.
 
+The separate [ALICE-inspired experiment](docs/performance_alice_magic_2026-09-17.md)
+compares certified sum cancellation and elimination on magic squares. Its frozen
+measurements at `104d903` show a policy-dependent 4×4 gain and slower 5×5 solves;
+they do not support enabling blanket symbolic preprocessing in the engine.
+
 Correctness tests compare optimized strategies with the executable reference
 implementation across mutation, negation, search, propagation, and
 application scenarios.

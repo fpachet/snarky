@@ -24,6 +24,9 @@ details are documented in [docs/versioning.md](docs/versioning.md).
 
 ### Validation and documentation
 
+- Retained the ALICE-inspired magic-square benchmark, exact deduction certificates,
+  small exhaustive regression tests and historical performance report at `104d903`.
+  This is a modeling experiment; engine defaults are unchanged.
 - Added a locked optional research dependency and a separate CI job covering
   the experiment tests; core CI now checks Python 3.12 and 3.13.
 - Marked expensive harmonizer integrations, added executable runtime boundary

@@ -101,6 +101,7 @@ environment, and dirty-checkout status.
 
 | Module | Comparison |
 |---|---|
+| `alice_magic` | [ALICE-inspired sum cancellation and exact elimination](../docs/performance_alice_magic_2026-09-17.md) on 4×4/5×5 magic squares, with default and MRV search controls |
 | `prune_comparison` | Prune/Snarky same-model pure CSP and optimization, with independent Gecode validation |
 | `csp_followup` | Frozen Prune models: separate CPU/allocation diagnostics and paired Python runtime measurements |
 | `csp_controls` | Same-worker rule, legacy CSP, mixed, Markov and Boulez compatibility/performance controls |
