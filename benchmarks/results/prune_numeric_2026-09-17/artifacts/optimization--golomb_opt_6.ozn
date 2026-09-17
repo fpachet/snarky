@@ -1,0 +1,6 @@
+output ["{\n","  \"marks\" : ",showJSON(marks),",\n  \"distances\" : ",showJSON(distances),",\n  \"objective\" : ",showJSON(objective),"\n}\n"];
+int: objective;
+set of int: distance_index = 1..15;
+array [distance_index] of int: distances;
+set of int: marks_index = 1..6;
+array [marks_index] of int: marks;

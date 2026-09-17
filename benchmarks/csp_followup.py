@@ -178,6 +178,10 @@ def collect(args):
                 reference=args.reference_objective_propagation,
                 candidate=args.candidate_objective_propagation,
             ),
+            numeric_masks=dict(
+                reference=args.reference_numeric_masks,
+                candidate=args.candidate_numeric_masks,
+            ),
         ),
         cases=[],
     )
@@ -211,6 +215,10 @@ def collect(args):
                         args.reference_objective_propagation
                         if engine == "reference"
                         else args.candidate_objective_propagation,
+                        "--numeric-masks",
+                        args.reference_numeric_masks
+                        if engine == "reference"
+                        else args.candidate_numeric_masks,
                     ]
                     if mode == "all":
                         command.append("--all")
@@ -331,6 +339,12 @@ def main():
         "--candidate-nvalue", choices=["native", "decomposed"], default="native"
     )
     parser.add_argument("--minizinc", type=Path, default=Path(DEFAULT_MINIZINC))
+    parser.add_argument(
+        "--reference-numeric-masks", choices=["auto", "on", "off"], default="auto"
+    )
+    parser.add_argument(
+        "--candidate-numeric-masks", choices=["auto", "on", "off"], default="auto"
+    )
     parser.add_argument(
         "--reference-objective-propagation",
         choices=["auto", "on", "off"],

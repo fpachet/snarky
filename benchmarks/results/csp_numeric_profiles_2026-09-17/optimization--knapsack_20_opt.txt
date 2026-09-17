@@ -1,0 +1,84 @@
+         688759 function calls (684505 primitive calls) in 0.157 seconds
+
+   Ordered by: cumulative time
+   List reduced from 223 to 40 due to restriction <40>
+
+   ncalls  tottime  percall  cumtime  percall filename:lineno(function)
+        1    0.002    0.002    0.157    0.157 search.py:138(search)
+      200    0.000    0.000    0.125    0.001 csp_diagnostics.py:77(propagate)
+      200    0.010    0.000    0.125    0.001 propagation.py:119(propagate)
+      319    0.001    0.000    0.062    0.000 csp_diagnostics.py:88(_revise)
+      319    0.001    0.000    0.061    0.000 propagation.py:211(_revise)
+      319    0.007    0.000    0.060    0.000 kernels.py:313(_revise_linear_sum)
+      319    0.019    0.000    0.043    0.000 kernels.py:379(_revise_integer_equality)
+      559    0.001    0.000    0.027    0.000 csp_diagnostics.py:106(_revise_numeric)
+      559    0.001    0.000    0.014    0.000 propagation.py:197(_revise_numeric)
+     3523    0.003    0.000    0.014    0.000 {built-in method builtins.sum}
+      227    0.010    0.000    0.014    0.000 kernels.py:450(_revise_equality_bitsets)
+    20938    0.008    0.000    0.013    0.000 domains.py:70(size)
+    11286    0.007    0.000    0.011    0.000 domains.py:54(values)
+      559    0.003    0.000    0.010    0.000 numeric.py:85(supports)
+    16076    0.005    0.000    0.008    0.000 kernels.py:688(_integer_candidate)
+      513    0.003    0.000    0.007    0.000 domains.py:125(retain)
+       28    0.000    0.000    0.006    0.000 propagation.py:265(solution)
+      363    0.000    0.000    0.006    0.000 search.py:215(emit)
+   108895    0.005    0.000    0.005    0.000 terms.py:47(__hash__)
+      200    0.000    0.000    0.005    0.000 search.py:232(advance)
+       28    0.000    0.000    0.005    0.000 propagation.py:253(closed_facts)
+    94337    0.005    0.000    0.005    0.000 terms.py:29(__hash__)
+    76132    0.005    0.000    0.005    0.000 {built-in method builtins.isinstance}
+      616    0.000    0.000    0.005    0.000 propagation.py:257(<genexpr>)
+     6267    0.001    0.000    0.005    0.000 csp_diagnostics.py:111(<genexpr>)
+    52624    0.005    0.000    0.005    0.000 <string>:8(__eq__)
+      363    0.000    0.000    0.005    0.000 csp_diagnostics.py:126(observe)
+     6267    0.001    0.000    0.005    0.000 csp_diagnostics.py:117(<genexpr>)
+      133    0.002    0.000    0.004    0.000 domains.py:113(snapshot)
+     6267    0.001    0.000    0.004    0.000 numeric.py:86(<genexpr>)
+    37855    0.003    0.000    0.003    0.000 {method 'values' of 'dict' objects}
+      306    0.000    0.000    0.003    0.000 propagation.py:108(rollback)
+    12964    0.002    0.000    0.003    0.000 {built-in method builtins.min}
+      306    0.001    0.000    0.003    0.000 domains.py:153(rollback)
+     5008    0.002    0.000    0.003    0.000 domains.py:81(retain_mask)
+      588    0.000    0.000    0.003    0.000 facts.py:17(__post_init__)
+     1350    0.001    0.000    0.003    0.000 {built-in method builtins.all}
+     5532    0.001    0.000    0.003    0.000 numeric.py:119(<genexpr>)
+3288/1524    0.001    0.000    0.003    0.000 terms.py:170(is_ground)
+      133    0.001    0.000    0.003    0.000 model.py:146(bounds)
+
+
+         688759 function calls (684505 primitive calls) in 0.157 seconds
+
+   Ordered by: internal time
+   List reduced from 223 to 30 due to restriction <30>
+
+   ncalls  tottime  percall  cumtime  percall filename:lineno(function)
+      319    0.019    0.000    0.043    0.000 kernels.py:379(_revise_integer_equality)
+      200    0.010    0.000    0.125    0.001 propagation.py:119(propagate)
+      227    0.010    0.000    0.014    0.000 kernels.py:450(_revise_equality_bitsets)
+    20938    0.008    0.000    0.013    0.000 domains.py:70(size)
+    11286    0.007    0.000    0.011    0.000 domains.py:54(values)
+      319    0.007    0.000    0.060    0.000 kernels.py:313(_revise_linear_sum)
+   108895    0.005    0.000    0.005    0.000 terms.py:47(__hash__)
+    94337    0.005    0.000    0.005    0.000 terms.py:29(__hash__)
+    16076    0.005    0.000    0.008    0.000 kernels.py:688(_integer_candidate)
+    76132    0.005    0.000    0.005    0.000 {built-in method builtins.isinstance}
+    52624    0.005    0.000    0.005    0.000 <string>:8(__eq__)
+    37855    0.003    0.000    0.003    0.000 {method 'values' of 'dict' objects}
+      513    0.003    0.000    0.007    0.000 domains.py:125(retain)
+      559    0.003    0.000    0.010    0.000 numeric.py:85(supports)
+     3523    0.003    0.000    0.014    0.000 {built-in method builtins.sum}
+    25300    0.002    0.000    0.002    0.000 {method 'append' of 'list' objects}
+     5008    0.002    0.000    0.003    0.000 domains.py:81(retain_mask)
+    23706    0.002    0.000    0.002    0.000 {method 'bit_count' of 'int' objects}
+      133    0.002    0.000    0.004    0.000 domains.py:113(snapshot)
+    12964    0.002    0.000    0.003    0.000 {built-in method builtins.min}
+    18027    0.002    0.000    0.002    0.000 {method 'items' of 'dict' objects}
+     5708    0.002    0.000    0.003    0.000 domains.py:73(mask)
+    13918    0.002    0.000    0.002    0.000 {built-in method builtins.max}
+        1    0.002    0.002    0.157    0.157 search.py:138(search)
+      306    0.001    0.000    0.003    0.000 domains.py:153(rollback)
+     6027    0.001    0.000    0.001    0.000 {method 'intersection_update' of 'set' objects}
+      559    0.001    0.000    0.027    0.000 csp_diagnostics.py:106(_revise_numeric)
+ 2576/168    0.001    0.000    0.002    0.000 prune_bridge.py:334(val)
+3288/1524    0.001    0.000    0.003    0.000 terms.py:170(is_ground)
+     1134    0.001    0.000    0.002    0.000 {built-in method builtins.any}

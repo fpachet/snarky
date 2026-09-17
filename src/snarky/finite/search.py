@@ -89,6 +89,7 @@ def solve(
     bounding: str = "auto",
     value_policy: str = "declared",
     objective_propagation: bool = True,
+    numeric_masks: bool = True,
     initial_assignment: Mapping[Term, Term] | None = None,
     on_progress: Callable[[SearchProgress], None] | None = None,
 ) -> QueryResult:
@@ -109,7 +110,7 @@ def solve(
         from .mixed import MixedState
 
         return search(
-            MixedState(model),
+            MixedState(model, numeric_masks=numeric_masks),
             query,
             variable_order=variable_order,
             reverse_values=reverse_values,
@@ -121,7 +122,7 @@ def solve(
             on_progress=on_progress,
         )
     return search(
-        NativeState(model),
+        NativeState(model, numeric_masks=numeric_masks),
         query,
         variable_order=variable_order,
         reverse_values=reverse_values,

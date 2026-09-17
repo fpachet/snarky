@@ -36,6 +36,14 @@ and packing still time out at five seconds. The next investigation is incumbent
 quality and variable/value ordering, measured separately from propagation cost.
 P2 numeric/index views and P5 compact domains remain open.
 
+The [sixth slice](performance_csp_numeric_2026-09-17.md) implements the first P2
+numeric/index views: shared coefficient contributions, direct support masks and
+mask-checked extrema aggregates for inequalities and unary/binary equalities.
+It preserves the previous support strength and search policies. Wider equality
+views, stronger search/bounds, GCC residual-flow work and P5 compact domains
+remain separate follow-ups. The earlier status statements describe their slices
+at the time they were recorded.
+
 ## Objective and boundaries
 
 Make Snarky's Python CSP and exact optimization engine materially more efficient,

@@ -70,6 +70,34 @@ class FiniteDomains:
     def size(self, variable: Term) -> int:
         return self._masks[variable].bit_count()
 
+    def mask(self, variable: Term) -> int:
+        """Current domain in stable candidate-index coordinates."""
+        return self._masks[variable]
+
+    def alphabet(self, variable: Term) -> tuple[Term, ...]:
+        """Immutable original candidates, in mask-bit order."""
+        return self._values[variable]
+
+    def retain_mask(self, variable: Term, supported: int, cause: Atom) -> bool:
+        """Intersect a support mask, preserving the ordinary trail and events."""
+        previous = self._masks[variable]
+        mask = previous & supported
+        if mask == previous:
+            return False
+        removed_bits = previous ^ mask
+        values = self._values[variable]
+        removed = []
+        while removed_bits:
+            bit = removed_bits & -removed_bits
+            removed_bits ^= bit
+            removed.append(values[bit.bit_length() - 1])
+        if self._checkpoints:
+            self._trail.append((variable, previous))
+        self._masks[variable] = mask
+        self._removals.append(DomainRemoval(variable, frozenset(removed), cause))
+        self._changed.add(variable)
+        return True
+
     @property
     def empty(self) -> bool:
         return any(mask == 0 for mask in self._masks.values())

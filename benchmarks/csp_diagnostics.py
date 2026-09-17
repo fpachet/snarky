@@ -32,6 +32,12 @@ def worker(args):
     from snarky.finite.propagation import NativeState
     from snarky.finite.search import search
 
+    numeric_available = "numeric_masks" in inspect.signature(NativeState).parameters
+    if args.numeric_masks == "on" and not numeric_available:
+        raise ValueError("selected runtime has no numeric mask propagation")
+    numeric_enabled = numeric_available and args.numeric_masks != "off"
+    state_options = dict(numeric_masks=numeric_enabled) if numeric_available else {}
+
     started = perf_counter()
     last_emission = -1.0
     families = defaultdict(
@@ -62,8 +68,8 @@ def worker(args):
             last_emission = now
 
     class MeasuredState(NativeState):
-        def __init__(self, model):
-            super().__init__(model)
+        def __init__(self, model, **kwargs):
+            super().__init__(model, **kwargs)
             self.propagation_calls = 0
             self.root_seconds = 0.0
             self.propagation_seconds = 0.0
@@ -91,6 +97,26 @@ def worker(args):
                 item["completed"] += 1
                 item["failures"] += not valid
                 removed = volume - sum(map(len, scoped.values()))
+                item["removed"] += removed
+                item["effective"] += removed > 0
+                return valid
+            finally:
+                item["seconds"] += perf_counter() - tick
+
+        def _revise_numeric(self, index, constraint, plan, cause):
+            family = type(constraint).__name__ + ":mask"
+            item = families[family]
+            item["attempts"] += 1
+            emit("revision_start", constraint_family=family, revisions=self.revisions)
+            volume = sum(self.domains.size(c.variable) for c in plan.columns)
+            tick = perf_counter()
+            try:
+                valid = super()._revise_numeric(index, constraint, plan, cause)
+                item["completed"] += 1
+                item["failures"] += not valid
+                removed = volume - sum(
+                    self.domains.size(c.variable) for c in plan.columns
+                )
                 item["removed"] += removed
                 item["effective"] += removed > 0
                 return valid
@@ -129,7 +155,9 @@ def worker(args):
     bridge = Bridge(document, nvalue_encoding=args.nvalue)
     constructed = perf_counter()
     state = (
-        MeasuredState(bridge.model) if args.diagnostic else NativeState(bridge.model)
+        MeasuredState(bridge.model, **state_options)
+        if args.diagnostic
+        else NativeState(bridge.model, **state_options)
     )
     prepared = perf_counter()
     emit(
@@ -183,6 +211,7 @@ def worker(args):
     record = dict(
         nvalue_encoding=args.nvalue,
         objective_propagation=cut_enabled,
+        numeric_masks=numeric_enabled,
         variables=len(bridge.model.variables),
         constraints=len(bridge.model.constraints),
         lowerings=dict(bridge.lowerings),
@@ -231,6 +260,9 @@ def main():
     parser.add_argument("--profile", type=Path)
     parser.add_argument("--allocation", action="store_true")
     parser.add_argument("--nvalue", choices=["native", "decomposed"], default="native")
+    parser.add_argument(
+        "--numeric-masks", choices=["auto", "on", "off"], default="auto"
+    )
     parser.add_argument(
         "--objective-propagation", choices=["auto", "on", "off"], default="auto"
     )

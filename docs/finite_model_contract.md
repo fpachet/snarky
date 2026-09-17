@@ -19,6 +19,17 @@ objective-bound pruning. The native `solve` uses domain bit masks, an incident
 propagation queue, reversible iterative DFS, and exact integer or rational-product
 branch-and-bound.
 
+Native and mixed states lazily share compiled integer contribution columns for
+linear inequalities and unary/binary equalities. Supports are retained directly
+as candidate masks, preserving removal explanations and rollback. Extrema caches
+are checked against actual masks after every restoration. Wider equalities,
+noninteger original alphabets and compilation-budget overflow use the existing
+reference kernels. This adds bounded contribution entries, not compact interval
+domains or a global byte budget. `NativeState`, `MixedState`, and DFS `solve`
+accept `numeric_masks=False` to select the reference numeric path; inference
+queries retain their own existing execution paths. See the
+[numeric report](performance_csp_numeric_2026-09-17.md) for limits and measurements.
+
 The native backend supports pure finite CSPs and mixed models. Pure CSPs use no
 inference session. Mixed models coordinate the existing incremental matcher with
 the native domain store. The enumerator supports the same declarative fragment.

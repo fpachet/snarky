@@ -43,6 +43,9 @@ should not be mechanically mixed with English sections.
   exact bitset graph filtering, unchanged-domain shortcut and new measurements.
 - [Propagated incumbent cuts](performance_csp_objective_2026-09-17.md): exact
   integer improving cuts, rollback/fixed-point tests and measured optimization impact.
+- [Compiled numeric masks](performance_csp_numeric_2026-09-17.md): shared integer
+  contributions, direct arithmetic support masks, rollback-safe extrema caches,
+  paired timings, memory costs and refreshed Prune measurements.
 - [Refreshed CLAIRE comparisons](performance_claire_2026-09-16.md): historical
   rule/choice workloads and a separately labelled native-global queens variant.
 - [Redesign implementation evidence](redesign_progress.md)

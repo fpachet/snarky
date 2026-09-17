@@ -33,6 +33,7 @@ from .model import (
     Solution,
     score_solution,
 )
+from .numeric import NumericPlan, NumericPlans
 from .nvalue import revise_nvalue
 
 
@@ -77,9 +78,10 @@ class NativeCheckpoint:
 class NativeState:
     """Reversible finite problem state; constraint state is branch-local."""
 
-    def __init__(self, model: FiniteModel) -> None:
+    def __init__(self, model: FiniteModel, *, numeric_masks: bool = True) -> None:
         self.model = model
         self.domains = FiniteDomains(model.variables)
+        self._numeric = NumericPlans(self.domains) if numeric_masks else None
         self.failure: Atom | None = None
         self.revisions = 0
         self._adjacency: dict[Term, list[int]] = {
@@ -158,23 +160,30 @@ class NativeState:
             # propagator or the mixed coordinator supplies partial-state behavior.
             if isinstance(constraint, (PredicateConstraint, FactConstraint)):
                 continue
-            scoped = {
-                var: set(self.domains.values(var)) for var in constraint.variables
-            }
             self.revisions += 1
-            if any(not values for values in scoped.values()) or not self._revise(
-                index,
-                constraint,
-                scoped,
-            ):
-                self.failure = cause
-                return False
-            for var, values in scoped.items():
-                # Revision kernels only remove from these copies of current
-                # domains. Equal cardinality therefore means no change; avoid
-                # rebuilding a domain mask for every unaffected incident scope.
-                if len(values) != self.domains.size(var):
-                    self.domains.retain(var, values, cause)
+            plan = (
+                self._numeric.get(index, constraint)
+                if self._numeric is not None
+                and isinstance(constraint, (LinearSumConstraint, SumConstraint))
+                else None
+            )
+            if plan is not None:
+                assert isinstance(constraint, (LinearSumConstraint, SumConstraint))
+                if not self._revise_numeric(index, constraint, plan, cause):
+                    self.failure = cause
+                    return False
+            else:
+                scoped = {
+                    var: set(self.domains.values(var)) for var in constraint.variables
+                }
+                if any(not values for values in scoped.values()) or not self._revise(
+                    index, constraint, scoped
+                ):
+                    self.failure = cause
+                    return False
+                for var, values in scoped.items():
+                    if len(values) != self.domains.size(var):
+                        self.domains.retain(var, values, cause)
             for var in self.domains.take_changed():
                 if var in cut_variables and cut_index not in queued:
                     queued.add(cut_index)
@@ -184,6 +193,20 @@ class NativeState:
                         queued.add(incident)
                         pending.append(incident)
         return self.failure is None and not self.domains.empty
+
+    def _revise_numeric(
+        self,
+        index: int,
+        constraint: LinearSumConstraint | SumConstraint,
+        plan: NumericPlan,
+        cause: Atom,
+    ) -> bool:
+        supported = plan.supports(self.domains, constraint.target)
+        if supported is None:
+            return False
+        for column, mask in zip(plan.columns, supported, strict=True):
+            self.domains.retain_mask(column.variable, mask, cause)
+        return True
 
     def _revise(
         self,

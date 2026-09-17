@@ -1,6 +1,11 @@
 # Prune / Snarky benchmark baseline — 16 September 2026
 
 This baseline is frozen. The latest
+[numeric-mask report](performance_csp_numeric_2026-09-17.md) records 2.23× faster
+FT06 and 1.20× faster queens 50 in paired Python runs, with identical search work.
+A fresh full comparison completes **52/59 for Snarky and 59/59 for Prune** in all
+three repetitions (optimization **3/5 versus 5/5**). It reports compiled-cache
+memory costs as well. The preceding
 [objective-cut report](performance_csp_objective_2026-09-17.md) records a modest
 FT06 gain, Snarky still at 52/59, and Prune at 59/58/59 across three repetitions
 (one bin-packing timeout near the five-second threshold). The

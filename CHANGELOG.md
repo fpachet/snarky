@@ -33,6 +33,12 @@ details are documented in [docs/versioning.md](docs/versioning.md).
 
 ### Added
 
+- Native and mixed arithmetic propagation shares compiled integer contributions
+  and filters candidate masks directly for inequalities and unary/binary equalities.
+  Mask-checked extrema caches preserve rollback and exact supports; bounded
+  compilation falls back to the existing kernels. `numeric_masks=False` selects
+  the reference path. See the [numeric report](docs/performance_csp_numeric_2026-09-17.md).
+
 - Native and mixed integer linear optimization now propagates strict incumbent
   cuts through the ordinary constraint queue, including after rollback.
   `objective_propagation=False` retains bound-check-only behavior for ablation.

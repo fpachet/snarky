@@ -379,6 +379,13 @@ propagates improving integer objective bounds through native and mixed constrain
 FT06 improves about **1.10×** in the paired run; the two hard optimization cases
 still time out at five seconds.
 
+The [numeric-mask follow-up](docs/performance_csp_numeric_2026-09-17.md) shares
+integer contributions and filters arithmetic domains directly. Paired medians
+improve FT06 **2.23×** (0.95 → 0.43 s) and queens 50 **1.20×**, with identical
+solutions and search counters. Compiled caches increase traced peak memory in
+the measured prefixes. A fresh full run remains **52/59 versus Prune's 59/59**;
+optimization remains **3/5 versus 5/5**.
+
 Correctness tests compare optimized strategies with the executable reference
 implementation across mutation, negation, search, propagation, and
 application scenarios.

@@ -478,3 +478,14 @@ optimization proofs. The fresh Prune run completes 59, 58 and 59 workloads; one
 bin-packing repetition exceeds five seconds. All samples and this threshold
 variability are retained. Knapsack still lacks a proof; packing finds no incumbent
 in the separate profiled budget, so objective propagation cannot yet help it.
+
+The [compiled numeric-mask slice](performance_csp_numeric_2026-09-17.md) shares
+integer contributions and retains arithmetic support masks directly, with
+mask-checked extrema aggregates. Paired medians improve FT06 2.23× and queens 50
+1.20× without changing solutions, nodes, failures or revisions. Same-source
+on/off runs reproduce the gains. Wider equality workloads are largely unchanged;
+small-case regressions are retained. Fixed-work allocation traces show peak
+increases of 0.44 MiB for queens 50 and 0.50 MiB for FT06. All rule/mixed/Markov
+controls preserve their observations. The fresh full comparison remains
+52/59 versus Prune's 59/59, with optimization 3/5 versus 5/5; all 54 inputs and
+all 52 completed Snarky outputs/counters match the preceding record.
