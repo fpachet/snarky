@@ -1,15 +1,27 @@
 # Architecture
 
-Snarky separates immutable language objects, inference state, instantiation
-strategies, search control, integrations, and application rulebases. The
-separation keeps one executable semantic reference while allowing optimized
-components to evolve independently.
+Snarky has two primary execution engines: a forward rule engine and a standalone
+finite-domain CSP/optimization engine. They share immutable symbolic objects;
+`MixedState` coordinates them when a finite model includes positive rules.
+Pure CSP execution does not create a rule session. Both engines are implemented
+in Python and ship in the core package.
+
+| Component | Owns | Can run independently? |
+|---|---|---|
+| `ForwardEngine` / `InferenceSession` | Facts, matching indexes, activations and provenance | Yes: operational rules and programs |
+| `NativeState` plus finite search | Domains, propagation, branching, objective bounds and incumbents | Yes: pure CSP and optimization |
+| `MixedState` | Coordination of domain propagation, positive closure and joint rollback | Uses both engines for mixed models |
+
+The coordinator repeatedly exposes singleton assignments to rules and derived
+facts to guarded constraints until a joint fixed point is reached. It is not
+just a preprocessing adapter. Factors and probability measures belong to the
+model/query contract; they do not introduce a third mutable inference engine.
+The independent reference matcher and finite enumerator validate the respective
+execution semantics as optimized components evolve.
 
 ## Layers
 
-The operational pipeline remains available unchanged. The additive declarative
-runtime is described after it; both share immutable symbolic objects and the
-existing matcher implementation.
+The operational rule pipeline is:
 
 ```text
 application rulebases and orchestration
@@ -53,6 +65,12 @@ regular-BP adapter consume the same model/query contract. A backend must reject
 unsupported features explicitly. See the [finite contract](finite_model_contract.md)
 for the admitted rule fragment, exact integer objectives, probability arithmetic
 and the separate [language surface](finite_language.md).
+
+The older `csp_solver` companion retains fact-backed finite models and operational
+`CHOICE` search. Its domain representation and orchestration are separate from
+the direct finite runtime, although constraint definitions and reference kernels
+are shared. It remains available for compatibility and existing applications;
+the standalone finite solver does not require installing the companion.
 
 ### Language model
 

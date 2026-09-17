@@ -7,8 +7,8 @@ own dated protocols and promotion decisions.
 | Track | Current boundary | Acceptance gate |
 |---|---|---|
 | [Core 0.1](core_0_1_baseline.md) | Frozen symbolic language and supported API; not a public release | Differential semantics, rollback/provenance, parser, and installed-package tests |
-| [CSP](../csp_solver/README.md) | Optional installable companion; experimental Python API | Independent solution oracles, propagator support oracles, installed rule data |
-| [Unified finite runtime](finite_model_contract.md) | Opt-in core namespace and `.model` language; native CSP/optimization, positive mixed closure and factors | Non-Bach manifest, exhaustive oracles, installed examples and paired performance evidence in [redesign progress](redesign_progress.md) |
+| [Finite CSP/optimization and mixed models](finite_model_contract.md) | Implemented experimental core namespace `snarky.finite` and `.model` language; independent solving plus coordinated positive rules and factors | Non-Bach manifest, exhaustive oracles, installed examples and paired performance evidence in [redesign progress](redesign_progress.md) |
+| [Legacy fact-backed CSP](../csp_solver/README.md) | Optional installable companion; existing rule/choice interface and application catalogue, with an experimental Python API | Independent solution oracles, propagator support oracles, installed rule data |
 | [Markov constraints](markov_constraints_application.md) | Exact first-order Blues optimization and fixed- and variable-order melody modes; Python API and research examples | Independent DP/exhaustive oracles, completed Boulez proof, mixed-constraint tests and archived performance evidence |
 | [Sudoku](../sudoku/README.md) | Explainable reference techniques plus optional search | Reference puzzles and explanation replay |
 | [Harmonizer](../harmonizer/README.md) | C-major SATB prototype with documented limits | Conformance checks and expensive integration examples |

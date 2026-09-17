@@ -24,6 +24,9 @@ details are documented in [docs/versioning.md](docs/versioning.md).
 
 ### Validation and documentation
 
+- Reorganized the main README around the rule engine, standalone finite
+  CSP/optimization engine and mixed coordinator, with runnable quick starts and
+  explicit distinctions between the core finite API and legacy CSP companion.
 - Added current Prune average timings and a fresh CLAIRE comparison after numeric
   optimization, with archived evidence, explicit timeout exclusions and separate
   timing boundaries in the [comparison report](docs/performance_solver_averages_2026-09-17.md).

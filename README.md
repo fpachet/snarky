@@ -1,27 +1,27 @@
 # Snarky
 
-Snarky is a typed symbolic inference engine for Python, inspired by
-Jean-Louis Laurière's SNARK and Jean-Luc Dormoy's BOOJUM. It combines
-production rules, recursive terms, finite-domain propagation, explicit
-weighted choices, and reversible search in one explainable runtime.
+Snarky is a Python system for **symbolic reasoning, constraint solving and
+optimization**, inspired by Jean-Louis Laurière's SNARK and Jean-Luc Dormoy's
+BOOJUM. It provides two primary execution engines and a coordinator that lets
+them cooperate:
 
-The opt-in `snarky.finite` API also provides standalone CSP solving, integer
-branch-and-bound, pure factor objectives and supported probability queries.
-Its [finite model language](docs/finite_language.md) combines positive rules,
-constraints and factors in one declarative model, with explicit query semantics.
-The [performance ledger](docs/performance_baseline.md) preserves measurements
-for comparing future changes. The Bach experiment is a separate side project,
-outside Snarky's main application and redesign portfolio.
-The [Markov melody examples](docs/markov_melody_examples.md) reproduce the four
-2011 scoring modes, forbidden patterns, contour control and continuation using
-exact objectives and the ordinary CSP engine.
-The [Blues research handoff](docs/research/blues_villani_2026-09-16/README.md)
-collects ordinary, exotic and Boulez results, performance evidence and LaTeX tables.
+| Component | What it does | Entry point |
+|---|---|---|
+| **Rule engine** | Derives facts with incremental forward chaining, mutable working memory, provenance and reversible sessions | `ForwardEngine` and the operational Core rule language |
+| **Finite CSP and optimization engine** | Propagates finite domains, searches for solutions, and minimizes or maximizes explicit objectives | `snarky.finite.solve` and the declarative `.model` language |
+| **Mixed coordinator** | Exchanges singleton assignments and derived facts, activates guarded constraints, and coordinates fixed points and rollback | Selected automatically by native `solve` when a finite model includes rules |
 
-Snarky is a research prototype: its core inference and finite-domain
-constraint semantics are extensively tested. Adaptive strategy selection,
-selected search policies, and the pre-1.0 `csp_solver` public API remain
-experimental.
+Both engines work independently. Pure CSP models use direct domain storage and
+propagators without creating an inference session. Mixed models share symbolic
+terms and model definitions; the coordinator connects the engines during search.
+Factors supply explicit objective scores or probability measures rather than
+forming a third solver. See [how the engines cooperate](#execution-model).
+
+Both engines ship in the core Python package. The optional `csp_solver` companion
+retains the older fact-backed CSP interface and application catalogue. The
+operational Core API has a frozen compatibility contract; `snarky.finite`,
+`.model`, and the companion API remain tested, pre-1.0 experimental surfaces.
+Snarky is a research prototype, not a public stable release.
 
 ## Why Snarky?
 
@@ -35,24 +35,26 @@ behavior and modern extensions are documented separately.
 
 ## Capabilities
 
-- immutable atoms, numbers, variables, triples, propositions, sequences, and
-  sets;
-- recursive terms and variables in every triple position;
-- forward chaining with deterministic ordering, refraction, and provenance;
-- mutable working memory with reversible `ADD` and `REMOVE` actions;
-- correlated `EXISTS`, `NOT EXISTS`, `COUNT`, `UNIQUE`, and collection
-  premises;
-- named rule groups, persistent sessions, checkpoints, and explicit programs;
-- finite choices, contextual weights, depth- or breadth-first traversal, and
-  backtracking;
-- premise-local finite-domain filtering plus persistent `ALL_DIFFERENT`,
-  `SUM`, `LINEAR_SUM`, `LESS_EQUAL`, `LESS_THAN`, `NOT_EQUAL`, `ELEMENT`,
-  `COUNT`, `NVALUE`, `GCC`, `TABLE`, and `LEX_LESS_EQUAL` constraints;
-- reference, indexed, semi-naive, constraint-filtered, and adaptive
-  instantiation strategies;
-- compiled event handlers for simple rules and safe factorized
-  multi-premise deltas;
-- strict type checking and differential tests across execution strategies.
+- **Rules:** recursive symbolic terms, variables in every triple position,
+  forward chaining, indexed and semi-naive matching, specialized event handlers,
+  correlated `EXISTS`/`NOT EXISTS`/`COUNT` premises, rule groups and programs.
+- **Finite constraints:** `ALL_DIFFERENT`, `SUM`, `LINEAR_SUM`, comparisons,
+  `ELEMENT`, `COUNT`, `NVALUE`, `GCC`, `TABLE` and lexicographic constraints,
+  with reversible domain propagation and exact complete-assignment checks.
+- **Search and optimization:** feasibility, enumeration, integer branch-and-bound,
+  factor objectives, exact rational-product objectives, admissible bounds and
+  propagated integer incumbent cuts. Results distinguish a feasible solution,
+  a proved optimum and an interrupted search.
+- **Mixed models:** positive rules derive properties from assignments; those
+  properties can activate constraints or contribute to pure factor scores.
+  Facts and domains restore together when search backtracks.
+- **Probability queries:** explicit measures, partition functions and exact sampling
+  for supported finite models, with a generic backend and an optional regular-BP
+  backend. Arithmetic guarantees and backend limits are reported explicitly.
+- **Explanations and validation:** rule provenance, domain-removal causes and score
+  contributions, plus independent reference implementations, exhaustive oracles
+  and rollback tests. Operational `CHOICE` weights remain separate from model
+  objectives and probability measures.
 
 The required runtime is Python 3.12 or newer. PyYAML is the only mandatory
 third-party dependency.
@@ -75,8 +77,10 @@ ruff check .
 mypy src
 ```
 
-To use persistent constraints through the installed console outside the
-checkout, install the optional CSP companion after the core:
+The core installation includes standalone and mixed finite solving, `.model`
+execution, and optimization. For the legacy fact-backed CSP interface and
+installed-console `.constraints` validation outside the checkout, also install
+the optional companion:
 
 ```sh
 python -m pip install ./csp_solver
@@ -105,9 +109,11 @@ They run separately in CI. For a locked environment, use
 The project has not yet declared a redistribution license. See
 [publication status](LICENSE_STATUS.md) before copying or redistributing it.
 
-## Quick start
+## Quick starts
 
-The stable Python API can define rules directly:
+### Rule inference
+
+Use the rule engine to derive a grandparent relation:
 
 ```python
 from snarky import Atom, Fact, ForwardEngine, Rule, Triple, Variable, add, when
@@ -136,127 +142,116 @@ assert Fact(
 ) in result.facts
 ```
 
-The same ideas can be written in the textual rule language:
+The same rule can be expressed in the [textual Core language](docs/syntax.md).
+It also supports recursive terms and variables in relation position. See the
+[rulebase catalogue](rulebases/README.md) and
+[triangle-closure example](rulebases/small/triangle_closure/README.md) for larger
+examples of incremental matching.
+
+### Pure CSP optimization
+
+Use the finite engine to assign distinct values and minimize an explicit cost:
 
 ```python
-from snarky import Fact, ForwardEngine, parse_rules, parse_term
+from snarky import Atom, Number
+from snarky.finite import (
+    FiniteModel, FiniteVariable, LinearObjective, Query, QueryKind,
+    ResultStatus, solve,
+)
+from snarky.finite.constraints import AllDifferentConstraint
 
-rules = parse_rules(
-    """
-    RULE grandparent
-    WHEN
-        ($x parent_of $y)
-        ($y parent_of $z)
-    THEN
-        ADD ($x grandparent_of $z)
-    END
-    """
+x, y = Atom("x"), Atom("y")
+domain = (Number(1), Number(2))
+model = FiniteModel(
+    "placement",
+    (FiniteVariable(x, domain), FiniteVariable(y, domain)),
+    (AllDifferentConstraint(Atom("distinct"), (x, y)),),
+    objective=LinearObjective(((1, x), (-2, y))),
 )
-facts = (
-    Fact(parse_term("(alice parent_of bob)")),
-    Fact(parse_term("(bob parent_of clara)")),
-)
-result = ForwardEngine(rules).run(facts)
+result = solve(model, Query(QueryKind.MINIMIZE))
+
+assert result.status is ResultStatus.OPTIMAL
+assert result.incumbent.objective_value == -3
+assert result.incumbent.assignment == {x: Number(1), y: Number(2)}
 ```
 
-Relation variables make it possible to express the same kind of reasoning
-once for every relation having a given property. This second rulebase keeps
-the immediate `parent_of` relation intact, promotes it to `ancestor_of`, and
-declares only `ancestor_of` to be transitive:
+No rules or candidate facts are needed. `SOLVE` asks for a feasible solution;
+`ENUMERATE` asks for all solutions, subject to declared limits. The
+[finite model guide](docs/finite_model_contract.md) documents query statuses,
+objectives, factors and backend capabilities.
+
+### Rules and constraints together
+
+The packaged [scheduling model](src/snarky/finite/models/scheduling.model) declares
+two slot variables, an all-different constraint, a rule and a guarded constraint.
+Choosing setup slot 3 derives `(shift needs overtime)`, which activates a
+constraint requiring delivery slot 2. Factors reward a preferred delivery slot
+and penalize overtime; the query maximizes their total score.
 
 ```python
-from snarky import Fact, ForwardEngine, parse_rules, parse_term
+from importlib.resources import files
+from snarky.finite import ResultStatus, parse_model_document
 
-rules = parse_rules(
-    """
-    RULE parent_implies_ancestor
-    WHEN
-        ($x parent_of $y)
-    THEN
-        ADD ($x ancestor_of $y)
-    END
+source = files("snarky.finite").joinpath("models/scheduling.model").read_text()
+document = parse_model_document(source)
+result = document.execute("optimum")
 
-    RULE transitive_relation
-    WHEN
-        ($relation is_transitive TRUE)
-        ($x $relation $y)
-        ($y $relation $z)
-        $x != $z
-    THEN
-        ADD ($x $relation $z)
-    END
-    """
-)
-facts = (
-    Fact(parse_term("(ancestor_of is_transitive TRUE)")),
-    Fact(parse_term("(alice parent_of bob)")),
-    Fact(parse_term("(bob parent_of clara)")),
-    Fact(parse_term("(clara parent_of david)")),
-)
-result = ForwardEngine(rules).run(facts)
-
-assert Fact(parse_term("(alice ancestor_of david)")) in result.facts
+assert result.status is ResultStatus.OPTIMAL
+assert result.incumbent.objective_value == 5
 ```
 
-The variable `$relation` occurs in relation position in
-`($x $relation $y)`: it denotes a relation rather than an individual term,
-which makes `transitive_relation` an order-2 rule. Newly inferred
-`ancestor_of` facts can activate the rule again, so the engine computes the
-complete transitive closure. The same rule can serve any other relation
-declared with `($relation is_transitive TRUE)`.
+From the checkout, the same model runs through the console:
 
-The default engine uses semi-naive instantiation. A separate exhaustive
-strategy remains the executable semantic reference and a useful diagnostic
-oracle.
+```sh
+snarky run src/snarky/finite/models/scheduling.model --query optimum --explain
+```
 
-For streamed positive conjunctions, the default strategy can compile an
-added fact into the anchor of a factorized event join. If every comparison
-was already bound at its textual position, indexed lookups retrieve the
-remaining supports without materializing a Cartesian prefix. Unsupported
-rules, focused conflict-resolution rules, and removal deltas automatically
-fall back to the general engine. See the executable
-[triangle-closure example](rulebases/small/triangle_closure/README.md).
+See the [`.model` language guide](docs/finite_language.md) for declarations and
+[packaged examples](src/snarky/finite/models) for pure, mixed and probabilistic
+models.
 
 ## Execution model
 
-Snarky keeps inference and search separate:
+**Rule execution** uses `ForwardEngine` and inference sessions to maintain facts,
+indexes, refraction and provenance. Operational programs retain their ordered
+mutation and conflict-resolution semantics. Explicit `CHOICE` search can explore
+alternatives using reversible sessions.
 
-1. a forward engine evaluates eligible rule activations to a deterministic
-   fixed point;
-2. an inference session retains facts, refraction, indexes, and provenance;
-3. checkpoints make mutations and propagation state reversible;
-4. choice search selects explicit alternatives and restores the session when
-   a branch fails.
+**Finite solving** uses `NativeState` for domains and an incident propagation queue,
+with a separate search controller for branching and optimization. The controller
+keeps the incumbent outside reversible branch state. Pure CSP execution does not
+invoke the rule matcher. Here, “native” means the direct Python finite solver,
+not compiled machine code.
 
-Constraint filtering narrows finite variable domains before exact matching:
-
-```text
-candidate facts
-    -> premise tables and variable domains
-    -> propagation to a fixed point
-    -> active Compact-Table rows
-    -> safe factorized event handlers
-    -> semi-naive joins containing new facts
-    -> exact matcher validation
-```
-
-This preserves one semantic reference while allowing optimized strategies to
-avoid irrelevant matches.
-
-Choice search can additionally host persistent constraints over fact-encoded
-domains:
+**Mixed solving** uses `MixedState` to coordinate native domains and an incremental
+rule session:
 
 ```text
-persistent constraint closure
-    -> forward-rule closure
-    -> repeat to a joint fixed point
-    -> explicit CHOICE
-    -> reversible propagation or backtracking
+propagate domains
+    -> expose singleton assignments as facts
+    -> derive properties through positive rule closure
+    -> activate guarded constraints
+    -> repeat until neither domains nor facts change
+    -> branch, score a complete solution, or backtrack
 ```
 
-Fact-derived `.constraints` templates keep global scopes independent of
-problem size. See [persistent constraints](docs/persistent_constraints.md)
-and the [Caseau historical comparison](docs/caseau_rules_constraints.md).
+Newly forced singleton values can trigger further rules. One coordinated
+checkpoint restores domains, facts, derivations and pruning explanations together.
+Hard constraints determine feasibility; objectives and factors determine scores;
+search selects the exploration order. This coordination is part of the execution
+semantics, not a one-time preprocessing pass.
+
+The declarative mixed fragment admits positive, function-free derivations and
+comparisons whose variables are already bound. Arbitrary operational rules with
+destructive `REMOVE` actions or fresh object creation are not admitted into this closure.
+They remain available through the standalone operational engine. See the
+[architecture](docs/architecture.md) and [finite contract](docs/finite_model_contract.md).
+
+The older `csp_solver` path encodes domains as candidate facts and combines
+persistent constraints with operational `CHOICE` search. It remains supported
+for compatibility and existing applications. Its
+[`.constraints` templates](docs/persistent_constraints.md) are distinct from the
+new finite engine's direct domains and `.model` interface.
 
 ### Related work: Yves Caseau's LAURE and CLAIRE
 
@@ -285,7 +280,7 @@ maps these precedents to Snarky's current fixed-point, `CHOICE`, checkpoint,
 and rollback semantics and identifies where the present project may still
 contribute.
 
-The [refreshed CLAIRE benchmarks](docs/performance_claire_2026-09-16.md) report
+The [latest CLAIRE benchmarks](docs/performance_csp_alldifferent_masks_2026-09-17.md#fresh-claire-measurements) report
 current rule/choice workloads and a separately labelled native-global CSP
 formulation, with explicit timing and interpreter limitations.
 
@@ -293,7 +288,8 @@ formulation, with explicit timing and interpreter limitations.
 
 | Project | Purpose |
 |---|---|
-| [Finite CSP](csp_solver/README.md) | Classical puzzles, sequencing, scheduling, coloring, and reproducible CSP benchmarks through declarative constraints, rules, and choices |
+| [Finite models](docs/finite_language.md) | Standalone CSP, optimization and mixed rule/constraint models, with packaged examples and reproducible benchmarks |
+| [Legacy CSP catalogue](csp_solver/README.md) | Classical puzzles, sequencing, scheduling and coloring through fact-backed domains, rules and choices |
 | [Markov constraints](docs/markov_constraints_application.md) | Ordinary, exotic and Boulez Blues; four melody scoring modes, forbidden patterns, contour control and continuation, with exact optimization and measured performance |
 | [Sudoku](sudoku/README.md) | progressive, explainable human techniques followed by explicit search |
 | [Four-part harmonizer](harmonizer/README.md) | SATB generation with tonal rules, hierarchical metre, declarative melodic roles, and MuSES integration |
@@ -321,10 +317,13 @@ the [finite-CSP guide](csp_solver/README.md) for formulations and commands.
 - [Documentation map](docs/README.md)
 - [Textual syntax](docs/syntax.md)
 - [Language validation and formatting](docs/language_tooling.md)
-- [Semantics](docs/semantics.md)
+- [Operational Core semantics](docs/semantics.md)
+- [Architecture: two engines and their coordinator](docs/architecture.md)
+- [Finite CSP, optimization and mixed-model contract](docs/finite_model_contract.md)
+- [Declarative finite model language](docs/finite_language.md)
 - [Runtime boundary tutorials](docs/runtime_tutorial.md)
 - [Learned-factor language plan](docs/learned_factor_language_plan.md)
-- [Finite-CSP solver optimization plan](docs/solver_optimization_plan.md)
+- [Current CSP optimization roadmap](docs/csp_optimization_roadmap_2026-09-16.md)
 - [API stability](docs/api_stability.md)
 - [Versioning and compatibility](docs/versioning.md)
 - [Strategy lifecycle](docs/strategy_lifecycle.md)
@@ -348,49 +347,15 @@ the cost of either language. Follow-up work separates search effort, propagation
 strength and Python implementation overhead; the objective is an efficient Python
 CSP engine, with Prune providing an external performance reference.
 
-The [CSP optimization roadmap](docs/csp_optimization_roadmap_2026-09-16.md)
-orders the follow-up: slow-case diagnostics, arithmetic and Python overhead,
-native NValue, search/optimization, compact integer domains, then further globals
-where profiles justify them. It defines correctness and performance gates for
-each stage while preserving rule, mixed-model and Markov behavior.
-The [first implemented slice](docs/performance_csp_arithmetic_2026-09-16.md)
-adds interrupted-search diagnostics and improves exact arithmetic and search
-setup. Paired Python/Python measurements show 1.88× faster FT06 optimization
-and 1.43× faster 50 queens, with unchanged search counts. Completion remains
-47/59 at five seconds; the report also records small-case overhead and timeouts.
-The [second slice](docs/performance_csp_equality_2026-09-16.md) adds exact weighted
-equality filtering and reusable domain projections. Magic sequence 40 now finishes
-in about 0.35 s, raising completion to 48/59; 40-item bin-packing feasibility takes
-about 0.26 s. The report
-separates cache-only gains, optimization proofs and unresolved timeouts.
-The [native NValue slice](docs/performance_csp_nvalue_2026-09-16.md) raises Snarky's
-completion to **52/59**, versus Prune's **59/59** in a fresh full rerun. Four
-Dominating Queens cases move from five-second timeouts to **0.12–0.19 s**,
-including startup, with roughly **16–19×** smaller traced root-memory peaks.
-Optimization remains **3/5 versus 5/5**. The report preserves the decomposition
-ablation, remaining timeouts and small-case regressions.
-The [all-different slice](docs/performance_csp_alldiff_2026-09-16.md) reduces graph
-and unchanged-domain work while preserving exact filtering and search counts.
-Paired runs improve queens 50 **1.55×**, incremental Latin 16 **1.77×**, and FT06
-optimization **1.28×**. A fresh full Prune run retains **52/59 versus 59/59**;
-the seven remaining timeouts still require further work.
-The [incumbent-cut follow-up](docs/performance_csp_objective_2026-09-17.md) now
-propagates improving integer objective bounds through native and mixed constraints.
-FT06 improves about **1.10×** in the paired run; the two hard optimization cases
-still time out at five seconds.
-
-The [numeric-mask follow-up](docs/performance_csp_numeric_2026-09-17.md) shares
-integer contributions and filters arithmetic domains directly. Paired medians
-improve FT06 **2.23×** (0.95 → 0.43 s) and queens 50 **1.20×**, with identical
-solutions and search counters. Compiled caches increase traced peak memory in
-the measured prefixes. A fresh full run remains **52/59 versus Prune's 59/59**;
-optimization remains **3/5 versus 5/5**.
-
-The [compiled all-different follow-up](docs/performance_csp_alldifferent_masks_2026-09-17.md)
+The [latest all-different optimization](docs/performance_csp_alldifferent_masks_2026-09-17.md)
 improves paired process medians **1.69× for queens 50** and **1.75× for incremental
-Latin 16**, preserving exact supported values and all search counters. Fixed-work
+Latin 16**, preserving exact supported values and search counters. Fixed-work
 traces reduce peak allocations by about **19–26%** on queens 50/104 and Latin 16.
-The full completion score remains **52/59 versus Prune's 59/59**.
+The full completion score is **52/59 versus Prune's 59/59**; optimization proofs
+are **3/5 versus 5/5** at the declared five-second limit. The
+[performance ledger](docs/performance_baseline.md) preserves earlier results,
+and the [optimization roadmap](docs/csp_optimization_roadmap_2026-09-16.md)
+records remaining work on propagation overhead, search bounds and compact domains.
 
 The [latest comparison averages](docs/performance_csp_alldifferent_masks_2026-09-17.md#updated-averages)
 are **165.8 ms for Snarky versus 6.29 ms for Prune** on the 52 jointly completed
@@ -417,7 +382,7 @@ Run the cross-rulebase benchmark:
 uv run python -m benchmarks.rulebase_suite --repeat 7
 ```
 
-The classical-CSP benchmark validates and measures magic squares, Latin
+The legacy classical-CSP benchmark validates and measures magic squares, Latin
 squares, and constraints-only versus rules-plus-constraints Sudoku:
 
 ```sh
@@ -443,25 +408,25 @@ logical equivalence is always checked before a change is accepted.
 
 ## Project status
 
-The [current status map](docs/project_status.md) distinguishes frozen Core 0.1,
-application prototypes, tested research code, and proposed probabilistic APIs.
+The [status map](docs/project_status.md) distinguishes the frozen operational
+Core from the implemented, experimental finite solver and mixed-model language,
+application prototypes and research work. Generic finite probability inference
+and the optional regular-BP adapter are implemented; learned parameters and
+broader probabilistic extensions remain research.
 
-The September 2026 review fixes are implemented:
+Validation covers rule matching, CSP support oracles, exact optimization, mixed
+fixed points, rollback, explanations and Markov applications. The
+[latest solver validation](benchmarks/results/csp_admask_2026-09-17/validation.md)
+records 1,113 passing tests and 3 skipped, plus package checks. Historical
+[review-fix evidence](docs/project_status.md#review-fix-validation--8-september-2026)
+and [runtime tutorials](docs/runtime_tutorial.md) retain the operational behavior
+and compatibility checks.
 
-- custom propagators reach a complete fixed point before search proceeds;
-- saved results preserve their explanations across rollback, and assumptions
-  update dependent minimum proof depths reversibly;
-- finite numeric terms round-trip through exponent-aware parsing;
-- the optional CSP companion supports installed-console constraint validation;
-- factor explanations preserve witness order without quadratic support scans.
-
-The [recorded benchmark](benchmarks/results/factor_supports_review_2026-09-08.json)
-reduced the 4,000-witness shared-scope evaluator median from 1.467 s to
-0.00937 s. This result is specific to that synthetic workload. The
-[validation record](docs/project_status.md#review-fix-validation--8-september-2026)
-documents local tests and distinguishes them from remote CI execution.
-The [runtime tutorials](docs/runtime_tutorial.md) provide executable examples
-of propagation, saved proofs, and factor/choice boundaries.
+The [Blues research handoff](docs/research/blues_villani_2026-09-16/README.md)
+collects ordinary, exotic and Boulez results, performance evidence and LaTeX tables.
+The [Markov melody examples](docs/markov_melody_examples.md) cover the four 2011
+scoring modes, forbidden patterns, contour control and continuation with explicit
+objectives.
 
 The consolidation through parser decomposition and API stabilization is
 complete. Work still required before a public tagged release is tracked in
