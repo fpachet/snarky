@@ -16,6 +16,10 @@ concurrency:
 jobs:
   validate:
     runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version: ["3.12", "3.13"]
     steps:
       - name: Check out repository
         uses: actions/checkout@v6
@@ -23,7 +27,7 @@ jobs:
       - name: Set up Python
         uses: actions/setup-python@v6
         with:
-          python-version: "3.12"
+          python-version: ${{ matrix.python-version }}
           cache: pip
 
       - name: Install package and development tools
@@ -37,17 +41,61 @@ jobs:
       - name: Type check
         run: mypy src
 
-      - name: Test
-        run: pytest
+      - name: Test core and application checks
+        run: python scripts/check_redesign.py -m "not slow" --durations=10
+
+      - name: Test expensive integrations
+        run: python scripts/check_redesign.py -m slow --durations=10
+
+      - name: Validate textual sources
+        run: python -m snarky check --syntax-only --format .
 
       - name: Check documentation links
         run: python scripts/check_markdown_links.py
 
       - name: Build distributions
-        run: python -m build --outdir dist
+        run: |
+          python -m build --outdir dist
+          python -m build --outdir dist/csp csp_solver
 
       - name: Check distribution contents
         run: python scripts/check_distribution.py dist
 
       - name: Test installed wheel
-        run: python scripts/check_wheel_install.py dist
+        run: >-
+          python scripts/check_wheel_install.py dist
+          --companion dist/csp/snarky_csp-0.1.0-py3-none-any.whl
+
+  regular-inference:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version: ["3.12", "3.13"]
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-python@v6
+        with:
+          python-version: ${{ matrix.python-version }}
+      - name: Install exact inference reference dependency
+        run: |
+          python -m pip install -e ".[dev]"
+          python -m pip install "vo-regular-bp @ git+https://github.com/fpachet/vo-regular-bp.git@2f172dd4d6985f2ca21bdb978a870700d1535169"
+      - name: Compare generic and regular inference
+        run: pytest tests/test_finite_inference.py tests/test_finite_regular.py
+
+  research:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.12"
+          cache: pip
+      - name: Install optional research test dependencies
+        run: python -m pip install -e ".[dev,research]"
+      - name: Test research code with synthetic and tracked fixtures
+        run: >-
+          pytest harmonizer/bach_rule_induction/experiments
+          tests/test_learned_rule_generator.py tests/test_learned_rule_profiles.py
+          tests/test_official_manual_rulebase.py --durations=10

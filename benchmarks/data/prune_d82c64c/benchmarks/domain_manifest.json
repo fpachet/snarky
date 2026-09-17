@@ -1,0 +1,25 @@
+{
+  "schema_version": 1,
+  "defaults": {
+    "warmup_runs": 1,
+    "measured_runs": 5,
+    "timeout_seconds": 10.0,
+    "correctness_timeout_seconds": 120.0
+  },
+  "instances": [
+    {
+      "name": "large_domain_chain_256",
+      "model": "benchmarks/models/large_domain_chain.mzn",
+      "data": ["benchmarks/data/large_domain_chain_256.dzn"],
+      "modes": ["first"],
+      "correctness": "first"
+    },
+    {
+      "name": "large_domain_chain_2048",
+      "model": "benchmarks/models/large_domain_chain.mzn",
+      "data": ["benchmarks/data/large_domain_chain_2048.dzn"],
+      "modes": ["first"],
+      "correctness": "first"
+    }
+  ]
+}

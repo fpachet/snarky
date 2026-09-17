@@ -1,0 +1,22 @@
+{
+  "non_bach_regression": {
+    "command": "PYTHONHASHSEED=0 PYTHONPATH=src:../vo_regular_bp .venv/bin/python scripts/check_redesign.py --durations=5",
+    "passed": 966,
+    "skipped": 3,
+    "seconds": 219.15,
+    "log": "regression.log"
+  },
+  "focused": {
+    "command": "PYTHONPATH=src:. .venv/bin/python -m pytest -q tests/test_prune_bridge.py",
+    "passed": 47
+  },
+  "lint": {
+    "command": ".venv/bin/ruff check benchmarks/prune_bridge.py benchmarks/prune_comparison.py tests/test_prune_bridge.py",
+    "outcome": "passed"
+  },
+  "python312": {
+    "scope": "bridge magic-square smoke only; pytest unavailable in this interpreter",
+    "outcome": "passed"
+  },
+  "engine_source_changes": false
+}

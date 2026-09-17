@@ -31,6 +31,7 @@ from .note_solver import (
     Cadence,
     HarmonicPlanDegree,
     HarmonicPlanProfile,
+    MetricLevel,
     MetricStrength,
     NoteHarmonization,
     SATBVoice,
@@ -93,6 +94,18 @@ class PieceFactory(Protocol):
     ) -> PieceLike: ...
 
 
+class MetricPositionLike(Protocol):
+    accent_level: int
+
+
+class MetricPositionsFunction(Protocol):
+    def __call__(
+        self,
+        onsets: Iterable[TemporalNoteLike],
+        time_signature: str,
+    ) -> Sequence[MetricPositionLike]: ...
+
+
 @dataclass(frozen=True, slots=True)
 class MusesFactories:
     """Constructors used to materialize the optional MuSES result."""
@@ -122,6 +135,7 @@ def harmonize_temporal_collection(
     harmonic_plan: tuple[HarmonicPlanDegree | None, ...] | None = None,
     harmonic_plan_profile: HarmonicPlanProfile | None = None,
     metric_strengths: tuple[MetricStrength, ...] | None = None,
+    metric_levels: tuple[MetricLevel, ...] | None = None,
     max_solutions: int = 1,
     traversal: ChoiceTraversal = ChoiceTraversal.BEST_FIRST,
     seed: int = 0,
@@ -159,10 +173,10 @@ def harmonize_temporal_collection(
         raise ValueError("MuSES fact snapshot and collection length disagree")
 
     pitches = tuple(note.pitch for note in notes)
-    metric = (
-        _metric_strengths(notes, time_signature)
-        if metric_strengths is None
-        else metric_strengths
+    derived_metric_levels = (
+        _metric_levels(notes, time_signature)
+        if metric_strengths is None and metric_levels is None
+        else metric_levels
     )
     model = build_note_harmonizer_model(
         pitches,
@@ -171,7 +185,8 @@ def harmonize_temporal_collection(
         harmonic_rhythm=harmonic_rhythm,
         harmonic_plan=harmonic_plan,
         harmonic_plan_profile=harmonic_plan_profile,
-        metric_strengths=metric,
+        metric_strengths=metric_strengths,
+        metric_levels=derived_metric_levels,
         note_durations=tuple(note.duration() for note in notes),
         source_facts=source_facts,
         source_notes=source_notes,
@@ -342,35 +357,27 @@ def _validated_notes(
     return tuple(notes)
 
 
-def _metric_strengths(
+def _metric_levels(
     notes: tuple[TemporalNoteLike, ...],
     time_signature: str,
-) -> tuple[MetricStrength, ...]:
-    """Translate note onsets into strong/weak facts for simple meters."""
+    *,
+    metric_positions_function: MetricPositionsFunction | None = None,
+) -> tuple[MetricLevel, ...]:
+    """Project MuSES hierarchical metric positions onto Snarky's level facts."""
 
-    try:
-        numerator_text, denominator_text = time_signature.split("/", maxsplit=1)
-        numerator = int(numerator_text)
-        denominator = int(denominator_text)
-    except (AttributeError, ValueError) as error:
-        raise ValueError(
-            "time_signature must have the form numerator/denominator"
-        ) from error
-    if numerator <= 0 or denominator <= 0:
-        raise ValueError("time_signature values must be positive")
-    measure_quarters = numerator * 4 / denominator
-    if measure_quarters <= 0:
-        raise ValueError("time_signature must define a positive measure")
-    secondary_accent = measure_quarters / 2
-    strengths: list[MetricStrength] = []
-    for note in notes:
-        offset = float(note.start_beat) % measure_quarters
-        strong = math.isclose(offset, 0.0) or math.isclose(
-            offset,
-            secondary_accent,
-        )
-        strengths.append("strong" if strong else "weak")
-    return tuple(strengths)
+    analyze = metric_positions_function or _load_muses_metric_positions()
+    positions = tuple(analyze(notes, time_signature))
+    if len(positions) != len(notes):
+        raise ValueError("MuSES metric positions must match the note count")
+    levels = tuple(position.accent_level for position in positions)
+    if any(
+        isinstance(level, bool)
+        or not isinstance(level, int)
+        or level not in range(4)
+        for level in levels
+    ):
+        raise ValueError("MuSES metric accent levels must be integers from 0 to 3")
+    return cast(tuple[MetricLevel, ...], levels)
 
 
 def _ordered_note_identities(
@@ -443,3 +450,16 @@ def _load_muses_factories() -> MusesFactories:
         cast(TemporalCollectionFactory, module.TemporalCollection),
         cast(PieceFactory, module.Piece),
     )
+
+
+def _load_muses_metric_positions() -> MetricPositionsFunction:
+    try:
+        module = import_module("muses")
+        metric_positions = module.metric_positions
+    except (AttributeError, ModuleNotFoundError) as error:
+        raise ModuleNotFoundError(
+            "MuSES with its hierarchical metre API is required to derive "
+            "metric levels; install or update the sibling project, or pass "
+            "metric_levels explicitly"
+        ) from error
+    return cast(MetricPositionsFunction, metric_positions)

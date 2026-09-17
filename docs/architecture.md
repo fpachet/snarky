@@ -1,11 +1,27 @@
 # Architecture
 
-Snarky separates immutable language objects, inference state, instantiation
-strategies, search control, integrations, and application rulebases. The
-separation keeps one executable semantic reference while allowing optimized
-components to evolve independently.
+Snarky has two primary execution engines: a forward rule engine and a standalone
+finite-domain CSP/optimization engine. They share immutable symbolic objects;
+`MixedState` coordinates them when a finite model includes positive rules.
+Pure CSP execution does not create a rule session. Both engines are implemented
+in Python and ship in the core package.
+
+| Component | Owns | Can run independently? |
+|---|---|---|
+| `ForwardEngine` / `InferenceSession` | Facts, matching indexes, activations and provenance | Yes: operational rules and programs |
+| `NativeState` plus finite search | Domains, propagation, branching, objective bounds and incumbents | Yes: pure CSP and optimization |
+| `MixedState` | Coordination of domain propagation, positive closure and joint rollback | Uses both engines for mixed models |
+
+The coordinator repeatedly exposes singleton assignments to rules and derived
+facts to guarded constraints until a joint fixed point is reached. It is not
+just a preprocessing adapter. Factors and probability measures belong to the
+model/query contract; they do not introduce a third mutable inference engine.
+The independent reference matcher and finite enumerator validate the respective
+execution semantics as optimized components evolve.
 
 ## Layers
+
+The operational rule pipeline is:
 
 ```text
 application rulebases and orchestration
@@ -20,6 +36,41 @@ application rulebases and orchestration
                 |
  terms, facts, matching, substitutions
 ```
+
+### Declarative finite runtime
+
+```mermaid
+flowchart TD
+    Model[Immutable finite model] --> Domains[Native domains and propagation]
+    Model --> Rules[Positive rule definitions]
+    Model --> Factors[Pure objectives and measures]
+    Domains -->|singleton facts| Closure[Mixed closure coordinator]
+    Rules --> Closure
+    Closure -->|positive guarded constraints| Domains
+    Search[Generic search and query controller] -->|checkpoint and rollback| Domains
+    Search -->|coordinated checkpoint and rollback| Closure
+    Factors -->|score and admissible bounds| Search
+    Search --> Results[Solutions, evidence and proof status]
+```
+
+Pure CSPs instantiate only native problem state; no inference session is needed.
+Mixed models add the closure coordinator and existing incremental matcher. The
+search controller owns incumbents outside reversible branch state. Compiled table
+supports and local bound caches depend only on immutable definitions; domains,
+derived facts, proofs and reductions restore together across sibling branches.
+
+The independent finite enumerator defines a small executable reference using
+complete predicates and positive closure. Generic weighted search and an optional
+regular-BP adapter consume the same model/query contract. A backend must reject
+unsupported features explicitly. See the [finite contract](finite_model_contract.md)
+for the admitted rule fragment, exact integer objectives, probability arithmetic
+and the separate [language surface](finite_language.md).
+
+The older `csp_solver` companion retains fact-backed finite models and operational
+`CHOICE` search. Its domain representation and orchestration are separate from
+the direct finite runtime, although constraint definitions and reference kernels
+are shared. It remains available for compatibility and existing applications;
+the standalone finite solver does not require installing the companion.
 
 ### Language model
 
@@ -54,6 +105,8 @@ The `instantiation` package implements interchangeable strategies:
 - `naive_join.py` is the semantic reference;
 - `fact_index.py`, `query_memory.py`, and `semi_naive_join.py` support
   persistent optimized matching;
+- `event_rules.py` compiles simple and safe factorized multi-premise delta
+  handlers;
 - `indexed.py` composes indexed and semi-naive strategies;
 - domain planning, compact tables, propagators, and adaptive selection provide
   optional finite-domain filtering.
@@ -61,6 +114,13 @@ The `instantiation` package implements interchangeable strategies:
 Strategies receive net fact deltas, may retain state between calls, and must
 implement isolation when a session forks. Differential tests enforce logical
 equivalence with the naive strategy.
+
+Factorized event plans are immutable, rule-keyed compiled definitions. For
+an addition-only delta they match the added fact against a statically filtered
+anchor position, then follow exact fact-index lookups for the other positive
+premises. Compilation requires comparisons to have been bound at their
+original textual position and excludes `FOCUS`; every unsupported shape and
+every removal follows the existing general path.
 
 ### Search and control
 
@@ -126,4 +186,3 @@ Behavioral validation combines:
 
 See [reference semantics](semantics.md), [API stability](api_stability.md),
 and the [benchmark guide](../benchmarks/README.md).
-

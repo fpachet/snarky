@@ -79,3 +79,10 @@ def test_let_rejects_non_numeric_operands_and_division_by_zero() -> None:
         ForwardEngine(non_numeric).run((Fact(parse_term("(test valeur texte)")),))
     with pytest.raises(ArithmeticEvaluationError, match="division by zero"):
         ForwardEngine(division_by_zero).run((Fact(parse_term("(test valeur 5)")),))
+
+
+def test_arithmetic_overflow_retains_the_public_error_family() -> None:
+    with pytest.raises(ArithmeticEvaluationError, match="finite"):
+        evaluate_arithmetic(
+            parse_arithmetic_expression("1e308 * 1e308"), Substitution()
+        )

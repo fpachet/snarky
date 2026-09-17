@@ -1,0 +1,22 @@
+schema_version: 1
+id: K3-V20B-IDENTIFIABLE-HARMONIC-STATUS-GRAMMAR-1
+status: FROZEN
+frozen_on: 2026-07-28
+extends: grammar_v20a_named_harmonic_status.yaml
+purpose: >
+  Retirer la dépendance linéaire exacte de V20A. La qualité et le degré
+  généraux forment le niveau de base ; seule une déviation supplémentaire sur
+  temps fort est offerte. Tous les autres statuts et exclusions restent
+  inchangés.
+
+extensions:
+  named_harmonic_metric_encoding: baseline_plus_strong_deviation
+
+provenance_guards:
+  correction_kind: exact_linear_dependency_removal
+  decision_source: V20A_IDENTIFIABILITY_DECISION.md
+  harmonic_transitions_enabled: false
+  status_vocabulary_changed: false
+  selection_threshold_changed: false
+  generation_metrics_used_for_weight_learning: false
+  test_split_loaded: false

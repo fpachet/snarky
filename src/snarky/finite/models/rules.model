@@ -1,0 +1,26 @@
+MODEL reachability
+    FACT (a edge b)
+    FACT (b edge c)
+    GROUP closure
+        RULE direct
+        WHEN
+            ($x edge $y)
+        THEN
+            ADD ($x reachable $y)
+        END
+        RULE transitive
+        WHEN
+            ($x reachable $y)
+            ($y edge $z)
+        THEN
+            ADD ($x reachable $z)
+        END
+    END_GROUP
+    CONSTRAINT reaches_c
+        KIND FACTS
+        REQUIRE (a reachable c)
+        FORBID (c reachable a)
+    END_CONSTRAINT
+    QUERY closure SOLVE
+    END_QUERY
+END_MODEL

@@ -30,7 +30,8 @@ class JointFixedPointScheduler:
     ``None`` is the conservative wildcard watch. Propagators may expose a
     ``watched_relations`` iterable; ordinary callables without metadata are
     treated as depending on every fact. Rule-group watches are compiled from
-    factual premises, including correlated and aggregate blocks.
+    factual premises, including correlated and aggregate blocks. Propagators
+    need not saturate in one call: their own relevant deltas requeue them.
     """
 
     def __init__(
@@ -77,14 +78,14 @@ class JointFixedPointScheduler:
             if kind == "propagator":
                 self.propagators[index](session)
             else:
-                session.run_group(self.groups[index])
+                session.run_group(self.groups[index], materialize_result=False)
             runs += 1
 
             changed = _changed_relations(session.events_since(before))
             if changed == frozenset():
                 continue
             for target in components:
-                if target == component or target in queued:
+                if target in queued or (target == component and kind == "group"):
                     continue
                 target_kind, target_index = target
                 watch = (

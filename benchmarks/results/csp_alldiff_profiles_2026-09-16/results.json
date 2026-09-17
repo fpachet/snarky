@@ -1,0 +1,1201 @@
+{
+  "started_at": "2026-09-16T21:00:40.273587+00:00",
+  "mode": "diagnose",
+  "python": "3.13.11 | packaged by Anaconda, Inc. | (main, Dec 10 2025, 21:21:08) [Clang 20.1.8 ]",
+  "platform": "macOS-15.7.7-arm64-arm-64bit-Mach-O",
+  "baseline_sha256": "8a5bdcffa9ea02cbbefc577a2dcd2b2726815ac4ac76cd47e41581b9271b89ba",
+  "candidate_commit": "ae1f4e6b8ad8472d98bba1d895df4273a718b708",
+  "candidate_dirty": true,
+  "reference_ref": "88c366f",
+  "source_hashes": {
+    "candidate": {
+      "src/snarky/choice_fixed_point.py": "a7e64355ae156c2e50fa798d62f509cdd15814ca5714169b0ff8fde44de51870",
+      "src/snarky/terms.py": "f72622bb6730df24e1e309831b064688b4ed9c50b3df5aae7d12ef07feed2862",
+      "src/snarky/group_templates.py": "d370c6dadbb19c57764e077006f3f89567abc8eca1b7c2cd5d40330f3839e8d9",
+      "src/snarky/standard_rules.py": "f0e9e717cdd8d1736ca160dda5888f3b170edb7eaf622f1132c01162ca874b36",
+      "src/snarky/parser_actions.py": "3e5d982a69893cb95311eadf459df4335e73fb55291b8fb07bcdea804c1b90c2",
+      "src/snarky/facts.py": "3d597b94757d0f6db2edee812d29a0a11e6ad7eca273c6ce268ff5c23d82c267",
+      "src/snarky/computed.py": "ddcaed355801e1a2b8ec8d0b7dc8a08b81d64292044c99db571fce03fbd39603",
+      "src/snarky/premises.py": "a05a9478a97af03e05d3984d4dd75abf151322f164bc862f3b2cc24028955cae",
+      "src/snarky/api_stability.py": "8d21b6acc971fe05cfca8b9e502f48a2622d01de4eb36c8c59acb28461a4e3a8",
+      "src/snarky/factors.py": "2716497b0025d4fdf7ca6fe5a2619ed9c823d122c87d2343eb6249a089c2bc68",
+      "src/snarky/parser_premises.py": "a9a705cc250e38499cf1d55d1c806efb1ee4363c309e019d4bddab245abfef45",
+      "src/snarky/spinoza.py": "ffb4f54d4f97e0fb699d06dda9b20360926934dba202a342d5ed7c3bfe6b558e",
+      "src/snarky/parser_factors.py": "e44533d3aa70e6e7cc9e5f367c9e73ae96bfe644ade24e0e261b772297b1b87f",
+      "src/snarky/expressions.py": "c5b42a53d4f95b399595a381d3dc4b2c9aaf5306a7ee5e334cbb5b7ab07b740d",
+      "src/snarky/choice.py": "ff87df17c973b20c3374a8a2c20557419be5eb0181ff407127530f145a6cd350",
+      "src/snarky/actions.py": "910cab225e92cb08b024f79d635cc9774071a97b9013249f407716d035ec89c6",
+      "src/snarky/__init__.py": "169d10d79895ed483edc6063f1c243fa5ba1db515616c4594a2092103342d238",
+      "src/snarky/rules.py": "c3bd52396565cc3cff16327f22cdf85b9e84abfa4db0134b28d55188c3887fbb",
+      "src/snarky/parser_lexer.py": "86fb194d2398f7250769a688d3ee1d2e039c6c8f588f18ed116f9112ccf8c05e",
+      "src/snarky/formatting.py": "f54c308505904991f6b928f95cbd0eb71e3fb2623520a08a7fb4c3b9713f1013",
+      "src/snarky/parser_arithmetic.py": "746661b0bf82428d91879abb0d555023fc1a4854cd3100f351db8f8950e676c8",
+      "src/snarky/substitutions.py": "91394074261bc6a484886f7ae25f7405a76afc8510208c736df4819b1a4934ed",
+      "src/snarky/unification.py": "3fe417e4b812bbbe0366cc5ce4b762fe5461f2e9dcad66fd6db835c7a8f1c3f5",
+      "src/snarky/matching.py": "daaf2349ac62ae1874e09247fac91c3e8ba23095794577d0753c690fb370e0ba",
+      "src/snarky/parser.py": "3ab38966fe09be2b967844f7710bab0fbf8c2c72324e1b1531a4ba2d4d8c5aea",
+      "src/snarky/programs.py": "d79b0a79b48f6302acca2c5c9dc3c5439bcd9cdabb2746f5b4811480e2c7dee8",
+      "src/snarky/cli.py": "06c9510efcade5667c86750d61c05e3537fb0b37093c46133ab6ac43d3c88847",
+      "src/snarky/propagation.py": "c38054f12f0f5cd6c9459b7afd2726a39f085abda812c5fcd4d6d2373f6b8ceb",
+      "src/snarky/choice_search.py": "fb82dbe0c1abaf9fea37936867d7c8b340473603bcbdd45c778b2b0bbc22b2a2",
+      "src/snarky/plans.py": "4d10b0a0b48b2fcd53dfaaf000ebf36e6ecb0db6c8ef3afdd3b375e079287bd4",
+      "src/snarky/tooling.py": "e83891302281c1816dff92be935f3880c9a3e8462fafcac07c6d88e08eadea65",
+      "src/snarky/choice_production.py": "abb5952afc9b1346925cda9146e12c158fbab80e61bccf7a9ae80f3d6b2e0a87",
+      "src/snarky/search.py": "43c319ada7a215a4f39619646e49df94f7dab5ce0cdca91ec610e5e1342c309d",
+      "src/snarky/parser_terms.py": "e5d85985d27a3bc822b5e322f4c3a4b0bd0e6cb8e39bc6e2d39c51456a82040b",
+      "src/snarky/constraints.py": "8cacdf295fbda7011cf1f5c701cdb630497b1c8815543830ce9934aabc1797c8",
+      "src/snarky/choice_frontier.py": "49727487cfdb66fb06ed7dc6f1652ce83bb251da965c9c1a10b4ddc687a3a40f",
+      "src/snarky/__main__.py": "9bff14ab8b3f46db184fd4acc7facb74c47b2f1ef4e572bc78a091fd7cb0b632",
+      "src/snarky/choice_policies.py": "b134bab4ac4a7afe13688c04863b5e1d08caf53d8ba235ce767781ac2fc1459a",
+      "src/snarky/instantiation/domain_planning.py": "399ffa9572eb55d1fcfce144e28693adc13da2369451b75058932a75d27c5d4c",
+      "src/snarky/instantiation/fact_index.py": "49476fc0fae4277e56eb446ac4ccb0c0cac3d316066eab2282632920a49efd65",
+      "src/snarky/instantiation/__init__.py": "9daf9687870a08f5036fccd02edf9dc7228165b2a4c8dabaeb90e499b0584fb7",
+      "src/snarky/instantiation/compiled.py": "17407857cdf1686871fbce9c9cbff01d35246f84a31bff43117a62f6bfb49afa",
+      "src/snarky/instantiation/adaptive_selection.py": "b7a84f798b4e431420e497181a9ef0f03d35161dad9ad121491cee7a2f94216c",
+      "src/snarky/instantiation/domain_filter.py": "2b64630dbaa1a6a689758ae5234298d4c3e3871c5a64aaa544a2bdb1dc8c6d76",
+      "src/snarky/instantiation/domain_tables.py": "b9809816ae4e5e97cc2130742110449c1d8157ead6cb0af93f021cc1a04b31f8",
+      "src/snarky/instantiation/query_memory.py": "853d9ca40d833259c3845b9df9ce31e85c73490a45129ca2ad8df66a91d2fdc3",
+      "src/snarky/instantiation/semi_naive_join.py": "4d55b98d3d964ee40acf28eee56225c50937418369f0e3cafe28694b6d70a8c5",
+      "src/snarky/instantiation/comparison_propagators.py": "ae0d962c8bce0593c0a57baa94d8a52e632b63b80ec78fd27718e6208f7ebe11",
+      "src/snarky/instantiation/naive_join.py": "5876474781c7b77b78d9f3c1cbbded6eb06fca2c609e3edd9dc86c1c7359bbbb",
+      "src/snarky/instantiation/event_rules.py": "b40b4d6e3c78a03672ee2c1c1e387739dbb65da373cdb6d8d4388e7b2b3c9088",
+      "src/snarky/instantiation/base.py": "923b69570f14e86507b60ac792d0fc17badab1e0fe62cff5e34b4d95e3056bdb",
+      "src/snarky/instantiation/indexed.py": "8ee7104af0768dee65d32f9a9c8b5d90f5402a3698d72d1d5b006ea77646075f",
+      "src/snarky/finite/measure.py": "729c603de0b3872ad6ac6ca0b1e5fad2052995375b147b448f5311677a6a3a4a",
+      "src/snarky/finite/regular.py": "f562909358abfe91dfc0aa2d9ba7f3d08625a25f42f011a30603a437d8907785",
+      "src/snarky/finite/predicates.py": "bb9c17cd92721ea8af020b912f86e0df231229b96e717c6f86ba7d3321bb9c93",
+      "src/snarky/finite/factors.py": "736f643bf07de0903ca0a54b0ff32316c3d4c8355aee9305625e82c732e81997",
+      "src/snarky/finite/markov.py": "d4e30a450c2bec3644a17bd6a1c3b346938746abe6d20036a5dbf5029df2d474",
+      "src/snarky/finite/domains.py": "7fa10d674b6001cfe79aed16971006598332ea5ee85f3faea599117aa4a2e2b4",
+      "src/snarky/finite/__init__.py": "daf7255fdcdcc64f823d92611efc2ddd8954ba41134247ab01f58010181f9b5b",
+      "src/snarky/finite/variable_markov.py": "74b0d6b53a5c434632a50f5e7a214bbf8b93eb531075b4c24df4601fa9baed3b",
+      "src/snarky/finite/product_assignment.py": "41b3cd548322940260bb9250a25010e1accad97565c7e85acfaccd33823978bb",
+      "src/snarky/finite/model.py": "71b66c9d3177e000328660468390fff61d18d2ac9dcb4849814946521b8b6b09",
+      "src/snarky/finite/mixed.py": "4c3a44ab18471f873585718b0628ce07fd457f73f1af717f39a2252015d85d99",
+      "src/snarky/finite/nvalue.py": "1c5196059fc6f49284acd47d1c9241d719063392f2ae62abb2c9367bf0c44d20",
+      "src/snarky/finite/cli.py": "bd99ac0223b6657e376f4ea8a22ae0659e2fa5ecd502eb11b4d45c272a53100f",
+      "src/snarky/finite/propagation.py": "7d7386ee8f962fcb99fab989bcc5542f7e8788db70d75f0256c22ba3eb971dba",
+      "src/snarky/finite/examples.py": "6cced54da964f1141ed91423fed98dcbf44487a33516ab4d49c8ebb966bf41e0",
+      "src/snarky/finite/kernels.py": "fb3b78b1aca09c8eb705b52fde1017d00e3891895deedc2ab7e0952195b48ee9",
+      "src/snarky/finite/language.py": "be38cc0a66931fa3e692eaa227d5cdcaa89d73b3fef963c35a640cd01a262924",
+      "src/snarky/finite/search.py": "e398406d78bb978afddbc5620037af57caf898f251f58a4ccf6bc748d6c7895d",
+      "src/snarky/finite/inference.py": "0280f74cd5b17efa3264b5db3261dfd759bb99529edf3dd8262f9a04cacf4957",
+      "src/snarky/finite/sparse_chain.py": "a1caaa1754bb79b9c08d3b5150e4ebfc8ab602810561aa71a288b5c88175aec9",
+      "src/snarky/finite/constraints.py": "533639051cf3685f32cea65835c7bde0e752980d404c366b4f4676919ecb8314",
+      "src/snarky/finite/oracle.py": "366867ad43317c25e39b4c2625d9f1c78f93598744afe36e44c72f10b0cde0e2",
+      "src/snarky/finite/bounds.py": "327037d38ae5c1d8a86bfe1564e38a76987020d6ee596a674401b034953a5beb",
+      "src/snarky/finite/product_objective.py": "3409bee3ecaef827c98e91ddd2102f9512d951f4c063601d73a2f2908138b801",
+      "src/snarky/finite/closure.py": "357fdf029c11781291a50930f5455f65568b3a7e5af0636db176840fa76e345d",
+      "src/snarky/serialization/yaml_format.py": "791bdcdd0d1fc52ccb99a161bf996ac980e8d9666f40c03dfd0f5267e7b3ba5b",
+      "src/snarky/serialization/__init__.py": "05e6c306a5bc25b452de1e0a5a951190c3263ec9f096b55696a8076c93484622",
+      "src/snarky/stores/__init__.py": "e2fb6b399a933bfe2f57f8b05e49760420b9e85bd3cae4f6b9d4d1025e5b1e51",
+      "src/snarky/stores/naive.py": "38cc7cf1991616b3041cd0b8480d956b7f4b1a6d8951c1b6222b9529b08a01df",
+      "src/snarky/integrations/__init__.py": "cd767d15d031a91d7f5be216d6fc3dc5fdb9806eae9ca963da5943668e7d58d7",
+      "src/snarky/integrations/objects.py": "94cd17c0213d269b9faaaf30bf5e35242758d506d041dc837af58a152e764a8b",
+      "src/snarky/integrations/muses.py": "b2a423a82b2b9338c4fc4c9588cd5258e853505822537894d61f52e9247c760f",
+      "src/snarky/engine/agenda.py": "0f5479df42bcf85492b81c76c1538c5f64ede3453609c800fd05688cd0c7b99d",
+      "src/snarky/engine/session_state.py": "aaa3f399973d2ef59edd0e23c2fbf29d51c37bb566f8637fa1dda5c0e307f3e4",
+      "src/snarky/engine/mutations.py": "a678da1d1d4d7be57084b448d9bd2ef3c33e47509f3bbddb68c7ad936d5f43a2",
+      "src/snarky/engine/events.py": "0bcc864e9901f0f4c2740c4f2ab0dfac78ca6d3a43a0de60f9db9bb23aefd549",
+      "src/snarky/engine/__init__.py": "67536474adc9807cc521c9a4e15d9ebe8cc125e07feda3474c9cc660238ab6eb",
+      "src/snarky/engine/conflict.py": "bc22350c9a2dcc86af9debd575ea72b88dc111036830f10cb94c951a708b38d7",
+      "src/snarky/engine/group_execution.py": "b0184b2d86129ab3ff05dcb0098222721e3eb002d09274ad4681df1a7bea41bd",
+      "src/snarky/engine/forward.py": "14a3de9a9be8e2517dc2e9b0977be70e60b1785768b29d46f80f43af72bd5016",
+      "src/snarky/engine/refraction.py": "48ce855654bea8253188c34d52ce95f6a608e7ca49e9757c39be61e4b76d644a",
+      "src/snarky/engine/provenance.py": "19caee854982d64d74143afc059ba156b45893502a887a80f3738043a7eea4e7",
+      "benchmarks/csp_diagnostics.py": "6ddab23ebaab4663304df79d1f87e570c863b2d3753cac14457314051fd1fe69",
+      "benchmarks/csp_followup.py": "c4b9b4ad71163bd1ebff4854ea1450a6a2e56ba78103d54fd143eb52cf07fc27",
+      "benchmarks/prune_bridge.py": "b7d4ebc0bbf7d147cea0ee97b0307e00a0739d2606adcb23615931b5a8e4384e",
+      "benchmarks/prune_comparison.py": "f8d01e4e7e111a624f86cebc2d08def9b740207586079bcda9941364cbd336d1"
+    }
+  },
+  "source_paths": {
+    "candidate": "/Users/francoispachet/IdeaProjects/boojum"
+  },
+  "protocol": {
+    "cooperative_seconds": 2.0,
+    "hard_seconds": 10.0,
+    "nodes": 200,
+    "repeats": 3,
+    "warmups": 1,
+    "allocation": false,
+    "scope": "fresh process plus separate construction/native-preparation/search timings; CPU/allocation diagnostics separate from uninstrumented comparisons",
+    "policy": "dom_wdeg; declared values; encodings may change search trees",
+    "nvalue_encoding": {
+      "reference": "decomposed",
+      "candidate": "native"
+    }
+  },
+  "cases": [
+    {
+      "id": "extended/queens_104",
+      "artifact": "artifacts/extended--queens_104.fzn.json",
+      "fzn_sha256": "9261b82e2ddbfd1ba1506922ab6433970bab7fdffbad1654c448be3984293b18",
+      "modes": {
+        "first": [
+          {
+            "command": [
+              "/Users/francoispachet/IdeaProjects/boojum/.venv/bin/python",
+              "/Users/francoispachet/IdeaProjects/boojum/benchmarks/csp_diagnostics.py",
+              "--source",
+              "/Users/francoispachet/IdeaProjects/boojum",
+              "--model",
+              "/Users/francoispachet/IdeaProjects/boojum/benchmarks/results/prune_comparison_2026-09-16/artifacts/extended--queens_104.fzn.json",
+              "--nvalue",
+              "native",
+              "--diagnostic",
+              "--seconds",
+              "2.0",
+              "--nodes",
+              "200",
+              "--profile",
+              "/Users/francoispachet/IdeaProjects/boojum/benchmarks/results/csp_alldiff_profiles_2026-09-16/extended--queens_104.prof"
+            ],
+            "seconds": 2.249024457996711,
+            "returncode": 0,
+            "timed_out": false,
+            "stdout": "{\"nvalue_encoding\": \"native\", \"variables\": 312, \"constraints\": 212, \"lowerings\": {}, \"status\": \"unknown\", \"termination\": \"time_limit\", \"complete\": false, \"nodes\": 6, \"failures\": 0, \"pruned\": 0, \"revisions\": 3179, \"objective\": null, \"objective_bound\": null, \"incumbent_history\": [], \"construction_seconds\": 0.09054366700001992, \"preparation_seconds\": 0.008275624975794926, \"solve_seconds\": 2.0175999580242205, \"families\": {\"AllDifferentConstraint\": {\"attempts\": 43, \"completed\": 43, \"failures\": 0, \"effective\": 13, \"removed\": 998, \"seconds\": 0.6306025020312518}, \"LinearSumConstraint\": {\"attempts\": 3136, \"completed\": 3136, \"failures\": 0, \"effective\": 1810, \"removed\": 2792, \"seconds\": 0.7540590509015601}}, \"root_propagation_seconds\": 0.19649712499813177, \"propagation_seconds\": 2.0071514169685543, \"traced_peak_bytes\": null, \"process_peak_rss_bytes\": 47169536, \"rss_scope\": \"whole process high-water mark, including imports\", \"diagnostic\": true, \"cpu_profile\": true, \"allocation\": false, \"progress_hook_available\": true, \"runtime_file\": \"/Users/francoispachet/IdeaProjects/boojum/src/snarky/__init__.py\", \"flat_output\": \"=====UNKNOWN=====\\n\"}\n",
+            "stderr": "{\"event\": \"construction_start\", \"elapsed_seconds\": 4.6999979531392455e-05, \"progress\": {}, \"families\": {}}\n{\"event\": \"prepared\", \"elapsed_seconds\": 0.09882279197336175, \"progress\": {}, \"families\": {}, \"variables\": 312, \"constraints\": 212}\n{\"event\": \"search\", \"elapsed_seconds\": 0.09998137498041615, \"progress\": {\"event\": \"start\", \"nodes\": 0, \"failures\": 0, \"pruned\": 0, \"revisions\": 0, \"depth\": 0, \"search_elapsed_seconds\": 0.0009198749903589487, \"root_objective_bound\": null, \"incumbent\": null}, \"families\": {}}\n{\"event\": \"revision_start\", \"elapsed_seconds\": 0.3501874169742223, \"progress\": {\"event\": \"node\", \"nodes\": 2, \"failures\": 0, \"pruned\": 0, \"revisions\": 220, \"depth\": 1, \"search_elapsed_seconds\": 0.19837387499865144, \"root_objective_bound\": null, \"incumbent\": null}, \"families\": {\"AllDifferentConstraint\": {\"attempts\": 8, \"completed\": 8, \"failures\": 0, \"effective\": 1, \"removed\": 102, \"seconds\": 0.14862204203382134}, \"LinearSumConstraint\": {\"attempts\": 240, \"completed\": 239, \"failures\": 0, \"effective\": 29, \"removed\": 232, \"seconds\": 0.05623663595179096}}, \"constraint_family\": \"LinearSumConstraint\", \"revisions\": 248}\n{\"event\": \"revision_start\", \"elapsed_seconds\": 0.6005432079837192, \"progress\": {\"event\": \"node\", \"nodes\": 2, \"failures\": 0, \"pruned\": 0, \"revisions\": 220, \"depth\": 1, \"search_elapsed_seconds\": 0.19837387499865144, \"root_objective_bound\": null, \"incumbent\": null}, \"families\": {\"AllDifferentConstraint\": {\"attempts\": 12, \"completed\": 12, \"failures\": 0, \"effective\": 2, \"removed\": 205, \"seconds\": 0.2144146660284605}, \"LinearSumConstraint\": {\"attempts\": 650, \"completed\": 649, \"failures\": 0, \"effective\": 325, \"removed\": 528, \"seconds\": 0.1557315050449688}}, \"constraint_family\": \"LinearSumConstraint\", \"revisions\": 662}\n{\"event\": \"revision_start\", \"elapsed_seconds\": 0.8506362499902025, \"progress\": {\"event\": \"node\", \"nodes\": 3, \"failures\": 0, \"pruned\": 0, \"revisions\": 951, \"depth\": 2, \"search_elapsed_seconds\": 0.6152156250027474, \"root_objective_bound\": null, \"incumbent\": null}, \"families\": {\"AllDifferentConstraint\": {\"attempts\": 15, \"completed\": 15, \"failures\": 0, \"effective\": 3, \"removed\": 306, \"seconds\": 0.26419620803790167}, \"LinearSumConstraint\": {\"attempts\": 1135, \"completed\": 1134, \"failures\": 0, \"effective\": 612, \"removed\": 1015, \"seconds\": 0.2730096984305419}}, \"constraint_family\": \"LinearSumConstraint\", \"revisions\": 1150}\n{\"event\": \"revision_start\", \"elapsed_seconds\": 1.1008929579984397, \"progress\": {\"event\": \"node\", \"nodes\": 3, \"failures\": 0, \"pruned\": 0, \"revisions\": 951, \"depth\": 2, \"search_elapsed_seconds\": 0.6152156250027474, \"root_objective_bound\": null, \"incumbent\": null}, \"families\": {\"AllDifferentConstraint\": {\"attempts\": 20, \"completed\": 20, \"failures\": 0, \"effective\": 4, \"removed\": 407, \"seconds\": 0.35628225104301237}, \"LinearSumConstraint\": {\"attempts\": 1458, \"completed\": 1457, \"failures\": 0, \"effective\": 822, \"removed\": 1225, \"seconds\": 0.35166114833555184}}, \"constraint_family\": \"LinearSumConstraint\", \"revisions\": 1478}\n{\"event\": \"revision_start\", \"elapsed_seconds\": 1.351549957995303, \"progress\": {\"event\": \"node\", \"nodes\": 4, \"failures\": 0, \"pruned\": 0, \"revisions\": 1572, \"depth\": 3, \"search_elapsed_seconds\": 1.0430565830029082, \"root_objective_bound\": null, \"incumbent\": null}, \"families\": {\"AllDifferentConstraint\": {\"attempts\": 25, \"completed\": 25, \"failures\": 0, \"effective\": 7, \"removed\": 609, \"seconds\": 0.42241504305275157}, \"LinearSumConstraint\": {\"attempts\": 1816, \"completed\": 1815, \"failures\": 0, \"effective\": 1054, \"removed\": 1653, \"seconds\": 0.4468261885049287}}, \"constraint_family\": \"LinearSumConstraint\", \"revisions\": 1841}\n{\"event\": \"revision_start\", \"elapsed_seconds\": 1.6083502080000471, \"progress\": {\"event\": \"node\", \"nodes\": 5, \"failures\": 0, \"pruned\": 0, \"revisions\": 2287, \"depth\": 4, \"search_elapsed_seconds\": 1.477111916989088, \"root_objective_bound\": null, \"incumbent\": null}, \"families\": {\"AllDifferentConstraint\": {\"attempts\": 31, \"completed\": 31, \"failures\": 0, \"effective\": 8, \"removed\": 706, \"seconds\": 0.4994106670783367}, \"LinearSumConstraint\": {\"attempts\": 2258, \"completed\": 2257, \"failures\": 0, \"effective\": 1227, \"removed\": 1828, \"seconds\": 0.5557052191288676}}, \"constraint_family\": \"LinearSumConstraint\", \"revisions\": 2289}\n{\"event\": \"revision_start\", \"elapsed_seconds\": 1.8585738329857122, \"progress\": {\"event\": \"node\", \"nodes\": 5, \"failures\": 0, \"pruned\": 0, \"revisions\": 2287, \"depth\": 4, \"search_elapsed_seconds\": 1.477111916989088, \"root_objective_bound\": null, \"incumbent\": null}, \"families\": {\"AllDifferentConstraint\": {\"attempts\": 37, \"completed\": 37, \"failures\": 0, \"effective\": 10, \"removed\": 803, \"seconds\": 0.553295918070944}, \"LinearSumConstraint\": {\"attempts\": 2726, \"completed\": 2725, \"failures\": 0, \"effective\": 1556, \"removed\": 2350, \"seconds\": 0.6618509662803262}}, \"constraint_family\": \"LinearSumConstraint\", \"revisions\": 2763}\n{\"event\": \"search\", \"elapsed_seconds\": 2.116365166992182, \"progress\": {\"event\": \"finished\", \"nodes\": 6, \"failures\": 0, \"pruned\": 0, \"revisions\": 3179, \"depth\": 5, \"search_elapsed_seconds\": 2.017307999980403, \"root_objective_bound\": null, \"incumbent\": null}, \"families\": {\"AllDifferentConstraint\": {\"attempts\": 43, \"completed\": 43, \"failures\": 0, \"effective\": 13, \"removed\": 998, \"seconds\": 0.6306025020312518}, \"LinearSumConstraint\": {\"attempts\": 3136, \"completed\": 3136, \"failures\": 0, \"effective\": 1810, \"removed\": 2792, \"seconds\": 0.7540590509015601}}}\n",
+            "engine": "candidate",
+            "iteration": 0,
+            "progress": [
+              {
+                "event": "construction_start",
+                "elapsed_seconds": 4.6999979531392455e-05,
+                "progress": {},
+                "families": {}
+              },
+              {
+                "event": "prepared",
+                "elapsed_seconds": 0.09882279197336175,
+                "progress": {},
+                "families": {},
+                "variables": 312,
+                "constraints": 212
+              },
+              {
+                "event": "search",
+                "elapsed_seconds": 0.09998137498041615,
+                "progress": {
+                  "event": "start",
+                  "nodes": 0,
+                  "failures": 0,
+                  "pruned": 0,
+                  "revisions": 0,
+                  "depth": 0,
+                  "search_elapsed_seconds": 0.0009198749903589487,
+                  "root_objective_bound": null,
+                  "incumbent": null
+                },
+                "families": {}
+              },
+              {
+                "event": "revision_start",
+                "elapsed_seconds": 0.3501874169742223,
+                "progress": {
+                  "event": "node",
+                  "nodes": 2,
+                  "failures": 0,
+                  "pruned": 0,
+                  "revisions": 220,
+                  "depth": 1,
+                  "search_elapsed_seconds": 0.19837387499865144,
+                  "root_objective_bound": null,
+                  "incumbent": null
+                },
+                "families": {
+                  "AllDifferentConstraint": {
+                    "attempts": 8,
+                    "completed": 8,
+                    "failures": 0,
+                    "effective": 1,
+                    "removed": 102,
+                    "seconds": 0.14862204203382134
+                  },
+                  "LinearSumConstraint": {
+                    "attempts": 240,
+                    "completed": 239,
+                    "failures": 0,
+                    "effective": 29,
+                    "removed": 232,
+                    "seconds": 0.05623663595179096
+                  }
+                },
+                "constraint_family": "LinearSumConstraint",
+                "revisions": 248
+              },
+              {
+                "event": "revision_start",
+                "elapsed_seconds": 0.6005432079837192,
+                "progress": {
+                  "event": "node",
+                  "nodes": 2,
+                  "failures": 0,
+                  "pruned": 0,
+                  "revisions": 220,
+                  "depth": 1,
+                  "search_elapsed_seconds": 0.19837387499865144,
+                  "root_objective_bound": null,
+                  "incumbent": null
+                },
+                "families": {
+                  "AllDifferentConstraint": {
+                    "attempts": 12,
+                    "completed": 12,
+                    "failures": 0,
+                    "effective": 2,
+                    "removed": 205,
+                    "seconds": 0.2144146660284605
+                  },
+                  "LinearSumConstraint": {
+                    "attempts": 650,
+                    "completed": 649,
+                    "failures": 0,
+                    "effective": 325,
+                    "removed": 528,
+                    "seconds": 0.1557315050449688
+                  }
+                },
+                "constraint_family": "LinearSumConstraint",
+                "revisions": 662
+              },
+              {
+                "event": "revision_start",
+                "elapsed_seconds": 0.8506362499902025,
+                "progress": {
+                  "event": "node",
+                  "nodes": 3,
+                  "failures": 0,
+                  "pruned": 0,
+                  "revisions": 951,
+                  "depth": 2,
+                  "search_elapsed_seconds": 0.6152156250027474,
+                  "root_objective_bound": null,
+                  "incumbent": null
+                },
+                "families": {
+                  "AllDifferentConstraint": {
+                    "attempts": 15,
+                    "completed": 15,
+                    "failures": 0,
+                    "effective": 3,
+                    "removed": 306,
+                    "seconds": 0.26419620803790167
+                  },
+                  "LinearSumConstraint": {
+                    "attempts": 1135,
+                    "completed": 1134,
+                    "failures": 0,
+                    "effective": 612,
+                    "removed": 1015,
+                    "seconds": 0.2730096984305419
+                  }
+                },
+                "constraint_family": "LinearSumConstraint",
+                "revisions": 1150
+              },
+              {
+                "event": "revision_start",
+                "elapsed_seconds": 1.1008929579984397,
+                "progress": {
+                  "event": "node",
+                  "nodes": 3,
+                  "failures": 0,
+                  "pruned": 0,
+                  "revisions": 951,
+                  "depth": 2,
+                  "search_elapsed_seconds": 0.6152156250027474,
+                  "root_objective_bound": null,
+                  "incumbent": null
+                },
+                "families": {
+                  "AllDifferentConstraint": {
+                    "attempts": 20,
+                    "completed": 20,
+                    "failures": 0,
+                    "effective": 4,
+                    "removed": 407,
+                    "seconds": 0.35628225104301237
+                  },
+                  "LinearSumConstraint": {
+                    "attempts": 1458,
+                    "completed": 1457,
+                    "failures": 0,
+                    "effective": 822,
+                    "removed": 1225,
+                    "seconds": 0.35166114833555184
+                  }
+                },
+                "constraint_family": "LinearSumConstraint",
+                "revisions": 1478
+              },
+              {
+                "event": "revision_start",
+                "elapsed_seconds": 1.351549957995303,
+                "progress": {
+                  "event": "node",
+                  "nodes": 4,
+                  "failures": 0,
+                  "pruned": 0,
+                  "revisions": 1572,
+                  "depth": 3,
+                  "search_elapsed_seconds": 1.0430565830029082,
+                  "root_objective_bound": null,
+                  "incumbent": null
+                },
+                "families": {
+                  "AllDifferentConstraint": {
+                    "attempts": 25,
+                    "completed": 25,
+                    "failures": 0,
+                    "effective": 7,
+                    "removed": 609,
+                    "seconds": 0.42241504305275157
+                  },
+                  "LinearSumConstraint": {
+                    "attempts": 1816,
+                    "completed": 1815,
+                    "failures": 0,
+                    "effective": 1054,
+                    "removed": 1653,
+                    "seconds": 0.4468261885049287
+                  }
+                },
+                "constraint_family": "LinearSumConstraint",
+                "revisions": 1841
+              },
+              {
+                "event": "revision_start",
+                "elapsed_seconds": 1.6083502080000471,
+                "progress": {
+                  "event": "node",
+                  "nodes": 5,
+                  "failures": 0,
+                  "pruned": 0,
+                  "revisions": 2287,
+                  "depth": 4,
+                  "search_elapsed_seconds": 1.477111916989088,
+                  "root_objective_bound": null,
+                  "incumbent": null
+                },
+                "families": {
+                  "AllDifferentConstraint": {
+                    "attempts": 31,
+                    "completed": 31,
+                    "failures": 0,
+                    "effective": 8,
+                    "removed": 706,
+                    "seconds": 0.4994106670783367
+                  },
+                  "LinearSumConstraint": {
+                    "attempts": 2258,
+                    "completed": 2257,
+                    "failures": 0,
+                    "effective": 1227,
+                    "removed": 1828,
+                    "seconds": 0.5557052191288676
+                  }
+                },
+                "constraint_family": "LinearSumConstraint",
+                "revisions": 2289
+              },
+              {
+                "event": "revision_start",
+                "elapsed_seconds": 1.8585738329857122,
+                "progress": {
+                  "event": "node",
+                  "nodes": 5,
+                  "failures": 0,
+                  "pruned": 0,
+                  "revisions": 2287,
+                  "depth": 4,
+                  "search_elapsed_seconds": 1.477111916989088,
+                  "root_objective_bound": null,
+                  "incumbent": null
+                },
+                "families": {
+                  "AllDifferentConstraint": {
+                    "attempts": 37,
+                    "completed": 37,
+                    "failures": 0,
+                    "effective": 10,
+                    "removed": 803,
+                    "seconds": 0.553295918070944
+                  },
+                  "LinearSumConstraint": {
+                    "attempts": 2726,
+                    "completed": 2725,
+                    "failures": 0,
+                    "effective": 1556,
+                    "removed": 2350,
+                    "seconds": 0.6618509662803262
+                  }
+                },
+                "constraint_family": "LinearSumConstraint",
+                "revisions": 2763
+              },
+              {
+                "event": "search",
+                "elapsed_seconds": 2.116365166992182,
+                "progress": {
+                  "event": "finished",
+                  "nodes": 6,
+                  "failures": 0,
+                  "pruned": 0,
+                  "revisions": 3179,
+                  "depth": 5,
+                  "search_elapsed_seconds": 2.017307999980403,
+                  "root_objective_bound": null,
+                  "incumbent": null
+                },
+                "families": {
+                  "AllDifferentConstraint": {
+                    "attempts": 43,
+                    "completed": 43,
+                    "failures": 0,
+                    "effective": 13,
+                    "removed": 998,
+                    "seconds": 0.6306025020312518
+                  },
+                  "LinearSumConstraint": {
+                    "attempts": 3136,
+                    "completed": 3136,
+                    "failures": 0,
+                    "effective": 1810,
+                    "removed": 2792,
+                    "seconds": 0.7540590509015601
+                  }
+                }
+              }
+            ],
+            "progress_truncated": false,
+            "result": {
+              "nvalue_encoding": "native",
+              "variables": 312,
+              "constraints": 212,
+              "lowerings": {},
+              "status": "unknown",
+              "termination": "time_limit",
+              "complete": false,
+              "nodes": 6,
+              "failures": 0,
+              "pruned": 0,
+              "revisions": 3179,
+              "objective": null,
+              "objective_bound": null,
+              "incumbent_history": [],
+              "construction_seconds": 0.09054366700001992,
+              "preparation_seconds": 0.008275624975794926,
+              "solve_seconds": 2.0175999580242205,
+              "families": {
+                "AllDifferentConstraint": {
+                  "attempts": 43,
+                  "completed": 43,
+                  "failures": 0,
+                  "effective": 13,
+                  "removed": 998,
+                  "seconds": 0.6306025020312518
+                },
+                "LinearSumConstraint": {
+                  "attempts": 3136,
+                  "completed": 3136,
+                  "failures": 0,
+                  "effective": 1810,
+                  "removed": 2792,
+                  "seconds": 0.7540590509015601
+                }
+              },
+              "root_propagation_seconds": 0.19649712499813177,
+              "propagation_seconds": 2.0071514169685543,
+              "traced_peak_bytes": null,
+              "process_peak_rss_bytes": 47169536,
+              "rss_scope": "whole process high-water mark, including imports",
+              "diagnostic": true,
+              "cpu_profile": true,
+              "allocation": false,
+              "progress_hook_available": true,
+              "runtime_file": "/Users/francoispachet/IdeaProjects/boojum/src/snarky/__init__.py",
+              "flat_output": "=====UNKNOWN=====\n"
+            },
+            "normalized": {
+              "status": "unknown",
+              "solutions": []
+            }
+          }
+        ]
+      }
+    },
+    {
+      "id": "extended/queens_150",
+      "artifact": "artifacts/extended--queens_150.fzn.json",
+      "fzn_sha256": "0bc65763b700129dc6094928a0f8d682a9a43f51a20633d12cca729807839bf8",
+      "modes": {
+        "first": [
+          {
+            "command": [
+              "/Users/francoispachet/IdeaProjects/boojum/.venv/bin/python",
+              "/Users/francoispachet/IdeaProjects/boojum/benchmarks/csp_diagnostics.py",
+              "--source",
+              "/Users/francoispachet/IdeaProjects/boojum",
+              "--model",
+              "/Users/francoispachet/IdeaProjects/boojum/benchmarks/results/prune_comparison_2026-09-16/artifacts/extended--queens_150.fzn.json",
+              "--nvalue",
+              "native",
+              "--diagnostic",
+              "--seconds",
+              "2.0",
+              "--nodes",
+              "200",
+              "--profile",
+              "/Users/francoispachet/IdeaProjects/boojum/benchmarks/results/csp_alldiff_profiles_2026-09-16/extended--queens_150.prof"
+            ],
+            "seconds": 2.323198958998546,
+            "returncode": 0,
+            "timed_out": false,
+            "stdout": "{\"nvalue_encoding\": \"native\", \"variables\": 450, \"constraints\": 304, \"lowerings\": {}, \"status\": \"unknown\", \"termination\": \"time_limit\", \"complete\": false, \"nodes\": 3, \"failures\": 0, \"pruned\": 0, \"revisions\": 2168, \"objective\": null, \"objective_bound\": null, \"incumbent_history\": [], \"construction_seconds\": 0.17512445800821297, \"preparation_seconds\": 0.015063750004628673, \"solve_seconds\": 2.0029250839725137, \"families\": {\"AllDifferentConstraint\": {\"attempts\": 20, \"completed\": 20, \"failures\": 0, \"effective\": 4, \"removed\": 591, \"seconds\": 0.7139387920906302}, \"LinearSumConstraint\": {\"attempts\": 2148, \"completed\": 2148, \"failures\": 0, \"effective\": 1190, \"removed\": 1777, \"seconds\": 0.7296611536003184}}, \"root_propagation_seconds\": 0.39312908399733715, \"propagation_seconds\": 1.9958287510380615, \"traced_peak_bytes\": null, \"process_peak_rss_bytes\": 54165504, \"rss_scope\": \"whole process high-water mark, including imports\", \"diagnostic\": true, \"cpu_profile\": true, \"allocation\": false, \"progress_hook_available\": true, \"runtime_file\": \"/Users/francoispachet/IdeaProjects/boojum/src/snarky/__init__.py\", \"flat_output\": \"=====UNKNOWN=====\\n\"}\n",
+            "stderr": "{\"event\": \"construction_start\", \"elapsed_seconds\": 4.237500252202153e-05, \"progress\": {}, \"families\": {}}\n{\"event\": \"prepared\", \"elapsed_seconds\": 0.19019145800848491, \"progress\": {}, \"families\": {}, \"variables\": 450, \"constraints\": 304}\n{\"event\": \"search\", \"elapsed_seconds\": 0.1918770000047516, \"progress\": {\"event\": \"start\", \"nodes\": 0, \"failures\": 0, \"pruned\": 0, \"revisions\": 0, \"depth\": 0, \"search_elapsed_seconds\": 0.0014243749901652336, \"root_objective_bound\": null, \"incumbent\": null}, \"families\": {}}\n{\"event\": \"revision_start\", \"elapsed_seconds\": 0.44190541698480956, \"progress\": {\"event\": \"node\", \"nodes\": 1, \"failures\": 0, \"pruned\": 0, \"revisions\": 0, \"depth\": 0, \"search_elapsed_seconds\": 0.0014965829905122519, \"root_objective_bound\": null, \"incumbent\": null}, \"families\": {\"AllDifferentConstraint\": {\"attempts\": 3, \"completed\": 3, \"failures\": 0, \"effective\": 0, \"removed\": 0, \"seconds\": 0.18477070800145157}, \"LinearSumConstraint\": {\"attempts\": 135, \"completed\": 134, \"failures\": 0, \"effective\": 2, \"removed\": 3, \"seconds\": 0.0460793312813621}}, \"constraint_family\": \"LinearSumConstraint\", \"revisions\": 138}\n{\"event\": \"revision_start\", \"elapsed_seconds\": 0.6922253330121748, \"progress\": {\"event\": \"node\", \"nodes\": 2, \"failures\": 0, \"pruned\": 0, \"revisions\": 312, \"depth\": 1, \"search_elapsed_seconds\": 0.3958907909982372, \"root_objective_bound\": null, \"incumbent\": null}, \"families\": {\"AllDifferentConstraint\": {\"attempts\": 8, \"completed\": 8, \"failures\": 0, \"effective\": 1, \"removed\": 148, \"seconds\": 0.2987312499899417}, \"LinearSumConstraint\": {\"attempts\": 343, \"completed\": 342, \"failures\": 0, \"effective\": 40, \"removed\": 335, \"seconds\": 0.1173489602515474}}, \"constraint_family\": \"LinearSumConstraint\", \"revisions\": 351}\n{\"event\": \"revision_start\", \"elapsed_seconds\": 0.9878462920023594, \"progress\": {\"event\": \"node\", \"nodes\": 2, \"failures\": 0, \"pruned\": 0, \"revisions\": 312, \"depth\": 1, \"search_elapsed_seconds\": 0.3958907909982372, \"root_objective_bound\": null, \"incumbent\": null}, \"families\": {\"AllDifferentConstraint\": {\"attempts\": 10, \"completed\": 10, \"failures\": 0, \"effective\": 2, \"removed\": 297, \"seconds\": 0.40626245900057256}, \"LinearSumConstraint\": {\"attempts\": 607, \"completed\": 606, \"failures\": 0, \"effective\": 303, \"removed\": 598, \"seconds\": 0.20668041630415246}}, \"constraint_family\": \"LinearSumConstraint\", \"revisions\": 617}\n{\"event\": \"revision_start\", \"elapsed_seconds\": 1.2380010419874452, \"progress\": {\"event\": \"node\", \"nodes\": 2, \"failures\": 0, \"pruned\": 0, \"revisions\": 312, \"depth\": 1, \"search_elapsed_seconds\": 0.3958907909982372, \"root_objective_bound\": null, \"incumbent\": null}, \"families\": {\"AllDifferentConstraint\": {\"attempts\": 12, \"completed\": 12, \"failures\": 0, \"effective\": 2, \"removed\": 297, \"seconds\": 0.4407467090059072}, \"LinearSumConstraint\": {\"attempts\": 993, \"completed\": 992, \"failures\": 0, \"effective\": 496, \"removed\": 791, \"seconds\": 0.3449113730166573}}, \"constraint_family\": \"LinearSumConstraint\", \"revisions\": 1005}\n{\"event\": \"revision_start\", \"elapsed_seconds\": 1.5118878330104053, \"progress\": {\"event\": \"node\", \"nodes\": 3, \"failures\": 0, \"pruned\": 0, \"revisions\": 1365, \"depth\": 2, \"search_elapsed_seconds\": 1.2502859999949578, \"root_objective_bound\": null, \"incumbent\": null}, \"families\": {\"AllDifferentConstraint\": {\"attempts\": 14, \"completed\": 14, \"failures\": 0, \"effective\": 3, \"removed\": 444, \"seconds\": 0.5180195830471348}, \"LinearSumConstraint\": {\"attempts\": 1353, \"completed\": 1352, \"failures\": 0, \"effective\": 601, \"removed\": 896, \"seconds\": 0.466682495578425}}, \"constraint_family\": \"LinearSumConstraint\", \"revisions\": 1367}\n{\"event\": \"revision_start\", \"elapsed_seconds\": 1.7724341249850113, \"progress\": {\"event\": \"node\", \"nodes\": 3, \"failures\": 0, \"pruned\": 0, \"revisions\": 1365, \"depth\": 2, \"search_elapsed_seconds\": 1.2502859999949578, \"root_objective_bound\": null, \"incumbent\": null}, \"families\": {\"AllDifferentConstraint\": {\"attempts\": 16, \"completed\": 16, \"failures\": 0, \"effective\": 4, \"removed\": 591, \"seconds\": 0.5800132090516854}, \"LinearSumConstraint\": {\"attempts\": 1650, \"completed\": 1649, \"failures\": 0, \"effective\": 897, \"removed\": 1484, \"seconds\": 0.564616992516676}}, \"constraint_family\": \"LinearSumConstraint\", \"revisions\": 1666}\n{\"event\": \"revision_start\", \"elapsed_seconds\": 2.0360883329994977, \"progress\": {\"event\": \"node\", \"nodes\": 3, \"failures\": 0, \"pruned\": 0, \"revisions\": 1365, \"depth\": 2, \"search_elapsed_seconds\": 1.2502859999949578, \"root_objective_bound\": null, \"incumbent\": null}, \"families\": {\"AllDifferentConstraint\": {\"attempts\": 18, \"completed\": 18, \"failures\": 0, \"effective\": 4, \"removed\": 591, \"seconds\": 0.6536164590797853}, \"LinearSumConstraint\": {\"attempts\": 1946, \"completed\": 1945, \"failures\": 0, \"effective\": 1189, \"removed\": 1776, \"seconds\": 0.6632910285552498}}, \"constraint_family\": \"LinearSumConstraint\", \"revisions\": 1964}\n{\"event\": \"search\", \"elapsed_seconds\": 2.193051957990974, \"progress\": {\"event\": \"finished\", \"nodes\": 3, \"failures\": 0, \"pruned\": 0, \"revisions\": 2168, \"depth\": 2, \"search_elapsed_seconds\": 2.002603832981549, \"root_objective_bound\": null, \"incumbent\": null}, \"families\": {\"AllDifferentConstraint\": {\"attempts\": 20, \"completed\": 20, \"failures\": 0, \"effective\": 4, \"removed\": 591, \"seconds\": 0.7139387920906302}, \"LinearSumConstraint\": {\"attempts\": 2148, \"completed\": 2148, \"failures\": 0, \"effective\": 1190, \"removed\": 1777, \"seconds\": 0.7296611536003184}}}\n",
+            "engine": "candidate",
+            "iteration": 0,
+            "progress": [
+              {
+                "event": "construction_start",
+                "elapsed_seconds": 4.237500252202153e-05,
+                "progress": {},
+                "families": {}
+              },
+              {
+                "event": "prepared",
+                "elapsed_seconds": 0.19019145800848491,
+                "progress": {},
+                "families": {},
+                "variables": 450,
+                "constraints": 304
+              },
+              {
+                "event": "search",
+                "elapsed_seconds": 0.1918770000047516,
+                "progress": {
+                  "event": "start",
+                  "nodes": 0,
+                  "failures": 0,
+                  "pruned": 0,
+                  "revisions": 0,
+                  "depth": 0,
+                  "search_elapsed_seconds": 0.0014243749901652336,
+                  "root_objective_bound": null,
+                  "incumbent": null
+                },
+                "families": {}
+              },
+              {
+                "event": "revision_start",
+                "elapsed_seconds": 0.44190541698480956,
+                "progress": {
+                  "event": "node",
+                  "nodes": 1,
+                  "failures": 0,
+                  "pruned": 0,
+                  "revisions": 0,
+                  "depth": 0,
+                  "search_elapsed_seconds": 0.0014965829905122519,
+                  "root_objective_bound": null,
+                  "incumbent": null
+                },
+                "families": {
+                  "AllDifferentConstraint": {
+                    "attempts": 3,
+                    "completed": 3,
+                    "failures": 0,
+                    "effective": 0,
+                    "removed": 0,
+                    "seconds": 0.18477070800145157
+                  },
+                  "LinearSumConstraint": {
+                    "attempts": 135,
+                    "completed": 134,
+                    "failures": 0,
+                    "effective": 2,
+                    "removed": 3,
+                    "seconds": 0.0460793312813621
+                  }
+                },
+                "constraint_family": "LinearSumConstraint",
+                "revisions": 138
+              },
+              {
+                "event": "revision_start",
+                "elapsed_seconds": 0.6922253330121748,
+                "progress": {
+                  "event": "node",
+                  "nodes": 2,
+                  "failures": 0,
+                  "pruned": 0,
+                  "revisions": 312,
+                  "depth": 1,
+                  "search_elapsed_seconds": 0.3958907909982372,
+                  "root_objective_bound": null,
+                  "incumbent": null
+                },
+                "families": {
+                  "AllDifferentConstraint": {
+                    "attempts": 8,
+                    "completed": 8,
+                    "failures": 0,
+                    "effective": 1,
+                    "removed": 148,
+                    "seconds": 0.2987312499899417
+                  },
+                  "LinearSumConstraint": {
+                    "attempts": 343,
+                    "completed": 342,
+                    "failures": 0,
+                    "effective": 40,
+                    "removed": 335,
+                    "seconds": 0.1173489602515474
+                  }
+                },
+                "constraint_family": "LinearSumConstraint",
+                "revisions": 351
+              },
+              {
+                "event": "revision_start",
+                "elapsed_seconds": 0.9878462920023594,
+                "progress": {
+                  "event": "node",
+                  "nodes": 2,
+                  "failures": 0,
+                  "pruned": 0,
+                  "revisions": 312,
+                  "depth": 1,
+                  "search_elapsed_seconds": 0.3958907909982372,
+                  "root_objective_bound": null,
+                  "incumbent": null
+                },
+                "families": {
+                  "AllDifferentConstraint": {
+                    "attempts": 10,
+                    "completed": 10,
+                    "failures": 0,
+                    "effective": 2,
+                    "removed": 297,
+                    "seconds": 0.40626245900057256
+                  },
+                  "LinearSumConstraint": {
+                    "attempts": 607,
+                    "completed": 606,
+                    "failures": 0,
+                    "effective": 303,
+                    "removed": 598,
+                    "seconds": 0.20668041630415246
+                  }
+                },
+                "constraint_family": "LinearSumConstraint",
+                "revisions": 617
+              },
+              {
+                "event": "revision_start",
+                "elapsed_seconds": 1.2380010419874452,
+                "progress": {
+                  "event": "node",
+                  "nodes": 2,
+                  "failures": 0,
+                  "pruned": 0,
+                  "revisions": 312,
+                  "depth": 1,
+                  "search_elapsed_seconds": 0.3958907909982372,
+                  "root_objective_bound": null,
+                  "incumbent": null
+                },
+                "families": {
+                  "AllDifferentConstraint": {
+                    "attempts": 12,
+                    "completed": 12,
+                    "failures": 0,
+                    "effective": 2,
+                    "removed": 297,
+                    "seconds": 0.4407467090059072
+                  },
+                  "LinearSumConstraint": {
+                    "attempts": 993,
+                    "completed": 992,
+                    "failures": 0,
+                    "effective": 496,
+                    "removed": 791,
+                    "seconds": 0.3449113730166573
+                  }
+                },
+                "constraint_family": "LinearSumConstraint",
+                "revisions": 1005
+              },
+              {
+                "event": "revision_start",
+                "elapsed_seconds": 1.5118878330104053,
+                "progress": {
+                  "event": "node",
+                  "nodes": 3,
+                  "failures": 0,
+                  "pruned": 0,
+                  "revisions": 1365,
+                  "depth": 2,
+                  "search_elapsed_seconds": 1.2502859999949578,
+                  "root_objective_bound": null,
+                  "incumbent": null
+                },
+                "families": {
+                  "AllDifferentConstraint": {
+                    "attempts": 14,
+                    "completed": 14,
+                    "failures": 0,
+                    "effective": 3,
+                    "removed": 444,
+                    "seconds": 0.5180195830471348
+                  },
+                  "LinearSumConstraint": {
+                    "attempts": 1353,
+                    "completed": 1352,
+                    "failures": 0,
+                    "effective": 601,
+                    "removed": 896,
+                    "seconds": 0.466682495578425
+                  }
+                },
+                "constraint_family": "LinearSumConstraint",
+                "revisions": 1367
+              },
+              {
+                "event": "revision_start",
+                "elapsed_seconds": 1.7724341249850113,
+                "progress": {
+                  "event": "node",
+                  "nodes": 3,
+                  "failures": 0,
+                  "pruned": 0,
+                  "revisions": 1365,
+                  "depth": 2,
+                  "search_elapsed_seconds": 1.2502859999949578,
+                  "root_objective_bound": null,
+                  "incumbent": null
+                },
+                "families": {
+                  "AllDifferentConstraint": {
+                    "attempts": 16,
+                    "completed": 16,
+                    "failures": 0,
+                    "effective": 4,
+                    "removed": 591,
+                    "seconds": 0.5800132090516854
+                  },
+                  "LinearSumConstraint": {
+                    "attempts": 1650,
+                    "completed": 1649,
+                    "failures": 0,
+                    "effective": 897,
+                    "removed": 1484,
+                    "seconds": 0.564616992516676
+                  }
+                },
+                "constraint_family": "LinearSumConstraint",
+                "revisions": 1666
+              },
+              {
+                "event": "revision_start",
+                "elapsed_seconds": 2.0360883329994977,
+                "progress": {
+                  "event": "node",
+                  "nodes": 3,
+                  "failures": 0,
+                  "pruned": 0,
+                  "revisions": 1365,
+                  "depth": 2,
+                  "search_elapsed_seconds": 1.2502859999949578,
+                  "root_objective_bound": null,
+                  "incumbent": null
+                },
+                "families": {
+                  "AllDifferentConstraint": {
+                    "attempts": 18,
+                    "completed": 18,
+                    "failures": 0,
+                    "effective": 4,
+                    "removed": 591,
+                    "seconds": 0.6536164590797853
+                  },
+                  "LinearSumConstraint": {
+                    "attempts": 1946,
+                    "completed": 1945,
+                    "failures": 0,
+                    "effective": 1189,
+                    "removed": 1776,
+                    "seconds": 0.6632910285552498
+                  }
+                },
+                "constraint_family": "LinearSumConstraint",
+                "revisions": 1964
+              },
+              {
+                "event": "search",
+                "elapsed_seconds": 2.193051957990974,
+                "progress": {
+                  "event": "finished",
+                  "nodes": 3,
+                  "failures": 0,
+                  "pruned": 0,
+                  "revisions": 2168,
+                  "depth": 2,
+                  "search_elapsed_seconds": 2.002603832981549,
+                  "root_objective_bound": null,
+                  "incumbent": null
+                },
+                "families": {
+                  "AllDifferentConstraint": {
+                    "attempts": 20,
+                    "completed": 20,
+                    "failures": 0,
+                    "effective": 4,
+                    "removed": 591,
+                    "seconds": 0.7139387920906302
+                  },
+                  "LinearSumConstraint": {
+                    "attempts": 2148,
+                    "completed": 2148,
+                    "failures": 0,
+                    "effective": 1190,
+                    "removed": 1777,
+                    "seconds": 0.7296611536003184
+                  }
+                }
+              }
+            ],
+            "progress_truncated": false,
+            "result": {
+              "nvalue_encoding": "native",
+              "variables": 450,
+              "constraints": 304,
+              "lowerings": {},
+              "status": "unknown",
+              "termination": "time_limit",
+              "complete": false,
+              "nodes": 3,
+              "failures": 0,
+              "pruned": 0,
+              "revisions": 2168,
+              "objective": null,
+              "objective_bound": null,
+              "incumbent_history": [],
+              "construction_seconds": 0.17512445800821297,
+              "preparation_seconds": 0.015063750004628673,
+              "solve_seconds": 2.0029250839725137,
+              "families": {
+                "AllDifferentConstraint": {
+                  "attempts": 20,
+                  "completed": 20,
+                  "failures": 0,
+                  "effective": 4,
+                  "removed": 591,
+                  "seconds": 0.7139387920906302
+                },
+                "LinearSumConstraint": {
+                  "attempts": 2148,
+                  "completed": 2148,
+                  "failures": 0,
+                  "effective": 1190,
+                  "removed": 1777,
+                  "seconds": 0.7296611536003184
+                }
+              },
+              "root_propagation_seconds": 0.39312908399733715,
+              "propagation_seconds": 1.9958287510380615,
+              "traced_peak_bytes": null,
+              "process_peak_rss_bytes": 54165504,
+              "rss_scope": "whole process high-water mark, including imports",
+              "diagnostic": true,
+              "cpu_profile": true,
+              "allocation": false,
+              "progress_hook_available": true,
+              "runtime_file": "/Users/francoispachet/IdeaProjects/boojum/src/snarky/__init__.py",
+              "flat_output": "=====UNKNOWN=====\n"
+            },
+            "normalized": {
+              "status": "unknown",
+              "solutions": []
+            }
+          }
+        ]
+      }
+    },
+    {
+      "id": "incremental_all_different/all_different_incremental_16",
+      "artifact": "artifacts/incremental_all_different--all_different_incremental_16.fzn.json",
+      "fzn_sha256": "9021e422b50b54b452361e2917d3936a0a171c774442735cf39218df10c3a817",
+      "modes": {
+        "first": [
+          {
+            "command": [
+              "/Users/francoispachet/IdeaProjects/boojum/.venv/bin/python",
+              "/Users/francoispachet/IdeaProjects/boojum/benchmarks/csp_diagnostics.py",
+              "--source",
+              "/Users/francoispachet/IdeaProjects/boojum",
+              "--model",
+              "/Users/francoispachet/IdeaProjects/boojum/benchmarks/results/prune_comparison_2026-09-16/artifacts/incremental_all_different--all_different_incremental_16.fzn.json",
+              "--nvalue",
+              "native",
+              "--diagnostic",
+              "--seconds",
+              "2.0",
+              "--nodes",
+              "200",
+              "--profile",
+              "/Users/francoispachet/IdeaProjects/boojum/benchmarks/results/csp_alldiff_profiles_2026-09-16/incremental_all_different--all_different_incremental_16.prof"
+            ],
+            "seconds": 1.2122760839993134,
+            "returncode": 0,
+            "timed_out": false,
+            "stdout": "{\"nvalue_encoding\": \"native\", \"variables\": 241, \"constraints\": 32, \"lowerings\": {}, \"status\": \"feasible\", \"termination\": \"solution_limit\", \"complete\": false, \"nodes\": 150, \"failures\": 0, \"pruned\": 0, \"revisions\": 2817, \"objective\": null, \"objective_bound\": null, \"incumbent_history\": [], \"construction_seconds\": 0.013217915984569117, \"preparation_seconds\": 0.0012702090025413781, \"solve_seconds\": 1.0679376659973059, \"families\": {\"AllDifferentConstraint\": {\"attempts\": 2817, \"completed\": 2817, \"failures\": 0, \"effective\": 390, \"removed\": 2805, \"seconds\": 0.715617896465119}}, \"root_propagation_seconds\": 0.054787667002528906, \"propagation_seconds\": 0.9793299238954205, \"traced_peak_bytes\": null, \"process_peak_rss_bytes\": 30375936, \"rss_scope\": \"whole process high-water mark, including imports\", \"diagnostic\": true, \"cpu_profile\": true, \"allocation\": false, \"progress_hook_available\": true, \"runtime_file\": \"/Users/francoispachet/IdeaProjects/boojum/src/snarky/__init__.py\", \"flat_output\": \"X_INTRODUCED_0_ = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 2, 16, 1, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 3, 1, 15, 16, 2, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 4, 3, 13, 14, 15, 16, 1, 2, 5, 6, 7, 8, 9, 10, 11, 12, 5, 4, 2, 11, 12, 13, 14, 15, 16, 1, 3, 6, 7, 8, 9, 10, 6, 5, 4, 9, 10, 11, 12, 14, 15, 16, 1, 13, 2, 3, 7, 8, 7, 6, 5, 1, 11, 9, 13, 12, 14, 15, 16, 4, 10, 2, 8, 3, 8, 7, 6, 2, 1, 3, 11, 13, 4, 12, 14, 15, 5, 16, 10, 9, 9, 8, 7, 12, 3, 10, 2, 4, 6, 5, 15, 1, 14, 11, 16, 13, 10, 9, 8, 6, 16, 7, 3, 1, 2, 14, 13, 5, 15, 4, 12, 11, 11, 10, 9, 13, 14, 12, 4, 3, 1, 2, 8, 7, 16, 15, 5, 6, 12, 11, 10, 7, 13, 14, 15, 5, 3, 4, 2, 16, 8, 9, 6, 1, 13, 12, 11, 15, 6, 8, 9, 16, 10, 7, 4, 14, 1, 5, 3, 2, 14, 13, 12, 10, 8, 15, 16, 9, 11, 3, 5, 2, 4, 6, 1, 7, 15, 14, 16, 5, 9, 1, 8, 10, 13, 11, 12, 3, 6, 7, 2, 4, 16, 15, 14, 8, 7, 2, 10, 11, 12, 13, 6, 9, 3, 1, 4, 5];\\n----------\\n\"}\n",
+            "stderr": "{\"event\": \"construction_start\", \"elapsed_seconds\": 4.983300459571183e-05, \"progress\": {}, \"families\": {}}\n{\"event\": \"prepared\", \"elapsed_seconds\": 0.014490165980532765, \"progress\": {}, \"families\": {}, \"variables\": 241, \"constraints\": 32}\n{\"event\": \"search\", \"elapsed_seconds\": 0.015096082992386073, \"progress\": {\"event\": \"start\", \"nodes\": 0, \"failures\": 0, \"pruned\": 0, \"revisions\": 0, \"depth\": 0, \"search_elapsed_seconds\": 0.00041745800990611315, \"root_objective_bound\": null, \"incumbent\": null}, \"families\": {}}\n{\"event\": \"revision_start\", \"elapsed_seconds\": 0.26521320798201486, \"progress\": {\"event\": \"node\", \"nodes\": 19, \"failures\": 0, \"pruned\": 0, \"revisions\": 505, \"depth\": 18, \"search_elapsed_seconds\": 0.24309383300715126, \"root_objective_bound\": null, \"incumbent\": null}, \"families\": {\"AllDifferentConstraint\": {\"attempts\": 520, \"completed\": 519, \"failures\": 0, \"effective\": 68, \"removed\": 856, \"seconds\": 0.1746603328792844}}, \"constraint_family\": \"AllDifferentConstraint\", \"revisions\": 520}\n{\"event\": \"search\", \"elapsed_seconds\": 0.5156494579860009, \"progress\": {\"event\": \"node\", \"nodes\": 48, \"failures\": 0, \"pruned\": 0, \"revisions\": 1163, \"depth\": 47, \"search_elapsed_seconds\": 0.5009750410099514, \"root_objective_bound\": null, \"incumbent\": null}, \"families\": {\"AllDifferentConstraint\": {\"attempts\": 1163, \"completed\": 1163, \"failures\": 0, \"effective\": 127, \"removed\": 1407, \"seconds\": 0.34637376805767417}}}\n{\"event\": \"revision_start\", \"elapsed_seconds\": 0.7657251659838948, \"progress\": {\"event\": \"node\", \"nodes\": 83, \"failures\": 0, \"pruned\": 0, \"revisions\": 1836, \"depth\": 82, \"search_elapsed_seconds\": 0.7476757499971427, \"root_objective_bound\": null, \"incumbent\": null}, \"families\": {\"AllDifferentConstraint\": {\"attempts\": 1847, \"completed\": 1846, \"failures\": 0, \"effective\": 205, \"removed\": 2003, \"seconds\": 0.5176820863271132}}, \"constraint_family\": \"AllDifferentConstraint\", \"revisions\": 1847}\n{\"event\": \"revision_start\", \"elapsed_seconds\": 1.0158445829874836, \"progress\": {\"event\": \"node\", \"nodes\": 133, \"failures\": 0, \"pruned\": 0, \"revisions\": 2603, \"depth\": 132, \"search_elapsed_seconds\": 0.9987920830026269, \"root_objective_bound\": null, \"incumbent\": null}, \"families\": {\"AllDifferentConstraint\": {\"attempts\": 2613, \"completed\": 2612, \"failures\": 0, \"effective\": 327, \"removed\": 2655, \"seconds\": 0.6806766885565594}}, \"constraint_family\": \"AllDifferentConstraint\", \"revisions\": 2613}\n{\"event\": \"search\", \"elapsed_seconds\": 1.0823382499802392, \"progress\": {\"event\": \"finished\", \"nodes\": 150, \"failures\": 0, \"pruned\": 0, \"revisions\": 2817, \"depth\": 149, \"search_elapsed_seconds\": 1.0676612080133054, \"root_objective_bound\": null, \"incumbent\": null}, \"families\": {\"AllDifferentConstraint\": {\"attempts\": 2817, \"completed\": 2817, \"failures\": 0, \"effective\": 390, \"removed\": 2805, \"seconds\": 0.715617896465119}}}\n",
+            "engine": "candidate",
+            "iteration": 0,
+            "progress": [
+              {
+                "event": "construction_start",
+                "elapsed_seconds": 4.983300459571183e-05,
+                "progress": {},
+                "families": {}
+              },
+              {
+                "event": "prepared",
+                "elapsed_seconds": 0.014490165980532765,
+                "progress": {},
+                "families": {},
+                "variables": 241,
+                "constraints": 32
+              },
+              {
+                "event": "search",
+                "elapsed_seconds": 0.015096082992386073,
+                "progress": {
+                  "event": "start",
+                  "nodes": 0,
+                  "failures": 0,
+                  "pruned": 0,
+                  "revisions": 0,
+                  "depth": 0,
+                  "search_elapsed_seconds": 0.00041745800990611315,
+                  "root_objective_bound": null,
+                  "incumbent": null
+                },
+                "families": {}
+              },
+              {
+                "event": "revision_start",
+                "elapsed_seconds": 0.26521320798201486,
+                "progress": {
+                  "event": "node",
+                  "nodes": 19,
+                  "failures": 0,
+                  "pruned": 0,
+                  "revisions": 505,
+                  "depth": 18,
+                  "search_elapsed_seconds": 0.24309383300715126,
+                  "root_objective_bound": null,
+                  "incumbent": null
+                },
+                "families": {
+                  "AllDifferentConstraint": {
+                    "attempts": 520,
+                    "completed": 519,
+                    "failures": 0,
+                    "effective": 68,
+                    "removed": 856,
+                    "seconds": 0.1746603328792844
+                  }
+                },
+                "constraint_family": "AllDifferentConstraint",
+                "revisions": 520
+              },
+              {
+                "event": "search",
+                "elapsed_seconds": 0.5156494579860009,
+                "progress": {
+                  "event": "node",
+                  "nodes": 48,
+                  "failures": 0,
+                  "pruned": 0,
+                  "revisions": 1163,
+                  "depth": 47,
+                  "search_elapsed_seconds": 0.5009750410099514,
+                  "root_objective_bound": null,
+                  "incumbent": null
+                },
+                "families": {
+                  "AllDifferentConstraint": {
+                    "attempts": 1163,
+                    "completed": 1163,
+                    "failures": 0,
+                    "effective": 127,
+                    "removed": 1407,
+                    "seconds": 0.34637376805767417
+                  }
+                }
+              },
+              {
+                "event": "revision_start",
+                "elapsed_seconds": 0.7657251659838948,
+                "progress": {
+                  "event": "node",
+                  "nodes": 83,
+                  "failures": 0,
+                  "pruned": 0,
+                  "revisions": 1836,
+                  "depth": 82,
+                  "search_elapsed_seconds": 0.7476757499971427,
+                  "root_objective_bound": null,
+                  "incumbent": null
+                },
+                "families": {
+                  "AllDifferentConstraint": {
+                    "attempts": 1847,
+                    "completed": 1846,
+                    "failures": 0,
+                    "effective": 205,
+                    "removed": 2003,
+                    "seconds": 0.5176820863271132
+                  }
+                },
+                "constraint_family": "AllDifferentConstraint",
+                "revisions": 1847
+              },
+              {
+                "event": "revision_start",
+                "elapsed_seconds": 1.0158445829874836,
+                "progress": {
+                  "event": "node",
+                  "nodes": 133,
+                  "failures": 0,
+                  "pruned": 0,
+                  "revisions": 2603,
+                  "depth": 132,
+                  "search_elapsed_seconds": 0.9987920830026269,
+                  "root_objective_bound": null,
+                  "incumbent": null
+                },
+                "families": {
+                  "AllDifferentConstraint": {
+                    "attempts": 2613,
+                    "completed": 2612,
+                    "failures": 0,
+                    "effective": 327,
+                    "removed": 2655,
+                    "seconds": 0.6806766885565594
+                  }
+                },
+                "constraint_family": "AllDifferentConstraint",
+                "revisions": 2613
+              },
+              {
+                "event": "search",
+                "elapsed_seconds": 1.0823382499802392,
+                "progress": {
+                  "event": "finished",
+                  "nodes": 150,
+                  "failures": 0,
+                  "pruned": 0,
+                  "revisions": 2817,
+                  "depth": 149,
+                  "search_elapsed_seconds": 1.0676612080133054,
+                  "root_objective_bound": null,
+                  "incumbent": null
+                },
+                "families": {
+                  "AllDifferentConstraint": {
+                    "attempts": 2817,
+                    "completed": 2817,
+                    "failures": 0,
+                    "effective": 390,
+                    "removed": 2805,
+                    "seconds": 0.715617896465119
+                  }
+                }
+              }
+            ],
+            "progress_truncated": false,
+            "result": {
+              "nvalue_encoding": "native",
+              "variables": 241,
+              "constraints": 32,
+              "lowerings": {},
+              "status": "feasible",
+              "termination": "solution_limit",
+              "complete": false,
+              "nodes": 150,
+              "failures": 0,
+              "pruned": 0,
+              "revisions": 2817,
+              "objective": null,
+              "objective_bound": null,
+              "incumbent_history": [],
+              "construction_seconds": 0.013217915984569117,
+              "preparation_seconds": 0.0012702090025413781,
+              "solve_seconds": 1.0679376659973059,
+              "families": {
+                "AllDifferentConstraint": {
+                  "attempts": 2817,
+                  "completed": 2817,
+                  "failures": 0,
+                  "effective": 390,
+                  "removed": 2805,
+                  "seconds": 0.715617896465119
+                }
+              },
+              "root_propagation_seconds": 0.054787667002528906,
+              "propagation_seconds": 0.9793299238954205,
+              "traced_peak_bytes": null,
+              "process_peak_rss_bytes": 30375936,
+              "rss_scope": "whole process high-water mark, including imports",
+              "diagnostic": true,
+              "cpu_profile": true,
+              "allocation": false,
+              "progress_hook_available": true,
+              "runtime_file": "/Users/francoispachet/IdeaProjects/boojum/src/snarky/__init__.py",
+              "flat_output": "X_INTRODUCED_0_ = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 2, 16, 1, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 3, 1, 15, 16, 2, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 4, 3, 13, 14, 15, 16, 1, 2, 5, 6, 7, 8, 9, 10, 11, 12, 5, 4, 2, 11, 12, 13, 14, 15, 16, 1, 3, 6, 7, 8, 9, 10, 6, 5, 4, 9, 10, 11, 12, 14, 15, 16, 1, 13, 2, 3, 7, 8, 7, 6, 5, 1, 11, 9, 13, 12, 14, 15, 16, 4, 10, 2, 8, 3, 8, 7, 6, 2, 1, 3, 11, 13, 4, 12, 14, 15, 5, 16, 10, 9, 9, 8, 7, 12, 3, 10, 2, 4, 6, 5, 15, 1, 14, 11, 16, 13, 10, 9, 8, 6, 16, 7, 3, 1, 2, 14, 13, 5, 15, 4, 12, 11, 11, 10, 9, 13, 14, 12, 4, 3, 1, 2, 8, 7, 16, 15, 5, 6, 12, 11, 10, 7, 13, 14, 15, 5, 3, 4, 2, 16, 8, 9, 6, 1, 13, 12, 11, 15, 6, 8, 9, 16, 10, 7, 4, 14, 1, 5, 3, 2, 14, 13, 12, 10, 8, 15, 16, 9, 11, 3, 5, 2, 4, 6, 1, 7, 15, 14, 16, 5, 9, 1, 8, 10, 13, 11, 12, 3, 6, 7, 2, 4, 16, 15, 14, 8, 7, 2, 10, 11, 12, 13, 6, 9, 3, 1, 4, 5];\n----------\n"
+            },
+            "normalized": {
+              "status": "feasible",
+              "solutions": [
+                "{\"square\":[[1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16],[2,16,1,3,4,5,6,7,8,9,10,11,12,13,14,15],[3,1,15,16,2,4,5,6,7,8,9,10,11,12,13,14],[4,3,13,14,15,16,1,2,5,6,7,8,9,10,11,12],[5,4,2,11,12,13,14,15,16,1,3,6,7,8,9,10],[6,5,4,9,10,11,12,14,15,16,1,13,2,3,7,8],[7,6,5,1,11,9,13,12,14,15,16,4,10,2,8,3],[8,7,6,2,1,3,11,13,4,12,14,15,5,16,10,9],[9,8,7,12,3,10,2,4,6,5,15,1,14,11,16,13],[10,9,8,6,16,7,3,1,2,14,13,5,15,4,12,11],[11,10,9,13,14,12,4,3,1,2,8,7,16,15,5,6],[12,11,10,7,13,14,15,5,3,4,2,16,8,9,6,1],[13,12,11,15,6,8,9,16,10,7,4,14,1,5,3,2],[14,13,12,10,8,15,16,9,11,3,5,2,4,6,1,7],[15,14,16,5,9,1,8,10,13,11,12,3,6,7,2,4],[16,15,14,8,7,2,10,11,12,13,6,9,3,1,4,5]]}"
+              ]
+            }
+          }
+        ]
+      }
+    }
+  ],
+  "validation_cache": [
+    {
+      "command": [
+        "/Applications/MiniZincIDE.app/Contents/Resources/minizinc",
+        "--solver",
+        "org.gecode.gecode",
+        "-p",
+        "1",
+        "--output-mode",
+        "json",
+        "--cmdline-json-data",
+        "{\"square\":[[1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16],[2,16,1,3,4,5,6,7,8,9,10,11,12,13,14,15],[3,1,15,16,2,4,5,6,7,8,9,10,11,12,13,14],[4,3,13,14,15,16,1,2,5,6,7,8,9,10,11,12],[5,4,2,11,12,13,14,15,16,1,3,6,7,8,9,10],[6,5,4,9,10,11,12,14,15,16,1,13,2,3,7,8],[7,6,5,1,11,9,13,12,14,15,16,4,10,2,8,3],[8,7,6,2,1,3,11,13,4,12,14,15,5,16,10,9],[9,8,7,12,3,10,2,4,6,5,15,1,14,11,16,13],[10,9,8,6,16,7,3,1,2,14,13,5,15,4,12,11],[11,10,9,13,14,12,4,3,1,2,8,7,16,15,5,6],[12,11,10,7,13,14,15,5,3,4,2,16,8,9,6,1],[13,12,11,15,6,8,9,16,10,7,4,14,1,5,3,2],[14,13,12,10,8,15,16,9,11,3,5,2,4,6,1,7],[15,14,16,5,9,1,8,10,13,11,12,3,6,7,2,4],[16,15,14,8,7,2,10,11,12,13,6,9,3,1,4,5]]}",
+        "/Users/francoispachet/IdeaProjects/boojum/benchmarks/data/prune_d82c64c/benchmarks/models/all_different_incremental.mzn",
+        "/Users/francoispachet/IdeaProjects/boojum/benchmarks/data/prune_d82c64c/benchmarks/data/all_different_incremental_16.dzn"
+      ],
+      "seconds": 0.12751137500163168,
+      "returncode": 0,
+      "timed_out": false,
+      "stdout": "{\n  \"square\" : [[1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16], [2, 16, 1, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15], [3, 1, 15, 16, 2, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14], [4, 3, 13, 14, 15, 16, 1, 2, 5, 6, 7, 8, 9, 10, 11, 12], [5, 4, 2, 11, 12, 13, 14, 15, 16, 1, 3, 6, 7, 8, 9, 10], [6, 5, 4, 9, 10, 11, 12, 14, 15, 16, 1, 13, 2, 3, 7, 8], [7, 6, 5, 1, 11, 9, 13, 12, 14, 15, 16, 4, 10, 2, 8, 3], [8, 7, 6, 2, 1, 3, 11, 13, 4, 12, 14, 15, 5, 16, 10, 9], [9, 8, 7, 12, 3, 10, 2, 4, 6, 5, 15, 1, 14, 11, 16, 13], [10, 9, 8, 6, 16, 7, 3, 1, 2, 14, 13, 5, 15, 4, 12, 11], [11, 10, 9, 13, 14, 12, 4, 3, 1, 2, 8, 7, 16, 15, 5, 6], [12, 11, 10, 7, 13, 14, 15, 5, 3, 4, 2, 16, 8, 9, 6, 1], [13, 12, 11, 15, 6, 8, 9, 16, 10, 7, 4, 14, 1, 5, 3, 2], [14, 13, 12, 10, 8, 15, 16, 9, 11, 3, 5, 2, 4, 6, 1, 7], [15, 14, 16, 5, 9, 1, 8, 10, 13, 11, 12, 3, 6, 7, 2, 4], [16, 15, 14, 8, 7, 2, 10, 11, 12, 13, 6, 9, 3, 1, 4, 5]]\n}\n----------\n",
+      "stderr": "",
+      "normalized": {
+        "status": "feasible",
+        "solutions": [
+          "{\"square\":[[1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16],[2,16,1,3,4,5,6,7,8,9,10,11,12,13,14,15],[3,1,15,16,2,4,5,6,7,8,9,10,11,12,13,14],[4,3,13,14,15,16,1,2,5,6,7,8,9,10,11,12],[5,4,2,11,12,13,14,15,16,1,3,6,7,8,9,10],[6,5,4,9,10,11,12,14,15,16,1,13,2,3,7,8],[7,6,5,1,11,9,13,12,14,15,16,4,10,2,8,3],[8,7,6,2,1,3,11,13,4,12,14,15,5,16,10,9],[9,8,7,12,3,10,2,4,6,5,15,1,14,11,16,13],[10,9,8,6,16,7,3,1,2,14,13,5,15,4,12,11],[11,10,9,13,14,12,4,3,1,2,8,7,16,15,5,6],[12,11,10,7,13,14,15,5,3,4,2,16,8,9,6,1],[13,12,11,15,6,8,9,16,10,7,4,14,1,5,3,2],[14,13,12,10,8,15,16,9,11,3,5,2,4,6,1,7],[15,14,16,5,9,1,8,10,13,11,12,3,6,7,2,4],[16,15,14,8,7,2,10,11,12,13,6,9,3,1,4,5]]}"
+        ]
+      }
+    }
+  ],
+  "finished_at": "2026-09-16T21:00:46.536795+00:00"
+}

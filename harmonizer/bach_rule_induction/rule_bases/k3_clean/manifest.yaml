@@ -1,0 +1,32 @@
+schema_version: 1
+profile_id: S-K3-LEARNED
+status: V5_16_PROBABILISTIC_CONFIRMED_FACTOR_EXPORT
+inherits: []
+musical_rule_files: []
+initial_rule_ids: []
+locality:
+  radius: 1
+  blocks: 3
+  target: one_masked_note
+  generation: gibbs
+forbidden_dependencies:
+  - ../historical/manifest.yaml
+  - ../learned/manifest.yaml
+  - ../hybrid/manifest.yaml
+learned_model:
+  path: ../../experiments/v5_k3_clean/results/v5_16_interpolated_generative_model.json
+  required_for_generation: true
+factor_catalogue:
+  path: v5_16_factors.yaml
+  source_weight_terms: 44
+  canonical_factors_after_merge: 41
+  shared_potentials_counted_once: true
+  compiled_to_choice_runtime: true
+  choice_runtime: ../../experiments/v5_k3_clean/snarky_choice_bridge.py
+  compiled_to_rule_dsl: false
+confirmation:
+  report: ../../experiments/v5_k3_clean/results/V5_16_MULTISEED_CONFIRMATION_AUDIT.md
+  pieces: 10
+  seeds_per_piece: 3
+  stable_audited_residuals: 0
+  test_split_loaded: false

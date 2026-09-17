@@ -16,6 +16,7 @@ also blocked wherever the table says `review required`.
 | `docs/6-SNARK2-4p.pdf` | Bernard Espinasse, *Programmation Déclarative: SNARK 2*, 2004, 13-page four-slides-per-page handout | No redistribution terms recorded | Internal reference only; exclude pending author or publisher permission |
 | `docs/Cavarretta-X1988-SpinozaExpertSystem.pdf` | Fabrice Cavarretta, *SpinoLog*, École Polytechnique X85, supervised by Michel Gondran, 49-page scan | No redistribution terms recorded | Internal Spinoza reference only; exclude pending permission |
 | `docs/Gondran.ppt` | Michel Gondran, *Modélisation de l'Éthique de Spinoza dans le langage Snark de Jean-Louis Laurière*, 2006 presentation | No redistribution terms recorded | Internal Spinoza reference only; exclude pending permission |
+| `docs/RC12628-Ebcioglu-CHORAL.pdf` | Kemal Ebcioğlu, *Report on the CHORAL Project: An Expert System for Harmonizing Four-Part Chorales*, IBM Research Report RC 12628, 20 March 1987, 328 pages; SHA-256 `1e15961a4855bb8b6610fe5fc1c5db6bfdddf54f6129f36cee5f5a7d26643d8c`; source `global-supercomputing.com/people/kemal.ebcioglu/pdf/RC12628.pdf` | The scan contains an IBM limited-distribution notice anticipating transfer of copyright; no current redistribution permission has been established despite public hosting on the author's site | Internal harmony research reference only; exclude from Python distributions and tagged public releases pending rights review |
 | `docs/Satisfaction_de_contraintes_et_programmation_par_o.pdf` | Pierre Roy, doctoral thesis, *Satisfaction de contraintes et programmation par objets*, Université Paris 6, defended 21 December 1998, 232 pages | No redistribution terms or authoritative repository URL recorded | Internal CSP/harmony reference only; exclude pending repository or author rights verification |
 
 `docs/Shal.doc` is a local, ignored document and is not tracked or
@@ -40,6 +41,39 @@ The imported selections are reference inputs, not native Snarky tests and not
 claims of conformance to the source systems. `scripts/fetch_test_rulebases.sh`
 reproduces the selection and refuses to overwrite an existing corpus.
 
+## DeepBach local reference
+
+DeepBach is maintained as the autonomous sibling project
+`../deepbach-reference/`, outside the Boojum repository. It contains the
+complete upstream clone, unmodified snapshots of tag `v2.0`, the 2018 Keras
+branch tip and the later PyTorch port, plus a separately tested compatibility
+runtime.
+
+The source declares the MIT license. The separately downloaded model and
+dataset artifacts contain no sufficiently explicit standalone redistribution
+notice, so they remain in the sibling project's ignored `resources/cache/`
+directory. They are excluded from Boojum distributions and public releases
+pending a rights and provenance review. Exact revisions, URLs, sizes and
+hashes are recorded by that project's `UPSTREAM.json`; Boojum's technical
+inventory remains in
+[`harmonizer/bach_rule_induction/sources/DEEPBACH.md`](harmonizer/bach_rule_induction/sources/DEEPBACH.md).
+
+## CLAIRE4 cross-language benchmark
+
+`benchmarks/claire_n_queens.cl` and
+`benchmarks/claire_talarian_filter.cl` are modified derivatives of Yves
+Caseau's `test/toys/queens.cl` and `test/rules/filter.cl`, respectively, from
+[`ycaseau/CLAIRE4`](https://github.com/ycaseau/CLAIRE4) at revision
+`25b14968e1eef80269d56af418eda7d2ccd88cbf`. The upstream repository records
+the Apache License 2.0. The local N-Queens file changes the board-size
+handling, singleton propagation, assigned-conflict validation,
+instrumentation, and output format. The local filter file makes the frame
+count runtime-configurable, separates object preparation from inference, and
+adds validation counters and machine-readable output. Both are retained only
+as benchmark source, excluded from the Python wheel and source distribution,
+and must not enter a tagged repository release until the upstream Apache-2.0
+license text and required notices are bundled with them.
+
 ## Spinoza text
 
 `spinoza/sources/ethique_III_appuhn_1913.txt` and
@@ -53,6 +87,20 @@ corpus material, are excluded from Python distributions, and require a
 documented rights decision before a tagged corpus release.
 
 ## Generated and first-party research artifacts
+
+### Omnibook Blues research fixture
+
+`benchmarks/data/omnibook_blues_v1` and `benchmarks/data/omnibook_blues_v2` derive from the user's LSDB reference set.
+Its [audit and attribution](benchmarks/data/omnibook_blues_v2/README.md) record the
+source checksum, individual XML checksums, providers, publication citation and
+modifications. The accompanying [licence notice](benchmarks/data/omnibook_blues_v1/LICENCE.txt)
+specifies [CC BY-NC-SA 2.0 UK](https://creativecommons.org/licenses/by-nc-sa/2.0/uk/).
+Identity with all historical 2011 training sequences is not established. The user
+authorized use and repository push. Keep this attributed research fixture outside
+Python wheels and source distributions. Generated Blues benchmark source archives
+inherit the dataset notice when they include the fixture.
+
+### Other artifacts
 
 - `harmonizer/generated/` contains reproducible MIDI and MusicXML outputs.
   They are ignored by Git and regenerated with
@@ -75,3 +123,27 @@ Before adding any external artifact, record:
    distribution, or only a private reference collection.
 
 Unknown is a valid audit result, but never an implicit permission.
+
+## Pachet–Roy melody research fixture
+
+[`benchmarks/data/di_meola_v1/`](benchmarks/data/di_meola_v1/README.md) contains a
+numeric transcription of Figure 1, Figures 2–3, Table 6 and the four generated
+melodies from Pachet and Roy, *Markov constraints: steerable generation of Markov
+sequences*, Constraints 16, 148–172 (2011), DOI `10.1007/s10601-010-9101-4`.
+The article states Creative Commons Attribution Noncommercial on p. 170; the
+local README preserves attribution and describes the transcription. No external
+book, recording or paper PDF is included. Retain as attributed noncommercial
+research material; exclude from Python source/wheel distributions.
+
+## Prune CSP benchmark models
+
+[`benchmarks/data/prune_d82c64c/`](benchmarks/data/prune_d82c64c/README.md)
+contains models, parameters, manifests, MiniZinc declarations and Cargo.lock from
+Pierre Roy's [Prune](https://github.com/ynosound-dev/prune), revision
+`d82c64c29e823513845e56a54e22e21606c0698c` (copyright 2026 Pierre Roy).
+Upstream declares **MIT OR Apache-2.0**; both complete notices are bundled.
+The unmodified imported files have SHA-256 hashes in `PROVENANCE.json`.
+Retain these notices when redistributing the benchmark fixtures. The fixtures
+are excluded from Snarky's Python distributions by the existing package whitelist.
+The benchmark runner records its temporary MiniZinc syntax compatibility patch
+separately; no upstream solver code is copied into the Snarky runtime.

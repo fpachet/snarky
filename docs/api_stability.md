@@ -16,6 +16,11 @@ from snarky import *
 Stable names remain available from the package root and follow the
 compatibility policy in [versioning.md](versioning.md).
 
+The existing surface and its documented semantics are frozen as the
+[Snarky Core 0.1 baseline](core_0_1_baseline.md). This is a compatibility
+baseline identified by a repository commit, not a public release or
+redistribution authorization.
+
 ## Advanced API
 
 Advanced names expose search policies, propagation state, low-level
@@ -42,16 +47,44 @@ Compatibility can depend on the corresponding optional integration.
 ## Experimental API
 
 Experimental names represent active research, including adaptive
-instantiation and specialized constraint propagation. Their signatures and
-behavior may evolve between minor releases while Snarky is pre-1.0. They
-should be imported from their defining modules.
+instantiation, selected search policies, and specialized propagation
+strategies. Their signatures and behavior may evolve between minor releases
+while Snarky is pre-1.0. They should be imported from their defining modules.
 
-The companion `csp_solver` package is currently experimental. Its public
-constraint models—including `AllDifferentConstraint`, `SumConstraint`,
-`LinearSumConstraint`, `BinaryComparisonConstraint`, `ElementConstraint`,
-`CountConstraint`, `GlobalCardinalityConstraint`, `TableConstraint`, and
+The persistent finite-domain constraints themselves are not experimental in
+the sense of being unverified: their propagation semantics are documented and
+covered by unit, differential-oracle, rollback, and backtracking tests.
+
+The public API of the companion `csp_solver` package is nevertheless
+provisional before 1.0. Its constraint models—including
+`AllDifferentConstraint`, `SumConstraint`, `LinearSumConstraint`,
+`BinaryComparisonConstraint`, `ElementConstraint`, `CountConstraint`,
+`GlobalCardinalityConstraint`, `TableConstraint`, and
 `LexLessEqualConstraint`—are exported from `csp_solver`, but are not part of
-Snarky's stable core API.
+Snarky's stable core API. Their import paths and signatures may therefore
+evolve between minor releases.
+
+Probabilistic constraint learning, learned factor parameters, conditional MLE,
+partition functions, exact probabilistic sampling, and regular belief
+propagation are also outside the frozen Core. They must remain in explicit
+experimental modules or declarations until their semantics and conformance
+suite are accepted. In particular, they may not reinterpret the stable
+`CHOICE` weight as a globally normalized probability.
+
+The implemented `snarky.finite` namespace is the opt-in, pre-1.0 declarative
+surface. Its [model contract](finite_model_contract.md) and
+[textual language](finite_language.md) specify the supported fragment; its public
+imports are listed in `snarky.finite.__all__`, separately from the package-root
+categories above. `FiniteModel`, objectives, measures and queries share one
+validated meaning across the supported backends. Domain, kernel, closure and
+compiled-bound modules are implementation details; `SearchState` is the advanced
+controller extension protocol. Callback constraints must obey their purity contract.
+
+This is an additive implementation, not a replacement of the frozen operational
+Core or a new public release. Legacy CSP imports remain compatibility aliases
+for the extracted constraint classes. Existing sessions and application search
+remain available. Promotion into the frozen top-level API requires a separate
+versioning decision; performance validation does not imply that decision.
 
 ## Top-level transition
 

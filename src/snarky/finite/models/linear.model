@@ -1,0 +1,14 @@
+MODEL signed_costs
+    VARIABLE x DOMAIN SEQ[1 2]
+    VARIABLE y DOMAIN SEQ[1 2]
+    CONSTRAINT different
+        KIND ALL_DIFFERENT
+        SCOPE SEQ[x y]
+    END_CONSTRAINT
+    OBJECTIVE LINEAR
+        TERMS SEQ[SEQ[1 x] SEQ[-2 y]]
+        OFFSET 0
+    END_OBJECTIVE
+    QUERY optimum MINIMIZE
+    END_QUERY
+END_MODEL

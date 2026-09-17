@@ -1,0 +1,103 @@
+schema_version: 1
+id: R-LEARNED-V18-009
+title: 'basse : répète par une nouvelle attaque la note précédente'
+lifecycle: SUPPORTED_PRETEST
+status: AVOID
+statement: 'basse : répète par une nouvelle attaque la note précédente'
+scope:
+  voices: SATB
+  window:
+  - previous
+  - current
+  - following
+  attack_hold_semantics: true
+  corpus: music21-3.1.0-deepbach-352
+  split: variant-safe-251-50-51
+normalized_feature:
+  complexity: 1
+  key: attacked_repeat_from_previous:3:-:-:-
+  kind: attacked_repeat_from_previous
+  label: attacked_repeat_from_previous(v3)
+  other_voice: null
+  second_value: null
+  target_voice: 3
+  value: null
+conclusion:
+  kind: avoid
+  log_weight: -1.927338029092405
+  absolute_prohibition: false
+selection:
+  complete_reinductions: 5
+  selected_in: 5
+  unanimous: true
+  calls_other_rules: false
+statistics:
+  train:
+    pieces: 251
+    decisions: 53604
+    testable_opportunities: 18029
+    piece_support: 251
+    observed_mean_on_testable: 0.11126518387043097
+    model_expected_mean_on_testable: 0.11816781843766588
+    postfit_residual_gradient: -0.0023216103017065443
+    postfit_residual_z: -3.831415340028673
+  validation:
+    pieces: 50
+    decisions: 10414
+    testable_opportunities: 3552
+    piece_support: 50
+    observed_mean_on_testable: 0.09262387387387387
+    model_expected_mean_on_testable: 0.10954275712830257
+    postfit_residual_gradient: -0.005770681133064206
+    postfit_residual_z: -4.275819194011757
+  test:
+    opened: false
+provenance:
+  model: v18_unanimous_full_model.json
+  structure_audit: v18_structure_stability.json
+  origin: learned_from_bach_corpus
+  human_authored: false
+  historical_rules_loaded: false
+snarky_factor:
+  file: ../../factor_bases/k3_v6_induced/v18_unanimous_full.factors
+  factor_group: k3_v18_unanimous
+  factor_id: F-K3-V18-CORE-009
+bach_examples:
+- piece: bach/bwv308
+  decision_ordinal: 8
+  voice: bass
+  chosen_midi: 50
+  chosen_activation_count: 0
+  maximum_alternative_activation_count: 1
+- piece: bach/bwv265
+  decision_ordinal: 2
+  voice: bass
+  chosen_midi: 52
+  chosen_activation_count: 0
+  maximum_alternative_activation_count: 1
+- piece: bach/bwv55.5
+  decision_ordinal: 0
+  voice: bass
+  chosen_midi: 57
+  chosen_activation_count: 0
+  maximum_alternative_activation_count: 1
+validation_exceptions:
+- piece: bach/bwv133.6
+  decision_ordinal: 22
+  voice: bass
+  chosen_midi: 50
+  chosen_activation_count: 2
+  maximum_alternative_activation_count: 2
+- piece: bach/bwv197.10
+  decision_ordinal: 28
+  voice: bass
+  chosen_midi: 54
+  chosen_activation_count: 2
+  maximum_alternative_activation_count: 2
+- piece: bach/bwv272
+  decision_ordinal: 97
+  voice: bass
+  chosen_midi: 57
+  chosen_activation_count: 2
+  maximum_alternative_activation_count: 2
+deepbach_counterexamples: []

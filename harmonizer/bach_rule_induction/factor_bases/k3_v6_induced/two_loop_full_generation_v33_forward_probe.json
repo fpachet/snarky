@@ -1,0 +1,3362 @@
+{
+  "experiment": {
+    "id": "K3-TWO-LOOP-FULL-SNARKY-GENERATION-1",
+    "status": "FULL_GENERATION",
+    "gibbs_used_for_generation": false,
+    "lower_voice_source_used_for_search": false,
+    "test_loaded": false
+  },
+  "fragment": {
+    "piece_id": "bach/bwv108.6",
+    "blocks": 98,
+    "end_offset": 52.0,
+    "generated_segments": 229,
+    "scored_segments": 223,
+    "soprano_imposed": true,
+    "rhythm_imposed": true
+  },
+  "model": {
+    "source": "/Users/francoispachet/IdeaProjects/boojum/harmonizer/bach_rule_induction/factor_bases/k3_v6_induced/v29_strong_succession_full_model.json",
+    "factor_count": 137,
+    "weight_estimator": "joint_conditional_mle",
+    "constraint_count": 25,
+    "constraint_status": "STRICT_GENERATIVE_ABLATION_NOT_PROMOTED",
+    "constraint_mode": "v33_strict_strong_unlicensed",
+    "voice_ranges": {
+      "1": [
+        55,
+        74
+      ],
+      "2": [
+        50,
+        68
+      ],
+      "3": [
+        36,
+        64
+      ]
+    },
+    "voice_range_status": "EXACT_TRAIN_SUPPORT",
+    "threshold": -1.3672136364916092,
+    "threshold_policy": "strict_minimum",
+    "sequence_factor": {
+      "ids": [
+        "F-K3-V32-CYCLE-INNER",
+        "F-K3-V32-CYCLE-BASS"
+      ],
+      "source": "/Users/francoispachet/IdeaProjects/boojum/harmonizer/bach_rule_induction/factor_bases/k3_v6_induced/v32_attack_cycle_factor_model.json",
+      "voice_log_weights": [
+        null,
+        -1.6994526035525033,
+        -1.6994526035525033,
+        -2.4203681286504293
+      ],
+      "activation": "continued_attacked_two_note_cycle"
+    }
+  },
+  "search": {
+    "status": "solved",
+    "explored_nodes": 298,
+    "failed_branches": 66,
+    "backtracks": 66,
+    "score_rejections": 0,
+    "hard_constraint_rejections": 0,
+    "provider_calls": 297,
+    "prefiltered_alternatives": 71,
+    "forward_check_rejections": 1481,
+    "empty_domains": 66,
+    "component_cache_entries": 536,
+    "hard_prefilter_cache_entries": 41153,
+    "rejection_examples": []
+  },
+  "solution": {
+    "blocks": [
+      [
+        71,
+        65,
+        65,
+        45
+      ],
+      [
+        71,
+        66,
+        63,
+        47
+      ],
+      [
+        71,
+        66,
+        63,
+        45
+      ],
+      [
+        71,
+        66,
+        62,
+        46
+      ],
+      [
+        71,
+        66,
+        62,
+        47
+      ],
+      [
+        78,
+        69,
+        62,
+        49
+      ],
+      [
+        78,
+        66,
+        62,
+        47
+      ],
+      [
+        76,
+        66,
+        61,
+        46
+      ],
+      [
+        76,
+        66,
+        61,
+        46
+      ],
+      [
+        78,
+        66,
+        62,
+        47
+      ],
+      [
+        76,
+        66,
+        62,
+        49
+      ],
+      [
+        74,
+        66,
+        62,
+        47
+      ],
+      [
+        74,
+        66,
+        62,
+        46
+      ],
+      [
+        73,
+        66,
+        64,
+        46
+      ],
+      [
+        71,
+        66,
+        62,
+        47
+      ],
+      [
+        73,
+        67,
+        64,
+        46
+      ],
+      [
+        74,
+        66,
+        66,
+        45
+      ],
+      [
+        74,
+        66,
+        66,
+        46
+      ],
+      [
+        73,
+        66,
+        64,
+        46
+      ],
+      [
+        73,
+        66,
+        64,
+        46
+      ],
+      [
+        74,
+        66,
+        66,
+        47
+      ],
+      [
+        76,
+        66,
+        64,
+        49
+      ],
+      [
+        78,
+        66,
+        62,
+        47
+      ],
+      [
+        78,
+        66,
+        62,
+        45
+      ],
+      [
+        76,
+        67,
+        62,
+        47
+      ],
+      [
+        76,
+        66,
+        62,
+        49
+      ],
+      [
+        74,
+        66,
+        62,
+        47
+      ],
+      [
+        74,
+        66,
+        62,
+        45
+      ],
+      [
+        73,
+        67,
+        64,
+        46
+      ],
+      [
+        74,
+        69,
+        62,
+        45
+      ],
+      [
+        73,
+        69,
+        64,
+        45
+      ],
+      [
+        71,
+        66,
+        63,
+        47
+      ],
+      [
+        71,
+        66,
+        62,
+        49
+      ],
+      [
+        71,
+        66,
+        62,
+        47
+      ],
+      [
+        71,
+        66,
+        62,
+        46
+      ],
+      [
+        76,
+        68,
+        62,
+        47
+      ],
+      [
+        76,
+        68,
+        62,
+        49
+      ],
+      [
+        76,
+        68,
+        64,
+        48
+      ],
+      [
+        74,
+        68,
+        64,
+        47
+      ],
+      [
+        73,
+        66,
+        66,
+        45
+      ],
+      [
+        74,
+        66,
+        66,
+        47
+      ],
+      [
+        76,
+        66,
+        66,
+        47
+      ],
+      [
+        74,
+        67,
+        62,
+        46
+      ],
+      [
+        73,
+        67,
+        62,
+        47
+      ],
+      [
+        71,
+        67,
+        64,
+        49
+      ],
+      [
+        71,
+        67,
+        64,
+        47
+      ],
+      [
+        71,
+        66,
+        62,
+        45
+      ],
+      [
+        71,
+        66,
+        62,
+        45
+      ],
+      [
+        69,
+        66,
+        62,
+        45
+      ],
+      [
+        69,
+        66,
+        62,
+        45
+      ],
+      [
+        69,
+        66,
+        62,
+        45
+      ],
+      [
+        74,
+        66,
+        62,
+        47
+      ],
+      [
+        74,
+        66,
+        62,
+        46
+      ],
+      [
+        73,
+        66,
+        64,
+        46
+      ],
+      [
+        73,
+        66,
+        64,
+        46
+      ],
+      [
+        74,
+        66,
+        66,
+        47
+      ],
+      [
+        76,
+        66,
+        64,
+        49
+      ],
+      [
+        78,
+        66,
+        62,
+        47
+      ],
+      [
+        78,
+        66,
+        62,
+        46
+      ],
+      [
+        76,
+        67,
+        62,
+        47
+      ],
+      [
+        76,
+        66,
+        62,
+        49
+      ],
+      [
+        74,
+        66,
+        62,
+        47
+      ],
+      [
+        74,
+        66,
+        62,
+        45
+      ],
+      [
+        73,
+        67,
+        64,
+        46
+      ],
+      [
+        71,
+        67,
+        62,
+        47
+      ],
+      [
+        73,
+        67,
+        64,
+        46
+      ],
+      [
+        74,
+        69,
+        66,
+        45
+      ],
+      [
+        74,
+        69,
+        64,
+        45
+      ],
+      [
+        73,
+        67,
+        64,
+        46
+      ],
+      [
+        73,
+        67,
+        64,
+        45
+      ],
+      [
+        74,
+        66,
+        62,
+        45
+      ],
+      [
+        76,
+        67,
+        62,
+        47
+      ],
+      [
+        78,
+        66,
+        62,
+        49
+      ],
+      [
+        78,
+        66,
+        62,
+        47
+      ],
+      [
+        76,
+        66,
+        61,
+        46
+      ],
+      [
+        76,
+        66,
+        62,
+        47
+      ],
+      [
+        74,
+        66,
+        62,
+        45
+      ],
+      [
+        74,
+        66,
+        62,
+        45
+      ],
+      [
+        73,
+        67,
+        64,
+        46
+      ],
+      [
+        78,
+        66,
+        62,
+        45
+      ],
+      [
+        78,
+        66,
+        62,
+        45
+      ],
+      [
+        78,
+        66,
+        62,
+        47
+      ],
+      [
+        78,
+        66,
+        62,
+        46
+      ],
+      [
+        78,
+        66,
+        62,
+        47
+      ],
+      [
+        78,
+        66,
+        62,
+        45
+      ],
+      [
+        76,
+        67,
+        59,
+        47
+      ],
+      [
+        76,
+        67,
+        59,
+        49
+      ],
+      [
+        76,
+        67,
+        59,
+        50
+      ],
+      [
+        74,
+        67,
+        59,
+        43
+      ],
+      [
+        73,
+        67,
+        64,
+        45
+      ],
+      [
+        73,
+        67,
+        64,
+        46
+      ],
+      [
+        74,
+        66,
+        66,
+        47
+      ],
+      [
+        76,
+        67,
+        64,
+        49
+      ],
+      [
+        73,
+        67,
+        64,
+        46
+      ],
+      [
+        73,
+        67,
+        64,
+        45
+      ],
+      [
+        73,
+        66,
+        66,
+        46
+      ],
+      [
+        73,
+        66,
+        66,
+        47
+      ],
+      [
+        71,
+        65,
+        50,
+        47
+      ]
+    ],
+    "score": {
+      "total": -173.72302129267766,
+      "mean": -0.7790270013124558,
+      "contributions": [
+        {
+          "start": 1,
+          "end": 2,
+          "voice": 3,
+          "log_probability": -0.02344965130413137
+        },
+        {
+          "start": 1,
+          "end": 3,
+          "voice": 2,
+          "log_probability": -0.4675901862293054
+        },
+        {
+          "start": 1,
+          "end": 3,
+          "voice": 1,
+          "log_probability": -0.010596588878471131
+        },
+        {
+          "start": 2,
+          "end": 3,
+          "voice": 3,
+          "log_probability": -0.9623138642473473
+        },
+        {
+          "start": 3,
+          "end": 4,
+          "voice": 3,
+          "log_probability": -1.8290605322014257
+        },
+        {
+          "start": 3,
+          "end": 5,
+          "voice": 2,
+          "log_probability": -0.2537506133744603
+        },
+        {
+          "start": 3,
+          "end": 5,
+          "voice": 1,
+          "log_probability": -0.44995543010751093
+        },
+        {
+          "start": 4,
+          "end": 5,
+          "voice": 3,
+          "log_probability": -0.037200499608369964
+        },
+        {
+          "start": 5,
+          "end": 6,
+          "voice": 3,
+          "log_probability": -1.1671739199661222
+        },
+        {
+          "start": 5,
+          "end": 7,
+          "voice": 2,
+          "log_probability": -0.1630148318042736
+        },
+        {
+          "start": 5,
+          "end": 6,
+          "voice": 1,
+          "log_probability": -3.82868264295018
+        },
+        {
+          "start": 6,
+          "end": 7,
+          "voice": 3,
+          "log_probability": -0.021687841360755078
+        },
+        {
+          "start": 6,
+          "end": 7,
+          "voice": 1,
+          "log_probability": -0.8305091581034644
+        },
+        {
+          "start": 7,
+          "end": 8,
+          "voice": 3,
+          "log_probability": -0.4954812735525068
+        },
+        {
+          "start": 7,
+          "end": 9,
+          "voice": 2,
+          "log_probability": -0.010543119212681447
+        },
+        {
+          "start": 7,
+          "end": 8,
+          "voice": 1,
+          "log_probability": -0.3856275596883876
+        },
+        {
+          "start": 8,
+          "end": 9,
+          "voice": 3,
+          "log_probability": -0.18372785957168333
+        },
+        {
+          "start": 8,
+          "end": 9,
+          "voice": 1,
+          "log_probability": -0.2131474042661198
+        },
+        {
+          "start": 9,
+          "end": 10,
+          "voice": 3,
+          "log_probability": -0.0020911223076040446
+        },
+        {
+          "start": 9,
+          "end": 11,
+          "voice": 2,
+          "log_probability": -0.27801921622047265
+        },
+        {
+          "start": 9,
+          "end": 11,
+          "voice": 1,
+          "log_probability": -0.036806047026334145
+        },
+        {
+          "start": 10,
+          "end": 11,
+          "voice": 3,
+          "log_probability": -0.5503739934672053
+        },
+        {
+          "start": 11,
+          "end": 12,
+          "voice": 3,
+          "log_probability": -0.01433628954873597
+        },
+        {
+          "start": 11,
+          "end": 13,
+          "voice": 2,
+          "log_probability": -0.19087614196317257
+        },
+        {
+          "start": 11,
+          "end": 13,
+          "voice": 1,
+          "log_probability": -0.03176593307198749
+        },
+        {
+          "start": 12,
+          "end": 13,
+          "voice": 3,
+          "log_probability": -1.7803994359510007
+        },
+        {
+          "start": 13,
+          "end": 14,
+          "voice": 3,
+          "log_probability": -0.9814927154671454
+        },
+        {
+          "start": 13,
+          "end": 14,
+          "voice": 2,
+          "log_probability": -0.45221212475580863
+        },
+        {
+          "start": 13,
+          "end": 14,
+          "voice": 1,
+          "log_probability": -0.3622919512799232
+        },
+        {
+          "start": 14,
+          "end": 15,
+          "voice": 3,
+          "log_probability": -0.014458778534691468
+        },
+        {
+          "start": 14,
+          "end": 15,
+          "voice": 2,
+          "log_probability": -0.38999908198825106
+        },
+        {
+          "start": 14,
+          "end": 15,
+          "voice": 1,
+          "log_probability": -0.2142756377451531
+        },
+        {
+          "start": 15,
+          "end": 16,
+          "voice": 3,
+          "log_probability": -0.45087359348609196
+        },
+        {
+          "start": 15,
+          "end": 16,
+          "voice": 2,
+          "log_probability": -0.10732314985959453
+        },
+        {
+          "start": 15,
+          "end": 16,
+          "voice": 1,
+          "log_probability": -0.15742189331052756
+        },
+        {
+          "start": 16,
+          "end": 17,
+          "voice": 3,
+          "log_probability": -3.686576729074912
+        },
+        {
+          "start": 16,
+          "end": 18,
+          "voice": 2,
+          "log_probability": -1.251604386781008
+        },
+        {
+          "start": 16,
+          "end": 18,
+          "voice": 1,
+          "log_probability": -0.048507495073776066
+        },
+        {
+          "start": 17,
+          "end": 18,
+          "voice": 3,
+          "log_probability": -3.434404846443344
+        },
+        {
+          "start": 18,
+          "end": 19,
+          "voice": 3,
+          "log_probability": -4.100623372528204
+        },
+        {
+          "start": 18,
+          "end": 19,
+          "voice": 2,
+          "log_probability": -0.990887840248768
+        },
+        {
+          "start": 18,
+          "end": 20,
+          "voice": 1,
+          "log_probability": -0.2807699982356564
+        },
+        {
+          "start": 19,
+          "end": 20,
+          "voice": 3,
+          "log_probability": -0.24304128326626281
+        },
+        {
+          "start": 19,
+          "end": 20,
+          "voice": 2,
+          "log_probability": -0.42567646020609956
+        },
+        {
+          "start": 20,
+          "end": 21,
+          "voice": 3,
+          "log_probability": -0.0012837142830430166
+        },
+        {
+          "start": 20,
+          "end": 21,
+          "voice": 2,
+          "log_probability": -0.3708332483223736
+        },
+        {
+          "start": 20,
+          "end": 22,
+          "voice": 1,
+          "log_probability": -0.3293251092283649
+        },
+        {
+          "start": 21,
+          "end": 22,
+          "voice": 3,
+          "log_probability": -0.2851421963031298
+        },
+        {
+          "start": 21,
+          "end": 22,
+          "voice": 2,
+          "log_probability": -0.2944334040183413
+        },
+        {
+          "start": 22,
+          "end": 23,
+          "voice": 3,
+          "log_probability": -0.038349597021338284
+        },
+        {
+          "start": 22,
+          "end": 23,
+          "voice": 2,
+          "log_probability": -0.25386684583395946
+        },
+        {
+          "start": 22,
+          "end": 24,
+          "voice": 1,
+          "log_probability": -0.27798344490192883
+        },
+        {
+          "start": 23,
+          "end": 24,
+          "voice": 3,
+          "log_probability": -1.0860286026725083
+        },
+        {
+          "start": 23,
+          "end": 24,
+          "voice": 2,
+          "log_probability": -2.0450787499139125
+        },
+        {
+          "start": 24,
+          "end": 25,
+          "voice": 3,
+          "log_probability": -0.18876376847741105
+        },
+        {
+          "start": 24,
+          "end": 25,
+          "voice": 2,
+          "log_probability": -2.598427094780131
+        },
+        {
+          "start": 24,
+          "end": 25,
+          "voice": 1,
+          "log_probability": -1.6982826144004248
+        },
+        {
+          "start": 25,
+          "end": 26,
+          "voice": 3,
+          "log_probability": -1.0354754202849954
+        },
+        {
+          "start": 25,
+          "end": 26,
+          "voice": 2,
+          "log_probability": -1.8400334353564793
+        },
+        {
+          "start": 25,
+          "end": 26,
+          "voice": 1,
+          "log_probability": -0.6157431145538226
+        },
+        {
+          "start": 26,
+          "end": 27,
+          "voice": 3,
+          "log_probability": -0.0323281186433834
+        },
+        {
+          "start": 26,
+          "end": 27,
+          "voice": 2,
+          "log_probability": -0.08695749327095367
+        },
+        {
+          "start": 26,
+          "end": 27,
+          "voice": 1,
+          "log_probability": -0.7119969814039994
+        },
+        {
+          "start": 27,
+          "end": 28,
+          "voice": 3,
+          "log_probability": -1.5384232220611287
+        },
+        {
+          "start": 27,
+          "end": 28,
+          "voice": 2,
+          "log_probability": -0.30564869439825243
+        },
+        {
+          "start": 27,
+          "end": 28,
+          "voice": 1,
+          "log_probability": -0.16675660196872846
+        },
+        {
+          "start": 28,
+          "end": 29,
+          "voice": 3,
+          "log_probability": -0.572906991335033
+        },
+        {
+          "start": 28,
+          "end": 29,
+          "voice": 2,
+          "log_probability": -0.24508667638091516
+        },
+        {
+          "start": 28,
+          "end": 29,
+          "voice": 1,
+          "log_probability": -0.0648779310336274
+        },
+        {
+          "start": 29,
+          "end": 31,
+          "voice": 3,
+          "log_probability": -0.011286500687636326
+        },
+        {
+          "start": 29,
+          "end": 30,
+          "voice": 2,
+          "log_probability": -1.7337988855891338
+        },
+        {
+          "start": 29,
+          "end": 31,
+          "voice": 1,
+          "log_probability": -0.7336417886091081
+        },
+        {
+          "start": 30,
+          "end": 31,
+          "voice": 2,
+          "log_probability": -0.022689723714776757
+        },
+        {
+          "start": 31,
+          "end": 32,
+          "voice": 3,
+          "log_probability": -0.04597180474330376
+        },
+        {
+          "start": 31,
+          "end": 32,
+          "voice": 2,
+          "log_probability": -0.8685222787821595
+        },
+        {
+          "start": 31,
+          "end": 33,
+          "voice": 1,
+          "log_probability": -0.1178930874222125
+        },
+        {
+          "start": 32,
+          "end": 33,
+          "voice": 3,
+          "log_probability": -1.238883055490976
+        },
+        {
+          "start": 32,
+          "end": 33,
+          "voice": 2,
+          "log_probability": -1.734227970083162
+        },
+        {
+          "start": 33,
+          "end": 34,
+          "voice": 3,
+          "log_probability": -0.16597422084914132
+        },
+        {
+          "start": 33,
+          "end": 35,
+          "voice": 2,
+          "log_probability": -0.19371828571752644
+        },
+        {
+          "start": 33,
+          "end": 34,
+          "voice": 1,
+          "log_probability": -0.6149545138670474
+        },
+        {
+          "start": 34,
+          "end": 35,
+          "voice": 3,
+          "log_probability": -1.3856775605554854
+        },
+        {
+          "start": 34,
+          "end": 35,
+          "voice": 1,
+          "log_probability": -0.21589062683250998
+        },
+        {
+          "start": 35,
+          "end": 36,
+          "voice": 3,
+          "log_probability": -0.017768618423580417
+        },
+        {
+          "start": 35,
+          "end": 37,
+          "voice": 2,
+          "log_probability": -3.4643884024446914
+        },
+        {
+          "start": 35,
+          "end": 39,
+          "voice": 1,
+          "log_probability": -0.0389321132257482
+        },
+        {
+          "start": 36,
+          "end": 37,
+          "voice": 3,
+          "log_probability": -0.5083196367696794
+        },
+        {
+          "start": 37,
+          "end": 38,
+          "voice": 3,
+          "log_probability": -0.3001435202575717
+        },
+        {
+          "start": 37,
+          "end": 38,
+          "voice": 2,
+          "log_probability": -0.14999278059266796
+        },
+        {
+          "start": 38,
+          "end": 39,
+          "voice": 3,
+          "log_probability": -0.005410562878923287
+        },
+        {
+          "start": 38,
+          "end": 39,
+          "voice": 2,
+          "log_probability": -0.22793333159624987
+        },
+        {
+          "start": 39,
+          "end": 40,
+          "voice": 3,
+          "log_probability": -0.804045112769498
+        },
+        {
+          "start": 39,
+          "end": 42,
+          "voice": 2,
+          "log_probability": -0.4829651855410011
+        },
+        {
+          "start": 39,
+          "end": 42,
+          "voice": 1,
+          "log_probability": -0.062307753435631656
+        },
+        {
+          "start": 40,
+          "end": 42,
+          "voice": 3,
+          "log_probability": -0.029217742641377435
+        },
+        {
+          "start": 42,
+          "end": 43,
+          "voice": 3,
+          "log_probability": -0.14558045498644626
+        },
+        {
+          "start": 42,
+          "end": 44,
+          "voice": 2,
+          "log_probability": -0.4224626410433739
+        },
+        {
+          "start": 42,
+          "end": 44,
+          "voice": 1,
+          "log_probability": -1.2307911324725054
+        },
+        {
+          "start": 43,
+          "end": 44,
+          "voice": 3,
+          "log_probability": -0.10991013694178368
+        },
+        {
+          "start": 44,
+          "end": 45,
+          "voice": 3,
+          "log_probability": -0.8123938478526206
+        },
+        {
+          "start": 44,
+          "end": 46,
+          "voice": 2,
+          "log_probability": -0.2960795649642024
+        },
+        {
+          "start": 44,
+          "end": 46,
+          "voice": 1,
+          "log_probability": -1.001544317842254
+        },
+        {
+          "start": 45,
+          "end": 46,
+          "voice": 3,
+          "log_probability": -0.26740801827368643
+        },
+        {
+          "start": 46,
+          "end": 48,
+          "voice": 3,
+          "log_probability": -2.871411091390839
+        },
+        {
+          "start": 46,
+          "end": 47,
+          "voice": 2,
+          "log_probability": -1.2345058001531897
+        },
+        {
+          "start": 46,
+          "end": 48,
+          "voice": 1,
+          "log_probability": -0.6532088063901567
+        },
+        {
+          "start": 47,
+          "end": 48,
+          "voice": 2,
+          "log_probability": -1.7560444011891008
+        },
+        {
+          "start": 48,
+          "end": 49,
+          "voice": 3,
+          "log_probability": -5.539692558078143
+        },
+        {
+          "start": 48,
+          "end": 49,
+          "voice": 2,
+          "log_probability": -1.488966904370563
+        },
+        {
+          "start": 48,
+          "end": 49,
+          "voice": 1,
+          "log_probability": -1.0517180794736758
+        },
+        {
+          "start": 49,
+          "end": 50,
+          "voice": 3,
+          "log_probability": -4.95760436258827
+        },
+        {
+          "start": 49,
+          "end": 50,
+          "voice": 2,
+          "log_probability": -2.019713155325575
+        },
+        {
+          "start": 49,
+          "end": 51,
+          "voice": 1,
+          "log_probability": -0.6648987819652273
+        },
+        {
+          "start": 50,
+          "end": 51,
+          "voice": 3,
+          "log_probability": -1.826137193922217
+        },
+        {
+          "start": 50,
+          "end": 51,
+          "voice": 2,
+          "log_probability": -2.931182803475166
+        },
+        {
+          "start": 51,
+          "end": 52,
+          "voice": 3,
+          "log_probability": -0.009923626181416413
+        },
+        {
+          "start": 51,
+          "end": 53,
+          "voice": 2,
+          "log_probability": -0.05551281356948647
+        },
+        {
+          "start": 51,
+          "end": 53,
+          "voice": 1,
+          "log_probability": -0.018351144563542404
+        },
+        {
+          "start": 52,
+          "end": 53,
+          "voice": 3,
+          "log_probability": -2.5266221995566704
+        },
+        {
+          "start": 53,
+          "end": 54,
+          "voice": 3,
+          "log_probability": -4.123280191749474
+        },
+        {
+          "start": 53,
+          "end": 55,
+          "voice": 2,
+          "log_probability": -0.37921572705891216
+        },
+        {
+          "start": 53,
+          "end": 54,
+          "voice": 1,
+          "log_probability": -1.1380526462291933
+        },
+        {
+          "start": 54,
+          "end": 55,
+          "voice": 3,
+          "log_probability": -0.237107878964675
+        },
+        {
+          "start": 54,
+          "end": 55,
+          "voice": 1,
+          "log_probability": -0.382889140333428
+        },
+        {
+          "start": 55,
+          "end": 56,
+          "voice": 3,
+          "log_probability": -0.0012837142830430166
+        },
+        {
+          "start": 55,
+          "end": 56,
+          "voice": 2,
+          "log_probability": -0.7376710553066761
+        },
+        {
+          "start": 55,
+          "end": 57,
+          "voice": 1,
+          "log_probability": -0.11180150737607104
+        },
+        {
+          "start": 56,
+          "end": 57,
+          "voice": 3,
+          "log_probability": -0.3041008806086186
+        },
+        {
+          "start": 56,
+          "end": 57,
+          "voice": 2,
+          "log_probability": -0.2944334040183421
+        },
+        {
+          "start": 57,
+          "end": 58,
+          "voice": 3,
+          "log_probability": -0.022850146316085573
+        },
+        {
+          "start": 57,
+          "end": 59,
+          "voice": 2,
+          "log_probability": -0.02136560171178916
+        },
+        {
+          "start": 57,
+          "end": 59,
+          "voice": 1,
+          "log_probability": -0.1425026768846418
+        },
+        {
+          "start": 58,
+          "end": 59,
+          "voice": 3,
+          "log_probability": -0.7242091048934222
+        },
+        {
+          "start": 59,
+          "end": 60,
+          "voice": 3,
+          "log_probability": -0.127440732579653
+        },
+        {
+          "start": 59,
+          "end": 60,
+          "voice": 2,
+          "log_probability": -3.3305504780828206
+        },
+        {
+          "start": 59,
+          "end": 60,
+          "voice": 1,
+          "log_probability": -2.058926361587168
+        },
+        {
+          "start": 60,
+          "end": 61,
+          "voice": 3,
+          "log_probability": -0.688093557668151
+        },
+        {
+          "start": 60,
+          "end": 61,
+          "voice": 2,
+          "log_probability": -1.8400334353564793
+        },
+        {
+          "start": 60,
+          "end": 61,
+          "voice": 1,
+          "log_probability": -0.6157431145538226
+        },
+        {
+          "start": 61,
+          "end": 62,
+          "voice": 3,
+          "log_probability": -0.0323281186433834
+        },
+        {
+          "start": 61,
+          "end": 62,
+          "voice": 2,
+          "log_probability": -0.08695749327095367
+        },
+        {
+          "start": 61,
+          "end": 63,
+          "voice": 1,
+          "log_probability": -0.13925976507699572
+        },
+        {
+          "start": 62,
+          "end": 63,
+          "voice": 3,
+          "log_probability": -0.6750649279203413
+        },
+        {
+          "start": 62,
+          "end": 63,
+          "voice": 2,
+          "log_probability": -0.35131567095937827
+        },
+        {
+          "start": 63,
+          "end": 64,
+          "voice": 3,
+          "log_probability": -0.54690210316917
+        },
+        {
+          "start": 63,
+          "end": 64,
+          "voice": 2,
+          "log_probability": -0.2016953441235934
+        },
+        {
+          "start": 63,
+          "end": 64,
+          "voice": 1,
+          "log_probability": -0.7428935977224596
+        },
+        {
+          "start": 64,
+          "end": 65,
+          "voice": 3,
+          "log_probability": -0.010295069189629549
+        },
+        {
+          "start": 64,
+          "end": 65,
+          "voice": 2,
+          "log_probability": -0.2916590409182214
+        },
+        {
+          "start": 64,
+          "end": 66,
+          "voice": 1,
+          "log_probability": -0.8007798854311787
+        },
+        {
+          "start": 65,
+          "end": 66,
+          "voice": 3,
+          "log_probability": -0.35487524327077463
+        },
+        {
+          "start": 65,
+          "end": 66,
+          "voice": 2,
+          "log_probability": -0.21749291667785003
+        },
+        {
+          "start": 66,
+          "end": 67,
+          "voice": 3,
+          "log_probability": -0.5038065398675549
+        },
+        {
+          "start": 66,
+          "end": 67,
+          "voice": 2,
+          "log_probability": -0.9525087266061222
+        },
+        {
+          "start": 66,
+          "end": 68,
+          "voice": 1,
+          "log_probability": -0.3134940094262687
+        },
+        {
+          "start": 67,
+          "end": 68,
+          "voice": 3,
+          "log_probability": -1.8200954339649051
+        },
+        {
+          "start": 67,
+          "end": 68,
+          "voice": 2,
+          "log_probability": -1.450122179693273
+        },
+        {
+          "start": 68,
+          "end": 69,
+          "voice": 3,
+          "log_probability": -0.595979520381565
+        },
+        {
+          "start": 68,
+          "end": 70,
+          "voice": 2,
+          "log_probability": -0.06058846017223418
+        },
+        {
+          "start": 68,
+          "end": 70,
+          "voice": 1,
+          "log_probability": -0.8727771440245127
+        },
+        {
+          "start": 69,
+          "end": 70,
+          "voice": 3,
+          "log_probability": -1.1789926923506462
+        },
+        {
+          "start": 70,
+          "end": 71,
+          "voice": 3,
+          "log_probability": -2.978244005460149
+        },
+        {
+          "start": 70,
+          "end": 72,
+          "voice": 2,
+          "log_probability": -0.4522895366109202
+        },
+        {
+          "start": 70,
+          "end": 71,
+          "voice": 1,
+          "log_probability": -0.8692254076225199
+        },
+        {
+          "start": 71,
+          "end": 72,
+          "voice": 3,
+          "log_probability": -0.027370159163879942
+        },
+        {
+          "start": 71,
+          "end": 72,
+          "voice": 1,
+          "log_probability": -0.7408673377618044
+        },
+        {
+          "start": 72,
+          "end": 73,
+          "voice": 3,
+          "log_probability": -2.049292859838684
+        },
+        {
+          "start": 72,
+          "end": 74,
+          "voice": 2,
+          "log_probability": -0.32593805676418364
+        },
+        {
+          "start": 72,
+          "end": 74,
+          "voice": 1,
+          "log_probability": -0.03222168468636567
+        },
+        {
+          "start": 73,
+          "end": 74,
+          "voice": 3,
+          "log_probability": -0.03913111344086593
+        },
+        {
+          "start": 74,
+          "end": 75,
+          "voice": 3,
+          "log_probability": -0.37683064023235896
+        },
+        {
+          "start": 74,
+          "end": 75,
+          "voice": 2,
+          "log_probability": -0.031584035290497796
+        },
+        {
+          "start": 74,
+          "end": 76,
+          "voice": 1,
+          "log_probability": -0.3975391986749283
+        },
+        {
+          "start": 75,
+          "end": 76,
+          "voice": 3,
+          "log_probability": -0.4008920962494718
+        },
+        {
+          "start": 75,
+          "end": 76,
+          "voice": 2,
+          "log_probability": -0.24790229994974608
+        },
+        {
+          "start": 76,
+          "end": 78,
+          "voice": 3,
+          "log_probability": -4.319761238601777
+        },
+        {
+          "start": 76,
+          "end": 77,
+          "voice": 2,
+          "log_probability": -0.3816966707787469
+        },
+        {
+          "start": 76,
+          "end": 78,
+          "voice": 1,
+          "log_probability": -0.33509680725132346
+        },
+        {
+          "start": 77,
+          "end": 78,
+          "voice": 2,
+          "log_probability": -0.3723836886808764
+        },
+        {
+          "start": 78,
+          "end": 79,
+          "voice": 3,
+          "log_probability": -1.421741045633131
+        },
+        {
+          "start": 78,
+          "end": 79,
+          "voice": 2,
+          "log_probability": -0.26118116925025486
+        },
+        {
+          "start": 78,
+          "end": 79,
+          "voice": 1,
+          "log_probability": -0.40954895958837306
+        },
+        {
+          "start": 79,
+          "end": 81,
+          "voice": 3,
+          "log_probability": -2.2842013259233416
+        },
+        {
+          "start": 79,
+          "end": 81,
+          "voice": 2,
+          "log_probability": -1.8494343312836592
+        },
+        {
+          "start": 79,
+          "end": 80,
+          "voice": 1,
+          "log_probability": -0.24984862277763778
+        },
+        {
+          "start": 80,
+          "end": 81,
+          "voice": 1,
+          "log_probability": -0.544229381890383
+        },
+        {
+          "start": 81,
+          "end": 82,
+          "voice": 3,
+          "log_probability": -0.02737503219298541
+        },
+        {
+          "start": 81,
+          "end": 83,
+          "voice": 2,
+          "log_probability": -0.17503658620407955
+        },
+        {
+          "start": 81,
+          "end": 82,
+          "voice": 1,
+          "log_probability": -0.2655468098854578
+        },
+        {
+          "start": 82,
+          "end": 83,
+          "voice": 3,
+          "log_probability": -1.2514056079050846
+        },
+        {
+          "start": 82,
+          "end": 83,
+          "voice": 1,
+          "log_probability": -0.24485009238450087
+        },
+        {
+          "start": 83,
+          "end": 84,
+          "voice": 3,
+          "log_probability": -0.15753844939184952
+        },
+        {
+          "start": 83,
+          "end": 85,
+          "voice": 2,
+          "log_probability": -0.5854182928779144
+        },
+        {
+          "start": 83,
+          "end": 84,
+          "voice": 1,
+          "log_probability": -0.291482891062709
+        },
+        {
+          "start": 84,
+          "end": 85,
+          "voice": 3,
+          "log_probability": -2.6900582973742213
+        },
+        {
+          "start": 84,
+          "end": 85,
+          "voice": 1,
+          "log_probability": -0.22570856410832546
+        },
+        {
+          "start": 85,
+          "end": 86,
+          "voice": 3,
+          "log_probability": -0.1985730515368556
+        },
+        {
+          "start": 85,
+          "end": 89,
+          "voice": 2,
+          "log_probability": -0.24657862295642793
+        },
+        {
+          "start": 85,
+          "end": 86,
+          "voice": 1,
+          "log_probability": -2.226147967865488
+        },
+        {
+          "start": 86,
+          "end": 87,
+          "voice": 3,
+          "log_probability": -0.2744761017778024
+        },
+        {
+          "start": 86,
+          "end": 87,
+          "voice": 1,
+          "log_probability": -2.283892522756475
+        },
+        {
+          "start": 87,
+          "end": 88,
+          "voice": 3,
+          "log_probability": -0.6646696731124646
+        },
+        {
+          "start": 87,
+          "end": 91,
+          "voice": 1,
+          "log_probability": -0.0943982703871033
+        },
+        {
+          "start": 88,
+          "end": 89,
+          "voice": 3,
+          "log_probability": -0.40404260512401413
+        },
+        {
+          "start": 89,
+          "end": 90,
+          "voice": 3,
+          "log_probability": -0.03710005222082872
+        },
+        {
+          "start": 89,
+          "end": 90,
+          "voice": 2,
+          "log_probability": -0.3654760528795934
+        },
+        {
+          "start": 90,
+          "end": 91,
+          "voice": 3,
+          "log_probability": -0.03470745923975876
+        },
+        {
+          "start": 90,
+          "end": 91,
+          "voice": 2,
+          "log_probability": -0.23941542757408088
+        },
+        {
+          "start": 91,
+          "end": 92,
+          "voice": 3,
+          "log_probability": -0.011683106002625301
+        },
+        {
+          "start": 91,
+          "end": 92,
+          "voice": 2,
+          "log_probability": -0.6042126626785711
+        },
+        {
+          "start": 91,
+          "end": 92,
+          "voice": 1,
+          "log_probability": -0.5227203645315804
+        },
+        {
+          "start": 92,
+          "end": 93,
+          "voice": 3,
+          "log_probability": -2.9612052429434703
+        },
+        {
+          "start": 92,
+          "end": 93,
+          "voice": 2,
+          "log_probability": -0.09516659831847514
+        },
+        {
+          "start": 92,
+          "end": 93,
+          "voice": 1,
+          "log_probability": -0.7178231238824444
+        },
+        {
+          "start": 93,
+          "end": 94,
+          "voice": 3,
+          "log_probability": -1.7122327599337457
+        },
+        {
+          "start": 93,
+          "end": 95,
+          "voice": 2,
+          "log_probability": -0.07713281795492564
+        },
+        {
+          "start": 93,
+          "end": 95,
+          "voice": 1,
+          "log_probability": -1.3511884977852193
+        },
+        {
+          "start": 94,
+          "end": 95,
+          "voice": 3,
+          "log_probability": -1.0297800129149277
+        },
+        {
+          "start": 95,
+          "end": 96,
+          "voice": 3,
+          "log_probability": -0.24336329883250377
+        },
+        {
+          "start": 95,
+          "end": 97,
+          "voice": 2,
+          "log_probability": -1.4808186775428145
+        },
+        {
+          "start": 95,
+          "end": 96,
+          "voice": 1,
+          "log_probability": -0.2905641967713984
+        },
+        {
+          "start": 96,
+          "end": 97,
+          "voice": 3,
+          "log_probability": -0.5434665346216961
+        },
+        {
+          "start": 96,
+          "end": 97,
+          "voice": 1,
+          "log_probability": -0.6570035901078569
+        }
+      ]
+    },
+    "satisfies_threshold": true,
+    "adjacent_crossed_blocks": 0,
+    "exports": {
+      "musicxml": "/Users/francoispachet/IdeaProjects/boojum/harmonizer/generated/two_loop_full_v33_forward_probe_bwv108_6.musicxml",
+      "midi": "/Users/francoispachet/IdeaProjects/boojum/harmonizer/generated/two_loop_full_v33_forward_probe_bwv108_6.mid",
+      "exporter": "MuSES"
+    }
+  },
+  "diagnostic": {
+    "bach_used_for_search": false,
+    "bach_score": {
+      "total": -177.09119161545738,
+      "mean": -0.79413090410519,
+      "contributions": [
+        {
+          "start": 1,
+          "end": 2,
+          "voice": 3,
+          "log_probability": -0.012267191258008575
+        },
+        {
+          "start": 1,
+          "end": 3,
+          "voice": 2,
+          "log_probability": -0.0477143775296236
+        },
+        {
+          "start": 1,
+          "end": 3,
+          "voice": 1,
+          "log_probability": -0.18315221078422314
+        },
+        {
+          "start": 2,
+          "end": 3,
+          "voice": 3,
+          "log_probability": -0.033798895595549855
+        },
+        {
+          "start": 3,
+          "end": 4,
+          "voice": 3,
+          "log_probability": -0.002497235874450399
+        },
+        {
+          "start": 3,
+          "end": 5,
+          "voice": 2,
+          "log_probability": -0.888302103969048
+        },
+        {
+          "start": 3,
+          "end": 5,
+          "voice": 1,
+          "log_probability": -0.04820454429229118
+        },
+        {
+          "start": 4,
+          "end": 5,
+          "voice": 3,
+          "log_probability": -0.12401523689026242
+        },
+        {
+          "start": 5,
+          "end": 6,
+          "voice": 3,
+          "log_probability": -0.07938127220315602
+        },
+        {
+          "start": 5,
+          "end": 7,
+          "voice": 2,
+          "log_probability": -0.29830592045303234
+        },
+        {
+          "start": 5,
+          "end": 6,
+          "voice": 1,
+          "log_probability": -0.06754095659401174
+        },
+        {
+          "start": 6,
+          "end": 7,
+          "voice": 3,
+          "log_probability": -3.7117133307114236
+        },
+        {
+          "start": 6,
+          "end": 7,
+          "voice": 1,
+          "log_probability": -1.660407337214349
+        },
+        {
+          "start": 7,
+          "end": 8,
+          "voice": 3,
+          "log_probability": -0.5037593597073055
+        },
+        {
+          "start": 7,
+          "end": 9,
+          "voice": 2,
+          "log_probability": -0.29306280288127423
+        },
+        {
+          "start": 7,
+          "end": 8,
+          "voice": 1,
+          "log_probability": -0.04814068698888193
+        },
+        {
+          "start": 8,
+          "end": 9,
+          "voice": 3,
+          "log_probability": -0.09245523369966366
+        },
+        {
+          "start": 8,
+          "end": 9,
+          "voice": 1,
+          "log_probability": -0.05009089462609443
+        },
+        {
+          "start": 9,
+          "end": 10,
+          "voice": 3,
+          "log_probability": -0.7109483743669334
+        },
+        {
+          "start": 9,
+          "end": 11,
+          "voice": 2,
+          "log_probability": -0.153305484564167
+        },
+        {
+          "start": 9,
+          "end": 11,
+          "voice": 1,
+          "log_probability": -0.10611199517798511
+        },
+        {
+          "start": 10,
+          "end": 11,
+          "voice": 3,
+          "log_probability": -5.437166092955731
+        },
+        {
+          "start": 11,
+          "end": 12,
+          "voice": 3,
+          "log_probability": -1.8954048361010614
+        },
+        {
+          "start": 11,
+          "end": 13,
+          "voice": 2,
+          "log_probability": -0.07209901187253984
+        },
+        {
+          "start": 11,
+          "end": 13,
+          "voice": 1,
+          "log_probability": -0.03902215195891792
+        },
+        {
+          "start": 12,
+          "end": 13,
+          "voice": 3,
+          "log_probability": -1.8728215647311532
+        },
+        {
+          "start": 13,
+          "end": 14,
+          "voice": 3,
+          "log_probability": -1.1376052732621027
+        },
+        {
+          "start": 13,
+          "end": 14,
+          "voice": 2,
+          "log_probability": -0.22158970215167906
+        },
+        {
+          "start": 13,
+          "end": 14,
+          "voice": 1,
+          "log_probability": -0.3096173423091929
+        },
+        {
+          "start": 14,
+          "end": 15,
+          "voice": 3,
+          "log_probability": -0.2892834485935146
+        },
+        {
+          "start": 14,
+          "end": 15,
+          "voice": 2,
+          "log_probability": -0.38721475571781677
+        },
+        {
+          "start": 14,
+          "end": 15,
+          "voice": 1,
+          "log_probability": -0.5751559456634434
+        },
+        {
+          "start": 15,
+          "end": 16,
+          "voice": 3,
+          "log_probability": -0.059364908927129145
+        },
+        {
+          "start": 15,
+          "end": 16,
+          "voice": 2,
+          "log_probability": -0.1453429811991249
+        },
+        {
+          "start": 15,
+          "end": 16,
+          "voice": 1,
+          "log_probability": -0.49832192507512735
+        },
+        {
+          "start": 16,
+          "end": 17,
+          "voice": 3,
+          "log_probability": -0.12879137503864008
+        },
+        {
+          "start": 16,
+          "end": 18,
+          "voice": 2,
+          "log_probability": -0.03720103491084802
+        },
+        {
+          "start": 16,
+          "end": 18,
+          "voice": 1,
+          "log_probability": -0.054510427271887915
+        },
+        {
+          "start": 17,
+          "end": 18,
+          "voice": 3,
+          "log_probability": -0.8504444869139804
+        },
+        {
+          "start": 18,
+          "end": 19,
+          "voice": 3,
+          "log_probability": -1.1909936575619762
+        },
+        {
+          "start": 18,
+          "end": 19,
+          "voice": 2,
+          "log_probability": -0.4630421112200239
+        },
+        {
+          "start": 18,
+          "end": 20,
+          "voice": 1,
+          "log_probability": -0.9045296268673163
+        },
+        {
+          "start": 19,
+          "end": 20,
+          "voice": 3,
+          "log_probability": -5.552773871942172
+        },
+        {
+          "start": 19,
+          "end": 20,
+          "voice": 2,
+          "log_probability": -0.5748791933508248
+        },
+        {
+          "start": 20,
+          "end": 21,
+          "voice": 3,
+          "log_probability": -0.008085367454406155
+        },
+        {
+          "start": 20,
+          "end": 21,
+          "voice": 2,
+          "log_probability": -0.003507699598830114
+        },
+        {
+          "start": 20,
+          "end": 22,
+          "voice": 1,
+          "log_probability": -0.02727649685471646
+        },
+        {
+          "start": 21,
+          "end": 22,
+          "voice": 3,
+          "log_probability": -1.9095184796865294
+        },
+        {
+          "start": 21,
+          "end": 22,
+          "voice": 2,
+          "log_probability": -0.5120140912432221
+        },
+        {
+          "start": 22,
+          "end": 23,
+          "voice": 3,
+          "log_probability": -0.9932052747014883
+        },
+        {
+          "start": 22,
+          "end": 23,
+          "voice": 2,
+          "log_probability": -1.743897096150771
+        },
+        {
+          "start": 22,
+          "end": 24,
+          "voice": 1,
+          "log_probability": -0.927248277300244
+        },
+        {
+          "start": 23,
+          "end": 24,
+          "voice": 3,
+          "log_probability": -1.2437701709769442
+        },
+        {
+          "start": 23,
+          "end": 24,
+          "voice": 2,
+          "log_probability": -0.35634155062144535
+        },
+        {
+          "start": 24,
+          "end": 25,
+          "voice": 3,
+          "log_probability": -0.5113758670932073
+        },
+        {
+          "start": 24,
+          "end": 25,
+          "voice": 2,
+          "log_probability": -0.3101317599790783
+        },
+        {
+          "start": 24,
+          "end": 25,
+          "voice": 1,
+          "log_probability": -0.08679175086735524
+        },
+        {
+          "start": 25,
+          "end": 26,
+          "voice": 3,
+          "log_probability": -2.1908829394552267
+        },
+        {
+          "start": 25,
+          "end": 26,
+          "voice": 2,
+          "log_probability": -0.14242756999916859
+        },
+        {
+          "start": 25,
+          "end": 26,
+          "voice": 1,
+          "log_probability": -3.061958715092016
+        },
+        {
+          "start": 26,
+          "end": 27,
+          "voice": 3,
+          "log_probability": -0.35717512496323706
+        },
+        {
+          "start": 26,
+          "end": 27,
+          "voice": 2,
+          "log_probability": -0.9186891505523082
+        },
+        {
+          "start": 26,
+          "end": 27,
+          "voice": 1,
+          "log_probability": -0.5640201001219897
+        },
+        {
+          "start": 27,
+          "end": 28,
+          "voice": 3,
+          "log_probability": -1.8152747929961572
+        },
+        {
+          "start": 27,
+          "end": 28,
+          "voice": 2,
+          "log_probability": -1.6717655219604708
+        },
+        {
+          "start": 27,
+          "end": 28,
+          "voice": 1,
+          "log_probability": -1.223554452808082
+        },
+        {
+          "start": 28,
+          "end": 29,
+          "voice": 3,
+          "log_probability": -0.1937972590488998
+        },
+        {
+          "start": 28,
+          "end": 29,
+          "voice": 2,
+          "log_probability": -0.1560756452037612
+        },
+        {
+          "start": 28,
+          "end": 29,
+          "voice": 1,
+          "log_probability": -0.48689204821422694
+        },
+        {
+          "start": 29,
+          "end": 31,
+          "voice": 3,
+          "log_probability": -1.15243294151522
+        },
+        {
+          "start": 29,
+          "end": 30,
+          "voice": 2,
+          "log_probability": -0.3623592342016898
+        },
+        {
+          "start": 29,
+          "end": 31,
+          "voice": 1,
+          "log_probability": -0.009839064502538446
+        },
+        {
+          "start": 30,
+          "end": 31,
+          "voice": 2,
+          "log_probability": -0.21437730294385415
+        },
+        {
+          "start": 31,
+          "end": 32,
+          "voice": 3,
+          "log_probability": -0.08459262910143656
+        },
+        {
+          "start": 31,
+          "end": 32,
+          "voice": 2,
+          "log_probability": -0.13963587949694092
+        },
+        {
+          "start": 31,
+          "end": 33,
+          "voice": 1,
+          "log_probability": -0.08270450347383934
+        },
+        {
+          "start": 32,
+          "end": 33,
+          "voice": 3,
+          "log_probability": -0.4880213623622637
+        },
+        {
+          "start": 32,
+          "end": 33,
+          "voice": 2,
+          "log_probability": -0.2284020476501814
+        },
+        {
+          "start": 33,
+          "end": 34,
+          "voice": 3,
+          "log_probability": -1.6049035235521656
+        },
+        {
+          "start": 33,
+          "end": 35,
+          "voice": 2,
+          "log_probability": -0.07853170921791645
+        },
+        {
+          "start": 33,
+          "end": 34,
+          "voice": 1,
+          "log_probability": -0.844207842703197
+        },
+        {
+          "start": 34,
+          "end": 35,
+          "voice": 3,
+          "log_probability": -0.2769005489509428
+        },
+        {
+          "start": 34,
+          "end": 35,
+          "voice": 1,
+          "log_probability": -0.2442812202905331
+        },
+        {
+          "start": 35,
+          "end": 36,
+          "voice": 3,
+          "log_probability": -0.0024202087896537335
+        },
+        {
+          "start": 35,
+          "end": 37,
+          "voice": 2,
+          "log_probability": -0.03212804921116391
+        },
+        {
+          "start": 35,
+          "end": 39,
+          "voice": 1,
+          "log_probability": -0.17860560646287324
+        },
+        {
+          "start": 36,
+          "end": 37,
+          "voice": 3,
+          "log_probability": -0.0965832188156468
+        },
+        {
+          "start": 37,
+          "end": 38,
+          "voice": 3,
+          "log_probability": -0.05781205018147108
+        },
+        {
+          "start": 37,
+          "end": 38,
+          "voice": 2,
+          "log_probability": -0.17365713602127517
+        },
+        {
+          "start": 38,
+          "end": 39,
+          "voice": 3,
+          "log_probability": -0.00672028881913655
+        },
+        {
+          "start": 38,
+          "end": 39,
+          "voice": 2,
+          "log_probability": -0.09963849494411056
+        },
+        {
+          "start": 39,
+          "end": 40,
+          "voice": 3,
+          "log_probability": -0.15653255246539013
+        },
+        {
+          "start": 39,
+          "end": 42,
+          "voice": 2,
+          "log_probability": -0.016934535468054002
+        },
+        {
+          "start": 39,
+          "end": 42,
+          "voice": 1,
+          "log_probability": -0.04107440037547035
+        },
+        {
+          "start": 40,
+          "end": 42,
+          "voice": 3,
+          "log_probability": -2.2689140772132523
+        },
+        {
+          "start": 42,
+          "end": 43,
+          "voice": 3,
+          "log_probability": -0.8150695235111302
+        },
+        {
+          "start": 42,
+          "end": 44,
+          "voice": 2,
+          "log_probability": -3.941945920515763
+        },
+        {
+          "start": 42,
+          "end": 44,
+          "voice": 1,
+          "log_probability": -0.8920805379679814
+        },
+        {
+          "start": 43,
+          "end": 44,
+          "voice": 3,
+          "log_probability": -0.12189589691561908
+        },
+        {
+          "start": 44,
+          "end": 45,
+          "voice": 3,
+          "log_probability": -0.7197798169093617
+        },
+        {
+          "start": 44,
+          "end": 46,
+          "voice": 2,
+          "log_probability": -2.1836408279802013
+        },
+        {
+          "start": 44,
+          "end": 46,
+          "voice": 1,
+          "log_probability": -0.4883296439426241
+        },
+        {
+          "start": 45,
+          "end": 46,
+          "voice": 3,
+          "log_probability": -5.851868684436534
+        },
+        {
+          "start": 46,
+          "end": 48,
+          "voice": 3,
+          "log_probability": -0.4158551137144604
+        },
+        {
+          "start": 46,
+          "end": 47,
+          "voice": 2,
+          "log_probability": -0.019391242814322508
+        },
+        {
+          "start": 46,
+          "end": 48,
+          "voice": 1,
+          "log_probability": -0.740361484170434
+        },
+        {
+          "start": 47,
+          "end": 48,
+          "voice": 2,
+          "log_probability": -0.15842143636250902
+        },
+        {
+          "start": 48,
+          "end": 49,
+          "voice": 3,
+          "log_probability": -0.7834793731851105
+        },
+        {
+          "start": 48,
+          "end": 49,
+          "voice": 2,
+          "log_probability": -0.0562503866664458
+        },
+        {
+          "start": 48,
+          "end": 49,
+          "voice": 1,
+          "log_probability": -0.11484938629312058
+        },
+        {
+          "start": 49,
+          "end": 50,
+          "voice": 3,
+          "log_probability": -0.10338843933355528
+        },
+        {
+          "start": 49,
+          "end": 50,
+          "voice": 2,
+          "log_probability": -0.06780954093023492
+        },
+        {
+          "start": 49,
+          "end": 51,
+          "voice": 1,
+          "log_probability": -0.13337577414182786
+        },
+        {
+          "start": 50,
+          "end": 51,
+          "voice": 3,
+          "log_probability": -0.8252734973508913
+        },
+        {
+          "start": 50,
+          "end": 51,
+          "voice": 2,
+          "log_probability": -0.27068894438543817
+        },
+        {
+          "start": 51,
+          "end": 52,
+          "voice": 3,
+          "log_probability": -0.38712673210184806
+        },
+        {
+          "start": 51,
+          "end": 53,
+          "voice": 2,
+          "log_probability": -0.013743673635895326
+        },
+        {
+          "start": 51,
+          "end": 53,
+          "voice": 1,
+          "log_probability": -0.5440195726103109
+        },
+        {
+          "start": 52,
+          "end": 53,
+          "voice": 3,
+          "log_probability": -1.1381337177893518
+        },
+        {
+          "start": 53,
+          "end": 54,
+          "voice": 3,
+          "log_probability": -0.9559739910272826
+        },
+        {
+          "start": 53,
+          "end": 55,
+          "voice": 2,
+          "log_probability": -0.08791523966133308
+        },
+        {
+          "start": 53,
+          "end": 54,
+          "voice": 1,
+          "log_probability": -3.187836160299949
+        },
+        {
+          "start": 54,
+          "end": 55,
+          "voice": 3,
+          "log_probability": -0.721877870005758
+        },
+        {
+          "start": 54,
+          "end": 55,
+          "voice": 1,
+          "log_probability": -0.8377317740984284
+        },
+        {
+          "start": 55,
+          "end": 56,
+          "voice": 3,
+          "log_probability": -0.003964779278637622
+        },
+        {
+          "start": 55,
+          "end": 56,
+          "voice": 2,
+          "log_probability": -0.06566186062160392
+        },
+        {
+          "start": 55,
+          "end": 57,
+          "voice": 1,
+          "log_probability": -0.06092839837528368
+        },
+        {
+          "start": 56,
+          "end": 57,
+          "voice": 3,
+          "log_probability": -0.4818001510484012
+        },
+        {
+          "start": 56,
+          "end": 57,
+          "voice": 2,
+          "log_probability": -0.17757955518913304
+        },
+        {
+          "start": 57,
+          "end": 58,
+          "voice": 3,
+          "log_probability": -1.168223576854024
+        },
+        {
+          "start": 57,
+          "end": 59,
+          "voice": 2,
+          "log_probability": -0.008115287427377726
+        },
+        {
+          "start": 57,
+          "end": 59,
+          "voice": 1,
+          "log_probability": -0.24211177812532533
+        },
+        {
+          "start": 58,
+          "end": 59,
+          "voice": 3,
+          "log_probability": -0.882126871451842
+        },
+        {
+          "start": 59,
+          "end": 60,
+          "voice": 3,
+          "log_probability": -0.5195646460100077
+        },
+        {
+          "start": 59,
+          "end": 60,
+          "voice": 2,
+          "log_probability": -0.22718085793958334
+        },
+        {
+          "start": 59,
+          "end": 60,
+          "voice": 1,
+          "log_probability": -0.03173383894265605
+        },
+        {
+          "start": 60,
+          "end": 61,
+          "voice": 3,
+          "log_probability": -2.0962890125010945
+        },
+        {
+          "start": 60,
+          "end": 61,
+          "voice": 2,
+          "log_probability": -0.14180090044098534
+        },
+        {
+          "start": 60,
+          "end": 61,
+          "voice": 1,
+          "log_probability": -1.884597079910169
+        },
+        {
+          "start": 61,
+          "end": 62,
+          "voice": 3,
+          "log_probability": -2.987309457805122
+        },
+        {
+          "start": 61,
+          "end": 62,
+          "voice": 2,
+          "log_probability": -4.369333508124675
+        },
+        {
+          "start": 61,
+          "end": 63,
+          "voice": 1,
+          "log_probability": -1.0336511888208189
+        },
+        {
+          "start": 62,
+          "end": 63,
+          "voice": 3,
+          "log_probability": -1.266292407889145
+        },
+        {
+          "start": 62,
+          "end": 63,
+          "voice": 2,
+          "log_probability": -0.21318307319533158
+        },
+        {
+          "start": 63,
+          "end": 64,
+          "voice": 3,
+          "log_probability": -0.19240844593753775
+        },
+        {
+          "start": 63,
+          "end": 64,
+          "voice": 2,
+          "log_probability": -0.6753596790847032
+        },
+        {
+          "start": 63,
+          "end": 64,
+          "voice": 1,
+          "log_probability": -0.07764854038935189
+        },
+        {
+          "start": 64,
+          "end": 65,
+          "voice": 3,
+          "log_probability": -0.098206179632831
+        },
+        {
+          "start": 64,
+          "end": 65,
+          "voice": 2,
+          "log_probability": -0.07286577337714971
+        },
+        {
+          "start": 64,
+          "end": 66,
+          "voice": 1,
+          "log_probability": -0.08347913487860069
+        },
+        {
+          "start": 65,
+          "end": 66,
+          "voice": 3,
+          "log_probability": -0.5258168470620209
+        },
+        {
+          "start": 65,
+          "end": 66,
+          "voice": 2,
+          "log_probability": -0.31856196409519616
+        },
+        {
+          "start": 66,
+          "end": 67,
+          "voice": 3,
+          "log_probability": -0.869982384984607
+        },
+        {
+          "start": 66,
+          "end": 67,
+          "voice": 2,
+          "log_probability": -0.06962209264800341
+        },
+        {
+          "start": 66,
+          "end": 68,
+          "voice": 1,
+          "log_probability": -0.6870017578168084
+        },
+        {
+          "start": 67,
+          "end": 68,
+          "voice": 3,
+          "log_probability": -2.2166751295258735
+        },
+        {
+          "start": 67,
+          "end": 68,
+          "voice": 2,
+          "log_probability": -5.053939842529303
+        },
+        {
+          "start": 68,
+          "end": 69,
+          "voice": 3,
+          "log_probability": -0.6399573985555893
+        },
+        {
+          "start": 68,
+          "end": 70,
+          "voice": 2,
+          "log_probability": -0.24697407513172878
+        },
+        {
+          "start": 68,
+          "end": 70,
+          "voice": 1,
+          "log_probability": -0.03264580193609201
+        },
+        {
+          "start": 69,
+          "end": 70,
+          "voice": 3,
+          "log_probability": -0.10191087588052723
+        },
+        {
+          "start": 70,
+          "end": 71,
+          "voice": 3,
+          "log_probability": -0.006292624848104226
+        },
+        {
+          "start": 70,
+          "end": 72,
+          "voice": 2,
+          "log_probability": -0.4429490832739172
+        },
+        {
+          "start": 70,
+          "end": 71,
+          "voice": 1,
+          "log_probability": -0.019187302964858426
+        },
+        {
+          "start": 71,
+          "end": 72,
+          "voice": 3,
+          "log_probability": -0.25975691354883634
+        },
+        {
+          "start": 71,
+          "end": 72,
+          "voice": 1,
+          "log_probability": -0.050595808108521274
+        },
+        {
+          "start": 72,
+          "end": 73,
+          "voice": 3,
+          "log_probability": -0.006643768201696804
+        },
+        {
+          "start": 72,
+          "end": 74,
+          "voice": 2,
+          "log_probability": -0.43126267771913585
+        },
+        {
+          "start": 72,
+          "end": 74,
+          "voice": 1,
+          "log_probability": -0.0730590741965817
+        },
+        {
+          "start": 73,
+          "end": 74,
+          "voice": 3,
+          "log_probability": -0.8488768873968958
+        },
+        {
+          "start": 74,
+          "end": 75,
+          "voice": 3,
+          "log_probability": -0.2992782688825331
+        },
+        {
+          "start": 74,
+          "end": 75,
+          "voice": 2,
+          "log_probability": -0.8166146555773911
+        },
+        {
+          "start": 74,
+          "end": 76,
+          "voice": 1,
+          "log_probability": -1.147591972977128
+        },
+        {
+          "start": 75,
+          "end": 76,
+          "voice": 3,
+          "log_probability": -1.4336797771651397
+        },
+        {
+          "start": 75,
+          "end": 76,
+          "voice": 2,
+          "log_probability": -0.3192114693841083
+        },
+        {
+          "start": 76,
+          "end": 78,
+          "voice": 3,
+          "log_probability": -0.18689713671764396
+        },
+        {
+          "start": 76,
+          "end": 77,
+          "voice": 2,
+          "log_probability": -4.110807976459816
+        },
+        {
+          "start": 76,
+          "end": 78,
+          "voice": 1,
+          "log_probability": -0.13458116680414187
+        },
+        {
+          "start": 77,
+          "end": 78,
+          "voice": 2,
+          "log_probability": -0.36457945113711887
+        },
+        {
+          "start": 78,
+          "end": 79,
+          "voice": 3,
+          "log_probability": -0.39277003247337927
+        },
+        {
+          "start": 78,
+          "end": 79,
+          "voice": 2,
+          "log_probability": -1.0819649252189378
+        },
+        {
+          "start": 78,
+          "end": 79,
+          "voice": 1,
+          "log_probability": -0.04492326041791597
+        },
+        {
+          "start": 79,
+          "end": 81,
+          "voice": 3,
+          "log_probability": -0.3042253670731437
+        },
+        {
+          "start": 79,
+          "end": 81,
+          "voice": 2,
+          "log_probability": -0.029297498620927533
+        },
+        {
+          "start": 79,
+          "end": 80,
+          "voice": 1,
+          "log_probability": -1.2786886006097413
+        },
+        {
+          "start": 80,
+          "end": 81,
+          "voice": 1,
+          "log_probability": -0.39905312519892616
+        },
+        {
+          "start": 81,
+          "end": 82,
+          "voice": 3,
+          "log_probability": -0.14064718299328027
+        },
+        {
+          "start": 81,
+          "end": 83,
+          "voice": 2,
+          "log_probability": -8.172985137492473
+        },
+        {
+          "start": 81,
+          "end": 82,
+          "voice": 1,
+          "log_probability": -5.279375061781153
+        },
+        {
+          "start": 82,
+          "end": 83,
+          "voice": 3,
+          "log_probability": -0.25028338858156707
+        },
+        {
+          "start": 82,
+          "end": 83,
+          "voice": 1,
+          "log_probability": -1.8842801601446255
+        },
+        {
+          "start": 83,
+          "end": 84,
+          "voice": 3,
+          "log_probability": -0.037031852930551994
+        },
+        {
+          "start": 83,
+          "end": 85,
+          "voice": 2,
+          "log_probability": -0.02477128326313986
+        },
+        {
+          "start": 83,
+          "end": 84,
+          "voice": 1,
+          "log_probability": -0.3989359091965866
+        },
+        {
+          "start": 84,
+          "end": 85,
+          "voice": 3,
+          "log_probability": -0.06359067955465568
+        },
+        {
+          "start": 84,
+          "end": 85,
+          "voice": 1,
+          "log_probability": -0.11794298521677016
+        },
+        {
+          "start": 85,
+          "end": 86,
+          "voice": 3,
+          "log_probability": -0.0002864988705043636
+        },
+        {
+          "start": 85,
+          "end": 89,
+          "voice": 2,
+          "log_probability": -0.008551890252860874
+        },
+        {
+          "start": 85,
+          "end": 86,
+          "voice": 1,
+          "log_probability": -0.3577774265764585
+        },
+        {
+          "start": 86,
+          "end": 87,
+          "voice": 3,
+          "log_probability": -0.00825261774074097
+        },
+        {
+          "start": 86,
+          "end": 87,
+          "voice": 1,
+          "log_probability": -0.022556732200975982
+        },
+        {
+          "start": 87,
+          "end": 88,
+          "voice": 3,
+          "log_probability": -0.019604680026228307
+        },
+        {
+          "start": 87,
+          "end": 91,
+          "voice": 1,
+          "log_probability": -0.0013120388510361228
+        },
+        {
+          "start": 88,
+          "end": 89,
+          "voice": 3,
+          "log_probability": -0.09974782113259473
+        },
+        {
+          "start": 89,
+          "end": 90,
+          "voice": 3,
+          "log_probability": -0.005033342024364157
+        },
+        {
+          "start": 89,
+          "end": 90,
+          "voice": 2,
+          "log_probability": -3.976634463934645
+        },
+        {
+          "start": 90,
+          "end": 91,
+          "voice": 3,
+          "log_probability": -0.19362153556125733
+        },
+        {
+          "start": 90,
+          "end": 91,
+          "voice": 2,
+          "log_probability": -2.9034745730881752
+        },
+        {
+          "start": 91,
+          "end": 92,
+          "voice": 3,
+          "log_probability": -0.2964133636713129
+        },
+        {
+          "start": 91,
+          "end": 92,
+          "voice": 2,
+          "log_probability": -0.6933326032988006
+        },
+        {
+          "start": 91,
+          "end": 92,
+          "voice": 1,
+          "log_probability": -3.553473851876151
+        },
+        {
+          "start": 92,
+          "end": 93,
+          "voice": 3,
+          "log_probability": -0.5822226100178911
+        },
+        {
+          "start": 92,
+          "end": 93,
+          "voice": 2,
+          "log_probability": -0.16711500374006025
+        },
+        {
+          "start": 92,
+          "end": 93,
+          "voice": 1,
+          "log_probability": -0.9737209952924262
+        },
+        {
+          "start": 93,
+          "end": 94,
+          "voice": 3,
+          "log_probability": -0.6575344189061318
+        },
+        {
+          "start": 93,
+          "end": 95,
+          "voice": 2,
+          "log_probability": -0.6472483826178709
+        },
+        {
+          "start": 93,
+          "end": 95,
+          "voice": 1,
+          "log_probability": -0.31302001133216834
+        },
+        {
+          "start": 94,
+          "end": 95,
+          "voice": 3,
+          "log_probability": -2.992682852735843
+        },
+        {
+          "start": 95,
+          "end": 96,
+          "voice": 3,
+          "log_probability": -2.1973486764951904
+        },
+        {
+          "start": 95,
+          "end": 97,
+          "voice": 2,
+          "log_probability": -0.552255898236731
+        },
+        {
+          "start": 95,
+          "end": 96,
+          "voice": 1,
+          "log_probability": -0.0437384187099561
+        },
+        {
+          "start": 96,
+          "end": 97,
+          "voice": 3,
+          "log_probability": -4.648012402709863
+        },
+        {
+          "start": 96,
+          "end": 97,
+          "voice": 1,
+          "log_probability": -1.750728880598983
+        }
+      ]
+    }
+  }
+}

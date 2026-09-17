@@ -1,0 +1,156 @@
+{
+  "experiment": {
+    "id": "F-K3-V17-PAIRED-FINITE-DIFFERENCE-SCREEN",
+    "status": "NO_CANDIDATE_PASSES_DYADIC_SHORT_HORIZON_SCREEN",
+    "source_model": "/Users/francoispachet/IdeaProjects/boojum/harmonizer/bach_rule_induction/factor_bases/k3_v6_induced/v13_exact_directed_metric_model.json",
+    "shortlist": "/Users/francoispachet/IdeaProjects/boojum/harmonizer/bach_rule_induction/factor_bases/k3_v6_induced/v16_exact_candidate_shortlist.json",
+    "split_role": "train",
+    "pieces": 8,
+    "piece_ids": [
+      "bach/bwv308",
+      "bach/bwv265",
+      "bach/bwv55.5",
+      "bach/bwv412",
+      "bach/bwv174.5",
+      "bach/bwv56.5",
+      "bach/bwv406",
+      "bach/bwv264"
+    ],
+    "seeds": [
+      10103,
+      20207
+    ],
+    "sweeps": 6,
+    "candidate_count": 2,
+    "candidate_ranks": [
+      9,
+      12
+    ],
+    "max_abs_step": 0.075,
+    "paired_initialization": true,
+    "paired_random_stream": true,
+    "test_loaded": false
+  },
+  "metric_keys": [
+    "bass_semitone_rate",
+    "bass_repeat_rate",
+    "bass_large_leap_rate",
+    "bass_outside_natural_scale_rate",
+    "triadic_block_rate",
+    "strong_nontriadic_rate",
+    "strong_pair_dissonances_per_block",
+    "weak_pair_dissonances_per_block",
+    "dominant_65_strong_rate",
+    "dominant_65_weak_rate"
+  ],
+  "diagnostic_scales": [
+    0.06700889428621178,
+    0.04810469662652491,
+    0.058676294810190974,
+    0.06983857386636177,
+    0.047031287644338685,
+    0.05535385000013423,
+    0.1268553694256933,
+    0.1163720991107206,
+    0.021213203435596423,
+    0.04564086048964977
+  ],
+  "candidates": [
+    {
+      "rank": 9,
+      "family": "universal_pair_motion",
+      "feature": {
+        "kind": "any_pair_arrival_abs_class_same_sign",
+        "target_voice": -1,
+        "other_voice": null,
+        "value": 10,
+        "second_value": null,
+        "complexity": 2,
+        "key": "any_pair_arrival_abs_class_same_sign:-1:-:10:-",
+        "label": "any_pair_arrival_abs_class_same_sign(all_voices)=10"
+      },
+      "conditional": {
+        "gradient": -0.018040884196613968,
+        "variance": 280.85551027589673,
+        "z_score": -7.829426147238733,
+        "approximate_nll_gain": 0.004214211040496738,
+        "column_score": 0.0017690235964833898,
+        "observed_mean": 0.040031771247021446,
+        "expected_mean": 0.060875512432402454,
+        "testable_opportunities": 6295,
+        "piece_support": 32
+      },
+      "weight_step": -0.075,
+      "paired": {
+        "baseline_standardized_l1": 5.1212231264228505,
+        "candidate_standardized_l1": 4.293354944626039,
+        "ensemble_relative_remaining": 0.8383456136629857,
+        "per_seed_relative_remaining": [
+          1.0699745214939393,
+          1.1649749753802916
+        ],
+        "per_piece_standardized_l1_delta": {
+          "mean": -0.09169853562362762,
+          "ci95_low": -1.2130484123480367,
+          "ci95_high": 1.0296513411007813
+        },
+        "guarded_absolute_error_deltas": {
+          "bass_large_leap_rate": -0.01831211590442705,
+          "strong_nontriadic_rate": -0.017237249066293203,
+          "strong_pair_dissonances_per_block": -0.07123623755057573
+        },
+        "improves_ensemble": true,
+        "improves_every_seed": false,
+        "passes_guarded_metrics": true
+      }
+    },
+    {
+      "rank": 12,
+      "family": "universal_melodic_interval_class",
+      "feature": {
+        "kind": "any_voice_adjacent_abs_class",
+        "target_voice": -1,
+        "other_voice": null,
+        "value": 6,
+        "second_value": null,
+        "complexity": 1,
+        "key": "any_voice_adjacent_abs_class:-1:-:6:-",
+        "label": "any_voice_adjacent_abs_class(all_voices)=6"
+      },
+      "conditional": {
+        "gradient": -0.014444071800267915,
+        "variance": 271.2796869689105,
+        "z_score": -6.378147939245787,
+        "approximate_nll_gain": 0.002796698139344512,
+        "column_score": 0.001574104417337838,
+        "observed_mean": 0.051423071634813695,
+        "expected_mean": 0.0658671434350816,
+        "testable_opportunities": 7273,
+        "piece_support": 32
+      },
+      "weight_step": -0.075,
+      "paired": {
+        "baseline_standardized_l1": 5.1212231264228505,
+        "candidate_standardized_l1": 4.930778977110669,
+        "ensemble_relative_remaining": 0.962812760816925,
+        "per_seed_relative_remaining": [
+          0.7530205670723695,
+          1.2760007071715993
+        ],
+        "per_piece_standardized_l1_delta": {
+          "mean": 1.091639311452226,
+          "ci95_low": -0.6869089846218235,
+          "ci95_high": 2.8701876075262756
+        },
+        "guarded_absolute_error_deltas": {
+          "bass_large_leap_rate": 0.01431723692394482,
+          "strong_nontriadic_rate": -0.013043689698101435,
+          "strong_pair_dissonances_per_block": -0.04640649315281664
+        },
+        "improves_ensemble": true,
+        "improves_every_seed": false,
+        "passes_guarded_metrics": false
+      }
+    }
+  ]
+}

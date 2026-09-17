@@ -26,6 +26,120 @@ def _fact(text: str) -> Fact:
     return Fact(parse_term(text))
 
 
+def test_results_keep_provenance_across_mutation_and_repeated_rollback() -> None:
+    (group,) = parse_rule_groups(
+        """
+        GROUP derive
+            RULE step
+            WHEN
+                seed
+            THEN
+                ADD conclusion
+            END
+        END_GROUP
+        """
+    )
+    session = InferenceSession((_fact("seed"),))
+    checkpoint = session.checkpoint()
+    result = session.run_group(group)
+    snapshot = session.snapshot()
+    conclusion = _fact("conclusion")
+    expected = snapshot.provenance.derivations(conclusion)
+    assert expected
+    for _ in range(2):
+        session.assume(_fact("later"))
+        session.rollback(checkpoint)
+        for saved in (result, snapshot):
+            assert conclusion in saved.facts
+            assert saved.provenance.derivations(conclusion) == expected
+            assert saved.provenance.depth(conclusion) == 1
+            assert saved.provenance.derivations(_fact("later")) == ()
+        session.run_group(group)
+    session.release(checkpoint)
+
+
+def test_assumptions_shorten_dependent_proofs_and_rollback_restores_depths() -> None:
+    (group,) = parse_rule_groups(
+        """
+        GROUP derive
+            RULE first
+            WHEN
+                seed
+            THEN
+                ADD middle
+            END
+            RULE second
+            WHEN
+                middle
+            THEN
+                ADD end
+            END
+        END_GROUP
+        """
+    )
+    session = InferenceSession((_fact("seed"),))
+    session.run_group(group)
+    middle, end = _fact("middle"), _fact("end")
+    historical = session.provenance.derivations(end)
+    checkpoint = session.checkpoint()
+    for _ in range(2):
+        session.assume(middle)
+        assert session.provenance.depth(middle) == 0
+        assert session.provenance.depth(end) == 1
+        shortest = session.provenance.minimal_derivation(end)
+        assert shortest is not None and shortest.proof_depth == 1
+        assert session.provenance.derivations(end) == historical
+        session.rollback(checkpoint)
+        assert session.provenance.depth(middle) == 1
+        assert session.provenance.depth(end) == 2
+    session.release(checkpoint)
+
+
+def test_a_shorter_rule_proof_updates_existing_descendants_reversibly() -> None:
+    long_path, shortcut = parse_rule_groups(
+        """
+        GROUP long_path
+            RULE first
+            WHEN
+                seed
+            THEN
+                ADD middle
+            END
+            RULE second
+            WHEN
+                middle
+            THEN
+                ADD end
+            END
+            RULE third
+            WHEN
+                end
+            THEN
+                ADD descendant
+            END
+        END_GROUP
+        GROUP shortcut
+            RULE short
+            WHEN
+                seed
+            THEN
+                ADD end
+            END
+        END_GROUP
+        """
+    )
+    session = InferenceSession((_fact("seed"),))
+    session.run_group(long_path)
+    checkpoint = session.checkpoint()
+    session.run_group(shortcut)
+    assert session.provenance.depth(_fact("end")) == 1
+    assert session.provenance.depth(_fact("descendant")) == 2
+    session.rollback(checkpoint)
+    assert session.provenance.depth(_fact("end")) == 2
+    assert session.provenance.depth(_fact("descendant")) == 3
+    session.release(checkpoint)
+
+
 def test_checkpoint_type_keeps_its_public_import_paths() -> None:
     session = InferenceSession(())
     checkpoint = session.checkpoint()

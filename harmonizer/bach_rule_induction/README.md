@@ -1,0 +1,695 @@
+# Bach rule induction
+
+Ce dossier est le point d'entrée du projet de recherche visant à extraire des
+règles lisibles des chorals de Bach, à les compiler pour Snarky et à les
+comparer à CHORAL et DeepBach.
+
+Cette expérience constitue un projet annexe, distinct de la liste principale
+des applications de Snarky et de son programme de refonte. Elle conserve ses
+propres corpus, protocoles d’apprentissage et critères de validation.
+
+Le projet est volontairement séparé du prototype
+[`harmonizer/`](../README.md) : les règles apprises n'entreront dans
+l'harmoniseur principal qu'après validation, avec une provenance et des tests
+explicites.
+
+Le protocole de la première base générative apprise seule est gelé dans
+[`V4_PROTOCOL.md`](V4_PROTOCOL.md). L'axe principal est désormais
+[`V5-K3-CLEAN`](V5_K3_CLEAN_PROTOCOL.md) : base vide, règles limitées à trois
+blocs verticaux et génération Gibbs utilisant exactement le même contexte que
+l'apprentissage. Les expériences antérieures sont condensées dans
+[`EXPERIMENT_HISTORY.md`](EXPERIMENT_HISTORY.md).
+
+## Objectif expérimental
+
+Le projet poursuit deux objectifs complémentaires :
+
+1. mesurer quelle part de la qualité de Bach peut être comprimée dans une
+   petite base de règles locales et intelligibles ;
+2. découvrir ce que les traités, CHORAL et la base Snarky historique
+   n'expriment pas encore, ou expriment de manière trop générale.
+
+Comparer sur les mêmes pièces et la même tâche :
+
+| ID | Système |
+|---|---|
+| `S-HISTORICAL` | base Snarky historique écrite à la main, inchangée |
+| `F-K3-V5.16-REFERENCE` | facteurs du POC V5.16, gelés comme oracle d'ingénierie |
+| `F-K3-V6-INDUCED` | structure et paramètres factoriels appris depuis le corpus |
+| `S-HYBRID` | contraintes/règles expertes et facteurs appris, explicitement séparés |
+| `E0` | règles historiques de CHORAL reconstruites |
+| `D0-legacy` | [DeepBach historique](../../../deepbach-reference/README.md), poids et code figés |
+| `D0-modern` | port DeepBach maintenu et validé différentiellement |
+| `H0` | combinaison DeepBach–Snarky |
+| `BACH-REFERENCE` | harmonisation authentique tenue à part |
+
+La première tâche commune est l'harmonisation SATB d'un soprano imposé, avec
+rythme, métrique, fermatas et métadonnées tonales contrôlés.
+
+La séparation des bases est stricte. Les `RULE` et `CONSTRAINT` sont écrites
+par un expert dans la base historique. Dans la base apprise, l'expert définit
+le langage de prédicats et les critères statistiques ; le corpus sélectionne
+les instances, leur statut dur ou souple et les poids. Une activation
+factorielle est pure, n'est pas ajoutée aux faits et ne peut donc déclencher
+aucune règle. Chaque objet enregistre séparément l'origine de sa formulation,
+de sa sélection et des faits musicaux qu'il consulte.
+
+Les deux boucles — induction de la théorie puis recherche de solutions
+satisfaisantes — sont spécifiées dans
+[`TWO_LOOPS_EXPERIMENT_PROTOCOL.md`](TWO_LOOPS_EXPERIMENT_PROTOCOL.md).
+
+## Hypothèse centrale
+
+Une part substantielle de la connaissance des chorals pourrait être comprimée
+dans une petite base de règles intelligibles, locales et indépendantes,
+conservant l'essentiel de la qualité musicale. Les informations de contexte
+plus étendues — tonalité, métrique, phase de phrase, cadence ou rôle
+structurel — sont représentées par des faits de statut explicites et testables.
+Une règle consulte ces faits dans un voisinage borné, mais n'appelle jamais une
+autre règle et ne dépend pas de l'ordre d'application.
+
+Le résultat principal sera une frontière qualité–complexité : qualité tenue à
+part en fonction du nombre de faits, de règles et de conditions. La complexité
+des faits de statut est comptée afin de ne pas cacher le problème dans des
+features opaques. Une conclusion négative — qualité exigeant beaucoup de
+clauses, des règles non locales ou des statuts inintelligibles — répondrait elle
+aussi à la question scientifique.
+
+La recherche de connaissance nouvelle est résiduelle : on cherche ce que Bach
+fait encore de manière systématique après avoir conditionné le modèle sur les
+règles connues. Chaque résultat est classé comme redécouverte, raffinement,
+nouvelle régularité, contradiction ou cas non résolu. Une revendication de
+nouveauté exige un gain non redondant sur des pièces tenues à part, une
+formulation courte, des exceptions auditables et l'absence d'équivalent dans
+les sources examinées.
+
+Le livrable visé est ainsi un **traité empirique du choral de Bach** :
+formulations pédagogiques et enrichies côte à côte, forces estimées, contextes,
+exceptions, exemples dans les partitions et règles Snarky exécutables. Pour
+affirmer qu'une régularité est spécifiquement bachienne, et pas seulement
+tonale, elle devra ensuite être testée sur un corpus comparable d'autres
+compositeurs.
+
+## État expérimental au 28 juillet 2026
+
+Les fondations reproductibles sont en place :
+
+- le manifeste historique Music21 3.1.0 reproduit les 352 chorals et les
+  2 503 transpositions de l'article DeepBach ;
+- un audit a regroupé dix familles de mélodies identiques et supprimé six
+  traversées entre partitions ; le partage canonique réserve désormais
+  251 chorals au train, 50 à la validation et 51 au test, ouvert une seule
+  fois après le gel V3.7 ;
+- la baseline DeepBach Keras historique génère de nouveau des chorals dans le
+  projet frère `deepbach-reference` ;
+- l'appendice B de CHORAL est couvert sur 78 pages par 1 293 unités sources,
+  775 cartes structurées et 7 tables ; la structure passe le validateur, mais
+  389 unités restent explicitement en revue philologique ;
+- un [premier POC différentiable](experiments/differentiable_rules_poc/) a
+  extrait 20 350 décisions de soprano et appris des clauses depuis des
+  hauteurs numériques.
+
+Le jalon V6 introduit désormais une syntaxe Snarky `FACTOR` distincte des
+règles et contraintes. Une grammaire numérique locale gelée a engendré 954
+candidats ; 30 facteurs ont été sélectionnés depuis zéro et font passer la NLL
+de validation de `2,422315` à `1,048935`. Tous dépassent le maximum absolu de
+leur famille sous permutation ; aucune règle historique, carte CHORAL ou
+contrainte experte n'a été chargée.
+
+Un premier réajustement génératif a conservé ces 30 facteurs et modifié
+uniquement leurs poids par le gradient `E_Bach[f] - E_Gibbs[f]`. Sur le train,
+la MAE des moments passe de `0,035206` à `0,013355`. Sur dix chorals de
+développement, les demi-tons de basse reviennent de `39,41 %` à `25,29 %`
+contre `25,73 %` chez Bach, et les blocs triadiques de `46,41 %` à `53,66 %`
+contre `53,86 %`. Les répétitions attaquées de basse et les dissonances sur
+temps fort restent trop nombreuses : V6 est exécutable mais pas encore
+promue. Le [bilan complet](factor_bases/k3_v6_induced/V6_RESEARCH_LOOP_SUMMARY.md)
+conserve le test réservé fermé.
+
+Le dernier checkpoint **exécutable** reste V19, mais le checkpoint de
+recherche explicatif est désormais **V20B**. L'expert définit un vocabulaire
+déterministe de fondamentales, qualités et renversements ; le corpus choisit
+les prédicats, leurs signes et leurs poids. Sur cinq réinductions, quatre
+statuts harmoniques sont unanimes et positifs : triades majeure et mineure à
+l'état fondamental, premier renversement et septième de dominante. La
+[décision V20B](factor_bases/k3_v6_induced/V20B_IDENTIFIABLE_HARMONIC_STATUS_DECISION.md)
+documente ce résultat.
+
+V20C a ensuite testé, sans copier leurs marginaux, les 288 transitions
+symétriques entre fondamentales nommées. Bien que `67,58 %` des transitions
+analysables diffèrent des transitions de notes de basse de V13, aucune
+nouvelle colonne n'est sélectionnée : la base et la NLL restent exactement
+celles de V20B. La
+[décision V20C](factor_bases/k3_v6_induced/V20C_NAMED_ROOT_TRANSITIONS_DECISION.md)
+ferme donc cette famille sans réplications ni génération redondantes.
+
+V21 a testé l'objection selon laquelle une relation musicale ne doit pas être
+sélectionnée cellule par cellule. Les 288 transitions ont été apprises comme
+un seul groupe MaxEnt identifiable. Un gain apparié apparaît sur le premier
+découpage (`0,01833` de NLL, 8 chorals sur 10), mais la matrice libre
+surapprend dans quatre plis sur quatre. La
+[décision V21](factor_bases/k3_v6_induced/V21_GROUPED_LEARNING_DECISION.md)
+conserve donc le mécanisme de RuleGroup tout en rejetant cette table à 288
+paramètres. La suite doit rechercher des groupes partageant réellement un
+petit nombre de paramètres et distinguer leurs règles souples des invariants
+candidats à des contraintes.
+
+La formalisation générique de cette séparation, l'intégration de
+l'apprentissage dans le langage et les exemples jouets préalables à la
+migration du code Bach sont décrits dans le
+[plan du langage factoriel appris](../../docs/learned_factor_language_plan.md).
+
+Le premier cycle `V5.1-K3-CLEAN` repart réellement d'une base musicale vide
+sur 68 263 décisions `train` et 13 202 décisions `validation`. Douze clauses
+locales réduisent la NLL de validation de `1,145342`, soit `10,78` fois le gain
+d'un contrôle permuté de même budget. Le catalogue compact retrouve notamment
+les patrons numériques généraux des octaves et quintes parallèles. Le test de
+51 chorals n'est pas chargé.
+
+Le POC retrouve sans noms musicologiques l'évitement des sauts supérieurs à
+l'octave, une abstraction locale de mouvement de même signe entre soprano et
+basse, puis les répétitions fortement évitées des classes numériques `0` et
+`7`. Après dévoilement, celles-ci correspondent aux octaves/unissons et aux
+quintes parallèles.
+
+Les scores de validation de ces deux patrons sont `z = -4,410` et
+`z = -4,715`. Ils deviennent positifs dans le contrôle où les choix sont
+mélangés à l'intérieur de chaque pièce.
+
+Le [POC V2.1](experiments/differentiable_rules_poc/V2_ANALYSIS.md) ajoute une
+génération de colonnes sur les résidus. Après absorption des coûts généraux, il
+sélectionne exactement les classes `0` et `7` pour les arrivées après saut en
+même direction. Les deux clauses ont des poids négatifs, améliorent la
+validation et sont extensionnellement équivalentes à `R-DIRECT-001/002` sur
+301 401 états locaux valides par classe. Le contrôle mélangé ne sélectionne
+aucune classe. Sur le partage sans fuite, le catalogue passe de 52 clauses
+actives dans le V1 à 34 dans le V2, avec une NLL de validation de `1,624531`.
+Le bootstrap groupé conserve un signe négatif sur validation dans 100 % des
+réplications pour `0` et 99,6 % pour `7`.
+
+Le [POC V2.2](experiments/differentiable_rules_poc/V2_2_ANALYSIS.md) étend
+ensuite la tâche aux quatre voix. Avec un budget d'une règle par famille et un
+contraste local contre les valeurs numériques voisines, il sélectionne la
+classe mélodique `6` et la frontière d'overlap `0`. Le même sélecteur ne retient
+rien après permutation des choix dans chaque voix et chaque choral. Les deux
+formules sont équivalentes à `R-MELODY-002` et `R-OVERLAP-001` sur 1 993 et
+534 050 états locaux testés.
+
+Le [POC V2.3](experiments/differentiable_rules_poc/V2_3_ANALYSIS.md) a depuis
+généralisé les parallèles aux six paires de voix. Il retient exactement les
+classes `0` et `7`, contre aucune dans le contrôle permuté, et retrouve
+`R-PARALLEL-001/002` sans désaccord sur 1 130 364 états par classe.
+
+À ce stade historique du POC, le test final restait scellé ; il n'a été ouvert
+qu'en V3.8 après publication du protocole.
+
+Le [POC V2.4](experiments/differentiable_rules_poc/V2_4_ANALYSIS.md) réunit
+enfin les sept règles récupérées dans un même modèle. Le catalogue améliore la
+NLL de validation de `0,068188`, contre `0,006307` dans le contrôle permuté.
+Chaque règle porte encore une contribution positive lorsque son poids est
+neutralisé, les deux parallèles dominant l'ablation.
+
+Le [POC V2.5](experiments/differentiable_rules_poc/V2_5_ANALYSIS.md) réentraîne
+ensuite le modèle après retrait de chaque groupe. Aucun groupe n'est totalement
+compensé : les pénalités restent positives pour les parallèles (`0,051384`),
+la mélodie (`0,008753`), l'overlap (`0,005419`) et les mouvements directs
+(`0,000997`). Le contrôle permuté ramène la contribution des parallèles à
+environ zéro.
+
+Le [POC V3.1](experiments/differentiable_rules_poc/V3_1_ANALYSIS.md) ouvre les
+obligations. En testant uniformément les douze classes relatives à la tonique
+globale, il retient uniquement `11` pour la conclusion « monter d'un
+demi-ton ». Le taux de validation est `0,5259` contre `0,3074` attendu
+(`z = 17,093`). Un contraste local, ajouté après diagnostic d'un faux positif,
+rejette la classe dans le contrôle permuté.
+
+Les [POC V3.2](experiments/differentiable_rules_poc/V3_2_ANALYSIS.md) et
+[V3.3](experiments/differentiable_rules_poc/V3_3_ANALYSIS.md) raffinent cette
+tendance avec des clauses courtes sur la voix, le mouvement de basse et le
+mode. Le V3.3 retient sept proxys de progressions lisibles sur 864 candidats,
+contre aucun dans le contrôle nul. Il distingue notamment le patron mineur
+assimilable à `V→VI`, vérifié 25/25 fois au train et 11/11 en validation, de
+son homologue majeur qui ne résout jamais dans les occurrences observées.
+
+Le [POC V3.4](experiments/differentiable_rules_poc/V3_4_ANALYSIS.md) corrige
+ensuite la recherche multiple par le maximum de 49 permutations complètes.
+Les maxima nuls atteignent `6,205`. Une seule des sept clauses V3.3 reste
+significative au niveau familial : `majeur + alto + basse 2→4`, proxy de
+`vii°6→I6`, avec `min-z = 8,050` et `p FWER = 0,02`.
+
+Le [POC V3.5](experiments/differentiable_rules_poc/V3_5_ANALYSIS.md) vérifie
+ensuite cette étiquette sur les quatre voix. La progression exacte
+`vii°6→I6` couvre 41/54 contextes train et 12/19 validation, tous résolus.
+Elle constitue donc un noyau net, mais non une équivalence : la clause apprise
+englobe aussi des accords de dominante ou des états ornés sur la même basse.
+
+Le [POC V3.6](experiments/differentiable_rules_poc/V3_6_ANALYSIS.md) réajuste
+ensuite quatre modèles. Le proxy et son noyau candidat-dépendant améliorent
+chacun la baseline ; leur combinaison obtient la meilleure NLL de validation
+(`1,268457`). Le proxy conserve un gain propre robuste au-delà de
+`vii°6→I6`, tandis que le gain inverse est positif mais limite. Le résultat
+favorise une règle générale locale munie d'une spécialisation harmonique, et
+non deux règles prétendument indépendantes.
+
+Le [POC V3.7](experiments/differentiable_rules_poc/V3_7_ANALYSIS.md) compresse
+cette hiérarchie en un statut ordinal local `0/1/2`. Avec un seul poids, la
+formulation `graded_exact` conserve `99,96 %` du gain cross-fitté des deux
+poids libres et réduit le coût descriptif de 240 à 144 bits. Aucun modèle
+n'est sélectionné dans le contrôle nul. La feature et les critères du test
+final sont désormais gelés dans
+[`FROZEN_V3_8_TEST_PROTOCOL.json`](experiments/differentiable_rules_poc/FROZEN_V3_8_TEST_PROTOCOL.json).
+
+Le [POC V3.8](experiments/differentiable_rules_poc/V3_8_ANALYSIS.md) ouvre
+ensuite le test une seule fois. `graded_exact` gagne `0,004414` NLL, avec un
+intervalle bootstrap `[0,001248 ; 0,008493]`, et conserve `99,964 %` du gain
+des deux poids : les trois critères gelés sont satisfaits.
+
+Enfin, le [POC V3.9](experiments/differentiable_rules_poc/V3_9_ANALYSIS.md)
+compile le statut en Snarky et le compare à DeepBach. La compilation correspond
+à l'oracle sur 256 états abstraits. DeepBach classe la résolution première dans
+les 12 contextes Bach sondés, mais préfère aussi la règle dans les deux
+exceptions authentiques ; cela confirme qu'il faut conserver une préférence
+graduée et non une obligation dure.
+
+Le cycle
+[`V4`](V4_PROTOCOL.md) sépare désormais physiquement `S-HISTORICAL`,
+`S-LEARNED` et `S-HYBRID`. Cette nomenclature V4 est conservée pour reproduire
+l'expérience historique ; V6 la remplace par `F-LEARNED` pour ne plus appeler
+« règles » les facteurs appris. Les six objets V4 de niveau A possèdent une
+compilation autonome, et leurs sorties exploratoires restent dans
+`experiments/learned_only_generation/results/`.
+
+## Organisation
+
+```text
+bach_rule_induction/
+├── README.md             point d'entrée et état du chantier
+├── PLAN.md               protocole scientifique complet
+├── sources/              audits de DeepBach et de CHORAL
+├── corpus/               manifeste, partitions et transformations
+├── features/             registre des descripteurs musicaux
+├── rules/                RuleCards et règles Snarky induites
+├── rule_bases/           manifestes historical, learned et hybrid
+├── factor_bases/         facteurs probabilistes appris, séparés des règles
+├── baselines/            adaptateurs Snarky, E0, D0 et H0
+└── experiments/          configurations, sorties et métriques
+```
+
+Les partitions ou modèles externes volumineux ne doivent pas être recopiés
+ici. Ils restent dans `third_party/` ou dans le cache ignoré du projet frère
+[`deepbach-reference/`](../../../deepbach-reference/README.md) ; ce dossier ne
+conserve que leurs manifestes, empreintes, licences et transformations
+reproductibles.
+
+## Plan d'action
+
+### Phase 0 — sources et protocole
+
+État : en cours.
+
+- [x] copier et auditer le dépôt DeepBach, ses poids et son cache ;
+- [x] conserver le rapport IBM RC 12628 et inventorier CHORAL ;
+- [x] rédiger le protocole général ;
+- [ ] trancher les décisions ouvertes minimales : unité temporelle, corpus,
+      critères d'exclusion et tâche exacte.
+
+### Phase 1 — corpus canonique
+
+- [x] extraire les identifiants du corpus historique `music21` ;
+- [x] vérifier les 352 pièces et 2 503 transpositions annoncées par l'article
+      DeepBach ;
+- [x] produire un manifeste avec empreinte, inclusion et motif d'exclusion ;
+- [x] regrouper les variantes exactes de soprano avant le partage canonique ;
+- auditer ensuite les variantes mélodiques proches ;
+- [x] figer un premier partage déterministe par pièce avant toute augmentation ;
+- convertir chaque pièce vers une représentation SATB commune et testée.
+
+Livrable : `corpus/manifest.yaml`, les trois listes d'identifiants et des tests
+de conservation notes–voix–rythme–fermata.
+
+### Phase 2 — vocabulaire musical
+
+- inventorier les faits déjà exposés par l'harmoniseur ;
+- définir les features tonales, métriques, cadentielles et contrapuntiques ;
+- associer définition, type, provenance et tests à chaque feature ;
+- représenter explicitement les informations manquantes révélées par les
+  erreurs de DeepBach.
+
+Livrable : registre versionné dans `features/`.
+
+### Phase 3 — règles humaines et CHORAL
+
+- choisir dix règles pédagogiques comme formulations parentes ;
+- [x] produire l'extraction structurée complète de CHORAL avec références de
+      page et provenance ;
+- revoir manuellement les unités et cartes signalées à faible confiance ;
+- mesurer support, exceptions et dépendance au contexte dans Bach ;
+- exprimer les variantes comme `MUST`, `NORMALLY`, `PREFER` ou `OBSERVED`.
+
+Livrable : premières RuleCards vérifiées dans `rules/`.
+
+### Phase 4 — induction et compilation Snarky
+
+- [x] implémenter un premier énumérateur de patrons interprétables et bornés ;
+- [x] lancer une première redécouverte aveugle sur sauts et parallèles ;
+- [x] guider la recherche et les poids par gradient conditionnel avec L1 ;
+- [x] exécuter un contrôle nul par mélange intra-pièce ;
+- [x] remplacer la présélection marginale par une génération de colonnes
+      réellement résiduelle ;
+- tracer la frontière qualité–complexité sous plusieurs budgets ;
+- sélectionner les règles par support, gain, stabilité et coût descriptif ;
+- mesurer effets marginaux, ablations, redondances et interactions résiduelles ;
+- enrichir les faits de statut sans introduire de dépendances entre règles ;
+- [x] définir un premier statut tonal global et redécouvrir la classe `11` ;
+- [x] utiliser les exceptions pour proposer `global_key_mode` comme feature ;
+- [x] calibrer la première famille tonale sur 49 maxima de permutations ;
+- [x] auditer harmoniquement la seule clause survivante ;
+- [x] comparer par ablation la clause chromatique et son noyau `vii°6→I6` ;
+- [x] compresser la hiérarchie par validation croisée groupée et geler la
+      formulation `graded_exact` avant le test ;
+- [x] valider sur un sous-ensemble non consulté pendant la découverte ;
+- [x] compiler la première obligation retenue en `R-LEARNED-*` et Snarky ;
+- vérifier chaque règle sur exemples, contre-exemples et cas limites.
+
+Livrable : `S-HISTORICAL`, `F-LEARNED` et `S-HYBRID` reproductibles.
+
+Le premier résultat attendu n'est pas une règle nouvelle, mais le benchmark
+[`rules/KNOWN_RULE_RECOVERY.md`](rules/KNOWN_RULE_RECOVERY.md) : le mineur doit
+retrouver des sauts, chevauchements, parallèles et mouvements directs sans
+accéder aux règles de référence pendant l'apprentissage.
+
+La méthode d'induction est décrite dans
+[`rules/INDUCTION_ALGORITHM.md`](rules/INDUCTION_ALGORITHM.md) : les notes
+candidates d'une même position forment un groupe de décision, un beam search
+génère des clauses courtes, puis un MaxEnt conditionnel sparse sélectionne une
+base additive par génération de colonnes.
+
+La boucle interne est :
+
+```text
+chercher → valider → expliquer → compiler → tester
+→ diagnostiquer → modifier minimalement → sélectionner → recommencer
+```
+
+Elle s'exécute sur `train` et `validation` jusqu'à stabilisation du coude de la
+frontière qualité–complexité. Elle ne vise pas zéro erreur. Les faits, règles,
+seuils et métriques sont ensuite gelés avant l'unique ouverture du test final.
+
+### Phase 5 — baseline DeepBach
+
+- [x] démarrer `D0-legacy` dans un environnement isolé et sans réseau ;
+- [x] enregistrer des sorties de référence avec graines fixes ;
+- porter l'inférence vers `D0-modern` ;
+- comparer les distributions et sorties des deux versions ;
+- réentraîner sur le partage commun uniquement après validation du port.
+
+Livrable : adaptateur DeepBach versionné et test différentiel.
+
+### Phase 6 — désaccords et systèmes hybrides
+
+- générer plusieurs harmonisations par soprano sans sélection manuelle ;
+- auditer toutes les sorties avec Snarky ;
+- classifier violations, règles manquantes et features manquantes ;
+- construire des paires minimales ;
+- tester rejet, réparation, masquage et ordre des choix Snarky par DeepBach.
+
+Livrable : atlas des désaccords et comparaison
+`S-HISTORICAL/F-LEARNED/S-HYBRID/E0/D0/H0`.
+
+### Phase 7 — évaluation et publication
+
+- [x] ouvrir le test final après gel du vocabulaire et des métriques pour la
+      première règle tonale ;
+- mesurer correction, fidélité stylistique, nouveauté, stabilité et coût ;
+- organiser une écoute en aveugle ;
+- publier règles, statistiques, exemples, exceptions et résultats négatifs.
+
+Livrable : traité exécutable de règles fondées sur corpus.
+
+## Prochain sprint
+
+Le premier sprint de provenance est terminé. L'ordre de travail immédiat est
+désormais :
+
+1. préenregistrer les seuils d'encoche, budgets et le partage groupé ;
+2. [x] définir et tester les premiers faits de tonalité globale et de classe
+   mélodique relative ;
+3. dédupliquer les paires lors des attaques simultanées et mesurer la
+   sensibilité ;
+4. [x] extraire et analyser un premier lot d'exceptions authentiques ;
+5. [x] ajouter les faits tonals minimaux et retrouver la première obligation ;
+6. revoir les cartes CHORAL à faible confiance pertinentes pour ces familles ;
+7. calibrer les maxima de familles sur plusieurs permutations ;
+8. auditer les variantes mélodiques proches avant d'ouvrir le test.
+
+La définition exhaustive des lots, métriques, risques et critères de sortie se
+trouve dans [`PLAN.md`](PLAN.md).
+
+## Sources déjà acquises
+
+- [`sources/DEEPBACH.md`](sources/DEEPBACH.md) : audit du dépôt, des
+  environnements et des ressources ;
+- [`sources/CHORAL.md`](sources/CHORAL.md) : source primaire, organisation et
+  protocole de reconstruction des règles d'Ebcioğlu.
+
+## Checkpoint V22 — apprentissage conjoint lisible
+
+V22 valide une première forme d'apprentissage conjoint qui reste intelligible :
+une règle factorielle unique partage 24 paramètres entre les douze mouvements
+dirigés de fondamentale et les deux modes. Elle remplace la table V21 de 288
+coefficients libres.
+
+- quatre folds : gain NLL apparié `+0,013859`, 27/32 chorals améliorés ;
+- réapprentissage 251/50 : `0,829956 → 0,808481`, 46/50 améliorés ;
+- parité du programme `FACTOR` Snarky à `1,78 × 10⁻¹⁵` ;
+- 23 prédicats à fréquence nulle, issus de sept schémas, sont testés
+  séparément comme filtres pré-test et ne sont pas déclarés `MUST`.
+
+L'ablation générative montre que le groupe améliore la vraisemblance
+conditionnelle mais ne suffit pas à éliminer les dissonances. Les filtres
+candidats ramènent les dissonances faibles de `1,172` à `1,055` et le taux
+triadique de `47,07 %` à `49,23 %` sur dix chorals, mais le chromatisme de
+basse demeure. Le prochain groupe doit donc décrire le statut tonal de la
+basse et la qualité harmonique des blocs forts.
+
+Décision et artefacts :
+[`V22_SHARED_ROOT_MOTION_DECISION.md`](factor_bases/k3_v6_induced/V22_SHARED_ROOT_MOTION_DECISION.md),
+[`V22_RULEGROUP_CONSTRAINTS_VALIDATION10X1_SWEEP6.md`](factor_bases/k3_v6_induced/V22_RULEGROUP_CONSTRAINTS_VALIDATION10X1_SWEEP6.md).
+
+## Checkpoint V23 — statut harmonique fort
+
+V23 ajoute à V22 un groupe conjoint de quatorze paramètres lisibles :
+`famille d'accord nommée unique × renversement`, activé seulement sur les
+temps forts. L'absence d'analyse unique est l'état de référence ; les
+coefficients ne sont donc pas artificiellement centrés.
+
+- audit préalable : 14/14 cellules harmoniques et 24/24 cellules de basse
+  franchissent les seuils de couverture sur les 32 chorals de structure ;
+- quatre folds, harmonie seule : gain NLL `+0,002724`, 24/32 chorals
+  améliorés, IC 95 % `[+0,000814 ; +0,004597]` ;
+- réapprentissage 251/50 : gain `+0,003276`, 38/50 améliorés, IC 95 %
+  `[+0,001885 ; +0,004723]` ;
+- l'ajout simultané de 24 paramètres tonals de basse ne gagne que
+  `+0,000089` face à l'harmonie seule, avec un IC traversant zéro : il est
+  rejeté par parcimonie ;
+- 57 facteurs exportés (43 V22 + 14 V23), avec parité Snarky à
+  `8,88 × 10⁻¹⁶`.
+
+Dans l'ablation générative contrôlée V22→V23, les dissonances de temps fort
+passent de `0,688` à `0,552` par bloc et les blocs forts non triadiques de
+`37,55 %` à `33,36 %`. Les filtres zéro-exception ne se combinent toutefois
+pas favorablement avec V23 dans ce premier essai ; ils restent une ablation
+séparée et ne sont pas intégrés au modèle retenu.
+
+Décision :
+[`V23_METRIC_BASS_HARMONY_DECISION.md`](factor_bases/k3_v6_induced/V23_METRIC_BASS_HARMONY_DECISION.md).
+
+## Checkpoint V24 — sonorités résiduelles fortes
+
+V24 remplace l'état de référence indifférencié de V23 par huit statuts locaux
+et exhaustifs : accord ambigu, triade incomplète, note de passage ou broderie,
+retard, appoggiature et trois formes résiduelles non licenciées.
+
+L'apprentissage conditionnel est rejeté après quatre folds
+(`−0,000353` NLL en moyenne). Une estimation générative MaxEnt distincte,
+fondée sur les écarts de moments entre Bach et le générateur, améliore
+cependant les métriques visées sur dix chorals de validation × cinq graines :
+
+- blocs forts non triadiques : `35,17 % → 32,02 %`
+  (Bach : `26,91 %`) ;
+- dissonances fortes : `0,596 → 0,530` par bloc
+  (Bach : `0,357`) ;
+- blocs triadiques : `49,42 % → 50,17 %`
+  (Bach : `50,87 %`).
+
+Les 65 facteurs V24 sont compilés dans Snarky avec une erreur maximale de
+`8,882 × 10⁻¹⁶`. Une variante de Gibbs conjoint a été testée puis rejetée :
+elle ne remplace pas l'amélioration de la distribution cible. V24 reste un
+candidat génératif pré-test ; la basse et les licences aux temps faibles
+constituent les deux résidus suivants.
+
+Décision et écoute :
+[`V24_RESIDUAL_SONORITY_DECISION.md`](factor_bases/k3_v6_induced/V24_RESIDUAL_SONORITY_DECISION.md).
+
+## Checkpoint V25 — licences faibles, résultat négatif
+
+V25 apprend neuf catégories exclusives de sonorités faibles dans K3. Sur la
+validation réservée, il rapproche les dissonances faibles de Bach, mais
+augmente les dissonances fortes. Il est donc conservé comme expérience
+reproductible et rejeté comme successeur de V24 ; aucune règle V25 n'entre dans
+la base Snarky retenue.
+
+Ce résultat motive V26 : apprendre conjointement, dans une seule partition
+locale intelligible, le rôle de la sonorité faible et la qualité de sa
+résolution forte. Voir
+[`V25_WEAK_SONORITY_DECISION.md`](factor_bases/k3_v6_induced/V25_WEAK_SONORITY_DECISION.md).
+
+## Retour à la génération déclarative Snarky
+
+L'apprentissage et la génération sont désormais séparés explicitement.
+L'induction sur corpus estime des prédicats, leur statut et, pour les
+préférences, leurs poids. Elle ne constitue pas le moteur génératif final.
+Une fois gelés, ces artefacts sont compilés dans un problème Snarky :
+
+- les interdictions empiriques deviennent des contraintes persistantes ;
+- les facteurs V24 deviennent des préférences de choix additives ;
+- le soprano, le rythme et les conditions aux limites sont des faits ;
+- Snarky réalise la fermeture par propagation, choisit une valeur et restaure
+  un état antérieur en cas de contradiction.
+
+Le premier POC résout un fragment de BWV 108.6 sans Gibbs et vérifie la parité
+des 65 contributions factorielles à `6,661 × 10⁻¹⁶`. Sur le cas courant, trois
+décisions suffisent et aucun backtrack n'est déclenché : cela signifie que la
+branche préférée est compatible, non que le moteur en serait incapable. Le
+résultat répétitif montre surtout que les 23 filtres V22 sont trop faibles ou
+inactifs dans ce petit domaine et que V24 ne constitue pas encore une théorie
+générative suffisante.
+
+Architecture, limites et suite :
+[`SNARKY_RULE_SEARCH_ARCHITECTURE.md`](SNARKY_RULE_SEARCH_ARCHITECTURE.md).
+
+La première expérience avec threshold appris valide la seconde boucle :
+la première solution sans seuil est rejetée, 21 contradictions de score
+déclenchent 21 backtracks, puis Snarky trouve une solution au-dessus du
+plancher strict. Cette solution reste trop répétitive, ce qui constitue un
+faux négatif explicite pour la prochaine induction. Voir
+[`TWO_LOOP_SCORE_FLOOR_EXPERIMENT.md`](factor_bases/k3_v6_induced/TWO_LOOP_SCORE_FLOOR_EXPERIMENT.md).
+
+## Checkpoint V26–V28 — résolution et basse
+
+V26 joint le rôle faible à la qualité de la sonorité suivante. V27 apprend le
+rôle harmonique et mélodique de la basse, puis V28 sépare explicitement son
+mouvement de son appartenance à l'accord. V27 et V28 sont confirmés sur 50
+chorals de validation, avec des intervalles bootstrap strictement positifs.
+
+Dans la génération complète appariée de BWV 108.6, V28 abaisse les demi-tons
+de basse de `81,52 %` à `60,87 %`, augmente les blocs triadiques de `39,80 %`
+à `45,92 %` et réduit les blocs forts non triadiques de `53,85 %` à
+`42,31 %`. La recherche effectue réellement 551 backtracks après propagation
+de domaine. L'écart restant avec Bach est conservé comme cible de la prochaine
+induction.
+
+Décision et audit :
+[`V27_V28_BASS_DECISION.md`](factor_bases/k3_v6_induced/V27_V28_BASS_DECISION.md),
+[`V28_SNARKY_GENERATION_AUDIT.md`](factor_bases/k3_v6_induced/V28_SNARKY_GENERATION_AUDIT.md).
+
+## Checkpoint V29–V30 — successions fortes
+
+V29 croise, dans une partition unique de 36 cellules, les types de sonorité
+précédente et courante avec l'arrivée de basse. Le groupe est confirmé sur 50
+chorals (`+0,011500`, IC 95 % `[+0,008226 ; +0,014722]`, `43/50` pièces).
+Dans la génération complète, il réduit les demi-tons de basse de `60,87 %` à
+`47,83 %`, mais ne réduit pas les blocs forts non triadiques.
+
+V30 ajoute la qualité de résolution aux huit statuts forts résiduels. Malgré
+une couverture complète, son gain tenu à part est indistinguable de zéro ; le
+groupe est rejeté et n'entre pas dans la base générative.
+
+Décision :
+[`V29_V30_STRONG_SUCCESSION_DECISION.md`](factor_bases/k3_v6_induced/V29_V30_STRONG_SUCCESSION_DECISION.md).
+
+## Checkpoint V31–V32 — cycles de deux notes attaquées
+
+L'audit de V29 distingue maintenant les simples retours `ABA` des
+continuations `ABAB`. Ces dernières sont très surreprésentées dans les trois
+voix générées. Un premier groupe ajouté à la pseudo-vraisemblance K3 est
+rejeté selon son protocole ; le résultat négatif est conservé.
+
+V32 apprend plutôt un petit modèle conditionnel sur son domaine naturel :
+parmi les retours `ABA`, quelle est la probabilité de continuer le cycle ?
+L'hypothèse est confirmée sur 219 chorals restés intacts. Le BIC retient deux
+facteurs sans effet de bord, un pour alto–ténor (`−1,699453`) et un pour la
+basse (`−2,420368`).
+
+Sur la génération appariée de BWV 108.6, le taux de continuation de basse
+passe de `13,33 %` à `1,11 %`. En contrepartie, les blocs forts non triadiques
+augmentent de `46,15 %` à `57,69 %`. Ce résultat démontre qu'un facteur local
+correct peut déplacer l'erreur si la recherche accepte la première solution
+au-dessus d'un score global compensatoire.
+
+V32 est donc retenu comme groupe explicatif mais pas comme meilleur générateur.
+La prochaine expérience doit imposer séparément une enveloppe séquentielle et
+un plancher de score harmonique fort afin que leurs violations provoquent de
+vrais backtracks.
+
+Résultats :
+[`V32_ATTACK_CYCLE_FACTOR_MODEL.md`](factor_bases/k3_v6_induced/V32_ATTACK_CYCLE_FACTOR_MODEL.md),
+[`V32_GENERATION_AUDIT.md`](factor_bases/k3_v6_induced/V32_GENERATION_AUDIT.md).
+
+## Checkpoint V33 — interdictions harmoniques contextuelles
+
+Les cinq sonorités fortes non licenciées de V32 ont été compilées en deux
+contraintes contextuelles strictes pour une ablation. Une propagation à un
+pas vérifie désormais qu'un choix conserve au moins une valeur possible pour
+le segment suivant.
+
+Snarky trouve une solution après 66 backtracks. Les cinq sonorités visées
+disparaissent, les dissonances fortes baissent de `1,077` à `0,885` et les
+blocs forts non triadiques de `57,69 %` à `50 %`. Les cycles V32 restent
+maîtrisés.
+
+L'interdiction absolue n'est toutefois pas une règle de Bach : les mêmes
+statuts occupent `10,999 %` des blocs forts du train et apparaissent une fois
+dans le BWV 108.6 authentique. V33 est donc conservé comme preuve causale, pas
+comme théorie promue. La suite doit apprendre un budget de groupe autorisant
+un petit nombre de ces événements et déclenchant le backtracking seulement
+au-delà de l'enveloppe du corpus.
+
+Audit :
+[`V33_GENERATION_AUDIT.md`](factor_bases/k3_v6_induced/V33_GENERATION_AUDIT.md).
+
+## Checkpoint V34 — résolution nommée et propagation harmonique
+
+V34 définit des états harmoniques observables sur deux temps forts et apprend
+une distribution compacte à trois issues. Le modèle est lisible, mais rejeté
+par la réplication : le taux d'accords nommés dissonants passe de `16,414 %`
+sur train à `14,599 %` sur validation, hors de l'intervalle préenregistré.
+
+Une ablation compile néanmoins ses quantiles comme budgets persistants dans
+Snarky. Deux recherches de 5 000 nœuds, chronologique puis « squelette fort
+d'abord », ne trouvent pas de solution. Le diagnostic est algorithmique : les
+trois voix d'un accord fort sont encore branchées séparément, ce qui produit
+des milliers de paires sans troisième voix compatible. V35 devra créer un
+choix conjoint d'accord dont le domaine est obtenu à partir des contraintes
+existantes, sans inventer une interdiction supplémentaire.
+
+Décision :
+[`V34_HARMONIC_SEARCH_DECISION.md`](factor_bases/k3_v6_induced/V34_HARMONIC_SEARCH_DECISION.md).
+
+## Expérience indépendante — base experte du manuel
+
+Une seconde voie valide Snarky sans dépendre de l'induction K3. La base
+[`official_manual`](rule_bases/official_manual/manifest.yaml) traduit les
+douze règles illustrées du manuel en quatre `RuleGroup`, deux `FactorGroup`
+purs, trois profils de contrainte et une interface de réparation par
+`CHOICE`. Elle n'importe ni la base historique ni la base apprise.
+
+Un lecteur MusicXML autonome transforme toute partition SATB en faits, puis
+un audit différentiel vérifie les douze exemples authentiques contre leurs
+mutations : 12 contrastes ciblés sur 12 passent. Un test séparé confirme
+qu'une violation dure provoque une contradiction et un vrai backtrack. Cette
+parité valide la traduction des exemples, pas encore la suffisance de la base
+pour caractériser le style.
+
+Protocole et résultats :
+[`official_manual_validation`](experiments/official_manual_validation/README.md).

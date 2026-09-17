@@ -1,0 +1,412 @@
+{
+  "experiment": {
+    "fit_pieces_per_fold": 24,
+    "fold_count": 4,
+    "id": "K3-V18-EXPLANATORY-WEIGHT-STABILITY-1",
+    "nonzero_all_folds_count": 19,
+    "rule_count": 19,
+    "stable_sign_count": 19,
+    "status": "DEVELOPMENT_WEIGHT_STABILITY",
+    "structure_reselected_per_fold": false,
+    "test_loaded": false
+  },
+  "folds": [
+    {
+      "baseline_holdout_nll": 2.4767154690404394,
+      "fit_piece_count": 24,
+      "fold": 1,
+      "holdout_piece_count": 8,
+      "holdout_pieces": [
+        "bach/bwv110.7",
+        "bach/bwv174.5",
+        "bach/bwv245.5",
+        "bach/bwv265",
+        "bach/bwv312",
+        "bach/bwv371",
+        "bach/bwv408",
+        "bach/bwv426"
+      ],
+      "model_holdout_nll": 1.018678661575092,
+      "nll_gain": 1.4580368074653474
+    },
+    {
+      "baseline_holdout_nll": 2.479602940521978,
+      "fit_piece_count": 24,
+      "fold": 2,
+      "holdout_piece_count": 8,
+      "holdout_pieces": [
+        "bach/bwv113.8",
+        "bach/bwv197.7-a",
+        "bach/bwv248.23-s",
+        "bach/bwv279",
+        "bach/bwv316",
+        "bach/bwv397",
+        "bach/bwv412",
+        "bach/bwv55.5"
+      ],
+      "model_holdout_nll": 0.9289628253567419,
+      "nll_gain": 1.550640115165236
+    },
+    {
+      "baseline_holdout_nll": 2.4110207139579325,
+      "fit_piece_count": 24,
+      "fold": 3,
+      "holdout_piece_count": 8,
+      "holdout_pieces": [
+        "bach/bwv14.5",
+        "bach/bwv245.22",
+        "bach/bwv248.42-s",
+        "bach/bwv291",
+        "bach/bwv331",
+        "bach/bwv405",
+        "bach/bwv419",
+        "bach/bwv56.5"
+      ],
+      "model_holdout_nll": 0.9948013088251392,
+      "nll_gain": 1.4162194051327934
+    },
+    {
+      "baseline_holdout_nll": 2.324989951594252,
+      "fit_piece_count": 24,
+      "fold": 4,
+      "holdout_piece_count": 8,
+      "holdout_pieces": [
+        "bach/bwv153.5",
+        "bach/bwv245.40",
+        "bach/bwv264",
+        "bach/bwv308",
+        "bach/bwv356",
+        "bach/bwv406",
+        "bach/bwv42.7",
+        "bach/bwv7.7"
+      ],
+      "model_holdout_nll": 1.002236170728827,
+      "nll_gain": 1.3227537808654248
+    }
+  ],
+  "rules": [
+    {
+      "clause": "toutes voix : mouvement m\u00e9lodique sup\u00e9rieur \u00e0 2 demi-tons",
+      "fold_weights": [
+        -1.1412325253499889,
+        -1.1288484137870525,
+        -1.1623846121882875,
+        -1.168011322135215
+      ],
+      "full_weight": -1.3766299870505503,
+      "id": "F-K3-V18-001",
+      "maximum": -1.1288484137870525,
+      "mean": -1.1501192183651359,
+      "minimum": -1.168011322135215,
+      "nonzero_fold_count": 4,
+      "sign_stable": true,
+      "standard_deviation": 0.018275554739421405
+    },
+    {
+      "clause": "bloc central : 3 classes de hauteur distinctes",
+      "fold_weights": [
+        0.5264377785406373,
+        0.5272300824645177,
+        0.5096047954424014,
+        0.5376236705325249
+      ],
+      "full_weight": 0.45918335425520124,
+      "id": "F-K3-V18-002",
+      "maximum": 0.5376236705325249,
+      "mean": 0.5252240817450203,
+      "minimum": 0.5096047954424014,
+      "nonzero_fold_count": 4,
+      "sign_stable": true,
+      "standard_deviation": 0.011593230862601134
+    },
+    {
+      "clause": "au moins deux voix adjacentes : \u00e9cart ordonn\u00e9 \u2264 2 demi-tons au bloc central",
+      "fold_weights": [
+        -0.4869025490205346,
+        -0.5177850756641127,
+        -0.5079119973127707,
+        -0.5735068313458834
+      ],
+      "full_weight": -0.6493667473660909,
+      "id": "F-K3-V18-003",
+      "maximum": -0.4869025490205346,
+      "mean": -0.5215266133358253,
+      "minimum": -0.5735068313458834,
+      "nonzero_fold_count": 4,
+      "sign_stable": true,
+      "standard_deviation": 0.0369690220215368
+    },
+    {
+      "clause": "au moins une paire de voix : intervalle vertical de classe 3 (tierce mineure modulo l\u2019octave)",
+      "fold_weights": [
+        0.49812838064559334,
+        0.46299668917476167,
+        0.5352148900191169,
+        0.5601251247381551
+      ],
+      "full_weight": 0.47847258080544386,
+      "id": "F-K3-V18-004",
+      "maximum": 0.5601251247381551,
+      "mean": 0.5141162711444067,
+      "minimum": 0.46299668917476167,
+      "nonzero_fold_count": 4,
+      "sign_stable": true,
+      "standard_deviation": 0.04254719195898659
+    },
+    {
+      "clause": "au moins une paire de voix : conserve l\u2019intervalle de classe 0 par mouvement direct non nul",
+      "fold_weights": [
+        -1.5187800797478268,
+        -1.5032952999898115,
+        -1.5186873926393003,
+        -1.5400518983388718
+      ],
+      "full_weight": -2.1804804807869096,
+      "id": "F-K3-V18-005",
+      "maximum": -1.5032952999898115,
+      "mean": -1.5202036676789525,
+      "minimum": -1.5400518983388718,
+      "nonzero_fold_count": 4,
+      "sign_stable": true,
+      "standard_deviation": 0.015101554564945371
+    },
+    {
+      "clause": "au moins une paire de voix : intervalle vertical de classe 11 (septi\u00e8me majeure modulo l\u2019octave)",
+      "fold_weights": [
+        -1.3123747534114296,
+        -1.316513050607006,
+        -1.3440872683560987,
+        -1.3388634460567699
+      ],
+      "full_weight": -1.6901727165153457,
+      "id": "F-K3-V18-006",
+      "maximum": -1.3123747534114296,
+      "mean": -1.327959629607826,
+      "minimum": -1.3440872683560987,
+      "nonzero_fold_count": 4,
+      "sign_stable": true,
+      "standard_deviation": 0.015841995682636948
+    },
+    {
+      "clause": "au moins une paire de voix : intervalle vertical de classe 10 (septi\u00e8me mineure modulo l\u2019octave)",
+      "fold_weights": [
+        -0.5777389610829499,
+        -0.607661103404048,
+        -0.6088296306464721,
+        -0.6046868958965272
+      ],
+      "full_weight": -0.686308930342179,
+      "id": "F-K3-V18-007",
+      "maximum": -0.5777389610829499,
+      "mean": -0.5997291477574993,
+      "minimum": -0.6088296306464721,
+      "nonzero_fold_count": 4,
+      "sign_stable": true,
+      "standard_deviation": 0.014763494231638493
+    },
+    {
+      "clause": "au moins une paire de voix : intervalle vertical de classe 1 (seconde mineure modulo l\u2019octave)",
+      "fold_weights": [
+        -1.11956799519858,
+        -1.1679075946340929,
+        -1.1276266736829859,
+        -1.1851696756734713
+      ],
+      "full_weight": -1.44113267052107,
+      "id": "F-K3-V18-008",
+      "maximum": -1.11956799519858,
+      "mean": -1.1500679847972826,
+      "minimum": -1.1851696756734713,
+      "nonzero_fold_count": 4,
+      "sign_stable": true,
+      "standard_deviation": 0.03153961631317432
+    },
+    {
+      "clause": "basse : r\u00e9p\u00e8te par une nouvelle attaque la note pr\u00e9c\u00e9dente",
+      "fold_weights": [
+        -1.5740648721754593,
+        -1.46831420939709,
+        -1.507332730688245,
+        -1.6185655522481102
+      ],
+      "full_weight": -1.7750749012452625,
+      "id": "F-K3-V18-009",
+      "maximum": -1.46831420939709,
+      "mean": -1.5420693411272262,
+      "minimum": -1.6185655522481102,
+      "nonzero_fold_count": 4,
+      "sign_stable": true,
+      "standard_deviation": 0.06713626909559538
+    },
+    {
+      "clause": "toutes voix : mouvement m\u00e9lodique sup\u00e9rieur \u00e0 7 demi-tons",
+      "fold_weights": [
+        -0.77154191307343,
+        -0.6836362512901895,
+        -0.7164957432621839,
+        -0.7053224138477091
+      ],
+      "full_weight": -0.9190204686588332,
+      "id": "F-K3-V18-010",
+      "maximum": -0.6836362512901895,
+      "mean": -0.7192490803683781,
+      "minimum": -0.77154191307343,
+      "nonzero_fold_count": 4,
+      "sign_stable": true,
+      "standard_deviation": 0.03743593128207664
+    },
+    {
+      "clause": "au moins une paire de voix : conserve l\u2019intervalle de classe 7 par mouvement direct non nul",
+      "fold_weights": [
+        -1.5023037876868066,
+        -1.4793198365627718,
+        -1.51509399021007,
+        -1.4858207050902694
+      ],
+      "full_weight": -2.1897881765917346,
+      "id": "F-K3-V18-011",
+      "maximum": -1.4793198365627718,
+      "mean": -1.4956345798874793,
+      "minimum": -1.51509399021007,
+      "nonzero_fold_count": 4,
+      "sign_stable": true,
+      "standard_deviation": 0.016182603530334214
+    },
+    {
+      "clause": "au moins une paire de voix : intervalle vertical de classe 7 (quinte juste modulo l\u2019octave)",
+      "fold_weights": [
+        0.5772388740063081,
+        0.5878748002018311,
+        0.6039271446359208,
+        0.621898637793224
+      ],
+      "full_weight": 0.6306672942384254,
+      "id": "F-K3-V18-012",
+      "maximum": 0.621898637793224,
+      "mean": 0.597734864159321,
+      "minimum": 0.5772388740063081,
+      "nonzero_fold_count": 4,
+      "sign_stable": true,
+      "standard_deviation": 0.01948964483454033
+    },
+    {
+      "clause": "au moins une paire de voix : intervalle vertical de classe 4 (tierce majeure modulo l\u2019octave)",
+      "fold_weights": [
+        0.45661827701504726,
+        0.4041570907836708,
+        0.45244545752495924,
+        0.4351398058995092
+      ],
+      "full_weight": 0.4316362719775556,
+      "id": "F-K3-V18-013",
+      "maximum": 0.45661827701504726,
+      "mean": 0.43709015780579663,
+      "minimum": 0.4041570907836708,
+      "nonzero_fold_count": 4,
+      "sign_stable": true,
+      "standard_deviation": 0.023843401920015595
+    },
+    {
+      "clause": "basse avec t\u00e9nor : intervalle vertical de classe 0 (unisson ou octave modulo l\u2019octave)",
+      "fold_weights": [
+        0.7807348492877422,
+        0.773109419518908,
+        0.7337666697829726,
+        0.769209812401989
+      ],
+      "full_weight": 0.8185179707777076,
+      "id": "F-K3-V18-014",
+      "maximum": 0.7807348492877422,
+      "mean": 0.764205187747903,
+      "minimum": 0.7337666697829726,
+      "nonzero_fold_count": 4,
+      "sign_stable": true,
+      "standard_deviation": 0.02084917822427775
+    },
+    {
+      "clause": "toutes voix : mouvement adjacent de classe 1 (seconde mineure modulo l\u2019octave)",
+      "fold_weights": [
+        0.5233033697289463,
+        0.5813245585999928,
+        0.5283203528695608,
+        0.5139782425354669
+      ],
+      "full_weight": 0.5124022405097398,
+      "id": "F-K3-V18-015",
+      "maximum": 0.5813245585999928,
+      "mean": 0.5367316309334917,
+      "minimum": 0.5139782425354669,
+      "nonzero_fold_count": 4,
+      "sign_stable": true,
+      "standard_deviation": 0.030316737286562964
+    },
+    {
+      "clause": "t\u00e9nor : mouvement vers la note suivante sup\u00e9rieur \u00e0 1 demi-tons",
+      "fold_weights": [
+        0.5893944229066451,
+        0.7151782942491477,
+        0.7082910243588398,
+        0.6611070263474066
+      ],
+      "full_weight": 0.7385886224961228,
+      "id": "F-K3-V18-016",
+      "maximum": 0.7151782942491477,
+      "mean": 0.6684926919655099,
+      "minimum": 0.5893944229066451,
+      "nonzero_fold_count": 4,
+      "sign_stable": true,
+      "standard_deviation": 0.05794979708508328
+    },
+    {
+      "clause": "au moins une paire de voix : arrive par mouvement direct sur la classe d\u2019intervalle 2",
+      "fold_weights": [
+        -0.8002382019370221,
+        -0.9032070712413701,
+        -0.8247059743860746,
+        -0.8188783906997491
+      ],
+      "full_weight": -0.9871526074539663,
+      "id": "F-K3-V18-017",
+      "maximum": -0.8002382019370221,
+      "mean": -0.836757409566054,
+      "minimum": -0.9032070712413701,
+      "nonzero_fold_count": 4,
+      "sign_stable": true,
+      "standard_deviation": 0.04551229309441296
+    },
+    {
+      "clause": "t\u00e9nor avec basse : intervalle vertical de classe 5 (quarte juste modulo l\u2019octave)",
+      "fold_weights": [
+        -1.0019126445634716,
+        -0.8932294024748858,
+        -0.9163680329038499,
+        -0.8979289909881436
+      ],
+      "full_weight": -1.0051027832126338,
+      "id": "F-K3-V18-018",
+      "maximum": -0.8932294024748858,
+      "mean": -0.9273597677325878,
+      "minimum": -1.0019126445634716,
+      "nonzero_fold_count": 4,
+      "sign_stable": true,
+      "standard_deviation": 0.050695174427525455
+    },
+    {
+      "clause": "au moins deux voix adjacentes : \u00e9cart ordonn\u00e9 \u2264 -1 demi-tons au bloc central",
+      "fold_weights": [
+        -0.5512074393060742,
+        -0.5510855584036483,
+        -0.5270042447597528,
+        -0.5142801064937221
+      ],
+      "full_weight": -0.8798466288223773,
+      "id": "F-K3-V18-019",
+      "maximum": -0.5142801064937221,
+      "mean": -0.5358943372407994,
+      "minimum": -0.5512074393060742,
+      "nonzero_fold_count": 4,
+      "sign_stable": true,
+      "standard_deviation": 0.01836185366813103
+    }
+  ]
+}

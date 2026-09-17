@@ -10,6 +10,7 @@ import time
 from collections.abc import Callable, Iterable, Sequence
 from typing import Any
 
+from benchmarks.support import PROJECT_ROOT, git_commit, git_dirty
 from harmonizer import (
     MusesFactories,
     harmonize_notes,
@@ -135,6 +136,7 @@ def run(repeat: int) -> dict[str, Any]:
     def object_bridge() -> tuple[int, int]:
         solutions = harmonize_temporal_collection(
             source,
+            metric_levels=(3, 1, 2, 1),
             factories=factories,
             codec=codec,
             max_solutions=1,
@@ -146,6 +148,8 @@ def run(repeat: int) -> dict[str, Any]:
         "python": platform.python_version(),
         "platform": platform.platform(),
         "repeat": repeat,
+        "snarky_commit": git_commit(PROJECT_ROOT),
+        "snarky_dirty": git_dirty(PROJECT_ROOT),
         "symbolic_note_input": _measure(symbolic, repeat),
         "muses_object_round_trip": _measure(object_bridge, repeat),
     }

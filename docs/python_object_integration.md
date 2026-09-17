@@ -163,8 +163,12 @@ piece = solutions[0].piece
 ```
 
 Le pipeline encode la collection, importe ses hauteurs par une règle Snarky,
-exécute la génération et la recherche, puis encode et reconstruit quatre
-collections distinctes avant de créer une `Piece`. Le résultat symbolique
+demande ses positions métriques hiérarchiques à
+`muses.metric_positions`, exécute la génération et la recherche, puis encode
+et reconstruit quatre collections distinctes avant de créer une `Piece`.
+L'adaptateur ne réimplémente donc ni le découpage des mesures simples ou
+composées, ni leur groupement métrique ; il transforme seulement
+`MetricPosition.accent_level` en faits `metric_level`. Le résultat symbolique
 conserve les accords, les renversements, le profil cadentiel, le rythme
 harmonique, les quatre voicings, les faits source, les faits de chaque voix et
 la trace. Le vocabulaire tonal couvre `I`, `ii`, `IV`, `V`, `V7`, `vi`,

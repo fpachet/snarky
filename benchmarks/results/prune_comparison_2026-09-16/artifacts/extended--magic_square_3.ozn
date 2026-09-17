@@ -1,0 +1,4 @@
+output ["{\n","  \"square\" : ",concat(["[",join(", ",[showJSON(slice_1d(square,[X_INTRODUCED_21_..X_INTRODUCED_21_,index_set_2of2(square)],index_set_2of2(square))) | X_INTRODUCED_21_ in index_set_1of2(square)]),"]"]),"\n}\n"];
+set of int: index = 1..3;
+array [1..9] of int: X_INTRODUCED_0_;
+array [index,index] of int: square = array2d(1..3,1..3,X_INTRODUCED_0_);

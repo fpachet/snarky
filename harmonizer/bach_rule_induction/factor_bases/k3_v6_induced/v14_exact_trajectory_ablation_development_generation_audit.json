@@ -1,0 +1,1433 @@
+{
+  "experiment": {
+    "id": "EXPLICIT-GENERATION-AUDIT",
+    "piece_ids": [
+      "bach/bwv111.6",
+      "bach/bwv112.5",
+      "bach/bwv133.6",
+      "bach/bwv151.5",
+      "bach/bwv162.6-lpz",
+      "bach/bwv168.6",
+      "bach/bwv179.6",
+      "bach/bwv180.7",
+      "bach/bwv184.5",
+      "bach/bwv197.10",
+      "bach/bwv226.2",
+      "bach/bwv244.25",
+      "bach/bwv244.46",
+      "bach/bwv248.46-5",
+      "bach/bwv248.64-s",
+      "bach/bwv260",
+      "bach/bwv272",
+      "bach/bwv276",
+      "bach/bwv281",
+      "bach/bwv284"
+    ],
+    "pieces": 20,
+    "seeds": [
+      5517,
+      10103,
+      20207
+    ],
+    "seeds_per_piece": 3,
+    "status": "EXPLORATORY",
+    "sweeps": 6,
+    "test_loaded": false,
+    "workers": 8
+  },
+  "models": {
+    "V13": "/Users/francoispachet/IdeaProjects/boojum/harmonizer/bach_rule_induction/factor_bases/k3_v6_induced/v13_exact_directed_metric_model.json",
+    "V14": "/Users/francoispachet/IdeaProjects/boojum/harmonizer/bach_rule_induction/factor_bases/k3_v6_induced/v14_exact_directed_metric_trajectory_model.json",
+    "V14Ablated": "/Users/francoispachet/IdeaProjects/boojum/harmonizer/bach_rule_induction/factor_bases/k3_v6_induced/v14_exact_trajectory_ablation_model.json"
+  },
+  "paired_difference": {
+    "V13": {
+      "bass_large_leap_rate": {
+        "ci95_high": 0.043114614188431696,
+        "ci95_low": -0.009508513812970732,
+        "mean": 0.016803050187730484
+      },
+      "bass_outside_natural_scale_rate": {
+        "ci95_high": 0.06597883904508368,
+        "ci95_low": 0.020063976417166177,
+        "mean": 0.04302140773112493
+      },
+      "bass_repeat_rate": {
+        "ci95_high": 0.018040988695282752,
+        "ci95_low": -0.01143847761487721,
+        "mean": 0.0033012555402027717
+      },
+      "bass_semitone_rate": {
+        "ci95_high": 0.032507754908766645,
+        "ci95_low": -0.00970911634723957,
+        "mean": 0.011399319280763539
+      },
+      "dominant_65_strong_rate": {
+        "ci95_high": 0.031818332548458714,
+        "ci95_low": 0.0013668307875666936,
+        "mean": 0.016592581668012703
+      },
+      "dominant_65_weak_rate": {
+        "ci95_high": 0.015716889756881063,
+        "ci95_low": -0.010477819471271292,
+        "mean": 0.0026195351428048848
+      },
+      "strong_nontriadic_rate": {
+        "ci95_high": 0.19477225062506096,
+        "ci95_low": 0.057361015215101424,
+        "mean": 0.1260666329200812
+      },
+      "strong_pair_dissonances_per_block": {
+        "ci95_high": 0.33460930984667164,
+        "ci95_low": 0.10299743685490258,
+        "mean": 0.21880337335078712
+      },
+      "triadic_block_rate": {
+        "ci95_high": 0.01545716409736417,
+        "ci95_low": -0.043496137806226284,
+        "mean": -0.014019486854431057
+      },
+      "weak_pair_dissonances_per_block": {
+        "ci95_high": 0.01495712607384661,
+        "ci95_low": -0.12723073433600568,
+        "mean": -0.056136804131079535
+      }
+    },
+    "V14": {
+      "bass_large_leap_rate": {
+        "ci95_high": 0.05873372366773764,
+        "ci95_low": 0.007649821630486546,
+        "mean": 0.03319177264911209
+      },
+      "bass_outside_natural_scale_rate": {
+        "ci95_high": 0.07024799410174043,
+        "ci95_low": 0.01943922897624776,
+        "mean": 0.0448436115389941
+      },
+      "bass_repeat_rate": {
+        "ci95_high": 0.024143789086655616,
+        "ci95_low": -0.009709527393817596,
+        "mean": 0.007217130846419009
+      },
+      "bass_semitone_rate": {
+        "ci95_high": 0.06030549027511241,
+        "ci95_low": 0.010179691950756724,
+        "mean": 0.03524259111293457
+      },
+      "dominant_65_strong_rate": {
+        "ci95_high": 0.033572997384414244,
+        "ci95_low": -7.47619034201473e-05,
+        "mean": 0.01674911774049705
+      },
+      "dominant_65_weak_rate": {
+        "ci95_high": 0.01576600329127288,
+        "ci95_low": -0.009303647860705644,
+        "mean": 0.003231177715283619
+      },
+      "strong_nontriadic_rate": {
+        "ci95_high": 0.24178066953547683,
+        "ci95_low": 0.10027211564230833,
+        "mean": 0.17102639258889257
+      },
+      "strong_pair_dissonances_per_block": {
+        "ci95_high": 0.4355975846935757,
+        "ci95_low": 0.19504549189777676,
+        "mean": 0.3153215382956762
+      },
+      "triadic_block_rate": {
+        "ci95_high": 0.0123087848010896,
+        "ci95_low": -0.06495373436286045,
+        "mean": -0.026322474780885424
+      },
+      "weak_pair_dissonances_per_block": {
+        "ci95_high": 0.020480450785793913,
+        "ci95_low": -0.14646244126483215,
+        "mean": -0.06299099523951912
+      }
+    },
+    "V14Ablated": {
+      "bass_large_leap_rate": {
+        "ci95_high": 0.06429307535792717,
+        "ci95_low": 0.022805045653446675,
+        "mean": 0.04354906050568692
+      },
+      "bass_outside_natural_scale_rate": {
+        "ci95_high": 0.06703126474689242,
+        "ci95_low": 0.018100778015819347,
+        "mean": 0.04256602138135588
+      },
+      "bass_repeat_rate": {
+        "ci95_high": 0.024529332925273168,
+        "ci95_low": -0.009511016844316388,
+        "mean": 0.007509158040478391
+      },
+      "bass_semitone_rate": {
+        "ci95_high": 0.044723251668137114,
+        "ci95_low": -0.0031619703231615046,
+        "mean": 0.020780640672487805
+      },
+      "dominant_65_strong_rate": {
+        "ci95_high": 0.02608526714400315,
+        "ci95_low": -0.0033005135833875203,
+        "mean": 0.011392376780307814
+      },
+      "dominant_65_weak_rate": {
+        "ci95_high": 0.013375618134809725,
+        "ci95_low": -0.013471568044136312,
+        "mean": -4.797495466329349e-05
+      },
+      "strong_nontriadic_rate": {
+        "ci95_high": 0.20768797980182735,
+        "ci95_low": 0.06208367255603188,
+        "mean": 0.1348858261789296
+      },
+      "strong_pair_dissonances_per_block": {
+        "ci95_high": 0.3479363053985609,
+        "ci95_low": 0.08500947487480551,
+        "mean": 0.2164728901366832
+      },
+      "triadic_block_rate": {
+        "ci95_high": 0.015179929074386544,
+        "ci95_low": -0.05594567383691021,
+        "mean": -0.020382872381261834
+      },
+      "weak_pair_dissonances_per_block": {
+        "ci95_high": 0.016174119863216208,
+        "ci95_low": -0.14464574039457703,
+        "mean": -0.06423581026568041
+      }
+    }
+  },
+  "pieces": [
+    {
+      "Bach": {
+        "bass_large_leap_rate": 0.3368421052631579,
+        "bass_outside_natural_scale_rate": 0.10416666666666667,
+        "bass_repeat_rate": 0.031578947368421054,
+        "bass_semitone_rate": 0.15789473684210525,
+        "dominant_65_strong_rate": 0.027777777777777776,
+        "dominant_65_weak_rate": 0.03296703296703297,
+        "strong_nontriadic_rate": 0.16666666666666666,
+        "strong_pair_dissonances_per_block": 0.19444444444444445,
+        "triadic_block_rate": 0.5275590551181102,
+        "weak_pair_dissonances_per_block": 0.989010989010989
+      },
+      "V13": {
+        "bass_large_leap_rate": 0.3263157894736842,
+        "bass_outside_natural_scale_rate": 0.12152777777777778,
+        "bass_repeat_rate": 0.03859649122807018,
+        "bass_semitone_rate": 0.22456140350877196,
+        "dominant_65_strong_rate": 0.009259259259259259,
+        "dominant_65_weak_rate": 0.03296703296703297,
+        "strong_nontriadic_rate": 0.4444444444444445,
+        "strong_pair_dissonances_per_block": 0.6481481481481481,
+        "triadic_block_rate": 0.5275590551181102,
+        "weak_pair_dissonances_per_block": 0.8608058608058607
+      },
+      "V14": {
+        "bass_large_leap_rate": 0.32631578947368417,
+        "bass_outside_natural_scale_rate": 0.1388888888888889,
+        "bass_repeat_rate": 0.05614035087719297,
+        "bass_semitone_rate": 0.2736842105263158,
+        "dominant_65_strong_rate": 0.0,
+        "dominant_65_weak_rate": 0.03296703296703297,
+        "strong_nontriadic_rate": 0.4351851851851852,
+        "strong_pair_dissonances_per_block": 0.6388888888888888,
+        "triadic_block_rate": 0.5223097112860892,
+        "weak_pair_dissonances_per_block": 0.8021978021978021
+      },
+      "V14Ablated": {
+        "bass_large_leap_rate": 0.3824561403508772,
+        "bass_outside_natural_scale_rate": 0.10416666666666667,
+        "bass_repeat_rate": 0.04912280701754385,
+        "bass_semitone_rate": 0.24210526315789474,
+        "dominant_65_strong_rate": 0.018518518518518517,
+        "dominant_65_weak_rate": 0.02197802197802198,
+        "strong_nontriadic_rate": 0.4259259259259259,
+        "strong_pair_dissonances_per_block": 0.638888888888889,
+        "triadic_block_rate": 0.5170603674540682,
+        "weak_pair_dissonances_per_block": 0.7948717948717948
+      },
+      "piece_id": "bach/bwv111.6"
+    },
+    {
+      "Bach": {
+        "bass_large_leap_rate": 0.27848101265822783,
+        "bass_outside_natural_scale_rate": 0.075,
+        "bass_repeat_rate": 0.012658227848101266,
+        "bass_semitone_rate": 0.26582278481012656,
+        "dominant_65_strong_rate": 0.03571428571428571,
+        "dominant_65_weak_rate": 0.014285714285714285,
+        "strong_nontriadic_rate": 0.10714285714285714,
+        "strong_pair_dissonances_per_block": 0.14285714285714285,
+        "triadic_block_rate": 0.5918367346938775,
+        "weak_pair_dissonances_per_block": 0.9
+      },
+      "V13": {
+        "bass_large_leap_rate": 0.2827004219409283,
+        "bass_outside_natural_scale_rate": 0.10416666666666667,
+        "bass_repeat_rate": 0.0379746835443038,
+        "bass_semitone_rate": 0.24050632911392403,
+        "dominant_65_strong_rate": 0.08333333333333333,
+        "dominant_65_weak_rate": 0.014285714285714285,
+        "strong_nontriadic_rate": 0.44047619047619047,
+        "strong_pair_dissonances_per_block": 0.6190476190476191,
+        "triadic_block_rate": 0.5000000000000001,
+        "weak_pair_dissonances_per_block": 0.919047619047619
+      },
+      "V14": {
+        "bass_large_leap_rate": 0.3333333333333333,
+        "bass_outside_natural_scale_rate": 0.13333333333333333,
+        "bass_repeat_rate": 0.0379746835443038,
+        "bass_semitone_rate": 0.29957805907172996,
+        "dominant_65_strong_rate": 0.03571428571428571,
+        "dominant_65_weak_rate": 0.02857142857142857,
+        "strong_nontriadic_rate": 0.4047619047619047,
+        "strong_pair_dissonances_per_block": 0.5714285714285714,
+        "triadic_block_rate": 0.5,
+        "weak_pair_dissonances_per_block": 0.9857142857142858
+      },
+      "V14Ablated": {
+        "bass_large_leap_rate": 0.31223628691983124,
+        "bass_outside_natural_scale_rate": 0.125,
+        "bass_repeat_rate": 0.05907172995780591,
+        "bass_semitone_rate": 0.26160337552742613,
+        "dominant_65_strong_rate": 0.03571428571428571,
+        "dominant_65_weak_rate": 0.03333333333333333,
+        "strong_nontriadic_rate": 0.4523809523809524,
+        "strong_pair_dissonances_per_block": 0.6190476190476191,
+        "triadic_block_rate": 0.5340136054421769,
+        "weak_pair_dissonances_per_block": 0.8380952380952381
+      },
+      "piece_id": "bach/bwv112.5"
+    },
+    {
+      "Bach": {
+        "bass_large_leap_rate": 0.22033898305084745,
+        "bass_outside_natural_scale_rate": 0.08333333333333333,
+        "bass_repeat_rate": 0.06779661016949153,
+        "bass_semitone_rate": 0.2542372881355932,
+        "dominant_65_strong_rate": 0.0,
+        "dominant_65_weak_rate": 0.07547169811320754,
+        "strong_nontriadic_rate": 0.3076923076923077,
+        "strong_pair_dissonances_per_block": 0.3076923076923077,
+        "triadic_block_rate": 0.4810126582278481,
+        "weak_pair_dissonances_per_block": 1.1132075471698113
+      },
+      "V13": {
+        "bass_large_leap_rate": 0.24293785310734464,
+        "bass_outside_natural_scale_rate": 0.11666666666666665,
+        "bass_repeat_rate": 0.062146892655367235,
+        "bass_semitone_rate": 0.23728813559322035,
+        "dominant_65_strong_rate": 0.025641025641025644,
+        "dominant_65_weak_rate": 0.0440251572327044,
+        "strong_nontriadic_rate": 0.3717948717948718,
+        "strong_pair_dissonances_per_block": 0.5256410256410257,
+        "triadic_block_rate": 0.5443037974683543,
+        "weak_pair_dissonances_per_block": 0.8805031446540882
+      },
+      "V14": {
+        "bass_large_leap_rate": 0.3163841807909605,
+        "bass_outside_natural_scale_rate": 0.13333333333333333,
+        "bass_repeat_rate": 0.02824858757062147,
+        "bass_semitone_rate": 0.288135593220339,
+        "dominant_65_strong_rate": 0.038461538461538464,
+        "dominant_65_weak_rate": 0.031446540880503145,
+        "strong_nontriadic_rate": 0.3717948717948718,
+        "strong_pair_dissonances_per_block": 0.6666666666666666,
+        "triadic_block_rate": 0.5527426160337553,
+        "weak_pair_dissonances_per_block": 0.7421383647798742
+      },
+      "V14Ablated": {
+        "bass_large_leap_rate": 0.2711864406779661,
+        "bass_outside_natural_scale_rate": 0.14444444444444446,
+        "bass_repeat_rate": 0.03389830508474576,
+        "bass_semitone_rate": 0.3220338983050848,
+        "dominant_65_strong_rate": 0.025641025641025644,
+        "dominant_65_weak_rate": 0.031446540880503145,
+        "strong_nontriadic_rate": 0.32051282051282054,
+        "strong_pair_dissonances_per_block": 0.4615384615384615,
+        "triadic_block_rate": 0.5105485232067511,
+        "weak_pair_dissonances_per_block": 0.89937106918239
+      },
+      "piece_id": "bach/bwv133.6"
+    },
+    {
+      "Bach": {
+        "bass_large_leap_rate": 0.225,
+        "bass_outside_natural_scale_rate": 0.024390243902439025,
+        "bass_repeat_rate": 0.025,
+        "bass_semitone_rate": 0.225,
+        "dominant_65_strong_rate": 0.0,
+        "dominant_65_weak_rate": 0.027777777777777776,
+        "strong_nontriadic_rate": 0.1111111111111111,
+        "strong_pair_dissonances_per_block": 0.1111111111111111,
+        "triadic_block_rate": 0.5370370370370371,
+        "weak_pair_dissonances_per_block": 1.1388888888888888
+      },
+      "V13": {
+        "bass_large_leap_rate": 0.30833333333333335,
+        "bass_outside_natural_scale_rate": 0.12195121951219512,
+        "bass_repeat_rate": 0.041666666666666664,
+        "bass_semitone_rate": 0.325,
+        "dominant_65_strong_rate": 0.05555555555555555,
+        "dominant_65_weak_rate": 0.0925925925925926,
+        "strong_nontriadic_rate": 0.40740740740740744,
+        "strong_pair_dissonances_per_block": 0.6296296296296297,
+        "triadic_block_rate": 0.49382716049382713,
+        "weak_pair_dissonances_per_block": 0.9537037037037036
+      },
+      "V14": {
+        "bass_large_leap_rate": 0.275,
+        "bass_outside_natural_scale_rate": 0.10569105691056911,
+        "bass_repeat_rate": 0.08333333333333333,
+        "bass_semitone_rate": 0.30833333333333335,
+        "dominant_65_strong_rate": 0.05555555555555555,
+        "dominant_65_weak_rate": 0.07407407407407408,
+        "strong_nontriadic_rate": 0.4074074074074074,
+        "strong_pair_dissonances_per_block": 0.7037037037037037,
+        "triadic_block_rate": 0.49382716049382713,
+        "weak_pair_dissonances_per_block": 1.0277777777777777
+      },
+      "V14Ablated": {
+        "bass_large_leap_rate": 0.3,
+        "bass_outside_natural_scale_rate": 0.09756097560975611,
+        "bass_repeat_rate": 0.05833333333333334,
+        "bass_semitone_rate": 0.3083333333333333,
+        "dominant_65_strong_rate": 0.0925925925925926,
+        "dominant_65_weak_rate": 0.05555555555555555,
+        "strong_nontriadic_rate": 0.3703703703703704,
+        "strong_pair_dissonances_per_block": 0.6111111111111112,
+        "triadic_block_rate": 0.5,
+        "weak_pair_dissonances_per_block": 0.8796296296296297
+      },
+      "piece_id": "bach/bwv151.5"
+    },
+    {
+      "Bach": {
+        "bass_large_leap_rate": 0.3,
+        "bass_outside_natural_scale_rate": 0.06172839506172839,
+        "bass_repeat_rate": 0.0,
+        "bass_semitone_rate": 0.2625,
+        "dominant_65_strong_rate": 0.0,
+        "dominant_65_weak_rate": 0.014705882352941176,
+        "strong_nontriadic_rate": 0.125,
+        "strong_pair_dissonances_per_block": 0.125,
+        "triadic_block_rate": 0.55,
+        "weak_pair_dissonances_per_block": 0.8970588235294118
+      },
+      "V13": {
+        "bass_large_leap_rate": 0.2833333333333333,
+        "bass_outside_natural_scale_rate": 0.13580246913580246,
+        "bass_repeat_rate": 0.029166666666666664,
+        "bass_semitone_rate": 0.27499999999999997,
+        "dominant_65_strong_rate": 0.020833333333333332,
+        "dominant_65_weak_rate": 0.0196078431372549,
+        "strong_nontriadic_rate": 0.4479166666666667,
+        "strong_pair_dissonances_per_block": 0.6875,
+        "triadic_block_rate": 0.4633333333333334,
+        "weak_pair_dissonances_per_block": 0.8872549019607843
+      },
+      "V14": {
+        "bass_large_leap_rate": 0.28750000000000003,
+        "bass_outside_natural_scale_rate": 0.16049382716049382,
+        "bass_repeat_rate": 0.029166666666666664,
+        "bass_semitone_rate": 0.2833333333333333,
+        "dominant_65_strong_rate": 0.020833333333333332,
+        "dominant_65_weak_rate": 0.029411764705882356,
+        "strong_nontriadic_rate": 0.53125,
+        "strong_pair_dissonances_per_block": 0.84375,
+        "triadic_block_rate": 0.43,
+        "weak_pair_dissonances_per_block": 1.0098039215686274
+      },
+      "V14Ablated": {
+        "bass_large_leap_rate": 0.3125,
+        "bass_outside_natural_scale_rate": 0.16872427983539096,
+        "bass_repeat_rate": 0.016666666666666666,
+        "bass_semitone_rate": 0.27499999999999997,
+        "dominant_65_strong_rate": 0.010416666666666666,
+        "dominant_65_weak_rate": 0.024509803921568627,
+        "strong_nontriadic_rate": 0.4791666666666667,
+        "strong_pair_dissonances_per_block": 0.7395833333333334,
+        "triadic_block_rate": 0.4166666666666667,
+        "weak_pair_dissonances_per_block": 1.0490196078431373
+      },
+      "piece_id": "bach/bwv162.6-lpz"
+    },
+    {
+      "Bach": {
+        "bass_large_leap_rate": 0.30985915492957744,
+        "bass_outside_natural_scale_rate": 0.09722222222222222,
+        "bass_repeat_rate": 0.0,
+        "bass_semitone_rate": 0.28169014084507044,
+        "dominant_65_strong_rate": 0.0,
+        "dominant_65_weak_rate": 0.08695652173913043,
+        "strong_nontriadic_rate": 0.4482758620689655,
+        "strong_pair_dissonances_per_block": 0.5172413793103449,
+        "triadic_block_rate": 0.41836734693877553,
+        "weak_pair_dissonances_per_block": 1.144927536231884
+      },
+      "V13": {
+        "bass_large_leap_rate": 0.3004694835680751,
+        "bass_outside_natural_scale_rate": 0.1111111111111111,
+        "bass_repeat_rate": 0.03755868544600939,
+        "bass_semitone_rate": 0.25821596244131456,
+        "dominant_65_strong_rate": 0.0,
+        "dominant_65_weak_rate": 0.01932367149758454,
+        "strong_nontriadic_rate": 0.4597701149425288,
+        "strong_pair_dissonances_per_block": 0.6091954022988505,
+        "triadic_block_rate": 0.4761904761904762,
+        "weak_pair_dissonances_per_block": 0.9710144927536232
+      },
+      "V14": {
+        "bass_large_leap_rate": 0.30046948356807507,
+        "bass_outside_natural_scale_rate": 0.1388888888888889,
+        "bass_repeat_rate": 0.03286384976525822,
+        "bass_semitone_rate": 0.2629107981220657,
+        "dominant_65_strong_rate": 0.034482758620689655,
+        "dominant_65_weak_rate": 0.028985507246376812,
+        "strong_nontriadic_rate": 0.43678160919540227,
+        "strong_pair_dissonances_per_block": 0.8045977011494253,
+        "triadic_block_rate": 0.4761904761904761,
+        "weak_pair_dissonances_per_block": 0.9951690821256038
+      },
+      "V14Ablated": {
+        "bass_large_leap_rate": 0.29577464788732394,
+        "bass_outside_natural_scale_rate": 0.12037037037037036,
+        "bass_repeat_rate": 0.03286384976525822,
+        "bass_semitone_rate": 0.2300469483568075,
+        "dominant_65_strong_rate": 0.011494252873563218,
+        "dominant_65_weak_rate": 0.01932367149758454,
+        "strong_nontriadic_rate": 0.41379310344827586,
+        "strong_pair_dissonances_per_block": 0.7011494252873564,
+        "triadic_block_rate": 0.48639455782312924,
+        "weak_pair_dissonances_per_block": 0.9323671497584541
+      },
+      "piece_id": "bach/bwv168.6"
+    },
+    {
+      "Bach": {
+        "bass_large_leap_rate": 0.24193548387096775,
+        "bass_outside_natural_scale_rate": 0.1746031746031746,
+        "bass_repeat_rate": 0.08064516129032258,
+        "bass_semitone_rate": 0.27419354838709675,
+        "dominant_65_strong_rate": 0.07692307692307693,
+        "dominant_65_weak_rate": 0.0,
+        "strong_nontriadic_rate": 0.5769230769230769,
+        "strong_pair_dissonances_per_block": 1.0769230769230769,
+        "triadic_block_rate": 0.3883495145631068,
+        "weak_pair_dissonances_per_block": 1.0649350649350648
+      },
+      "V13": {
+        "bass_large_leap_rate": 0.3010752688172043,
+        "bass_outside_natural_scale_rate": 0.17460317460317457,
+        "bass_repeat_rate": 0.04301075268817204,
+        "bass_semitone_rate": 0.24731182795698925,
+        "dominant_65_strong_rate": 0.05128205128205129,
+        "dominant_65_weak_rate": 0.017316017316017316,
+        "strong_nontriadic_rate": 0.38461538461538464,
+        "strong_pair_dissonances_per_block": 0.6153846153846154,
+        "triadic_block_rate": 0.5145631067961165,
+        "weak_pair_dissonances_per_block": 0.8311688311688311
+      },
+      "V14": {
+        "bass_large_leap_rate": 0.3118279569892473,
+        "bass_outside_natural_scale_rate": 0.1111111111111111,
+        "bass_repeat_rate": 0.03225806451612903,
+        "bass_semitone_rate": 0.2580645161290323,
+        "dominant_65_strong_rate": 0.025641025641025644,
+        "dominant_65_weak_rate": 0.021645021645021648,
+        "strong_nontriadic_rate": 0.4230769230769231,
+        "strong_pair_dissonances_per_block": 0.7051282051282052,
+        "triadic_block_rate": 0.546925566343042,
+        "weak_pair_dissonances_per_block": 0.8181818181818182
+      },
+      "V14Ablated": {
+        "bass_large_leap_rate": 0.3602150537634408,
+        "bass_outside_natural_scale_rate": 0.13756613756613756,
+        "bass_repeat_rate": 0.02150537634408602,
+        "bass_semitone_rate": 0.24731182795698925,
+        "dominant_65_strong_rate": 0.012820512820512822,
+        "dominant_65_weak_rate": 0.017316017316017316,
+        "strong_nontriadic_rate": 0.3974358974358974,
+        "strong_pair_dissonances_per_block": 0.5384615384615384,
+        "triadic_block_rate": 0.546925566343042,
+        "weak_pair_dissonances_per_block": 0.8484848484848485
+      },
+      "piece_id": "bach/bwv179.6"
+    },
+    {
+      "Bach": {
+        "bass_large_leap_rate": 0.2962962962962963,
+        "bass_outside_natural_scale_rate": 0.012195121951219513,
+        "bass_repeat_rate": 0.024691358024691357,
+        "bass_semitone_rate": 0.2839506172839506,
+        "dominant_65_strong_rate": 0.0,
+        "dominant_65_weak_rate": 0.0,
+        "strong_nontriadic_rate": 0.358974358974359,
+        "strong_pair_dissonances_per_block": 0.3076923076923077,
+        "triadic_block_rate": 0.4224137931034483,
+        "weak_pair_dissonances_per_block": 1.3246753246753247
+      },
+      "V13": {
+        "bass_large_leap_rate": 0.33744855967078186,
+        "bass_outside_natural_scale_rate": 0.12601626016260162,
+        "bass_repeat_rate": 0.037037037037037035,
+        "bass_semitone_rate": 0.24691358024691357,
+        "dominant_65_strong_rate": 0.025641025641025644,
+        "dominant_65_weak_rate": 0.03896103896103897,
+        "strong_nontriadic_rate": 0.36752136752136755,
+        "strong_pair_dissonances_per_block": 0.547008547008547,
+        "triadic_block_rate": 0.5143678160919539,
+        "weak_pair_dissonances_per_block": 0.9870129870129869
+      },
+      "V14": {
+        "bass_large_leap_rate": 0.35802469135802467,
+        "bass_outside_natural_scale_rate": 0.10162601626016261,
+        "bass_repeat_rate": 0.04526748971193415,
+        "bass_semitone_rate": 0.21810699588477367,
+        "dominant_65_strong_rate": 0.008547008547008546,
+        "dominant_65_weak_rate": 0.03896103896103896,
+        "strong_nontriadic_rate": 0.3247863247863248,
+        "strong_pair_dissonances_per_block": 0.47863247863247865,
+        "triadic_block_rate": 0.5344827586206896,
+        "weak_pair_dissonances_per_block": 0.9220779220779219
+      },
+      "V14Ablated": {
+        "bass_large_leap_rate": 0.345679012345679,
+        "bass_outside_natural_scale_rate": 0.11788617886178861,
+        "bass_repeat_rate": 0.04526748971193415,
+        "bass_semitone_rate": 0.25102880658436216,
+        "dominant_65_strong_rate": 0.017094017094017092,
+        "dominant_65_weak_rate": 0.047619047619047616,
+        "strong_nontriadic_rate": 0.3333333333333333,
+        "strong_pair_dissonances_per_block": 0.4871794871794872,
+        "triadic_block_rate": 0.5229885057471264,
+        "weak_pair_dissonances_per_block": 0.9956709956709956
+      },
+      "piece_id": "bach/bwv180.7"
+    },
+    {
+      "Bach": {
+        "bass_large_leap_rate": 0.2976190476190476,
+        "bass_outside_natural_scale_rate": 0.047058823529411764,
+        "bass_repeat_rate": 0.023809523809523808,
+        "bass_semitone_rate": 0.21428571428571427,
+        "dominant_65_strong_rate": 0.0,
+        "dominant_65_weak_rate": 0.013513513513513514,
+        "strong_nontriadic_rate": 0.11428571428571428,
+        "strong_pair_dissonances_per_block": 0.2,
+        "triadic_block_rate": 0.5871559633027523,
+        "weak_pair_dissonances_per_block": 1.0
+      },
+      "V13": {
+        "bass_large_leap_rate": 0.33730158730158727,
+        "bass_outside_natural_scale_rate": 0.1215686274509804,
+        "bass_repeat_rate": 0.04365079365079364,
+        "bass_semitone_rate": 0.2261904761904762,
+        "dominant_65_strong_rate": 0.009523809523809523,
+        "dominant_65_weak_rate": 0.018018018018018018,
+        "strong_nontriadic_rate": 0.44761904761904764,
+        "strong_pair_dissonances_per_block": 0.5904761904761905,
+        "triadic_block_rate": 0.4709480122324159,
+        "weak_pair_dissonances_per_block": 0.9054054054054054
+      },
+      "V14": {
+        "bass_large_leap_rate": 0.28571428571428575,
+        "bass_outside_natural_scale_rate": 0.09019607843137255,
+        "bass_repeat_rate": 0.06746031746031746,
+        "bass_semitone_rate": 0.2698412698412698,
+        "dominant_65_strong_rate": 0.0,
+        "dominant_65_weak_rate": 0.036036036036036036,
+        "strong_nontriadic_rate": 0.45714285714285713,
+        "strong_pair_dissonances_per_block": 0.6761904761904761,
+        "triadic_block_rate": 0.4862385321100917,
+        "weak_pair_dissonances_per_block": 0.9504504504504504
+      },
+      "V14Ablated": {
+        "bass_large_leap_rate": 0.32142857142857145,
+        "bass_outside_natural_scale_rate": 0.06666666666666667,
+        "bass_repeat_rate": 0.05952380952380953,
+        "bass_semitone_rate": 0.25793650793650796,
+        "dominant_65_strong_rate": 0.009523809523809523,
+        "dominant_65_weak_rate": 0.022522522522522525,
+        "strong_nontriadic_rate": 0.4476190476190476,
+        "strong_pair_dissonances_per_block": 0.6380952380952382,
+        "triadic_block_rate": 0.4617737003058104,
+        "weak_pair_dissonances_per_block": 0.9774774774774775
+      },
+      "piece_id": "bach/bwv184.5"
+    },
+    {
+      "Bach": {
+        "bass_large_leap_rate": 0.2807017543859649,
+        "bass_outside_natural_scale_rate": 0.034482758620689655,
+        "bass_repeat_rate": 0.10526315789473684,
+        "bass_semitone_rate": 0.2807017543859649,
+        "dominant_65_strong_rate": 0.0,
+        "dominant_65_weak_rate": 0.041666666666666664,
+        "strong_nontriadic_rate": 0.375,
+        "strong_pair_dissonances_per_block": 0.5833333333333334,
+        "triadic_block_rate": 0.5833333333333334,
+        "weak_pair_dissonances_per_block": 0.75
+      },
+      "V13": {
+        "bass_large_leap_rate": 0.20467836257309943,
+        "bass_outside_natural_scale_rate": 0.15517241379310345,
+        "bass_repeat_rate": 0.03508771929824561,
+        "bass_semitone_rate": 0.30409356725146197,
+        "dominant_65_strong_rate": 0.027777777777777776,
+        "dominant_65_weak_rate": 0.020833333333333332,
+        "strong_nontriadic_rate": 0.2916666666666667,
+        "strong_pair_dissonances_per_block": 0.4305555555555556,
+        "triadic_block_rate": 0.5462962962962963,
+        "weak_pair_dissonances_per_block": 0.9375
+      },
+      "V14": {
+        "bass_large_leap_rate": 0.2573099415204678,
+        "bass_outside_natural_scale_rate": 0.15517241379310345,
+        "bass_repeat_rate": 0.05263157894736842,
+        "bass_semitone_rate": 0.3625730994152046,
+        "dominant_65_strong_rate": 0.027777777777777776,
+        "dominant_65_weak_rate": 0.05555555555555555,
+        "strong_nontriadic_rate": 0.4444444444444444,
+        "strong_pair_dissonances_per_block": 0.625,
+        "triadic_block_rate": 0.5092592592592592,
+        "weak_pair_dissonances_per_block": 0.8819444444444443
+      },
+      "V14Ablated": {
+        "bass_large_leap_rate": 0.26900584795321636,
+        "bass_outside_natural_scale_rate": 0.15517241379310345,
+        "bass_repeat_rate": 0.05847953216374269,
+        "bass_semitone_rate": 0.34502923976608185,
+        "dominant_65_strong_rate": 0.027777777777777776,
+        "dominant_65_weak_rate": 0.03472222222222222,
+        "strong_nontriadic_rate": 0.4166666666666667,
+        "strong_pair_dissonances_per_block": 0.6388888888888888,
+        "triadic_block_rate": 0.4861111111111111,
+        "weak_pair_dissonances_per_block": 0.9027777777777777
+      },
+      "piece_id": "bach/bwv197.10"
+    },
+    {
+      "Bach": {
+        "bass_large_leap_rate": 0.2605042016806723,
+        "bass_outside_natural_scale_rate": 0.025,
+        "bass_repeat_rate": 0.008403361344537815,
+        "bass_semitone_rate": 0.25210084033613445,
+        "dominant_65_strong_rate": 0.022727272727272728,
+        "dominant_65_weak_rate": 0.008849557522123894,
+        "strong_nontriadic_rate": 0.22727272727272727,
+        "strong_pair_dissonances_per_block": 0.25,
+        "triadic_block_rate": 0.5095541401273885,
+        "weak_pair_dissonances_per_block": 0.9911504424778761
+      },
+      "V13": {
+        "bass_large_leap_rate": 0.2913165266106443,
+        "bass_outside_natural_scale_rate": 0.11944444444444445,
+        "bass_repeat_rate": 0.044817927170868355,
+        "bass_semitone_rate": 0.28011204481792723,
+        "dominant_65_strong_rate": 0.03787878787878788,
+        "dominant_65_weak_rate": 0.038348082595870206,
+        "strong_nontriadic_rate": 0.39393939393939387,
+        "strong_pair_dissonances_per_block": 0.553030303030303,
+        "triadic_block_rate": 0.4628450106157113,
+        "weak_pair_dissonances_per_block": 1.0206489675516224
+      },
+      "V14": {
+        "bass_large_leap_rate": 0.32492997198879553,
+        "bass_outside_natural_scale_rate": 0.11666666666666665,
+        "bass_repeat_rate": 0.0504201680672269,
+        "bass_semitone_rate": 0.2913165266106443,
+        "dominant_65_strong_rate": 0.03787878787878788,
+        "dominant_65_weak_rate": 0.04424778761061946,
+        "strong_nontriadic_rate": 0.4318181818181818,
+        "strong_pair_dissonances_per_block": 0.6969696969696969,
+        "triadic_block_rate": 0.4904458598726114,
+        "weak_pair_dissonances_per_block": 0.9351032448377582
+      },
+      "V14Ablated": {
+        "bass_large_leap_rate": 0.3053221288515406,
+        "bass_outside_natural_scale_rate": 0.11111111111111112,
+        "bass_repeat_rate": 0.0588235294117647,
+        "bass_semitone_rate": 0.3053221288515406,
+        "dominant_65_strong_rate": 0.030303030303030304,
+        "dominant_65_weak_rate": 0.053097345132743355,
+        "strong_nontriadic_rate": 0.4166666666666667,
+        "strong_pair_dissonances_per_block": 0.6742424242424242,
+        "triadic_block_rate": 0.5031847133757962,
+        "weak_pair_dissonances_per_block": 0.9292035398230089
+      },
+      "piece_id": "bach/bwv226.2"
+    },
+    {
+      "Bach": {
+        "bass_large_leap_rate": 0.3157894736842105,
+        "bass_outside_natural_scale_rate": 0.12987012987012986,
+        "bass_repeat_rate": 0.0,
+        "bass_semitone_rate": 0.2894736842105263,
+        "dominant_65_strong_rate": 0.09375,
+        "dominant_65_weak_rate": 0.0136986301369863,
+        "strong_nontriadic_rate": 0.21875,
+        "strong_pair_dissonances_per_block": 0.375,
+        "triadic_block_rate": 0.5428571428571428,
+        "weak_pair_dissonances_per_block": 1.0410958904109588
+      },
+      "V13": {
+        "bass_large_leap_rate": 0.27631578947368424,
+        "bass_outside_natural_scale_rate": 0.12121212121212122,
+        "bass_repeat_rate": 0.02631578947368421,
+        "bass_semitone_rate": 0.2675438596491228,
+        "dominant_65_strong_rate": 0.020833333333333332,
+        "dominant_65_weak_rate": 0.0136986301369863,
+        "strong_nontriadic_rate": 0.3541666666666667,
+        "strong_pair_dissonances_per_block": 0.5833333333333334,
+        "triadic_block_rate": 0.5587301587301587,
+        "weak_pair_dissonances_per_block": 0.8447488584474886
+      },
+      "V14": {
+        "bass_large_leap_rate": 0.2850877192982456,
+        "bass_outside_natural_scale_rate": 0.18614718614718617,
+        "bass_repeat_rate": 0.043859649122807015,
+        "bass_semitone_rate": 0.3114035087719298,
+        "dominant_65_strong_rate": 0.03125,
+        "dominant_65_weak_rate": 0.0182648401826484,
+        "strong_nontriadic_rate": 0.4895833333333333,
+        "strong_pair_dissonances_per_block": 0.8229166666666666,
+        "triadic_block_rate": 0.4984126984126984,
+        "weak_pair_dissonances_per_block": 0.9178082191780822
+      },
+      "V14Ablated": {
+        "bass_large_leap_rate": 0.3157894736842105,
+        "bass_outside_natural_scale_rate": 0.17316017316017315,
+        "bass_repeat_rate": 0.043859649122807015,
+        "bass_semitone_rate": 0.2894736842105263,
+        "dominant_65_strong_rate": 0.041666666666666664,
+        "dominant_65_weak_rate": 0.0182648401826484,
+        "strong_nontriadic_rate": 0.40625,
+        "strong_pair_dissonances_per_block": 0.6354166666666666,
+        "triadic_block_rate": 0.5174603174603175,
+        "weak_pair_dissonances_per_block": 0.8310502283105023
+      },
+      "piece_id": "bach/bwv244.25"
+    },
+    {
+      "Bach": {
+        "bass_large_leap_rate": 0.1875,
+        "bass_outside_natural_scale_rate": 0.16326530612244897,
+        "bass_repeat_rate": 0.10416666666666667,
+        "bass_semitone_rate": 0.3541666666666667,
+        "dominant_65_strong_rate": 0.0,
+        "dominant_65_weak_rate": 0.04878048780487805,
+        "strong_nontriadic_rate": 0.23809523809523808,
+        "strong_pair_dissonances_per_block": 0.42857142857142855,
+        "triadic_block_rate": 0.5,
+        "weak_pair_dissonances_per_block": 1.1219512195121952
+      },
+      "V13": {
+        "bass_large_leap_rate": 0.23611111111111113,
+        "bass_outside_natural_scale_rate": 0.17687074829931973,
+        "bass_repeat_rate": 0.020833333333333332,
+        "bass_semitone_rate": 0.3611111111111111,
+        "dominant_65_strong_rate": 0.031746031746031744,
+        "dominant_65_weak_rate": 0.056910569105691054,
+        "strong_nontriadic_rate": 0.4444444444444445,
+        "strong_pair_dissonances_per_block": 0.6825396825396824,
+        "triadic_block_rate": 0.5053763440860215,
+        "weak_pair_dissonances_per_block": 0.9268292682926829
+      },
+      "V14": {
+        "bass_large_leap_rate": 0.3194444444444444,
+        "bass_outside_natural_scale_rate": 0.16326530612244897,
+        "bass_repeat_rate": 0.041666666666666664,
+        "bass_semitone_rate": 0.32638888888888884,
+        "dominant_65_strong_rate": 0.015873015873015872,
+        "dominant_65_weak_rate": 0.06504065040650407,
+        "strong_nontriadic_rate": 0.3650793650793651,
+        "strong_pair_dissonances_per_block": 0.5555555555555555,
+        "triadic_block_rate": 0.5268817204301075,
+        "weak_pair_dissonances_per_block": 0.8373983739837398
+      },
+      "V14Ablated": {
+        "bass_large_leap_rate": 0.27777777777777773,
+        "bass_outside_natural_scale_rate": 0.17687074829931973,
+        "bass_repeat_rate": 0.03472222222222222,
+        "bass_semitone_rate": 0.2847222222222222,
+        "dominant_65_strong_rate": 0.0,
+        "dominant_65_weak_rate": 0.07317073170731707,
+        "strong_nontriadic_rate": 0.41269841269841273,
+        "strong_pair_dissonances_per_block": 0.6984126984126985,
+        "triadic_block_rate": 0.521505376344086,
+        "weak_pair_dissonances_per_block": 0.8536585365853658
+      },
+      "piece_id": "bach/bwv244.46"
+    },
+    {
+      "Bach": {
+        "bass_large_leap_rate": 0.265625,
+        "bass_outside_natural_scale_rate": 0.07692307692307693,
+        "bass_repeat_rate": 0.046875,
+        "bass_semitone_rate": 0.25,
+        "dominant_65_strong_rate": 0.045454545454545456,
+        "dominant_65_weak_rate": 0.0,
+        "strong_nontriadic_rate": 0.36363636363636365,
+        "strong_pair_dissonances_per_block": 0.5454545454545454,
+        "triadic_block_rate": 0.4878048780487805,
+        "weak_pair_dissonances_per_block": 0.8333333333333334
+      },
+      "V13": {
+        "bass_large_leap_rate": 0.3489583333333333,
+        "bass_outside_natural_scale_rate": 0.13333333333333333,
+        "bass_repeat_rate": 0.03125,
+        "bass_semitone_rate": 0.25,
+        "dominant_65_strong_rate": 0.0,
+        "dominant_65_weak_rate": 0.03888888888888889,
+        "strong_nontriadic_rate": 0.37878787878787873,
+        "strong_pair_dissonances_per_block": 0.4545454545454546,
+        "triadic_block_rate": 0.524390243902439,
+        "weak_pair_dissonances_per_block": 0.8944444444444444
+      },
+      "V14": {
+        "bass_large_leap_rate": 0.3229166666666667,
+        "bass_outside_natural_scale_rate": 0.1435897435897436,
+        "bass_repeat_rate": 0.015625,
+        "bass_semitone_rate": 0.3020833333333333,
+        "dominant_65_strong_rate": 0.07575757575757576,
+        "dominant_65_weak_rate": 0.011111111111111112,
+        "strong_nontriadic_rate": 0.5303030303030303,
+        "strong_pair_dissonances_per_block": 0.7878787878787877,
+        "triadic_block_rate": 0.47560975609756095,
+        "weak_pair_dissonances_per_block": 0.8944444444444444
+      },
+      "V14Ablated": {
+        "bass_large_leap_rate": 0.296875,
+        "bass_outside_natural_scale_rate": 0.12307692307692308,
+        "bass_repeat_rate": 0.026041666666666668,
+        "bass_semitone_rate": 0.2708333333333333,
+        "dominant_65_strong_rate": 0.04545454545454545,
+        "dominant_65_weak_rate": 0.011111111111111112,
+        "strong_nontriadic_rate": 0.5151515151515151,
+        "strong_pair_dissonances_per_block": 0.6515151515151515,
+        "triadic_block_rate": 0.4878048780487805,
+        "weak_pair_dissonances_per_block": 0.8555555555555555
+      },
+      "piece_id": "bach/bwv248.46-5"
+    },
+    {
+      "Bach": {
+        "bass_large_leap_rate": 0.4,
+        "bass_outside_natural_scale_rate": 0.039473684210526314,
+        "bass_repeat_rate": 0.013333333333333334,
+        "bass_semitone_rate": 0.14666666666666667,
+        "dominant_65_strong_rate": 0.0,
+        "dominant_65_weak_rate": 0.02857142857142857,
+        "strong_nontriadic_rate": 0.35714285714285715,
+        "strong_pair_dissonances_per_block": 0.39285714285714285,
+        "triadic_block_rate": 0.5816326530612245,
+        "weak_pair_dissonances_per_block": 0.7
+      },
+      "V13": {
+        "bass_large_leap_rate": 0.27111111111111114,
+        "bass_outside_natural_scale_rate": 0.10526315789473684,
+        "bass_repeat_rate": 0.031111111111111114,
+        "bass_semitone_rate": 0.26666666666666666,
+        "dominant_65_strong_rate": 0.03571428571428571,
+        "dominant_65_weak_rate": 0.02857142857142857,
+        "strong_nontriadic_rate": 0.48809523809523814,
+        "strong_pair_dissonances_per_block": 0.7738095238095237,
+        "triadic_block_rate": 0.5102040816326531,
+        "weak_pair_dissonances_per_block": 0.8047619047619047
+      },
+      "V14": {
+        "bass_large_leap_rate": 0.3422222222222222,
+        "bass_outside_natural_scale_rate": 0.13157894736842105,
+        "bass_repeat_rate": 0.035555555555555556,
+        "bass_semitone_rate": 0.26666666666666666,
+        "dominant_65_strong_rate": 0.047619047619047616,
+        "dominant_65_weak_rate": 0.023809523809523808,
+        "strong_nontriadic_rate": 0.5595238095238095,
+        "strong_pair_dissonances_per_block": 0.8452380952380952,
+        "triadic_block_rate": 0.4183673469387755,
+        "weak_pair_dissonances_per_block": 1.0142857142857142
+      },
+      "V14Ablated": {
+        "bass_large_leap_rate": 0.3466666666666667,
+        "bass_outside_natural_scale_rate": 0.14035087719298248,
+        "bass_repeat_rate": 0.035555555555555556,
+        "bass_semitone_rate": 0.28444444444444444,
+        "dominant_65_strong_rate": 0.059523809523809514,
+        "dominant_65_weak_rate": 0.03333333333333333,
+        "strong_nontriadic_rate": 0.39285714285714285,
+        "strong_pair_dissonances_per_block": 0.5714285714285715,
+        "triadic_block_rate": 0.5068027210884355,
+        "weak_pair_dissonances_per_block": 0.9238095238095237
+      },
+      "piece_id": "bach/bwv248.64-s"
+    },
+    {
+      "Bach": {
+        "bass_large_leap_rate": 0.24675324675324675,
+        "bass_outside_natural_scale_rate": 0.02564102564102564,
+        "bass_repeat_rate": 0.012987012987012988,
+        "bass_semitone_rate": 0.23376623376623376,
+        "dominant_65_strong_rate": 0.0,
+        "dominant_65_weak_rate": 0.012658227848101266,
+        "strong_nontriadic_rate": 0.03571428571428571,
+        "strong_pair_dissonances_per_block": 0.03571428571428571,
+        "triadic_block_rate": 0.6635514018691588,
+        "weak_pair_dissonances_per_block": 0.6455696202531646
+      },
+      "V13": {
+        "bass_large_leap_rate": 0.354978354978355,
+        "bass_outside_natural_scale_rate": 0.1282051282051282,
+        "bass_repeat_rate": 0.03896103896103896,
+        "bass_semitone_rate": 0.23376623376623376,
+        "dominant_65_strong_rate": 0.047619047619047616,
+        "dominant_65_weak_rate": 0.0379746835443038,
+        "strong_nontriadic_rate": 0.3333333333333333,
+        "strong_pair_dissonances_per_block": 0.5119047619047619,
+        "triadic_block_rate": 0.5514018691588785,
+        "weak_pair_dissonances_per_block": 0.8607594936708861
+      },
+      "V14": {
+        "bass_large_leap_rate": 0.3593073593073593,
+        "bass_outside_natural_scale_rate": 0.14957264957264957,
+        "bass_repeat_rate": 0.025974025974025972,
+        "bass_semitone_rate": 0.3333333333333333,
+        "dominant_65_strong_rate": 0.011904761904761904,
+        "dominant_65_weak_rate": 0.029535864978902954,
+        "strong_nontriadic_rate": 0.5119047619047619,
+        "strong_pair_dissonances_per_block": 0.7619047619047619,
+        "triadic_block_rate": 0.4672897196261682,
+        "weak_pair_dissonances_per_block": 0.8734177215189872
+      },
+      "V14Ablated": {
+        "bass_large_leap_rate": 0.3636363636363636,
+        "bass_outside_natural_scale_rate": 0.1452991452991453,
+        "bass_repeat_rate": 0.025974025974025972,
+        "bass_semitone_rate": 0.29004329004329005,
+        "dominant_65_strong_rate": 0.011904761904761904,
+        "dominant_65_weak_rate": 0.016877637130801686,
+        "strong_nontriadic_rate": 0.46428571428571425,
+        "strong_pair_dissonances_per_block": 0.6071428571428572,
+        "triadic_block_rate": 0.4735202492211838,
+        "weak_pair_dissonances_per_block": 0.9240506329113923
+      },
+      "piece_id": "bach/bwv260"
+    },
+    {
+      "Bach": {
+        "bass_large_leap_rate": 0.2714285714285714,
+        "bass_outside_natural_scale_rate": 0.14084507042253522,
+        "bass_repeat_rate": 0.05714285714285714,
+        "bass_semitone_rate": 0.3142857142857143,
+        "dominant_65_strong_rate": 0.0,
+        "dominant_65_weak_rate": 0.07272727272727272,
+        "strong_nontriadic_rate": 0.32142857142857145,
+        "strong_pair_dissonances_per_block": 0.5,
+        "triadic_block_rate": 0.5301204819277109,
+        "weak_pair_dissonances_per_block": 1.0
+      },
+      "V13": {
+        "bass_large_leap_rate": 0.23809523809523805,
+        "bass_outside_natural_scale_rate": 0.1220657276995305,
+        "bass_repeat_rate": 0.05238095238095238,
+        "bass_semitone_rate": 0.2714285714285714,
+        "dominant_65_strong_rate": 0.023809523809523808,
+        "dominant_65_weak_rate": 0.030303030303030304,
+        "strong_nontriadic_rate": 0.4523809523809524,
+        "strong_pair_dissonances_per_block": 0.7619047619047619,
+        "triadic_block_rate": 0.4738955823293172,
+        "weak_pair_dissonances_per_block": 1.0181818181818183
+      },
+      "V14": {
+        "bass_large_leap_rate": 0.26666666666666666,
+        "bass_outside_natural_scale_rate": 0.1596244131455399,
+        "bass_repeat_rate": 0.014285714285714285,
+        "bass_semitone_rate": 0.32857142857142857,
+        "dominant_65_strong_rate": 0.011904761904761904,
+        "dominant_65_weak_rate": 0.024242424242424242,
+        "strong_nontriadic_rate": 0.5595238095238094,
+        "strong_pair_dissonances_per_block": 1.0,
+        "triadic_block_rate": 0.4497991967871486,
+        "weak_pair_dissonances_per_block": 0.9272727272727272
+      },
+      "V14Ablated": {
+        "bass_large_leap_rate": 0.3,
+        "bass_outside_natural_scale_rate": 0.15023474178403753,
+        "bass_repeat_rate": 0.02857142857142857,
+        "bass_semitone_rate": 0.3,
+        "dominant_65_strong_rate": 0.0,
+        "dominant_65_weak_rate": 0.012121212121212121,
+        "strong_nontriadic_rate": 0.38095238095238093,
+        "strong_pair_dissonances_per_block": 0.6071428571428571,
+        "triadic_block_rate": 0.5341365461847389,
+        "weak_pair_dissonances_per_block": 0.8848484848484849
+      },
+      "piece_id": "bach/bwv272"
+    },
+    {
+      "Bach": {
+        "bass_large_leap_rate": 0.2191780821917808,
+        "bass_outside_natural_scale_rate": 0.1836734693877551,
+        "bass_repeat_rate": 0.0684931506849315,
+        "bass_semitone_rate": 0.3287671232876712,
+        "dominant_65_strong_rate": 0.017241379310344827,
+        "dominant_65_weak_rate": 0.05454545454545454,
+        "strong_nontriadic_rate": 0.39655172413793105,
+        "strong_pair_dissonances_per_block": 0.6551724137931034,
+        "triadic_block_rate": 0.4798206278026906,
+        "weak_pair_dissonances_per_block": 0.9696969696969697
+      },
+      "V13": {
+        "bass_large_leap_rate": 0.3219178082191781,
+        "bass_outside_natural_scale_rate": 0.12698412698412698,
+        "bass_repeat_rate": 0.0547945205479452,
+        "bass_semitone_rate": 0.2694063926940639,
+        "dominant_65_strong_rate": 0.040229885057471264,
+        "dominant_65_weak_rate": 0.046464646464646465,
+        "strong_nontriadic_rate": 0.40229885057471265,
+        "strong_pair_dissonances_per_block": 0.5919540229885057,
+        "triadic_block_rate": 0.4633781763826607,
+        "weak_pair_dissonances_per_block": 0.9919191919191919
+      },
+      "V14": {
+        "bass_large_leap_rate": 0.3401826484018265,
+        "bass_outside_natural_scale_rate": 0.11564625850340136,
+        "bass_repeat_rate": 0.06164383561643835,
+        "bass_semitone_rate": 0.2511415525114155,
+        "dominant_65_strong_rate": 0.022988505747126436,
+        "dominant_65_weak_rate": 0.046464646464646465,
+        "strong_nontriadic_rate": 0.4080459770114942,
+        "strong_pair_dissonances_per_block": 0.6551724137931035,
+        "triadic_block_rate": 0.4738415545590433,
+        "weak_pair_dissonances_per_block": 0.9373737373737375
+      },
+      "V14Ablated": {
+        "bass_large_leap_rate": 0.34474885844748854,
+        "bass_outside_natural_scale_rate": 0.11791383219954649,
+        "bass_repeat_rate": 0.04794520547945205,
+        "bass_semitone_rate": 0.27397260273972607,
+        "dominant_65_strong_rate": 0.02873563218390805,
+        "dominant_65_weak_rate": 0.048484848484848485,
+        "strong_nontriadic_rate": 0.39655172413793105,
+        "strong_pair_dissonances_per_block": 0.5402298850574713,
+        "triadic_block_rate": 0.5022421524663677,
+        "weak_pair_dissonances_per_block": 0.9252525252525251
+      },
+      "piece_id": "bach/bwv276"
+    },
+    {
+      "Bach": {
+        "bass_large_leap_rate": 0.30303030303030304,
+        "bass_outside_natural_scale_rate": 0.058823529411764705,
+        "bass_repeat_rate": 0.0,
+        "bass_semitone_rate": 0.18181818181818182,
+        "dominant_65_strong_rate": 0.0,
+        "dominant_65_weak_rate": 0.037037037037037035,
+        "strong_nontriadic_rate": 0.42857142857142855,
+        "strong_pair_dissonances_per_block": 0.6428571428571429,
+        "triadic_block_rate": 0.5609756097560976,
+        "weak_pair_dissonances_per_block": 0.6666666666666666
+      },
+      "V13": {
+        "bass_large_leap_rate": 0.3434343434343434,
+        "bass_outside_natural_scale_rate": 0.1372549019607843,
+        "bass_repeat_rate": 0.010101010101010102,
+        "bass_semitone_rate": 0.25252525252525254,
+        "dominant_65_strong_rate": 0.07142857142857142,
+        "dominant_65_weak_rate": 0.037037037037037035,
+        "strong_nontriadic_rate": 0.3333333333333333,
+        "strong_pair_dissonances_per_block": 0.6190476190476191,
+        "triadic_block_rate": 0.5447154471544716,
+        "weak_pair_dissonances_per_block": 0.8641975308641975
+      },
+      "V14": {
+        "bass_large_leap_rate": 0.25252525252525254,
+        "bass_outside_natural_scale_rate": 0.08823529411764706,
+        "bass_repeat_rate": 0.04040404040404041,
+        "bass_semitone_rate": 0.29292929292929293,
+        "dominant_65_strong_rate": 0.11904761904761903,
+        "dominant_65_weak_rate": 0.037037037037037035,
+        "strong_nontriadic_rate": 0.42857142857142855,
+        "strong_pair_dissonances_per_block": 0.5476190476190476,
+        "triadic_block_rate": 0.5609756097560976,
+        "weak_pair_dissonances_per_block": 0.7407407407407408
+      },
+      "V14Ablated": {
+        "bass_large_leap_rate": 0.32323232323232326,
+        "bass_outside_natural_scale_rate": 0.08823529411764706,
+        "bass_repeat_rate": 0.050505050505050504,
+        "bass_semitone_rate": 0.23232323232323235,
+        "dominant_65_strong_rate": 0.023809523809523808,
+        "dominant_65_weak_rate": 0.037037037037037035,
+        "strong_nontriadic_rate": 0.3333333333333333,
+        "strong_pair_dissonances_per_block": 0.2619047619047619,
+        "triadic_block_rate": 0.5365853658536586,
+        "weak_pair_dissonances_per_block": 0.8765432098765432
+      },
+      "piece_id": "bach/bwv281"
+    },
+    {
+      "Bach": {
+        "bass_large_leap_rate": 0.3333333333333333,
+        "bass_outside_natural_scale_rate": 0.1643835616438356,
+        "bass_repeat_rate": 0.0,
+        "bass_semitone_rate": 0.2222222222222222,
+        "dominant_65_strong_rate": 0.0,
+        "dominant_65_weak_rate": 0.04285714285714286,
+        "strong_nontriadic_rate": 0.23333333333333334,
+        "strong_pair_dissonances_per_block": 0.23333333333333334,
+        "triadic_block_rate": 0.53,
+        "weak_pair_dissonances_per_block": 0.9571428571428572
+      },
+      "V13": {
+        "bass_large_leap_rate": 0.3194444444444444,
+        "bass_outside_natural_scale_rate": 0.1232876712328767,
+        "bass_repeat_rate": 0.032407407407407406,
+        "bass_semitone_rate": 0.2638888888888889,
+        "dominant_65_strong_rate": 0.03333333333333333,
+        "dominant_65_weak_rate": 0.03333333333333333,
+        "strong_nontriadic_rate": 0.38888888888888884,
+        "strong_pair_dissonances_per_block": 0.5666666666666667,
+        "triadic_block_rate": 0.5466666666666667,
+        "weak_pair_dissonances_per_block": 0.7666666666666666
+      },
+      "V14": {
+        "bass_large_leap_rate": 0.3888888888888889,
+        "bass_outside_natural_scale_rate": 0.0958904109589041,
+        "bass_repeat_rate": 0.032407407407407406,
+        "bass_semitone_rate": 0.25,
+        "dominant_65_strong_rate": 0.03333333333333333,
+        "dominant_65_weak_rate": 0.014285714285714285,
+        "strong_nontriadic_rate": 0.41111111111111115,
+        "strong_pair_dissonances_per_block": 0.5444444444444444,
+        "triadic_block_rate": 0.5333333333333333,
+        "weak_pair_dissonances_per_block": 0.7761904761904762
+      },
+      "V14Ablated": {
+        "bass_large_leap_rate": 0.4166666666666667,
+        "bass_outside_natural_scale_rate": 0.1095890410958904,
+        "bass_repeat_rate": 0.04629629629629629,
+        "bass_semitone_rate": 0.2175925925925926,
+        "dominant_65_strong_rate": 0.044444444444444446,
+        "dominant_65_weak_rate": 0.014285714285714285,
+        "strong_nontriadic_rate": 0.43333333333333335,
+        "strong_pair_dissonances_per_block": 0.6333333333333333,
+        "triadic_block_rate": 0.5,
+        "weak_pair_dissonances_per_block": 0.8428571428571429
+      },
+      "piece_id": "bach/bwv284"
+    }
+  ],
+  "summary": {
+    "Bach": {
+      "bass_large_leap_rate": {
+        "ci95_high": 0.3011239047361129,
+        "ci95_low": 0.25789770028150755,
+        "mean": 0.2795108025088102
+      },
+      "bass_outside_natural_scale_rate": {
+        "ci95_high": 0.11060362885456407,
+        "ci95_low": 0.061604330497834286,
+        "mean": 0.08610397967619918
+      },
+      "bass_repeat_rate": {
+        "ci95_high": 0.0494724762861151,
+        "ci95_low": 0.018811960570347695,
+        "mean": 0.0341422184282314
+      },
+      "bass_semitone_rate": {
+        "ci95_high": 0.276897574887261,
+        "ci95_low": 0.23045681693630288,
+        "mean": 0.25367719591178195
+      },
+      "dominant_65_strong_rate": {
+        "ci95_high": 0.028097765747813717,
+        "ci95_low": 0.0038610680429166256,
+        "mean": 0.01597941689536517
+      },
+      "dominant_65_weak_rate": {
+        "ci95_high": 0.04276848113684509,
+        "ci95_low": 0.019938523509795858,
+        "mean": 0.03135350232332047
+      },
+      "strong_nontriadic_rate": {
+        "ci95_high": 0.33717562202252854,
+        "ci95_low": 0.21398122639725087,
+        "mean": 0.2755784242098897
+      },
+      "strong_pair_dissonances_per_block": {
+        "ci95_high": 0.4896837901086161,
+        "ci95_low": 0.27284174948588896,
+        "mean": 0.38126276979725254
+      },
+      "triadic_block_rate": {
+        "ci95_high": 0.5526942105480727,
+        "ci95_low": 0.4946440266287756,
+        "mean": 0.5236691185884241
+      },
+      "weak_pair_dissonances_per_block": {
+        "ci95_high": 1.0398065653073598,
+        "ci95_low": 0.8851245520861798,
+        "mean": 0.9624655586967699
+      }
+    },
+    "V13": {
+      "bass_large_leap_rate": {
+        "ci95_high": 0.3147864611409054,
+        "ci95_low": 0.2778412442521761,
+        "mean": 0.29631385269654076
+      },
+      "bass_outside_natural_scale_rate": {
+        "ci95_high": 0.13768561971277454,
+        "ci95_low": 0.12056515510187364,
+        "mean": 0.1291253874073241
+      },
+      "bass_repeat_rate": {
+        "ci95_high": 0.04257573774543739,
+        "ci95_low": 0.032311210191430954,
+        "mean": 0.03744347396843417
+      },
+      "bass_semitone_rate": {
+        "ci95_high": 0.27975644178149206,
+        "ci95_low": 0.2503965886035989,
+        "mean": 0.2650765151925455
+      },
+      "dominant_65_strong_rate": {
+        "ci95_high": 0.04208792041573443,
+        "ci95_low": 0.023056076711021313,
+        "mean": 0.03257199856337787
+      },
+      "dominant_65_weak_rate": {
+        "ci95_high": 0.04194182924845566,
+        "ci95_low": 0.026004245683795058,
+        "mean": 0.03397303746612536
+      },
+      "strong_nontriadic_rate": {
+        "ci95_high": 0.4240508811148317,
+        "ci95_low": 0.3792392331451101,
+        "mean": 0.4016450571299709
+      },
+      "strong_pair_dissonances_per_block": {
+        "ci95_high": 0.6383333203276378,
+        "ci95_low": 0.5617989659684415,
+        "mean": 0.6000661431480396
+      },
+      "triadic_block_rate": {
+        "ci95_high": 0.5240859269262365,
+        "ci95_low": 0.4952133365417498,
+        "mean": 0.5096496317339931
+      },
+      "weak_pair_dissonances_per_block": {
+        "ci95_high": 0.9371157352886478,
+        "ci95_low": 0.8755417738427326,
+        "mean": 0.9063287545656902
+      }
+    },
+    "V14": {
+      "bass_large_leap_rate": {
+        "ci95_high": 0.3286281614315363,
+        "ci95_low": 0.2967769888843085,
+        "mean": 0.3127025751579224
+      },
+      "bass_outside_natural_scale_rate": {
+        "ci95_high": 0.14287043340204317,
+        "ci95_low": 0.1190247490283434,
+        "mean": 0.13094759121519328
+      },
+      "bass_repeat_rate": {
+        "ci95_high": 0.04884140333890185,
+        "ci95_low": 0.03387729521039897,
+        "mean": 0.04135934927465041
+      },
+      "bass_semitone_rate": {
+        "ci95_high": 0.30392529866411044,
+        "ci95_low": 0.27391427538532265,
+        "mean": 0.28891978702471655
+      },
+      "dominant_65_strong_rate": {
+        "ci95_high": 0.044755752486644665,
+        "ci95_low": 0.020701316785079773,
+        "mean": 0.03272853463586222
+      },
+      "dominant_65_weak_rate": {
+        "ci95_high": 0.04165203052191162,
+        "ci95_low": 0.027517329555296576,
+        "mean": 0.0345846800386041
+      },
+      "strong_nontriadic_rate": {
+        "ci95_high": 0.47510374526238375,
+        "ci95_low": 0.4181058883351809,
+        "mean": 0.44660481679878233
+      },
+      "strong_pair_dissonances_per_block": {
+        "ci95_high": 0.7531087161779519,
+        "ci95_low": 0.6400599000079055,
+        "mean": 0.6965843080929287
+      },
+      "triadic_block_rate": {
+        "ci95_high": 0.5146126181918041,
+        "ci95_low": 0.4800806694232735,
+        "mean": 0.4973466438075388
+      },
+      "weak_pair_dissonances_per_block": {
+        "ci95_high": 0.93859983780885,
+        "ci95_low": 0.8603492891056512,
+        "mean": 0.8994745634572506
+      }
+    },
+    "V14Ablated": {
+      "bass_large_leap_rate": {
+        "ci95_high": 0.3397674506959326,
+        "ci95_low": 0.30635227533306175,
+        "mean": 0.3230598630144972
+      },
+      "bass_outside_natural_scale_rate": {
+        "ci95_high": 0.14134076738800025,
+        "ci95_low": 0.11599923472710987,
+        "mean": 0.12867000105755505
+      },
+      "bass_repeat_rate": {
+        "ci95_high": 0.047688926195090846,
+        "ci95_low": 0.03561382674232872,
+        "mean": 0.04165137646870978
+      },
+      "bass_semitone_rate": {
+        "ci95_high": 0.2888311547696601,
+        "ci95_low": 0.2600845183988795,
+        "mean": 0.2744578365842698
+      },
+      "dominant_65_strong_rate": {
+        "ci95_high": 0.03701463321289011,
+        "ci95_low": 0.017728954138455856,
+        "mean": 0.027371793675672985
+      },
+      "dominant_65_weak_rate": {
+        "ci95_high": 0.03870984017722652,
+        "ci95_low": 0.023901214560087838,
+        "mean": 0.03130552736865718
+      },
+      "strong_nontriadic_rate": {
+        "ci95_high": 0.43196506622795383,
+        "ci95_low": 0.38896343454968474,
+        "mean": 0.4104642503888193
+      },
+      "strong_pair_dissonances_per_block": {
+        "ci95_high": 0.6437321747975977,
+        "ci95_low": 0.551739145070274,
+        "mean": 0.5977356599339358
+      },
+      "triadic_block_rate": {
+        "ci95_high": 0.5164112118757597,
+        "ci95_low": 0.49016128053856495,
+        "mean": 0.5032862462071623
+      },
+      "weak_pair_dissonances_per_block": {
+        "ci95_high": 0.9251839929641651,
+        "ci95_low": 0.8712755038980139,
+        "mean": 0.8982297484310895
+      }
+    }
+  }
+}

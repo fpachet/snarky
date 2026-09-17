@@ -91,7 +91,7 @@ def _snapshot(session: InferenceSession) -> RunResult:
         derivations=tuple(session._derivations),
         cycles=session._cycles,
         fired_activation_count=session._fired_activation_total,
-        provenance=session._provenance,
+        provenance=session._provenance.clone(),
         events=tuple(session._events),
         agenda_selections=tuple(session._agenda_selections),
     )

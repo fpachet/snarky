@@ -1,0 +1,1223 @@
+schema_version: 1
+id: K3-V23-METRIC-HARMONY
+model_id: K3-V23-METRIC-HARMONY-FULL-1
+source_model: /Users/francoispachet/IdeaProjects/boojum/harmonizer/bach_rule_induction/factor_bases/k3_v6_induced/v23_metric_harmony_full_model.json
+factor_group: k3_v23_metric_harmony
+status: FROZEN_EXPLANATORY_PRETEST
+counts:
+  canonical_factors_after_merge: 57
+  retained_v22_factors: 43
+  new_harmony_cells: 14
+  rule_groups: 2
+factors:
+- id: F-K3-V23-001
+  family: v22_baseline
+  feature:
+    kind: any_voice_adjacent_step_gt
+    target_voice: -1
+    other_voice: null
+    value: 2
+    second_value: null
+    complexity: 1
+    key: any_voice_adjacent_step_gt:-1:-:2:-
+    label: any_voice_adjacent_step_gt(all_voices)=2
+  parameter:
+    scale: log_energy_contribution
+    log_weight: -1.1977148789815353
+    sign: avoidance
+  origin: learned_from_bach_corpus
+  human_authored: false
+  preference_human_authored: false
+  feature_definition_human_authored: true
+  grounding: k3_feature_evaluator
+  member_role: retained_v22_baseline
+- id: F-K3-V23-002
+  family: v22_baseline
+  feature:
+    kind: central_named_chord_quality_inversion
+    target_voice: -1
+    other_voice: null
+    value: 0
+    second_value: 0
+    complexity: 2
+    key: central_named_chord_quality_inversion:-1:-:0:0
+    label: central_named_chord_quality_inversion(all_voices)=0,0
+  parameter:
+    scale: log_energy_contribution
+    log_weight: 2.609043729197594
+    sign: preference
+  origin: learned_from_bach_corpus
+  human_authored: false
+  preference_human_authored: false
+  feature_definition_human_authored: true
+  grounding: k3_feature_evaluator
+  member_role: retained_v22_baseline
+- id: F-K3-V23-003
+  family: v22_baseline
+  feature:
+    kind: central_named_chord_inversion
+    target_voice: -1
+    other_voice: null
+    value: 1
+    second_value: null
+    complexity: 1
+    key: central_named_chord_inversion:-1:-:1:-
+    label: central_named_chord_inversion(all_voices)=1
+  parameter:
+    scale: log_energy_contribution
+    log_weight: 1.3042008080572918
+    sign: preference
+  origin: learned_from_bach_corpus
+  human_authored: false
+  preference_human_authored: false
+  feature_definition_human_authored: true
+  grounding: k3_feature_evaluator
+  member_role: retained_v22_baseline
+- id: F-K3-V23-004
+  family: v22_baseline
+  feature:
+    kind: central_named_chord_quality_inversion
+    target_voice: -1
+    other_voice: null
+    value: 1
+    second_value: 0
+    complexity: 2
+    key: central_named_chord_quality_inversion:-1:-:1:0
+    label: central_named_chord_quality_inversion(all_voices)=1,0
+  parameter:
+    scale: log_energy_contribution
+    log_weight: 1.7579996103082882
+    sign: preference
+  origin: learned_from_bach_corpus
+  human_authored: false
+  preference_human_authored: false
+  feature_definition_human_authored: true
+  grounding: k3_feature_evaluator
+  member_role: retained_v22_baseline
+- id: F-K3-V23-005
+  family: v22_baseline
+  feature:
+    kind: any_adjacent_central_ordered_gap_le
+    target_voice: -1
+    other_voice: null
+    value: 2
+    second_value: null
+    complexity: 1
+    key: any_adjacent_central_ordered_gap_le:-1:-:2:-
+    label: any_adjacent_central_ordered_gap_le(all_voices)=2
+  parameter:
+    scale: log_energy_contribution
+    log_weight: -0.6827867936724992
+    sign: avoidance
+  origin: learned_from_bach_corpus
+  human_authored: false
+  preference_human_authored: false
+  feature_definition_human_authored: true
+  grounding: k3_feature_evaluator
+  member_role: retained_v22_baseline
+- id: F-K3-V23-006
+  family: v22_baseline
+  feature:
+    kind: central_named_chord_quality
+    target_voice: -1
+    other_voice: null
+    value: 4
+    second_value: null
+    complexity: 1
+    key: central_named_chord_quality:-1:-:4:-
+    label: central_named_chord_quality(all_voices)=4
+  parameter:
+    scale: log_energy_contribution
+    log_weight: 1.1102558274119545
+    sign: preference
+  origin: learned_from_bach_corpus
+  human_authored: false
+  preference_human_authored: false
+  feature_definition_human_authored: true
+  grounding: k3_feature_evaluator
+  member_role: retained_v22_baseline
+- id: F-K3-V23-007
+  family: v22_baseline
+  feature:
+    kind: any_pair_central_abs_class_target_passing
+    target_voice: -1
+    other_voice: null
+    value: 9
+    second_value: null
+    complexity: 4
+    key: any_pair_central_abs_class_target_passing:-1:-:9:-
+    label: any_pair_central_abs_class_target_passing(all_voices)=9
+  parameter:
+    scale: log_energy_contribution
+    log_weight: 0.6753512762245881
+    sign: preference
+  origin: learned_from_bach_corpus
+  human_authored: false
+  preference_human_authored: false
+  feature_definition_human_authored: true
+  grounding: k3_feature_evaluator
+  member_role: retained_v22_baseline
+- id: F-K3-V23-008
+  family: v22_baseline
+  feature:
+    kind: any_voice_adjacent_step_gt
+    target_voice: -1
+    other_voice: null
+    value: 7
+    second_value: null
+    complexity: 1
+    key: any_voice_adjacent_step_gt:-1:-:7:-
+    label: any_voice_adjacent_step_gt(all_voices)=7
+  parameter:
+    scale: log_energy_contribution
+    log_weight: -1.0625277931407997
+    sign: avoidance
+  origin: learned_from_bach_corpus
+  human_authored: false
+  preference_human_authored: false
+  feature_definition_human_authored: true
+  grounding: k3_feature_evaluator
+  member_role: retained_v22_baseline
+- id: F-K3-V23-009
+  family: v22_baseline
+  feature:
+    kind: any_pair_abs_class_preserved_same_sign
+    target_voice: -1
+    other_voice: null
+    value: 7
+    second_value: null
+    complexity: 4
+    key: any_pair_abs_class_preserved_same_sign:-1:-:7:-
+    label: any_pair_abs_class_preserved_same_sign(all_voices)=7
+  parameter:
+    scale: log_energy_contribution
+    log_weight: -1.8817506233762469
+    sign: avoidance
+  origin: learned_from_bach_corpus
+  human_authored: false
+  preference_human_authored: false
+  feature_definition_human_authored: true
+  grounding: k3_feature_evaluator
+  member_role: retained_v22_baseline
+- id: F-K3-V23-010
+  family: v22_baseline
+  feature:
+    kind: attacked_repeat_from_previous
+    target_voice: 3
+    other_voice: null
+    value: null
+    second_value: null
+    complexity: 1
+    key: attacked_repeat_from_previous:3:-:-:-
+    label: attacked_repeat_from_previous(v3)
+  parameter:
+    scale: log_energy_contribution
+    log_weight: -1.8433313791099941
+    sign: avoidance
+  origin: learned_from_bach_corpus
+  human_authored: false
+  preference_human_authored: false
+  feature_definition_human_authored: true
+  grounding: k3_feature_evaluator
+  member_role: retained_v22_baseline
+- id: F-K3-V23-011
+  family: v22_baseline
+  feature:
+    kind: any_pair_abs_class_preserved_same_sign
+    target_voice: -1
+    other_voice: null
+    value: 0
+    second_value: null
+    complexity: 4
+    key: any_pair_abs_class_preserved_same_sign:-1:-:0:-
+    label: any_pair_abs_class_preserved_same_sign(all_voices)=0
+  parameter:
+    scale: log_energy_contribution
+    log_weight: -1.8979010793254352
+    sign: avoidance
+  origin: learned_from_bach_corpus
+  human_authored: false
+  preference_human_authored: false
+  feature_definition_human_authored: true
+  grounding: k3_feature_evaluator
+  member_role: retained_v22_baseline
+- id: F-K3-V23-012
+  family: v22_baseline
+  feature:
+    kind: any_pair_central_abs_class
+    target_voice: -1
+    other_voice: null
+    value: 0
+    second_value: null
+    complexity: 1
+    key: any_pair_central_abs_class:-1:-:0:-
+    label: any_pair_central_abs_class(all_voices)=0
+  parameter:
+    scale: log_energy_contribution
+    log_weight: 0.4934324299419329
+    sign: preference
+  origin: learned_from_bach_corpus
+  human_authored: false
+  preference_human_authored: false
+  feature_definition_human_authored: true
+  grounding: k3_feature_evaluator
+  member_role: retained_v22_baseline
+- id: F-K3-V23-013
+  family: v22_baseline
+  feature:
+    kind: any_pair_central_abs_class_target_passing
+    target_voice: -1
+    other_voice: null
+    value: 10
+    second_value: null
+    complexity: 4
+    key: any_pair_central_abs_class_target_passing:-1:-:10:-
+    label: any_pair_central_abs_class_target_passing(all_voices)=10
+  parameter:
+    scale: log_energy_contribution
+    log_weight: 1.1396342823407049
+    sign: preference
+  origin: learned_from_bach_corpus
+  human_authored: false
+  preference_human_authored: false
+  feature_definition_human_authored: true
+  grounding: k3_feature_evaluator
+  member_role: retained_v22_baseline
+- id: F-K3-V23-014
+  family: v22_baseline
+  feature:
+    kind: any_pair_arrival_abs_class_same_sign
+    target_voice: -1
+    other_voice: null
+    value: 3
+    second_value: null
+    complexity: 2
+    key: any_pair_arrival_abs_class_same_sign:-1:-:3:-
+    label: any_pair_arrival_abs_class_same_sign(all_voices)=3
+  parameter:
+    scale: log_energy_contribution
+    log_weight: 0.232961204141089
+    sign: preference
+  origin: learned_from_bach_corpus
+  human_authored: false
+  preference_human_authored: false
+  feature_definition_human_authored: true
+  grounding: k3_feature_evaluator
+  member_role: retained_v22_baseline
+- id: F-K3-V23-015
+  family: v22_baseline
+  feature:
+    kind: any_pair_central_abs_class_metric
+    target_voice: -1
+    other_voice: null
+    value: 7
+    second_value: 1
+    complexity: 2
+    key: any_pair_central_abs_class_metric:-1:-:7:1
+    label: any_pair_central_abs_class_metric(all_voices)=7,1
+  parameter:
+    scale: log_energy_contribution
+    log_weight: 0.3912205371227639
+    sign: preference
+  origin: learned_from_bach_corpus
+  human_authored: false
+  preference_human_authored: false
+  feature_definition_human_authored: true
+  grounding: k3_feature_evaluator
+  member_role: retained_v22_baseline
+- id: F-K3-V23-016
+  family: v22_baseline
+  feature:
+    kind: central_pair_abs_class
+    target_voice: 0
+    other_voice: 1
+    value: 2
+    second_value: null
+    complexity: 1
+    key: central_pair_abs_class:0:1:2:-
+    label: central_pair_abs_class(v0,v1)=2
+  parameter:
+    scale: log_energy_contribution
+    log_weight: 1.4919372534386712
+    sign: preference
+  origin: learned_from_bach_corpus
+  human_authored: false
+  preference_human_authored: false
+  feature_definition_human_authored: true
+  grounding: k3_feature_evaluator
+  member_role: retained_v22_baseline
+- id: F-K3-V23-017
+  family: v22_baseline
+  feature:
+    kind: any_pair_arrival_abs_class_same_sign
+    target_voice: -1
+    other_voice: null
+    value: 10
+    second_value: null
+    complexity: 2
+    key: any_pair_arrival_abs_class_same_sign:-1:-:10:-
+    label: any_pair_arrival_abs_class_same_sign(all_voices)=10
+  parameter:
+    scale: log_energy_contribution
+    log_weight: -0.5971771158352619
+    sign: avoidance
+  origin: learned_from_bach_corpus
+  human_authored: false
+  preference_human_authored: false
+  feature_definition_human_authored: true
+  grounding: k3_feature_evaluator
+  member_role: retained_v22_baseline
+- id: F-K3-V23-018
+  family: v22_baseline
+  feature:
+    kind: any_pair_arrival_abs_class_same_sign
+    target_voice: -1
+    other_voice: null
+    value: 2
+    second_value: null
+    complexity: 2
+    key: any_pair_arrival_abs_class_same_sign:-1:-:2:-
+    label: any_pair_arrival_abs_class_same_sign(all_voices)=2
+  parameter:
+    scale: log_energy_contribution
+    log_weight: -0.8360453983237763
+    sign: avoidance
+  origin: learned_from_bach_corpus
+  human_authored: false
+  preference_human_authored: false
+  feature_definition_human_authored: true
+  grounding: k3_feature_evaluator
+  member_role: retained_v22_baseline
+- id: F-K3-V23-019
+  family: v22_baseline
+  feature:
+    kind: any_voice_adjacent_abs_class
+    target_voice: -1
+    other_voice: null
+    value: 1
+    second_value: null
+    complexity: 1
+    key: any_voice_adjacent_abs_class:-1:-:1:-
+    label: any_voice_adjacent_abs_class(all_voices)=1
+  parameter:
+    scale: log_energy_contribution
+    log_weight: 0.3129841879970758
+    sign: preference
+  origin: learned_from_bach_corpus
+  human_authored: false
+  preference_human_authored: false
+  feature_definition_human_authored: true
+  grounding: k3_feature_evaluator
+  member_role: retained_v22_baseline
+- id: F-K3-V23-020
+  family: v22_baseline
+  feature:
+    kind: central_named_root_motion_mode
+    target_voice: -1
+    other_voice: null
+    value: 0
+    second_value: 0
+    complexity: 3
+    key: central_named_root_motion_mode:-1:-:0:0
+    label: central_named_root_motion_mode(all_voices)=0,0
+  parameter:
+    scale: log_energy_contribution
+    log_weight: -0.2580665658843452
+    sign: avoidance
+  origin: learned_from_bach_corpus
+  human_authored: false
+  preference_human_authored: false
+  feature_definition_human_authored: true
+  grounding: k3_feature_evaluator
+  member_role: retained_v22_baseline
+- id: F-K3-V23-021
+  family: v22_baseline
+  feature:
+    kind: central_named_root_motion_mode
+    target_voice: -1
+    other_voice: null
+    value: 1
+    second_value: 0
+    complexity: 3
+    key: central_named_root_motion_mode:-1:-:1:0
+    label: central_named_root_motion_mode(all_voices)=1,0
+  parameter:
+    scale: log_energy_contribution
+    log_weight: 0.6541673258680035
+    sign: preference
+  origin: learned_from_bach_corpus
+  human_authored: false
+  preference_human_authored: false
+  feature_definition_human_authored: true
+  grounding: k3_feature_evaluator
+  member_role: retained_v22_baseline
+- id: F-K3-V23-022
+  family: v22_baseline
+  feature:
+    kind: central_named_root_motion_mode
+    target_voice: -1
+    other_voice: null
+    value: 2
+    second_value: 0
+    complexity: 3
+    key: central_named_root_motion_mode:-1:-:2:0
+    label: central_named_root_motion_mode(all_voices)=2,0
+  parameter:
+    scale: log_energy_contribution
+    log_weight: 0.6172214828526749
+    sign: preference
+  origin: learned_from_bach_corpus
+  human_authored: false
+  preference_human_authored: false
+  feature_definition_human_authored: true
+  grounding: k3_feature_evaluator
+  member_role: retained_v22_baseline
+- id: F-K3-V23-023
+  family: v22_baseline
+  feature:
+    kind: central_named_root_motion_mode
+    target_voice: -1
+    other_voice: null
+    value: 3
+    second_value: 0
+    complexity: 3
+    key: central_named_root_motion_mode:-1:-:3:0
+    label: central_named_root_motion_mode(all_voices)=3,0
+  parameter:
+    scale: log_energy_contribution
+    log_weight: -0.29470115108673484
+    sign: avoidance
+  origin: learned_from_bach_corpus
+  human_authored: false
+  preference_human_authored: false
+  feature_definition_human_authored: true
+  grounding: k3_feature_evaluator
+  member_role: retained_v22_baseline
+- id: F-K3-V23-024
+  family: v22_baseline
+  feature:
+    kind: central_named_root_motion_mode
+    target_voice: -1
+    other_voice: null
+    value: 4
+    second_value: 0
+    complexity: 3
+    key: central_named_root_motion_mode:-1:-:4:0
+    label: central_named_root_motion_mode(all_voices)=4,0
+  parameter:
+    scale: log_energy_contribution
+    log_weight: -0.2687339714165297
+    sign: avoidance
+  origin: learned_from_bach_corpus
+  human_authored: false
+  preference_human_authored: false
+  feature_definition_human_authored: true
+  grounding: k3_feature_evaluator
+  member_role: retained_v22_baseline
+- id: F-K3-V23-025
+  family: v22_baseline
+  feature:
+    kind: central_named_root_motion_mode
+    target_voice: -1
+    other_voice: null
+    value: 5
+    second_value: 0
+    complexity: 3
+    key: central_named_root_motion_mode:-1:-:5:0
+    label: central_named_root_motion_mode(all_voices)=5,0
+  parameter:
+    scale: log_energy_contribution
+    log_weight: 1.0030997077918542
+    sign: preference
+  origin: learned_from_bach_corpus
+  human_authored: false
+  preference_human_authored: false
+  feature_definition_human_authored: true
+  grounding: k3_feature_evaluator
+  member_role: retained_v22_baseline
+- id: F-K3-V23-026
+  family: v22_baseline
+  feature:
+    kind: central_named_root_motion_mode
+    target_voice: -1
+    other_voice: null
+    value: 6
+    second_value: 0
+    complexity: 3
+    key: central_named_root_motion_mode:-1:-:6:0
+    label: central_named_root_motion_mode(all_voices)=6,0
+  parameter:
+    scale: log_energy_contribution
+    log_weight: 0.6863850715503292
+    sign: preference
+  origin: learned_from_bach_corpus
+  human_authored: false
+  preference_human_authored: false
+  feature_definition_human_authored: true
+  grounding: k3_feature_evaluator
+  member_role: retained_v22_baseline
+- id: F-K3-V23-027
+  family: v22_baseline
+  feature:
+    kind: central_named_root_motion_mode
+    target_voice: -1
+    other_voice: null
+    value: 7
+    second_value: 0
+    complexity: 3
+    key: central_named_root_motion_mode:-1:-:7:0
+    label: central_named_root_motion_mode(all_voices)=7,0
+  parameter:
+    scale: log_energy_contribution
+    log_weight: 0.32419495849346286
+    sign: preference
+  origin: learned_from_bach_corpus
+  human_authored: false
+  preference_human_authored: false
+  feature_definition_human_authored: true
+  grounding: k3_feature_evaluator
+  member_role: retained_v22_baseline
+- id: F-K3-V23-028
+  family: v22_baseline
+  feature:
+    kind: central_named_root_motion_mode
+    target_voice: -1
+    other_voice: null
+    value: 8
+    second_value: 0
+    complexity: 3
+    key: central_named_root_motion_mode:-1:-:8:0
+    label: central_named_root_motion_mode(all_voices)=8,0
+  parameter:
+    scale: log_energy_contribution
+    log_weight: -0.21152675135744992
+    sign: avoidance
+  origin: learned_from_bach_corpus
+  human_authored: false
+  preference_human_authored: false
+  feature_definition_human_authored: true
+  grounding: k3_feature_evaluator
+  member_role: retained_v22_baseline
+- id: F-K3-V23-029
+  family: v22_baseline
+  feature:
+    kind: central_named_root_motion_mode
+    target_voice: -1
+    other_voice: null
+    value: 9
+    second_value: 0
+    complexity: 3
+    key: central_named_root_motion_mode:-1:-:9:0
+    label: central_named_root_motion_mode(all_voices)=9,0
+  parameter:
+    scale: log_energy_contribution
+    log_weight: 0.43672859106171064
+    sign: preference
+  origin: learned_from_bach_corpus
+  human_authored: false
+  preference_human_authored: false
+  feature_definition_human_authored: true
+  grounding: k3_feature_evaluator
+  member_role: retained_v22_baseline
+- id: F-K3-V23-030
+  family: v22_baseline
+  feature:
+    kind: central_named_root_motion_mode
+    target_voice: -1
+    other_voice: null
+    value: 10
+    second_value: 0
+    complexity: 3
+    key: central_named_root_motion_mode:-1:-:10:0
+    label: central_named_root_motion_mode(all_voices)=10,0
+  parameter:
+    scale: log_energy_contribution
+    log_weight: -0.22446855103397623
+    sign: avoidance
+  origin: learned_from_bach_corpus
+  human_authored: false
+  preference_human_authored: false
+  feature_definition_human_authored: true
+  grounding: k3_feature_evaluator
+  member_role: retained_v22_baseline
+- id: F-K3-V23-031
+  family: v22_baseline
+  feature:
+    kind: central_named_root_motion_mode
+    target_voice: -1
+    other_voice: null
+    value: 11
+    second_value: 0
+    complexity: 3
+    key: central_named_root_motion_mode:-1:-:11:0
+    label: central_named_root_motion_mode(all_voices)=11,0
+  parameter:
+    scale: log_energy_contribution
+    log_weight: -0.39152056641742106
+    sign: avoidance
+  origin: learned_from_bach_corpus
+  human_authored: false
+  preference_human_authored: false
+  feature_definition_human_authored: true
+  grounding: k3_feature_evaluator
+  member_role: retained_v22_baseline
+- id: F-K3-V23-032
+  family: v22_baseline
+  feature:
+    kind: central_named_root_motion_mode
+    target_voice: -1
+    other_voice: null
+    value: 0
+    second_value: 1
+    complexity: 3
+    key: central_named_root_motion_mode:-1:-:0:1
+    label: central_named_root_motion_mode(all_voices)=0,1
+  parameter:
+    scale: log_energy_contribution
+    log_weight: -0.1852699983795458
+    sign: avoidance
+  origin: learned_from_bach_corpus
+  human_authored: false
+  preference_human_authored: false
+  feature_definition_human_authored: true
+  grounding: k3_feature_evaluator
+  member_role: retained_v22_baseline
+- id: F-K3-V23-033
+  family: v22_baseline
+  feature:
+    kind: central_named_root_motion_mode
+    target_voice: -1
+    other_voice: null
+    value: 1
+    second_value: 1
+    complexity: 3
+    key: central_named_root_motion_mode:-1:-:1:1
+    label: central_named_root_motion_mode(all_voices)=1,1
+  parameter:
+    scale: log_energy_contribution
+    log_weight: 0.6049228784288782
+    sign: preference
+  origin: learned_from_bach_corpus
+  human_authored: false
+  preference_human_authored: false
+  feature_definition_human_authored: true
+  grounding: k3_feature_evaluator
+  member_role: retained_v22_baseline
+- id: F-K3-V23-034
+  family: v22_baseline
+  feature:
+    kind: central_named_root_motion_mode
+    target_voice: -1
+    other_voice: null
+    value: 2
+    second_value: 1
+    complexity: 3
+    key: central_named_root_motion_mode:-1:-:2:1
+    label: central_named_root_motion_mode(all_voices)=2,1
+  parameter:
+    scale: log_energy_contribution
+    log_weight: 0.6765148739583803
+    sign: preference
+  origin: learned_from_bach_corpus
+  human_authored: false
+  preference_human_authored: false
+  feature_definition_human_authored: true
+  grounding: k3_feature_evaluator
+  member_role: retained_v22_baseline
+- id: F-K3-V23-035
+  family: v22_baseline
+  feature:
+    kind: central_named_root_motion_mode
+    target_voice: -1
+    other_voice: null
+    value: 3
+    second_value: 1
+    complexity: 3
+    key: central_named_root_motion_mode:-1:-:3:1
+    label: central_named_root_motion_mode(all_voices)=3,1
+  parameter:
+    scale: log_energy_contribution
+    log_weight: -0.16508041676042196
+    sign: avoidance
+  origin: learned_from_bach_corpus
+  human_authored: false
+  preference_human_authored: false
+  feature_definition_human_authored: true
+  grounding: k3_feature_evaluator
+  member_role: retained_v22_baseline
+- id: F-K3-V23-036
+  family: v22_baseline
+  feature:
+    kind: central_named_root_motion_mode
+    target_voice: -1
+    other_voice: null
+    value: 4
+    second_value: 1
+    complexity: 3
+    key: central_named_root_motion_mode:-1:-:4:1
+    label: central_named_root_motion_mode(all_voices)=4,1
+  parameter:
+    scale: log_energy_contribution
+    log_weight: -0.10648531378915078
+    sign: avoidance
+  origin: learned_from_bach_corpus
+  human_authored: false
+  preference_human_authored: false
+  feature_definition_human_authored: true
+  grounding: k3_feature_evaluator
+  member_role: retained_v22_baseline
+- id: F-K3-V23-037
+  family: v22_baseline
+  feature:
+    kind: central_named_root_motion_mode
+    target_voice: -1
+    other_voice: null
+    value: 5
+    second_value: 1
+    complexity: 3
+    key: central_named_root_motion_mode:-1:-:5:1
+    label: central_named_root_motion_mode(all_voices)=5,1
+  parameter:
+    scale: log_energy_contribution
+    log_weight: 1.0961975891664668
+    sign: preference
+  origin: learned_from_bach_corpus
+  human_authored: false
+  preference_human_authored: false
+  feature_definition_human_authored: true
+  grounding: k3_feature_evaluator
+  member_role: retained_v22_baseline
+- id: F-K3-V23-038
+  family: v22_baseline
+  feature:
+    kind: central_named_root_motion_mode
+    target_voice: -1
+    other_voice: null
+    value: 6
+    second_value: 1
+    complexity: 3
+    key: central_named_root_motion_mode:-1:-:6:1
+    label: central_named_root_motion_mode(all_voices)=6,1
+  parameter:
+    scale: log_energy_contribution
+    log_weight: 0.7586733141778729
+    sign: preference
+  origin: learned_from_bach_corpus
+  human_authored: false
+  preference_human_authored: false
+  feature_definition_human_authored: true
+  grounding: k3_feature_evaluator
+  member_role: retained_v22_baseline
+- id: F-K3-V23-039
+  family: v22_baseline
+  feature:
+    kind: central_named_root_motion_mode
+    target_voice: -1
+    other_voice: null
+    value: 7
+    second_value: 1
+    complexity: 3
+    key: central_named_root_motion_mode:-1:-:7:1
+    label: central_named_root_motion_mode(all_voices)=7,1
+  parameter:
+    scale: log_energy_contribution
+    log_weight: 0.3663847741567119
+    sign: preference
+  origin: learned_from_bach_corpus
+  human_authored: false
+  preference_human_authored: false
+  feature_definition_human_authored: true
+  grounding: k3_feature_evaluator
+  member_role: retained_v22_baseline
+- id: F-K3-V23-040
+  family: v22_baseline
+  feature:
+    kind: central_named_root_motion_mode
+    target_voice: -1
+    other_voice: null
+    value: 8
+    second_value: 1
+    complexity: 3
+    key: central_named_root_motion_mode:-1:-:8:1
+    label: central_named_root_motion_mode(all_voices)=8,1
+  parameter:
+    scale: log_energy_contribution
+    log_weight: -0.25207938661713136
+    sign: avoidance
+  origin: learned_from_bach_corpus
+  human_authored: false
+  preference_human_authored: false
+  feature_definition_human_authored: true
+  grounding: k3_feature_evaluator
+  member_role: retained_v22_baseline
+- id: F-K3-V23-041
+  family: v22_baseline
+  feature:
+    kind: central_named_root_motion_mode
+    target_voice: -1
+    other_voice: null
+    value: 9
+    second_value: 1
+    complexity: 3
+    key: central_named_root_motion_mode:-1:-:9:1
+    label: central_named_root_motion_mode(all_voices)=9,1
+  parameter:
+    scale: log_energy_contribution
+    log_weight: 0.2128133461797182
+    sign: preference
+  origin: learned_from_bach_corpus
+  human_authored: false
+  preference_human_authored: false
+  feature_definition_human_authored: true
+  grounding: k3_feature_evaluator
+  member_role: retained_v22_baseline
+- id: F-K3-V23-042
+  family: v22_baseline
+  feature:
+    kind: central_named_root_motion_mode
+    target_voice: -1
+    other_voice: null
+    value: 10
+    second_value: 1
+    complexity: 3
+    key: central_named_root_motion_mode:-1:-:10:1
+    label: central_named_root_motion_mode(all_voices)=10,1
+  parameter:
+    scale: log_energy_contribution
+    log_weight: -0.2869665773569278
+    sign: avoidance
+  origin: learned_from_bach_corpus
+  human_authored: false
+  preference_human_authored: false
+  feature_definition_human_authored: true
+  grounding: k3_feature_evaluator
+  member_role: retained_v22_baseline
+- id: F-K3-V23-043
+  family: v22_baseline
+  feature:
+    kind: central_named_root_motion_mode
+    target_voice: -1
+    other_voice: null
+    value: 11
+    second_value: 1
+    complexity: 3
+    key: central_named_root_motion_mode:-1:-:11:1
+    label: central_named_root_motion_mode(all_voices)=11,1
+  parameter:
+    scale: log_energy_contribution
+    log_weight: -0.3417949324306642
+    sign: avoidance
+  origin: learned_from_bach_corpus
+  human_authored: false
+  preference_human_authored: false
+  feature_definition_human_authored: true
+  grounding: k3_feature_evaluator
+  member_role: retained_v22_baseline
+- id: F-K3-V23-044
+  family: unique_chord_family_inversion_strong
+  feature:
+    kind: central_unique_chord_family_inversion_strong
+    target_voice: -1
+    other_voice: null
+    value: 0
+    second_value: null
+    complexity: 3
+    key: central_unique_chord_family_inversion_strong:-1:-:0:-
+    label: central_unique_chord_family_inversion_strong(all_voices)=0
+  parameter:
+    scale: log_energy_contribution
+    log_weight: 0.2807751580200416
+    sign: preference
+  origin: learned_from_bach_corpus
+  human_authored: false
+  preference_human_authored: false
+  feature_definition_human_authored: true
+  grounding: k3_feature_evaluator
+  member_role: strong_named_harmony_status
+  rule_group: RG-LEARNED-V23-001
+- id: F-K3-V23-045
+  family: unique_chord_family_inversion_strong
+  feature:
+    kind: central_unique_chord_family_inversion_strong
+    target_voice: -1
+    other_voice: null
+    value: 1
+    second_value: null
+    complexity: 3
+    key: central_unique_chord_family_inversion_strong:-1:-:1:-
+    label: central_unique_chord_family_inversion_strong(all_voices)=1
+  parameter:
+    scale: log_energy_contribution
+    log_weight: 0.14068668239736704
+    sign: preference
+  origin: learned_from_bach_corpus
+  human_authored: false
+  preference_human_authored: false
+  feature_definition_human_authored: true
+  grounding: k3_feature_evaluator
+  member_role: strong_named_harmony_status
+  rule_group: RG-LEARNED-V23-001
+- id: F-K3-V23-046
+  family: unique_chord_family_inversion_strong
+  feature:
+    kind: central_unique_chord_family_inversion_strong
+    target_voice: -1
+    other_voice: null
+    value: 2
+    second_value: null
+    complexity: 3
+    key: central_unique_chord_family_inversion_strong:-1:-:2:-
+    label: central_unique_chord_family_inversion_strong(all_voices)=2
+  parameter:
+    scale: log_energy_contribution
+    log_weight: -0.052600129411019936
+    sign: avoidance
+  origin: learned_from_bach_corpus
+  human_authored: false
+  preference_human_authored: false
+  feature_definition_human_authored: true
+  grounding: k3_feature_evaluator
+  member_role: strong_named_harmony_status
+  rule_group: RG-LEARNED-V23-001
+- id: F-K3-V23-047
+  family: unique_chord_family_inversion_strong
+  feature:
+    kind: central_unique_chord_family_inversion_strong
+    target_voice: -1
+    other_voice: null
+    value: 4
+    second_value: null
+    complexity: 3
+    key: central_unique_chord_family_inversion_strong:-1:-:4:-
+    label: central_unique_chord_family_inversion_strong(all_voices)=4
+  parameter:
+    scale: log_energy_contribution
+    log_weight: -0.10163956372696693
+    sign: avoidance
+  origin: learned_from_bach_corpus
+  human_authored: false
+  preference_human_authored: false
+  feature_definition_human_authored: true
+  grounding: k3_feature_evaluator
+  member_role: strong_named_harmony_status
+  rule_group: RG-LEARNED-V23-001
+- id: F-K3-V23-048
+  family: unique_chord_family_inversion_strong
+  feature:
+    kind: central_unique_chord_family_inversion_strong
+    target_voice: -1
+    other_voice: null
+    value: 5
+    second_value: null
+    complexity: 3
+    key: central_unique_chord_family_inversion_strong:-1:-:5:-
+    label: central_unique_chord_family_inversion_strong(all_voices)=5
+  parameter:
+    scale: log_energy_contribution
+    log_weight: -0.20830462547380585
+    sign: avoidance
+  origin: learned_from_bach_corpus
+  human_authored: false
+  preference_human_authored: false
+  feature_definition_human_authored: true
+  grounding: k3_feature_evaluator
+  member_role: strong_named_harmony_status
+  rule_group: RG-LEARNED-V23-001
+- id: F-K3-V23-049
+  family: unique_chord_family_inversion_strong
+  feature:
+    kind: central_unique_chord_family_inversion_strong
+    target_voice: -1
+    other_voice: null
+    value: 6
+    second_value: null
+    complexity: 3
+    key: central_unique_chord_family_inversion_strong:-1:-:6:-
+    label: central_unique_chord_family_inversion_strong(all_voices)=6
+  parameter:
+    scale: log_energy_contribution
+    log_weight: -0.22856429442393394
+    sign: avoidance
+  origin: learned_from_bach_corpus
+  human_authored: false
+  preference_human_authored: false
+  feature_definition_human_authored: true
+  grounding: k3_feature_evaluator
+  member_role: strong_named_harmony_status
+  rule_group: RG-LEARNED-V23-001
+- id: F-K3-V23-050
+  family: unique_chord_family_inversion_strong
+  feature:
+    kind: central_unique_chord_family_inversion_strong
+    target_voice: -1
+    other_voice: null
+    value: 8
+    second_value: null
+    complexity: 3
+    key: central_unique_chord_family_inversion_strong:-1:-:8:-
+    label: central_unique_chord_family_inversion_strong(all_voices)=8
+  parameter:
+    scale: log_energy_contribution
+    log_weight: -0.0060192134894722
+    sign: avoidance
+  origin: learned_from_bach_corpus
+  human_authored: false
+  preference_human_authored: false
+  feature_definition_human_authored: true
+  grounding: k3_feature_evaluator
+  member_role: strong_named_harmony_status
+  rule_group: RG-LEARNED-V23-001
+- id: F-K3-V23-051
+  family: unique_chord_family_inversion_strong
+  feature:
+    kind: central_unique_chord_family_inversion_strong
+    target_voice: -1
+    other_voice: null
+    value: 9
+    second_value: null
+    complexity: 3
+    key: central_unique_chord_family_inversion_strong:-1:-:9:-
+    label: central_unique_chord_family_inversion_strong(all_voices)=9
+  parameter:
+    scale: log_energy_contribution
+    log_weight: -0.07013625005408265
+    sign: avoidance
+  origin: learned_from_bach_corpus
+  human_authored: false
+  preference_human_authored: false
+  feature_definition_human_authored: true
+  grounding: k3_feature_evaluator
+  member_role: strong_named_harmony_status
+  rule_group: RG-LEARNED-V23-001
+- id: F-K3-V23-052
+  family: unique_chord_family_inversion_strong
+  feature:
+    kind: central_unique_chord_family_inversion_strong
+    target_voice: -1
+    other_voice: null
+    value: 10
+    second_value: null
+    complexity: 3
+    key: central_unique_chord_family_inversion_strong:-1:-:10:-
+    label: central_unique_chord_family_inversion_strong(all_voices)=10
+  parameter:
+    scale: log_energy_contribution
+    log_weight: -0.2656310917089157
+    sign: avoidance
+  origin: learned_from_bach_corpus
+  human_authored: false
+  preference_human_authored: false
+  feature_definition_human_authored: true
+  grounding: k3_feature_evaluator
+  member_role: strong_named_harmony_status
+  rule_group: RG-LEARNED-V23-001
+- id: F-K3-V23-053
+  family: unique_chord_family_inversion_strong
+  feature:
+    kind: central_unique_chord_family_inversion_strong
+    target_voice: -1
+    other_voice: null
+    value: 11
+    second_value: null
+    complexity: 3
+    key: central_unique_chord_family_inversion_strong:-1:-:11:-
+    label: central_unique_chord_family_inversion_strong(all_voices)=11
+  parameter:
+    scale: log_energy_contribution
+    log_weight: 0.2739407024913201
+    sign: preference
+  origin: learned_from_bach_corpus
+  human_authored: false
+  preference_human_authored: false
+  feature_definition_human_authored: true
+  grounding: k3_feature_evaluator
+  member_role: strong_named_harmony_status
+  rule_group: RG-LEARNED-V23-001
+- id: F-K3-V23-054
+  family: unique_chord_family_inversion_strong
+  feature:
+    kind: central_unique_chord_family_inversion_strong
+    target_voice: -1
+    other_voice: null
+    value: 12
+    second_value: null
+    complexity: 3
+    key: central_unique_chord_family_inversion_strong:-1:-:12:-
+    label: central_unique_chord_family_inversion_strong(all_voices)=12
+  parameter:
+    scale: log_energy_contribution
+    log_weight: -0.17571531955166597
+    sign: avoidance
+  origin: learned_from_bach_corpus
+  human_authored: false
+  preference_human_authored: false
+  feature_definition_human_authored: true
+  grounding: k3_feature_evaluator
+  member_role: strong_named_harmony_status
+  rule_group: RG-LEARNED-V23-001
+- id: F-K3-V23-055
+  family: unique_chord_family_inversion_strong
+  feature:
+    kind: central_unique_chord_family_inversion_strong
+    target_voice: -1
+    other_voice: null
+    value: 13
+    second_value: null
+    complexity: 3
+    key: central_unique_chord_family_inversion_strong:-1:-:13:-
+    label: central_unique_chord_family_inversion_strong(all_voices)=13
+  parameter:
+    scale: log_energy_contribution
+    log_weight: 0.2245971054727108
+    sign: preference
+  origin: learned_from_bach_corpus
+  human_authored: false
+  preference_human_authored: false
+  feature_definition_human_authored: true
+  grounding: k3_feature_evaluator
+  member_role: strong_named_harmony_status
+  rule_group: RG-LEARNED-V23-001
+- id: F-K3-V23-056
+  family: unique_chord_family_inversion_strong
+  feature:
+    kind: central_unique_chord_family_inversion_strong
+    target_voice: -1
+    other_voice: null
+    value: 14
+    second_value: null
+    complexity: 3
+    key: central_unique_chord_family_inversion_strong:-1:-:14:-
+    label: central_unique_chord_family_inversion_strong(all_voices)=14
+  parameter:
+    scale: log_energy_contribution
+    log_weight: -0.14706322786630419
+    sign: avoidance
+  origin: learned_from_bach_corpus
+  human_authored: false
+  preference_human_authored: false
+  feature_definition_human_authored: true
+  grounding: k3_feature_evaluator
+  member_role: strong_named_harmony_status
+  rule_group: RG-LEARNED-V23-001
+- id: F-K3-V23-057
+  family: unique_chord_family_inversion_strong
+  feature:
+    kind: central_unique_chord_family_inversion_strong
+    target_voice: -1
+    other_voice: null
+    value: 15
+    second_value: null
+    complexity: 3
+    key: central_unique_chord_family_inversion_strong:-1:-:15:-
+    label: central_unique_chord_family_inversion_strong(all_voices)=15
+  parameter:
+    scale: log_energy_contribution
+    log_weight: 0.2409399008504001
+    sign: preference
+  origin: learned_from_bach_corpus
+  human_authored: false
+  preference_human_authored: false
+  feature_definition_human_authored: true
+  grounding: k3_feature_evaluator
+  member_role: strong_named_harmony_status
+  rule_group: RG-LEARNED-V23-001

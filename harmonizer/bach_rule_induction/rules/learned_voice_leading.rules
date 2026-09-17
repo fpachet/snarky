@@ -1,0 +1,116 @@
+# Compilation autonome des six RuleCards de niveau A.
+#
+# Ces règles ne consultent aucun prédicat de verdict de la base historique.
+# Elles produisent des activations souples ; le générateur diagnostique associe
+# ensuite chaque identifiant à son poids appris et additionne les contributions.
+
+GROUP detect_learned_voice_leading_patterns
+    RULE R_LEARNED_MELODY_002_tritone
+    WHEN
+        ($transition kind learned_satb_transition)
+        ($transition voice_path SEQ[$voice $source $target])
+        CONSTRAINT ($target - $source) % 12 == 6
+    THEN
+        ADD ($transition learned_rule_activation SEQ[R-LEARNED-MELODY-002 $voice])
+    END
+
+    RULE R_LEARNED_OVERLAP_001_lower_crosses_previous_upper
+    WHEN
+        ($transition adjacent_voice_pair SEQ[$upper $lower $source_upper $source_lower $target_upper $target_lower])
+        CONSTRAINT $target_lower > $source_upper
+    THEN
+        ADD ($transition learned_rule_activation SEQ[R-LEARNED-OVERLAP-001 $upper $lower])
+    END
+
+    RULE R_LEARNED_OVERLAP_001_upper_crosses_previous_lower
+    WHEN
+        ($transition adjacent_voice_pair SEQ[$upper $lower $source_upper $source_lower $target_upper $target_lower])
+        CONSTRAINT $target_upper < $source_lower
+    THEN
+        ADD ($transition learned_rule_activation SEQ[R-LEARNED-OVERLAP-001 $upper $lower])
+    END
+
+    RULE R_LEARNED_PARALLEL_001_octaves_up
+    WHEN
+        ($transition voice_pair SEQ[$upper $lower $source_upper $source_lower $target_upper $target_lower])
+        CONSTRAINT ($source_upper - $source_lower) % 12 == 0
+        CONSTRAINT ($target_upper - $target_lower) % 12 == 0
+        CONSTRAINT $target_upper > $source_upper
+        CONSTRAINT $target_lower > $source_lower
+    THEN
+        ADD ($transition learned_rule_activation SEQ[R-LEARNED-PARALLEL-001 $upper $lower])
+    END
+
+    RULE R_LEARNED_PARALLEL_001_octaves_down
+    WHEN
+        ($transition voice_pair SEQ[$upper $lower $source_upper $source_lower $target_upper $target_lower])
+        CONSTRAINT ($source_upper - $source_lower) % 12 == 0
+        CONSTRAINT ($target_upper - $target_lower) % 12 == 0
+        CONSTRAINT $target_upper < $source_upper
+        CONSTRAINT $target_lower < $source_lower
+    THEN
+        ADD ($transition learned_rule_activation SEQ[R-LEARNED-PARALLEL-001 $upper $lower])
+    END
+
+    RULE R_LEARNED_PARALLEL_002_fifths_up
+    WHEN
+        ($transition voice_pair SEQ[$upper $lower $source_upper $source_lower $target_upper $target_lower])
+        CONSTRAINT ($source_upper - $source_lower) % 12 == 7
+        CONSTRAINT ($target_upper - $target_lower) % 12 == 7
+        CONSTRAINT $target_upper > $source_upper
+        CONSTRAINT $target_lower > $source_lower
+    THEN
+        ADD ($transition learned_rule_activation SEQ[R-LEARNED-PARALLEL-002 $upper $lower])
+    END
+
+    RULE R_LEARNED_PARALLEL_002_fifths_down
+    WHEN
+        ($transition voice_pair SEQ[$upper $lower $source_upper $source_lower $target_upper $target_lower])
+        CONSTRAINT ($source_upper - $source_lower) % 12 == 7
+        CONSTRAINT ($target_upper - $target_lower) % 12 == 7
+        CONSTRAINT $target_upper < $source_upper
+        CONSTRAINT $target_lower < $source_lower
+    THEN
+        ADD ($transition learned_rule_activation SEQ[R-LEARNED-PARALLEL-002 $upper $lower])
+    END
+
+    RULE R_LEARNED_DIRECT_001_octave_up
+    WHEN
+        ($transition outer_voice_pair SEQ[$source_soprano $source_bass $target_soprano $target_bass])
+        CONSTRAINT ($target_soprano - $target_bass) % 12 == 0
+        CONSTRAINT $target_soprano - $source_soprano > 2
+        CONSTRAINT $target_bass > $source_bass
+    THEN
+        ADD ($transition learned_rule_activation SEQ[R-LEARNED-DIRECT-001 soprano bass])
+    END
+
+    RULE R_LEARNED_DIRECT_001_octave_down
+    WHEN
+        ($transition outer_voice_pair SEQ[$source_soprano $source_bass $target_soprano $target_bass])
+        CONSTRAINT ($target_soprano - $target_bass) % 12 == 0
+        CONSTRAINT $source_soprano - $target_soprano > 2
+        CONSTRAINT $target_bass < $source_bass
+    THEN
+        ADD ($transition learned_rule_activation SEQ[R-LEARNED-DIRECT-001 soprano bass])
+    END
+
+    RULE R_LEARNED_DIRECT_002_fifth_up
+    WHEN
+        ($transition outer_voice_pair SEQ[$source_soprano $source_bass $target_soprano $target_bass])
+        CONSTRAINT ($target_soprano - $target_bass) % 12 == 7
+        CONSTRAINT $target_soprano - $source_soprano > 2
+        CONSTRAINT $target_bass > $source_bass
+    THEN
+        ADD ($transition learned_rule_activation SEQ[R-LEARNED-DIRECT-002 soprano bass])
+    END
+
+    RULE R_LEARNED_DIRECT_002_fifth_down
+    WHEN
+        ($transition outer_voice_pair SEQ[$source_soprano $source_bass $target_soprano $target_bass])
+        CONSTRAINT ($target_soprano - $target_bass) % 12 == 7
+        CONSTRAINT $source_soprano - $target_soprano > 2
+        CONSTRAINT $target_bass < $source_bass
+    THEN
+        ADD ($transition learned_rule_activation SEQ[R-LEARNED-DIRECT-002 soprano bass])
+    END
+END_GROUP

@@ -1,0 +1,66 @@
+schema_version: 1
+id: K3-V23B-METRIC-BASS-HARMONY-STABILITY-1
+status: FROZEN
+frozen_on: 2026-07-29
+purpose: >
+  Répliquer sur quatre plis disjoints les deux variantes V23 les plus
+  régularisées qui amélioraient la moyenne du découpage initial, sans les
+  déclarer retenues avant cette réplication.
+
+baseline_model: v22_shared_root_motion_model.json
+source_grammar: grammar_v23_metric_bass_harmony.yaml
+source_cache_directory: ../../experiments/v5_k3_clean/work/v23-structure-stability
+
+groups:
+  - id: bass_tonal_strong_mode
+    feature_kind: central_bass_tonal_strong_mode
+    size: 24
+    matrix_shape: [2, 12]
+    identifiability:
+      sum_over_pitch_classes_zero_per_mode: true
+    l1_inside_group: 0.0005
+    l2_group_scaled_by_sqrt_size: true
+  - id: unique_chord_family_inversion_strong
+    feature_kind: central_unique_chord_family_inversion_strong
+    size: 14
+    matrix_shape: [14]
+    identifiability:
+      reference_state: no_strict_unique_named_chord
+      sum_over_analyzed_statuses_zero: false
+    l1_inside_group: 0.0005
+    l2_group_scaled_by_sqrt_size: true
+
+variants:
+  - id: harmony_only
+    active_groups:
+      - unique_chord_family_inversion_strong
+    frozen_group_penalty: 0.6
+  - id: both_groups
+    active_groups:
+      - bass_tonal_strong_mode
+      - unique_chord_family_inversion_strong
+    frozen_group_penalty: 0.6
+
+estimation:
+  objective: exact_conditional_pseudolikelihood
+  optimizer: adam_plus_sparse_group_proximal
+  learning_rate: 0.02
+  steps_baseline_prefit: 120
+  steps_comparison: 180
+  return_checkpoint: terminal
+  l1_baseline_by_clause_complexity: 0.001
+  l2: 0.001
+
+selection:
+  criterion: aggregate_out_of_fold_paired_bootstrap
+  paired_bootstrap_resamples: 100000
+  paired_bootstrap_seed: 23103
+  minimum_positive_piece_fraction: 0.6
+
+provenance_guards:
+  variants_frozen_before_fold_runs: true
+  penalties_frozen_before_fold_runs: true
+  fold_results_seen_before_choice: false
+  fixed_terminal_checkpoint: true
+  generation_metrics_used_for_weight_learning: false
+  test_split_loaded: false

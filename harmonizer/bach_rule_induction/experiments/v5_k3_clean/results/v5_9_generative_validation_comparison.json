@@ -1,0 +1,134 @@
+{
+  "bwv108_6": {
+    "Bach": {
+      "analyzed_key": "b minor",
+      "attacked_repetition_rates": {
+        "Alto": 0.203125,
+        "Bass": 0.0,
+        "Soprano": 0.12903225806451613,
+        "Tenor": 0.24285714285714285
+      },
+      "attacked_repetitions": {
+        "Alto": 13,
+        "Bass": 0,
+        "Soprano": 8,
+        "Tenor": 17
+      },
+      "bass_attacked_repetitions": 0,
+      "lower_voice_attacked_repetitions": 30,
+      "rare_tonal_attack_rate": 0.00684931506849315,
+      "selected_structural_block_rate": 0.5204081632653061,
+      "tonal_surprise": 2.1143370869792517,
+      "triadic_block_rate": 0.45918367346938777,
+      "two_class_block_rate": 0.02040816326530612
+    },
+    "V5.7": {
+      "analyzed_key": "b minor",
+      "attacked_repetition_rates": {
+        "Alto": 0.15625,
+        "Bass": 0.07608695652173914,
+        "Soprano": 0.12903225806451613,
+        "Tenor": 0.14285714285714285
+      },
+      "attacked_repetitions": {
+        "Alto": 10,
+        "Bass": 7,
+        "Soprano": 8,
+        "Tenor": 10
+      },
+      "bass_attacked_repetitions": 7,
+      "lower_voice_attacked_repetitions": 27,
+      "rare_tonal_attack_rate": 0.03424657534246575,
+      "selected_structural_block_rate": 0.6224489795918368,
+      "tonal_surprise": 2.3082675434759756,
+      "triadic_block_rate": 0.47959183673469385,
+      "two_class_block_rate": 0.0
+    },
+    "V5.9": {
+      "analyzed_key": "b minor",
+      "attacked_repetition_rates": {
+        "Alto": 0.1875,
+        "Bass": 0.07608695652173914,
+        "Soprano": 0.12903225806451613,
+        "Tenor": 0.14285714285714285
+      },
+      "attacked_repetitions": {
+        "Alto": 12,
+        "Bass": 7,
+        "Soprano": 8,
+        "Tenor": 10
+      },
+      "bass_attacked_repetitions": 7,
+      "lower_voice_attacked_repetitions": 29,
+      "rare_tonal_attack_rate": 0.03424657534246575,
+      "selected_structural_block_rate": 0.6224489795918368,
+      "tonal_surprise": 2.2973362055748425,
+      "triadic_block_rate": 0.4897959183673469,
+      "two_class_block_rate": 0.0
+    }
+  },
+  "experiment": {
+    "id": "V5.9-GENERATIVE-VALIDATION-COMPARISON",
+    "seeds_per_piece": 2,
+    "status": "PROMOTED_EXPERIMENTAL",
+    "sweeps": 6,
+    "test_loaded": false,
+    "validation_pieces": 20
+  },
+  "models": {
+    "V5.7": {
+      "errors": {
+        "improvement_ci95_high": 0.0,
+        "improvement_ci95_low": 0.0,
+        "mae": 0.04400971482952472,
+        "mean_absolute_error_improvement": 0.0,
+        "pieces_improved_over_v5_7": 0,
+        "rmse": 0.052849443605400954
+      },
+      "generated_rate": 0.0592469545957918,
+      "paired_difference": {
+        "ci95_high": 0.03974069404795573,
+        "ci95_low": -0.005173936637787518,
+        "mean": 0.017283378705084108
+      },
+      "source_rate": 0.048283499446290144,
+      "validation_nll": 1.1202567589199097
+    },
+    "V5.8": {
+      "errors": {
+        "improvement_ci95_high": -0.0008731821739820025,
+        "improvement_ci95_low": -0.022742379829913034,
+        "mae": 0.05581749583147224,
+        "mean_absolute_error_improvement": -0.011807781001947518,
+        "pieces_improved_over_v5_7": 6,
+        "rmse": 0.06084815562797442
+      },
+      "generated_rate": 0.08028792912513842,
+      "paired_difference": {
+        "ci95_high": 0.058414913669140825,
+        "ci95_low": 0.014655656241696804,
+        "mean": 0.036535284955418815
+      },
+      "source_rate": 0.048283499446290144,
+      "validation_nll": 1.060327636434427
+    },
+    "V5.9": {
+      "errors": {
+        "improvement_ci95_high": 0.022032509600746777,
+        "improvement_ci95_low": 0.0038373939662282915,
+        "mae": 0.03107476304603718,
+        "mean_absolute_error_improvement": 0.012934951783487535,
+        "pieces_improved_over_v5_7": 14,
+        "rmse": 0.042305600089774
+      },
+      "generated_rate": 0.04529346622369878,
+      "paired_difference": {
+        "ci95_high": 0.02052482391087641,
+        "ci95_low": -0.017496637692868914,
+        "mean": 0.0015140931090037474
+      },
+      "source_rate": 0.048283499446290144,
+      "validation_nll": 1.1305303984692792
+    }
+  }
+}

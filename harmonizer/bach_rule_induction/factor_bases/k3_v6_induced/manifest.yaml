@@ -1,0 +1,413 @@
+schema_version: 1
+id: F-K3-V6-INDUCED
+kind: learned_factor_base
+status: ITERATIVE_GENERATIVE_WEIGHTS_VALIDATED_NOT_FINAL
+description: >
+  Base factorielle reconstruite depuis zéro. L'expert définit seulement les
+  primitives observables, la grammaire de clauses et les budgets. La
+  sélection des facteurs, leur signe et leurs poids proviennent du corpus.
+inherits: []
+grammar: grammar.yaml
+selected_factors: selected_factors.yaml
+conditional_factor_program: v6_induced.factors
+generative_refit_factor_program: v6_generative_refit.factors
+multimetric_iteration2_factor_program: v6_multimetric_iteration2.factors
+model: v6_induced_model.json
+report: V6_INDUCTION_REPORT.md
+generative_refit_model: v6_generative_refit_model.json
+generative_refit_report: V6_GENERATIVE_WEIGHT_REFIT.md
+initial_generation_audit: V6_DEVELOPMENT_GENERATION_AUDIT.md
+refit_generation_audit: V6_REFIT_DEVELOPMENT_GENERATION_AUDIT.md
+canonical_example: V6_REFIT_BWV108_6_GENERATION.md
+weight_learning_report: V6_WEIGHT_LEARNING_SCALING_AND_CONTROL.md
+sampling_optimization_report: V6_SAMPLING_OPTIMIZATION.md
+multimetric_iteration2_model: v6_train64_multimetric_iteration2_model.json
+multimetric_iteration2_development_audit: V6_MULTIMETRIC_ITERATION2_SWEEP30_DEVELOPMENT_AUDIT.md
+multimetric_iteration2_validation_audit: V6_MULTIMETRIC_ITERATION2_FULL_VALIDATION_AUDIT.md
+iteration3_multiseed_decision: V6_ITERATION3_MULTISEED_DECISION.md
+iteration3_rejected_candidate_model: v6_iteration3_multiseed_model.json
+iteration3_residual_feature_diagnostic: V6_ITERATION3_RESIDUAL_FEATURE_DIAGNOSTIC.md
+v7_residual_factor_decision: V7_RESIDUAL_FACTOR_DECISION.md
+v7_listening_comparison: ../../../generated/v7_listening_comparison/README.md
+v8_joint_pseudolikelihood_model: v8_joint_pseudolikelihood_model.json
+v8_joint_pseudolikelihood_decision: V8_JOINT_PSEUDOLIKELIHOOD_DECISION.md
+v8_joint_pseudolikelihood_listening: ../../../generated/v8_joint_pl_listening/README.md
+v8_exact_joint_pseudolikelihood_model: v8_exact_joint_pseudolikelihood_full_model.json
+v8_exact_joint_pseudolikelihood_decision: V8_EXACT_JOINT_PSEUDOLIKELIHOOD_DECISION.md
+v8_exact_joint_pseudolikelihood_listening: ../../../generated/v8_exact_joint_pl_listening/README.md
+v9_exact_reinduced_model: v9_exact_reinduced_model.json
+v9_exact_reinduction_decision: V9_EXACT_REINDUCTION_DECISION.md
+v9_exact_reinduced_listening: ../../../generated/v9_exact_reinduced_listening/README.md
+v10_exact_interval_context_model: v10_exact_interval_context_model.json
+v10_v11_context_license_decision: V10_V11_CONTEXT_LICENSE_DECISION.md
+v11_exact_tonal_licenses_model: v11_exact_tonal_licenses_model.json
+v12_exact_hybrid_iteration2_model: v12_exact_hybrid_iteration2_model.json
+v12_exact_hybrid_decision: V12_EXACT_HYBRID_DECISION.md
+v12_exact_hybrid_full_validation_audit: V12_EXACT_HYBRID_ITERATION2_FULL_VALIDATION_GENERATION_AUDIT.md
+v12_exact_hybrid_long_audit: V12_EXACT_HYBRID_ITERATION2_SWEEP30_DEVELOPMENT_GENERATION_AUDIT.md
+v12_exact_hybrid_listening: ../../../generated/v12_exact_hybrid_iteration2_piano/README.md
+v12_context_residual_audit: V12_3_CONTEXT_RESIDUAL_AUDIT.md
+v13_grammar: grammar_v13_directed_metric_context.yaml
+v13_exact_directed_metric_model: v13_exact_directed_metric_model.json
+v13_decision: V13_DIRECTED_METRIC_DECISION.md
+v14_grammar: grammar_v14_directed_metric_trajectory.yaml
+v14_exact_directed_metric_trajectory_model: v14_exact_directed_metric_trajectory_model.json
+v14_exact_trajectory_ablation_model: v14_exact_trajectory_ablation_model.json
+v15_exact_hybrid_iteration1_model: v15_exact_hybrid_iteration1_model.json
+v15_exact_hybrid_iteration2_model: v15_exact_hybrid_iteration2_model.json
+v14_v15_hybrid_structure_decision: V14_V15_HYBRID_STRUCTURE_DECISION.md
+v16_exact_candidate_shortlist: v16_exact_candidate_shortlist.json
+v16_candidate_admission: v16_candidate_admission.json
+v16_strict_candidate_admission: v16_2_candidate_admission.json
+v16_hybrid_admission_decision: V16_HYBRID_ADMISSION_DECISION.md
+v16_rank5_local_long_horizon_listening: ../../../generated/v16_rank5_local_piano/README.md
+v17_paired_fd_short_screen: v17_paired_fd_sweep6_screen8x2.json
+v17_paired_fd_dyadic_screen: v17_paired_fd_sweep6_screen8x2_step075.json
+v17_paired_fd_decision: V17_PAIRED_FINITE_DIFFERENCE_DECISION.md
+v17_joint_short_screen: v17_rank9_joint_bass_screen8x2_sweep6.json
+v17_joint_train32_replication: v17_rank9_joint075_train32x3_sweep6.json
+v18_explanatory_config: v18_explanatory_sparse_config.yaml
+v18_explanatory_model: v18_explanatory_sparse_model.json
+v18_explanatory_report: V18_EXPLANATORY_SPARSE_MODEL.md
+v18_weight_stability: v18_explanatory_weight_stability.json
+v18_weight_stability_report: V18_EXPLANATORY_WEIGHT_STABILITY.md
+v18_explanatory_decision: V18_EXPLANATORY_DECISION.md
+v18_structure_stability: v18_structure_stability.json
+v18_structure_stability_report: V18_STRUCTURE_STABILITY.md
+v18_unanimous_full_model: v18_unanimous_full_model.json
+v18_unanimous_full_report: V18_UNANIMOUS_FULL_MODEL.md
+v18_unanimous_factor_catalogue: v18_unanimous_full_factors.yaml
+v18_unanimous_factor_program: v18_unanimous_full.factors
+v18_snarky_parity: v18_snarky_parity.json
+v18_snarky_parity_report: V18_SNARKY_PARITY.md
+v18_generation: v18_unanimous_bwv108_6_generation.json
+v18_generation_report: V18_UNANIMOUS_BWV108_6_GENERATION.md
+v18_generation_listening: ../../../generated/v18_unanimous_full_piano/README.md
+v18_v13_long_audit: v18_v13_validation10x3_sweep30.json
+v18_v13_long_audit_report: V18_V13_VALIDATION10X3_SWEEP30.md
+v19_grammar: grammar_v19_vertical_status.yaml
+v19_config: v19_vertical_status_config.yaml
+v19_sparse_model: v19_vertical_status_sparse_model.json
+v19_sparse_report: V19_VERTICAL_STATUS_SPARSE_MODEL.md
+v19_structure_stability: v19_structure_stability.json
+v19_structure_stability_report: V19_STRUCTURE_STABILITY.md
+v19_unanimous_full_model: v19_unanimous_full_model.json
+v19_unanimous_full_report: V19_UNANIMOUS_FULL_MODEL.md
+v19_unanimous_factor_catalogue: v19_unanimous_full_factors.yaml
+v19_unanimous_factor_program: v19_unanimous_full.factors
+v19_snarky_parity: v19_snarky_parity.json
+v19_snarky_parity_report: V19_SNARKY_PARITY.md
+v19_generation: v19_unanimous_bwv108_6_generation.json
+v19_generation_report: V19_UNANIMOUS_BWV108_6_GENERATION.md
+v19_generation_listening: ../../../generated/v19_unanimous_full_piano/README.md
+v19_v18_long_audit: v19_v18_validation10x3_sweep30.json
+v19_v18_long_audit_report: V19_V18_VALIDATION10X3_SWEEP30.md
+v19_decision: V19_VERTICAL_STATUS_DECISION.md
+v19_listening_diagnosis: V19_LISTENING_DIAGNOSIS.md
+v20_non_duplication_gate: V20_NON_DUPLICATION_GATE.md
+v20_harmonic_status_coverage: v20_harmonic_status_coverage_train.json
+v20_harmonic_status_coverage_report: V20_HARMONIC_STATUS_COVERAGE_TRAIN.md
+v20_harmonic_status_coverage_decision: V20_HARMONIC_STATUS_COVERAGE_DECISION.md
+v20a_grammar: grammar_v20a_named_harmonic_status.yaml
+v20a_config: v20a_named_harmonic_status_config.yaml
+v20a_sparse_model: v20a_named_harmonic_status_sparse_model.json
+v20a_sparse_report: V20A_NAMED_HARMONIC_STATUS_SPARSE_MODEL.md
+v20a_structure_stability: v20a_structure_stability.json
+v20a_structure_stability_report: V20A_STRUCTURE_STABILITY.md
+v20a_identifiability_decision: V20A_IDENTIFIABILITY_DECISION.md
+v20b_grammar: grammar_v20b_identifiable_harmonic_status.yaml
+v20b_config: v20b_identifiable_harmonic_status_config.yaml
+v20b_sparse_model: v20b_identifiable_harmonic_status_sparse_model.json
+v20b_sparse_report: V20B_IDENTIFIABLE_HARMONIC_STATUS_SPARSE_MODEL.md
+v20b_structure_stability: v20b_structure_stability.json
+v20b_structure_stability_report: V20B_STRUCTURE_STABILITY.md
+v20b_decision: V20B_IDENTIFIABLE_HARMONIC_STATUS_DECISION.md
+v20c_grammar: grammar_v20c_named_root_transitions.yaml
+v20c_config: v20c_named_root_transitions_config.yaml
+v20c_transition_coverage: v20c_named_root_transition_coverage_train.json
+v20c_transition_coverage_report: V20C_NAMED_ROOT_TRANSITION_COVERAGE_TRAIN.md
+v20c_sparse_model: v20c_named_root_transitions_sparse_model.json
+v20c_sparse_report: V20C_NAMED_ROOT_TRANSITIONS_SPARSE_MODEL.md
+v20c_decision: V20C_NAMED_ROOT_TRANSITIONS_DECISION.md
+v21_grouped_config: v21_grouped_transition_config.yaml
+v21_grouped_model: v21_grouped_transition_model.json
+v21_grouped_report: V21_GROUPED_TRANSITION_MODEL.md
+v21b_stability_config: v21b_grouped_transition_stability_config.yaml
+v21c_ablation_config: v21c_unpenalized_group_ablation_config.yaml
+v21_decision: V21_GROUPED_LEARNING_DECISION.md
+v22_grammar: grammar_v22_shared_root_motion.yaml
+v22_discovery_config: v22_shared_root_motion_config.yaml
+v22_discovery_model: v22_shared_root_motion_model.json
+v22_discovery_report: V22_SHARED_ROOT_MOTION_MODEL.md
+v22_stability_config: v22b_shared_root_motion_stability_config.yaml
+v22_full_config: v22c_shared_root_motion_full_config.yaml
+v22_full_fit: v22c_shared_root_motion_full_model.json
+v22_full_fit_report: V22C_SHARED_ROOT_MOTION_FULL_MODEL.md
+v22_stability: v22_shared_root_motion_stability.json
+v22_decision: V22_SHARED_ROOT_MOTION_DECISION.md
+v22_factor_model: v22_shared_root_motion_full_model.json
+v22_factor_catalogue: v22_shared_root_motion_full_factors.yaml
+v22_factor_program: v22_shared_root_motion_full.factors
+v22_snarky_parity: v22_snarky_parity.json
+v22_snarky_parity_report: V22_SNARKY_PARITY.md
+v22_constraint_audit: v22_constraint_candidate_audit.json
+v22_constraint_full_validation: v22_constraint_candidate_full_validation.json
+v22_candidate_constraint_model: v22_shared_root_motion_candidate_constraints_model.json
+v22_generation: v22_shared_root_motion_bwv108_6_generation.json
+v22_constrained_generation: v22_candidate_constraints_bwv108_6_generation.json
+v22_generative_ablation: v22_rulegroup_constraints_validation10x1_sweep6.json
+v22_generative_ablation_report: V22_RULEGROUP_CONSTRAINTS_VALIDATION10X1_SWEEP6.md
+v23_grammar: grammar_v23_metric_bass_harmony.yaml
+v23_discovery_config: v23_metric_bass_harmony_config.yaml
+v23_coverage: v23_status_coverage_structure_train.json
+v23_coverage_report: V23_STATUS_COVERAGE_STRUCTURE_TRAIN.md
+v23_discovery_model: v23_metric_bass_harmony_model.json
+v23_discovery_report: V23_METRIC_BASS_HARMONY_MODEL.md
+v23_stability_config: v23b_metric_bass_harmony_stability_config.yaml
+v23_stability: v23_metric_bass_harmony_stability.json
+v23_decision: V23_METRIC_BASS_HARMONY_DECISION.md
+v23_retained_full_fit: v23d_retained_harmony_full_fit.json
+v23_factor_model: v23_metric_harmony_full_model.json
+v23_factor_catalogue: v23_metric_harmony_full_factors.yaml
+v23_factor_program: v23_metric_harmony_full.factors
+v23_snarky_parity: v23_snarky_parity.json
+v23_snarky_parity_report: V23_SNARKY_PARITY.md
+v23_generation: v23_metric_harmony_bwv108_6_generation.json
+v23_candidate_constraint_model: v23_metric_harmony_candidate_constraints_model.json
+v23_constrained_generation: v23_metric_harmony_constraints_bwv108_6_generation.json
+v23_generative_ablation: v23_v22_controlled_generation_validation10x1_sweep6.json
+v23_generative_ablation_report: V23_V22_CONTROLLED_GENERATION_VALIDATION10X1_SWEEP6.md
+listening_suite: listening_suite/README.md
+results:
+  candidate_factors: 954
+  selected_factors: 30
+  baseline_validation_nll: 2.422314652559177
+  final_validation_nll: 1.0489351152972142
+  validation_nll_gain: 1.3733795372619628
+  all_selections_exceed_null_family_max: true
+  stopping_reason: maximum_factor_budget
+  factor_structure_frozen_during_generative_refit: true
+  new_factors_during_generative_refit: 0
+  train_moment_mae_before_refit: 0.0352061391
+  train_moment_mae_after_refit: 0.0133551865
+  refit_validation_conditional_nll: 1.159606862
+  compatible_generative_train_chorals: 248
+  incompatible_generative_train_chorals: 3
+  train248_moment_mae_after_refit: 0.012866522338400513
+  multimetric_jacobian_rank: 10
+  multimetric_diagnostics: 10
+  iteration2_max_abs_weight_step: 0.15
+  iteration2_validation_conditional_nll: 1.241166012074241
+  iteration2_development_stable_residual_count_30_sweeps: 0
+  iteration2_full_validation_stable_residual_count_6_sweeps: 2
+  iteration3_independent_control_seeds: 3
+  iteration3_raw_minimum_delta_cosine: 0.19947720512369482
+  iteration3_consensus_ridge: 1.0
+  iteration3_consensus_max_abs_weight_step: 0.03983220518204244
+  iteration3_validation_conditional_nll: 1.2388698014657074
+  iteration3_promoted: false
+  iteration3_rejection_reason: sweep30_excessive_triadic_rate
+  residual_structure_candidates_screened: 782
+  residual_structure_candidates_sign_stable_selected: 18
+  v7_candidates_tested: 3
+  v7_candidates_promoted: 0
+  v7_six_factor_best_train_moment_mae: 0.005009378315292727
+  v7_six_factor_validation_nll: 1.2258431831542957
+  v7_sonority_short_audit_improved_diagnostics: 7
+  v7_sonority_long_audit_improved_diagnostics: 3
+  v8_joint_pseudolikelihood_factors: 48
+  v8_joint_pseudolikelihood_validation_nll: 0.9983141751720186
+  v8_joint_pseudolikelihood_gain_vs_v6: 0.05062094012519558
+  v8_short_audit_improved_diagnostics: 3
+  v8_long_audit_improved_diagnostics: 4
+  v8_promoted_as_generator: false
+  v8_rejection_reason: excessive_stepwise_and_chromatic_bass
+  v8_exact_train_pieces: 251
+  v8_exact_validation_pieces: 50
+  v8_exact_train_choices: 53604
+  v8_exact_validation_choices: 10414
+  v8_exact_validation_nll: 0.8296421019086195
+  v8_exact_scope_matches_gibbs: true
+  v8_exact_long_bass_large_leap_rate: 0.2146
+  v8_exact_long_bass_semitone_rate: 0.2764
+  v8_exact_long_bass_outside_scale_rate: 0.0743
+  v8_exact_promoted_as_generator: false
+  v8_exact_rejection_reason: long_horizon_overtriadic_and_insufficient_bass_leaps
+  v9_exact_catalogue_factors: 954
+  v9_exact_selected_factors: 30
+  v9_exact_train_nll: 0.7841835
+  v9_exact_validation_nll: 0.7797829
+  v9_exact_null_family_calibration: pending_exact_replication
+  v9_exact_promoted_as_generator: false
+  v9_exact_rejection_reason: unlicensed_vertical_dissonance_and_chromaticism
+  v10_exact_catalogue_factors: 1050
+  v10_exact_selected_factors: 30
+  v10_exact_validation_nll: 0.7579602061741583
+  v10_promoted_as_generator: false
+  v10_rejection_reason: sonority_improved_but_bass_chromaticism_remains
+  v11_exact_catalogue_factors: 1122
+  v11_selected_rare_tonal_factors_at_30: 0
+  v11_selected_rare_tonal_factors_at_45: 0
+  v11_budget45_validation_nll: 0.711052040424214
+  v12_controllability_rank: 10
+  v12_controlled_diagnostics: 10
+  v12_iteration2_validation_nll: 0.7611690438476745
+  v12_long_improved_diagnostics_vs_iteration1: 10
+  v12_full_validation_improved_diagnostics_vs_v10: 7
+  v12_promoted_as_generator: false
+  v12_rejection_reason: hybrid_control_improves_v10_but_large_bass_leaps_and_strong_nontriadic_sonorities_remain
+  v13_exact_catalogue_factors: 1660
+  v13_exact_selected_factors: 30
+  v13_exact_validation_nll: 0.7594828265492646
+  v13_new_passing_metric_factors_selected: 2
+  v13_promoted_as_generator: false
+  v13_rejection_reason: bass_and_weak_dissonances_improved_but_strong_sonorities_worsened
+  v14_exact_catalogue_factors: 3676
+  v14_exact_selected_factors: 30
+  v14_exact_validation_nll: 0.7492950950760999
+  v14_new_trajectory_factors_selected: 1
+  v14_promoted_as_generator: false
+  v14_rejection_reason: best_exact_nll_but_all_ten_development_generation_diagnostics_worse_than_v13
+  v14_trajectory_ablation_validation_nll: 0.7609774310118619
+  v14_trajectory_ablation_strong_nontriadic_rate: 0.4105
+  v14_trajectory_ablation_strong_dissonance_mean: 0.598
+  v15_iteration1_validation_nll: 0.7529779674759182
+  v15_iteration1_improved_diagnostics_vs_v14: 9
+  v15_iteration1_promoted_as_generator: false
+  v15_iteration1_rejection_reason: causal_recovery_but_aggregate_generation_distance_worse_than_v13
+  v15_iteration2_independent_control_seeds: 3
+  v15_iteration2_validation_nll: 0.7536918921001519
+  v15_iteration2_improved_diagnostics_vs_iteration1: 4
+  v15_iteration2_promoted_as_generator: false
+  v15_iteration2_rejection_reason: multiseed_step_regresses_six_of_ten_diagnostics
+  v16_exact_catalogue_factors: 3676
+  v16_conditionally_admissible_factors: 69
+  v16_shortlisted_factors: 12
+  v16_covariance_admitted_factors: 4
+  v16_rank5_local_validation_nll: 0.7579444569331567
+  v16_rank5_refit_validation_nll: 0.7562496430141277
+  v16_rank5_development_l1: 0.5621614064410705
+  v16_rank5_refit_development_l1: 0.548625757475765
+  v16_sweep30_v13_development_l1: 0.5166949424657454
+  v16_sweep30_rank5_local_development_l1: 0.436993550852812
+  v16_sweep30_rank5_local_relative_improvement: 0.15425231613955126
+  v16_sweep30_rank5_refit_development_l1: 0.5653142879862765
+  v16_sweep30_rank9_local_development_l1: 0.5200586528627242
+  v16_strict_covariance_admitted_factors: 1
+  v16_rank9_local_validation_nll: 0.7580155208167605
+  v16_rank9_development_l1: 0.6044168274427264
+  v16_train32_v13_l1: 0.5207564019108459
+  v16_train32_rank5_l1: 0.525724441457515
+  v16_train32_rank9_l1: 0.5626873570218461
+  v16_promoted_as_generator: false
+  v16_rejection_reason: covariance_improves_rank5_at_long_horizon_but_not_the_six_sweep_transient
+  v17_short_screen_candidate_count: 12
+  v17_short_screen_fully_admissible_count: 0
+  v17_rank9_step015_relative_remaining: 0.8629210318972099
+  v17_rank9_step0075_relative_remaining: 0.8383456136629857
+  v17_rank12_step015_relative_remaining: 0.7732051941129928
+  v17_rank12_step0075_relative_remaining: 0.962812760816925
+  v17_promoted_as_generator: false
+  v17_rejection_reason: no_single_candidate_improves_every_seed_and_all_three_musical_guards
+  v17_joint_small_screen_v13_l1: 0.31935531585982113
+  v17_joint_small_screen_best_l1: 0.25003733411110457
+  v17_joint_train32_v13_l1: 0.5207564019108459
+  v17_joint_train32_candidate_l1: 0.5421978462028154
+  v17_joint_train32_v13_large_leap_rate: 0.320441749843106
+  v17_joint_train32_candidate_large_leap_rate: 0.3045395698284622
+  v17_stopping_reason: second_bounded_iteration_failed_replication
+  v18_source_catalogue_size: 954
+  v18_readable_catalogue_size: 816
+  v18_selected_rule_count: 19
+  v18_selected_total_complexity: 26
+  v18_baseline_validation_decision_nll: 2.317000372110092
+  v18_selected_validation_decision_nll: 0.875538820077466
+  v18_budget30_validation_decision_nll: 0.8121744211013174
+  v18_weight_stable_sign_count: 19
+  v18_weight_nonzero_all_folds_count: 19
+  v18_promoted_as_generator: false
+  v18_structure_reinduction_count: 5
+  v18_unanimous_rule_count: 14
+  v18_structure_mean_pairwise_jaccard: 0.6202877906298373
+  v18_full_baseline_validation_nll: 2.406647620734676
+  v18_full_validation_nll: 0.9818936690984992
+  v18_snarky_maximum_factor_score_error: 8.881784197001252e-16
+  v18_generation_triadic_block_rate: 0.38684104219985926
+  v18_generation_strong_nontriadic_rate: 0.5389715082171979
+  v18_generation_strong_pair_dissonances_per_block: 0.7647227748305335
+  v18_next_gate: induce_missing_readable_vertical_status_rules
+  v19_exact_catalogue_factors: 1052
+  v19_readable_catalogue_factors: 914
+  v19_initial_selected_rule_count: 20
+  v19_structure_reinduction_count: 5
+  v19_unanimous_rule_count: 18
+  v19_structure_mean_pairwise_jaccard: 0.7345835070668219
+  v19_full_baseline_validation_nll: 2.406647620734676
+  v19_full_validation_nll: 0.8878793368580771
+  v19_snarky_maximum_factor_score_error: 8.881784197001252e-16
+  v19_generation_triadic_block_rate: 0.5258143226406898
+  v19_generation_strong_nontriadic_rate: 0.32436511445132143
+  v19_generation_strong_pair_dissonances_per_block: 0.5326491779293503
+  v19_generation_bass_repeat_rate: 0.04268102657056215
+  v19_status: retained_explanatory_checkpoint_rejected_as_generator
+  v19_promoted_as_generator: false
+  v19_generative_rejection_reason: expert_listening_detects_functionally_misplaced_notes
+  v19_next_gate: train_only_residual_induction_of_seventh_chord_and_bass_chromatic_statuses
+  v20_train_vertical_blocks: 24452
+  v20_exact_named_status_coverage: 0.7821446098478652
+  v20_unique_named_status_coverage: 0.7677081629314575
+  v20_strong_exact_named_status_coverage: 0.8612792215497804
+  v20_named_or_triad_plus_one_coverage: 0.8510960248650418
+  v20_exact_seventh_blocks: 5067
+  v20_coverage_gate: pass
+  v23_harmony_added_parameters: 14
+  v23_four_fold_mean_nll_improvement: 0.0027235069906819467
+  v23_four_fold_positive_pieces: 24
+  v23_four_fold_piece_count: 32
+  v23_full_validation_mean_nll_improvement: 0.003276113862826904
+  v23_full_validation_positive_pieces: 38
+  v23_full_validation_piece_count: 50
+  v23_incremental_bass_mean_nll_improvement: 0.00008949815677953055
+  v23_bass_group_retained: false
+  v23_snarky_maximum_factor_score_error: 8.881784197001252e-16
+  v23_generation_strong_pair_dissonances_per_block: 0.5515786440570923
+  v23_generation_strong_nontriadic_rate: 0.33359848006399734
+  v23_next_gate: structured_local_bass_function_and_resolution_group
+  v24_residual_status_count: 8
+  v24_structure_strong_block_count: 1039
+  v24_structure_v23_unique_block_count: 858
+  v24_structure_residual_block_count: 181
+  v24_four_fold_mean_nll_improvement: -0.0003532319800611701
+  v24_conditional_group_retained: false
+  v24_contrastive_train_authentic_residual_rate: 0.1742059672762271
+  v24_contrastive_train_final_generated_residual_rate: 0.22040423484119345
+  v24_validation_v23_strong_nontriadic_rate: 0.35169628120921226
+  v24_validation_strong_nontriadic_rate: 0.32015270935960594
+  v24_validation_v23_strong_pair_dissonances_per_block: 0.5964708854364026
+  v24_validation_strong_pair_dissonances_per_block: 0.5301224316870868
+  v24_snarky_maximum_factor_score_error: 8.881784197001252e-16
+  v24_strong_blocked_sampler_promoted: false
+  v24_status: generatively_supported_pretest_conditionally_rejected
+  v24_next_gate: weak_dissonance_licenses_and_structured_bass_function
+  retained_reference_model: v6_train64_multimetric_iteration2_model.json
+  stable_remaining_generation_residuals:
+    - bass_attacked_repetition_excess
+    - bass_relative_pcset_329_on_weak_block_excess
+splits:
+  source: ../../experiments/differentiable_rules_poc/results/splits.variant-safe.json
+  train_role: structure_and_parameter_learning
+  validation_role: stopping_and_frozen_hyperparameters
+  test_role: sealed_until_final_model
+dependencies:
+  historical_rules: []
+  choral_rules: []
+  expert_constraints: []
+scaffolding:
+  four_voice_satb_representation: true
+  fixed_soprano_task: true
+  observed_rhythm_and_attack_hold_grid: true
+  musical_harmony_knowledge: status_vocabulary_only
+  human_authored_preference_rules: false
+  human_authored_status_definitions:
+    - complete_major_minor_triad_six_inversions
+test_split_loaded: false

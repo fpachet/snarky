@@ -1,0 +1,40 @@
+# Poids gelés provenant de la base apprise existante. Aucun poids n'est
+# inventé pour les observations descriptives du manuel.
+
+FACTOR_GROUP official_manual_confirmed_voice_leading
+    FACTOR manual_parallel_fifth
+    SCOPE $transition
+    LOG_WEIGHT -2.3234071608467675
+    WHEN
+        ($transition violates MANUAL-PARALLEL-FIFTH)
+    END_FACTOR
+
+    FACTOR manual_parallel_octave
+    SCOPE $transition
+    LOG_WEIGHT -2.521482401330126
+    WHEN
+        ($transition violates MANUAL-PARALLEL-OCTAVE)
+    END_FACTOR
+
+    FACTOR manual_direct_fifth
+    SCOPE $transition
+    LOG_WEIGHT -0.9624822827826056
+    WHEN
+        ($transition violates MANUAL-DIRECT-FIFTH)
+    END_FACTOR
+
+    FACTOR manual_voice_overlap
+    SCOPE $transition
+    LOG_WEIGHT -0.7546719828038286
+    WHEN
+        ($transition violates MANUAL-VOICE-OVERLAP)
+    END_FACTOR
+END_FACTOR_GROUP
+FACTOR_GROUP official_manual_confirmed_tendency
+    FACTOR manual_leading_tone_resolution
+    SCOPE $transition
+    LOG_WEIGHT 2.0214869830878857
+    WHEN
+        ($transition satisfies MANUAL-LEADING-TONE)
+    END_FACTOR
+END_FACTOR_GROUP

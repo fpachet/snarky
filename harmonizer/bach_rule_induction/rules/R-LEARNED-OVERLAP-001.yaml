@@ -1,0 +1,71 @@
+schema_version: 1
+id: R-LEARNED-OVERLAP-001
+title: Évitement du chevauchement numérique de voix adjacentes
+lifecycle: SUPPORTED
+status: NORMALLY
+statement: >
+  Pour deux voix adjacentes, éviter que la nouvelle note de la voix supérieure
+  descende sous la note précédente de la voix inférieure, ou que la nouvelle
+  note de la voix inférieure monte au-dessus de la note précédente de la voix
+  supérieure.
+scope:
+  voices: [soprano_alto, alto_tenor, tenor_bass]
+  window: [previous_attack, current_attack]
+  corpus: music21-3.1.0-deepbach-352
+  split: variant-safe-251-50-51
+conditions:
+  - previous_lower - candidate_upper > 0 OR candidate_lower - previous_upper > 0
+conclusion:
+  kind: avoid
+normalized_clause: >
+  previous_lower - candidate_upper > 0 OR
+  candidate_lower - previous_upper > 0
+selection:
+  family: adjacent_voice_overlap_depth_gt
+  numeric_thresholds_tested: [-4, -3, -2, -1, 0, 1, 2, 3, 4]
+  family_rule_budget: 1
+  local_log_rate_contrast_max: -0.20
+statistics:
+  train:
+    pieces: 251
+    testable_opportunities: 57553
+    observed_rate: 0.030789011867322295
+    model_expected_rate: 0.04338820333086066
+    residual_z: -18.508358948963703
+    local_log_rate_contrast: -0.2372580074652558
+    bootstrap_replicates: 1000
+    bootstrap_z_95: [-20.407197525183385, -16.50340425630522]
+    bootstrap_negative_fraction: 1.0
+  validation:
+    pieces: 50
+    testable_opportunities: 11086
+    observed_rate: 0.0189428107523002
+    model_expected_rate: 0.035106965526054065
+    residual_z: -11.017485597766834
+    local_log_rate_contrast: -0.30923511684826704
+    bootstrap_replicates: 1000
+    bootstrap_z_95: [-12.74446988773642, -9.185136667096225]
+    bootstrap_negative_fraction: 1.0
+  test:
+    opened: false
+null_control:
+  selected: false
+  train_local_log_rate_contrast: -0.08013332927349451
+  validation_local_log_rate_contrast: -0.10375371968870693
+semantic_comparison:
+  reference_rule_id: R-OVERLAP-001
+  valid_adjacent_voice_states_tested: 534050
+  mismatches: 0
+  classification: RECOVERED_EQUIVALENT
+provenance:
+  experiment: experiments/differentiable_rules_poc/results/v2_2_satb_level_a.json
+  analysis: experiments/differentiable_rules_poc/V2_2_ANALYSIS.md
+  variant_audit: experiments/differentiable_rules_poc/results/VARIANT_AUDIT.md
+snarky_rule:
+  file: ../voice_leading_conformance.rules
+  rule_id: R-OVERLAP-001
+  action: reuse_existing_equivalent
+exceptions:
+  status: pending_case_audit
+bach_examples: []
+deepbach_counterexamples: []

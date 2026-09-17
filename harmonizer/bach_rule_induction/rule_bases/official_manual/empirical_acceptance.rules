@@ -1,0 +1,57 @@
+# Fichier compilé par calibrate_empirical_budgets.py.
+
+GROUP official_manual_empirical_acceptance
+    RULE reject_too_many_empirical_budget_exceedances
+    WHEN
+        COUNT >= 3
+            (score exceeds_empirical_budget $metric)
+        END_COUNT
+    THEN
+        ADD (score violates EMPIRICAL-JOINT-BUDGET)
+    END
+
+    RULE reject_contrapuntal_budget
+    WHEN
+        COUNT >= 3
+            (SEQ[score contrapuntal] exceeds_empirical_budget $metric)
+        END_COUNT
+    THEN
+        ADD (score violates EMPIRICAL-GROUP-CONTRAPUNTAL)
+    END
+
+    RULE reject_tendency_budget
+    WHEN
+        COUNT >= 2
+            (SEQ[score tendency] exceeds_empirical_budget $metric)
+        END_COUNT
+    THEN
+        ADD (score violates EMPIRICAL-GROUP-TENDENCY)
+    END
+
+    RULE reject_leap_budget
+    WHEN
+        COUNT >= 1
+            (SEQ[score leap] exceeds_empirical_budget $metric)
+        END_COUNT
+    THEN
+        ADD (score violates EMPIRICAL-GROUP-LEAP)
+    END
+
+    RULE reject_repetition_budget
+    WHEN
+        COUNT >= 2
+            (SEQ[score repetition] exceeds_empirical_budget $metric)
+        END_COUNT
+    THEN
+        ADD (score violates EMPIRICAL-GROUP-REPETITION)
+    END
+
+    RULE reject_conjunct_motion_budget
+    WHEN
+        COUNT >= 2
+            (SEQ[score conjunct_motion] exceeds_empirical_budget $metric)
+        END_COUNT
+    THEN
+        ADD (score violates EMPIRICAL-GROUP-CONJUNCT-MOTION)
+    END
+END_GROUP

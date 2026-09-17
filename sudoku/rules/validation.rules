@@ -7,7 +7,7 @@ GROUP validate_state
         END_COUNT
         NOT EXISTS
             (sudoku state inconsistent)
-        END_EXISTS
+        END_NOT_EXISTS
     THEN
         ADD (sudoku state inconsistent)
     END
@@ -23,7 +23,7 @@ GROUP validate_state
         $first_index < $second_index
         NOT EXISTS
             (sudoku state inconsistent)
-        END_EXISTS
+        END_NOT_EXISTS
     THEN
         ADD (sudoku state inconsistent)
     END
@@ -35,14 +35,14 @@ GROUP validate_state
             ($cell row $row)
             NOT EXISTS
                 ($cell solved $value)
-            END_EXISTS
-        END_EXISTS
+            END_NOT_EXISTS
+        END_NOT_EXISTS
         NOT EXISTS
             (sudoku state inconsistent)
-        END_EXISTS
+        END_NOT_EXISTS
         NOT EXISTS
             (sudoku state solved)
-        END_EXISTS
+        END_NOT_EXISTS
     THEN
         ADD (sudoku state solved)
     END

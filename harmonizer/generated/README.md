@@ -21,12 +21,12 @@ The eight-bar `--diatonic` example gives every note its own harmonic decision.
 Its first phrase traverses the complete ascending C-major scale and is
 harmonized `I-V-I-IV-I-IV-V-I`; D is a normal chord tone of V and is subject
 to the same vertical and transition rules as every other note.
-The eight-bar `--roles` example derives strong/weak metric facts from its
-rhythm and classifies contextually short durations. Most notes receive their
-own harmony: in particular, the opening D is a chord tone of V. The selected
-non-chord roles are a lower neighbor, a suspension, and an anticipation.
-Rules expose their unchanged lower voices through `continues_voice_from`
-facts; those voices are exported as sustained notes rather than repeated
-attacks. The example supplies two local chord anchors, not a complete harmonic
-plan or any role labels; passing tones and upper neighbors are covered by
-focused tests.
+The eight-bar `--roles` example obtains four metric levels from MuSES's
+hierarchical-metre API and classifies contextually short durations. Its melody
+covers every pitch class in C major. A weak D is selected as an escape tone
+over I; an accented C is selected as an appoggiatura over V and resolves to B.
+Policy facts expose the unchanged lower voices through `continues_voice_from`;
+those voices are exported as sustained notes rather than repeated attacks.
+The example supplies only those two local chord anchors, not a complete
+harmonic plan or any role labels. Passing tones, neighbors, suspensions, and
+anticipations are covered by focused tests.

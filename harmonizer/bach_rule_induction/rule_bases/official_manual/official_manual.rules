@@ -1,0 +1,304 @@
+# Base experte du manuel Bach. Les faits d'entrée sont indépendants du moteur
+# de génération: position, transition, fenêtre de trois attaques et résumés de
+# ligne. Une partition générée peut donc être auditée a posteriori.
+
+GROUP official_manual_vertical_rules
+    RULE MANUAL_004_adjacent_voice_crossing
+    WHEN
+        ($position voice_pair SEQ[$upper $lower $upper_pitch $lower_pitch])
+        ($upper adjacent_lower_voice $lower)
+        CONSTRAINT $upper_pitch < $lower_pitch
+    THEN
+        ADD ($position violates MANUAL-VOICE-CROSSING)
+    END
+END_GROUP
+
+GROUP official_manual_transition_rules
+    RULE MANUAL_001_parallel_fifth_up
+    WHEN
+        ($transition voice_pair SEQ[$upper $lower $source_upper $source_lower $target_upper $target_lower])
+        CONSTRAINT ($source_upper - $source_lower) % 12 == 7
+        CONSTRAINT ($target_upper - $target_lower) % 12 == 7
+        CONSTRAINT $target_upper > $source_upper
+        CONSTRAINT $target_lower > $source_lower
+    THEN
+        ADD ($transition violates MANUAL-PARALLEL-FIFTH)
+    END
+
+    RULE MANUAL_001_parallel_fifth_down
+    WHEN
+        ($transition voice_pair SEQ[$upper $lower $source_upper $source_lower $target_upper $target_lower])
+        CONSTRAINT ($source_upper - $source_lower) % 12 == 7
+        CONSTRAINT ($target_upper - $target_lower) % 12 == 7
+        CONSTRAINT $target_upper < $source_upper
+        CONSTRAINT $target_lower < $source_lower
+    THEN
+        ADD ($transition violates MANUAL-PARALLEL-FIFTH)
+    END
+
+    RULE MANUAL_002_parallel_octave_up
+    WHEN
+        ($transition voice_pair SEQ[$upper $lower $source_upper $source_lower $target_upper $target_lower])
+        CONSTRAINT ($source_upper - $source_lower) % 12 == 0
+        CONSTRAINT ($target_upper - $target_lower) % 12 == 0
+        CONSTRAINT $target_upper > $source_upper
+        CONSTRAINT $target_lower > $source_lower
+    THEN
+        ADD ($transition violates MANUAL-PARALLEL-OCTAVE)
+    END
+
+    RULE MANUAL_002_parallel_octave_down
+    WHEN
+        ($transition voice_pair SEQ[$upper $lower $source_upper $source_lower $target_upper $target_lower])
+        CONSTRAINT ($source_upper - $source_lower) % 12 == 0
+        CONSTRAINT ($target_upper - $target_lower) % 12 == 0
+        CONSTRAINT $target_upper < $source_upper
+        CONSTRAINT $target_lower < $source_lower
+    THEN
+        ADD ($transition violates MANUAL-PARALLEL-OCTAVE)
+    END
+
+    RULE MANUAL_003_direct_fifth_up
+    WHEN
+        ($transition voice_pair SEQ[soprano bass $source_soprano $source_bass $target_soprano $target_bass])
+        CONSTRAINT ($target_soprano - $target_bass) % 12 == 7
+        CONSTRAINT $target_soprano - $source_soprano > 2
+        CONSTRAINT $target_bass > $source_bass
+    THEN
+        ADD ($transition violates MANUAL-DIRECT-FIFTH)
+    END
+
+    RULE MANUAL_003_direct_fifth_down
+    WHEN
+        ($transition voice_pair SEQ[soprano bass $source_soprano $source_bass $target_soprano $target_bass])
+        CONSTRAINT ($target_soprano - $target_bass) % 12 == 7
+        CONSTRAINT $source_soprano - $target_soprano > 2
+        CONSTRAINT $target_bass < $source_bass
+    THEN
+        ADD ($transition violates MANUAL-DIRECT-FIFTH)
+    END
+
+    RULE MANUAL_005_lower_voice_overlap
+    WHEN
+        ($transition voice_pair SEQ[$upper $lower $source_upper $source_lower $target_upper $target_lower])
+        ($upper adjacent_lower_voice $lower)
+        CONSTRAINT $target_lower > $source_upper
+    THEN
+        ADD ($transition violates MANUAL-VOICE-OVERLAP)
+    END
+
+    RULE MANUAL_005_upper_voice_overlap
+    WHEN
+        ($transition voice_pair SEQ[$upper $lower $source_upper $source_lower $target_upper $target_lower])
+        ($upper adjacent_lower_voice $lower)
+        CONSTRAINT $target_upper < $source_lower
+    THEN
+        ADD ($transition violates MANUAL-VOICE-OVERLAP)
+    END
+
+    RULE MANUAL_006_preserved_common_tone
+    WHEN
+        ($transition voice_path SEQ[$voice $source $target])
+        $voice != bass
+        $source == $target
+        ($transition voice_path SEQ[bass $source_bass $target_bass])
+        $source_bass != $target_bass
+    THEN
+        ADD ($transition common_tone_voice $voice)
+        ADD (SEQ[$transition $voice] satisfies MANUAL-COMMON-TONE)
+    END
+
+    RULE MANUAL_007_outer_motion_soprano_down_bass_up
+    WHEN
+        ($transition voice_pair SEQ[soprano bass $source_soprano $source_bass $target_soprano $target_bass])
+        CONSTRAINT $target_soprano < $source_soprano
+        CONSTRAINT $target_bass > $source_bass
+    THEN
+        ADD ($transition satisfies MANUAL-CONTRARY-OUTER)
+    END
+
+    RULE MANUAL_007_outer_motion_soprano_up_bass_down
+    WHEN
+        ($transition voice_pair SEQ[soprano bass $source_soprano $source_bass $target_soprano $target_bass])
+        CONSTRAINT $target_soprano > $source_soprano
+        CONSTRAINT $target_bass < $source_bass
+    THEN
+        ADD ($transition satisfies MANUAL-CONTRARY-OUTER)
+    END
+
+    RULE MANUAL_010_leading_tone_resolves
+    WHEN
+        ($transition source_position $source_position)
+        ($source_position tonic_pc $tonic)
+        ($transition voice_path SEQ[$voice $source $target])
+        CONSTRAINT $source % 12 == ($tonic + 11) % 12
+        CONSTRAINT $target % 12 == $tonic
+        CONSTRAINT $target - $source == 1
+    THEN
+        ADD ($transition leading_tone_voice $voice)
+        ADD ($transition satisfies MANUAL-LEADING-TONE)
+    END
+
+    RULE MANUAL_010_leading_tone_unresolved
+    WHEN
+        ($transition source_position $source_position)
+        ($source_position tonic_pc $tonic)
+        ($transition voice_path SEQ[$voice $source $target])
+        CONSTRAINT $source % 12 == ($tonic + 11) % 12
+        CONSTRAINT $target != $source + 1
+    THEN
+        ADD ($transition violates MANUAL-LEADING-TONE)
+    END
+END_GROUP
+
+GROUP official_manual_three_event_rules
+    RULE MANUAL_008_large_leap_up_compensated
+    WHEN
+        ($window voice_path3 SEQ[$voice $first $middle $last])
+        CONSTRAINT $middle - $first > 7
+        CONSTRAINT $middle - $last >= 1
+        CONSTRAINT $middle - $last <= 2
+    THEN
+        ADD ($window satisfies MANUAL-COMPENSATED-LEAP)
+    END
+
+    RULE MANUAL_008_large_leap_down_compensated
+    WHEN
+        ($window voice_path3 SEQ[$voice $first $middle $last])
+        CONSTRAINT $first - $middle > 7
+        CONSTRAINT $last - $middle >= 1
+        CONSTRAINT $last - $middle <= 2
+    THEN
+        ADD ($window satisfies MANUAL-COMPENSATED-LEAP)
+    END
+
+    RULE MANUAL_008_large_leap_up_continues
+    WHEN
+        ($window voice_path3 SEQ[$voice $first $middle $last])
+        CONSTRAINT $middle - $first > 7
+        CONSTRAINT $last >= $middle
+    THEN
+        ADD ($window violates MANUAL-COMPENSATED-LEAP)
+    END
+
+    RULE MANUAL_008_large_leap_up_overcorrects
+    WHEN
+        ($window voice_path3 SEQ[$voice $first $middle $last])
+        CONSTRAINT $middle - $first > 7
+        CONSTRAINT $middle - $last > 2
+    THEN
+        ADD ($window violates MANUAL-COMPENSATED-LEAP)
+    END
+
+    RULE MANUAL_008_large_leap_down_continues
+    WHEN
+        ($window voice_path3 SEQ[$voice $first $middle $last])
+        CONSTRAINT $first - $middle > 7
+        CONSTRAINT $last <= $middle
+    THEN
+        ADD ($window violates MANUAL-COMPENSATED-LEAP)
+    END
+
+    RULE MANUAL_008_large_leap_down_overcorrects
+    WHEN
+        ($window voice_path3 SEQ[$voice $first $middle $last])
+        CONSTRAINT $first - $middle > 7
+        CONSTRAINT $last - $middle > 2
+    THEN
+        ADD ($window violates MANUAL-COMPENSATED-LEAP)
+    END
+
+    RULE MANUAL_009_prepared_suspension_resolves
+    WHEN
+        ($window positions SEQ[$previous $current $next])
+        ($window voice_path3 SEQ[$voice $first $middle $last])
+        $first == $middle
+        ($current dissonant_voice $voice)
+        ($window bass_path3 SEQ[$first_bass $middle_bass $last_bass])
+        $first_bass != $middle_bass
+        CONSTRAINT $middle - $last >= 1
+        CONSTRAINT $middle - $last <= 2
+    THEN
+        ADD ($window satisfies MANUAL-SUSPENSION-RESOLUTION)
+    END
+
+    RULE MANUAL_009_prepared_suspension_unresolved_or_rises
+    WHEN
+        ($window positions SEQ[$previous $current $next])
+        ($window voice_path3 SEQ[$voice $first $middle $last])
+        $first == $middle
+        ($current dissonant_voice $voice)
+        ($window bass_path3 SEQ[$first_bass $middle_bass $last_bass])
+        $first_bass != $middle_bass
+        CONSTRAINT $last >= $middle
+    THEN
+        ADD ($window violates MANUAL-SUSPENSION-RESOLUTION)
+    END
+
+    RULE MANUAL_009_prepared_suspension_leaps_down
+    WHEN
+        ($window positions SEQ[$previous $current $next])
+        ($window voice_path3 SEQ[$voice $first $middle $last])
+        $first == $middle
+        ($current dissonant_voice $voice)
+        ($window bass_path3 SEQ[$first_bass $middle_bass $last_bass])
+        $first_bass != $middle_bass
+        CONSTRAINT $middle - $last > 2
+    THEN
+        ADD ($window violates MANUAL-SUSPENSION-RESOLUTION)
+    END
+END_GROUP
+
+GROUP official_manual_global_rules
+    RULE MANUAL_011_singable_line
+    WHEN
+        ($score voice_summary SEQ[$voice $notes $unique $max_leap $steps $motions $longest_repeat])
+        CONSTRAINT $max_leap <= 7
+    THEN
+        ADD (SEQ[$score $voice] satisfies MANUAL-SINGABLE-LINE)
+    END
+
+    RULE MANUAL_011_unprepared_extreme_leap
+    WHEN
+        ($score voice_summary SEQ[$voice $notes $unique $max_leap $steps $motions $longest_repeat])
+        CONSTRAINT $max_leap > 7
+    THEN
+        ADD (SEQ[$score $voice] violates MANUAL-SINGABLE-LINE)
+    END
+
+    RULE MANUAL_012_active_alto
+    WHEN
+        ($score voice_summary SEQ[alto $notes $unique $max_leap $steps $motions $longest_repeat])
+        CONSTRAINT $notes >= 4
+        CONSTRAINT $unique >= 3
+    THEN
+        ADD (SEQ[$score alto] satisfies MANUAL-ACTIVE-INNER-VOICE)
+    END
+
+    RULE MANUAL_012_active_tenor
+    WHEN
+        ($score voice_summary SEQ[tenor $notes $unique $max_leap $steps $motions $longest_repeat])
+        CONSTRAINT $notes >= 4
+        CONSTRAINT $unique >= 3
+    THEN
+        ADD (SEQ[$score tenor] satisfies MANUAL-ACTIVE-INNER-VOICE)
+    END
+
+    RULE MANUAL_012_frozen_alto
+    WHEN
+        ($score voice_summary SEQ[alto $notes $unique $max_leap $steps $motions $longest_repeat])
+        CONSTRAINT $notes >= 4
+        CONSTRAINT $unique <= 1
+    THEN
+        ADD (SEQ[$score alto] violates MANUAL-ACTIVE-INNER-VOICE)
+    END
+
+    RULE MANUAL_012_frozen_tenor
+    WHEN
+        ($score voice_summary SEQ[tenor $notes $unique $max_leap $steps $motions $longest_repeat])
+        CONSTRAINT $notes >= 4
+        CONSTRAINT $unique <= 1
+    THEN
+        ADD (SEQ[$score tenor] violates MANUAL-ACTIVE-INNER-VOICE)
+    END
+END_GROUP

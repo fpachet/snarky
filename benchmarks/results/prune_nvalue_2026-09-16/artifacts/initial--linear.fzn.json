@@ -1,0 +1,21 @@
+{
+  "variables": {
+    "x" : { "type" : "int", "domain" : [[0, 3]] },
+    "y" : { "type" : "int", "domain" : [[0, 3]] },
+    "z" : { "type" : "int", "domain" : [[0, 3]] }
+  },
+  "arrays": {
+    "X_INTRODUCED_0_" : { "a": [2, 1] },
+    "X_INTRODUCED_2_" : { "a": [1, -1] },
+    "X_INTRODUCED_3_" : { "a": [1, 1, 1] }
+  },
+  "constraints": [
+    { "id" : "int_lin_eq", "args" : ["X_INTRODUCED_0_", ["x", "y"], 5]},
+    { "id" : "int_lin_le", "args" : ["X_INTRODUCED_2_", ["x", "y"], -1]},
+    { "id" : "int_lin_ne", "args" : ["X_INTRODUCED_2_", ["x", "z"], 0]},
+    { "id" : "int_lin_le", "args" : ["X_INTRODUCED_3_", ["y", "x", "z"], 6]}
+  ],
+  "output": ["x", "y", "z"],
+  "solve": { "method" : "satisfy" },
+  "version": "1.0"
+}

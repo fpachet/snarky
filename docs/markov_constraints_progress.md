@@ -1,0 +1,101 @@
+# Markov constraints implementation progress
+
+Updated 2026-09-16. This records the first fixed-order application slice of the
+[action plan](markov_constraints_plan.md); it does not mark the full plan complete.
+
+## Completed in this slice
+
+- Committed the completed native-runtime redesign as `01a0061`, after rerunning
+  the non-Bach portfolio: 825 passed, three optional integrations skipped.
+- Audited the user-supplied 22 LSDB references, all already in C. Every XML hash,
+  root/pitch-class transposition and half-bar boundary passed validation.
+- Built source-faithful and proposed paper-style variants with explicit weighting,
+  provenance and a review map. The latter changes 31 half-bar positions in nine
+  references. Both datasets remain research fixtures outside Python distributions.
+- Checked the two concrete corpus examples in the paper: Back Home Blues matches
+  after notation normalization; Blues for Alice matches after the proposed
+  first-bar major-to-dominant change. Identity of the other historical references
+  is not established. No musical correction was silently inferred.
+- Added exact rational-product objectives to native branch-and-bound and the
+  exhaustive reference. Zero weights, defaults, near-ties, min/max, bounds,
+  interruptions and rollback have dedicated tests. Probability measures remain
+  separate from optimization objectives.
+- Added a first-order MLE trainer, an independent exact DP with an optional count,
+  and three native CSP applications: ordinary, exotic, and Boulez Blues.
+- Corrected Boulez generation after the user's clarification: 24 symbols from
+  dominant seventh/minor families, each used once. At the user's request, version 2
+  also reduces training to these families before counting; the explicit review map
+  changes 34 half-bars in nine references. Earlier wider-alphabet and intermediate
+  generation-only Boulez records are superseded for the headline experiment.
+- Added an exact rational assignment relaxation for whole-alphabet permutation
+  chains, objective candidate pruning and validated warm starts. The unseeded
+  solver regenerates the published Table 5 sequence and proves its optimality
+  under the current two-family corpus. See the [follow-up report](performance_boulez_2026-09-16.md).
+- Added bounded chain compilation and max-product completion bounds. Including
+  a small equality count closes the exotic Blues proof in 22 nodes, where the
+  initial count-relaxed implementation remained unproved at five seconds.
+
+The importer and its validator use LSDB's structured root, quality, timing and
+source fields directly. MuSES is not needed to reconstruct those objects, so no
+new music-library dependency was introduced.
+
+## Evidence and limitations
+
+- [Corpus, simplification map and provenance](../benchmarks/data/omnibook_blues_v2/README.md)
+- [Performance and raw records](performance_blues_2026-09-16.md)
+- [Numeric/API contract](finite_model_contract.md#exact-rational-product-optimization-blues-follow-on)
+- [Independent product tests](../tests/test_product_objective.py)
+- [Corpus/training/DP tests](../tests/test_blues_markov.py)
+
+Ordinary and exotic Blues have independently confirmed exact optima in both
+original variants and the added two-family control. The original Boulez baseline
+had feasible solutions but no
+proof within five seconds. The assignment-bound follow-up closes that proof for
+the two-family corpus; the old measurements remain unchanged. The original corpus
+and
+rounding conventions are not fully recovered; scores are not claimed to reproduce
+all published numbers. The simplification map is a proposed reviewable variant.
+
+The four-mode reference specification and variable-order implementation are
+now available in the [melody follow-up](markov_melody_examples.md), with an
+independent raw-window oracle and sparse suffix-state compilation. Python rational objectives are available; parsed rational-objective syntax,
+product explanation objects and automatic direct-DP dispatch remain future work.
+The independent DP solves the two tractable cases much faster than native search:
+this is evidence for dispatching supported models directly or reusing its witness,
+not evidence that the general CSP path has achieved that speed.
+
+The [published-paper review](markov_paper_review.md) also validates Table 5 under
+our current model at log score -46.921592. Our five-second two-family incumbent
+was -63.195230. The follow-up now rediscovers this witness without seeding and
+proves it optimal; it closes both the incumbent-quality and proof gaps for this
+model. The original
+external-witness record remains separate from the new solver-generated proof.
+
+## Next actions
+
+1. Completed: four-mode scorer, edge-case specification, melody optima, forbidden
+   longer words, contour controls and fixed-prefix continuation.
+2. Apply the planned linear-inequality optimization with exhaustive support tests.
+3. Reuse DP witnesses/messages on tractable cases and extend the validated bounds
+   to higher-order applications where their proof obligations hold.
+4. Variable-order controls are now checked against the independent reference.
+   Further incremental table-support work remains a profile-driven extension.
+5. Proceed with measured GCC, equality-sum and all-different improvements.
+6. Close the remaining variable-order reproduction gates, broad performance
+   comparisons and documented numerical guarantees. The first-order Boulez proof
+   is now complete for the documented two-family corpus.
+
+Validation and commit details for this slice are recorded in the performance
+report. No source changes were made to LSDB.
+
+## Melody follow-up, 16 September 2026
+
+All four printed melodies are optimal under the stated, documented formulas.
+Table 6 has numeric discrepancies retained in the [reproduction guide](markov_melody_examples.md).
+The suffix-state DP and ordinary CSP both prove all four optima. Sparse product
+and integer chain bounds now avoid dense state-pair preparation on these models.
+Contour and continuation examples are independently checked; their generated
+traces are new demonstrations, not recovered original gestures. See the
+[performance record](performance_melody_2026-09-16.md) for raw samples, provenance
+and validation. These results do not close the remaining general constraint
+library optimization or parsed-language work.

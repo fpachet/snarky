@@ -1,0 +1,71 @@
+{
+  "experiment": {
+    "id": "K3-TWO-LOOP-FULL-SNARKY-GENERATION-1",
+    "status": "FULL_GENERATION",
+    "gibbs_used_for_generation": false,
+    "lower_voice_source_used_for_search": false,
+    "test_loaded": false
+  },
+  "fragment": {
+    "piece_id": "bach/bwv108.6",
+    "blocks": 98,
+    "end_offset": 52.0,
+    "generated_segments": 229,
+    "scored_segments": 223,
+    "soprano_imposed": true,
+    "rhythm_imposed": true
+  },
+  "model": {
+    "source": "/Users/francoispachet/IdeaProjects/boojum/harmonizer/bach_rule_induction/factor_bases/k3_v6_induced/v29_strong_succession_full_model.json",
+    "factor_count": 137,
+    "weight_estimator": "joint_conditional_mle",
+    "constraint_count": 25,
+    "constraint_status": "STRICT_GENERATIVE_ABLATION_NOT_PROMOTED",
+    "constraint_mode": "v33_strict_strong_unlicensed",
+    "voice_ranges": {
+      "1": [
+        55,
+        74
+      ],
+      "2": [
+        50,
+        68
+      ],
+      "3": [
+        36,
+        64
+      ]
+    },
+    "voice_range_status": "EXACT_TRAIN_SUPPORT",
+    "threshold": -1.3672136364916092,
+    "threshold_policy": "strict_minimum",
+    "sequence_factor": {
+      "ids": [
+        "F-K3-V32-CYCLE-INNER",
+        "F-K3-V32-CYCLE-BASS"
+      ],
+      "source": "/Users/francoispachet/IdeaProjects/boojum/harmonizer/bach_rule_induction/factor_bases/k3_v6_induced/v32_attack_cycle_factor_model.json",
+      "voice_log_weights": [
+        null,
+        -1.6994526035525033,
+        -1.6994526035525033,
+        -2.4203681286504293
+      ],
+      "activation": "continued_attacked_two_note_cycle"
+    }
+  },
+  "search": {
+    "status": "limit_reached",
+    "explored_nodes": 1000,
+    "failed_branches": 818,
+    "backtracks": 818,
+    "score_rejections": 0,
+    "hard_constraint_rejections": 0,
+    "provider_calls": 1000,
+    "prefiltered_alternatives": 16761,
+    "empty_domains": 818,
+    "component_cache_entries": 1180,
+    "hard_prefilter_cache_entries": 19624,
+    "rejection_examples": []
+  }
+}

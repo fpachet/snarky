@@ -1,0 +1,59 @@
+schema_version: 1
+id: K3-V10-INTERVAL-CONTEXT-GRAMMAR-1
+status: FROZEN
+frozen_on: 2026-07-28
+extends: grammar.yaml
+purpose: >
+  Étendre la grammaire V6 avec des conjonctions locales permettant au corpus
+  de distinguer un intervalle vertical nu du même intervalle selon son statut
+  métrique et sa trajectoire K3. Aucune classe d'intervalle n'est pré-étiquetée
+  comme consonante ou dissonante.
+
+extensions:
+  interval_context_licenses: true
+
+additional_generated_relations:
+  - vertical_interval_class_and_metric_strength
+  - vertical_interval_class_and_target_rearticulation
+  - vertical_interval_class_and_target_step_resolution
+  - vertical_interval_class_and_target_passing_motion
+  - vertical_interval_class_and_target_neighbor_motion
+  - vertical_interval_class_and_other_voice_hold
+  - vertical_interval_class_and_other_voice_hold_then_step_resolution
+
+families:
+  - id: universal_vertical_interval_metric_context
+    feature_kinds:
+      - any_pair_central_abs_class_metric
+    voice_pairs: all_unordered
+    values: {range: [0, 11]}
+    metric_strength: [weak, strong]
+    complexity: 2
+
+  - id: universal_vertical_interval_target_context
+    feature_kinds:
+      - any_pair_central_abs_class_target_rearticulated
+      - any_pair_central_abs_class_target_step_resolved
+      - any_pair_central_abs_class_target_passing
+      - any_pair_central_abs_class_target_neighbor
+    voice_pairs: all_unordered
+    values: {range: [0, 11]}
+    complexity_by_kind:
+      any_pair_central_abs_class_target_rearticulated: 3
+      any_pair_central_abs_class_target_step_resolved: 3
+      any_pair_central_abs_class_target_passing: 4
+      any_pair_central_abs_class_target_neighbor: 4
+
+  - id: universal_vertical_interval_other_voice_context
+    feature_kinds:
+      - any_pair_central_abs_class_other_held
+      - any_pair_central_abs_class_other_held_step_resolved
+    voice_pairs: all_unordered
+    values: {range: [0, 11]}
+    complexity_by_kind:
+      any_pair_central_abs_class_other_held: 3
+      any_pair_central_abs_class_other_held_step_resolved: 4
+
+provenance_guards:
+  interval_classes_prelabelled_as_dissonant: false
+  expert_defines_context_relations_only: true

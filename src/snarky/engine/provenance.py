@@ -2,8 +2,8 @@
 
 from __future__ import annotations
 
-from collections import defaultdict
-from dataclasses import dataclass
+from collections import defaultdict, deque
+from dataclasses import dataclass, replace
 
 from ..facts import Fact
 from ..substitutions import Substitution
@@ -56,13 +56,46 @@ class Provenance:
     def assume(self, fact: Fact) -> None:
         """Register an externally asserted fact as a depth-zero premise."""
 
-        if fact in self._depths:
+        previous = self._depths.get(fact)
+        if previous == 0:
             return
         if self._checkpoints:
             self._trail.append(
-                _ProvenanceMutation(fact, None, False, 0)
+                _ProvenanceMutation(fact, None, previous is not None, previous or 0)
             )
         self._depths[fact] = 0
+        if previous is not None:
+            self._propagate_shorter_depths(fact)
+
+    def _propagate_shorter_depths(self, fact: Fact) -> None:
+        """Relax recorded proof edges after an existing depth decreases.
+
+        Build dependencies only on a shorter proof, not on the common path
+        of recording a new fact. Historical derivations retain their firing
+        depths; current minimum depths and their rollback trail are updated.
+        """
+
+        dependents: defaultdict[Fact, list[Derivation]] = defaultdict(list)
+        for derivations in self._derivations.values():
+            for derivation in derivations:
+                for premise in derivation.premises:
+                    dependents[premise].append(derivation)
+        pending = deque((fact,))
+        while pending:
+            for derivation in dependents.get(pending.popleft(), ()):
+                depth = 1 + max(
+                    (self.depth(premise) for premise in derivation.premises),
+                    default=0,
+                )
+                previous = self._depths[derivation.fact]
+                if depth >= previous:
+                    continue
+                if self._checkpoints:
+                    self._trail.append(
+                        _ProvenanceMutation(derivation.fact, None, True, previous)
+                    )
+                self._depths[derivation.fact] = depth
+                pending.append(derivation.fact)
 
     def record(
         self,
@@ -100,6 +133,8 @@ class Provenance:
             derivations.append(derivation)
         if previous is None or depth < previous:
             self._depths[fact] = depth
+            if previous is not None:
+                self._propagate_shorter_depths(fact)
         return derivation
 
     def checkpoint(self) -> ProvenanceCheckpoint:
@@ -152,10 +187,22 @@ class Provenance:
         return tuple(self._derivations.get(fact, ()))
 
     def minimal_derivation(self, fact: Fact) -> Derivation | None:
+        """Return the shortest recorded inference using current premise depths.
+
+        A fact may additionally be assumed at depth zero; that assumption is
+        not itself a rule derivation. ``derivations()`` retains firing history.
+        """
+
         derivations = self._derivations.get(fact)
         if not derivations:
             return None
-        return min(derivations, key=lambda derivation: derivation.proof_depth)
+        def current_depth(derivation: Derivation) -> int:
+            return 1 + max(
+                (self.depth(premise) for premise in derivation.premises), default=0
+            )
+
+        shortest = min(derivations, key=current_depth)
+        return replace(shortest, proof_depth=current_depth(shortest))
 
     def clone(self) -> Provenance:
         """Return an isolated copy without active rollback scopes."""

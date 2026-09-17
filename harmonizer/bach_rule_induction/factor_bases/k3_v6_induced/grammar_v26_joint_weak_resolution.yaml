@@ -1,0 +1,44 @@
+schema_version: 1
+id: K3-V26-JOINT-WEAK-RESOLUTION-GRAMMAR-1
+status: FROZEN
+frozen_on: 2026-07-31
+extends: grammar_v25_weak_sonority.yaml
+purpose: >
+  Remplacer le statut faible isolé V25 par une partition K3 conjointe :
+  rôle de la sonorité faible résiduelle et acceptabilité de la sonorité
+  suivante. Le vocabulaire ne préjuge pas du signe des poids.
+
+extensions:
+  joint_weak_resolution_features: true
+
+additional_generated_relations:
+  - joint_weak_resolution_status
+  - acceptable_following_sonority
+
+families:
+  - id: joint_weak_resolution_status
+    feature_kinds:
+      - central_joint_weak_resolution_status
+    metric_strength: weak
+    reference_state: strict_unique_named_chord
+    weak_status_count: 9
+    resolution_statuses:
+      - acceptable_following_sonority
+      - unacceptable_following_sonority
+    parameter_count: 18
+    complexity: 5
+    shared_block_potential: true
+    mutually_exclusive: true
+
+structure_learning:
+  maximum_clause_complexity: 5
+  group_learning: joint_only
+  individual_clause_selection: forbidden
+
+provenance_guards:
+  vocabulary_frozen_before_weight_learning: true
+  generated_bwv108_6_used_for_weight_learning: false
+  expert_defines_status_vocabulary_only: true
+  no_status_is_an_absolute_prohibition: true
+  validation_effects_loaded: false
+  test_opened: false

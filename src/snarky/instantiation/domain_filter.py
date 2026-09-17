@@ -188,7 +188,7 @@ class ConstraintInstantiationStrategy(SemiNaiveInstantiationStrategy):
     def instantiate(
         self,
         rule: Rule,
-        facts: tuple[Fact, ...],
+        facts: Sequence[Fact],
         delta: FactDelta | tuple[Fact, ...] | None = None,
     ) -> tuple[Activation, ...]:
         changes = _normalize_delta(delta)
@@ -226,7 +226,7 @@ class ConstraintInstantiationStrategy(SemiNaiveInstantiationStrategy):
             self.metrics.domain_filter_fallbacks += 1
             return super().instantiate(rule, facts, changes)
 
-        index = self._index_for(rule, facts, changes)
+        index = self._index_for(facts, changes)
         if (
             selector.enabled
             and decision is None
@@ -313,7 +313,7 @@ class ConstraintInstantiationStrategy(SemiNaiveInstantiationStrategy):
     def _probe_fallback(
         self,
         rule: Rule,
-        facts: tuple[Fact, ...],
+        facts: Sequence[Fact],
         changes: FactDelta | None,
     ) -> tuple[tuple[Activation, ...], float]:
         snapshot = {

@@ -1,0 +1,9 @@
+output ["{\n","  \"at\" : ",concat(["[",join(", ",[showJSON(slice_1d(at,[X_INTRODUCED_975_..X_INTRODUCED_975_,index_set_2of2(at)],index_set_2of2(at))) | X_INTRODUCED_975_ in index_set_1of2(at)]),"]"]),",\n  \"take\" : ",concat(["[",join(", ",[showJSON(slice_1d(take,[X_INTRODUCED_974_..X_INTRODUCED_974_,index_set_2of2(take)],index_set_2of2(take))) | X_INTRODUCED_974_ in index_set_1of2(take)]),"]"]),"\n}\n"];
+set of int: transition = 1..34;
+set of int: step = 1..11;
+array [1..374] of int: X_INTRODUCED_241_;
+array [step,transition] of int: take = array2d(1..11,1..34,X_INTRODUCED_241_);
+set of int: state = 1..20;
+int: horizon = 11;
+array [1..240] of int: X_INTRODUCED_0_;
+array [0..horizon,state] of int: at = array2d(0..11,1..20,X_INTRODUCED_0_);

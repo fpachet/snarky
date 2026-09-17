@@ -5,7 +5,7 @@ GROUP construct_figures
         ($shape needs_diagonals true)
         NOT EXISTS
             ($shape diagonals_created true)
-        END_EXISTS
+        END_NOT_EXISTS
     THEN
         FRESH $first_diagonal PREFIX diagonal
         FRESH $second_diagonal PREFIX diagonal

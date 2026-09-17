@@ -1,0 +1,51 @@
+schema_version: 1
+id: K3-V22B-SHARED-ROOT-MOTION-STABILITY-1
+status: FROZEN
+frozen_on: 2026-07-29
+purpose: >
+  Confirmer dans quatre plis disjoints le groupe compact V22 avec la plus
+  forte pénalité explorée qui améliorait significativement le découpage
+  initial.
+
+baseline_model: v20b_identifiable_harmonic_status_sparse_model.json
+source_grammar: grammar_v22_shared_root_motion.yaml
+source_exact_cache: ../../experiments/v5_k3_clean/work/k3-exact-v22-catalogue-32x10.npz
+
+group:
+  id: named_root_motion_mode
+  feature_kind: central_named_root_motion_mode
+  size: 24
+  matrix_shape: [2, 12]
+  identifiability:
+    sum_over_motion_classes_zero_per_mode: true
+  l1_inside_group: 0.0005
+  l2_group_scaled_by_sqrt_size: true
+
+estimation:
+  objective: exact_conditional_pseudolikelihood
+  optimizer: adam_plus_sparse_group_proximal
+  learning_rate: 0.02
+  steps_baseline_refit: 120
+  steps_per_group_penalty: 160
+  return_checkpoint: terminal
+  l1_baseline_by_clause_complexity: 0.001
+  l2: 0.001
+  group_penalty_path:
+    - 0.3
+
+selection:
+  criterion: aggregate_out_of_fold_paired_bootstrap
+  paired_bootstrap_resamples: 100000
+  paired_bootstrap_seed: 22103
+  minimum_positive_piece_fraction: 0.6
+  group_active_norm_threshold: 0.000001
+
+provenance_guards:
+  penalty_frozen_from_v22_before_fold_runs: true
+  penalty: 0.3
+  fold_results_seen_before_penalty_choice: false
+  fixed_terminal_checkpoint: true
+  same_32_structure_pieces_as_v20b: true
+  parameter_count: 24
+  generation_metrics_used_for_weight_learning: false
+  test_split_loaded: false

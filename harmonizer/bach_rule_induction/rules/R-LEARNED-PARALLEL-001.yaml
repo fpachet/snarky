@@ -1,0 +1,70 @@
+schema_version: 1
+id: R-LEARNED-PARALLEL-001
+title: Évitement des octaves ou unissons parallèles
+lifecycle: SUPPORTED
+status: NORMALLY
+statement: >
+  Pour toute paire de voix, éviter que les deux voix se déplacent dans la même
+  direction non nulle en conservant la classe d'intervalle 0 modulo 12.
+scope:
+  voices: [all_six_satb_pairs]
+  window: [previous_attack, current_attack]
+  corpus: music21-3.1.0-deepbach-352
+  split: variant-safe-251-50-51
+conditions:
+  - source_upper_minus_lower % 12 == 0
+  - target_upper_minus_lower % 12 == 0
+  - learned_same_nonzero_sign(upper_delta, lower_delta)
+conclusion:
+  kind: avoid
+normalized_clause: >
+  source_interval_mod12 == 0 AND target_interval_mod12 == 0 AND
+  learned_same_nonzero_sign(upper_delta, lower_delta)
+selection:
+  family: same_direction_repeated_interval_mod12
+  numeric_values_tested: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11]
+  family_rule_budget: 2
+  train_z_max: -10.0
+  validation_z_max: -5.0
+statistics:
+  train:
+    pieces: 251
+    testable_opportunities: 16512
+    observed_rate: 0.006480135658914729
+    model_expected_rate: 0.10893922757548231
+    residual_z: -48.42999465715884
+    bootstrap_replicates: 1000
+    bootstrap_z_95: [-49.89185279244544, -46.87290641023137]
+    bootstrap_negative_fraction: 1.0
+  validation:
+    pieces: 50
+    testable_opportunities: 3182
+    observed_rate: 0.00785669390320553
+    model_expected_rate: 0.11381159983474114
+    residual_z: -21.588131345036903
+    bootstrap_replicates: 1000
+    bootstrap_z_95: [-23.15439091974931, -19.863727917232026]
+    bootstrap_negative_fraction: 1.0
+  test:
+    opened: false
+null_control:
+  selected: false
+  train_residual_z: -0.6681726218480539
+  validation_residual_z: -0.8362947095702296
+semantic_comparison:
+  reference_rule_id: R-PARALLEL-001
+  valid_voice_pair_states_tested: 1130364
+  mismatches: 0
+  classification: RECOVERED_EQUIVALENT
+provenance:
+  experiment: experiments/differentiable_rules_poc/results/v2_3_satb_parallels.json
+  analysis: experiments/differentiable_rules_poc/V2_3_ANALYSIS.md
+  variant_audit: experiments/differentiable_rules_poc/results/VARIANT_AUDIT.md
+snarky_rule:
+  file: ../voice_leading_conformance.rules
+  rule_id: R-PARALLEL-001
+  action: reuse_existing_equivalent
+exceptions:
+  status: pending_case_audit
+bach_examples: []
+deepbach_counterexamples: []

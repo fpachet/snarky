@@ -1,0 +1,53 @@
+schema_version: 1
+id: K3-V21-GROUPED-ROOT-TRANSITION-1
+status: FROZEN
+frozen_on: 2026-07-29
+purpose: >
+  Tester la table complète des transitions de fondamentales comme un seul
+  RuleGroup, au lieu de demander à chacune des 288 cellules de justifier
+  isolément son coût de description.
+
+baseline_model: v20b_identifiable_harmonic_status_sparse_model.json
+source_grammar: grammar_v20c_named_root_transitions.yaml
+source_exact_cache: ../../experiments/v5_k3_clean/work/k3-exact-v20c-catalogue-32x10.npz
+
+group:
+  id: named_root_transition_mode
+  feature_kind: central_named_root_transition_mode
+  size: 288
+  matrix_shape: [2, 12, 12]
+  identifiability:
+    row_sums_zero: true
+    column_sums_zero: true
+  l1_inside_group: 0.0
+  l2_group_scaled_by_sqrt_size: true
+
+estimation:
+  objective: exact_conditional_pseudolikelihood
+  optimizer: adam_plus_sparse_group_proximal
+  learning_rate: 0.02
+  steps_baseline_refit: 120
+  steps_per_group_penalty: 160
+  l1_baseline_by_clause_complexity: 0.001
+  l2: 0.001
+  group_penalty_path:
+    - 0.03
+    - 0.01
+    - 0.003
+    - 0.001
+    - 0.0003
+    - 0.0001
+    - 0.0
+
+selection:
+  criterion: strongest_group_penalty_within_one_validation_standard_error
+  group_active_norm_threshold: 0.000001
+  paired_bootstrap_resamples: 100000
+  paired_bootstrap_seed: 21029
+
+provenance_guards:
+  same_structure_split_as_v20b: true
+  individual_transition_marginals_copied: false
+  all_288_transition_cells_fit_jointly: true
+  generation_metrics_used_for_weight_learning: false
+  test_split_loaded: false

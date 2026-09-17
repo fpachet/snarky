@@ -11,6 +11,7 @@ from collections.abc import Callable
 from functools import partial
 from typing import Any
 
+from benchmarks.support import PROJECT_ROOT, git_commit, git_dirty
 from csp_solver.four_queens import (
     n_queens_facts,
     n_queens_intensional_facts,
@@ -128,6 +129,8 @@ def run(repeat: int) -> dict[str, Any]:
         "python": platform.python_version(),
         "platform": platform.platform(),
         "repeat": repeat,
+        "snarky_commit": git_commit(PROJECT_ROOT),
+        "snarky_dirty": git_dirty(PROJECT_ROOT),
         "results": results,
     }
 

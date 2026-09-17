@@ -36,7 +36,7 @@ Built-in behavior:
 |---|---|
 | `NaiveInstantiationStrategy` | creates a fresh stateless strategy |
 | `IndexedInstantiationStrategy` | clones the populated fact index |
-| `SemiNaiveInstantiationStrategy` | clones the index and preserves semi-naïve behavior |
+| `SemiNaiveInstantiationStrategy` | clones the index and preserves semi-naïve and event-handler configuration |
 | `ConstraintInstantiationStrategy` | preserves configuration and branch-local filter state |
 | `AdaptiveInstantiationStrategy` | preserves its concrete type, configuration, and adaptive state |
 
@@ -80,3 +80,9 @@ This separation is intentional:
 
 Tests must compare facts, derivations, mutation events, activation counts, and
 search traces across reversible and forked execution. Metrics may differ.
+
+Factorized event plans themselves are immutable products of rule compilation
+and can be shared. Their indexes belong to the strategy instance and therefore
+follow the normal fork and invalidation rules. The
+`use_factorized_event_rules` option is preserved by `fork_for_branch()`; it
+can be disabled for differential benchmarks without changing semantics.

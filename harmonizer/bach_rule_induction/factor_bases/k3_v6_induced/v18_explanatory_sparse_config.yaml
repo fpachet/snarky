@@ -1,0 +1,57 @@
+schema_version: 1
+id: K3-V18-EXPLANATORY-SPARSE-1
+status: FROZEN
+frozen_on: 2026-07-28
+purpose: >
+  Apprendre conjointement les poids de prédicats K3 lisibles par
+  pseudo-vraisemblance exacte, sans interaction entre règles et sans ajustement
+  manuel sur les générations.
+
+source_grammar: grammar.yaml
+source_exact_cache: ../../experiments/v5_k3_clean/work/k3-exact-catalogue-32x10.npz
+
+interpretability:
+  maximum_selected_rules: 30
+  maximum_clause_complexity: 4
+  minimum_testable_opportunities: 100
+  minimum_piece_support: 10
+  excluded_families:
+    - observed_vertical_set
+  excluded_reason: >
+    Les ensembles de classes verticales encodés comme entiers sont prédictifs,
+    mais ne constituent pas encore des formulations lisibles de règles.
+  rules_may_call_rules: false
+  factor_activation_may_be_an_input: false
+  arbitrary_cross_factor_interactions: false
+
+estimation:
+  objective: exact_conditional_pseudolikelihood
+  optimizer: adam_with_complexity_weighted_proximal_l1
+  learning_rate: 0.03
+  maximum_steps_per_refit: 80
+  l1: 0.001
+  l2: 0.001
+  joint_weight_refit_after_each_column: true
+  nuisance_parameters:
+    - voice_register_profile
+    - voice_mode_tonal_profile
+
+selection:
+  algorithm: residual_gradient_column_generation
+  description_penalty: 1.0
+  stopping:
+    consecutive_validation_non_improvements: 4
+    minimum_validation_nll_improvement: 0.000001
+    stop_when_no_positive_description_adjusted_column: true
+  final_model:
+    rule: one_standard_error
+    interpretation: >
+      Choisir le premier modèle, donc le plus court, dont la NLL moyenne par
+      pièce est au plus la meilleure NLL plus une erreur standard de celle-ci.
+
+provenance_guards:
+  historical_rules_loaded: false
+  expert_constraints_loaded: false
+  generation_metrics_used_for_weight_learning: false
+  test_split_loaded: false
+  rule_signs_and_weights_are_corpus_outputs: true

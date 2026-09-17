@@ -10,6 +10,7 @@ import time
 from collections.abc import Callable
 from typing import Any
 
+from benchmarks.support import PROJECT_ROOT, git_commit, git_dirty
 from csp_solver.solver import solve_finite_csp
 from harmonizer import (
     build_harmonizer_model,
@@ -95,6 +96,8 @@ def run(repeat: int) -> dict[str, Any]:
         "python": platform.python_version(),
         "platform": platform.platform(),
         "repeat": repeat,
+        "snarky_commit": git_commit(PROJECT_ROOT),
+        "snarky_dirty": git_dirty(PROJECT_ROOT),
         "sudoku_p2_full_human_rules": _measure(
             sudoku_human_rules,
             repeat,

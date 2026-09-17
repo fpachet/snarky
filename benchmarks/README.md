@@ -8,6 +8,11 @@ They are not universal performance claims. Wall-clock values depend on Python,
 hardware, operating system, background load, and benchmark parameters.
 Algorithmic counters and output equivalence are usually more portable.
 
+For the upcoming redesign, use the [performance baseline and comparison
+ledger](../docs/performance_baseline.md). It defines a fixed non-Bach portfolio
+collected by `python -m benchmarks.redesign_baseline`, with raw samples and
+explicit timing boundaries.
+
 ## Reproduction protocol
 
 Run benchmarks from the repository root in a clean environment:
@@ -27,19 +32,89 @@ For an optimization comparison:
 5. verify facts, solutions, ordering, events, and relevant search counters;
 6. store the raw result file rather than copying only a headline number.
 
+Machine-readable results must also record whether each measured Git checkout
+was dirty. A commit hash alone is not sufficient provenance when uncommitted
+engine changes may affect the timing.
+
 Do not combine results produced for different problem definitions. For
 example, a two-position fixed-chord harmonizer and a four-position
 chord-generating harmonizer measure different workloads.
 
 ## Benchmark catalogue
 
+The [Prune comparison](../docs/performance_prune_2026-09-16.md) imports 54 upstream
+CSP/optimization instances (59 instance/mode workloads), runs both engines on
+identical FlatZinc JSON, and checks results independently with Gecode. It records
+timeouts, startup overhead, the NValue decomposition, and compiler-solved cases.
+The requested CSPLib and reserved validation suites (31 more instances) are not
+present in the pinned upstream revision and remain explicitly unfilled.
+
+Prune is compiled Rust and Snarky's finite solver is Python. The process timings
+compare those complete implementations, including their different search policies
+and, in the original baseline, native NValue versus decomposition. They establish
+observed completion and
+latency, but do not isolate language overhead or rank the underlying algorithms.
+Use matched branching and comparable node/failure definitions to investigate search
+effectiveness; use controlled domain reductions to compare propagation strength.
+Profile Python preparation, propagation, allocation/copying and scheduling separately
+before selecting optimizations. Preserve the original measurements when adding
+these controlled comparisons.
+
+The [active optimization roadmap](../docs/csp_optimization_roadmap_2026-09-16.md)
+defines the diagnostic workloads, phase order, new runtime large-domain probes,
+native NValue ablation and regression gates. The
+[first implemented slice](../docs/performance_csp_arithmetic_2026-09-16.md)
+adds separate diagnostic and paired Python/Python records. The original Prune
+comparison remains frozen; compact domains remain planned.
+The [second slice](../docs/performance_csp_equality_2026-09-16.md) records exact
+weighted-equality filtering and domain-projection reuse, including an equality-only
+cache ablation and separate allocation runs.
+The [third slice](../docs/performance_csp_nvalue_2026-09-16.md) adds native NValue
+and a fresh full Prune comparison. To isolate the encoding change on the same
+runtime, use `benchmarks.csp_followup compare --reference-source . --only nvalue/`
+with `--reference-nvalue decomposed --candidate-nvalue native`. The bridge also
+accepts `--nvalue decomposed` directly. Keep encoding choices in measurement
+records: changing them can change variables, constraints, search trees and counters.
+The [all-different slice](../docs/performance_csp_alldiff_2026-09-16.md) adds exact
+bitset graph filtering and avoids rebuilding unchanged domain masks. Its paired
+comparison keeps both NValue encodings native; a separate ablation isolates the
+mask shortcut. The [CLAIRE refresh](../docs/performance_claire_2026-09-16.md)
+retains the historical rule protocols and labels the native-global queens model
+as a different formulation.
+
+The factor-support microbenchmark compares one committed evaluator with the
+working tree using the same current matcher, alternating measurement order
+and checking every score, witness count, and ordered support list:
+
+```sh
+python -m benchmarks.factor_supports --baseline-ref 1a453ad \
+  --output benchmarks/results/factor_supports_review_2026-09-08.json
+```
+
+The [recorded review comparison](results/factor_supports_review_2026-09-08.json)
+reduces the 4,000-witness median from 1.467 s to 0.00937 s for this synthetic
+shared-scope case. This is an evaluator microbenchmark, not an end-to-end
+harmonization speedup. The record includes raw samples, source hash, commit,
+environment, and dirty-checkout status.
+
 ### Applications and search
 
 | Module | Comparison |
 |---|---|
+| `alice_magic` | [ALICE-inspired sum cancellation and exact elimination](../docs/performance_alice_magic_2026-09-17.md) on 4×4/5×5 magic squares, with default and MRV search controls |
+| `prune_comparison` | Prune/Snarky same-model pure CSP and optimization, with independent Gecode validation |
+| `csp_followup` | Frozen Prune models: separate CPU/allocation diagnostics and paired Python runtime measurements |
+| `csp_controls` | Same-worker rule, legacy CSP, mixed, Markov and Boulez compatibility/performance controls |
+| `all_different_graphs` | Dense/free/sparse graph stress cases for adaptive, forced sparse and forced bitset filtering |
+| `claire_n_queens` | normalized N-Queens comparison with CLAIRE4 |
+| `claire_refresh` | alternating fresh-worker CLAIRE controls plus a separate native-global queens variant |
+| `claire_talarian_filter` | normalized Talarian rule-filter comparison with CLAIRE4 |
+| `claire_triangle_closure` | streamed multi-premise triangle closure with CLAIRE4 |
+| `incremental_conjunctions` | cold and streamed three-premise joins |
 | `choice_search` | CSP and harmonizer integration across search traversals |
 | `choice_trail` | lazy forked DFS versus reversible-trail DFS on N-queens |
 | `choice_formulations` | extensional versus intensional N-queens and harmony transitions |
+| `finite_markov` | native fixed-order Markov optimization scaling, limits, separate preparation/search and allocation tracing |
 | `classical_csp` | magic squares, Latin squares, and constraints-only versus hybrid Sudoku |
 | `csp_harmonizer_next` | generic Sudoku search and note-variable harmonizer |
 | `muses_harmonizer` | symbolic harmony core versus complete MuSES object bridge |
@@ -50,9 +125,30 @@ chord-generating harmonizer measure different workloads.
 Representative commands:
 
 ```sh
+uv run python -m benchmarks.claire_n_queens \
+  --sizes 8 10 12 14 --repeat 3
+uv run python -m benchmarks.claire_talarian_filter \
+  --sizes 100 1000 5000 --repeat 3
+uv run python -m benchmarks.claire_talarian_filter \
+  --engine snarky --sizes 100 1000 5000 --repeat 5 \
+  --disable-event-rules
+uv run python -m benchmarks.claire_triangle_closure \
+  --groups 2 5 10 25 33 50 100 --repeat 5
+uv run python -m benchmarks.claire_triangle_closure \
+  --engine snarky --groups 2 5 10 25 --repeat 3 \
+  --disable-factorized-event-rules
+uv run python -m benchmarks.claire_triangle_closure \
+  --engine snarky --groups 2 5 10 25 --repeat 3 \
+  --disable-factorized-event-rules \
+  --disable-partial-join-memory
+uv run python -m benchmarks.incremental_conjunctions \
+  --groups 25 100 250 --width 8 --repeat 5
+uv run python -m benchmarks.incremental_conjunctions \
+  --groups 25 100 250 --barrier-groups 2 5 10 25 \
+  --width 8 --repeat 3
 uv run python -m benchmarks.choice_search --repeat 5
-uv run python benchmarks/choice_trail.py --repeat 3
-uv run python benchmarks/choice_formulations.py --repeat 3
+uv run python -m benchmarks.choice_trail --repeat 3
+uv run python -m benchmarks.choice_formulations --repeat 3
 uv run python -m benchmarks.classical_csp --repeat 3
 uv run python -m benchmarks.classical_csp \
   --magic-sizes 6 --only-magic --repeat 3
@@ -66,9 +162,80 @@ uv run python -m benchmarks.classical_csp \
   --magic-sizes 6 7 --only-magic --repeat 3 \
   --magic-dom-wdeg-only
 uv run python -m benchmarks.csp_harmonizer_next --repeat 5
-uv run python -m benchmarks.sudoku_rules --levels 1 6 7 --repeat 5
-uv run python benchmarks/fibonacci_explicit.py --repeat 7
+uv run python -m benchmarks.sudoku_rules \
+  --levels 1 2 3 4 5 6 7 --repeat 5
+uv run python -m benchmarks.fibonacci_explicit --repeat 7
 ```
+
+`claire_n_queens` expects a CLAIRE4 checkout in the sibling directory
+`../CLAIRE4`, or at the path named by `CLAIRE4_ROOT`. It uses CLAIRE's bundled
+platform interpreter and does not include process startup or model
+construction in CLAIRE's measured search time. Snarky prepares its inference
+session separately, reports that preparation time, and uses only
+`SessionChoiceSearch.solve()` as its primary search timing. The JSON records
+these timing scopes explicitly and deliberately publishes no automatic speedup
+ratio. The shared protocol finds the first solution with
+minimum-remaining-values selection, numeric column and row tie-breaking,
+singleton propagation, and no symmetry breaking. The runner specializes
+CLAIRE's reversible tables to each requested board size before loading the
+source. It requires both engines to select the same first solution.
+Engine-specific search and propagation counters are retained because their
+definitions are not interchangeable.
+
+`claire_talarian_filter` adapts CLAIRE4's historical Talarian filter test to
+a common ten-rule workload. Each of `N` prepared frames receives ten positive
+inputs, causing exactly `10N` independent rule firings and `10N` observable
+outputs; both runners validate those counts and a `40N` checksum. Primary
+timings exclude source/rule parsing and process startup. For each input,
+Snarky times `InferenceSession.assume()` followed by `run_group()` to a fixed
+point with `materialize_result=False`, matching CLAIRE's immediately
+rule-triggering slot update without copying the complete fact memory after
+each input. Per-update outputs are read from the event journal. Preparation is
+reported separately (input-fact construction plus an empty session for
+Snarky, object construction for CLAIRE). The semantic workload and incremental
+scheduling are normalized, but the engines' storage models differ, so the
+runner reports inference throughput without calculating a cross-engine
+speedup ratio. In particular, CLAIRE compiles these rules as event demons:
+the slot update binds the object and value, then the remaining comparison is a
+direct Boolean test. This benchmark therefore does not measure a general
+multi-relation join or a RETE-style partial-match network.
+Snarky's event-rule specialization is enabled by default;
+`--disable-event-rules` runs the same workload through the generic
+semi-naïve path for a direct A/B comparison.
+
+`claire_triangle_closure` exercises a genuinely combinatorial rule. Each
+group contains one hub, eight left nodes, and eight right nodes. Membership
+relations are prepared first; the timed phase streams all 64 left-to-right
+edges per group, with one saturation after every edge. A result exists only
+when the hub-to-left, hub-to-right, and left-to-right premises agree. Both
+implementations validate the exact firing count, output count, and checksum
+of the owning hubs.
+
+The natural CLAIRE formulation attaches a demon to additions in each left
+node's `outgoing` set, then scans the instantiated hubs to test the other two
+premises. Snarky keeps the rule declarative and compiles the arriving edge as
+a factorized join anchor: fixed relation fields select the edge premise, then
+two exact index lookups retrieve the hub memberships. It materializes no
+left/right prefix product and is independent of `partial_join_limit`.
+
+Consequently this comparison is useful precisely because the storage
+strategies differ: CLAIRE has lower per-event overhead but scans all hubs,
+while Snarky performs a constant number of indexed matches per edge. The
+runner reports no automatic cross-engine speedup ratio.
+`--disable-factorized-event-rules` restores the bounded partial-memory path;
+adding `--disable-partial-join-memory` selects the generic semi-naïve witness.
+Counters distinguish `factorized_event_evaluations`, added candidates, exact
+lookups, partial-memory builds, and bypasses.
+
+The archived common run extends to 100 groups. At 33 groups the old retained
+prefix exceeds its default budget and falls back to the generic join, so a
+separate one-run cliff record is retained rather than hiding that behavior in
+an extrapolation.
+
+`incremental_conjunctions --barrier-groups ...` reports all three Snarky
+paths for the same comparison-barrier rule: `factorized`, `memory`, and
+`generic`. Cold and ordinary streamed conjunctions remain guards for rule
+shapes outside the new specialization.
 
 ### Constraint filtering and propagation
 
@@ -185,3 +352,51 @@ oracle, and avoid application-specific shortcuts in the generic engine. The
 [finite-CSP solver optimization plan](../docs/solver_optimization_plan.md)
 records the current profile, completed dependency scheduling and `SUM` bitset
 work, and the acceptance boundary for future incremental state.
+
+The [paired redesign collector](redesign_comparison.py) compares preserved
+reference and candidate sources, matched-search CSPs, mixed overhead and bounded
+Markov optimization. See the [comparison report](../docs/performance_comparison_2026-09-16.md)
+for the measured decision, full timing scopes and memory tradeoff. Generate the
+base tables for a new record with `python -m benchmarks.report_redesign RECORD.json
+--output REPORT.md`, then append the correctness evidence and acceptance decision.
+
+## LSDB Blues: exact first-order optimization
+
+The [corpus audit](data/omnibook_blues_v2/README.md) describes the source-faithful
+and proposed three-family/two-family variants and the exact training conventions. Run:
+
+```sh
+PYTHONHASHSEED=0 PYTHONPATH=src:. .venv/bin/python -m benchmarks.blues_markov \
+  --repeat 3 --seconds 5 --output /tmp/blues_new_record.json
+```
+
+This compares native rational-product optimization to an independent DP for
+ordinary and exactly-one-F-sharp-seventh Blues. For Boulez Blues the DP omits
+all-different and is only an upper bound. Its training and generation both use the
+24-symbol two-family corpus. See the
+[initial performance report](../docs/performance_blues_2026-09-16.md) for results,
+source snapshots and remaining work. The research corpus is not packaged with
+Snarky; no LSDB installation is needed to run the committed compact fixture.
+
+### Boulez assignment-bound comparison
+
+The [paired collector](boulez_optimization.py) compares the frozen pre-optimization
+source, the new controller with its chain bound, and automatic assignment bounds
+with and without the published Table 5 warm start. It records independent sequence
+validation, exact scores, first-solution/target/proof times, and separate traced
+allocation runs. Existing rule/CSP/mixed control workloads are run on both sources.
+
+```sh
+mkdir -p /tmp/snarky-boulez-reference-e5e25cf
+git archive e5e25cf src csp_solver sudoku rulebases benchmarks pyproject.toml \
+  third_party/test_rulebases/clips-6.4.2/clips_examples_642/sudoku/puzzles/grid3x3-p7.clp | \
+  tar -x -C /tmp/snarky-boulez-reference-e5e25cf
+PYTHONHASHSEED=0 PYTHONPATH=src:. .venv/bin/python -m benchmarks.boulez_optimization \
+  --repeat 3 --seconds 5 --output /tmp/boulez_new_comparison.json
+```
+
+Use a fresh output path. The collector archives both source states, including dirty
+candidate files, and checks their hashes remain unchanged. The output embeds the
+published-witness record needed by the worker; when reproducing an archive alone,
+restore it as `benchmarks/results/blues_published_witness_2026-09-16.json`.
+Restore the embedded Sudoku input to its recorded path as well.

@@ -2,8 +2,9 @@
 
 from __future__ import annotations
 
-from collections.abc import Iterable, Iterator
+from collections.abc import Iterable, Iterator, Sequence
 from dataclasses import dataclass
+from typing import overload
 
 from ..facts import Fact
 
@@ -32,7 +33,7 @@ class _FactMutation:
     next: _FactNode | None
 
 
-class NaiveFactStore:
+class NaiveFactStore(Sequence[Fact]):
     """An insertion-ordered set of facts supporting multiple statuses."""
 
     __slots__ = (
@@ -193,6 +194,20 @@ class NaiveFactStore:
 
     def __len__(self) -> int:
         return len(self._facts)
+
+    @overload
+    def __getitem__(self, index: int) -> Fact: ...
+
+    @overload
+    def __getitem__(self, index: slice) -> tuple[Fact, ...]: ...
+
+    def __getitem__(
+        self,
+        index: int | slice,
+    ) -> Fact | tuple[Fact, ...]:
+        """Provide sequence access, materializing only when indexing."""
+
+        return self.facts[index]
 
     @property
     def facts(self) -> tuple[Fact, ...]:

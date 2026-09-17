@@ -1,0 +1,64 @@
+schema_version: 1
+id: K3-V13-DIRECTED-METRIC-CONTEXT-GRAMMAR-1
+status: FROZEN
+frozen_on: 2026-07-28
+extends: grammar_v10_interval_context.yaml
+purpose: >
+  Rendre disponibles les interactions absentes localisées par V12.3 :
+  identité de la paire de voix et force métrique, licence de passage et force
+  métrique, ainsi que mouvement de basse et contexte tonal-métrique. Toutes
+  les classes et transitions sont engendrées symétriquement ; aucune n'est
+  pré-étiquetée comme correcte, incorrecte, consonante ou dissonante.
+
+extensions:
+  directed_metric_context_licenses: true
+
+additional_generated_relations:
+  - directed_voice_pair_interval_class_and_metric_strength
+  - passing_interval_class_and_metric_strength
+  - bass_distance_threshold_and_metric_strength
+  - bass_tonic_relative_transition_and_metric_strength
+
+families:
+  - id: directed_voice_pair_interval_metric
+    feature_kinds:
+      - central_pair_abs_class_metric
+    voice_pairs: all_ordered_distinct
+    values: {range: [0, 11]}
+    metric_strength: [weak, strong]
+    complexity: 3
+
+  - id: universal_passing_interval_metric
+    feature_kinds:
+      - any_pair_central_abs_class_target_passing_metric
+    voice_pairs: all_unordered
+    values: {range: [0, 11]}
+    metric_strength: [weak, strong]
+    complexity: 5
+
+  - id: bass_distance_metric
+    feature_kinds:
+      - bass_abs_step_from_previous_gt_metric
+    voice: Bass
+    thresholds: [1, 2, 4, 7, 12]
+    metric_strength: [weak, strong]
+    complexity: 3
+
+  - id: bass_tonic_transition_metric
+    feature_kinds:
+      - bass_tonic_transition_metric
+    voice: Bass
+    previous_relative_classes: {range: [0, 11]}
+    current_relative_classes: {range: [0, 11]}
+    metric_strength: [weak, strong]
+    complexity: 4
+
+structure_learning:
+  maximum_clause_complexity: 5
+
+provenance_guards:
+  diagnostic_source: train_only_v12_3_context_residual_audit
+  selected_cells_copied_from_diagnostic: false
+  interval_classes_prelabelled_as_dissonant: false
+  tonal_transitions_prelabelled_as_licensed: false
+  expert_defines_relations_only: true

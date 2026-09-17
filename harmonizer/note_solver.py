@@ -81,6 +81,7 @@ HARMONIC_EVENT_ROLE = Atom("harmonic_event_role")
 ONSET = Atom("onset")
 CONTINUATION = Atom("continuation")
 METRIC_STRENGTH = Atom("metric_strength")
+METRIC_LEVEL = Atom("metric_level")
 STRONG = Atom("strong")
 WEAK = Atom("weak")
 NOTE_DURATION = Atom("note_duration")
@@ -92,6 +93,8 @@ UPPER_NEIGHBOR = Atom("upper_neighbor")
 LOWER_NEIGHBOR = Atom("lower_neighbor")
 SUSPENSION = Atom("suspension")
 ANTICIPATION = Atom("anticipation")
+APPOGGIATURA = Atom("appoggiatura")
+ESCAPE_TONE = Atom("escape_tone")
 SELECTED_MELODIC_ROLE = Atom("selected_melodic_role")
 CONTINUES_VOICE_FROM = Atom("continues_voice_from")
 RESTRICT_INVERSION = Atom("restrict_inversion")
@@ -173,6 +176,7 @@ type Cadence = Literal["perfect", "plagal", "deceptive", "half"]
 type HarmonicPlanDegree = Literal["I", "ii", "IV", "V", "V7", "vi", "vii°"]
 type HarmonicPlanProfile = Literal["extended_tonal_arc"]
 type MetricStrength = Literal["strong", "weak"]
+type MetricLevel = Literal[0, 1, 2, 3]
 
 
 @dataclass(frozen=True, slots=True)
@@ -191,6 +195,7 @@ class NoteHarmonizerModel:
     cadence: Cadence
     harmonic_rhythm: tuple[int, ...]
     metric_strengths: tuple[MetricStrength, ...]
+    metric_levels: tuple[MetricLevel, ...]
     note_durations: tuple[int | float, ...]
     preparation_events: tuple[InferenceEvent, ...]
 
@@ -216,6 +221,7 @@ class NoteHarmonization:
     cadence: Cadence
     harmonic_rhythm: tuple[int, ...]
     metric_strengths: tuple[MetricStrength, ...]
+    metric_levels: tuple[MetricLevel, ...]
     note_durations: tuple[int | float, ...]
     log_weight: float
     decisions: tuple[ChoiceDecision, ...]
@@ -232,6 +238,7 @@ def build_note_harmonizer_model(
     harmonic_plan: tuple[HarmonicPlanDegree | None, ...] | None = None,
     harmonic_plan_profile: HarmonicPlanProfile | None = None,
     metric_strengths: tuple[MetricStrength, ...] | None = None,
+    metric_levels: tuple[MetricLevel, ...] | None = None,
     note_durations: tuple[int | float, ...] | None = None,
     source_facts: tuple[Fact, ...] = (),
     source_notes: tuple[Atom, ...] = (),
@@ -254,7 +261,11 @@ def build_note_harmonizer_model(
         raise ValueError("source note identities must be unique")
     imported_line = bool(source_notes)
     rhythm = _normalized_harmonic_rhythm(len(melody), harmonic_rhythm)
-    metric = _normalized_metric_strengths(len(melody), metric_strengths)
+    metric, levels = _normalized_metric_profile(
+        len(melody),
+        metric_strengths,
+        metric_levels,
+    )
     durations = _normalized_note_durations(len(melody), note_durations)
     harmonic_positions = tuple(rhythm.index(slot) for slot in range(max(rhythm) + 1))
     plan = _normalized_harmonic_plan(len(harmonic_positions), harmonic_plan)
@@ -419,7 +430,7 @@ def build_note_harmonizer_model(
                         (ONSET if index in harmonic_positions else CONTINUATION),
                     )
                 ),
-                Fact(Triple(position, METRIC_STRENGTH, Atom(metric[index]))),
+                Fact(Triple(position, METRIC_LEVEL, Number(levels[index]))),
                 Fact(
                     Triple(
                         position,
@@ -445,12 +456,14 @@ def build_note_harmonizer_model(
         )
         choice_priorities[melodic_role_variable] = index * 7 + 1
         role_weights = {
-            CHORD_TONE: 0.70,
+            CHORD_TONE: 0.62,
             PASSING_TONE: 0.10,
             UPPER_NEIGHBOR: 0.04,
             LOWER_NEIGHBOR: 0.04,
-            SUSPENSION: 0.07,
-            ANTICIPATION: 0.05,
+            SUSPENSION: 0.06,
+            ANTICIPATION: 0.04,
+            APPOGGIATURA: 0.06,
+            ESCAPE_TONE: 0.04,
         }
         for role, weight in role_weights.items():
             facts.append(
@@ -614,6 +627,7 @@ def build_note_harmonizer_model(
         cadence,
         rhythm,
         metric,
+        levels,
         durations,
         preparation_events,
     )
@@ -643,10 +657,28 @@ def _normalized_harmonic_rhythm(
     return rhythm
 
 
-def _normalized_metric_strengths(
+def _normalized_metric_profile(
     note_count: int,
     metric_strengths: tuple[MetricStrength, ...] | None,
-) -> tuple[MetricStrength, ...]:
+    metric_levels: tuple[MetricLevel, ...] | None,
+) -> tuple[tuple[MetricStrength, ...], tuple[MetricLevel, ...]]:
+    if metric_strengths is not None and metric_levels is not None:
+        raise ValueError("metric_strengths and metric_levels are mutually exclusive")
+    if metric_levels is not None:
+        if len(metric_levels) != note_count:
+            raise ValueError("metric_levels must contain one value per note")
+        if any(
+            isinstance(level, bool)
+            or not isinstance(level, int)
+            or level not in range(4)
+            for level in metric_levels
+        ):
+            raise ValueError("metric levels must be integers from 0 to 3")
+        strengths = tuple(
+            cast(MetricStrength, "strong" if level >= 2 else "weak")
+            for level in metric_levels
+        )
+        return strengths, metric_levels
     strengths = (
         tuple(cast(MetricStrength, "strong") for _ in range(note_count))
         if metric_strengths is None
@@ -656,7 +688,11 @@ def _normalized_metric_strengths(
         raise ValueError("metric_strengths must contain one value per note")
     if any(strength not in {"strong", "weak"} for strength in strengths):
         raise ValueError("metric strengths must be strong or weak")
-    return strengths
+    levels = tuple(
+        cast(MetricLevel, 2 if strength == "strong" else 1)
+        for strength in strengths
+    )
+    return strengths, levels
 
 
 def _normalized_note_durations(
@@ -751,6 +787,7 @@ def harmonize_notes(
     harmonic_plan: tuple[HarmonicPlanDegree | None, ...] | None = None,
     harmonic_plan_profile: HarmonicPlanProfile | None = None,
     metric_strengths: tuple[MetricStrength, ...] | None = None,
+    metric_levels: tuple[MetricLevel, ...] | None = None,
     note_durations: tuple[int | float, ...] | None = None,
     max_solutions: int = 3,
     traversal: ChoiceTraversal = ChoiceTraversal.BEST_FIRST,
@@ -766,6 +803,7 @@ def harmonize_notes(
         harmonic_plan=harmonic_plan,
         harmonic_plan_profile=harmonic_plan_profile,
         metric_strengths=metric_strengths,
+        metric_levels=metric_levels,
         note_durations=note_durations,
     )
     result = solve_note_harmonizer(
@@ -789,6 +827,7 @@ def sample_harmonization(
     harmonic_plan: tuple[HarmonicPlanDegree | None, ...] | None = None,
     harmonic_plan_profile: HarmonicPlanProfile | None = None,
     metric_strengths: tuple[MetricStrength, ...] | None = None,
+    metric_levels: tuple[MetricLevel, ...] | None = None,
     note_durations: tuple[int | float, ...] | None = None,
     seed: int = 0,
 ) -> NoteHarmonization:
@@ -802,6 +841,7 @@ def sample_harmonization(
         harmonic_plan=harmonic_plan,
         harmonic_plan_profile=harmonic_plan_profile,
         metric_strengths=metric_strengths,
+        metric_levels=metric_levels,
         note_durations=note_durations,
     )
     result = solve_note_harmonizer(
@@ -872,6 +912,7 @@ def _note_harmonization(
         model.cadence,
         model.harmonic_rhythm,
         model.metric_strengths,
+        model.metric_levels,
         model.note_durations,
         solution.log_weight,
         solution.decisions,

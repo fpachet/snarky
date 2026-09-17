@@ -1,0 +1,104 @@
+{
+  "experiment": {
+    "id": "K3-V25-WEAK-SONORITY-MOMENT-AUDIT-1",
+    "status": "TRAIN_DIAGNOSTIC",
+    "baseline": "v24_contrastive_moment_model.json",
+    "pieces": 32,
+    "seeds": [
+      25204
+    ],
+    "sweeps": 6,
+    "weights_updated": false,
+    "validation_loaded": false,
+    "test_loaded": false
+  },
+  "summary": {
+    "weak_blocks": 2219,
+    "bach_residual_rate": 0.24876070301937808,
+    "v24_residual_rate": 0.32582244254168546,
+    "moment_mae": 0.011366481398027138
+  },
+  "moments": [
+    {
+      "status": 0,
+      "label": "exact_named_ambiguous",
+      "bach_count": 38,
+      "v24_count": 55,
+      "bach_rate": 0.017124831004957188,
+      "v24_rate": 0.024785939612438034,
+      "gradient": -0.007661108607480847
+    },
+    {
+      "status": 1,
+      "label": "incomplete_consonant_triad",
+      "bach_count": 58,
+      "v24_count": 50,
+      "bach_rate": 0.026137899954934655,
+      "v24_rate": 0.02253267237494367,
+      "gradient": 0.003605227579990985
+    },
+    {
+      "status": 2,
+      "label": "triad_plus_one_ambiguous",
+      "bach_count": 0,
+      "v24_count": 16,
+      "bach_rate": 0.0,
+      "v24_rate": 0.007210455159981974,
+      "gradient": -0.007210455159981974
+    },
+    {
+      "status": 3,
+      "label": "triad_plus_passing",
+      "bach_count": 16,
+      "v24_count": 7,
+      "bach_rate": 0.007210455159981974,
+      "v24_rate": 0.0031545741324921135,
+      "gradient": 0.00405588102748986
+    },
+    {
+      "status": 4,
+      "label": "triad_plus_neighbor",
+      "bach_count": 0,
+      "v24_count": 3,
+      "bach_rate": 0.0,
+      "v24_rate": 0.0013519603424966202,
+      "gradient": -0.0013519603424966202
+    },
+    {
+      "status": 5,
+      "label": "triad_plus_suspension",
+      "bach_count": 20,
+      "v24_count": 9,
+      "bach_rate": 0.009013068949977467,
+      "v24_rate": 0.00405588102748986,
+      "gradient": 0.004957187922487607
+    },
+    {
+      "status": 6,
+      "label": "triad_plus_appoggiatura",
+      "bach_count": 0,
+      "v24_count": 5,
+      "bach_rate": 0.0,
+      "v24_rate": 0.002253267237494367,
+      "gradient": -0.002253267237494367
+    },
+    {
+      "status": 7,
+      "label": "triad_plus_unlicensed",
+      "bach_count": 104,
+      "v24_count": 105,
+      "bach_rate": 0.04686795853988283,
+      "v24_rate": 0.0473186119873817,
+      "gradient": -0.00045065344749887354
+    },
+    {
+      "status": 8,
+      "label": "other_unlicensed",
+      "bach_count": 316,
+      "v24_count": 473,
+      "bach_rate": 0.14240648940964398,
+      "v24_rate": 0.2131590806669671,
+      "gradient": -0.07075259125732311
+    }
+  ]
+}

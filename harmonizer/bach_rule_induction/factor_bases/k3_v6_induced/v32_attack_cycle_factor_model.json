@@ -1,0 +1,304 @@
+{
+  "experiment": {
+    "id": "K3-V32-ATTACK-CYCLE-FACTOR-1",
+    "status": "CONFIRMED",
+    "hypothesis_source": "V29_GENERATIVE_FAILURE",
+    "initial_training_pieces": 32,
+    "independent_holdout_pieces": 219,
+    "test_split_used_for_fit": false
+  },
+  "definition": {
+    "activation_domain": "current attacked note is a lag-2 return",
+    "positive_event": "return continues a pre-existing ABAB cycle",
+    "history_attacks": 3,
+    "scope": "one lower voice"
+  },
+  "corpus": {
+    "initial32": {
+      "pieces": 32,
+      "by_voice": {
+        "Soprano": {
+          "lag2_returns": 316,
+          "continued_cycles": 44,
+          "continuation_given_return": 0.13924050632911392,
+          "wilson_95_interval": [
+            0.10538617956817851,
+            0.18176064360892946
+          ]
+        },
+        "Alto": {
+          "lag2_returns": 352,
+          "continued_cycles": 49,
+          "continuation_given_return": 0.13920454545454544,
+          "wilson_95_interval": [
+            0.10692283850270692,
+            0.179276130999639
+          ]
+        },
+        "Tenor": {
+          "lag2_returns": 339,
+          "continued_cycles": 51,
+          "continuation_given_return": 0.1504424778761062,
+          "wilson_95_interval": [
+            0.116314257512567,
+            0.19240411973611096
+          ]
+        },
+        "Bass": {
+          "lag2_returns": 263,
+          "continued_cycles": 23,
+          "continuation_given_return": 0.08745247148288973,
+          "wilson_95_interval": [
+            0.05898016781621757,
+            0.12780287197440737
+          ]
+        }
+      },
+      "lower_voices_shared": {
+        "lag2_returns": 954,
+        "continued_cycles": 123,
+        "continuation_given_return": 0.1289308176100629,
+        "wilson_95_interval": [
+          0.10914393075012749,
+          0.15169407800374493
+        ]
+      }
+    },
+    "holdout219": {
+      "pieces": 219,
+      "by_voice": {
+        "Soprano": {
+          "lag2_returns": 2051,
+          "continued_cycles": 250,
+          "continuation_given_return": 0.12189176011701609,
+          "wilson_95_interval": [
+            0.10843541143680853,
+            0.13676183074354767
+          ]
+        },
+        "Alto": {
+          "lag2_returns": 2391,
+          "continued_cycles": 409,
+          "continuation_given_return": 0.17105813467168549,
+          "wilson_95_interval": [
+            0.15649508073294274,
+            0.1866764706838255
+          ]
+        },
+        "Tenor": {
+          "lag2_returns": 2153,
+          "continued_cycles": 300,
+          "continuation_given_return": 0.13934045517882024,
+          "wilson_95_interval": [
+            0.1253538870847046,
+            0.15461173410233395
+          ]
+        },
+        "Bass": {
+          "lag2_returns": 1697,
+          "continued_cycles": 137,
+          "continuation_given_return": 0.0807307012374779,
+          "wilson_95_interval": [
+            0.06869642763731491,
+            0.09465886769593736
+          ]
+        }
+      },
+      "lower_voices_shared": {
+        "lag2_returns": 6241,
+        "continued_cycles": 846,
+        "continuation_given_return": 0.13555519948726166,
+        "wilson_95_interval": [
+          0.12728629972412545,
+          0.14427246922193923
+        ]
+      }
+    },
+    "full_train251": {
+      "pieces": 251,
+      "by_voice": {
+        "Soprano": {
+          "lag2_returns": 2367,
+          "continued_cycles": 294,
+          "continuation_given_return": 0.12420785804816223,
+          "wilson_95_interval": [
+            0.1115266537334261,
+            0.13810684943430085
+          ]
+        },
+        "Alto": {
+          "lag2_returns": 2743,
+          "continued_cycles": 458,
+          "continuation_given_return": 0.16697047028800582,
+          "wilson_95_interval": [
+            0.15348142104477808,
+            0.18139100337814845
+          ]
+        },
+        "Tenor": {
+          "lag2_returns": 2492,
+          "continued_cycles": 351,
+          "continuation_given_return": 0.14085072231139648,
+          "wilson_95_interval": [
+            0.12774480341908062,
+            0.15506220594689496
+          ]
+        },
+        "Bass": {
+          "lag2_returns": 1960,
+          "continued_cycles": 160,
+          "continuation_given_return": 0.08163265306122448,
+          "wilson_95_interval": [
+            0.07031365177901203,
+            0.09458838619668283
+          ]
+        }
+      },
+      "lower_voices_shared": {
+        "lag2_returns": 7195,
+        "continued_cycles": 969,
+        "continuation_given_return": 0.13467685892981238,
+        "wilson_95_interval": [
+          0.12698347289402737,
+          0.14276013375831367
+        ]
+      }
+    }
+  },
+  "confirmation": {
+    "frozen_rules": {
+      "holdout_wilson_upper_below": 0.25,
+      "heldout_log_likelihood_better_than_neutral": true,
+      "same_negative_logit_direction": true
+    },
+    "holdout_wilson_95_interval": [
+      0.12728629972412545,
+      0.14427246922193923
+    ],
+    "heldout_log_likelihood_initial_rate": -2477.706265618548,
+    "heldout_log_likelihood_neutral_rate": -4325.931553874619,
+    "confirmed": true
+  },
+  "selection": {
+    "criterion": "minimum_bic_on_full_training_split",
+    "candidates": [
+      {
+        "id": "shared_lower",
+        "parameter_count": 1,
+        "log_likelihood": -2843.3308427601396,
+        "bic": 5695.5428271396,
+        "groups": [
+          {
+            "id": "lower",
+            "voices": [
+              "Alto",
+              "Tenor",
+              "Bass"
+            ],
+            "lag2_returns": 7195,
+            "continued_cycles": 969,
+            "probability": 0.13467685892981238,
+            "log_weight": -1.8602247391107871
+          }
+        ]
+      },
+      {
+        "id": "inner_plus_bass",
+        "parameter_count": 2,
+        "log_likelihood": -2807.827966306262,
+        "bic": 5633.418215851168,
+        "groups": [
+          {
+            "id": "inner",
+            "voices": [
+              "Alto",
+              "Tenor"
+            ],
+            "lag2_returns": 5235,
+            "continued_cycles": 809,
+            "probability": 0.1545367717287488,
+            "log_weight": -1.6994526035525033
+          },
+          {
+            "id": "bass",
+            "voices": [
+              "Bass"
+            ],
+            "lag2_returns": 1960,
+            "continued_cycles": 160,
+            "probability": 0.08163265306122448,
+            "log_weight": -2.4203681286504293
+          }
+        ]
+      },
+      {
+        "id": "per_voice",
+        "parameter_count": 3,
+        "log_likelihood": -2804.407830565513,
+        "bic": 5635.45908598899,
+        "groups": [
+          {
+            "id": "alto",
+            "voices": [
+              "Alto"
+            ],
+            "lag2_returns": 2743,
+            "continued_cycles": 458,
+            "probability": 0.16697047028800582,
+            "log_weight": -1.6072521192141203
+          },
+          {
+            "id": "tenor",
+            "voices": [
+              "Tenor"
+            ],
+            "lag2_returns": 2492,
+            "continued_cycles": 351,
+            "probability": 0.14085072231139648,
+            "log_weight": -1.808242065123817
+          },
+          {
+            "id": "bass",
+            "voices": [
+              "Bass"
+            ],
+            "lag2_returns": 1960,
+            "continued_cycles": 160,
+            "probability": 0.08163265306122448,
+            "log_weight": -2.4203681286504293
+          }
+        ]
+      }
+    ],
+    "selected_granularity": "inner_plus_bass"
+  },
+  "factors": [
+    {
+      "id": "F-K3-V32-CYCLE-INNER",
+      "group": "attacked_two_note_cycle",
+      "voices": [
+        "Alto",
+        "Tenor"
+      ],
+      "probability": 0.1545367717287488,
+      "log_weight": -1.6994526035525033,
+      "estimator": "conditional_binomial_mle",
+      "human_authored": false,
+      "feature_definition_human_authored": true,
+      "activation_has_side_effects": false
+    },
+    {
+      "id": "F-K3-V32-CYCLE-BASS",
+      "group": "attacked_two_note_cycle",
+      "voices": [
+        "Bass"
+      ],
+      "probability": 0.08163265306122448,
+      "log_weight": -2.4203681286504293,
+      "estimator": "conditional_binomial_mle",
+      "human_authored": false,
+      "feature_definition_human_authored": true,
+      "activation_has_side_effects": false
+    }
+  ]
+}

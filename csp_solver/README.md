@@ -1,4 +1,14 @@
-# Declarative finite CSP solver
+# Legacy fact-backed CSP solver and application catalogue
+
+This companion documents the original CSP interface built on Snarky's rule and
+choice machinery. The core package also contains an independent finite-domain
+CSP/optimization engine in `snarky.finite`, with direct domains and an optional
+coordinator for positive rules. For that engine, start with the
+[main quick starts](../README.md#quick-starts),
+[finite model language](../docs/finite_language.md) and
+[model contract](../docs/finite_model_contract.md). Installing this companion is
+not required for standalone or mixed finite models. The interface below remains
+supported for compatibility and the existing application catalogue.
 
 This project exercises Snarky's generic choice and backtracking machinery
 without delegating the problem to `BacktrackingConstraintSolver`.
@@ -67,6 +77,7 @@ LinearSumConstraint(Atom("name"), weighted_terms, operator, target)
 BinaryComparisonConstraint(Atom("name"), left, right, operator)
 ElementConstraint(Atom("name"), index, array, value)
 CountConstraint(Atom("name"), variables, value, operator, target)
+NValueConstraint(Atom("name"), variables, count, constants=())
 GlobalCardinalityConstraint(Atom("name"), variables, bounds)
 TableConstraint(Atom("name"), variables, allowed_tuples)
 LexLessEqualConstraint(Atom("name"), left_sequence, right_sequence)
@@ -442,3 +453,18 @@ and [the benchmark guide](../benchmarks/README.md) for current protocols. The
 [solver optimization plan](../docs/solver_optimization_plan.md) records the
 measured bottlenecks, implemented scheduling/kernel work, and the criteria for
 future incremental optimizations.
+
+## Installing the optional companion
+
+From the repository root, install the core and then the companion:
+
+```sh
+python -m pip install -e .
+python -m pip install ./csp_solver
+```
+
+The local `snarky-csp` distribution contains its Python modules and required
+rule/constraint data. It enables `snarky check model.constraints` outside the
+checkout and does not add dependencies to the core installation. Reinstall
+the companion after editing it, or use module execution from the checkout.
+Both distributions remain subject to the repository's pre-release status.

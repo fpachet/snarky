@@ -1,0 +1,30 @@
+{
+  "schema_version": 1,
+  "base_commit": "e6ff69b",
+  "scope": "Variable-order melody reproduction and sparse chain bounds; Bach excluded",
+  "broad_gate": {
+    "command": "PYTHONHASHSEED=0 PYTHONPATH=src:../vo_regular_bp .venv/bin/python scripts/check_redesign.py --durations=5",
+    "python": "3.13.11",
+    "passed": 920,
+    "skipped": 3,
+    "seconds": 217.29,
+    "note": "The constructed-ngram validation test was added after this run's collection and passed separately on Python 3.13; it is included in the focused Python 3.12 run."
+  },
+  "additional_python313": {
+    "command": ".venv/bin/python -m pytest tests/test_variable_markov.py::test_constructed_ngram_models_require_normalization_and_subword_support -q",
+    "passed": 1
+  },
+  "focused_python312": {
+    "command": "PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 PYTHONHASHSEED=0 PYTHONPATH=src:.:.venv/lib/python3.13/site-packages /opt/homebrew/bin/python3.12 -m pytest -o addopts='' tests/test_variable_markov.py tests/test_sparse_chain_bounds.py tests/test_product_objective.py tests/test_product_assignment.py tests/test_finite_bounds.py -q",
+    "passed": 95,
+    "seconds": 8.31
+  },
+  "mypy": {"modules": 93, "status": "passed"},
+  "ruff_changed_python": "passed",
+  "build_sdist_and_wheel": "passed",
+  "distribution_contents": "passed; research corpus excluded",
+  "isolated_wheel_python313": "passed, including four variable-order modes with contour and prefix",
+  "isolated_wheel_python312": "passed, including four variable-order modes with contour and prefix",
+  "guide_python_example": "DP and constrained CSP both feasible; CSP proved optimal",
+  "independent_benchmark_oracles": "Four modes, all contour requests and all continuation chunks match exact raw-window DP"
+}

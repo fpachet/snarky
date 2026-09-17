@@ -1,0 +1,485 @@
+{
+  "experiment": {
+    "id": "F-K3-V16-CANDIDATE-ADMISSION",
+    "status": "STRICT_LOCAL_ADMISSION_PROPOSAL_REJECTED_AFTER_GENERATION_AUDIT",
+    "shortlist": "/Users/francoispachet/IdeaProjects/boojum/harmonizer/bach_rule_induction/factor_bases/k3_v6_induced/v16_exact_candidate_shortlist.json",
+    "controls": [
+      "/Users/francoispachet/IdeaProjects/boojum/harmonizer/bach_rule_induction/factor_bases/k3_v6_induced/v16_candidate_seed10103_control.json",
+      "/Users/francoispachet/IdeaProjects/boojum/harmonizer/bach_rule_induction/factor_bases/k3_v6_induced/v16_candidate_seed20207_control.json",
+      "/Users/francoispachet/IdeaProjects/boojum/harmonizer/bach_rule_induction/factor_bases/k3_v6_induced/v16_candidate_seed30313_control.json"
+    ],
+    "source_model": "/Users/francoispachet/IdeaProjects/boojum/harmonizer/bach_rule_induction/factor_bases/k3_v6_induced/v13_exact_directed_metric_model.json",
+    "diagnostics": [
+      "bass_semitone_rate",
+      "bass_repeat_rate",
+      "bass_large_leap_rate",
+      "bass_outside_natural_scale_rate",
+      "triadic_block_rate",
+      "strong_nontriadic_rate",
+      "weak_pair_dissonances_per_block",
+      "strong_pair_dissonances_per_block",
+      "dominant_65_strong_rate",
+      "dominant_65_weak_rate"
+    ],
+    "piece_ids": [
+      "bach/bwv308",
+      "bach/bwv265",
+      "bach/bwv55.5",
+      "bach/bwv412",
+      "bach/bwv174.5",
+      "bach/bwv56.5",
+      "bach/bwv406",
+      "bach/bwv264",
+      "bach/bwv248.23-s",
+      "bach/bwv197.7-a",
+      "bach/bwv279",
+      "bach/bwv7.7",
+      "bach/bwv408",
+      "bach/bwv245.5",
+      "bach/bwv397",
+      "bach/bwv245.40",
+      "bach/bwv426",
+      "bach/bwv356",
+      "bach/bwv291",
+      "bach/bwv110.7",
+      "bach/bwv419",
+      "bach/bwv331",
+      "bach/bwv14.5",
+      "bach/bwv113.8",
+      "bach/bwv153.5",
+      "bach/bwv316",
+      "bach/bwv248.42-s",
+      "bach/bwv245.22",
+      "bach/bwv42.7",
+      "bach/bwv371",
+      "bach/bwv312",
+      "bach/bwv405"
+    ],
+    "seed_count": 3,
+    "max_abs_step": 0.15,
+    "minimum_effect_cosine": 0.5,
+    "maximum_seed_regression": 0.02,
+    "minimum_ensemble_improvement": 0.05,
+    "admitted_count": 1,
+    "proposed_candidate_rank": 9,
+    "test_loaded": false
+  },
+  "candidates": [
+    {
+      "rank": 1,
+      "feature": {
+        "kind": "central_pair_abs_class_metric_target_rearticulated",
+        "target_voice": 1,
+        "other_voice": 2,
+        "value": 7,
+        "second_value": 1,
+        "complexity": 4,
+        "key": "central_pair_abs_class_metric_target_rearticulated:1:2:7:1",
+        "label": "central_pair_abs_class_metric_target_rearticulated(v1,v2)=7,1"
+      },
+      "family": "directed_pair_interval_metric_trajectory",
+      "conditional_column_score": 0.002963764800625425,
+      "conditional_approximate_nll_gain": 0.007854139688652121,
+      "proposed_weight_step": 0.15,
+      "pairwise_effect_cosines": [
+        -0.3280847793990376,
+        -0.29850264111405245,
+        0.3241559350380622
+      ],
+      "minimum_effect_cosine": -0.3280847793990376,
+      "per_seed_relative_remaining": [
+        1.003232913521993,
+        1.002075513219603,
+        0.9977755499968781
+      ],
+      "ensemble_relative_remaining": 1.0010190412237503,
+      "stable_effect": false,
+      "non_regressive_generation_projection": false,
+      "admitted": false
+    },
+    {
+      "rank": 2,
+      "feature": {
+        "kind": "three_block_sign_shape",
+        "target_voice": 1,
+        "other_voice": null,
+        "value": 0,
+        "second_value": -1,
+        "complexity": 2,
+        "key": "three_block_sign_shape:1:-:0:-1",
+        "label": "three_block_sign_shape(v1)=0,-1"
+      },
+      "family": "three_block_direction_shape",
+      "conditional_column_score": 0.0028762415631824975,
+      "conditional_approximate_nll_gain": 0.005321429007195845,
+      "proposed_weight_step": 0.15,
+      "pairwise_effect_cosines": [
+        -0.008156378708790688,
+        -0.42026651791513586,
+        0.4349455071211141
+      ],
+      "minimum_effect_cosine": -0.42026651791513586,
+      "per_seed_relative_remaining": [
+        1.0016643722024474,
+        0.9924937369192091,
+        1.0090729071584899
+      ],
+      "ensemble_relative_remaining": 1.0012038563708439,
+      "stable_effect": false,
+      "non_regressive_generation_projection": false,
+      "admitted": false
+    },
+    {
+      "rank": 3,
+      "feature": {
+        "kind": "abs_step_to_next_gt",
+        "target_voice": 1,
+        "other_voice": null,
+        "value": 1,
+        "second_value": null,
+        "complexity": 1,
+        "key": "abs_step_to_next_gt:1:-:1:-",
+        "label": "abs_step_to_next_gt(v1)=1"
+      },
+      "family": "voice_melodic_distance_threshold",
+      "conditional_column_score": 0.002863523693044029,
+      "conditional_approximate_nll_gain": 0.004086117415050703,
+      "proposed_weight_step": 0.15,
+      "pairwise_effect_cosines": [
+        -0.07333716615580685,
+        -0.5832498149414402,
+        -0.06597817015052898
+      ],
+      "minimum_effect_cosine": -0.5832498149414402,
+      "per_seed_relative_remaining": [
+        1.0029515454982239,
+        0.9762866024140084,
+        0.9951220603767652
+      ],
+      "ensemble_relative_remaining": 0.9904092046877861,
+      "stable_effect": false,
+      "non_regressive_generation_projection": false,
+      "admitted": false
+    },
+    {
+      "rank": 4,
+      "feature": {
+        "kind": "central_pair_abs_class",
+        "target_voice": 1,
+        "other_voice": 3,
+        "value": 5,
+        "second_value": null,
+        "complexity": 1,
+        "key": "central_pair_abs_class:1:3:5:-",
+        "label": "central_pair_abs_class(v1,v3)=5"
+      },
+      "family": "voice_pair_vertical_interval_class",
+      "conditional_column_score": 0.0025686606849322008,
+      "conditional_approximate_nll_gain": 0.0037912544069388745,
+      "proposed_weight_step": -0.15,
+      "pairwise_effect_cosines": [
+        0.511796575146513,
+        0.5860820794131445,
+        0.8939952304923175
+      ],
+      "minimum_effect_cosine": 0.511796575146513,
+      "per_seed_relative_remaining": [
+        1.021102298432897,
+        0.9919491151184044,
+        1.001990722227195
+      ],
+      "ensemble_relative_remaining": 1.0046819090031145,
+      "stable_effect": true,
+      "non_regressive_generation_projection": false,
+      "admitted": false
+    },
+    {
+      "rank": 5,
+      "feature": {
+        "kind": "any_voice_three_block_sign_shape",
+        "target_voice": -1,
+        "other_voice": null,
+        "value": 0,
+        "second_value": -1,
+        "complexity": 2,
+        "key": "any_voice_three_block_sign_shape:-1:-:0:-1",
+        "label": "any_voice_three_block_sign_shape(all_voices)=0,-1"
+      },
+      "family": "three_block_direction_shape",
+      "conditional_column_score": 0.002507185186075424,
+      "conditional_approximate_nll_gain": 0.004952372630088772,
+      "proposed_weight_step": 0.15,
+      "pairwise_effect_cosines": [
+        0.6664988568647277,
+        0.6764113396633699,
+        0.8928141741048009
+      ],
+      "minimum_effect_cosine": 0.6664988568647277,
+      "per_seed_relative_remaining": [
+        0.9845244000187879,
+        0.9911904336605112,
+        0.9996286621619097
+      ],
+      "ensemble_relative_remaining": 0.9917559873554357,
+      "stable_effect": true,
+      "non_regressive_generation_projection": false,
+      "admitted": false
+    },
+    {
+      "rank": 6,
+      "feature": {
+        "kind": "central_pair_abs_class",
+        "target_voice": 0,
+        "other_voice": 3,
+        "value": 3,
+        "second_value": null,
+        "complexity": 1,
+        "key": "central_pair_abs_class:0:3:3:-",
+        "label": "central_pair_abs_class(v0,v3)=3"
+      },
+      "family": "voice_pair_vertical_interval_class",
+      "conditional_column_score": 0.0021667545304814026,
+      "conditional_approximate_nll_gain": 0.003389348252488077,
+      "proposed_weight_step": 0.15,
+      "pairwise_effect_cosines": [
+        -0.31805717553177204,
+        0.682879115038808,
+        -0.4275664597722866
+      ],
+      "minimum_effect_cosine": -0.4275664597722866,
+      "per_seed_relative_remaining": [
+        0.9875359487771637,
+        1.0064029482068788,
+        0.9726047228608087
+      ],
+      "ensemble_relative_remaining": 0.9884385126377049,
+      "stable_effect": false,
+      "non_regressive_generation_projection": false,
+      "admitted": false
+    },
+    {
+      "rank": 7,
+      "feature": {
+        "kind": "central_pair_abs_class",
+        "target_voice": 2,
+        "other_voice": 1,
+        "value": 7,
+        "second_value": null,
+        "complexity": 1,
+        "key": "central_pair_abs_class:2:1:7:-",
+        "label": "central_pair_abs_class(v2,v1)=7"
+      },
+      "family": "voice_pair_vertical_interval_class",
+      "conditional_column_score": 0.0018568492267182818,
+      "conditional_approximate_nll_gain": 0.0030794429487249557,
+      "proposed_weight_step": 0.15,
+      "pairwise_effect_cosines": [
+        -0.08794240664883307,
+        0.6904663825563377,
+        -0.1954194151788583
+      ],
+      "minimum_effect_cosine": -0.1954194151788583,
+      "per_seed_relative_remaining": [
+        1.0307051255709343,
+        0.998644595989272,
+        1.0152324329236462
+      ],
+      "ensemble_relative_remaining": 1.014288250369985,
+      "stable_effect": false,
+      "non_regressive_generation_projection": false,
+      "admitted": false
+    },
+    {
+      "rank": 8,
+      "feature": {
+        "kind": "abs_class_from_previous",
+        "target_voice": 3,
+        "other_voice": null,
+        "value": 0,
+        "second_value": null,
+        "complexity": 1,
+        "key": "abs_class_from_previous:3:-:0:-",
+        "label": "abs_class_from_previous(v3)=0"
+      },
+      "family": "voice_melodic_interval_class",
+      "conditional_column_score": 0.001795207330909609,
+      "conditional_approximate_nll_gain": 0.003017801052916283,
+      "proposed_weight_step": 0.15,
+      "pairwise_effect_cosines": [
+        0.9087327519503011,
+        0.9714628752606864,
+        0.9250857850857508
+      ],
+      "minimum_effect_cosine": 0.9087327519503011,
+      "per_seed_relative_remaining": [
+        0.9623141143305692,
+        0.9780026313386104,
+        0.9715739961402604
+      ],
+      "ensemble_relative_remaining": 0.9698931351743865,
+      "stable_effect": true,
+      "non_regressive_generation_projection": false,
+      "admitted": false
+    },
+    {
+      "rank": 9,
+      "feature": {
+        "kind": "any_pair_arrival_abs_class_same_sign",
+        "target_voice": -1,
+        "other_voice": null,
+        "value": 10,
+        "second_value": null,
+        "complexity": 2,
+        "key": "any_pair_arrival_abs_class_same_sign:-1:-:10:-",
+        "label": "any_pair_arrival_abs_class_same_sign(all_voices)=10"
+      },
+      "family": "universal_pair_motion",
+      "conditional_column_score": 0.0017690235964833898,
+      "conditional_approximate_nll_gain": 0.004214211040496738,
+      "proposed_weight_step": -0.15,
+      "pairwise_effect_cosines": [
+        0.7654988854651282,
+        0.822599464828639,
+        0.837779746034422
+      ],
+      "minimum_effect_cosine": 0.7654988854651282,
+      "per_seed_relative_remaining": [
+        0.9228026035346699,
+        0.9570308723297367,
+        0.9565570483689757
+      ],
+      "ensemble_relative_remaining": 0.9455506049022399,
+      "stable_effect": true,
+      "non_regressive_generation_projection": true,
+      "admitted": true
+    },
+    {
+      "rank": 10,
+      "feature": {
+        "kind": "central_pair_abs_class",
+        "target_voice": 3,
+        "other_voice": 0,
+        "value": 3,
+        "second_value": null,
+        "complexity": 1,
+        "key": "central_pair_abs_class:3:0:3:-",
+        "label": "central_pair_abs_class(v3,v0)=3"
+      },
+      "family": "voice_pair_vertical_interval_class",
+      "conditional_column_score": 0.001690164879849873,
+      "conditional_approximate_nll_gain": 0.002912758601856547,
+      "proposed_weight_step": 0.15,
+      "pairwise_effect_cosines": [
+        0.3575206090239679,
+        0.41748735579307306,
+        -0.30703412333270397
+      ],
+      "minimum_effect_cosine": -0.30703412333270397,
+      "per_seed_relative_remaining": [
+        1.001518630683609,
+        1.0089821738206999,
+        0.9691975178369566
+      ],
+      "ensemble_relative_remaining": 0.9925556248967247,
+      "stable_effect": false,
+      "non_regressive_generation_projection": false,
+      "admitted": false
+    },
+    {
+      "rank": 11,
+      "feature": {
+        "kind": "central_pair_abs_class_metric_target_rearticulated",
+        "target_voice": 1,
+        "other_voice": 0,
+        "value": 1,
+        "second_value": 1,
+        "complexity": 4,
+        "key": "central_pair_abs_class_metric_target_rearticulated:1:0:1:1",
+        "label": "central_pair_abs_class_metric_target_rearticulated(v1,v0)=1,1"
+      },
+      "family": "directed_pair_interval_metric_trajectory",
+      "conditional_column_score": 0.0016301131648451556,
+      "conditional_approximate_nll_gain": 0.0065204880528718515,
+      "proposed_weight_step": 0.15,
+      "pairwise_effect_cosines": [
+        -0.7527127855466481,
+        -0.5951402564120641,
+        0.435256683901672
+      ],
+      "minimum_effect_cosine": -0.7527127855466481,
+      "per_seed_relative_remaining": [
+        0.9975824862903003,
+        1.0019155219951348,
+        1.0026681024880726
+      ],
+      "ensemble_relative_remaining": 1.0007947397396744,
+      "stable_effect": false,
+      "non_regressive_generation_projection": false,
+      "admitted": false
+    },
+    {
+      "rank": 12,
+      "feature": {
+        "kind": "any_voice_adjacent_abs_class",
+        "target_voice": -1,
+        "other_voice": null,
+        "value": 6,
+        "second_value": null,
+        "complexity": 1,
+        "key": "any_voice_adjacent_abs_class:-1:-:6:-",
+        "label": "any_voice_adjacent_abs_class(all_voices)=6"
+      },
+      "family": "universal_melodic_interval_class",
+      "conditional_column_score": 0.001574104417337838,
+      "conditional_approximate_nll_gain": 0.002796698139344512,
+      "proposed_weight_step": -0.15,
+      "pairwise_effect_cosines": [
+        0.6650959014017974,
+        0.6087604809184367,
+        0.5995577082520747
+      ],
+      "minimum_effect_cosine": 0.5995577082520747,
+      "per_seed_relative_remaining": [
+        0.9538117538370996,
+        0.9741099140835406,
+        0.9891376077755047
+      ],
+      "ensemble_relative_remaining": 0.9720607308764359,
+      "stable_effect": true,
+      "non_regressive_generation_projection": false,
+      "admitted": false
+    }
+  ],
+  "proposed_candidate": {
+    "rank": 9,
+    "feature": {
+      "kind": "any_pair_arrival_abs_class_same_sign",
+      "target_voice": -1,
+      "other_voice": null,
+      "value": 10,
+      "second_value": null,
+      "complexity": 2,
+      "key": "any_pair_arrival_abs_class_same_sign:-1:-:10:-",
+      "label": "any_pair_arrival_abs_class_same_sign(all_voices)=10"
+    },
+    "family": "universal_pair_motion",
+    "conditional_column_score": 0.0017690235964833898,
+    "conditional_approximate_nll_gain": 0.004214211040496738,
+    "proposed_weight_step": -0.15,
+    "pairwise_effect_cosines": [
+      0.7654988854651282,
+      0.822599464828639,
+      0.837779746034422
+    ],
+    "minimum_effect_cosine": 0.7654988854651282,
+    "per_seed_relative_remaining": [
+      0.9228026035346699,
+      0.9570308723297367,
+      0.9565570483689757
+    ],
+    "ensemble_relative_remaining": 0.9455506049022399,
+    "stable_effect": true,
+    "non_regressive_generation_projection": true,
+    "admitted": true
+  }
+}

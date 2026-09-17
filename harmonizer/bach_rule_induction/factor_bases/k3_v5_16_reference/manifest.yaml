@@ -1,0 +1,25 @@
+schema_version: 1
+id: F-K3-V5.16-REFERENCE
+kind: learned_factor_reference
+status: FROZEN_ENGINEERING_REFERENCE
+description: >
+  Migration sans réapprentissage du modèle V5.16. Cette base conserve les
+  facteurs et poids du POC, y compris les familles introduites pendant la
+  boucle de développement. Elle sert d'oracle de parité, pas de revendication
+  de découverte entièrement automatique.
+inherits: []
+factor_program: v5_16_reference.factors
+source_catalogue: ../../rule_bases/k3_clean/v5_16_factors.yaml
+source_model: ../../experiments/v5_k3_clean/results/v5_16_interpolated_generative_model.json
+activation_provider: ../../experiments/v5_k3_clean/snarky_choice_bridge.py
+factor_count: 41
+source_weight_terms: 44
+semantics:
+  effects: none
+  grounding: once_per_factor_and_scope
+  parameters_separate_from_predicates: true
+  activations_are_working_memory_facts: false
+dependencies:
+  historical_rules: []
+  expert_constraints: []
+test_split_loaded: false

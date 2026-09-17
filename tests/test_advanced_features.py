@@ -160,6 +160,118 @@ def test_incremental_agenda_recomputes_only_relevant_rules() -> None:
     assert session.fork().inspect_agenda(group)
 
 
+def test_group_execution_recomputes_only_relevant_rules() -> None:
+    (group,) = parse_rule_groups(
+        """
+        GROUP selective
+            RULE left_rule
+            WHEN
+                ($x left yes)
+            THEN
+                ADD ($x seen left)
+            END
+            RULE right_rule
+            WHEN
+                ($x right yes)
+            THEN
+                ADD ($x seen right)
+            END
+        END_GROUP
+        """
+    )
+    session = ForwardEngine(()).create_session(())
+    session.run_group(group)
+    before_recomputations = session.agenda_metrics.rule_recomputations
+    before_reuses = session.agenda_metrics.rule_reuses
+
+    session.assume(_fact("(a left yes)"))
+    session.run_group(group)
+
+    assert _fact("(a seen left)") in session.facts
+    assert (
+        session.agenda_metrics.rule_recomputations
+        - before_recomputations
+        == 1
+    )
+    assert session.agenda_metrics.rule_reuses - before_reuses == 3
+
+
+def test_group_execution_schedules_later_dependent_rule_same_cycle() -> None:
+    (group,) = parse_rule_groups(
+        """
+        GROUP forward_order
+            RULE source_to_middle
+            WHEN
+                ($x source yes)
+            THEN
+                ADD ($x middle yes)
+            END
+            RULE middle_to_final
+            WHEN
+                ($x middle yes)
+            THEN
+                ADD ($x final yes)
+            END
+        END_GROUP
+        """
+    )
+    session = ForwardEngine(()).create_session(())
+    session.run_group(group)
+
+    session.assume(_fact("(a source yes)"))
+    session.run_group(group)
+
+    final_event = next(
+        event
+        for event in session.events
+        if event.fact == _fact("(a final yes)")
+    )
+    middle_event = next(
+        event
+        for event in session.events
+        if event.fact == _fact("(a middle yes)")
+    )
+    assert final_event.cycle == middle_event.cycle
+
+
+def test_group_execution_defers_earlier_dependent_rule_one_cycle() -> None:
+    (group,) = parse_rule_groups(
+        """
+        GROUP reverse_order
+            RULE middle_to_final
+            WHEN
+                ($x middle yes)
+            THEN
+                ADD ($x final yes)
+            END
+            RULE source_to_middle
+            WHEN
+                ($x source yes)
+            THEN
+                ADD ($x middle yes)
+            END
+        END_GROUP
+        """
+    )
+    session = ForwardEngine(()).create_session(())
+    session.run_group(group)
+
+    session.assume(_fact("(a source yes)"))
+    session.run_group(group)
+
+    final_event = next(
+        event
+        for event in session.events
+        if event.fact == _fact("(a final yes)")
+    )
+    middle_event = next(
+        event
+        for event in session.events
+        if event.fact == _fact("(a middle yes)")
+    )
+    assert final_event.cycle == middle_event.cycle + 1
+
+
 def test_parameterized_and_recursive_group_control() -> None:
     node = Variable("node")
     template = RuleGroupTemplate(

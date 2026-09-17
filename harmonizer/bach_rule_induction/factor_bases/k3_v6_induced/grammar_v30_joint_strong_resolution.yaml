@@ -1,0 +1,33 @@
+schema_version: 1
+id: K3-V30-JOINT-STRONG-RESOLUTION-GRAMMAR-1
+status: FROZEN
+frozen_on: 2026-07-31
+extends: grammar_v29_strong_succession.yaml
+purpose: >
+  Distinguer les sonorités fortes résiduelles selon leur rôle local et selon
+  que la sonorité suivante retrouve ou non un accord nommé ou un squelette
+  consonant.
+
+extensions:
+  joint_strong_resolution_features: true
+
+families:
+  - id: joint_strong_resolution_status
+    feature_kinds:
+      - central_joint_strong_resolution_status
+    parameter_count: 16
+    complexity: 5
+    shared_block_potential: true
+    mutually_exclusive_on_residual_strong_blocks: true
+
+structure_learning:
+  maximum_clause_complexity: 5
+  group_learning: joint_only
+  individual_clause_selection: forbidden
+
+provenance_guards:
+  vocabulary_frozen_before_weight_learning: true
+  generated_bwv108_6_used_for_weight_learning: false
+  no_status_is_an_absolute_prohibition: true
+  validation_effects_loaded: false
+  test_opened: false

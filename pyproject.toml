@@ -32,6 +32,9 @@ Issues = "https://github.com/fpachet/snarky/issues"
 Changelog = "https://github.com/fpachet/snarky/blob/main/CHANGELOG.md"
 Documentation = "https://github.com/fpachet/snarky#readme"
 
+[project.scripts]
+snarky = "snarky.cli:main"
+
 [project.optional-dependencies]
 dev = [
     "build>=1.2",
@@ -41,6 +44,7 @@ dev = [
     "ruff>=0.8",
     "types-PyYAML>=6.0",
 ]
+research = ["numpy>=1.26"]
 
 [tool.hatch.build.targets.wheel]
 packages = ["src/snarky"]

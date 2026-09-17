@@ -1,0 +1,1078 @@
+"""Finite-domain filtering kernels shared by native and legacy runtimes."""
+
+from __future__ import annotations
+
+import math
+from collections import deque
+from collections.abc import Mapping
+from dataclasses import dataclass
+
+from ..terms import Atom, Number, Term
+from .constraints import (
+    AllDifferentConstraint,
+    BinaryComparisonConstraint,
+    BinaryComparisonOperator,
+    ConstraintOperator,
+    CountConstraint,
+    ElementConstraint,
+    GlobalCardinalityConstraint,
+    LexLessEqualConstraint,
+    LinearSumConstraint,
+    SumConstraint,
+    TableConstraint,
+)
+
+# Two dense bit graphs require at most about one MiB of bit payload. Larger
+# alphabets keep the sparse graph path; never allocate bits by numeric magnitude.
+_ALL_DIFFERENT_BIT_VALUES = 2048
+# Flood partitions can revisit long sparse chains quadratically. Preserve
+# Tarjan's sparse traversal there instead of paying for repeated bitset floods.
+_ALL_DIFFERENT_SPARSE_AFTER = 64
+
+
+def _bit_reachable(graph: list[int], seeds: int, allowed: int) -> int:
+    reached = seeds & allowed
+    pending = reached
+    while pending:
+        bit = pending & -pending
+        pending ^= bit
+        added = graph[bit.bit_length() - 1] & allowed & ~reached
+        reached |= added
+        pending |= added
+    return reached
+
+
+def _bit_components(graph: list[int], reverse: list[int], allowed: int) -> list[int]:
+    """SCC membership masks, using iterative forward/backward partitions.
+
+    No SCC can cross the forward-reachable partition of a pivot. Within that
+    partition, vertices also reaching the pivot form exactly its component.
+    Bitset floods process a whole adjacency row at once. Worst-case work is
+    quadratic in the bounded number of vertices, rather than linear in edges.
+    """
+    components = [0] * len(graph)
+    regions = [allowed] if allowed else []
+    while regions:
+        region = regions.pop()
+        pivot = region & -region
+        forward = _bit_reachable(graph, pivot, region)
+        component = _bit_reachable(reverse, pivot, forward)
+        remaining = component
+        while remaining:
+            bit = remaining & -remaining
+            remaining ^= bit
+            components[bit.bit_length() - 1] = component
+        for rest in (region & ~forward, forward & ~component):
+            if rest:
+                regions.append(rest)
+    return components
+
+
+def _filter_all_different_bits(
+    scoped: dict[Term, set[Term]], matching: dict[Term, Term], all_values: set[Term]
+) -> None:
+    """The same alternating value graph and exact supports, using compact IDs."""
+    values = tuple(matching.values())
+    values += tuple(all_values.difference(values))
+    positions = {value: index for index, value in enumerate(values)}
+    bits = [1 << index for index in range(len(values))]
+    graph = [0] * len(values)
+    reverse = [0] * len(values)
+    masks = []
+    for index, variable in enumerate(matching):
+        mask = 0
+        own = bits[index]
+        for value in scoped[variable]:
+            target = positions[value]
+            mask |= bits[target]
+            reverse[target] |= own
+        masks.append(mask)
+        graph[index] = mask
+    # Matched self-loops do not change reachability or components.
+    universe = (1 << len(values)) - 1
+    free = universe ^ ((1 << len(matching)) - 1)
+    reaches_free = _bit_reachable(reverse, free, universe)
+    if reaches_free == universe:
+        return
+    components = _bit_components(graph, reverse, universe & ~reaches_free)
+    for index, variable in enumerate(matching):
+        supported = masks[index] & (reaches_free | components[index] | bits[index])
+        if supported != masks[index]:
+            scoped[variable].intersection_update(
+                value
+                for value in tuple(scoped[variable])
+                if bits[positions[value]] & supported
+            )
+
+
+def _revise_all_different(
+    constraint: AllDifferentConstraint,
+    domains: dict[Term, set[Term]],
+) -> bool:
+    consistent, _ = _revise_all_different_with_matching(
+        constraint,
+        domains,
+    )
+    return consistent
+
+
+def _revise_all_different_with_matching(
+    constraint: AllDifferentConstraint,
+    domains: dict[Term, set[Term]],
+    previous_matching: Mapping[Term, Term] | None = None,
+) -> tuple[bool, dict[Term, Term] | None]:
+    scoped = {variable: domains[variable] for variable in constraint.variables}
+    matching = _maximum_matching(scoped, previous_matching)
+    if matching is None:
+        return False, None
+
+    # Régin filtering represented on the value graph. For each variable,
+    # direct its matched value toward every alternative value. An alternative
+    # is supported iff it belongs to an alternating cycle or can lead to a
+    # free value.
+    all_values = {value for values in scoped.values() for value in values}
+    if len(all_values) <= _ALL_DIFFERENT_BIT_VALUES and (
+        len(all_values) <= _ALL_DIFFERENT_SPARSE_AFTER
+        or sum(map(len, scoped.values())) >= 4 * len(all_values)
+    ):
+        _filter_all_different_bits(scoped, matching, all_values)
+        return True, matching
+    matched_values = frozenset(matching.values())
+    graph: dict[Term, set[Term]] = {value: set() for value in all_values}
+    for variable, matched in matching.items():
+        graph[matched].update(scoped[variable] - {matched})
+    components = _strongly_connected_components(graph)
+    free_values = all_values - matched_values
+    can_reach_free = _nodes_reaching(graph, free_values)
+
+    for variable, matched in matching.items():
+        supported = {
+            value
+            for value in scoped[variable]
+            if (
+                value == matched
+                or components[value] == components[matched]
+                or value in can_reach_free
+            )
+        }
+        domains[variable].intersection_update(supported)
+        if not domains[variable]:
+            return False, None
+    return True, matching
+
+
+def _maximum_matching(
+    domains: Mapping[Term, set[Term]],
+    initial: Mapping[Term, Term] | None = None,
+) -> dict[Term, Term] | None:
+    """Return a complete variable-to-value matching using Hopcroft--Karp."""
+
+    variables = tuple(
+        sorted(domains, key=lambda item: (len(domains[item]), repr(item)))
+    )
+    if any(not domains[variable] for variable in variables):
+        return None
+    pair_variable: dict[Term, Term | None] = {variable: None for variable in variables}
+    pair_value: dict[Term, Term] = {}
+    if initial is not None:
+        for variable in variables:
+            value = initial.get(variable)
+            if value is None or value not in domains[variable] or value in pair_value:
+                continue
+            pair_variable[variable] = value
+            pair_value[value] = variable
+    distance: dict[Term, int] = {}
+    infinity = len(variables) + 1
+
+    def breadth_first() -> bool:
+        queue: deque[Term] = deque()
+        found = False
+        for variable in variables:
+            if pair_variable[variable] is None:
+                distance[variable] = 0
+                queue.append(variable)
+            else:
+                distance[variable] = infinity
+        while queue:
+            variable = queue.popleft()
+            for value in domains[variable]:
+                owner = pair_value.get(value)
+                if owner is None:
+                    found = True
+                elif distance[owner] == infinity:
+                    distance[owner] = distance[variable] + 1
+                    queue.append(owner)
+        return found
+
+    def depth_first(variable: Term) -> bool:
+        for value in sorted(domains[variable], key=repr):
+            owner = pair_value.get(value)
+            if owner is None or (
+                distance[owner] == distance[variable] + 1 and depth_first(owner)
+            ):
+                pair_variable[variable] = value
+                pair_value[value] = variable
+                return True
+        distance[variable] = infinity
+        return False
+
+    cardinality = len(pair_value)
+    while breadth_first():
+        for variable in variables:
+            if pair_variable[variable] is None and depth_first(variable):
+                cardinality += 1
+    if cardinality != len(variables):
+        return None
+    return {
+        variable: value
+        for variable, value in pair_variable.items()
+        if value is not None
+    }
+
+
+def _strongly_connected_components(
+    graph: Mapping[Term, set[Term]],
+) -> dict[Term, int]:
+    index = 0
+    indices: dict[Term, int] = {}
+    lowlinks: dict[Term, int] = {}
+    stack: list[Term] = []
+    on_stack: set[Term] = set()
+    output: dict[Term, int] = {}
+    component = 0
+
+    def visit(node: Term) -> None:
+        nonlocal component, index
+        indices[node] = index
+        lowlinks[node] = index
+        index += 1
+        stack.append(node)
+        on_stack.add(node)
+        for successor in graph[node]:
+            if successor not in indices:
+                visit(successor)
+                lowlinks[node] = min(lowlinks[node], lowlinks[successor])
+            elif successor in on_stack:
+                lowlinks[node] = min(lowlinks[node], indices[successor])
+        if lowlinks[node] != indices[node]:
+            return
+        while True:
+            member = stack.pop()
+            on_stack.remove(member)
+            output[member] = component
+            if member == node:
+                break
+        component += 1
+
+    for node in graph:
+        if node not in indices:
+            visit(node)
+    return output
+
+
+def _nodes_reaching(
+    graph: Mapping[Term, set[Term]],
+    targets: set[Term],
+) -> frozenset[Term]:
+    reverse: dict[Term, set[Term]] = {node: set() for node in graph}
+    for node, successors in graph.items():
+        for successor in successors:
+            reverse[successor].add(node)
+    reached = set(targets)
+    pending = deque(targets)
+    while pending:
+        node = pending.popleft()
+        for predecessor in reverse[node]:
+            if predecessor not in reached:
+                reached.add(predecessor)
+                pending.append(predecessor)
+    return frozenset(reached)
+
+
+def _revise_sum(
+    constraint: SumConstraint,
+    domains: dict[Term, set[Term]],
+) -> bool:
+    numeric_domains: list[tuple[Term, dict[Term, int]]] = []
+    for variable in constraint.variables:
+        converted: dict[Term, int] = {}
+        for value in domains[variable]:
+            if not isinstance(value, Number) or not isinstance(value.value, int):
+                raise TypeError(
+                    f"SUM constraint {constraint.name.name!r} requires "
+                    "integer Number candidates"
+                )
+            converted[value] = value.value
+        if not converted:
+            return False
+        numeric_domains.append((variable, converted))
+
+    return _revise_integer_equality(constraint.target, domains, numeric_domains)
+
+
+def _revise_linear_sum(
+    constraint: LinearSumConstraint,
+    domains: dict[Term, set[Term]],
+) -> bool:
+    """Establish GAC for an integer weighted sum."""
+
+    weighted_domains: list[tuple[Term, dict[Term, int]]] = []
+    for coefficient, variable in constraint.terms:
+        converted = {
+            value: coefficient
+            * _integer_candidate("LINEAR_SUM", constraint.name, value)
+            for value in domains[variable]
+        }
+        if not converted:
+            return False
+        weighted_domains.append((variable, converted))
+
+    if constraint.operator is not ConstraintOperator.EQUAL:
+        # For an inequality, each value has support exactly when the other
+        # independent variables can take their extremal contributions. Holes,
+        # negative coefficients and arbitrary-size integers need no sum DP.
+        lower = constraint.operator is ConstraintOperator.LESS_EQUAL
+        extremum = min if lower else max
+        extrema = [extremum(values.values()) for _, values in weighted_domains]
+        total = sum(extrema)
+        if not _aggregate_accepts(constraint.operator, total, constraint.target):
+            return False
+        for (variable, values), own in zip(weighted_domains, extrema, strict=True):
+            remainder = total - own
+            domains[variable].intersection_update(
+                term
+                for term, contribution in values.items()
+                if (
+                    contribution + remainder <= constraint.target
+                    if lower
+                    else contribution + remainder >= constraint.target
+                )
+            )
+        return True
+
+    if len(weighted_domains) <= 2:
+        # Unary tests and binary affine channels have direct exact supports.
+        # Compute both supports from the original contribution maps.
+        for position, (variable, values) in enumerate(weighted_domains):
+            other = (
+                {0}
+                if len(weighted_domains) == 1
+                else set(weighted_domains[1 - position][1].values())
+            )
+            domains[variable].intersection_update(
+                term
+                for term, contribution in values.items()
+                if constraint.target - contribution in other
+            )
+        return all(domains[variable] for variable, _ in weighted_domains)
+
+    return _revise_integer_equality(constraint.target, domains, weighted_domains)
+
+
+# Bound integer shifts and stored prefix bits before allocating dense tables.
+# Wider/sparser inputs retain exact sparse filtering; these are representation
+# limits, not limits on the integer values admitted by the constraint.
+_EQUALITY_MAX_BITS = 262_144
+_EQUALITY_TOTAL_BITS = 32_000_000
+
+
+def _revise_integer_equality(
+    target: int,
+    domains: dict[Term, set[Term]],
+    contributions: list[tuple[Term, dict[Term, int]]],
+) -> bool:
+    """Exact independent-variable supports, including signed and sparse sums."""
+    minima = [min(values.values()) for _, values in contributions]
+    maxima = [max(values.values()) for _, values in contributions]
+    lower, upper = sum(minima), sum(maxima)
+    if not lower <= target <= upper:
+        return False
+
+    # Bounds remove impossible candidates before sizing a dense representation.
+    # New offsets then remove fixed terms and arbitrarily large translations.
+    normalized: list[tuple[Term, dict[Term, int]]] = []
+    divisor = 0
+    span = 0
+    residual = target
+    for (variable, values), minimum, maximum in zip(
+        contributions, minima, maxima, strict=True
+    ):
+        values = {
+            term: value
+            for term, value in values.items()
+            if target - upper + maximum <= value <= target - lower + minimum
+        }
+        if not values:
+            return False
+        offset = min(values.values())
+        residual -= offset
+        shifted = {term: value - offset for term, value in values.items()}
+        span += max(shifted.values())
+        divisor = math.gcd(divisor, *shifted.values())
+        normalized.append((variable, shifted))
+    if not 0 <= residual <= span:
+        return False
+    if divisor == 0:
+        # All surviving contributions are fixed; no arithmetic table is needed.
+        for variable, values in normalized:
+            domains[variable].intersection_update(values)
+        return residual == 0
+    if residual % divisor:
+        return False
+    if divisor != 1:
+        residual //= divisor
+        span //= divisor
+        normalized = [
+            (variable, {term: value // divisor for term, value in values.items()})
+            for variable, values in normalized
+        ]
+    if residual > span - residual:
+        # Reflect each contribution so that a near-upper-bound target also uses
+        # a small nonnegative target. This is a bijection of all assignments.
+        reflected = []
+        for variable, values in normalized:
+            maximum = max(values.values())
+            reflected.append(
+                (variable, {term: maximum - value for term, value in values.items()})
+            )
+        normalized = reflected
+        residual = span - residual
+
+    width = residual + 1
+    if (
+        width <= _EQUALITY_MAX_BITS
+        and width * (len(normalized) + 2) <= _EQUALITY_TOTAL_BITS
+    ):
+        return _revise_equality_bitsets(residual, domains, normalized)
+    return _revise_equality_sparse(residual, domains, normalized)
+
+
+def _revise_equality_bitsets(
+    target: int,
+    domains: dict[Term, set[Term]],
+    contributions: list[tuple[Term, dict[Term, int]]],
+) -> bool:
+    """Intersect reachable prefixes with reflected suffixes, without sumsets."""
+    mask = (1 << (target + 1)) - 1
+    prefix = [1]
+    for _, values in contributions:
+        reachable = 0
+        for value in values.values():
+            if value <= target:
+                reachable |= (prefix[-1] << value) & mask
+        prefix.append(reachable)
+    if not prefix[-1] & (1 << target):
+        return False
+
+    # Bit j in backward means the remaining suffix can complete a partial sum j.
+    # For a candidate v, support exists iff prefix & (backward >> v) is nonzero.
+    backward = 1 << target
+    for index in range(len(contributions) - 1, -1, -1):
+        variable, values = contributions[index]
+        supported = {
+            term
+            for term, value in values.items()
+            if value <= target and prefix[index] & (backward >> value)
+        }
+        domains[variable].intersection_update(supported)
+        reachable = 0
+        for term in supported:
+            reachable |= backward >> values[term]
+        backward = reachable
+    return True
+
+
+def _revise_equality_sparse(
+    target: int,
+    domains: dict[Term, set[Term]],
+    contributions: list[tuple[Term, dict[Term, int]]],
+) -> bool:
+    """Exact fallback for large normalized spans, with target-truncated sums."""
+    prefix: list[set[int]] = [{0}]
+    for _, values in contributions:
+        prefix.append(
+            {a + b for a in prefix[-1] for b in values.values() if a + b <= target}
+        )
+    if target not in prefix[-1]:
+        return False
+    backward = {target}
+    for index in range(len(contributions) - 1, -1, -1):
+        variable, values = contributions[index]
+        before = prefix[index]
+        supported = {
+            term
+            for term, value in values.items()
+            if (
+                any(partial + value in backward for partial in before)
+                if len(before) <= len(backward)
+                else any(remainder - value in before for remainder in backward)
+            )
+        }
+        domains[variable].intersection_update(supported)
+        backward = {
+            remainder - values[term]
+            for remainder in backward
+            for term in supported
+            if remainder >= values[term]
+        }
+    return True
+
+
+def _revise_binary_comparison(
+    constraint: BinaryComparisonConstraint,
+    domains: dict[Term, set[Term]],
+) -> bool:
+    """Establish GAC for a binary comparison."""
+
+    left_domain = domains[constraint.left]
+    right_domain = domains[constraint.right]
+    if not left_domain or not right_domain:
+        return False
+    if constraint.operator is BinaryComparisonOperator.NOT_EQUAL:
+        left_singleton = next(iter(left_domain)) if len(left_domain) == 1 else None
+        right_singleton = next(iter(right_domain)) if len(right_domain) == 1 else None
+        if right_singleton is not None:
+            left_domain.discard(right_singleton)
+        if left_singleton is not None:
+            right_domain.discard(left_singleton)
+        return bool(left_domain and right_domain)
+    else:
+        left_values = {
+            term: _numeric_candidate(
+                constraint.operator.value,
+                constraint.name,
+                term,
+            )
+            for term in left_domain
+        }
+        right_values = {
+            term: _numeric_candidate(
+                constraint.operator.value,
+                constraint.name,
+                term,
+            )
+            for term in right_domain
+        }
+        maximum_right = max(right_values.values())
+        minimum_left = min(left_values.values())
+        if constraint.operator is BinaryComparisonOperator.LESS_EQUAL:
+            supported_left = {
+                term for term, left in left_values.items() if left <= maximum_right
+            }
+            supported_right = {
+                term for term, right in right_values.items() if minimum_left <= right
+            }
+        else:
+            supported_left = {
+                term for term, left in left_values.items() if left < maximum_right
+            }
+            supported_right = {
+                term for term, right in right_values.items() if minimum_left < right
+            }
+    left_domain.intersection_update(supported_left)
+    right_domain.intersection_update(supported_right)
+    return bool(left_domain and right_domain)
+
+
+def _revise_element(
+    constraint: ElementConstraint,
+    domains: dict[Term, set[Term]],
+) -> bool:
+    """Establish GAC for one-based ``value = array[index]``."""
+
+    index_domain = domains[constraint.index]
+    value_domain = domains[constraint.value]
+    if not index_domain or not value_domain:
+        return False
+    positions: dict[Term, int] = {}
+    for candidate in index_domain:
+        index = _integer_candidate("ELEMENT index", constraint.name, candidate)
+        if 1 <= index <= len(constraint.array):
+            positions[candidate] = index - 1
+    supported_indices = {
+        candidate
+        for candidate, position in positions.items()
+        if domains[constraint.array[position]] & value_domain
+    }
+    index_domain.intersection_update(supported_indices)
+    if not index_domain:
+        return False
+
+    selected_positions = {positions[candidate] for candidate in index_domain}
+    value_domain.intersection_update(
+        value
+        for position in selected_positions
+        for value in domains[constraint.array[position]]
+    )
+    if not value_domain:
+        return False
+
+    if len(selected_positions) == 1:
+        position = next(iter(selected_positions))
+        array_domain = domains[constraint.array[position]]
+        supported = array_domain & value_domain
+        array_domain.intersection_update(supported)
+        value_domain.intersection_update(supported)
+        if not array_domain or not value_domain:
+            return False
+    return True
+
+
+def _revise_count(
+    constraint: CountConstraint,
+    domains: dict[Term, set[Term]],
+) -> bool:
+    """Establish GAC for an occurrence count compared with a constant."""
+
+    if any(not domains[variable] for variable in constraint.variables):
+        return False
+    minimum = sum(
+        domains[variable] == {constraint.value} for variable in constraint.variables
+    )
+    maximum = sum(
+        constraint.value in domains[variable] for variable in constraint.variables
+    )
+    if not _interval_can_satisfy(
+        constraint.operator,
+        minimum,
+        maximum,
+        constraint.target,
+    ):
+        return False
+
+    for variable in constraint.variables:
+        domain = domains[variable]
+        other_minimum = minimum - (domain == {constraint.value})
+        other_maximum = maximum - (constraint.value in domain)
+        supported = set()
+        for candidate in domain:
+            contribution = candidate == constraint.value
+            if _interval_can_satisfy(
+                constraint.operator,
+                other_minimum + contribution,
+                other_maximum + contribution,
+                constraint.target,
+            ):
+                supported.add(candidate)
+        domain.intersection_update(supported)
+        if not domain:
+            return False
+    return True
+
+
+def _aggregate_accepts(
+    operator: ConstraintOperator,
+    value: int,
+    target: int,
+) -> bool:
+    if operator is ConstraintOperator.EQUAL:
+        return value == target
+    if operator is ConstraintOperator.LESS_EQUAL:
+        return value <= target
+    return value >= target
+
+
+def _interval_can_satisfy(
+    operator: ConstraintOperator,
+    minimum: int,
+    maximum: int,
+    target: int,
+) -> bool:
+    if operator is ConstraintOperator.EQUAL:
+        return minimum <= target <= maximum
+    if operator is ConstraintOperator.LESS_EQUAL:
+        return minimum <= target
+    return maximum >= target
+
+
+def _integer_candidate(kind: str, name: Atom, value: Term) -> int:
+    if (
+        not isinstance(value, Number)
+        or isinstance(value.value, bool)
+        or not isinstance(value.value, int)
+    ):
+        raise TypeError(
+            f"{kind} constraint {name.name!r} requires integer Number candidates"
+        )
+    return value.value
+
+
+def _numeric_candidate(
+    kind: str,
+    name: Atom,
+    value: Term,
+) -> int | float:
+    if (
+        not isinstance(value, Number)
+        or isinstance(value.value, bool)
+        or not isinstance(value.value, (int, float))
+        or not math.isfinite(value.value)
+    ):
+        raise TypeError(
+            f"{kind} constraint {name.name!r} requires numeric Number candidates"
+        )
+    return value.value
+
+
+def _revise_lex_less_equal(
+    constraint: LexLessEqualConstraint,
+    domains: dict[Term, set[Term]],
+) -> bool:
+    """Establish GAC for disjoint sequences, with safe alias-aware bounds."""
+
+    variables = constraint.variables
+    if any(not domains[variable] for variable in variables):
+        return False
+    numeric_domains = {
+        variable: {
+            value: _lex_numeric_value(constraint, value) for value in domains[variable]
+        }
+        for variable in variables
+    }
+    if len(variables) == 2 * len(constraint.left):
+        return _revise_disjoint_lex_less_equal(
+            constraint,
+            domains,
+            numeric_domains,
+        )
+    return _revise_aliased_lex_less_equal_bounds(
+        constraint,
+        domains,
+        numeric_domains,
+    )
+
+
+def _revise_disjoint_lex_less_equal(
+    constraint: LexLessEqualConstraint,
+    domains: dict[Term, set[Term]],
+    numeric_domains: Mapping[Term, Mapping[Term, int | float]],
+) -> bool:
+    """Establish GAC when every sequence position has distinct variables."""
+
+    size = len(constraint.left)
+    equality_possible = [False] * size
+    strict_possible = [False] * size
+    suffix_feasible = [False] * (size + 1)
+    suffix_feasible[size] = True
+    for position in range(size - 1, -1, -1):
+        left = constraint.left[position]
+        right = constraint.right[position]
+        equality_possible[position] = bool(domains[left] & domains[right])
+        strict_possible[position] = min(numeric_domains[left].values()) < max(
+            numeric_domains[right].values()
+        )
+        suffix_feasible[position] = strict_possible[position] or (
+            equality_possible[position] and suffix_feasible[position + 1]
+        )
+    if not suffix_feasible[0]:
+        return False
+
+    prefix_equal = True
+    prefix_less = False
+    for position, (left, right) in enumerate(
+        zip(constraint.left, constraint.right, strict=True)
+    ):
+        if not prefix_less:
+            left_min = min(numeric_domains[left].values())
+            right_max = max(numeric_domains[right].values())
+            supported_left = {
+                value
+                for value, numeric in numeric_domains[left].items()
+                if prefix_equal
+                and (
+                    numeric < right_max
+                    or (value in domains[right] and suffix_feasible[position + 1])
+                )
+            }
+            supported_right = {
+                value
+                for value, numeric in numeric_domains[right].items()
+                if prefix_equal
+                and (
+                    left_min < numeric
+                    or (value in domains[left] and suffix_feasible[position + 1])
+                )
+            }
+            domains[left].intersection_update(supported_left)
+            domains[right].intersection_update(supported_right)
+            if not domains[left] or not domains[right]:
+                return False
+        prefix_less = prefix_less or (prefix_equal and strict_possible[position])
+        prefix_equal = prefix_equal and equality_possible[position]
+    return True
+
+
+def _revise_aliased_lex_less_equal_bounds(
+    constraint: LexLessEqualConstraint,
+    domains: dict[Term, set[Term]],
+    numeric_domains: Mapping[Term, Mapping[Term, int | float]],
+) -> bool:
+    """Apply numeric bounds filtering at the first non-fixed position.
+
+    The linear propagator is intentionally conservative after an ambiguous
+    equality: representing both the equal and strictly-less continuations
+    would require reification. It is exact once the preceding pairs are fixed
+    equal, and is cheap enough for large symmetry-breaking vectors.
+    """
+
+    for left, right in zip(constraint.left, constraint.right, strict=True):
+        if left == right:
+            continue
+        left_values = numeric_domains[left]
+        right_values = numeric_domains[right]
+        left_min = min(left_values.values())
+        left_max = max(left_values.values())
+        right_min = min(right_values.values())
+        right_max = max(right_values.values())
+        if left_max < right_min:
+            return True
+        if left_min > right_max:
+            return False
+
+        domains[left].intersection_update(
+            value for value, numeric in left_values.items() if numeric <= right_max
+        )
+        domains[right].intersection_update(
+            value for value, numeric in right_values.items() if numeric >= left_min
+        )
+        if not domains[left] or not domains[right]:
+            return False
+        if len(domains[left]) == 1 and domains[left] == domains[right]:
+            continue
+        return True
+    return True
+
+
+def _lex_numeric_value(
+    constraint: LexLessEqualConstraint,
+    value: Term,
+) -> int | float:
+    if (
+        not isinstance(value, Number)
+        or isinstance(value.value, bool)
+        or not isinstance(value.value, (int, float))
+        or not math.isfinite(value.value)
+    ):
+        raise TypeError(
+            f"LEX_LESS_EQUAL constraint {constraint.name.name!r} requires "
+            "numeric Number candidates"
+        )
+    return value.value
+
+
+def _revise_nonnegative_sum_bitsets(
+    constraint: SumConstraint,
+    domains: dict[Term, set[Term]],
+    numeric_domains: list[tuple[Term, dict[Term, int]]],
+) -> bool:
+    """Compatibility entry point for the shared exact integer-sum filter."""
+    return _revise_integer_equality(constraint.target, domains, numeric_domains)
+
+
+def _bitset_sumset(left: int, right: int, limit: int) -> int:
+    """Return reachable pairwise sums up to *limit* as one bitset."""
+
+    if limit < 0:
+        return 0
+    if left.bit_count() > right.bit_count():
+        left, right = right, left
+    reachable = 0
+    candidates = left
+    while candidates:
+        least = candidates & -candidates
+        reachable |= right << (least.bit_length() - 1)
+        candidates ^= least
+    return reachable & ((1 << (limit + 1)) - 1)
+
+
+def _revise_gcc(
+    constraint: GlobalCardinalityConstraint,
+    domains: dict[Term, set[Term]],
+) -> bool:
+    scoped = {variable: domains[variable] for variable in constraint.variables}
+    explicit = {value: (lower, upper) for value, lower, upper in constraint.bounds}
+    if not _has_gcc_assignment(scoped, explicit):
+        return False
+    for variable in constraint.variables:
+        supported = {
+            value
+            for value in domains[variable]
+            if _has_gcc_assignment(
+                scoped,
+                explicit,
+                forced=(variable, value),
+            )
+        }
+        domains[variable].intersection_update(supported)
+        if not domains[variable]:
+            return False
+    return True
+
+
+def _revise_table(
+    constraint: TableConstraint,
+    domains: dict[Term, set[Term]],
+) -> bool:
+    active = tuple(
+        row
+        for row in constraint.allowed
+        if all(
+            value in domains[variable]
+            for variable, value in zip(
+                constraint.variables,
+                row,
+                strict=True,
+            )
+        )
+    )
+    if not active:
+        return False
+    for position, variable in enumerate(constraint.variables):
+        domains[variable].intersection_update(row[position] for row in active)
+        if not domains[variable]:
+            return False
+    return True
+
+
+def _has_gcc_assignment(
+    domains: Mapping[Term, set[Term]],
+    explicit_bounds: Mapping[Term, tuple[int, int]],
+    *,
+    forced: tuple[Term, Term] | None = None,
+) -> bool:
+    restricted = {variable: set(values) for variable, values in domains.items()}
+    if forced is not None:
+        variable, value = forced
+        if value not in restricted[variable]:
+            return False
+        restricted[variable] = {value}
+    if any(not values for values in restricted.values()):
+        return False
+
+    all_values = {
+        value for values in restricted.values() for value in values
+    } | explicit_bounds.keys()
+    size = len(restricted)
+    bounds = {value: explicit_bounds.get(value, (0, size)) for value in all_values}
+    if sum(lower for lower, _ in bounds.values()) > size:
+        return False
+    if sum(upper for _, upper in bounds.values()) < size:
+        return False
+
+    source = ("gcc-source",)
+    sink = ("gcc-sink",)
+    edges: list[tuple[object, object, int, int]] = []
+    for variable, values in restricted.items():
+        variable_node = ("variable", variable)
+        edges.append((source, variable_node, 1, 1))
+        edges.extend((variable_node, ("value", value), 0, 1) for value in values)
+    edges.extend(
+        (
+            ("value", value),
+            sink,
+            lower,
+            min(upper, size),
+        )
+        for value, (lower, upper) in bounds.items()
+    )
+    edges.append((sink, source, 0, size))
+    return _has_feasible_circulation(edges)
+
+
+@dataclass(slots=True)
+class _FlowEdge:
+    target: int
+    reverse: int
+    capacity: int
+
+
+def _has_feasible_circulation(
+    edges: list[tuple[object, object, int, int]],
+) -> bool:
+    nodes = {node for source, target, _, _ in edges for node in (source, target)}
+    super_source = ("super-source",)
+    super_sink = ("super-sink",)
+    nodes.update((super_source, super_sink))
+    indices = {node: index for index, node in enumerate(sorted(nodes, key=repr))}
+    graph: list[list[_FlowEdge]] = [[] for _ in indices]
+    demands = {node: 0 for node in nodes}
+
+    def add_edge(source: object, target: object, capacity: int) -> None:
+        source_index = indices[source]
+        target_index = indices[target]
+        forward = _FlowEdge(target_index, len(graph[target_index]), capacity)
+        backward = _FlowEdge(source_index, len(graph[source_index]), 0)
+        graph[source_index].append(forward)
+        graph[target_index].append(backward)
+
+    for source, target, lower, upper in edges:
+        if upper < lower:
+            return False
+        add_edge(source, target, upper - lower)
+        demands[source] -= lower
+        demands[target] += lower
+
+    required = 0
+    for node, demand in demands.items():
+        if node in {super_source, super_sink}:
+            continue
+        if demand > 0:
+            add_edge(super_source, node, demand)
+            required += demand
+        elif demand < 0:
+            add_edge(node, super_sink, -demand)
+    return (
+        _maximum_flow(
+            graph,
+            indices[super_source],
+            indices[super_sink],
+        )
+        == required
+    )
+
+
+def _maximum_flow(
+    graph: list[list[_FlowEdge]],
+    source: int,
+    sink: int,
+) -> int:
+    total = 0
+    while True:
+        levels = [-1] * len(graph)
+        levels[source] = 0
+        pending = deque((source,))
+        while pending:
+            node = pending.popleft()
+            for edge in graph[node]:
+                if edge.capacity > 0 and levels[edge.target] < 0:
+                    levels[edge.target] = levels[node] + 1
+                    pending.append(edge.target)
+        if levels[sink] < 0:
+            return total
+        positions = [0] * len(graph)
+
+        def send(
+            node: int,
+            available: int,
+            *,
+            phase_levels: list[int] = levels,
+            phase_positions: list[int] = positions,
+        ) -> int:
+            if node == sink:
+                return available
+            while phase_positions[node] < len(graph[node]):
+                edge = graph[node][phase_positions[node]]
+                if (
+                    edge.capacity > 0
+                    and phase_levels[edge.target] == phase_levels[node] + 1
+                ):
+                    sent = send(edge.target, min(available, edge.capacity))
+                    if sent:
+                        edge.capacity -= sent
+                        graph[edge.target][edge.reverse].capacity += sent
+                        return sent
+                phase_positions[node] += 1
+            return 0
+
+        while (sent := send(source, 1 << 60)) > 0:
+            total += sent

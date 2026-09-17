@@ -34,6 +34,7 @@ class _LifecycleAwareStrategy:
         facts: tuple[Fact, ...],
         delta: FactDelta | tuple[Fact, ...] | None = None,
     ) -> tuple[Activation, ...]:
+        assert isinstance(facts, tuple)
         return self.delegate.instantiate(rule, facts, delta)
 
     def invalidate(self, removed: frozenset[Fact] = frozenset()) -> None:
@@ -59,6 +60,7 @@ class _LegacyStrategy:
         facts: tuple[Fact, ...],
         delta: FactDelta | tuple[Fact, ...] | None = None,
     ) -> tuple[Activation, ...]:
+        assert isinstance(facts, tuple)
         return self.delegate.instantiate(rule, facts, delta)
 
     def invalidate(self, removed: frozenset[Fact] = frozenset()) -> None:

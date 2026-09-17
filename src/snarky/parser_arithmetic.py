@@ -9,8 +9,8 @@ from .expressions import (
     UnaryArithmeticExpression,
     UnaryArithmeticOperator,
 )
-from .parser_lexer import ParseError, _Token, _tokenize_arithmetic
-from .terms import Number, Variable
+from .parser_lexer import ParseError, _parse_number, _Token, _tokenize_arithmetic
+from .terms import Variable
 
 
 def parse_arithmetic_expression(text: str) -> NumericExpression:
@@ -66,8 +66,7 @@ def _parse_arithmetic_primary(
         raise ParseError("expected an arithmetic operand")
     token = tokens[position]
     if token.kind == "NUMBER":
-        value = float(token.value) if "." in token.value else int(token.value)
-        return Number(value), position + 1
+        return _parse_number(token.value), position + 1
     if token.kind == "VARIABLE":
         return Variable(token.value[1:]), position + 1
     if token.kind == "LPAREN":

@@ -1,0 +1,6 @@
+output ["{\n","  \"packed\" : ",concat(["[",join(", ",[showJSON(slice_1d(packed,[X_INTRODUCED_1183_..X_INTRODUCED_1183_,index_set_2of2(packed)],index_set_2of2(packed))) | X_INTRODUCED_1183_ in index_set_1of2(packed)]),"]"]),",\n  \"load\" : ",showJSON(load),"\n}\n"];
+set of int: bin = 1..13;
+array [bin] of int: load;
+set of int: item = 1..40;
+array [1..520] of int: X_INTRODUCED_0_;
+array [item,bin] of int: packed = array2d(1..40,1..13,X_INTRODUCED_0_);

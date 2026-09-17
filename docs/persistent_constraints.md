@@ -79,6 +79,56 @@ variable/value matching with Hopcroft–Karp and applies Régin-style alternatin
 graph filtering through strongly connected components and paths to free
 values.
 
+For scopes with at most 2,048 distinct candidate values, the alternating graph
+can use compact integer IDs and bitset reachability/component partitions. This
+path is selected for at most 64 values or at least four domain entries per value;
+larger sparse graphs and wider alphabets retain sparse traversal. Both paths
+establish the same exact
+supported values; the representation threshold does not weaken consistency.
+The IDs depend on the number of actual candidates, not on integer magnitude.
+See the [all-different performance report](performance_csp_alldiff_2026-09-16.md).
+
+### `NVALUE`
+
+`NValueConstraint(name, scope, count, constants=())` requires `count` to equal
+the number of distinct assigned scope values, including the literal `constants`.
+The count is a Python integer or a decision-variable name. Repeated scope
+references and constants are deduplicated; the count variable may occur in the
+scope. Empty scopes are permitted: without constants, their count is zero.
+Values may be arbitrary ground terms; a count variable has integer candidates.
+The class is exported by both `snarky.finite` and `csp_solver`.
+
+In a finite `MODEL` document:
+
+```text
+CONSTRAINT palette
+KIND NVALUE
+SCOPE SEQ[x y z]
+TARGET k
+CONSTANTS SEQ[red]
+END_CONSTRAINT
+```
+
+`TARGET 2` fixes the count; `CONSTANTS` is optional. In legacy fact-derived
+templates, use the usual `SCOPE ... FROM ... END_SCOPE` query and `TARGET`.
+Represent literal values there by singleton-domain variables. As with other
+fact-derived templates, an empty scope query produces no instance; explicit
+empty-scope constraints can be declared through Python or `MODEL`.
+
+Filtering combines mandatory values, disjoint-domain and cover-capacity lower
+bounds, a maximum-matching upper bound, forced occurrences, and tight-count
+specializations. Count one uses intersection; the maximum possible count uses
+the existing Régin all-different filter after removing literals. A bounded
+at-most-count cover search can prove infeasibility. Exhausting its budget leaves
+unproved candidates in place. This is sound filtering, **not general domain
+consistency**. Complete assignments are checked by an independent exact evaluator.
+Scratch state is local to each revision, and both runtimes restore reductions
+and their explanations on rollback. See the
+[NValue performance report](performance_csp_nvalue_2026-09-16.md).
+
+This persistent constraint is distinct from the existing `NVALUE ... OF SEQ[...]`
+matcher premise, which constrains one rule instantiation.
+
 ### `SUM`
 
 ```text
@@ -87,8 +137,10 @@ KIND SUM
 TARGET $integer
 ```
 
-The propagator computes exact reachable prefix and suffix sums. A candidate is
-retained only when the remaining variables can reach the complementary sum.
+The propagator computes exact reachable prefixes and backward completion sets.
+A candidate is retained only when the remaining variables can reach the
+complementary sum. Signed contributions are normalized; bounded spans use
+bitsets and wider spans use exact sparse sets.
 
 ### `LINEAR_SUM`
 
@@ -108,14 +160,16 @@ This constrains
 `coefficient[1] * variable[1] + ... + coefficient[n] * variable[n]`.
 Coefficients are signed, non-zero integers; variables are distinct and have
 integer `Number` domains. `OPERATOR` is `EQUAL`, `LESS_EQUAL`, or
-`GREATER_EQUAL`, and `TARGET` resolves to an integer. Exact reachable
-prefix/suffix sums establish GAC. For inequalities, an individual candidate
-has support precisely when the minimum or maximum reachable remainder can
-satisfy the bound.
+`GREATER_EQUAL`, and `TARGET` resolves to an integer. Exact prefix/backward
+support checks establish GAC for equality. For inequalities, an individual
+candidate has support precisely when the sum of the other variables' minimum
+or maximum contributions satisfies the bound; no reachable-sum table is needed.
 
-`SUM` remains the concise and bitset-optimized form for unit coefficients and
-equality. It is semantically equivalent to a `LINEAR_SUM` with every
-coefficient equal to one and `OPERATOR EQUAL`.
+`SUM` remains the concise form for unit coefficients and equality. It shares the
+exact equality kernel with `LINEAR_SUM` and is semantically equivalent to setting
+every coefficient to one and `OPERATOR EQUAL`. The
+[equality performance report](performance_csp_equality_2026-09-16.md) describes
+representation limits and the sparse fallback.
 
 ### Binary comparisons
 

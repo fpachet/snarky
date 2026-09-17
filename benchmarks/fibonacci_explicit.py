@@ -6,10 +6,10 @@ import argparse
 import json
 import platform
 import statistics
-from pathlib import Path
 from time import perf_counter
 from typing import Any
 
+from benchmarks.support import PROJECT_ROOT, git_commit, git_dirty
 from snarky import (
     AdaptiveInstantiationStrategy,
     Fact,
@@ -23,7 +23,6 @@ from snarky import (
     parse_term,
 )
 
-PROJECT_ROOT = Path(__file__).resolve().parents[1]
 RULES_PATH = (
     PROJECT_ROOT
     / "rulebases"
@@ -82,6 +81,8 @@ def main() -> None:
         "repeat": arguments.repeat,
         "python": platform.python_version(),
         "platform": platform.platform(),
+        "snarky_commit": git_commit(PROJECT_ROOT),
+        "snarky_dirty": git_dirty(PROJECT_ROOT),
     }
     if len(cases) == 1:
         payload.update(cases[0])

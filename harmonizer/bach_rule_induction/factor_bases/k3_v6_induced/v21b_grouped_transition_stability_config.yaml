@@ -1,0 +1,49 @@
+schema_version: 1
+id: K3-V21B-GROUPED-ROOT-TRANSITION-STABILITY-1
+status: FROZEN
+frozen_on: 2026-07-29
+purpose: >
+  Confirmer sur quatre plis disjoints le gain apparié observé par V21A pour
+  la table groupée, avec la plus forte pénalité V21A pratiquement équivalente
+  au meilleur point brut.
+
+baseline_model: v20b_identifiable_harmonic_status_sparse_model.json
+source_grammar: grammar_v20c_named_root_transitions.yaml
+source_exact_cache: ../../experiments/v5_k3_clean/work/k3-exact-v20c-catalogue-32x10.npz
+
+group:
+  id: named_root_transition_mode
+  feature_kind: central_named_root_transition_mode
+  size: 288
+  matrix_shape: [2, 12, 12]
+  identifiability:
+    row_sums_zero: true
+    column_sums_zero: true
+  l1_inside_group: 0.0
+  l2_group_scaled_by_sqrt_size: true
+
+estimation:
+  objective: exact_conditional_pseudolikelihood
+  optimizer: adam_plus_sparse_group_proximal
+  learning_rate: 0.02
+  steps_baseline_refit: 120
+  steps_per_group_penalty: 160
+  l1_baseline_by_clause_complexity: 0.001
+  l2: 0.001
+  group_penalty_path:
+    - 0.03
+
+selection:
+  criterion: out_of_fold_paired_bootstrap_after_aggregation
+  group_active_norm_threshold: 0.000001
+  paired_bootstrap_resamples: 100000
+  paired_bootstrap_seed: 21103
+
+provenance_guards:
+  penalty_frozen_from_v21a_before_fold_runs: true
+  fold_results_seen_before_penalty_choice: false
+  same_32_structure_pieces_as_v20b: true
+  individual_transition_marginals_copied: false
+  all_288_transition_cells_fit_jointly: true
+  generation_metrics_used_for_weight_learning: false
+  test_split_loaded: false

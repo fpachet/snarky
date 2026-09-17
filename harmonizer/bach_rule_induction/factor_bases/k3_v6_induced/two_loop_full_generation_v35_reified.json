@@ -1,0 +1,719 @@
+{
+  "experiment": {
+    "id": "K3-TWO-LOOP-FULL-SNARKY-GENERATION-1",
+    "status": "FULL_GENERATION",
+    "gibbs_used_for_generation": false,
+    "lower_voice_source_used_for_search": false,
+    "test_loaded": false
+  },
+  "fragment": {
+    "piece_id": "bach/bwv108.6",
+    "blocks": 63,
+    "end_offset": 52.0,
+    "generated_segments": 189,
+    "scored_segments": 183,
+    "soprano_imposed": true,
+    "rhythm_imposed": true,
+    "homorhythmic_soprano_grid": true,
+    "all_voices_share_soprano_attacks": true,
+    "choice_unit": "propagated_reified_chord_domain"
+  },
+  "model": {
+    "source": "/Users/francoispachet/IdeaProjects/boojum/harmonizer/bach_rule_induction/factor_bases/k3_v6_induced/v23_metric_harmony_full_model.json",
+    "factor_count": 57,
+    "weight_estimator": "joint_conditional_mle",
+    "constraint_count": 23,
+    "constraint_status": "EMPIRICAL_PRETEST_FILTER",
+    "constraint_mode": "v22",
+    "forward_check": true,
+    "factor_choice_semantics": "exact_incremental_conditional_pseudolikelihood",
+    "search_order": "chronological",
+    "voice_ranges": {
+      "1": [
+        55,
+        74
+      ],
+      "2": [
+        50,
+        68
+      ],
+      "3": [
+        36,
+        64
+      ]
+    },
+    "voice_range_status": "EXACT_TRAIN_SUPPORT",
+    "threshold": -1.4124634927143713,
+    "threshold_policy": "strict_minimum",
+    "score_floor_mode": "offline_audit",
+    "score_floor_enforced": false,
+    "sequence_factor": null,
+    "harmonic_budget": null,
+    "official_manual_budgets": {
+      "profile": "bach_empirical",
+      "status": "FROZEN_AFTER_TEST_REPORT",
+      "activation": "complete_branch_constraint"
+    },
+    "vertical_harmonization": {
+      "every_block_checked": true,
+      "allowed_named_quality_indices": [
+        0,
+        1
+      ],
+      "vocabulary": "consonant_triads",
+      "incomplete_major_minor_triads_allowed": true,
+      "harmonic_skeleton_imposed": false
+    }
+  },
+  "search": {
+    "status": "limit_reached",
+    "explored_nodes": 500,
+    "failed_branches": 433,
+    "backtracks": 433,
+    "score_rejections": 0,
+    "hard_constraint_rejections": 0,
+    "harmonic_dissonance_budget_rejections": 0,
+    "harmonic_chain_budget_rejections": 0,
+    "official_manual_budget_rejections": 433,
+    "official_manual_partial_rejections": 43,
+    "official_manual_complete_rejections": 390,
+    "official_manual_rejection_examples": [
+      {
+        "cause": "official_manual_empirical_budget",
+        "phase": "complete_snarky_audit",
+        "exceedances": [
+          {
+            "metric_id": "unresolved_leading_tone_ratio",
+            "scaled_value": 1000000,
+            "scaled_threshold": 781250,
+            "value": 1.0,
+            "threshold": 0.78125
+          },
+          {
+            "metric_id": "unresolved_suspension_ratio",
+            "scaled_value": 1000000,
+            "scaled_threshold": 800000,
+            "value": 1.0,
+            "threshold": 0.8
+          },
+          {
+            "metric_id": "alto_step_deficit",
+            "scaled_value": 1000000,
+            "scaled_threshold": 338984,
+            "value": 1.0,
+            "threshold": 0.338984
+          },
+          {
+            "metric_id": "tenor_step_deficit",
+            "scaled_value": 983333,
+            "scaled_threshold": 370371,
+            "value": 0.983333,
+            "threshold": 0.370371
+          },
+          {
+            "metric_id": "bass_step_deficit",
+            "scaled_value": 1000000,
+            "scaled_threshold": 494950,
+            "value": 1.0,
+            "threshold": 0.49495
+          }
+        ],
+        "hard_violations": [
+          {
+            "scope": "score",
+            "rule_id": "EMPIRICAL-JOINT-BUDGET"
+          },
+          {
+            "scope": "score",
+            "rule_id": "EMPIRICAL-GROUP-TENDENCY"
+          },
+          {
+            "scope": "score",
+            "rule_id": "EMPIRICAL-GROUP-CONJUNCT-MOTION"
+          }
+        ]
+      },
+      {
+        "cause": "official_manual_empirical_budget",
+        "phase": "complete_snarky_audit",
+        "exceedances": [
+          {
+            "metric_id": "unresolved_leading_tone_ratio",
+            "scaled_value": 1000000,
+            "scaled_threshold": 781250,
+            "value": 1.0,
+            "threshold": 0.78125
+          },
+          {
+            "metric_id": "unresolved_suspension_ratio",
+            "scaled_value": 1000000,
+            "scaled_threshold": 800000,
+            "value": 1.0,
+            "threshold": 0.8
+          },
+          {
+            "metric_id": "alto_step_deficit",
+            "scaled_value": 1000000,
+            "scaled_threshold": 338984,
+            "value": 1.0,
+            "threshold": 0.338984
+          },
+          {
+            "metric_id": "tenor_step_deficit",
+            "scaled_value": 983333,
+            "scaled_threshold": 370371,
+            "value": 0.983333,
+            "threshold": 0.370371
+          },
+          {
+            "metric_id": "bass_step_deficit",
+            "scaled_value": 1000000,
+            "scaled_threshold": 494950,
+            "value": 1.0,
+            "threshold": 0.49495
+          }
+        ],
+        "hard_violations": [
+          {
+            "scope": "score",
+            "rule_id": "EMPIRICAL-JOINT-BUDGET"
+          },
+          {
+            "scope": "score",
+            "rule_id": "EMPIRICAL-GROUP-TENDENCY"
+          },
+          {
+            "scope": "score",
+            "rule_id": "EMPIRICAL-GROUP-CONJUNCT-MOTION"
+          }
+        ]
+      },
+      {
+        "cause": "official_manual_empirical_budget",
+        "phase": "complete_snarky_audit",
+        "exceedances": [
+          {
+            "metric_id": "unresolved_leading_tone_ratio",
+            "scaled_value": 1000000,
+            "scaled_threshold": 781250,
+            "value": 1.0,
+            "threshold": 0.78125
+          },
+          {
+            "metric_id": "unresolved_suspension_ratio",
+            "scaled_value": 1000000,
+            "scaled_threshold": 800000,
+            "value": 1.0,
+            "threshold": 0.8
+          },
+          {
+            "metric_id": "alto_step_deficit",
+            "scaled_value": 1000000,
+            "scaled_threshold": 338984,
+            "value": 1.0,
+            "threshold": 0.338984
+          },
+          {
+            "metric_id": "tenor_step_deficit",
+            "scaled_value": 983333,
+            "scaled_threshold": 370371,
+            "value": 0.983333,
+            "threshold": 0.370371
+          },
+          {
+            "metric_id": "bass_step_deficit",
+            "scaled_value": 1000000,
+            "scaled_threshold": 494950,
+            "value": 1.0,
+            "threshold": 0.49495
+          }
+        ],
+        "hard_violations": [
+          {
+            "scope": "score",
+            "rule_id": "EMPIRICAL-JOINT-BUDGET"
+          },
+          {
+            "scope": "score",
+            "rule_id": "EMPIRICAL-GROUP-TENDENCY"
+          },
+          {
+            "scope": "score",
+            "rule_id": "EMPIRICAL-GROUP-CONJUNCT-MOTION"
+          }
+        ]
+      },
+      {
+        "cause": "official_manual_empirical_budget",
+        "phase": "complete_snarky_audit",
+        "exceedances": [
+          {
+            "metric_id": "unresolved_leading_tone_ratio",
+            "scaled_value": 1000000,
+            "scaled_threshold": 781250,
+            "value": 1.0,
+            "threshold": 0.78125
+          },
+          {
+            "metric_id": "unresolved_suspension_ratio",
+            "scaled_value": 1000000,
+            "scaled_threshold": 800000,
+            "value": 1.0,
+            "threshold": 0.8
+          },
+          {
+            "metric_id": "alto_step_deficit",
+            "scaled_value": 1000000,
+            "scaled_threshold": 338984,
+            "value": 1.0,
+            "threshold": 0.338984
+          },
+          {
+            "metric_id": "tenor_step_deficit",
+            "scaled_value": 983333,
+            "scaled_threshold": 370371,
+            "value": 0.983333,
+            "threshold": 0.370371
+          },
+          {
+            "metric_id": "bass_step_deficit",
+            "scaled_value": 1000000,
+            "scaled_threshold": 494950,
+            "value": 1.0,
+            "threshold": 0.49495
+          }
+        ],
+        "hard_violations": [
+          {
+            "scope": "score",
+            "rule_id": "EMPIRICAL-JOINT-BUDGET"
+          },
+          {
+            "scope": "score",
+            "rule_id": "EMPIRICAL-GROUP-TENDENCY"
+          },
+          {
+            "scope": "score",
+            "rule_id": "EMPIRICAL-GROUP-CONJUNCT-MOTION"
+          }
+        ]
+      },
+      {
+        "cause": "official_manual_empirical_budget",
+        "phase": "complete_snarky_audit",
+        "exceedances": [
+          {
+            "metric_id": "unresolved_leading_tone_ratio",
+            "scaled_value": 1000000,
+            "scaled_threshold": 781250,
+            "value": 1.0,
+            "threshold": 0.78125
+          },
+          {
+            "metric_id": "unresolved_suspension_ratio",
+            "scaled_value": 1000000,
+            "scaled_threshold": 800000,
+            "value": 1.0,
+            "threshold": 0.8
+          },
+          {
+            "metric_id": "alto_step_deficit",
+            "scaled_value": 1000000,
+            "scaled_threshold": 338984,
+            "value": 1.0,
+            "threshold": 0.338984
+          },
+          {
+            "metric_id": "tenor_step_deficit",
+            "scaled_value": 1000000,
+            "scaled_threshold": 370371,
+            "value": 1.0,
+            "threshold": 0.370371
+          },
+          {
+            "metric_id": "bass_step_deficit",
+            "scaled_value": 1000000,
+            "scaled_threshold": 494950,
+            "value": 1.0,
+            "threshold": 0.49495
+          }
+        ],
+        "hard_violations": [
+          {
+            "scope": "score",
+            "rule_id": "EMPIRICAL-JOINT-BUDGET"
+          },
+          {
+            "scope": "score",
+            "rule_id": "EMPIRICAL-GROUP-TENDENCY"
+          },
+          {
+            "scope": "score",
+            "rule_id": "EMPIRICAL-GROUP-CONJUNCT-MOTION"
+          }
+        ]
+      },
+      {
+        "cause": "official_manual_empirical_budget",
+        "phase": "complete_snarky_audit",
+        "exceedances": [
+          {
+            "metric_id": "unresolved_leading_tone_ratio",
+            "scaled_value": 1000000,
+            "scaled_threshold": 781250,
+            "value": 1.0,
+            "threshold": 0.78125
+          },
+          {
+            "metric_id": "unresolved_suspension_ratio",
+            "scaled_value": 1000000,
+            "scaled_threshold": 800000,
+            "value": 1.0,
+            "threshold": 0.8
+          },
+          {
+            "metric_id": "alto_step_deficit",
+            "scaled_value": 1000000,
+            "scaled_threshold": 338984,
+            "value": 1.0,
+            "threshold": 0.338984
+          },
+          {
+            "metric_id": "tenor_step_deficit",
+            "scaled_value": 983333,
+            "scaled_threshold": 370371,
+            "value": 0.983333,
+            "threshold": 0.370371
+          },
+          {
+            "metric_id": "bass_step_deficit",
+            "scaled_value": 1000000,
+            "scaled_threshold": 494950,
+            "value": 1.0,
+            "threshold": 0.49495
+          }
+        ],
+        "hard_violations": [
+          {
+            "scope": "score",
+            "rule_id": "EMPIRICAL-JOINT-BUDGET"
+          },
+          {
+            "scope": "score",
+            "rule_id": "EMPIRICAL-GROUP-TENDENCY"
+          },
+          {
+            "scope": "score",
+            "rule_id": "EMPIRICAL-GROUP-CONJUNCT-MOTION"
+          }
+        ]
+      },
+      {
+        "cause": "official_manual_empirical_budget",
+        "phase": "complete_snarky_audit",
+        "exceedances": [
+          {
+            "metric_id": "unresolved_leading_tone_ratio",
+            "scaled_value": 1000000,
+            "scaled_threshold": 781250,
+            "value": 1.0,
+            "threshold": 0.78125
+          },
+          {
+            "metric_id": "unresolved_suspension_ratio",
+            "scaled_value": 1000000,
+            "scaled_threshold": 800000,
+            "value": 1.0,
+            "threshold": 0.8
+          },
+          {
+            "metric_id": "alto_step_deficit",
+            "scaled_value": 1000000,
+            "scaled_threshold": 338984,
+            "value": 1.0,
+            "threshold": 0.338984
+          },
+          {
+            "metric_id": "tenor_step_deficit",
+            "scaled_value": 1000000,
+            "scaled_threshold": 370371,
+            "value": 1.0,
+            "threshold": 0.370371
+          },
+          {
+            "metric_id": "bass_step_deficit",
+            "scaled_value": 1000000,
+            "scaled_threshold": 494950,
+            "value": 1.0,
+            "threshold": 0.49495
+          }
+        ],
+        "hard_violations": [
+          {
+            "scope": "score",
+            "rule_id": "EMPIRICAL-JOINT-BUDGET"
+          },
+          {
+            "scope": "score",
+            "rule_id": "EMPIRICAL-GROUP-TENDENCY"
+          },
+          {
+            "scope": "score",
+            "rule_id": "EMPIRICAL-GROUP-CONJUNCT-MOTION"
+          }
+        ]
+      },
+      {
+        "cause": "official_manual_empirical_budget",
+        "phase": "complete_snarky_audit",
+        "exceedances": [
+          {
+            "metric_id": "unresolved_leading_tone_ratio",
+            "scaled_value": 1000000,
+            "scaled_threshold": 781250,
+            "value": 1.0,
+            "threshold": 0.78125
+          },
+          {
+            "metric_id": "unresolved_suspension_ratio",
+            "scaled_value": 1000000,
+            "scaled_threshold": 800000,
+            "value": 1.0,
+            "threshold": 0.8
+          },
+          {
+            "metric_id": "alto_step_deficit",
+            "scaled_value": 1000000,
+            "scaled_threshold": 338984,
+            "value": 1.0,
+            "threshold": 0.338984
+          },
+          {
+            "metric_id": "tenor_step_deficit",
+            "scaled_value": 983333,
+            "scaled_threshold": 370371,
+            "value": 0.983333,
+            "threshold": 0.370371
+          },
+          {
+            "metric_id": "bass_step_deficit",
+            "scaled_value": 1000000,
+            "scaled_threshold": 494950,
+            "value": 1.0,
+            "threshold": 0.49495
+          }
+        ],
+        "hard_violations": [
+          {
+            "scope": "score",
+            "rule_id": "EMPIRICAL-JOINT-BUDGET"
+          },
+          {
+            "scope": "score",
+            "rule_id": "EMPIRICAL-GROUP-TENDENCY"
+          },
+          {
+            "scope": "score",
+            "rule_id": "EMPIRICAL-GROUP-CONJUNCT-MOTION"
+          }
+        ]
+      },
+      {
+        "cause": "official_manual_empirical_budget",
+        "phase": "complete_snarky_audit",
+        "exceedances": [
+          {
+            "metric_id": "unresolved_leading_tone_ratio",
+            "scaled_value": 1000000,
+            "scaled_threshold": 781250,
+            "value": 1.0,
+            "threshold": 0.78125
+          },
+          {
+            "metric_id": "unresolved_suspension_ratio",
+            "scaled_value": 1000000,
+            "scaled_threshold": 800000,
+            "value": 1.0,
+            "threshold": 0.8
+          },
+          {
+            "metric_id": "alto_step_deficit",
+            "scaled_value": 1000000,
+            "scaled_threshold": 338984,
+            "value": 1.0,
+            "threshold": 0.338984
+          },
+          {
+            "metric_id": "tenor_step_deficit",
+            "scaled_value": 1000000,
+            "scaled_threshold": 370371,
+            "value": 1.0,
+            "threshold": 0.370371
+          },
+          {
+            "metric_id": "bass_step_deficit",
+            "scaled_value": 1000000,
+            "scaled_threshold": 494950,
+            "value": 1.0,
+            "threshold": 0.49495
+          }
+        ],
+        "hard_violations": [
+          {
+            "scope": "score",
+            "rule_id": "EMPIRICAL-JOINT-BUDGET"
+          },
+          {
+            "scope": "score",
+            "rule_id": "EMPIRICAL-GROUP-TENDENCY"
+          },
+          {
+            "scope": "score",
+            "rule_id": "EMPIRICAL-GROUP-CONJUNCT-MOTION"
+          }
+        ]
+      },
+      {
+        "cause": "official_manual_empirical_budget",
+        "phase": "complete_snarky_audit",
+        "exceedances": [
+          {
+            "metric_id": "unresolved_leading_tone_ratio",
+            "scaled_value": 1000000,
+            "scaled_threshold": 781250,
+            "value": 1.0,
+            "threshold": 0.78125
+          },
+          {
+            "metric_id": "unresolved_suspension_ratio",
+            "scaled_value": 1000000,
+            "scaled_threshold": 800000,
+            "value": 1.0,
+            "threshold": 0.8
+          },
+          {
+            "metric_id": "alto_step_deficit",
+            "scaled_value": 1000000,
+            "scaled_threshold": 338984,
+            "value": 1.0,
+            "threshold": 0.338984
+          },
+          {
+            "metric_id": "tenor_step_deficit",
+            "scaled_value": 1000000,
+            "scaled_threshold": 370371,
+            "value": 1.0,
+            "threshold": 0.370371
+          },
+          {
+            "metric_id": "bass_step_deficit",
+            "scaled_value": 1000000,
+            "scaled_threshold": 494950,
+            "value": 1.0,
+            "threshold": 0.49495
+          }
+        ],
+        "hard_violations": [
+          {
+            "scope": "score",
+            "rule_id": "EMPIRICAL-JOINT-BUDGET"
+          },
+          {
+            "scope": "score",
+            "rule_id": "EMPIRICAL-GROUP-TENDENCY"
+          },
+          {
+            "scope": "score",
+            "rule_id": "EMPIRICAL-GROUP-CONJUNCT-MOTION"
+          }
+        ]
+      }
+    ],
+    "homorhythmic_chord_rejections": 0,
+    "homorhythmic_chord_rejection_examples": [],
+    "provider_calls": 67,
+    "prefiltered_alternatives": 121,
+    "harmonic_budget_prefiltered": 0,
+    "forward_check_rejections": 0,
+    "empty_domains": 0,
+    "component_cache_entries": 0,
+    "hard_prefilter_cache_entries": 4089,
+    "batched_evaluation_cache_entries": 21294,
+    "reified_domain_propagation": {
+      "calls": 500,
+      "domain_removals": 9167,
+      "singleton_assignments": 0,
+      "empty_domains": 0,
+      "minimum_live_domain": 1,
+      "static_domain_sizes": [
+        274,
+        274,
+        274,
+        158,
+        206,
+        158,
+        206,
+        240,
+        250,
+        274,
+        250,
+        240,
+        250,
+        240,
+        206,
+        158,
+        206,
+        240,
+        250,
+        240,
+        250,
+        274,
+        274,
+        206,
+        206,
+        240,
+        250,
+        240,
+        206,
+        240,
+        250,
+        274,
+        256,
+        256,
+        240,
+        250,
+        240,
+        206,
+        158,
+        206,
+        240,
+        250,
+        274,
+        250,
+        240,
+        250,
+        240,
+        206,
+        158,
+        206,
+        240,
+        250,
+        158,
+        158,
+        158,
+        206,
+        206,
+        240,
+        250,
+        240,
+        206,
+        250,
+        274
+      ],
+      "compiled_pair_supports": 62
+    },
+    "batch_factor_evaluations": 225,
+    "factor_weighted_choices": 64,
+    "rejection_examples": []
+  }
+}

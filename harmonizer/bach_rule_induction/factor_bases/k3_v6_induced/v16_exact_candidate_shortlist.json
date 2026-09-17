@@ -1,0 +1,345 @@
+{
+  "experiment": {
+    "id": "F-K3-V16-EXACT-CANDIDATE-SHORTLIST",
+    "status": "CONDITIONAL_SHORTLIST_SCREENED_BY_GENERATIVE_ADMISSION",
+    "source_model": "/Users/francoispachet/IdeaProjects/boojum/harmonizer/bach_rule_induction/factor_bases/k3_v6_induced/v13_exact_directed_metric_model.json",
+    "grammar": "/Users/francoispachet/IdeaProjects/boojum/harmonizer/bach_rule_induction/factor_bases/k3_v6_induced/grammar_v14_directed_metric_trajectory.yaml",
+    "cache": "/Users/francoispachet/IdeaProjects/boojum/harmonizer/bach_rule_induction/experiments/v5_k3_clean/work/k3-exact-v14-catalogue-32x10.npz",
+    "catalogue_size": 3676,
+    "selected_factor_count": 30,
+    "admissible_count": 69,
+    "top_k": 12,
+    "kind_prefix": null,
+    "complexity_penalty": 1.0,
+    "minimum_opportunities": 100,
+    "minimum_piece_support": 10,
+    "structure_train_piece_count": 32,
+    "test_loaded": false
+  },
+  "candidates": [
+    {
+      "rank": 1,
+      "catalogue_index": 2745,
+      "family": "directed_pair_interval_metric_trajectory",
+      "feature": {
+        "kind": "central_pair_abs_class_metric_target_rearticulated",
+        "target_voice": 1,
+        "other_voice": 2,
+        "value": 7,
+        "second_value": 1,
+        "complexity": 4,
+        "key": "central_pair_abs_class_metric_target_rearticulated:1:2:7:1",
+        "label": "central_pair_abs_class_metric_target_rearticulated(v1,v2)=7,1"
+      },
+      "conditional": {
+        "gradient": 0.011969039801948278,
+        "variance": 66.32902190623447,
+        "z_score": 10.688606827418331,
+        "approximate_nll_gain": 0.007854139688652121,
+        "column_score": 0.002963764800625425,
+        "observed_mean": 0.46296296296296297,
+        "expected_mean": 0.3478163670905159,
+        "testable_opportunities": 756,
+        "piece_support": 32
+      },
+      "generative_admission": "PENDING"
+    },
+    {
+      "rank": 2,
+      "catalogue_index": 3652,
+      "family": "three_block_direction_shape",
+      "feature": {
+        "kind": "three_block_sign_shape",
+        "target_voice": 1,
+        "other_voice": null,
+        "value": 0,
+        "second_value": -1,
+        "complexity": 2,
+        "key": "three_block_sign_shape:1:-:0:-1",
+        "label": "three_block_sign_shape(v1)=0,-1"
+      },
+      "conditional": {
+        "gradient": 0.012905592054404745,
+        "variance": 113.81806164264964,
+        "z_score": 8.798039914587271,
+        "approximate_nll_gain": 0.005321429007195845,
+        "column_score": 0.0028762415631824975,
+        "observed_mean": 0.4328571428571429,
+        "expected_mean": 0.3658125921345101,
+        "testable_opportunities": 1400,
+        "piece_support": 32
+      },
+      "generative_admission": "PENDING"
+    },
+    {
+      "rank": 3,
+      "catalogue_index": 122,
+      "family": "voice_melodic_distance_threshold",
+      "feature": {
+        "kind": "abs_step_to_next_gt",
+        "target_voice": 1,
+        "other_voice": null,
+        "value": 1,
+        "second_value": null,
+        "complexity": 1,
+        "key": "abs_step_to_next_gt:1:-:1:-",
+        "label": "abs_step_to_next_gt(v1)=1"
+      },
+      "conditional": {
+        "gradient": 0.02035627531286509,
+        "variance": 368.7817168531024,
+        "z_score": 7.709517748817206,
+        "approximate_nll_gain": 0.004086117415050703,
+        "column_score": 0.002863523693044029,
+        "observed_mean": 1.2164705882352942,
+        "expected_mean": 1.1467994398350738,
+        "testable_opportunities": 2125,
+        "piece_support": 32
+      },
+      "generative_admission": "PENDING"
+    },
+    {
+      "rank": 4,
+      "catalogue_index": 825,
+      "family": "voice_pair_vertical_interval_class",
+      "feature": {
+        "kind": "central_pair_abs_class",
+        "target_voice": 1,
+        "other_voice": 3,
+        "value": 5,
+        "second_value": null,
+        "complexity": 1,
+        "key": "central_pair_abs_class:1:3:5:-",
+        "label": "central_pair_abs_class(v1,v3)=5"
+      },
+      "conditional": {
+        "gradient": -0.01173598565328624,
+        "variance": 132.1112505694628,
+        "z_score": -7.426142107671578,
+        "approximate_nll_gain": 0.0037912544069388745,
+        "column_score": 0.0025686606849322008,
+        "observed_mean": 0.08384458077709611,
+        "expected_mean": 0.10323922373468541,
+        "testable_opportunities": 4401,
+        "piece_support": 32
+      },
+      "generative_admission": "PENDING"
+    },
+    {
+      "rank": 5,
+      "catalogue_index": 317,
+      "family": "three_block_direction_shape",
+      "feature": {
+        "kind": "any_voice_three_block_sign_shape",
+        "target_voice": -1,
+        "other_voice": null,
+        "value": 0,
+        "second_value": -1,
+        "complexity": 2,
+        "key": "any_voice_three_block_sign_shape:-1:-:0:-1",
+        "label": "any_voice_three_block_sign_shape(all_voices)=0,-1"
+      },
+      "conditional": {
+        "gradient": 0.01913780923230168,
+        "variance": 268.9395782663389,
+        "z_score": 8.487473845454328,
+        "approximate_nll_gain": 0.004952372630088772,
+        "column_score": 0.002507185186075424,
+        "observed_mean": 0.5994813767090995,
+        "expected_mean": 0.5666691922332555,
+        "testable_opportunities": 4242,
+        "piece_support": 32
+      },
+      "generative_admission": "PENDING"
+    },
+    {
+      "rank": 6,
+      "catalogue_index": 787,
+      "family": "voice_pair_vertical_interval_class",
+      "feature": {
+        "kind": "central_pair_abs_class",
+        "target_voice": 0,
+        "other_voice": 3,
+        "value": 3,
+        "second_value": null,
+        "complexity": 1,
+        "key": "central_pair_abs_class:0:3:3:-",
+        "label": "central_pair_abs_class(v0,v3)=3"
+      },
+      "conditional": {
+        "gradient": 0.008848606761465542,
+        "variance": 84.00733115538425,
+        "z_score": 7.021499817039915,
+        "approximate_nll_gain": 0.003389348252488077,
+        "column_score": 0.0021667545304814026,
+        "observed_mean": 0.42526199669056813,
+        "expected_mean": 0.3897650761300944,
+        "testable_opportunities": 1813,
+        "piece_support": 32
+      },
+      "generative_admission": "PENDING"
+    },
+    {
+      "rank": 7,
+      "catalogue_index": 851,
+      "family": "voice_pair_vertical_interval_class",
+      "feature": {
+        "kind": "central_pair_abs_class",
+        "target_voice": 2,
+        "other_voice": 1,
+        "value": 7,
+        "second_value": null,
+        "complexity": 1,
+        "key": "central_pair_abs_class:2:1:7:-",
+        "label": "central_pair_abs_class(v2,v1)=7"
+      },
+      "conditional": {
+        "gradient": 0.013563230514854998,
+        "variance": 217.2389600777289,
+        "z_score": 6.692800395361662,
+        "approximate_nll_gain": 0.0030794429487249557,
+        "column_score": 0.0018568492267182818,
+        "observed_mean": 0.38499330058061637,
+        "expected_mean": 0.362964409215154,
+        "testable_opportunities": 4478,
+        "piece_support": 32
+      },
+      "generative_admission": "PENDING"
+    },
+    {
+      "rank": 8,
+      "catalogue_index": 36,
+      "family": "voice_melodic_interval_class",
+      "feature": {
+        "kind": "abs_class_from_previous",
+        "target_voice": 3,
+        "other_voice": null,
+        "value": 0,
+        "second_value": null,
+        "complexity": 1,
+        "key": "abs_class_from_previous:3:-:0:-",
+        "label": "abs_class_from_previous(v3)=0"
+      },
+      "conditional": {
+        "gradient": 0.01096219886597963,
+        "variance": 144.80659410636105,
+        "z_score": 6.62547614256668,
+        "approximate_nll_gain": 0.003017801052916283,
+        "column_score": 0.001795207330909609,
+        "observed_mean": 0.23600165906262963,
+        "expected_mean": 0.20293319271992122,
+        "testable_opportunities": 2411,
+        "piece_support": 32
+      },
+      "generative_admission": "PENDING"
+    },
+    {
+      "rank": 9,
+      "catalogue_index": 154,
+      "family": "universal_pair_motion",
+      "feature": {
+        "kind": "any_pair_arrival_abs_class_same_sign",
+        "target_voice": -1,
+        "other_voice": null,
+        "value": 10,
+        "second_value": null,
+        "complexity": 2,
+        "key": "any_pair_arrival_abs_class_same_sign:-1:-:10:-",
+        "label": "any_pair_arrival_abs_class_same_sign(all_voices)=10"
+      },
+      "conditional": {
+        "gradient": -0.018040884196613968,
+        "variance": 280.85551027589673,
+        "z_score": -7.829426147238733,
+        "approximate_nll_gain": 0.004214211040496738,
+        "column_score": 0.0017690235964833898,
+        "observed_mean": 0.040031771247021446,
+        "expected_mean": 0.060875512432402454,
+        "testable_opportunities": 6295,
+        "piece_support": 32
+      },
+      "generative_admission": "PENDING"
+    },
+    {
+      "rank": 10,
+      "catalogue_index": 871,
+      "family": "voice_pair_vertical_interval_class",
+      "feature": {
+        "kind": "central_pair_abs_class",
+        "target_voice": 3,
+        "other_voice": 0,
+        "value": 3,
+        "second_value": null,
+        "complexity": 1,
+        "key": "central_pair_abs_class:3:0:3:-",
+        "label": "central_pair_abs_class(v3,v0)=3"
+      },
+      "conditional": {
+        "gradient": 0.009067876445078962,
+        "variance": 102.65740607568493,
+        "z_score": 6.509146382023171,
+        "approximate_nll_gain": 0.002912758601856547,
+        "column_score": 0.001690164879849873,
+        "observed_mean": 0.4330153463293239,
+        "expected_mean": 0.4056612752446871,
+        "testable_opportunities": 2411,
+        "piece_support": 32
+      },
+      "generative_admission": "PENDING"
+    },
+    {
+      "rank": 11,
+      "catalogue_index": 2709,
+      "family": "directed_pair_interval_metric_trajectory",
+      "feature": {
+        "kind": "central_pair_abs_class_metric_target_rearticulated",
+        "target_voice": 1,
+        "other_voice": 0,
+        "value": 1,
+        "second_value": 1,
+        "complexity": 4,
+        "key": "central_pair_abs_class_metric_target_rearticulated:1:0:1:1",
+        "label": "central_pair_abs_class_metric_target_rearticulated(v1,v0)=1,1"
+      },
+      "conditional": {
+        "gradient": 0.002208060026318508,
+        "variance": 2.7191003733190295,
+        "z_score": 9.738943434329721,
+        "approximate_nll_gain": 0.0065204880528718515,
+        "column_score": 0.0016301131648451556,
+        "observed_mean": 0.22764227642276422,
+        "expected_mean": 0.09707950754947557,
+        "testable_opportunities": 123,
+        "piece_support": 28
+      },
+      "generative_admission": "PENDING"
+    },
+    {
+      "rank": 12,
+      "catalogue_index": 305,
+      "family": "universal_melodic_interval_class",
+      "feature": {
+        "kind": "any_voice_adjacent_abs_class",
+        "target_voice": -1,
+        "other_voice": null,
+        "value": 6,
+        "second_value": null,
+        "complexity": 1,
+        "key": "any_voice_adjacent_abs_class:-1:-:6:-",
+        "label": "any_voice_adjacent_abs_class(all_voices)=6"
+      },
+      "conditional": {
+        "gradient": -0.014444071800267915,
+        "variance": 271.2796869689105,
+        "z_score": -6.378147939245787,
+        "approximate_nll_gain": 0.002796698139344512,
+        "column_score": 0.001574104417337838,
+        "observed_mean": 0.051423071634813695,
+        "expected_mean": 0.0658671434350816,
+        "testable_opportunities": 7273,
+        "piece_support": 32
+      },
+      "generative_admission": "PENDING"
+    }
+  ]
+}

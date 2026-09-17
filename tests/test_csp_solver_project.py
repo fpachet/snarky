@@ -1,3 +1,5 @@
+from pathlib import Path
+
 from csp_solver.four_queens import (
     PROBLEM,
     n_queens_facts,
@@ -19,6 +21,13 @@ from csp_solver.magic_square import (
 from csp_solver.persistent_constraints import LexLessEqualConstraint
 from csp_solver.solver import BinaryCSP, FiniteCSP, assignment_from_solution
 from snarky import Atom, ChoiceSearchStatus
+
+
+def test_packaged_binary_rules_match_the_documented_rulebase() -> None:
+    root = Path(__file__).resolve().parents[1]
+    assert (root / "csp_solver/binary.rules").read_bytes() == (
+        root / "rulebases/constraints/binary/rules.rules"
+    ).read_bytes()
 
 
 def test_four_queens_finds_the_two_expected_solutions() -> None:

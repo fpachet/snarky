@@ -1,0 +1,854 @@
+{
+  "corpus": {
+    "candidate_max": 81,
+    "candidate_min": 36,
+    "manifest_summary": {
+      "article_selection": 352,
+      "augmented_transpositions": 2503,
+      "four_part_scores": 357,
+      "four_part_scores_without_simultaneous_notes": 354,
+      "historical_api_paths": 402
+    },
+    "test_pieces_reserved": 51,
+    "train_decisions": 68263,
+    "train_pieces": 251,
+    "validation_decisions": 13202,
+    "validation_pieces": 50
+  },
+  "experiment": {
+    "expert_constraints_loaded": false,
+    "generation_metrics_used_for_weight_learning": false,
+    "historical_rules_loaded": false,
+    "id": "K3-V18-UNANIMOUS-FULL-1",
+    "status": "FROZEN_EXPLANATORY_PRETEST",
+    "structure_reinduction_count": 5,
+    "test_loaded": false,
+    "train_decisions": 53604,
+    "train_pieces": 251,
+    "unanimous_structure_threshold": 5,
+    "validation_decisions": 10414,
+    "validation_pieces": 50
+  },
+  "model": {
+    "baseline_fit": {
+      "best_validation_nll": 2.406647620734676,
+      "history": [
+        {
+          "step": 0,
+          "train_nll": 2.4323314129523954,
+          "validation_nll": 2.459904712750552
+        },
+        {
+          "step": 1,
+          "train_nll": 2.4215383380809503,
+          "validation_nll": 2.4490002811978875
+        },
+        {
+          "step": 10,
+          "train_nll": 2.383193037134377,
+          "validation_nll": 2.410328378067891
+        },
+        {
+          "step": 20,
+          "train_nll": 2.3838406812272943,
+          "validation_nll": 2.4079537668320334
+        },
+        {
+          "step": 30,
+          "train_nll": 2.3847757879587017,
+          "validation_nll": 2.406647620734676
+        },
+        {
+          "step": 40,
+          "train_nll": 2.3855208082613775,
+          "validation_nll": 2.4072777839832766
+        },
+        {
+          "step": 50,
+          "train_nll": 2.3873378298908428,
+          "validation_nll": 2.4087578527514304
+        },
+        {
+          "step": 60,
+          "train_nll": 2.390576217810997,
+          "validation_nll": 2.411110816669621
+        },
+        {
+          "step": 70,
+          "train_nll": 2.39554419657437,
+          "validation_nll": 2.415321163427624
+        },
+        {
+          "step": 80,
+          "train_nll": 2.4021972026581757,
+          "validation_nll": 2.421417813076134
+        },
+        {
+          "step": 90,
+          "train_nll": 2.4101144926159495,
+          "validation_nll": 2.428942907506832
+        },
+        {
+          "step": 100,
+          "train_nll": 2.4186262924519815,
+          "validation_nll": 2.437114109988644
+        },
+        {
+          "step": 110,
+          "train_nll": 2.4264960143660557,
+          "validation_nll": 2.444703112051402
+        },
+        {
+          "step": 120,
+          "train_nll": 2.432683156628959,
+          "validation_nll": 2.4506792874774552
+        },
+        {
+          "step": 130,
+          "train_nll": 2.4368044453721605,
+          "validation_nll": 2.4546704310013054
+        },
+        {
+          "step": 140,
+          "train_nll": 2.439087308222721,
+          "validation_nll": 2.456865415637148
+        },
+        {
+          "step": 150,
+          "train_nll": 2.4400798348175106,
+          "validation_nll": 2.4578219618949566
+        },
+        {
+          "step": 160,
+          "train_nll": 2.440343274572738,
+          "validation_nll": 2.458072864935867
+        }
+      ]
+    },
+    "baseline_validation_nll": 2.406647620734676,
+    "fit": {
+      "best_validation_nll": 0.9818936690984992,
+      "history": [
+        {
+          "step": 0,
+          "train_nll": 2.4323314129523954,
+          "validation_nll": 2.459904712750552
+        },
+        {
+          "step": 1,
+          "train_nll": 2.3101504782500335,
+          "validation_nll": 2.3361824615392974
+        },
+        {
+          "step": 10,
+          "train_nll": 1.574049916364865,
+          "validation_nll": 1.589667923376226
+        },
+        {
+          "step": 20,
+          "train_nll": 1.2614605356269069,
+          "validation_nll": 1.265080317422643
+        },
+        {
+          "step": 30,
+          "train_nll": 1.14730576123138,
+          "validation_nll": 1.144765834425505
+        },
+        {
+          "step": 40,
+          "train_nll": 1.0928839174184672,
+          "validation_nll": 1.0878536052276928
+        },
+        {
+          "step": 50,
+          "train_nll": 1.0606266072471233,
+          "validation_nll": 1.0542717783175768
+        },
+        {
+          "step": 60,
+          "train_nll": 1.0402678268449128,
+          "validation_nll": 1.032428116276776
+        },
+        {
+          "step": 70,
+          "train_nll": 1.0271811540092095,
+          "validation_nll": 1.0178557357651077
+        },
+        {
+          "step": 80,
+          "train_nll": 1.0183359708207265,
+          "validation_nll": 1.0079047556762468
+        },
+        {
+          "step": 90,
+          "train_nll": 1.0118897713454738,
+          "validation_nll": 1.0007379645608991
+        },
+        {
+          "step": 100,
+          "train_nll": 1.0070154553645,
+          "validation_nll": 0.9953655868659866
+        },
+        {
+          "step": 110,
+          "train_nll": 1.003338815734047,
+          "validation_nll": 0.9912287759380317
+        },
+        {
+          "step": 120,
+          "train_nll": 1.0005481268353251,
+          "validation_nll": 0.9880273635082353
+        },
+        {
+          "step": 130,
+          "train_nll": 0.9984386826492323,
+          "validation_nll": 0.985594292133087
+        },
+        {
+          "step": 140,
+          "train_nll": 0.9969229274964075,
+          "validation_nll": 0.9838498265442651
+        },
+        {
+          "step": 150,
+          "train_nll": 0.9959035594933477,
+          "validation_nll": 0.9826625023626872
+        },
+        {
+          "step": 160,
+          "train_nll": 0.99527037808712,
+          "validation_nll": 0.9818936690984992
+        }
+      ]
+    },
+    "register_logits": [
+      [
+        -0.35064975194431425,
+        -0.35064975194431425,
+        -0.35064975194431425,
+        -0.35064975194431425,
+        -0.35064975194431425,
+        -0.35064975194431425,
+        -0.35064975194431425,
+        -0.35064975194431425,
+        -0.35064975194431425,
+        -0.35064975194431425,
+        -0.35064975194431425,
+        -0.35064975194431425,
+        -0.35064975194431425,
+        -0.35064975194431425,
+        -0.35064975194431425,
+        -0.35064975194431425,
+        -0.35064975194431425,
+        -0.35064975194431425,
+        -0.35064975194431425,
+        -0.35064975194431425,
+        -0.35064975194431425,
+        -0.35064975194431425,
+        -0.35064975194431425,
+        -0.35064975194431425,
+        -0.02493277472972085,
+        -0.002005716783660565,
+        0.04228699363179175,
+        -0.03900320301167526,
+        0.3453040998034001,
+        0.30400363003316305,
+        0.32487377659662225,
+        0.9886856855317144,
+        0.05284876218053012,
+        1.3089007360132707,
+        0.6125717093448259,
+        1.1310074592364823,
+        1.0805248508018332,
+        0.5960047811878503,
+        1.1204373749947898,
+        0.18280768544179718,
+        0.5458561392720374,
+        0.056378085587384996,
+        -0.06288226060303827,
+        -0.07914831226113059,
+        -0.034462727802362945,
+        -0.034462727802362945
+      ],
+      [
+        -0.5633141111506876,
+        -0.5528916234530398,
+        -0.5722867329939644,
+        -0.5515690686821157,
+        -0.56655073945111,
+        -0.5590406563787386,
+        -0.5568103057704216,
+        -0.5668847747174676,
+        -0.5503594352473962,
+        -0.5703366790899831,
+        -0.5539695548246246,
+        -0.5615942904574726,
+        -0.5647687780723829,
+        -0.5531485774969263,
+        -0.5781966836883371,
+        -0.5524300668988361,
+        -0.5742715742174485,
+        -0.07654830630723053,
+        -0.10697332744866707,
+        0.26390356780793356,
+        -0.14608895221530063,
+        0.8061800215380938,
+        0.295756436894276,
+        0.779257379035887,
+        0.7304473313658355,
+        0.7625914607014169,
+        1.1310216147195147,
+        0.7805546352986992,
+        1.1940370617667044,
+        0.9780503323152848,
+        1.1841007506699863,
+        1.2195636547251718,
+        0.7374476688823783,
+        1.0607644718652547,
+        0.8311040798055449,
+        0.5888676924025931,
+        0.350335878299991,
+        0.3099140060190953,
+        -0.16337136515639622,
+        -0.5585034507297378,
+        -0.5833194997404139,
+        -0.5635905049908988,
+        -0.5604534314221773,
+        -0.5686400528142855,
+        -0.5515679866239745,
+        -0.5764175140736263
+      ],
+      [
+        -0.573227440079966,
+        -0.5601336713828716,
+        -0.579651930020438,
+        -0.5595222684327954,
+        -0.5752497160771697,
+        -0.5684949593158775,
+        -0.5660265898463407,
+        -0.5779187336232718,
+        -0.5593751557566189,
+        -0.5847073976639908,
+        -0.5685464588890436,
+        -0.5808902511153121,
+        -0.18672665735940813,
+        -0.12147232159965611,
+        0.18805462239681306,
+        -0.04890470351608997,
+        0.39083733405505233,
+        0.5871985866409594,
+        0.895169224073379,
+        0.9815639463985937,
+        0.6339295457596599,
+        1.1954352685218632,
+        0.9820472637847446,
+        1.0297649329374023,
+        1.089394730673483,
+        0.7900267430488084,
+        1.3176004170655482,
+        0.7137539748218005,
+        1.1217698951230286,
+        0.8749493350458232,
+        0.7585166818935005,
+        0.6202571327795274,
+        0.023867901466858663,
+        -0.09337359044163653,
+        -0.5707632541390156,
+        -0.5868779002211457,
+        -0.577470415885122,
+        -0.5643313777750684,
+        -0.5847799393268436,
+        -0.5599310345951262,
+        -0.5830957527811772,
+        -0.5684777686951323,
+        -0.5692723833218158,
+        -0.5796854416226427,
+        -0.559251273550387,
+        -0.585979149452884
+      ],
+      [
+        -0.5940887527468988,
+        -0.330727464043639,
+        -0.46323609060903564,
+        -0.3230661186678022,
+        -0.47471843795211044,
+        0.11759298084631171,
+        -0.2035204413576206,
+        0.6912653466202923,
+        -0.07816136183142598,
+        0.7826997750633378,
+        0.5522693663474697,
+        0.7905622741660282,
+        0.6449692720548713,
+        0.7101134286571361,
+        0.9937704844057822,
+        0.6626132501875083,
+        0.9914976869019212,
+        0.7271631410933288,
+        1.094368122458548,
+        0.8905050958508037,
+        0.8859747920940982,
+        0.9857156976361426,
+        0.8435371036496562,
+        0.89687088038236,
+        0.7704365266846923,
+        0.4509655588651531,
+        0.3605738852710031,
+        -0.02109156967723301,
+        -0.2011288973735416,
+        -0.7163035806698322,
+        -0.7121120232975213,
+        -0.7325526166363749,
+        -0.6962493789235985,
+        -0.7368036027540811,
+        -0.7038531087557084,
+        -0.7160733841085913,
+        -0.7179583153223889,
+        -0.6985826234188018,
+        -0.7319823545632568,
+        -0.6957627510391803,
+        -0.7240934642460487,
+        -0.7093751455142986,
+        -0.7057564100823344,
+        -0.7268750204922113,
+        -0.6952629368264759,
+        -0.7341288183264336
+      ]
+    ],
+    "rules": [
+      {
+        "calls_other_rules": false,
+        "clause": "au moins deux voix adjacentes : \u00e9cart ordonn\u00e9 \u2264 2 demi-tons au bloc central",
+        "family": "ordered_voice_gap",
+        "feature": {
+          "complexity": 1,
+          "key": "any_adjacent_central_ordered_gap_le:-1:-:2:-",
+          "kind": "any_adjacent_central_ordered_gap_le",
+          "label": "any_adjacent_central_ordered_gap_le(all_voices)=2",
+          "other_voice": null,
+          "second_value": null,
+          "target_voice": -1,
+          "value": 2
+        },
+        "human_authored": false,
+        "id": "F-K3-V18-CORE-001",
+        "origin": "learned_from_bach_corpus",
+        "polarity": "avoidance",
+        "structure_selection_count": 5,
+        "structure_selection_total": 5,
+        "weight": -0.9213437515179658
+      },
+      {
+        "calls_other_rules": false,
+        "clause": "au moins une paire de voix : arrive par mouvement direct sur la classe d\u2019intervalle 2",
+        "family": "universal_pair_motion",
+        "feature": {
+          "complexity": 2,
+          "key": "any_pair_arrival_abs_class_same_sign:-1:-:2:-",
+          "kind": "any_pair_arrival_abs_class_same_sign",
+          "label": "any_pair_arrival_abs_class_same_sign(all_voices)=2",
+          "other_voice": null,
+          "second_value": null,
+          "target_voice": -1,
+          "value": 2
+        },
+        "human_authored": false,
+        "id": "F-K3-V18-CORE-002",
+        "origin": "learned_from_bach_corpus",
+        "polarity": "avoidance",
+        "structure_selection_count": 5,
+        "structure_selection_total": 5,
+        "weight": -1.0753163448537766
+      },
+      {
+        "calls_other_rules": false,
+        "clause": "au moins une paire de voix : conserve l\u2019intervalle de classe 0 par mouvement direct non nul",
+        "family": "universal_pair_motion",
+        "feature": {
+          "complexity": 4,
+          "key": "any_pair_abs_class_preserved_same_sign:-1:-:0:-",
+          "kind": "any_pair_abs_class_preserved_same_sign",
+          "label": "any_pair_abs_class_preserved_same_sign(all_voices)=0",
+          "other_voice": null,
+          "second_value": null,
+          "target_voice": -1,
+          "value": 0
+        },
+        "human_authored": false,
+        "id": "F-K3-V18-CORE-003",
+        "origin": "learned_from_bach_corpus",
+        "polarity": "avoidance",
+        "structure_selection_count": 5,
+        "structure_selection_total": 5,
+        "weight": -1.9312052243881486
+      },
+      {
+        "calls_other_rules": false,
+        "clause": "au moins une paire de voix : conserve l\u2019intervalle de classe 7 par mouvement direct non nul",
+        "family": "universal_pair_motion",
+        "feature": {
+          "complexity": 4,
+          "key": "any_pair_abs_class_preserved_same_sign:-1:-:7:-",
+          "kind": "any_pair_abs_class_preserved_same_sign",
+          "label": "any_pair_abs_class_preserved_same_sign(all_voices)=7",
+          "other_voice": null,
+          "second_value": null,
+          "target_voice": -1,
+          "value": 7
+        },
+        "human_authored": false,
+        "id": "F-K3-V18-CORE-004",
+        "origin": "learned_from_bach_corpus",
+        "polarity": "avoidance",
+        "structure_selection_count": 5,
+        "structure_selection_total": 5,
+        "weight": -1.8523170590339728
+      },
+      {
+        "calls_other_rules": false,
+        "clause": "au moins une paire de voix : intervalle vertical de classe 1 (seconde mineure modulo l\u2019octave)",
+        "family": "universal_vertical_interval_class",
+        "feature": {
+          "complexity": 1,
+          "key": "any_pair_central_abs_class:-1:-:1:-",
+          "kind": "any_pair_central_abs_class",
+          "label": "any_pair_central_abs_class(all_voices)=1",
+          "other_voice": null,
+          "second_value": null,
+          "target_voice": -1,
+          "value": 1
+        },
+        "human_authored": false,
+        "id": "F-K3-V18-CORE-005",
+        "origin": "learned_from_bach_corpus",
+        "polarity": "avoidance",
+        "structure_selection_count": 5,
+        "structure_selection_total": 5,
+        "weight": -1.3003690054803012
+      },
+      {
+        "calls_other_rules": false,
+        "clause": "au moins une paire de voix : intervalle vertical de classe 10 (septi\u00e8me mineure modulo l\u2019octave)",
+        "family": "universal_vertical_interval_class",
+        "feature": {
+          "complexity": 1,
+          "key": "any_pair_central_abs_class:-1:-:10:-",
+          "kind": "any_pair_central_abs_class",
+          "label": "any_pair_central_abs_class(all_voices)=10",
+          "other_voice": null,
+          "second_value": null,
+          "target_voice": -1,
+          "value": 10
+        },
+        "human_authored": false,
+        "id": "F-K3-V18-CORE-006",
+        "origin": "learned_from_bach_corpus",
+        "polarity": "avoidance",
+        "structure_selection_count": 5,
+        "structure_selection_total": 5,
+        "weight": -0.7549092189677968
+      },
+      {
+        "calls_other_rules": false,
+        "clause": "au moins une paire de voix : intervalle vertical de classe 11 (septi\u00e8me majeure modulo l\u2019octave)",
+        "family": "universal_vertical_interval_class",
+        "feature": {
+          "complexity": 1,
+          "key": "any_pair_central_abs_class:-1:-:11:-",
+          "kind": "any_pair_central_abs_class",
+          "label": "any_pair_central_abs_class(all_voices)=11",
+          "other_voice": null,
+          "second_value": null,
+          "target_voice": -1,
+          "value": 11
+        },
+        "human_authored": false,
+        "id": "F-K3-V18-CORE-007",
+        "origin": "learned_from_bach_corpus",
+        "polarity": "avoidance",
+        "structure_selection_count": 5,
+        "structure_selection_total": 5,
+        "weight": -1.5176767724974911
+      },
+      {
+        "calls_other_rules": false,
+        "clause": "au moins une paire de voix : intervalle vertical de classe 7 (quinte juste modulo l\u2019octave)",
+        "family": "universal_vertical_interval_class",
+        "feature": {
+          "complexity": 1,
+          "key": "any_pair_central_abs_class:-1:-:7:-",
+          "kind": "any_pair_central_abs_class",
+          "label": "any_pair_central_abs_class(all_voices)=7",
+          "other_voice": null,
+          "second_value": null,
+          "target_voice": -1,
+          "value": 7
+        },
+        "human_authored": false,
+        "id": "F-K3-V18-CORE-008",
+        "origin": "learned_from_bach_corpus",
+        "polarity": "preference",
+        "structure_selection_count": 5,
+        "structure_selection_total": 5,
+        "weight": 0.5264040913790811
+      },
+      {
+        "calls_other_rules": false,
+        "clause": "basse : r\u00e9p\u00e8te par une nouvelle attaque la note pr\u00e9c\u00e9dente",
+        "family": "attacked_repetition",
+        "feature": {
+          "complexity": 1,
+          "key": "attacked_repeat_from_previous:3:-:-:-",
+          "kind": "attacked_repeat_from_previous",
+          "label": "attacked_repeat_from_previous(v3)",
+          "other_voice": null,
+          "second_value": null,
+          "target_voice": 3,
+          "value": null
+        },
+        "human_authored": false,
+        "id": "F-K3-V18-CORE-009",
+        "origin": "learned_from_bach_corpus",
+        "polarity": "avoidance",
+        "structure_selection_count": 5,
+        "structure_selection_total": 5,
+        "weight": -1.927338029092405
+      },
+      {
+        "calls_other_rules": false,
+        "clause": "bloc central : 3 classes de hauteur distinctes",
+        "family": "vertical_cardinality",
+        "feature": {
+          "complexity": 1,
+          "key": "central_distinct_pc_count:-1:-:3:-",
+          "kind": "central_distinct_pc_count",
+          "label": "central_distinct_pc_count(all_voices)=3",
+          "other_voice": null,
+          "second_value": null,
+          "target_voice": -1,
+          "value": 3
+        },
+        "human_authored": false,
+        "id": "F-K3-V18-CORE-010",
+        "origin": "learned_from_bach_corpus",
+        "polarity": "preference",
+        "structure_selection_count": 5,
+        "structure_selection_total": 5,
+        "weight": 0.5123396758272062
+      },
+      {
+        "calls_other_rules": false,
+        "clause": "toutes voix : mouvement adjacent de classe 1 (seconde mineure modulo l\u2019octave)",
+        "family": "universal_melodic_interval_class",
+        "feature": {
+          "complexity": 1,
+          "key": "any_voice_adjacent_abs_class:-1:-:1:-",
+          "kind": "any_voice_adjacent_abs_class",
+          "label": "any_voice_adjacent_abs_class(all_voices)=1",
+          "other_voice": null,
+          "second_value": null,
+          "target_voice": -1,
+          "value": 1
+        },
+        "human_authored": false,
+        "id": "F-K3-V18-CORE-011",
+        "origin": "learned_from_bach_corpus",
+        "polarity": "preference",
+        "structure_selection_count": 5,
+        "structure_selection_total": 5,
+        "weight": 0.4709395016445084
+      },
+      {
+        "calls_other_rules": false,
+        "clause": "toutes voix : mouvement m\u00e9lodique sup\u00e9rieur \u00e0 2 demi-tons",
+        "family": "universal_melodic_distance_threshold",
+        "feature": {
+          "complexity": 1,
+          "key": "any_voice_adjacent_step_gt:-1:-:2:-",
+          "kind": "any_voice_adjacent_step_gt",
+          "label": "any_voice_adjacent_step_gt(all_voices)=2",
+          "other_voice": null,
+          "second_value": null,
+          "target_voice": -1,
+          "value": 2
+        },
+        "human_authored": false,
+        "id": "F-K3-V18-CORE-012",
+        "origin": "learned_from_bach_corpus",
+        "polarity": "avoidance",
+        "structure_selection_count": 5,
+        "structure_selection_total": 5,
+        "weight": -1.2703092914528544
+      },
+      {
+        "calls_other_rules": false,
+        "clause": "toutes voix : mouvement m\u00e9lodique sup\u00e9rieur \u00e0 7 demi-tons",
+        "family": "universal_melodic_distance_threshold",
+        "feature": {
+          "complexity": 1,
+          "key": "any_voice_adjacent_step_gt:-1:-:7:-",
+          "kind": "any_voice_adjacent_step_gt",
+          "label": "any_voice_adjacent_step_gt(all_voices)=7",
+          "other_voice": null,
+          "second_value": null,
+          "target_voice": -1,
+          "value": 7
+        },
+        "human_authored": false,
+        "id": "F-K3-V18-CORE-013",
+        "origin": "learned_from_bach_corpus",
+        "polarity": "avoidance",
+        "structure_selection_count": 5,
+        "structure_selection_total": 5,
+        "weight": -0.7886122886820256
+      },
+      {
+        "calls_other_rules": false,
+        "clause": "t\u00e9nor avec basse : intervalle vertical de classe 5 (quarte juste modulo l\u2019octave)",
+        "family": "voice_pair_vertical_interval_class",
+        "feature": {
+          "complexity": 1,
+          "key": "central_pair_abs_class:2:3:5:-",
+          "kind": "central_pair_abs_class",
+          "label": "central_pair_abs_class(v2,v3)=5",
+          "other_voice": 3,
+          "second_value": null,
+          "target_voice": 2,
+          "value": 5
+        },
+        "human_authored": false,
+        "id": "F-K3-V18-CORE-014",
+        "origin": "learned_from_bach_corpus",
+        "polarity": "avoidance",
+        "structure_selection_count": 5,
+        "structure_selection_total": 5,
+        "weight": -1.2176892213803086
+      }
+    ],
+    "tonal_logits": [
+      [
+        [
+          0.08309980552655345,
+          0.07840623138042221,
+          0.08530827392934179,
+          -0.6840315630003095,
+          0.09423843142332113,
+          0.04149279371753293,
+          0.00984067088971187,
+          0.07058040875679426,
+          0.07651641692421082,
+          0.03996486978102454,
+          0.07120160450827566,
+          0.033382056163120954
+        ],
+        [
+          0.004080502582572516,
+          0.004690192197643758,
+          0.002235643680031151,
+          0.0031806538756009852,
+          0.002174147664578208,
+          0.0031005962272777276,
+          -0.029540680477585374,
+          0.003949795837881769,
+          0.0006380610645234115,
+          0.001990132597760033,
+          0.0015678159256349467,
+          0.0019331388240808696
+        ]
+      ],
+      [
+        [
+          0.930136906689572,
+          -0.816517034624293,
+          0.6707590083367443,
+          -1.2662027317374243,
+          0.6853791906748314,
+          0.2606185808660301,
+          -0.21447602888677855,
+          0.8584002716153961,
+          -0.9964609761821899,
+          0.4980544848020672,
+          -1.2157369827146467,
+          0.6060453111606914
+        ],
+        [
+          0.6449246920302356,
+          -0.81545716882484,
+          0.30786983049384525,
+          0.5534413393782844,
+          -0.3985004210146341,
+          0.5430158569136112,
+          -1.05383174511389,
+          0.6625356549938535,
+          0.19502981813714532,
+          -0.6589208949001887,
+          0.14010713020346083,
+          -0.1202140922968831
+        ]
+      ],
+      [
+        [
+          0.74492392480071,
+          -0.9923672154154672,
+          0.7686859544719279,
+          -1.4582862364157199,
+          0.7970284653263379,
+          0.5628763079624352,
+          -0.5701300284224364,
+          0.9351162447798738,
+          -1.17202689459676,
+          0.6383399423260423,
+          -0.8781020537101422,
+          0.6239415888931987
+        ],
+        [
+          0.56911455644154,
+          -0.5096348169927248,
+          0.3862668169331418,
+          0.5893523575978504,
+          -0.9336885620618911,
+          0.6515583385198863,
+          -1.1687881962833628,
+          0.6352197791250583,
+          0.495560351515021,
+          -0.8434104193180417,
+          0.507333800169127,
+          -0.37888400564560437
+        ]
+      ],
+      [
+        [
+          0.9198963301906589,
+          -0.5907583355664495,
+          0.6485829696680763,
+          -1.2887854006845263,
+          0.6364651379948425,
+          0.17869522420765277,
+          -0.5293924033886348,
+          0.9104335785813554,
+          -0.6295731632543139,
+          0.782226842555016,
+          -1.4515057845553376,
+          0.4137150042516605
+        ],
+        [
+          0.8559424053405653,
+          -0.7640256543626576,
+          0.22202331530926134,
+          0.6239681019308325,
+          -0.5321653765004404,
+          0.5189290142769645,
+          -1.1693166357014833,
+          0.696290971530722,
+          0.33458595572791405,
+          -0.6941908625196984,
+          0.37359280305696774,
+          -0.4656340380889479
+        ]
+      ]
+    ],
+    "train_nll": 0.99527037808712,
+    "validation_nll": 0.9818936690984992,
+    "validation_nll_gain": 1.424753951636177
+  }
+}

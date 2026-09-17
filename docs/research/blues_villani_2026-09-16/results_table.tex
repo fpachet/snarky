@@ -1,0 +1,19 @@
+\begin{table}[htbp]
+\centering
+\small
+\begin{tabular}{llrrr}
+\hline
+Corpus & Control & $\log P$ & Time (s) & Nodes \\
+\hline
+Source-faithful & ordinary & -20.536927 & 0.965 & 22 \\
+Source-faithful & exotic & -28.051704 & 1.802 & 22 \\
+Three-family proposed & ordinary & -20.428036 & 0.650 & 22 \\
+Three-family proposed & exotic & -28.191003 & 1.200 & 22 \\
+Two-family proposed & ordinary & -20.428036 & 0.586 & 22 \\
+Two-family proposed & exotic & -28.213666 & 1.131 & 22 \\
+Two-family proposed & boulez & -46.921592 & 1.732 & 209 \\
+\hline
+\end{tabular}
+\caption{Exact first-order Blues optimization on the documented LSDB corpus variants. All runs prove optimality. Times are medians of three runs, including native preparation and search but excluding training and model construction. Boulez uses the later assignment bound; ordinary and exotic rows preserve earlier count-aware measurements. The rows do not constitute a common-version speed comparison.}
+\label{tab:snarky-blues-results}
+\end{table}

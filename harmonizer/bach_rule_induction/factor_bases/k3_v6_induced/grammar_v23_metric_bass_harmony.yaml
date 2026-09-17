@@ -1,0 +1,52 @@
+schema_version: 1
+id: K3-V23-METRIC-BASS-HARMONY-GRAMMAR-1
+status: FROZEN
+frozen_on: 2026-07-29
+extends: grammar_v22_shared_root_motion.yaml
+purpose: >
+  Ajouter deux groupes compacts et interprétables au modèle V22 : la
+  déviation tonale de la basse sur temps fort et la famille d'accord unique
+  avec son renversement sur temps fort. Le profil tonal général de la basse
+  reste dans le niveau de base ; les nouvelles cellules ne représentent que
+  des déviations métriques.
+
+extensions:
+  bass_tonal_strong_mode_features: true
+  unique_chord_family_inversion_strong_features: true
+
+additional_generated_relations:
+  - bass_tonic_relative_pitch_class_on_strong_beat_by_mode
+  - strict_unique_named_chord_family_and_inversion_on_strong_beat
+
+families:
+  - id: bass_tonal_strong_mode
+    feature_kinds:
+      - central_bass_tonal_strong_mode
+    modes: [major, minor]
+    tonic_relative_pitch_classes: {range: [0, 11]}
+    role: learned_metric_deviation
+    complexity: 2
+  - id: unique_chord_family_inversion_strong
+    feature_kinds:
+      - central_unique_chord_family_inversion_strong
+    chord_families:
+      - consonant_triad
+      - altered_triad
+      - common_seventh
+      - altered_seventh
+    requires_unique_named_analysis: true
+    metric: strong
+    complexity: 3
+
+structure_learning:
+  maximum_clause_complexity: 4
+
+provenance_guards:
+  baseline_model: V22
+  bass_general_tonal_profile_duplicated: false
+  chord_ambiguities_assigned_arbitrarily: false
+  all_cells_generated_symmetrically: true
+  group_cells_preselected_from_validation: false
+  parameter_count_added_before_coverage_filter: 38
+  generation_metrics_used_for_weight_learning: false
+  test_split_loaded: false

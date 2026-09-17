@@ -10,6 +10,10 @@ A term is an immutable `Atom`, `Number`, `Variable`, `Status`,
 `FiniteSequence`, `FiniteSet`, `Triple`, or `Proposition`. Compound terms are
 recursive. All terms are structurally comparable and hashable.
 
+Numeric terms are finite integers or floats. Non-finite floats are rejected;
+decimal exponent notation such as `1e-7` and `2E+3` is supported in terms and
+arithmetic expressions. Overflow in arithmetic raises `ArithmeticEvaluationError`.
+
 `FiniteSequence` is ordered and retains duplicates. `FiniteSet` removes
 duplicates and compares independently of insertion order, while retaining its
 first insertion order for deterministic rendering.
@@ -57,6 +61,33 @@ window and combination premises may produce multiple activations.
 Computed premises call only explicitly registered pure `ComputedPredicate`
 objects. Snarky never evaluates arbitrary source text.
 
+## Learned factors
+
+A `FactorDefinition` is a Boolean premise conjunction and a scope template.
+A `FactorParameter` stores its learned finite log weight separately. Pairing
+them creates a `WeightedFactor`; a `FactorGroup` is not a `RuleGroup`.
+
+Factor evaluation takes an immutable fact snapshot and returns ground
+`FactorActivation` values. It never fires actions and never adds activations
+to working memory. Multiple witnesses resolving to the same
+`(factor, scope)` are one grounding and contribute once:
+
+```text
+log_score = sum(log_weight of each active grounding)
+```
+
+Changing a parameter changes this score but not the activation vector.
+Changing the learned factor structure changes the vector and is therefore a
+separate, explicitly versioned learning operation.
+
+Hard constraints remain propagators defining feasibility. Learned factors
+define preferences among configurations; neither mechanism silently changes
+the semantics of the other. Turning factor scores into conditionals and
+sampling them is an inference-layer operation, not a factor side effect.
+The remaining formalization, language-integrated learning interface, generic
+factor-to-choice bridge, and exact toy oracles are tracked in the
+[learned-factor language plan](learned_factor_language_plan.md).
+
 ## Actions
 
 Supported actions are `ADD`, `REMOVE`, `LET`, `FRESH`, `FOR EACH`, and
@@ -102,6 +133,8 @@ Optimized strategies must produce the same observable activations:
 
 - indexed instantiation maintains exact fact buckets and compiled patterns;
 - semi-naive instantiation evaluates only joins containing a newly added fact;
+- safe factorized event instantiation anchors a positive conjunction on an
+  added fact and retrieves its remaining supports through exact indexes;
 - constraint instantiation narrows finite domains and compact premise tables
   before exact matching;
 - adaptive instantiation selects constraint filtering only when its estimated
@@ -115,6 +148,13 @@ existential witnesses, aggregate counts, and domain tables update from this
 delta. Removing a support invalidates the corresponding memories; adding
 facts causes any potentially broadened constraint component to be safely
 reconsidered.
+
+Factorized event instantiation does not change source-order comparison
+semantics. It is available only when every comparison operand was already
+bound by preceding textual fact premises and at least one later fact premise
+exists. Rules containing `FOCUS`, queries, aggregates, binding or combination
+premises are excluded. Addition deltas use the specialized plan; removals and
+mixed deltas fall back to complete or memory-backed evaluation.
 
 Constraint filtering is monotone during one evaluation and cannot remove a
 valid activation. Exact ground matching remains the final oracle.
@@ -202,6 +242,10 @@ with equivalent logical state.
 `ForwardEngine(rules).run(facts)` is the convenience form that creates a fresh
 session and saturates an implicit `default` group.
 
+Materialized session and group results contain isolated provenance copies,
+so later mutation or rollback cannot change a saved explanation. Internal
+clients may skip materialization with `run_group(..., materialize_result=False)`.
+
 ## Explicit search
 
 Forward chaining never introduces implicit problem-level backtracking.
@@ -259,6 +303,11 @@ forward chaining; it does not create hypotheses or search branches.
 Initial facts have proof depth zero. A derivation records its group, rule,
 substitution, premise facts, cycle, and proof depth. Multiple derivations may
 support one fact, and `proof_depth` returns the shortest known proof.
+
+Assuming a previously derived fact lowers its minimum depth to zero and
+updates dependent minimum depths reversibly. Historical derivation records
+keep their depths at firing time; `Provenance.depth()` and
+`minimal_derivation()` use the currently known minimum premise depths.
 
 Every effective addition or removal also produces a chronological
 `InferenceEvent`. Events remain available after later removals so a

@@ -1,0 +1,8 @@
+output ["{\n","  \"packed\" : ",concat(["[",join(", ",[showJSON(slice_1d(packed,[X_INTRODUCED_308_..X_INTRODUCED_308_,index_set_2of2(packed)],index_set_2of2(packed))) | X_INTRODUCED_308_ in index_set_1of2(packed)]),"]"]),",\n  \"load\" : ",showJSON(load),",\n  \"used\" : ",showJSON(used),",\n  \"objective\" : ",showJSON(objective),"\n}\n"];
+int: objective;
+set of int: bin = 1..6;
+array [bin] of int: used;
+array [bin] of int: load;
+set of int: item = 1..20;
+array [1..120] of int: X_INTRODUCED_0_;
+array [item,bin] of int: packed = array2d(1..20,1..6,X_INTRODUCED_0_);

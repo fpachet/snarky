@@ -1,0 +1,103 @@
+schema_version: 1
+id: R-LEARNED-V18-010
+title: 'bloc central : 3 classes de hauteur distinctes'
+lifecycle: SUPPORTED_PRETEST
+status: PREFER
+statement: 'bloc central : 3 classes de hauteur distinctes'
+scope:
+  voices: SATB
+  window:
+  - previous
+  - current
+  - following
+  attack_hold_semantics: true
+  corpus: music21-3.1.0-deepbach-352
+  split: variant-safe-251-50-51
+normalized_feature:
+  complexity: 1
+  key: central_distinct_pc_count:-1:-:3:-
+  kind: central_distinct_pc_count
+  label: central_distinct_pc_count(all_voices)=3
+  other_voice: null
+  second_value: null
+  target_voice: -1
+  value: 3
+conclusion:
+  kind: prefer
+  log_weight: 0.5123396758272062
+  absolute_prohibition: false
+selection:
+  complete_reinductions: 5
+  selected_in: 5
+  unanimous: true
+  calls_other_rules: false
+statistics:
+  train:
+    pieces: 251
+    decisions: 53604
+    testable_opportunities: 53438
+    piece_support: 251
+    observed_mean_on_testable: 2.2326621505295856
+    model_expected_mean_on_testable: 2.2321670493852253
+    postfit_residual_gradient: 0.0004935679231460806
+    postfit_residual_z: 0.3210769179559952
+  validation:
+    pieces: 50
+    decisions: 10414
+    testable_opportunities: 10391
+    piece_support: 50
+    observed_mean_on_testable: 2.2119141564815705
+    model_expected_mean_on_testable: 2.219267409631132
+    postfit_residual_gradient: -0.0073370130091312815
+    postfit_residual_z: -2.0892825395464256
+  test:
+    opened: false
+provenance:
+  model: v18_unanimous_full_model.json
+  structure_audit: v18_structure_stability.json
+  origin: learned_from_bach_corpus
+  human_authored: false
+  historical_rules_loaded: false
+snarky_factor:
+  file: ../../factor_bases/k3_v6_induced/v18_unanimous_full.factors
+  factor_group: k3_v18_unanimous
+  factor_id: F-K3-V18-CORE-010
+bach_examples:
+- piece: bach/bwv363
+  decision_ordinal: 67
+  voice: alto
+  chosen_midi: 67
+  chosen_activation_count: 7
+  maximum_alternative_activation_count: 7
+- piece: bach/bwv308
+  decision_ordinal: 41
+  voice: alto
+  chosen_midi: 65
+  chosen_activation_count: 6
+  maximum_alternative_activation_count: 6
+- piece: bach/bwv291
+  decision_ordinal: 80
+  voice: alto
+  chosen_midi: 65
+  chosen_activation_count: 6
+  maximum_alternative_activation_count: 6
+validation_exceptions:
+- piece: bach/bwv111.6
+  decision_ordinal: 44
+  voice: alto
+  chosen_midi: 64
+  chosen_activation_count: 0
+  maximum_alternative_activation_count: 1
+- piece: bach/bwv151.5
+  decision_ordinal: 110
+  voice: bass
+  chosen_midi: 50
+  chosen_activation_count: 0
+  maximum_alternative_activation_count: 1
+- piece: bach/bwv162.6-lpz
+  decision_ordinal: 171
+  voice: bass
+  chosen_midi: 55
+  chosen_activation_count: 0
+  maximum_alternative_activation_count: 1
+deepbach_counterexamples: []

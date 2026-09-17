@@ -1,0 +1,1741 @@
+{
+  "comparison": {
+    "gain_vs_v6_structure": 0.05062094012519558,
+    "iteration2_validation_nll": 1.241166012074241,
+    "tonal_baseline_validation_nll": 2.422314652559177,
+    "v6_structure_train_nll": 1.043839187209056,
+    "v6_structure_validation_nll": 1.0489351152972142
+  },
+  "corpus": {
+    "candidate_max": 81,
+    "candidate_min": 36,
+    "manifest_summary": {
+      "article_selection": 352,
+      "augmented_transpositions": 2503,
+      "four_part_scores": 357,
+      "four_part_scores_without_simultaneous_notes": 354,
+      "historical_api_paths": 402
+    },
+    "test_pieces_reserved": 51,
+    "train_decisions": 68263,
+    "train_pieces": 251,
+    "validation_decisions": 13202,
+    "validation_pieces": 50
+  },
+  "experiment": {
+    "base_factor_count": 30,
+    "candidate_count": 46,
+    "expert_constraints_loaded": false,
+    "factor_count": 48,
+    "frozen_weights": 0,
+    "generative_reference": "/Users/francoispachet/IdeaProjects/boojum/harmonizer/bach_rule_induction/factor_bases/k3_v6_induced/v6_train64_multimetric_iteration2_model.json",
+    "historical_rules_loaded": false,
+    "id": "F-K3-V8-JOINT-PSEUDOLIKELIHOOD",
+    "initialization": "v6_pseudolikelihood_weights_plus_zero_residuals",
+    "l1": 0.0005,
+    "l2": 0.001,
+    "learning_rate": 0.03,
+    "maximum_steps": 100,
+    "objective": "regularized_conditional_pseudolikelihood",
+    "optimizer": "adam_with_proximal_l1",
+    "residual_factor_count": 18,
+    "residual_source": "/Users/francoispachet/IdeaProjects/boojum/harmonizer/bach_rule_induction/factor_bases/k3_v6_induced/v6_iteration3_residual_feature_diagnostic.json",
+    "source_structure_model": "/Users/francoispachet/IdeaProjects/boojum/harmonizer/bach_rule_induction/factor_bases/k3_v6_induced/v6_induced_model.json",
+    "promotion_decision": {
+      "conditional_role": "BEST_CONDITIONAL_REFERENCE",
+      "decision": "REJECTED_AS_GENERATOR",
+      "reason": "excessive_stepwise_and_chromatic_bass_at_6_and_30_sweeps"
+    },
+    "status": "CONDITIONAL_REFERENCE_GENERATIVE_REJECTED",
+    "test_loaded": false,
+    "test_pieces_reserved": 51,
+    "train_decisions": 68263,
+    "train_pieces": 251,
+    "validation_decisions": 13202,
+    "validation_pieces": 50
+  },
+  "model": {
+    "active_weights_at_005": 46,
+    "fit": {
+      "best_validation_nll": 0.9983141751720186,
+      "history": [
+        {
+          "active_weights": 30,
+          "step": 0,
+          "train_nll": 1.043839187209056,
+          "validation_nll": 1.0489351152972142
+        },
+        {
+          "active_weights": 30,
+          "step": 1,
+          "train_nll": 1.0390003079353975,
+          "validation_nll": 1.0434587258540677
+        },
+        {
+          "active_weights": 47,
+          "step": 10,
+          "train_nll": 1.016219628237929,
+          "validation_nll": 1.0190358203974077
+        },
+        {
+          "active_weights": 46,
+          "step": 20,
+          "train_nll": 1.0058236558259308,
+          "validation_nll": 1.0073981307048574
+        },
+        {
+          "active_weights": 44,
+          "step": 30,
+          "train_nll": 0.9996440162468585,
+          "validation_nll": 1.00139897043733
+        },
+        {
+          "active_weights": 45,
+          "step": 40,
+          "train_nll": 0.9973423700765413,
+          "validation_nll": 0.9990223285536822
+        },
+        {
+          "active_weights": 46,
+          "step": 50,
+          "train_nll": 0.9969459185072683,
+          "validation_nll": 0.998354530651751
+        },
+        {
+          "active_weights": 46,
+          "step": 60,
+          "train_nll": 0.9966928589727213,
+          "validation_nll": 0.9983141751720186
+        },
+        {
+          "active_weights": 46,
+          "step": 70,
+          "train_nll": 0.996703455586129,
+          "validation_nll": 0.9984529590115713
+        },
+        {
+          "active_weights": 46,
+          "step": 80,
+          "train_nll": 0.9968235698180966,
+          "validation_nll": 0.9985729153758153
+        },
+        {
+          "active_weights": 46,
+          "step": 90,
+          "train_nll": 0.9969700281141739,
+          "validation_nll": 0.9987295127024157
+        },
+        {
+          "active_weights": 46,
+          "step": 100,
+          "train_nll": 0.9970483853905784,
+          "validation_nll": 0.9988601548701497
+        }
+      ]
+    },
+    "register_logits": [
+      [
+        -10.285820496587245,
+        -10.285820496587245,
+        -10.285820496587245,
+        -10.285820496587245,
+        -10.285820496587245,
+        -10.285820496587245,
+        -10.285820496587245,
+        -10.285820496587245,
+        -10.285820496587245,
+        -10.285820496587245,
+        -10.285820496587245,
+        -10.285820496587245,
+        -10.285820496587245,
+        -10.285820496587245,
+        -10.285820496587245,
+        -10.285820496587245,
+        -10.285820496587245,
+        -10.285820496587245,
+        -10.285820496587245,
+        -10.285820496587245,
+        -10.285820496587245,
+        -10.285820496587245,
+        -10.285820496587245,
+        -10.285820496587245,
+        -6.1114332266916085,
+        -7.1503262806580965,
+        -4.085311322544556,
+        -5.731943604986705,
+        -3.332136285716709,
+        -3.4157670847891204,
+        -3.37307767609407,
+        -2.273802257428185,
+        -4.049450906383542,
+        -1.8290144551861036,
+        -2.8515631144541107,
+        -2.0721677935572473,
+        -2.14288448615498,
+        -2.8791097664096057,
+        -2.086906051600257,
+        -3.685949997374409,
+        -2.96397078279889,
+        -4.037777622078817,
+        -4.619393808474814,
+        -5.023130307682361,
+        -8.676382584153146,
+        -8.676382584153146
+      ],
+      [
+        -10.472204654717896,
+        -10.472204654717896,
+        -10.472204654717896,
+        -10.472204654717896,
+        -10.472204654717896,
+        -10.472204654717896,
+        -10.472204654717896,
+        -10.472204654717896,
+        -10.472204654717896,
+        -10.472204654717896,
+        -10.472204654717896,
+        -10.472204654717896,
+        -10.472204654717896,
+        -10.472204654717896,
+        -10.472204654717896,
+        -10.472204654717896,
+        -10.472204654717896,
+        -8.526294505662584,
+        -8.862766742283796,
+        -5.918327763117356,
+        -8.526294505662584,
+        -4.360737315215218,
+        -5.262718501876475,
+        -3.8723341555050594,
+        -3.217319844640558,
+        -3.553509435697425,
+        -2.0588176320272478,
+        -3.2665694783075323,
+        -1.8490311397644268,
+        -2.2408286091439273,
+        -2.2155973100917388,
+        -1.8276742148404639,
+        -3.2315549604624305,
+        -2.3750827237991854,
+        -3.735237696716041,
+        -3.7989066869502426,
+        -5.021166201152195,
+        -5.79937582025599,
+        -7.03821745023275,
+        -10.472204654717896,
+        -10.472204654717896,
+        -10.472204654717896,
+        -10.472204654717896,
+        -10.472204654717896,
+        -10.472204654717896,
+        -10.472204654717896
+      ],
+      [
+        -10.489661807091968,
+        -10.489661807091968,
+        -10.489661807091968,
+        -10.489661807091968,
+        -10.489661807091968,
+        -10.489661807091968,
+        -10.489661807091968,
+        -10.489661807091968,
+        -10.489661807091968,
+        -10.489661807091968,
+        -10.489661807091968,
+        -10.489661807091968,
+        -8.292437229755748,
+        -8.880223894657867,
+        -5.555187873961276,
+        -6.776089740387659,
+        -4.510776042190845,
+        -3.954420536078309,
+        -3.750325179734794,
+        -2.5533591138900076,
+        -3.752694849090112,
+        -1.8853739088247963,
+        -2.606969600802942,
+        -2.146107972086851,
+        -1.9794932306126944,
+        -3.098863285356291,
+        -1.8654095433823221,
+        -3.6279504666112374,
+        -2.5670382328746815,
+        -3.6555530682781288,
+        -4.0111521648833985,
+        -4.6815193171115235,
+        -6.934313745602553,
+        -6.993154245625487,
+        -10.489661807091968,
+        -10.489661807091968,
+        -10.489661807091968,
+        -10.489661807091968,
+        -10.489661807091968,
+        -10.489661807091968,
+        -10.489661807091968,
+        -10.489661807091968,
+        -10.489661807091968,
+        -10.489661807091968,
+        -10.489661807091968,
+        -10.489661807091968
+      ],
+      [
+        -6.998481967867392,
+        -9.396377240665762,
+        -5.619792206132721,
+        -7.3594953134047225,
+        -5.841029179176349,
+        -4.711164347004135,
+        -5.560515596203181,
+        -3.3103603766165577,
+        -5.307603723493117,
+        -2.8438693536311725,
+        -3.4141216326430905,
+        -2.9780123047295515,
+        -2.510526797071676,
+        -3.3349203217377457,
+        -1.996571493243969,
+        -3.230259351404005,
+        -2.144795878613805,
+        -2.651533124957757,
+        -2.7038800187238454,
+        -2.425021380274031,
+        -3.572345637857985,
+        -2.761743882804077,
+        -3.8896916083856707,
+        -3.7230539734942703,
+        -4.344386760887593,
+        -5.365090814410799,
+        -5.221989970770125,
+        -7.786939328231663,
+        -7.661776185277656,
+        -10.494989529333873,
+        -10.494989529333873,
+        -10.494989529333873,
+        -10.494989529333873,
+        -10.494989529333873,
+        -10.494989529333873,
+        -10.494989529333873,
+        -10.494989529333873,
+        -10.494989529333873,
+        -10.494989529333873,
+        -10.494989529333873,
+        -10.494989529333873,
+        -10.494989529333873,
+        -10.494989529333873,
+        -10.494989529333873,
+        -10.494989529333873,
+        -10.494989529333873
+      ]
+    ],
+    "rules": [
+      {
+        "description": "any_voice_adjacent_step_gt(all_voices)=2",
+        "family": "universal_melodic_distance_threshold",
+        "feature": {
+          "complexity": 1,
+          "key": "any_voice_adjacent_step_gt:-1:-:2:-",
+          "kind": "any_voice_adjacent_step_gt",
+          "label": "any_voice_adjacent_step_gt(all_voices)=2",
+          "other_voice": null,
+          "second_value": null,
+          "target_voice": -1,
+          "value": 2
+        },
+        "origin": "v6_structure",
+        "selection": {
+          "approximate_nll_gain": 0.584280114505817,
+          "column_score": 0.5841170521855102,
+          "exceeds_null_family_max": true,
+          "expected_rate": 0.7005035113799989,
+          "gradient": -0.43630185773412994,
+          "null_family_max_abs_z": 39.583672365551124,
+          "observed_rate": 0.2100097165725202,
+          "piece_support": 251,
+          "testable_opportunities": 60721,
+          "variance": 11120.092339642,
+          "z_score": -282.4348188751188
+        },
+        "weight": -1.560575737705221
+      },
+      {
+        "description": "central_bass_pcset(all_voices)=145",
+        "family": "observed_vertical_set",
+        "feature": {
+          "complexity": 3,
+          "key": "central_bass_pcset:-1:-:145:-",
+          "kind": "central_bass_pcset",
+          "label": "central_bass_pcset(all_voices)=145",
+          "other_voice": null,
+          "second_value": null,
+          "target_voice": -1,
+          "value": 145
+        },
+        "origin": "v6_structure",
+        "selection": {
+          "approximate_nll_gain": 0.2801401062509116,
+          "column_score": 0.27965091928999136,
+          "exceeds_null_family_max": true,
+          "expected_rate": 0.23682971444200074,
+          "gradient": 0.1758487563241343,
+          "null_family_max_abs_z": 7.454604643626779,
+          "observed_rate": 0.6847388059701492,
+          "piece_support": 251,
+          "testable_opportunities": 26800,
+          "variance": 3767.54708131919,
+          "z_score": 195.56688918631386
+        },
+        "weight": 2.307697518644025
+      },
+      {
+        "description": "central_bass_pcset(all_voices)=137",
+        "family": "observed_vertical_set",
+        "feature": {
+          "complexity": 3,
+          "key": "central_bass_pcset:-1:-:137:-",
+          "kind": "central_bass_pcset",
+          "label": "central_bass_pcset(all_voices)=137",
+          "other_voice": null,
+          "second_value": null,
+          "target_voice": -1,
+          "value": 137
+        },
+        "origin": "v6_structure",
+        "selection": {
+          "approximate_nll_gain": 0.09024819758950074,
+          "column_score": 0.08975901062858051,
+          "exceeds_null_family_max": true,
+          "expected_rate": 0.2014084518673367,
+          "gradient": 0.08008246034731148,
+          "null_family_max_abs_z": 7.2472528200882556,
+          "observed_rate": 0.47317921948794434,
+          "piece_support": 251,
+          "testable_opportunities": 20115,
+          "variance": 2425.446238106487,
+          "z_score": 111.00101541924819
+        },
+        "weight": 1.5745450607189015
+      },
+      {
+        "description": "central_bass_pcset(all_voices)=265",
+        "family": "observed_vertical_set",
+        "feature": {
+          "complexity": 3,
+          "key": "central_bass_pcset:-1:-:265:-",
+          "kind": "central_bass_pcset",
+          "label": "central_bass_pcset(all_voices)=265",
+          "other_voice": null,
+          "second_value": null,
+          "target_voice": -1,
+          "value": 265
+        },
+        "origin": "v6_structure",
+        "selection": {
+          "approximate_nll_gain": 0.08664429063652448,
+          "column_score": 0.08615510367560425,
+          "exceeds_null_family_max": true,
+          "expected_rate": 0.1770632999158463,
+          "gradient": 0.07129559979063219,
+          "null_family_max_abs_z": 7.255868423238666,
+          "observed_rate": 0.4317789291882556,
+          "piece_support": 251,
+          "testable_opportunities": 19107,
+          "variance": 2002.3540862752336,
+          "z_score": 108.7621185130289
+        },
+        "weight": 1.2533589461895618
+      },
+      {
+        "description": "any_voice_adjacent_abs_class(all_voices)=1",
+        "family": "universal_melodic_interval_class",
+        "feature": {
+          "complexity": 1,
+          "key": "any_voice_adjacent_abs_class:-1:-:1:-",
+          "kind": "any_voice_adjacent_abs_class",
+          "label": "any_voice_adjacent_abs_class(all_voices)=1",
+          "other_voice": null,
+          "second_value": null,
+          "target_voice": -1,
+          "value": 1
+        },
+        "origin": "v6_structure",
+        "selection": {
+          "approximate_nll_gain": 0.07937000584600971,
+          "column_score": 0.07920694352570297,
+          "exceeds_null_family_max": true,
+          "expected_rate": 0.24894638589605597,
+          "gradient": 0.13188949884384707,
+          "null_family_max_abs_z": 15.099137701363615,
+          "observed_rate": 0.38083588473990304,
+          "piece_support": 251,
+          "testable_opportunities": 68263,
+          "variance": 7480.306595655262,
+          "z_score": 104.09644286973653
+        },
+        "weight": 1.3726638650387901
+      },
+      {
+        "description": "any_voice_adjacent_abs_class(all_voices)=2",
+        "family": "universal_melodic_interval_class",
+        "feature": {
+          "complexity": 1,
+          "key": "any_voice_adjacent_abs_class:-1:-:2:-",
+          "kind": "any_voice_adjacent_abs_class",
+          "label": "any_voice_adjacent_abs_class(all_voices)=2",
+          "other_voice": null,
+          "second_value": null,
+          "target_voice": -1,
+          "value": 2
+        },
+        "origin": "v6_structure",
+        "selection": {
+          "approximate_nll_gain": 0.04627552695664004,
+          "column_score": 0.0461124646363333,
+          "exceeds_null_family_max": true,
+          "expected_rate": 0.4174974534919933,
+          "gradient": 0.1210373310911631,
+          "null_family_max_abs_z": 15.70240294568416,
+          "observed_rate": 0.5385347845831563,
+          "piece_support": 251,
+          "testable_opportunities": 68263,
+          "variance": 10805.445559592223,
+          "z_score": 79.4846689197498
+        },
+        "weight": 0.7544621730894192
+      },
+      {
+        "description": "any_adjacent_central_ordered_gap_le(all_voices)=2",
+        "family": "ordered_voice_gap",
+        "feature": {
+          "complexity": 1,
+          "key": "any_adjacent_central_ordered_gap_le:-1:-:2:-",
+          "kind": "any_adjacent_central_ordered_gap_le",
+          "label": "any_adjacent_central_ordered_gap_le(all_voices)=2",
+          "other_voice": null,
+          "second_value": null,
+          "target_voice": -1,
+          "value": 2
+        },
+        "origin": "v6_structure",
+        "selection": {
+          "approximate_nll_gain": 0.034606390086946166,
+          "column_score": 0.03444332776663942,
+          "exceeds_null_family_max": true,
+          "expected_rate": 0.16653362841715372,
+          "gradient": -0.07491300747972073,
+          "null_family_max_abs_z": 18.903170797250866,
+          "observed_rate": 0.08992029723737041,
+          "piece_support": 251,
+          "testable_opportunities": 66748,
+          "variance": 5534.94795425859,
+          "z_score": -68.73624962863781
+        },
+        "weight": -0.854268321606161
+      },
+      {
+        "description": "central_bass_pcset(all_voices)=329",
+        "family": "observed_vertical_set",
+        "feature": {
+          "complexity": 3,
+          "key": "central_bass_pcset:-1:-:329:-",
+          "kind": "central_bass_pcset",
+          "label": "central_bass_pcset(all_voices)=329",
+          "other_voice": null,
+          "second_value": null,
+          "target_voice": -1,
+          "value": 329
+        },
+        "origin": "v6_structure",
+        "selection": {
+          "approximate_nll_gain": 0.027154425749978554,
+          "column_score": 0.026665238789058316,
+          "exceeds_null_family_max": true,
+          "expected_rate": 0.11063486770238039,
+          "gradient": 0.018525732635020036,
+          "null_family_max_abs_z": 7.134927043200198,
+          "observed_rate": 0.3070352539214164,
+          "piece_support": 251,
+          "testable_opportunities": 6439,
+          "variance": 431.38549276095364,
+          "z_score": 60.887479254289815
+        },
+        "weight": 1.9394787244998624
+      },
+      {
+        "description": "any_pair_central_abs_class(all_voices)=11",
+        "family": "universal_vertical_interval_class",
+        "feature": {
+          "complexity": 1,
+          "key": "any_pair_central_abs_class:-1:-:11:-",
+          "kind": "any_pair_central_abs_class",
+          "label": "any_pair_central_abs_class(all_voices)=11",
+          "other_voice": null,
+          "second_value": null,
+          "target_voice": -1,
+          "value": 11
+        },
+        "origin": "v6_structure",
+        "selection": {
+          "approximate_nll_gain": 0.023271949077659494,
+          "column_score": 0.02310888675735275,
+          "exceeds_null_family_max": true,
+          "expected_rate": 0.062116170134190234,
+          "gradient": -0.04544535285396522,
+          "null_family_max_abs_z": 9.775381041626412,
+          "observed_rate": 0.01667081728022501,
+          "piece_support": 251,
+          "testable_opportunities": 68263,
+          "variance": 3029.0160640229456,
+          "z_score": -56.36688850536758
+        },
+        "weight": -1.8751266624727898
+      },
+      {
+        "description": "any_pair_abs_class_preserved_same_sign(all_voices)=7",
+        "family": "universal_pair_motion",
+        "feature": {
+          "complexity": 4,
+          "key": "any_pair_abs_class_preserved_same_sign:-1:-:7:-",
+          "kind": "any_pair_abs_class_preserved_same_sign",
+          "label": "any_pair_abs_class_preserved_same_sign(all_voices)=7",
+          "other_voice": null,
+          "second_value": null,
+          "target_voice": -1,
+          "value": 7
+        },
+        "origin": "v6_structure",
+        "selection": {
+          "approximate_nll_gain": 0.02201889132219351,
+          "column_score": 0.021366642040966527,
+          "exceeds_null_family_max": true,
+          "expected_rate": 0.11285615356705189,
+          "gradient": -0.027489796621580298,
+          "null_family_max_abs_z": 5.610665432190874,
+          "observed_rate": 0.002814754002228347,
+          "piece_support": 251,
+          "testable_opportunities": 17053,
+          "variance": 1171.393960640397,
+          "z_score": -54.8283791175135
+        },
+        "weight": -2.9862188846130024
+      },
+      {
+        "description": "any_pair_central_abs_class(all_voices)=10",
+        "family": "universal_vertical_interval_class",
+        "feature": {
+          "complexity": 1,
+          "key": "any_pair_central_abs_class:-1:-:10:-",
+          "kind": "any_pair_central_abs_class",
+          "label": "any_pair_central_abs_class(all_voices)=10",
+          "other_voice": null,
+          "second_value": null,
+          "target_voice": -1,
+          "value": 10
+        },
+        "origin": "v6_structure",
+        "selection": {
+          "approximate_nll_gain": 0.020314755091716222,
+          "column_score": 0.020151692771409477,
+          "exceeds_null_family_max": true,
+          "expected_rate": 0.1464165820223362,
+          "gradient": -0.059444137213288846,
+          "null_family_max_abs_z": 9.243635992823396,
+          "observed_rate": 0.08697244480904737,
+          "piece_support": 251,
+          "testable_opportunities": 68263,
+          "variance": 5936.9287908780425,
+          "z_score": -52.66395592482252
+        },
+        "weight": -1.8767905390787425
+      },
+      {
+        "description": "any_pair_abs_class_preserved_same_sign(all_voices)=0",
+        "family": "universal_pair_motion",
+        "feature": {
+          "complexity": 4,
+          "key": "any_pair_abs_class_preserved_same_sign:-1:-:0:-",
+          "kind": "any_pair_abs_class_preserved_same_sign",
+          "label": "any_pair_abs_class_preserved_same_sign(all_voices)=0",
+          "other_voice": null,
+          "second_value": null,
+          "target_voice": -1,
+          "value": 0
+        },
+        "origin": "v6_structure",
+        "selection": {
+          "approximate_nll_gain": 0.02276560948773449,
+          "column_score": 0.022113360206507508,
+          "exceeds_null_family_max": true,
+          "expected_rate": 0.12873010842992294,
+          "gradient": -0.025937018003466875,
+          "null_family_max_abs_z": 4.847933711273582,
+          "observed_rate": 0.0024254529890141248,
+          "piece_support": 251,
+          "testable_opportunities": 14018,
+          "variance": 1008.5935350036407,
+          "z_score": -55.75031480559047
+        },
+        "weight": -2.9808534361359587
+      },
+      {
+        "description": "any_pair_central_abs_class(all_voices)=1",
+        "family": "universal_vertical_interval_class",
+        "feature": {
+          "complexity": 1,
+          "key": "any_pair_central_abs_class:-1:-:1:-",
+          "kind": "any_pair_central_abs_class",
+          "label": "any_pair_central_abs_class(all_voices)=1",
+          "other_voice": null,
+          "second_value": null,
+          "target_voice": -1,
+          "value": 1
+        },
+        "origin": "v6_structure",
+        "selection": {
+          "approximate_nll_gain": 0.017600605985841837,
+          "column_score": 0.017437543665535092,
+          "exceeds_null_family_max": true,
+          "expected_rate": 0.062173375576935884,
+          "gradient": -0.03923269028622203,
+          "null_family_max_abs_z": 8.146109856833215,
+          "observed_rate": 0.022940685290713858,
+          "piece_support": 251,
+          "testable_opportunities": 68263,
+          "variance": 2984.859778565589,
+          "z_score": -49.01979531600517
+        },
+        "weight": -1.6707437228320512
+      },
+      {
+        "description": "any_voice_adjacent_step_gt(all_voices)=7",
+        "family": "universal_melodic_distance_threshold",
+        "feature": {
+          "complexity": 1,
+          "key": "any_voice_adjacent_step_gt:-1:-:7:-",
+          "kind": "any_voice_adjacent_step_gt",
+          "label": "any_voice_adjacent_step_gt(all_voices)=7",
+          "other_voice": null,
+          "second_value": null,
+          "target_voice": -1,
+          "value": 7
+        },
+        "origin": "v6_structure",
+        "selection": {
+          "approximate_nll_gain": 0.01673800992423745,
+          "column_score": 0.016574947603930704,
+          "exceeds_null_family_max": true,
+          "expected_rate": 0.07551846941097302,
+          "gradient": -0.038529409173639124,
+          "null_family_max_abs_z": 24.051138011708375,
+          "observed_rate": 0.03695177207208528,
+          "piece_support": 251,
+          "testable_opportunities": 68197,
+          "variance": 3027.166110179037,
+          "z_score": -47.80348881532019
+        },
+        "weight": -1.3085480534675882
+      },
+      {
+        "description": "any_pair_arrival_abs_class_same_sign(all_voices)=2",
+        "family": "universal_pair_motion",
+        "feature": {
+          "complexity": 2,
+          "key": "any_pair_arrival_abs_class_same_sign:-1:-:2:-",
+          "kind": "any_pair_arrival_abs_class_same_sign",
+          "label": "any_pair_arrival_abs_class_same_sign(all_voices)=2",
+          "other_voice": null,
+          "second_value": null,
+          "target_voice": -1,
+          "value": 2
+        },
+        "origin": "v6_structure",
+        "selection": {
+          "approximate_nll_gain": 0.015953879219625895,
+          "column_score": 0.0156277545790124,
+          "exceeds_null_family_max": true,
+          "expected_rate": 0.03388674640899895,
+          "gradient": -0.02608480942717498,
+          "null_family_max_abs_z": 3.8217238290741538,
+          "observed_rate": 0.004259496514201095,
+          "piece_support": 251,
+          "testable_opportunities": 60101,
+          "variance": 1455.6749596734671,
+          "z_score": -46.670325843501935
+        },
+        "weight": -1.5776101393561004
+      },
+      {
+        "description": "central_distinct_pc_count(all_voices)=2",
+        "family": "vertical_cardinality",
+        "feature": {
+          "complexity": 1,
+          "key": "central_distinct_pc_count:-1:-:2:-",
+          "kind": "central_distinct_pc_count",
+          "label": "central_distinct_pc_count(all_voices)=2",
+          "other_voice": null,
+          "second_value": null,
+          "target_voice": -1,
+          "value": 2
+        },
+        "origin": "v6_structure",
+        "selection": {
+          "approximate_nll_gain": 0.014989098901649305,
+          "column_score": 0.014826036581342558,
+          "exceeds_null_family_max": true,
+          "expected_rate": 0.1353380574552743,
+          "gradient": -0.030522040597965615,
+          "null_family_max_abs_z": 2.4603085773506015,
+          "observed_rate": 0.058073129125565524,
+          "piece_support": 251,
+          "testable_opportunities": 26966,
+          "variance": 2121.323880984618,
+          "z_score": -45.237171846243584
+        },
+        "weight": -1.3432823404903462
+      },
+      {
+        "description": "central_distinct_pc_count_metric(all_voices)=3,0",
+        "family": "vertical_cardinality_metric_conjunction",
+        "feature": {
+          "complexity": 2,
+          "key": "central_distinct_pc_count_metric:-1:-:3:0",
+          "kind": "central_distinct_pc_count_metric",
+          "label": "central_distinct_pc_count_metric(all_voices)=3,0",
+          "other_voice": null,
+          "second_value": 0,
+          "target_voice": -1,
+          "value": 3
+        },
+        "origin": "v6_structure",
+        "selection": {
+          "approximate_nll_gain": 0.014177910447475987,
+          "column_score": 0.013851785806862495,
+          "exceeds_null_family_max": true,
+          "expected_rate": 0.6192200096357676,
+          "gradient": -0.025822007113600023,
+          "null_family_max_abs_z": 0.907114913990794,
+          "observed_rate": 0.4901515706231237,
+          "piece_support": 230,
+          "testable_opportunities": 13657,
+          "variance": 1605.1777786162293,
+          "z_score": -43.9960612072502
+        },
+        "weight": -1.1676582403960138
+      },
+      {
+        "description": "previous_ordered_gap_le(v0,v1)=2",
+        "family": "ordered_voice_gap",
+        "feature": {
+          "complexity": 1,
+          "key": "previous_ordered_gap_le:0:1:2:-",
+          "kind": "previous_ordered_gap_le",
+          "label": "previous_ordered_gap_le(v0,v1)=2",
+          "other_voice": 1,
+          "second_value": null,
+          "target_voice": 0,
+          "value": 2
+        },
+        "origin": "v6_structure",
+        "selection": {
+          "approximate_nll_gain": 0.012745096675062533,
+          "column_score": 0.012582034354755786,
+          "exceeds_null_family_max": true,
+          "expected_rate": 0.15808383229450726,
+          "gradient": 0.018496128183674618,
+          "null_family_max_abs_z": 8.881135030159783,
+          "observed_rate": 0.24436244362443624,
+          "piece_support": 251,
+          "testable_opportunities": 14634,
+          "variance": 916.165416481398,
+          "z_score": 41.71375155340967
+        },
+        "weight": 1.0685377432260743
+      },
+      {
+        "description": "attacked_repeat_from_previous(v3)",
+        "family": "attacked_repetition",
+        "feature": {
+          "complexity": 1,
+          "key": "attacked_repeat_from_previous:3:-:-:-",
+          "kind": "attacked_repeat_from_previous",
+          "label": "attacked_repeat_from_previous(v3)",
+          "other_voice": null,
+          "second_value": null,
+          "target_voice": 3,
+          "value": null
+        },
+        "origin": "v6_structure",
+        "selection": {
+          "approximate_nll_gain": 0.012454289500402744,
+          "column_score": 0.012291227180095997,
+          "exceeds_null_family_max": true,
+          "expected_rate": 0.12532251316461712,
+          "gradient": -0.02241799258078829,
+          "null_family_max_abs_z": 5.362546210296513,
+          "observed_rate": 0.040512081578364,
+          "piece_support": 251,
+          "testable_opportunities": 18044,
+          "variance": 1377.3041638293057,
+          "z_score": -41.23511038340973
+        },
+        "weight": -2.497099998026324
+      },
+      {
+        "description": "any_pair_central_abs_class(all_voices)=2",
+        "family": "universal_vertical_interval_class",
+        "feature": {
+          "complexity": 1,
+          "key": "any_pair_central_abs_class:-1:-:2:-",
+          "kind": "any_pair_central_abs_class",
+          "label": "any_pair_central_abs_class(all_voices)=2",
+          "other_voice": null,
+          "second_value": null,
+          "target_voice": -1,
+          "value": 2
+        },
+        "origin": "v6_structure",
+        "selection": {
+          "approximate_nll_gain": 0.010418392925807927,
+          "column_score": 0.01025533060550118,
+          "exceeds_null_family_max": true,
+          "expected_rate": 0.14264641210299553,
+          "gradient": -0.039574469762342475,
+          "null_family_max_abs_z": 7.367693126783238,
+          "observed_rate": 0.10307194234065306,
+          "piece_support": 251,
+          "testable_opportunities": 68263,
+          "variance": 5130.797230537868,
+          "z_score": -37.714473515997184
+        },
+        "weight": -0.6956629329249051
+      },
+      {
+        "description": "central_bass_pcset(all_voices)=141",
+        "family": "observed_vertical_set",
+        "feature": {
+          "complexity": 3,
+          "key": "central_bass_pcset:-1:-:141:-",
+          "kind": "central_bass_pcset",
+          "label": "central_bass_pcset(all_voices)=141",
+          "other_voice": null,
+          "second_value": null,
+          "target_voice": -1,
+          "value": 141
+        },
+        "origin": "v6_structure",
+        "selection": {
+          "approximate_nll_gain": 0.01349742801205074,
+          "column_score": 0.013008241051130501,
+          "exceeds_null_family_max": true,
+          "expected_rate": 0.04811744293844858,
+          "gradient": 0.007416531433061109,
+          "null_family_max_abs_z": 7.549743032256132,
+          "observed_rate": 0.14766024380652773,
+          "piece_support": 250,
+          "testable_opportunities": 5086,
+          "variance": 139.09324477627098,
+          "z_score": 42.927262395513175
+        },
+        "weight": 2.1305613731011177
+      },
+      {
+        "description": "central_bass_pcset(all_voices)=161",
+        "family": "observed_vertical_set",
+        "feature": {
+          "complexity": 3,
+          "key": "central_bass_pcset:-1:-:161:-",
+          "kind": "central_bass_pcset",
+          "label": "central_bass_pcset(all_voices)=161",
+          "other_voice": null,
+          "second_value": null,
+          "target_voice": -1,
+          "value": 161
+        },
+        "origin": "v6_structure",
+        "selection": {
+          "approximate_nll_gain": 0.011258694318479092,
+          "column_score": 0.010769507357558853,
+          "exceeds_null_family_max": true,
+          "expected_rate": 0.1229961830537067,
+          "gradient": 0.014634190719564162,
+          "null_family_max_abs_z": 7.531522491394704,
+          "observed_rate": 0.22136878385032005,
+          "piece_support": 251,
+          "testable_opportunities": 10155,
+          "variance": 649.239251465907,
+          "z_score": 39.20592430391964
+        },
+        "weight": 0.9158547604706795
+      },
+      {
+        "description": "three_block_sign_shape(v1)=0,-1",
+        "family": "three_block_direction_shape",
+        "feature": {
+          "complexity": 2,
+          "key": "three_block_sign_shape:1:-:0:-1",
+          "kind": "three_block_sign_shape",
+          "label": "three_block_sign_shape(v1)=0,-1",
+          "other_voice": null,
+          "second_value": -1,
+          "target_voice": 1,
+          "value": 0
+        },
+        "origin": "v6_structure",
+        "selection": {
+          "approximate_nll_gain": 0.007669388058346159,
+          "column_score": 0.007343263417732667,
+          "exceeds_null_family_max": true,
+          "expected_rate": 0.16102337202329187,
+          "gradient": 0.009471717516213398,
+          "null_family_max_abs_z": 8.029998417742242,
+          "observed_rate": 0.28373505408996014,
+          "piece_support": 251,
+          "testable_opportunities": 5269,
+          "variance": 399.25662975219905,
+          "z_score": 32.358474532242205
+        },
+        "weight": 1.44084353025102
+      },
+      {
+        "description": "central_bass_pcset(all_voices)=649",
+        "family": "observed_vertical_set",
+        "feature": {
+          "complexity": 3,
+          "key": "central_bass_pcset:-1:-:649:-",
+          "kind": "central_bass_pcset",
+          "label": "central_bass_pcset(all_voices)=649",
+          "other_voice": null,
+          "second_value": null,
+          "target_voice": -1,
+          "value": 649
+        },
+        "origin": "v6_structure",
+        "selection": {
+          "approximate_nll_gain": 0.007019785322710446,
+          "column_score": 0.006530598361790208,
+          "exceeds_null_family_max": true,
+          "expected_rate": 0.07288402556892558,
+          "gradient": 0.006909622452181121,
+          "null_family_max_abs_z": 7.544081670280627,
+          "observed_rate": 0.15748878923766815,
+          "piece_support": 250,
+          "testable_opportunities": 5575,
+          "variance": 232.1347615069065,
+          "z_score": 30.9577649543433
+        },
+        "weight": 1.3525961940685514
+      },
+      {
+        "description": "any_voice_three_block_sign_shape(all_voices)=-1,-1",
+        "family": "three_block_direction_shape",
+        "feature": {
+          "complexity": 2,
+          "key": "any_voice_three_block_sign_shape:-1:-:-1:-1",
+          "kind": "any_voice_three_block_sign_shape",
+          "label": "any_voice_three_block_sign_shape(all_voices)=-1,-1",
+          "other_voice": null,
+          "second_value": -1,
+          "target_voice": -1,
+          "value": -1
+        },
+        "origin": "v6_structure",
+        "selection": {
+          "approximate_nll_gain": 0.006648592458692111,
+          "column_score": 0.00632246781807862,
+          "exceeds_null_family_max": true,
+          "expected_rate": 0.4871352305046883,
+          "gradient": 0.019581785703561245,
+          "null_family_max_abs_z": 7.979780631573801,
+          "observed_rate": 0.5646976906115817,
+          "piece_support": 251,
+          "testable_opportunities": 17234,
+          "variance": 1968.4765669502972,
+          "z_score": 30.12815517112522
+        },
+        "weight": 0.7453835682453508
+      },
+      {
+        "description": "any_pair_abs_class_preserved_same_sign(all_voices)=3",
+        "family": "universal_pair_motion",
+        "feature": {
+          "complexity": 4,
+          "key": "any_pair_abs_class_preserved_same_sign:-1:-:3:-",
+          "kind": "any_pair_abs_class_preserved_same_sign",
+          "label": "any_pair_abs_class_preserved_same_sign(all_voices)=3",
+          "other_voice": null,
+          "second_value": null,
+          "target_voice": -1,
+          "value": 3
+        },
+        "origin": "v6_structure",
+        "selection": {
+          "approximate_nll_gain": 0.006824485579796566,
+          "column_score": 0.006172236298569582,
+          "exceeds_null_family_max": true,
+          "expected_rate": 0.21326253143142956,
+          "gradient": 0.017344206667718978,
+          "null_family_max_abs_z": 3.6983455001260848,
+          "observed_rate": 0.2658435848470045,
+          "piece_support": 251,
+          "testable_opportunities": 22517,
+          "variance": 1504.5074204569296,
+          "z_score": 30.524084233065956
+        },
+        "weight": 0.7983514602996573
+      },
+      {
+        "description": "central_bass_pcset(all_voices)=1041",
+        "family": "observed_vertical_set",
+        "feature": {
+          "complexity": 3,
+          "key": "central_bass_pcset:-1:-:1041:-",
+          "kind": "central_bass_pcset",
+          "label": "central_bass_pcset(all_voices)=1041",
+          "other_voice": null,
+          "second_value": null,
+          "target_voice": -1,
+          "value": 1041
+        },
+        "origin": "v6_structure",
+        "selection": {
+          "approximate_nll_gain": 0.0055813424869425345,
+          "column_score": 0.005092155526022297,
+          "exceeds_null_family_max": true,
+          "expected_rate": 0.034593068796838454,
+          "gradient": 0.004859952420468773,
+          "null_family_max_abs_z": 7.55147606428606,
+          "observed_rate": 0.08487420430433465,
+          "piece_support": 251,
+          "testable_opportunities": 6598,
+          "variance": 144.4377574865856,
+          "z_score": 27.604317857398986
+        },
+        "weight": 1.6609353931815067
+      },
+      {
+        "description": "central_bass_pcset(all_voices)=1169",
+        "family": "observed_vertical_set",
+        "feature": {
+          "complexity": 3,
+          "key": "central_bass_pcset:-1:-:1169:-",
+          "kind": "central_bass_pcset",
+          "label": "central_bass_pcset(all_voices)=1169",
+          "other_voice": null,
+          "second_value": null,
+          "target_voice": -1,
+          "value": 1169
+        },
+        "origin": "v6_structure",
+        "selection": {
+          "approximate_nll_gain": 0.006356199448941082,
+          "column_score": 0.005867012488020845,
+          "exceeds_null_family_max": true,
+          "expected_rate": 0.09613443926619356,
+          "gradient": 0.008623820476920795,
+          "null_family_max_abs_z": 7.5508369319836355,
+          "observed_rate": 0.163885372309817,
+          "piece_support": 251,
+          "testable_opportunities": 8689,
+          "variance": 399.35329581422377,
+          "z_score": 29.458215933184587
+        },
+        "weight": 1.3202699277562926
+      },
+      {
+        "description": "central_tonic_pcset(all_voices)=2180",
+        "family": "observed_vertical_set",
+        "feature": {
+          "complexity": 3,
+          "key": "central_tonic_pcset:-1:-:2180:-",
+          "kind": "central_tonic_pcset",
+          "label": "central_tonic_pcset(all_voices)=2180",
+          "other_voice": null,
+          "second_value": null,
+          "target_voice": -1,
+          "value": 2180
+        },
+        "origin": "v6_structure",
+        "selection": {
+          "approximate_nll_gain": 0.006107596449274512,
+          "column_score": 0.005618409488354275,
+          "exceeds_null_family_max": true,
+          "expected_rate": 0.6520755172505831,
+          "gradient": 0.014028323445589942,
+          "null_family_max_abs_z": 7.552519607768779,
+          "observed_rate": 0.7596002694812486,
+          "piece_support": 241,
+          "testable_opportunities": 8906,
+          "variance": 1099.7566135554257,
+          "z_score": 28.8763867690134
+        },
+        "weight": 0.7916928283989659
+      },
+      {
+        "description": "central_bass_pcset(all_voices)=545",
+        "family": "observed_vertical_set",
+        "feature": {
+          "complexity": 3,
+          "key": "central_bass_pcset:-1:-:545:-",
+          "kind": "central_bass_pcset",
+          "label": "central_bass_pcset(all_voices)=545",
+          "other_voice": null,
+          "second_value": null,
+          "target_voice": -1,
+          "value": 545
+        },
+        "origin": "v6_structure",
+        "selection": {
+          "approximate_nll_gain": 0.006687724492523607,
+          "column_score": 0.0061985375316033695,
+          "exceeds_null_family_max": true,
+          "expected_rate": 0.16686673106894015,
+          "gradient": -0.012611696168596897,
+          "null_family_max_abs_z": 7.621555780682206,
+          "observed_rate": 0.07679430843272651,
+          "piece_support": 251,
+          "testable_opportunities": 9558,
+          "variance": 811.7531832072009,
+          "z_score": -30.216688668123084
+        },
+        "weight": -0.970164391138905
+      },
+      {
+        "description": "basse : classe d'intervalle entrant 2",
+        "family": "bass_motion",
+        "feature": {
+          "complexity": 2,
+          "key": "abs_class_from_previous:3:-:2:-",
+          "kind": "abs_class_from_previous",
+          "label": "abs_class_from_previous(v3)=2",
+          "other_voice": null,
+          "second_value": null,
+          "target_voice": 3,
+          "value": 2
+        },
+        "origin": "v6_iteration3_residual",
+        "selection": {
+          "bach_rate": 0.368632790174784,
+          "gibbs_rate": 0.2825312249039358,
+          "gradient": 0.08610156527084818,
+          "seed_sign_agreement": true,
+          "z_score": 6.683376979486303
+        },
+        "weight": 0.05916930542831297
+      },
+      {
+        "description": "basse : saut entrant sup\u00e9rieur \u00e0 2 demi-tons",
+        "family": "bass_motion",
+        "feature": {
+          "complexity": 2,
+          "key": "abs_step_from_previous_gt:3:-:2:-",
+          "kind": "abs_step_from_previous_gt",
+          "label": "abs_step_from_previous_gt(v3)=2",
+          "other_voice": null,
+          "second_value": null,
+          "target_voice": 3,
+          "value": 2
+        },
+        "origin": "v6_iteration3_residual",
+        "selection": {
+          "bach_rate": 0.32885036522734556,
+          "gibbs_rate": 0.40788417333686333,
+          "gradient": -0.07903380810951768,
+          "seed_sign_agreement": true,
+          "z_score": -5.905101258490182
+        },
+        "weight": -0.09959930362209118
+      },
+      {
+        "description": "basse : classe d'intervalle entrant 3",
+        "family": "bass_motion",
+        "feature": {
+          "complexity": 2,
+          "key": "abs_class_from_previous:3:-:3:-",
+          "kind": "abs_class_from_previous",
+          "label": "abs_class_from_previous(v3)=3",
+          "other_voice": null,
+          "second_value": null,
+          "target_voice": 3,
+          "value": 3
+        },
+        "origin": "v6_iteration3_residual",
+        "selection": {
+          "bach_rate": 0.034007076807390284,
+          "gibbs_rate": 0.08395793219863552,
+          "gradient": -0.04995085539124525,
+          "seed_sign_agreement": true,
+          "z_score": -9.171879794043631
+        },
+        "weight": -0.40526818618310734
+      },
+      {
+        "description": "basse : directions K3 (+1, -1)",
+        "family": "bass_motion",
+        "feature": {
+          "complexity": 3,
+          "key": "three_block_sign_shape:3:-:1:-1",
+          "kind": "three_block_sign_shape",
+          "label": "three_block_sign_shape(v3)=1,-1",
+          "other_voice": null,
+          "second_value": -1,
+          "target_voice": 3,
+          "value": 1
+        },
+        "origin": "v6_iteration3_residual",
+        "selection": {
+          "bach_rate": 0.1291577244840478,
+          "gibbs_rate": 0.19053757283761152,
+          "gradient": -0.061379848353563755,
+          "seed_sign_agreement": true,
+          "z_score": -7.732640632598943
+        },
+        "weight": -0.16043374831884494
+      },
+      {
+        "description": "basse : classe d'intervalle entrant 0",
+        "family": "bass_motion",
+        "feature": {
+          "complexity": 2,
+          "key": "abs_class_from_previous:3:-:0:-",
+          "kind": "abs_class_from_previous",
+          "label": "abs_class_from_previous(v3)=0",
+          "other_voice": null,
+          "second_value": null,
+          "target_voice": 3,
+          "value": 0
+        },
+        "origin": "v6_iteration3_residual",
+        "selection": {
+          "bach_rate": 0.09128524468524526,
+          "gibbs_rate": 0.05295994562491567,
+          "gradient": 0.038325299060329596,
+          "seed_sign_agreement": true,
+          "z_score": 4.211487618850993
+        },
+        "weight": 0.7006557392979439
+      },
+      {
+        "description": "basse : directions K3 (+1, +0)",
+        "family": "bass_motion",
+        "feature": {
+          "complexity": 3,
+          "key": "three_block_sign_shape:3:-:1:0",
+          "kind": "three_block_sign_shape",
+          "label": "three_block_sign_shape(v3)=1,0",
+          "other_voice": null,
+          "second_value": 0,
+          "target_voice": 3,
+          "value": 1
+        },
+        "origin": "v6_iteration3_residual",
+        "selection": {
+          "bach_rate": 0.1901602699029086,
+          "gibbs_rate": 0.14864068197175945,
+          "gradient": 0.04151958793114913,
+          "seed_sign_agreement": true,
+          "z_score": 5.796551700912426
+        },
+        "weight": -0.354738359861931
+      },
+      {
+        "description": "intervalle vertical 7 pr\u00e9sent sur bloc m\u00e9trique fort",
+        "family": "vertical_context",
+        "feature": {
+          "complexity": 3,
+          "key": "any_pair_central_abs_class_metric:-1:-:7:1",
+          "kind": "any_pair_central_abs_class_metric",
+          "label": "any_pair_central_abs_class_metric(all_voices)=7,1",
+          "other_voice": null,
+          "second_value": 1,
+          "target_voice": -1,
+          "value": 7
+        },
+        "origin": "v6_iteration3_residual",
+        "selection": {
+          "bach_rate": 0.20228037104313512,
+          "gibbs_rate": 0.17742443452244383,
+          "gradient": 0.024855936520691294,
+          "seed_sign_agreement": true,
+          "z_score": 5.739827527888812
+        },
+        "weight": 0.06523376798656581
+      },
+      {
+        "description": "intervalle vertical 10 pr\u00e9sent sur bloc m\u00e9trique faible",
+        "family": "vertical_context",
+        "feature": {
+          "complexity": 3,
+          "key": "any_pair_central_abs_class_metric:-1:-:10:0",
+          "kind": "any_pair_central_abs_class_metric",
+          "label": "any_pair_central_abs_class_metric(all_voices)=10,0",
+          "other_voice": null,
+          "second_value": 0,
+          "target_voice": -1,
+          "value": 10
+        },
+        "origin": "v6_iteration3_residual",
+        "selection": {
+          "bach_rate": 0.06631983494358824,
+          "gibbs_rate": 0.04174478758705402,
+          "gradient": 0.02457504735653423,
+          "seed_sign_agreement": true,
+          "z_score": 5.497454262398379
+        },
+        "weight": 0.9780761718093415
+      },
+      {
+        "description": "intervalle vertical 8 pr\u00e9sent sur bloc m\u00e9trique faible",
+        "family": "vertical_context",
+        "feature": {
+          "complexity": 3,
+          "key": "any_pair_central_abs_class_metric:-1:-:8:0",
+          "kind": "any_pair_central_abs_class_metric",
+          "label": "any_pair_central_abs_class_metric(all_voices)=8,0",
+          "other_voice": null,
+          "second_value": 0,
+          "target_voice": -1,
+          "value": 8
+        },
+        "origin": "v6_iteration3_residual",
+        "selection": {
+          "bach_rate": 0.11882461459549133,
+          "gibbs_rate": 0.14420664076897205,
+          "gradient": -0.025382026173480714,
+          "seed_sign_agreement": true,
+          "z_score": -5.080688530836998
+        },
+        "weight": 0.02000436908883938
+      },
+      {
+        "description": "sonorit\u00e9 {0, 4, 9} relative \u00e0 la basse, bloc faible",
+        "family": "vertical_context",
+        "feature": {
+          "complexity": 4,
+          "key": "central_bass_pcset_metric:-1:-:529:0",
+          "kind": "central_bass_pcset_metric",
+          "label": "central_bass_pcset_metric(all_voices)=529,0",
+          "other_voice": null,
+          "second_value": 0,
+          "target_voice": -1,
+          "value": 529
+        },
+        "origin": "v6_iteration3_residual",
+        "selection": {
+          "bach_rate": 0.042483793751218774,
+          "gibbs_rate": 0.01886041456294945,
+          "gradient": 0.023623379188269324,
+          "seed_sign_agreement": true,
+          "z_score": 6.979251340542051
+        },
+        "weight": 0.8945389998611268
+      },
+      {
+        "description": "intervalle vertical 6 pr\u00e9sent sur bloc m\u00e9trique fort",
+        "family": "vertical_context",
+        "feature": {
+          "complexity": 3,
+          "key": "any_pair_central_abs_class_metric:-1:-:6:1",
+          "kind": "any_pair_central_abs_class_metric",
+          "label": "any_pair_central_abs_class_metric(all_voices)=6,1",
+          "other_voice": null,
+          "second_value": 1,
+          "target_voice": -1,
+          "value": 6
+        },
+        "origin": "v6_iteration3_residual",
+        "selection": {
+          "bach_rate": 0.027156473500444672,
+          "gibbs_rate": 0.043560647611266164,
+          "gradient": -0.016404174110821488,
+          "seed_sign_agreement": true,
+          "z_score": -5.362907489288373
+        },
+        "weight": -0.3266584734805844
+      },
+      {
+        "description": "sonorit\u00e9 {0, 5, 8} relative \u00e0 la basse, bloc fort",
+        "family": "vertical_context",
+        "feature": {
+          "complexity": 4,
+          "key": "central_bass_pcset_metric:-1:-:289:1",
+          "kind": "central_bass_pcset_metric",
+          "label": "central_bass_pcset_metric(all_voices)=289,1",
+          "other_voice": null,
+          "second_value": 1,
+          "target_voice": -1,
+          "value": 289
+        },
+        "origin": "v6_iteration3_residual",
+        "selection": {
+          "bach_rate": 0.0036762123256626174,
+          "gibbs_rate": 0.019164796972700203,
+          "gradient": -0.015488584647037585,
+          "seed_sign_agreement": true,
+          "z_score": -7.475901954053622
+        },
+        "weight": -0.5374046431789966
+      },
+      {
+        "description": "transition {0, 4, 7} \u2192 {0, 4, 7, 10}",
+        "family": "sonority_transition",
+        "feature": {
+          "complexity": 5,
+          "key": "bass_pcset_transition:-1:-:145:1169",
+          "kind": "bass_pcset_transition",
+          "label": "bass_pcset_transition(all_voices)=145,1169",
+          "other_voice": null,
+          "second_value": 1169,
+          "target_voice": -1,
+          "value": 145
+        },
+        "origin": "v6_iteration3_residual",
+        "selection": {
+          "bach_rate": 0.033424038521654306,
+          "gibbs_rate": 0.014265288656939563,
+          "gradient": 0.019158749864714747,
+          "seed_sign_agreement": true,
+          "z_score": 4.7857976785038225
+        },
+        "weight": 1.1340504243668126
+      },
+      {
+        "description": "transition {0, 5, 7} \u2192 {0, 4, 7}",
+        "family": "sonority_transition",
+        "feature": {
+          "complexity": 5,
+          "key": "bass_pcset_transition:-1:-:161:145",
+          "kind": "bass_pcset_transition",
+          "label": "bass_pcset_transition(all_voices)=161,145",
+          "other_voice": null,
+          "second_value": 145,
+          "target_voice": -1,
+          "value": 161
+        },
+        "origin": "v6_iteration3_residual",
+        "selection": {
+          "bach_rate": 0.01833224209057238,
+          "gibbs_rate": 0.0037084542874858866,
+          "gradient": 0.014623787803086496,
+          "seed_sign_agreement": true,
+          "z_score": 4.224563990974043
+        },
+        "weight": 1.0628167615516178
+      },
+      {
+        "description": "transition {0, 3, 6, 8} \u2192 {0, 3, 6, 8}",
+        "family": "sonority_transition",
+        "feature": {
+          "complexity": 5,
+          "key": "bass_pcset_transition:-1:-:329:329",
+          "kind": "bass_pcset_transition",
+          "label": "bass_pcset_transition(all_voices)=329,329",
+          "other_voice": null,
+          "second_value": 329,
+          "target_voice": -1,
+          "value": 329
+        },
+        "origin": "v6_iteration3_residual",
+        "selection": {
+          "bach_rate": 0.0005878396790094038,
+          "gibbs_rate": 0.008225521018235748,
+          "gradient": -0.007637681339226344,
+          "seed_sign_agreement": true,
+          "z_score": -6.390560008448368
+        },
+        "weight": -0.329072702180096
+      },
+      {
+        "description": "transition {0, 4, 7, 10} \u2192 {0, 4, 7}",
+        "family": "sonority_transition",
+        "feature": {
+          "complexity": 5,
+          "key": "bass_pcset_transition:-1:-:1169:145",
+          "kind": "bass_pcset_transition",
+          "label": "bass_pcset_transition(all_voices)=1169,145",
+          "other_voice": null,
+          "second_value": 145,
+          "target_voice": -1,
+          "value": 1169
+        },
+        "origin": "v6_iteration3_residual",
+        "selection": {
+          "bach_rate": 0.022094882857011444,
+          "gibbs_rate": 0.009084080533239853,
+          "gradient": 0.013010802323771591,
+          "seed_sign_agreement": true,
+          "z_score": 3.661040312484626
+        },
+        "weight": 0.5001543377308082
+      },
+      {
+        "description": "transition {0, 4, 7, 10} \u2192 {0, 4, 7, 10}",
+        "family": "sonority_transition",
+        "feature": {
+          "complexity": 5,
+          "key": "bass_pcset_transition:-1:-:1169:1169",
+          "kind": "bass_pcset_transition",
+          "label": "bass_pcset_transition(all_voices)=1169,1169",
+          "other_voice": null,
+          "second_value": 1169,
+          "target_voice": -1,
+          "value": 1169
+        },
+        "origin": "v6_iteration3_residual",
+        "selection": {
+          "bach_rate": 0.0,
+          "gibbs_rate": 0.007285350184949043,
+          "gradient": -0.007285350184949043,
+          "seed_sign_agreement": true,
+          "z_score": -6.234483055691559
+        },
+        "weight": -0.09856051354395991
+      },
+      {
+        "description": "transition {0, 3, 7} \u2192 {0, 5, 8}",
+        "family": "sonority_transition",
+        "feature": {
+          "complexity": 5,
+          "key": "bass_pcset_transition:-1:-:137:289",
+          "kind": "bass_pcset_transition",
+          "label": "bass_pcset_transition(all_voices)=137,289",
+          "other_voice": null,
+          "second_value": 289,
+          "target_voice": -1,
+          "value": 137
+        },
+        "origin": "v6_iteration3_residual",
+        "selection": {
+          "bach_rate": 0.00039145201129146085,
+          "gibbs_rate": 0.006170137254720067,
+          "gradient": -0.005778685243428606,
+          "seed_sign_agreement": true,
+          "z_score": -7.031562678061631
+        },
+        "weight": 0.02291902078172002
+      }
+    ],
+    "tonal_logits": [
+      [
+        [
+          -1.7668868319632274,
+          -6.099740164563594,
+          -1.751754134614356,
+          -8.43511508038063,
+          -1.6949898094494582,
+          -2.245482968028616,
+          -4.464823166828508,
+          -1.8637653735751631,
+          -6.03721980758226,
+          -2.2760196918886977,
+          -5.922809456404516,
+          -2.414901119986663
+        ],
+        [
+          -1.7672465605051106,
+          -4.884742540311644,
+          -2.007274187251387,
+          -1.8971630688349628,
+          -4.5531662743026375,
+          -1.9066869503462183,
+          -5.983354828979754,
+          -1.7902096820135593,
+          -2.524856593480257,
+          -4.295058341633333,
+          -2.289998232753379,
+          -4.285624309399974
+        ]
+      ],
+      [
+        [
+          -1.6186131361350926,
+          -4.479423088782201,
+          -2.0149949703377414,
+          -6.2032713523940455,
+          -2.1185690876641794,
+          -2.7460947029899887,
+          -3.4673308973100028,
+          -1.7249020133016497,
+          -4.618374548876063,
+          -2.1496435713720965,
+          -4.581785101443771,
+          -2.08152781598383
+        ],
+        [
+          -1.7838891311055418,
+          -4.490059632406174,
+          -2.5255442955198264,
+          -2.2814241428729476,
+          -3.4797399508837428,
+          -1.9846295129788711,
+          -4.9313708722874745,
+          -1.7361298255532707,
+          -2.4679836511232165,
+          -3.354576807929737,
+          -2.1519623918588633,
+          -2.975087186224833
+        ]
+      ],
+      [
+        [
+          -1.918770398364668,
+          -5.352757602849814,
+          -1.9690111854324948,
+          -6.503329630448635,
+          -1.998642983038866,
+          -2.3118583574958116,
+          -4.076758557673599,
+          -1.5421647318266756,
+          -4.862393050955164,
+          -2.047587957952473,
+          -4.399195476178428,
+          -2.376840614899967
+        ],
+        [
+          -1.774749626608234,
+          -3.6126349192316645,
+          -2.2711646092762625,
+          -1.9289514168083537,
+          -4.2120496221289025,
+          -1.911220455837122,
+          -5.574079361249162,
+          -1.8672119793994555,
+          -2.546662603771058,
+          -4.2120496221289025,
+          -2.1706014768882818,
+          -3.624262957226784
+        ]
+      ],
+      [
+        [
+          -1.7032908212404467,
+          -4.487387150331708,
+          -2.0808711344894304,
+          -5.495027660794091,
+          -2.069491210826668,
+          -2.241960471177611,
+          -3.74519788470416,
+          -1.7264400031074125,
+          -4.187870620232924,
+          -2.053588162853502,
+          -4.711854328576426,
+          -2.394152286519536
+        ],
+        [
+          -1.745517228103252,
+          -3.748184524386362,
+          -2.5599391457981224,
+          -2.1135716713158827,
+          -3.9152386090495286,
+          -1.9271863724307807,
+          -4.73858322841424,
+          -1.8136417222362882,
+          -2.2923846027142014,
+          -3.7051671393026715,
+          -2.178195922660545,
+          -3.589960519171468
+        ]
+      ]
+    ],
+    "train_nll": 0.9966928589727213,
+    "validation_nll": 0.9983141751720186
+  }
+}

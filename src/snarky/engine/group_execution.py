@@ -11,7 +11,12 @@ from ..matching import PatternMatcher
 from ..premises import FactPremise
 from ..rules import RuleGroup
 from ..substitutions import EMPTY_SUBSTITUTION
-from .agenda import ActivationKey, _fact_delta
+from .agenda import (
+    ActivationKey,
+    _build_rule_dependency_index,
+    _fact_delta,
+    _RuleDependencyIndex,
+)
 from .conflict import AgendaSelection
 from .events import InferenceEvent
 from .provenance import Derivation, Provenance
@@ -107,7 +112,8 @@ def _run_group(
     group: RuleGroup,
     mode: GroupExecutionMode,
     until: StopCondition | None,
-) -> GroupRunResult:
+    materialize_result: bool,
+) -> GroupRunResult | None:
     """Execute *group* against *session* without owning session state."""
 
     if mode is GroupExecutionMode.UNTIL and until is None:
@@ -138,6 +144,7 @@ def _run_group(
             start_fired_count,
             cycles=0,
             stop_reason=GroupStopReason.CONDITION_MET,
+            materialize_result=materialize_result,
         )
 
     if session.conflict_strategy is not None:
@@ -150,32 +157,69 @@ def _run_group(
             start_event_count,
             start_agenda_count,
             start_fired_count,
+            materialize_result,
+        )
+
+    dependencies = _build_rule_dependency_index(group)
+    pending = _initial_pending_rules(session, group, dependencies)
+    if not pending:
+        session._cycles += 1
+        session.agenda_metrics.rule_reuses += len(group.rules)
+        return session._group_result(
+            group,
+            mode,
+            start_derivation_count,
+            start_event_count,
+            start_agenda_count,
+            start_fired_count,
+            cycles=1,
+            stop_reason=(
+                GroupStopReason.ONE_CYCLE
+                if mode is GroupExecutionMode.ONE_CYCLE
+                else GroupStopReason.FIXED_POINT
+            ),
+            materialize_result=materialize_result,
         )
 
     for local_cycle in range(1, session.limits.max_cycles + 1):
         session._cycles += 1
+        next_pending: set[int] = set()
+        evaluated = 0
         mutations_this_cycle = 0
-        for rule in group.rules:
-            facts_snapshot = session._store.facts
+        for rule_index, rule in enumerate(group.rules):
+            if rule_index not in pending:
+                continue
+            evaluated += 1
+            event_count_before_rule = len(session._events)
             state_key = (group.name, rule.name)
             previous_count = session._previous_event_counts.get(state_key)
-            delta = (
+            changes = (
                 None
-                if (
-                    previous_count is None
-                    or state_key in session._force_full_evaluation
-                )
+                if previous_count is None
                 else _fact_delta(
                     tuple(session._events[previous_count:]),
-                    facts_snapshot,
                     revision=len(session._events),
                 )
+            )
+            force_full = state_key in session._force_full_evaluation
+            if force_full and changes is not None:
+                synchronize = getattr(
+                    session.strategy,
+                    "synchronize",
+                    None,
+                )
+                if synchronize is not None:
+                    synchronize(session._instantiation_facts(), changes)
+            delta = (
+                None
+                if previous_count is None or force_full
+                else changes
             )
             session._force_full_evaluation.discard(state_key)
             session._previous_event_counts[state_key] = len(session._events)
             for activation in session.strategy.instantiate(
                 rule,
-                facts_snapshot,
+                session._instantiation_facts(),
                 delta,
             ):
                 if any(
@@ -202,6 +246,7 @@ def _run_group(
                 mutations_this_cycle += outcome.mutation_count
 
                 if until is not None and until(session):
+                    session.agenda_metrics.rule_recomputations += evaluated
                     return session._group_result(
                         group,
                         mode,
@@ -211,11 +256,13 @@ def _run_group(
                         start_fired_count,
                         cycles=local_cycle,
                         stop_reason=GroupStopReason.CONDITION_MET,
+                        materialize_result=materialize_result,
                     )
                 if (
                     mode is GroupExecutionMode.FIRST_CHANGE
                     and outcome.mutation_count
                 ):
+                    session.agenda_metrics.rule_recomputations += evaluated
                     return session._group_result(
                         group,
                         mode,
@@ -225,8 +272,26 @@ def _run_group(
                         start_fired_count,
                         cycles=local_cycle,
                         stop_reason=GroupStopReason.FIRST_CHANGE,
+                        materialize_result=materialize_result,
                     )
 
+            changed_events = tuple(
+                session._events[event_count_before_rule:]
+            )
+            for affected_index in dependencies.affected(changed_events):
+                if affected_index > rule_index:
+                    pending.add(affected_index)
+                else:
+                    next_pending.add(affected_index)
+
+        session.agenda_metrics.rule_recomputations += evaluated
+        session.agenda_metrics.rule_reuses += len(group.rules) - evaluated
+        _advance_unaffected_rules(
+            session,
+            group,
+            next_pending,
+            len(session._events),
+        )
         if mode is GroupExecutionMode.ONE_CYCLE:
             return session._group_result(
                 group,
@@ -237,8 +302,15 @@ def _run_group(
                 start_fired_count,
                 cycles=local_cycle,
                 stop_reason=GroupStopReason.ONE_CYCLE,
+                materialize_result=materialize_result,
             )
-        if mutations_this_cycle == 0:
+        if not next_pending:
+            if mutations_this_cycle:
+                if local_cycle == session.limits.max_cycles:
+                    break
+                session._cycles += 1
+                session.agenda_metrics.rule_reuses += len(group.rules)
+                local_cycle += 1
             return session._group_result(
                 group,
                 mode,
@@ -248,12 +320,54 @@ def _run_group(
                 start_fired_count,
                 cycles=local_cycle,
                 stop_reason=GroupStopReason.FIXED_POINT,
+                materialize_result=materialize_result,
             )
+        pending = next_pending
 
     raise InferenceLimitError(
         f"rule group {group.name!r} did not stop after "
         f"{session.limits.max_cycles} cycles"
     )
+
+
+def _initial_pending_rules(
+    session: InferenceSession,
+    group: RuleGroup,
+    dependencies: _RuleDependencyIndex,
+) -> set[int]:
+    """Select rules invalidated since their previous ordered evaluation."""
+
+    revision = len(session._events)
+    oldest_revision = revision
+    pending: set[int] = set()
+    for rule_index, rule in enumerate(group.rules):
+        state_key = (group.name, rule.name)
+        previous = session._previous_event_counts.get(state_key)
+        if previous is None or state_key in session._force_full_evaluation:
+            pending.add(rule_index)
+        if previous is not None:
+            oldest_revision = min(oldest_revision, previous)
+    if oldest_revision < revision:
+        pending.update(
+            dependencies.affected(
+                tuple(session._events[oldest_revision:])
+            )
+        )
+    _advance_unaffected_rules(session, group, pending, revision)
+    return pending
+
+
+def _advance_unaffected_rules(
+    session: InferenceSession,
+    group: RuleGroup,
+    pending: set[int],
+    revision: int,
+) -> None:
+    """Mark irrelevant journal events consumed without instantiating rules."""
+
+    for rule_index, rule in enumerate(group.rules):
+        if rule_index not in pending:
+            session._previous_event_counts[(group.name, rule.name)] = revision
 
 
 def _run_group_with_conflict_resolution(
@@ -265,7 +379,8 @@ def _run_group_with_conflict_resolution(
     start_event_count: int,
     start_agenda_count: int,
     start_fired_count: int,
-) -> GroupRunResult:
+    materialize_result: bool,
+) -> GroupRunResult | None:
     """Resolve one complete conflict set before every activation."""
 
     assert session.conflict_strategy is not None
@@ -282,6 +397,7 @@ def _run_group_with_conflict_resolution(
                 start_fired_count,
                 cycles=local_cycle,
                 stop_reason=GroupStopReason.FIXED_POINT,
+                materialize_result=materialize_result,
             )
 
         selected = session.conflict_strategy.select(candidates)
@@ -328,6 +444,7 @@ def _run_group_with_conflict_resolution(
                 start_fired_count,
                 cycles=local_cycle,
                 stop_reason=GroupStopReason.CONDITION_MET,
+                materialize_result=materialize_result,
             )
         if (
             mode is GroupExecutionMode.FIRST_CHANGE
@@ -342,6 +459,7 @@ def _run_group_with_conflict_resolution(
                 start_fired_count,
                 cycles=local_cycle,
                 stop_reason=GroupStopReason.FIRST_CHANGE,
+                materialize_result=materialize_result,
             )
         if mode is GroupExecutionMode.ONE_CYCLE:
             return session._group_result(
@@ -353,6 +471,7 @@ def _run_group_with_conflict_resolution(
                 start_fired_count,
                 cycles=local_cycle,
                 stop_reason=GroupStopReason.ONE_CYCLE,
+                materialize_result=materialize_result,
             )
 
     raise InferenceLimitError(

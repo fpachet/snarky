@@ -1,0 +1,38 @@
+schema_version: 1
+id: K3-V22-SHARED-ROOT-MOTION-GRAMMAR-1
+status: FROZEN
+frozen_on: 2026-07-29
+extends: grammar_v20b_identifiable_harmonic_status.yaml
+purpose: >
+  Remplacer la table libre V21 de 288 transitions par 24 paramètres partagés :
+  douze mouvements de fondamentale dans chacun des deux modes déclarés.
+
+extensions:
+  vertical_status_features: true
+  named_harmonic_status_features: true
+  named_harmonic_metric_encoding: baseline_plus_strong_deviation
+  named_harmonic_transition_features: false
+  named_harmonic_root_motion_features: true
+
+additional_generated_relations:
+  - declared_mode_and_directed_root_motion_class
+
+families:
+  - id: named_root_motion_mode
+    feature_kinds:
+      - central_named_root_motion_mode
+    modes: [major, minor]
+    directed_motion_classes: {range: [0, 11]}
+    requires_unique_named_analysis: true
+    complexity: 3
+
+structure_learning:
+  maximum_clause_complexity: 4
+
+provenance_guards:
+  replaces_v21_free_transition_table: true
+  parameter_count_reduced_from: 288
+  parameter_count_reduced_to: 24
+  departure_degree_specific_parameters: false
+  all_motion_classes_generated_symmetrically: true
+  test_split_loaded: false

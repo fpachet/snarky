@@ -1,0 +1,84 @@
+         10061989 function calls (10060702 primitive calls) in 2.070 seconds
+
+   Ordered by: cumulative time
+   List reduced from 195 to 40 due to restriction <40>
+
+   ncalls  tottime  percall  cumtime  percall filename:lineno(function)
+        1    0.001    0.001    2.010    2.010 search.py:138(search)
+       10    0.000    0.000    1.994    0.199 csp_diagnostics.py:77(propagate)
+       10    0.108    0.011    1.994    0.199 propagation.py:119(propagate)
+       76    0.001    0.000    1.014    0.013 csp_diagnostics.py:88(_revise)
+       76    0.000    0.000    1.013    0.013 propagation.py:211(_revise)
+       76    0.159    0.002    1.012    0.013 kernels.py:119(_revise_all_different_with_matching)
+     5603    0.012    0.000    0.430    0.000 csp_diagnostics.py:106(_revise_numeric)
+       76    0.220    0.003    0.423    0.006 kernels.py:71(_filter_all_different_bits)
+     5603    0.007    0.000    0.387    0.000 propagation.py:197(_revise_numeric)
+     5603    0.255    0.000    0.360    0.000 numeric.py:85(supports)
+       76    0.009    0.000    0.349    0.005 kernels.py:164(_maximum_matching)
+  1070327    0.169    0.000    0.214    0.000 {method 'get' of 'dict' objects}
+     9570    0.137    0.000    0.208    0.000 domains.py:54(values)
+      119    0.069    0.001    0.189    0.002 kernels.py:187(breadth_first)
+  3298041    0.157    0.000    0.157    0.000 terms.py:47(__hash__)
+     1657    0.065    0.000    0.148    0.000 domains.py:125(retain)
+  775/636    0.012    0.000    0.127    0.000 kernels.py:207(depth_first)
+  1821881    0.124    0.000    0.124    0.000 <string>:8(__eq__)
+      861    0.021    0.000    0.116    0.000 {built-in method builtins.sorted}
+     1648    0.033    0.000    0.106    0.000 {method 'intersection_update' of 'set' objects}
+    83103    0.049    0.000    0.090    0.000 reprlib.py:15(wrapper)
+        1    0.001    0.001    0.087    0.087 prune_bridge.py:45(__init__)
+      312    0.003    0.000    0.081    0.000 prune_bridge.py:97(add_variable)
+  1012698    0.076    0.000    0.076    0.000 {method 'bit_length' of 'int' objects}
+   158689    0.046    0.000    0.066    0.000 kernels.py:101(<genexpr>)
+     1307    0.010    0.000    0.051    0.000 {built-in method builtins.any}
+     5603    0.003    0.000    0.040    0.000 numeric.py:136(get)
+      312    0.001    0.000    0.039    0.000 model.py:44(__post_init__)
+    32760    0.014    0.000    0.038    0.000 prune_bridge.py:98(<genexpr>)
+   480194    0.037    0.000    0.037    0.000 {method 'append' of 'list' objects}
+      209    0.004    0.000    0.036    0.000 numeric.py:168(_compile)
+   673482    0.035    0.000    0.035    0.000 terms.py:29(__hash__)
+    14446    0.007    0.000    0.032    0.000 {built-in method builtins.sum}
+    35824    0.016    0.000    0.025    0.000 domains.py:70(size)
+     4156    0.017    0.000    0.023    0.000 domains.py:135(<genexpr>)
+   328014    0.021    0.000    0.021    0.000 {built-in method builtins.isinstance}
+    32760    0.005    0.000    0.021    0.000 model.py:56(<genexpr>)
+    11206    0.013    0.000    0.020    0.000 domains.py:81(retain_mask)
+    32448    0.010    0.000    0.016    0.000 terms.py:170(is_ground)
+     7904    0.003    0.000    0.015    0.000 kernels.py:171(<lambda>)
+
+
+         10061989 function calls (10060702 primitive calls) in 2.070 seconds
+
+   Ordered by: internal time
+   List reduced from 195 to 30 due to restriction <30>
+
+   ncalls  tottime  percall  cumtime  percall filename:lineno(function)
+     5603    0.255    0.000    0.360    0.000 numeric.py:85(supports)
+       76    0.220    0.003    0.423    0.006 kernels.py:71(_filter_all_different_bits)
+  1070327    0.169    0.000    0.214    0.000 {method 'get' of 'dict' objects}
+       76    0.159    0.002    1.012    0.013 kernels.py:119(_revise_all_different_with_matching)
+  3298041    0.157    0.000    0.157    0.000 terms.py:47(__hash__)
+     9570    0.137    0.000    0.208    0.000 domains.py:54(values)
+  1821881    0.124    0.000    0.124    0.000 <string>:8(__eq__)
+       10    0.108    0.011    1.994    0.199 propagation.py:119(propagate)
+  1012698    0.076    0.000    0.076    0.000 {method 'bit_length' of 'int' objects}
+      119    0.069    0.001    0.189    0.002 kernels.py:187(breadth_first)
+     1657    0.065    0.000    0.148    0.000 domains.py:125(retain)
+    83103    0.049    0.000    0.090    0.000 reprlib.py:15(wrapper)
+   158689    0.046    0.000    0.066    0.000 kernels.py:101(<genexpr>)
+   480194    0.037    0.000    0.037    0.000 {method 'append' of 'list' objects}
+   673482    0.035    0.000    0.035    0.000 terms.py:29(__hash__)
+     1648    0.033    0.000    0.106    0.000 {method 'intersection_update' of 'set' objects}
+   328014    0.021    0.000    0.021    0.000 {built-in method builtins.isinstance}
+      861    0.021    0.000    0.116    0.000 {built-in method builtins.sorted}
+     4156    0.017    0.000    0.023    0.000 domains.py:135(<genexpr>)
+    35824    0.016    0.000    0.025    0.000 domains.py:70(size)
+    32760    0.014    0.000    0.038    0.000 prune_bridge.py:98(<genexpr>)
+    11206    0.013    0.000    0.020    0.000 domains.py:81(retain_mask)
+    75199    0.012    0.000    0.012    0.000 <string>:5(__repr__)
+  775/636    0.012    0.000    0.127    0.000 kernels.py:207(depth_first)
+     5603    0.012    0.000    0.430    0.000 csp_diagnostics.py:106(_revise_numeric)
+    98325    0.011    0.000    0.012    0.000 {method 'add' of 'set' objects}
+     1307    0.010    0.000    0.051    0.000 {built-in method builtins.any}
+    32448    0.010    0.000    0.014    0.000 terms.py:42(__post_init__)
+    32448    0.010    0.000    0.016    0.000 terms.py:170(is_ground)
+       76    0.009    0.000    0.349    0.005 kernels.py:164(_maximum_matching)

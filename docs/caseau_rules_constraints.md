@@ -1,5 +1,10 @@
 # LORE, LAURE, CLAIRE, and Snarky
 
+For measured current implementations, see the
+[September 2026 CLAIRE comparison](performance_claire_2026-09-16.md). It preserves
+the historical rule-based workloads and separately reports Snarky's native-global
+CSP formulation; it does not equate interpreted and compiled CLAIRE performance.
+
 Snarky's combination of rules, constraints, choices, and reversible search has
 an important direct precedent in Yves Caseau's work. The project should not
 present that general combination as new.
@@ -39,6 +44,53 @@ procedural attachments:
 
 The names are easy to conflate: the useful sequence here is **LORE → LAURE →
 CLAIRE**, not “CLAURE.”
+
+## Conjunctions in CLAIRE4's built-in event rules
+
+The built-in rule path visible in CLAIRE4 commit `25b1496` is a procedural
+event-demon compiler, not a general RETE-style join network. In
+`meta/define.cl`, `make_filter` requires the first conjunct to identify an
+event such as a property write or a table update. `self_eval(Defrule)` attaches
+the resulting demon to that relation, and `eval_if_write` invokes it when the
+relation changes.
+
+`make_demon` binds the object and new value supplied by that event, then
+compiles the remaining conjuncts into an ordinary Boolean test in the demon's
+lambda. Consequently, a rule such as `N1(x) := y & y > 0` does not search a
+Cartesian product: the update provides `x` and `y`, and only `y > 0` remains
+to be checked. When a rule needs to enumerate other objects, the CLAIRE source
+does so explicitly with `exists`, `for`, or a set comprehension, as in
+`test/rules/dinner.cl`; that enumeration carries the combinatorial cost.
+
+CLAIRE4 also exposes `eval_rule` as a hook for rules with typed rule
+arguments, described in the source as the ClaireRules engine. That engine is
+not implemented in this checkout, so the repository alone does not establish
+whether that separate path keeps partial joins or uses another production-rule
+algorithm. The Talarian comparison in this project deliberately exercises the
+built-in event-demon path.
+
+## Factorized conjunctions in current Snarky
+
+Snarky now has a conservative multi-premise event path for a related but
+different execution model. When an addition reaches a positive rule whose
+comparisons were already bound at their textual positions, the added fact is
+used as a join anchor. Fixed relation fields reject irrelevant anchor
+positions, and the remaining fact premises are retrieved from exact indexes.
+The runtime neither scans all hubs nor materializes every left/right prefix.
+
+For example, the shared triangle rule prepares `hub → left` and
+`hub → right` facts, then streams `left → right` edges. Each edge supplies
+both endpoint variables; two indexed lookups find the common hub. The
+executable Snarky version is
+[`rulebases/small/triangle_closure`](../rulebases/small/triangle_closure/README.md),
+and the common-language runner is
+[`benchmarks/claire_triangle_closure.py`](../benchmarks/claire_triangle_closure.py).
+
+This specialization is deliberately narrower than a general RETE network.
+It excludes focused conflict-resolution rules, comparisons that were
+textually unbound, negative or aggregate queries, bindings, combinations, and
+removal deltas. Those cases preserve the existing semi-naive, partial-memory,
+or complete-evaluation behavior.
 
 ## Operational comparison
 

@@ -1,0 +1,53 @@
+schema_version: 1
+id: K3-V24-RESIDUAL-SONORITY-GRAMMAR-1
+status: FROZEN
+frozen_on: 2026-07-29
+extends: grammar_v23_metric_bass_harmony.yaml
+purpose: >
+  Fermer la zone morte harmonique de V23 sans dupliquer ses quatorze statuts
+  d'accord unique. Sur temps fort, toute sonorité qui n'a pas une analyse
+  nommée unique reçoit exactement un statut résiduel local et lisible.
+
+extensions:
+  residual_strong_sonority_features: true
+
+additional_generated_relations:
+  - exact_named_ambiguous_on_strong_beat
+  - incomplete_consonant_triad_on_strong_beat
+  - strict_triad_plus_one_foreign_pitch_class
+  - foreign_tone_passing_or_neighbor_in_k3
+  - foreign_tone_suspension_in_k3
+  - foreign_tone_appoggiatura_in_k3
+  - foreign_tone_unlicensed_in_k3
+  - other_unlicensed_strong_sonority
+
+families:
+  - id: residual_strong_sonority_status
+    feature_kinds:
+      - central_residual_strong_sonority_status
+    statuses:
+      - exact_named_ambiguous
+      - incomplete_consonant_triad
+      - triad_plus_one_ambiguous
+      - triad_plus_passing_or_neighbor
+      - triad_plus_suspension
+      - triad_plus_appoggiatura
+      - triad_plus_unlicensed
+      - other_unlicensed
+    metric: strong
+    role: exhaustive_reference_complement
+    complexity: 4
+
+structure_learning:
+  maximum_clause_complexity: 4
+
+provenance_guards:
+  baseline_model: V23
+  v23_unique_named_statuses_duplicated: false
+  residual_statuses_mutually_exclusive: true
+  residual_statuses_exhaustive_when_v23_inactive: true
+  hidden_harmonic_states: false
+  trajectory_window_blocks: 3
+  weights_seen_before_freeze: false
+  generation_metrics_used_for_weight_learning: false
+  test_split_loaded: false

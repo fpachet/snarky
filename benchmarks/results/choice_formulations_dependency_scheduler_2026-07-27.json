@@ -1,0 +1,76 @@
+{
+  "benchmark": "choice_formulations",
+  "python": "3.13.11",
+  "platform": "macOS-15.7.7-arm64-arm-64bit-Mach-O",
+  "repeat": 3,
+  "snarky_commit": "ccce61bb710e47353d49a66c5082a58c2d8de1f6",
+  "snarky_dirty": false,
+  "results": {
+    "n_queens_14": {
+      "extensional": {
+        "median_seconds": 2.70774741700734,
+        "min_seconds": 2.5086444159969687,
+        "max_seconds": 2.893663833005121,
+        "fact_count": 15513,
+        "explored_nodes": 20,
+        "failed_branches": 8,
+        "solutions": 1
+      },
+      "intensional": {
+        "median_seconds": 1.0877532080048695,
+        "min_seconds": 1.04961645900039,
+        "max_seconds": 1.1467867500032298,
+        "fact_count": 253,
+        "explored_nodes": 20,
+        "failed_branches": 8,
+        "solutions": 1
+      },
+      "speedup": 2.4893030855535923,
+      "reduction_percent": 59.82811390853149
+    },
+    "harmonizer_two_positions": {
+      "extensional": {
+        "median_seconds": 0.0862953329924494,
+        "min_seconds": 0.08544999998412095,
+        "max_seconds": 0.10283891600556672,
+        "fact_count": 401,
+        "explored_nodes": 13,
+        "failed_branches": 0,
+        "solutions": 3
+      },
+      "intensional": {
+        "median_seconds": 0.0187916670111008,
+        "min_seconds": 0.018553041998529807,
+        "max_seconds": 0.019481416005874053,
+        "fact_count": 32,
+        "explored_nodes": 13,
+        "failed_branches": 0,
+        "solutions": 3
+      },
+      "speedup": 4.59221275799918,
+      "reduction_percent": 78.22400544795973
+    },
+    "harmonizer_four_positions": {
+      "extensional": {
+        "median_seconds": 2.3444570830033626,
+        "min_seconds": 2.2670425830001477,
+        "max_seconds": 2.5052081669855397,
+        "fact_count": 1171,
+        "explored_nodes": 124,
+        "failed_branches": 0,
+        "solutions": 3
+      },
+      "intensional": {
+        "median_seconds": 0.3143743750115391,
+        "min_seconds": 0.27857954197679646,
+        "max_seconds": 0.34142308300943114,
+        "fact_count": 64,
+        "explored_nodes": 124,
+        "failed_branches": 0,
+        "solutions": 3
+      },
+      "speedup": 7.457532386083661,
+      "reduction_percent": 86.59073875607864
+    }
+  }
+}

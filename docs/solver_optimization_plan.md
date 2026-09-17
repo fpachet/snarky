@@ -1,5 +1,10 @@
 # Finite-CSP solver optimization plan
 
+Scope: historical optimization of the legacy fact-backed CSP runtime. Implemented
+phase and default-policy claims below refer to that path. The direct Python finite
+runtime's current follow-up is the [post-Prune optimization roadmap](csp_optimization_roadmap_2026-09-16.md),
+which separates diagnostics, arithmetic, NValue, compact domains and search changes.
+
 This plan keeps Snarky a clear, extensible rule-and-constraint runtime rather
 than turning it into a specialized competitive CSP solver. Optimizations must
 preserve the architecture:

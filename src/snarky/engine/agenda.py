@@ -4,6 +4,7 @@ from __future__ import annotations
 
 from collections.abc import Sequence
 from dataclasses import dataclass
+from functools import cache
 
 from ..facts import Fact
 from ..instantiation import (
@@ -61,7 +62,7 @@ class _RuleDependencyIndex:
 
 def _evaluate_agenda(
     group: RuleGroup,
-    facts_snapshot: tuple[Fact, ...],
+    facts_snapshot: Sequence[Fact],
     events: Sequence[InferenceEvent],
     memory: _AgendaMemory | None,
     strategy: InstantiationStrategy,
@@ -92,7 +93,6 @@ def _evaluate_agenda(
         if dirty:
             delta = _fact_delta(
                 changed_events,
-                facts_snapshot,
                 revision=len(events),
             )
             for rule_index in dirty:
@@ -174,6 +174,7 @@ def _evaluate_agenda(
     return updated_memory, tuple(candidates)
 
 
+@cache
 def _build_rule_dependency_index(
     group: RuleGroup,
 ) -> _RuleDependencyIndex:
@@ -332,13 +333,11 @@ def _dependency_tokens_for_fact(
 
 def _fact_delta(
     events: tuple[InferenceEvent, ...],
-    current_facts: tuple[Fact, ...],
     *,
     revision: int,
 ) -> FactDelta:
     """Reduce a mutation journal slice to its net per-rule fact delta."""
 
-    del current_facts
     initial_presence: dict[Fact, bool] = {}
     final_presence: dict[Fact, bool] = {}
     removed_then_added: set[Fact] = set()

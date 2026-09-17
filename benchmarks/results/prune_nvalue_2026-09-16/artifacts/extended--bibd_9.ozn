@@ -1,0 +1,8 @@
+output ["{\n","  \"design\" : ",concat(["[",join(", ",[showJSON(slice_1d(design,[X_INTRODUCED_1081_..X_INTRODUCED_1081_,index_set_2of2(design)],index_set_2of2(design))) | X_INTRODUCED_1081_ in index_set_1of2(design)]),"]"]),",\n  \"together\" : ",concat(["[",join(", ",[showJSON(slice_1d(together,[X_INTRODUCED_1080_..X_INTRODUCED_1080_,index_set_2of2(together)],index_set_2of2(together))) | X_INTRODUCED_1080_ in index_set_1of2(together)]),"]"]),"\n}\n"];
+set of int: block = 1..12;
+set of int: treatment_pair = 1..36;
+array [1..432] of int: X_INTRODUCED_109_;
+array [treatment_pair,block] of int: together = array2d(1..36,1..12,X_INTRODUCED_109_);
+set of int: treatment = 1..9;
+array [1..108] of int: X_INTRODUCED_0_;
+array [treatment,block] of int: design = array2d(1..9,1..12,X_INTRODUCED_0_);

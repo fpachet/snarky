@@ -1,0 +1,321 @@
+{
+  "experiment": {
+    "id": "K3-TWO-LOOP-FULL-SNARKY-GENERATION-1",
+    "status": "FULL_GENERATION",
+    "gibbs_used_for_generation": false,
+    "lower_voice_source_used_for_search": false,
+    "test_loaded": false
+  },
+  "fragment": {
+    "piece_id": "bach/bwv48.3",
+    "blocks": 36,
+    "end_offset": 40.0,
+    "generated_segments": 108,
+    "scored_segments": 102,
+    "soprano_imposed": true,
+    "rhythm_imposed": true,
+    "homorhythmic_soprano_grid": true,
+    "all_voices_share_soprano_attacks": true,
+    "choice_unit": "joint_lower_voicing"
+  },
+  "model": {
+    "source": "/Users/francoispachet/IdeaProjects/boojum/harmonizer/bach_rule_induction/factor_bases/k3_v6_induced/v29_strong_succession_full_model.json",
+    "factor_count": 137,
+    "weight_estimator": "joint_conditional_mle",
+    "constraint_count": 23,
+    "constraint_status": "EMPIRICAL_PRETEST_FILTER",
+    "constraint_mode": "v22",
+    "forward_check": false,
+    "search_order": "chronological",
+    "voice_ranges": {
+      "1": [
+        55,
+        74
+      ],
+      "2": [
+        50,
+        68
+      ],
+      "3": [
+        36,
+        64
+      ]
+    },
+    "voice_range_status": "EXACT_TRAIN_SUPPORT",
+    "threshold": -1.3672136364916092,
+    "threshold_policy": "strict_minimum",
+    "score_floor_mode": "offline_audit",
+    "score_floor_enforced": false,
+    "sequence_factor": null,
+    "harmonic_budget": null,
+    "official_manual_budgets": null,
+    "vertical_harmonization": {
+      "every_block_checked": true,
+      "allowed_named_quality_indices": [
+        0,
+        1
+      ],
+      "vocabulary": "consonant_triads",
+      "incomplete_major_minor_triads_allowed": true,
+      "harmonic_skeleton_imposed": false
+    }
+  },
+  "search": {
+    "status": "solved",
+    "explored_nodes": 39,
+    "failed_branches": 2,
+    "backtracks": 2,
+    "score_rejections": 0,
+    "hard_constraint_rejections": 0,
+    "harmonic_dissonance_budget_rejections": 0,
+    "harmonic_chain_budget_rejections": 0,
+    "official_manual_budget_rejections": 0,
+    "official_manual_partial_rejections": 0,
+    "official_manual_complete_rejections": 0,
+    "official_manual_rejection_examples": [],
+    "homorhythmic_chord_rejections": 0,
+    "homorhythmic_chord_rejection_examples": [],
+    "provider_calls": 38,
+    "prefiltered_alternatives": 6338,
+    "harmonic_budget_prefiltered": 0,
+    "forward_check_rejections": 0,
+    "empty_domains": 2,
+    "component_cache_entries": 0,
+    "hard_prefilter_cache_entries": 108,
+    "rejection_examples": []
+  },
+  "solution": {
+    "blocks": [
+      [
+        70,
+        67,
+        58,
+        58
+      ],
+      [
+        69,
+        65,
+        60,
+        53
+      ],
+      [
+        67,
+        63,
+        58,
+        55
+      ],
+      [
+        65,
+        65,
+        60,
+        57
+      ],
+      [
+        65,
+        65,
+        58,
+        58
+      ],
+      [
+        67,
+        63,
+        58,
+        55
+      ],
+      [
+        69,
+        65,
+        60,
+        53
+      ],
+      [
+        70,
+        63,
+        58,
+        55
+      ],
+      [
+        72,
+        64,
+        57,
+        57
+      ],
+      [
+        70,
+        63,
+        58,
+        55
+      ],
+      [
+        69,
+        65,
+        60,
+        53
+      ],
+      [
+        67,
+        63,
+        58,
+        55
+      ],
+      [
+        69,
+        65,
+        60,
+        53
+      ],
+      [
+        70,
+        63,
+        58,
+        55
+      ],
+      [
+        67,
+        64,
+        60,
+        52
+      ],
+      [
+        65,
+        62,
+        62,
+        53
+      ],
+      [
+        70,
+        63,
+        58,
+        55
+      ],
+      [
+        69,
+        65,
+        60,
+        53
+      ],
+      [
+        70,
+        63,
+        58,
+        55
+      ],
+      [
+        72,
+        64,
+        57,
+        57
+      ],
+      [
+        72,
+        63,
+        60,
+        55
+      ],
+      [
+        74,
+        62,
+        58,
+        53
+      ],
+      [
+        72,
+        63,
+        60,
+        55
+      ],
+      [
+        70,
+        62,
+        62,
+        53
+      ],
+      [
+        72,
+        63,
+        60,
+        55
+      ],
+      [
+        65,
+        62,
+        58,
+        53
+      ],
+      [
+        67,
+        63,
+        58,
+        51
+      ],
+      [
+        69,
+        62,
+        57,
+        53
+      ],
+      [
+        70,
+        62,
+        55,
+        55
+      ],
+      [
+        72,
+        65,
+        57,
+        53
+      ],
+      [
+        74,
+        62,
+        59,
+        54
+      ],
+      [
+        72,
+        63,
+        60,
+        55
+      ],
+      [
+        70,
+        62,
+        62,
+        53
+      ],
+      [
+        72,
+        63,
+        60,
+        55
+      ],
+      [
+        70,
+        62,
+        62,
+        53
+      ],
+      [
+        70,
+        63,
+        58,
+        55
+      ]
+    ],
+    "score": null,
+    "score_audit_status": "PENDING_COMPILED_OFFLINE_AUDIT",
+    "satisfies_threshold": null,
+    "adjacent_crossed_blocks": 0,
+    "exports": {
+      "musicxml": "/Users/francoispachet/IdeaProjects/boojum/harmonizer/generated/homorhythmic_bwv48_3_consonant.musicxml",
+      "midi": "/Users/francoispachet/IdeaProjects/boojum/harmonizer/generated/homorhythmic_bwv48_3_consonant.mid",
+      "exporter": "MuSES"
+    },
+    "harmonic_budget": null,
+    "official_manual": null
+  },
+  "diagnostic": {
+    "bach_used_for_search": false
+  }
+}

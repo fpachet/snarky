@@ -1,0 +1,225 @@
+schema_version: 1
+id: R-LEARNED-LEADING-001
+title: Tendance ascendante de la classe tonale globale 11
+lifecycle: SUPPORTED
+status: NORMALLY
+statement: >
+  Lorsqu'une voix porte la classe située un demi-ton sous la tonique globale,
+  préférer sa résolution ascendante exacte d'un demi-ton, avec une force
+  dépendant de la voix, du mode et du mouvement de basse.
+scope:
+  voices: [soprano, alto, tenor, bass]
+  window: [previous_attack, current_attack]
+  corpus: music21-3.1.0-deepbach-352
+  split: variant-safe-251-50-51
+conditions:
+  - (previous_pitch - global_key_tonic_pc) % 12 == 11
+conclusion:
+  kind: prefer
+  clause: candidate_pitch == previous_pitch + 1
+normalized_clause: >
+  tonic_relative_source_class == 11
+  AND candidate_pitch == previous_pitch + 1
+selection:
+  family: tonic_relative_source_class
+  numeric_values_tested: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11]
+  family_rule_budget: 1
+  train_local_log_rate_contrast_min: 1.4
+  validation_local_log_rate_contrast_min: 1.5
+statistics:
+  train:
+    pieces: 251
+    testable_opportunities: 4235
+    observed_rate: 0.5053128689492326
+    model_expected_rate: 0.3002453567941374
+    residual_z: 34.76117965403654
+  validation:
+    pieces: 50
+    testable_opportunities: 909
+    observed_rate: 0.5258525852585259
+    model_expected_rate: 0.30743951728078833
+    residual_z: 17.09266992538674
+    bootstrap_replicates: 1000
+    bootstrap_z_95: [14.2193426555035, 20.10606943595229]
+    bootstrap_positive_fraction: 1.0
+  test:
+    opened: true
+    protocol: FROZEN_V3_8_TEST_PROTOCOL
+    pieces: 51
+    opened_once: true
+    accepted: true
+    nll_gain: 0.004413871188549967
+null_control:
+  selected: false
+  reason: local_peak_below_threshold
+semantic_comparison:
+  reference_rule_id: R-LEADING-001
+  classification: MISSING_CONTEXT_FOR_EQUIVALENCE
+  reason: >
+    La formule apprise utilise la tonalité globale mais ne teste ni le rôle de
+    l'accord source ni les exceptions de résolution.
+refinements:
+  experiment: v3_3_mode_stratified_leading_tone
+  candidate_count: 7
+  null_selected_count: 0
+  status: CANDIDATE_REFINEMENT
+  family_calibration:
+    experiment: v3_4_tonal_family_calibration
+    permutations: 49
+    statistic: min(train_residual_z, validation_residual_z)
+    empirically_retained_count: 1
+    retained_context:
+      mode: major
+      voice: alto
+      source_bass_class: 2
+      target_bass_class: 4
+      train_resolutions: [47, 54]
+      validation_resolutions: [19, 19]
+      joint_min_z: 8.049982992711689
+      empirical_fwer_p: 0.02
+    lifecycle: CANDIDATE_PENDING_HARMONIC_AUDIT
+  harmonic_audit:
+    experiment: v3_5_selected_tonal_harmonic_audit
+    classification: PITCH_CLASS_PROXY_PARTIAL
+    hypothesized_progression: vii°6_to_I6
+    train:
+      exact_progressions: [41, 54]
+      exact_progression_resolutions: [41, 41]
+      nonexact_progression_resolutions: [6, 13]
+      fisher_exact_greater_p: 0.000009689410355337104
+    validation:
+      exact_progressions: [12, 19]
+      exact_progression_resolutions: [12, 12]
+      nonexact_progression_resolutions: [7, 7]
+    conclusion: >
+      La progression vii°6 vers I6 forme un noyau sans exception observée,
+      mais n'est pas équivalente à la clause chromatique plus large.
+    lifecycle: CANDIDATE_ABLATED
+  joint_ablation:
+    experiment: v3_6_tonal_rule_ablation
+    formulations:
+      - TONAL_PROXY_MAJOR_ALTO_BASS_2_TO_4
+      - TONAL_EXACT_VII6_TO_I6
+    candidate_dependent_harmonic_coverage:
+      train: [41, 43]
+      validation: [12, 12]
+    validation_nll:
+      baseline: 1.2762102173221306
+      proxy: 1.269022454289757
+      harmonic: 1.2706690458520997
+      both: 1.2684574081169158
+    incremental_validation_gain:
+      harmonic_given_proxy: 0.0005650461728412548
+      proxy_given_harmonic: 0.002211637735183958
+    bootstrap_validation:
+      harmonic_given_proxy:
+        interval_95: [-0.00000828530172369843, 0.0011568315086175223]
+        positive_fraction: 0.972
+      proxy_given_harmonic:
+        interval_95: [0.0009432580497822817, 0.00377522808784353]
+        positive_fraction: 1.0
+    null_main_intervals_include_zero: true
+    conclusion: >
+      Le proxy conserve un apport propre robuste. La spécialisation harmonique
+      renforce ponctuellement le proxy, mais son intervalle touche zéro. Les
+      deux formulations décrivent une hiérarchie imbriquée, pas des règles
+      indépendantes.
+    lifecycle: CANDIDATE_PENDING_HARMONIC_FEATURE_EXPANSION
+  harmonic_compression:
+    experiment: v3_7_harmonic_feature_compression
+    selected_model: graded_exact
+    feature_id: TONAL_GRADED_EXACT_VII6_TO_I6
+    levels:
+      0: outside_context
+      1: numeric_proxy_resolution
+      2: numeric_proxy_and_exact_vii6_to_I6
+    learned_parameter_count: 1
+    description_bits: 144
+    two_weight_description_bits: 240
+    crossfit_nll: 1.2780944618925614
+    crossfit_gain_retention_vs_two_weights: 0.9995540720143624
+    bootstrap_gain_vs_baseline_95:
+      - 0.0015876769377473929
+      - 0.005555296766319976
+    null_selected_model: null
+    atypical_train_contexts:
+      proxy_only: 11
+      exact_context_exceptions: 2
+    conclusion: >
+      Une seule force graduée représente la règle locale et son renforcement
+      harmonique presque sans perte. Les niveaux sont locaux et imbriqués.
+    lifecycle: SUPPORTED_ON_FROZEN_TEST
+  frozen_test:
+    experiment: v3_8_frozen_harmonic_test
+    prior_freeze_commit: b635d6a
+    test_pieces: 51
+    proxy_coverage: [10, 12]
+    exact_coverage: [9, 9]
+    baseline_nll: 1.2340338326599323
+    graded_exact_nll: 1.2296199614713823
+    nll_gain: 0.004413871188549967
+    bootstrap_gain_95:
+      - 0.0012480540361452161
+      - 0.008492962352908359
+    gain_retention_vs_two_weights: 0.999641674226829
+    learned_weight: 2.0214869830878857
+    accepted: true
+    no_retuning_after_test: true
+  deepbach_audit:
+    experiment: v3_9_deepbach_conditional_probe
+    free_generations:
+      count: 2
+      eligible_alto_attacks: 101
+      proxy_opportunities: 0
+    conditional_probe:
+      contexts: 12
+      mean_resolution_probability: 0.9245715538660685
+      top_choice_resolution: [12, 12]
+      exact_context_mean_probability: 0.9350665079222785
+      nonexact_context_mean_probability: 0.8930866916974386
+    interpretation: >
+      DeepBach connaît fortement la préférence mais l'applique aussi aux deux
+      exceptions de Bach. Cela soutient une préférence graduée, non une
+      obligation dure.
+provenance:
+  experiment: experiments/differentiable_rules_poc/results/v3_1_global_tonal_tendency.json
+  refinement_experiment: experiments/differentiable_rules_poc/results/v3_3_mode_stratified_leading_tone.json
+  analysis: experiments/differentiable_rules_poc/V3_1_ANALYSIS.md
+  refinement_analysis: experiments/differentiable_rules_poc/V3_3_ANALYSIS.md
+  family_calibration: experiments/differentiable_rules_poc/results/v3_4_tonal_family_calibration.json
+  family_calibration_analysis: experiments/differentiable_rules_poc/V3_4_ANALYSIS.md
+  harmonic_audit: experiments/differentiable_rules_poc/results/v3_5_selected_tonal_harmonic_audit.json
+  harmonic_audit_analysis: experiments/differentiable_rules_poc/V3_5_ANALYSIS.md
+  joint_ablation: experiments/differentiable_rules_poc/results/v3_6_tonal_rule_ablation.json
+  joint_ablation_null: experiments/differentiable_rules_poc/results/v3_6_tonal_rule_ablation_null.json
+  joint_ablation_analysis: experiments/differentiable_rules_poc/V3_6_ANALYSIS.md
+  harmonic_compression: experiments/differentiable_rules_poc/results/v3_7_harmonic_feature_compression.json
+  harmonic_compression_null: experiments/differentiable_rules_poc/results/v3_7_harmonic_feature_compression_null.json
+  harmonic_compression_analysis: experiments/differentiable_rules_poc/V3_7_ANALYSIS.md
+  frozen_test_protocol: experiments/differentiable_rules_poc/FROZEN_V3_8_TEST_PROTOCOL.json
+  frozen_test: experiments/differentiable_rules_poc/results/v3_8_frozen_harmonic_test.json
+  frozen_test_analysis: experiments/differentiable_rules_poc/V3_8_ANALYSIS.md
+  deepbach_generation_audit: experiments/differentiable_rules_poc/results/v3_9_deepbach_tonal_audit.json
+  deepbach_conditional_probe: experiments/differentiable_rules_poc/results/v3_9_deepbach_conditional_probe.json
+  deepbach_analysis: experiments/differentiable_rules_poc/V3_9_ANALYSIS.md
+snarky_rule:
+  file: learned_tonal_resolution.rules
+  rule_id: R_LEARNED_LEADING_001
+  action: weighted_ordinal_preference
+  learned_weight: 2.0214869830878857
+  finite_semantic_check:
+    abstract_local_states: 256
+    mismatches: 0
+exceptions:
+  status: confirmed_preference_with_authentic_exceptions
+bach_examples:
+  source: experiments/differentiable_rules_poc/results/v3_3_mode_stratified_leading_tone.json
+deepbach_counterexamples:
+  - piece_id: bach/bwv359
+    offset_current: 53.0
+    deepbach_resolution_probability: 0.9931361675262451
+    deepbach_bach_choice_probability: 0.0035478388890624046
+  - piece_id: bach/bwv57.8
+    offset_current: 32.0
+    deepbach_resolution_probability: 0.6862682104110718
+    deepbach_bach_choice_probability: 0.005596536211669445

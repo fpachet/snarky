@@ -1,0 +1,3139 @@
+{
+  "started_at": "2026-09-16T21:00:08.001576+00:00",
+  "python": "3.13.11 | packaged by Anaconda, Inc. | (main, Dec 10 2025, 21:21:08) [Clang 20.1.8 ]",
+  "platform": "macOS-15.7.7-arm64-arm-64bit-Mach-O",
+  "snarky_commit": "ae1f4e6b8ad8472d98bba1d895df4273a718b708",
+  "snarky_dirty": true,
+  "snarky_sources_sha256": "96c984d3e5898d2da0ab4767f5cf3df1ffea19a57edd9625269f9ab1413220e2",
+  "claire": {
+    "root": "/Users/francoispachet/IdeaProjects/CLAIRE4",
+    "commit": "25b14968e1eef80269d56af418eda7d2ccd88cbf",
+    "dirty": false,
+    "mode": "bundled interpreter",
+    "binary": "/Users/francoispachet/IdeaProjects/CLAIRE4/interpreter/macos/claire4",
+    "binary_sha256": "1620feffa26215999a1f38fa1d1cc5d116a150cfa813d7f895b2f9fd1fdded78",
+    "templates": {
+      "claire_n_queens.cl": "54afb9b214a53484225c6629273c2b1171c9f5fbfe295f475b254190c165b2ad",
+      "claire_talarian_filter.cl": "71a67a86b1d614fedfc7f094323e4a8bf42c0ae18c0df497e0c9d7d639e25c27",
+      "claire_triangle_closure.cl": "e5f01ef32e41a66254ef5f4748e402ae41991dbbb3ef00c475f88a2c3e7ccef8"
+    }
+  },
+  "protocol": {
+    "warmups": 1,
+    "repeats": 3,
+    "timing": "internal search/inference; startup excluded; preparation separate",
+    "processes": "fresh worker per sample, sequential alternating engine order",
+    "native_variant": "three all-different constraints plus affine diagonal channels; MRV, ascending values, queens declared before auxiliary variables; stronger propagation than the historical singleton-rule formulation"
+  },
+  "cases": [
+    {
+      "family": "queens",
+      "size": 8,
+      "samples": [
+        {
+          "command": [
+            "/Users/francoispachet/IdeaProjects/boojum/.venv/bin/python",
+            "-m",
+            "benchmarks.claire_refresh",
+            "--worker",
+            "queens",
+            "native_global",
+            "8",
+            "--binary",
+            "/Users/francoispachet/IdeaProjects/CLAIRE4/interpreter/macos/claire4"
+          ],
+          "seconds": 0.163697542011505,
+          "returncode": 0,
+          "timed_out": false,
+          "stdout": "{\"seconds\": 0.022884625010192394, \"preparation_seconds\": 4.2957981349900365e-05, \"construction_seconds\": 0.0002112500078510493, \"solution\": [1, 5, 8, 6, 3, 7, 2, 4], \"nodes\": 36, \"failures\": 20, \"revisions\": 1244, \"status\": \"feasible\"}\n",
+          "stderr": "",
+          "engine": "native_global",
+          "iteration": -1,
+          "result": {
+            "seconds": 0.022884625010192394,
+            "preparation_seconds": 4.2957981349900365e-05,
+            "construction_seconds": 0.0002112500078510493,
+            "solution": [
+              1,
+              5,
+              8,
+              6,
+              3,
+              7,
+              2,
+              4
+            ],
+            "nodes": 36,
+            "failures": 20,
+            "revisions": 1244,
+            "status": "feasible"
+          }
+        },
+        {
+          "command": [
+            "/Users/francoispachet/IdeaProjects/boojum/.venv/bin/python",
+            "-m",
+            "benchmarks.claire_refresh",
+            "--worker",
+            "queens",
+            "claire",
+            "8",
+            "--binary",
+            "/Users/francoispachet/IdeaProjects/CLAIRE4/interpreter/macos/claire4"
+          ],
+          "seconds": 0.21687729199766181,
+          "returncode": 0,
+          "timed_out": false,
+          "stdout": "{\"size\": 8, \"branch_attempts\": 41, \"failed_branches\": 37, \"rule_firings\": 321, \"candidate_removals\": 225, \"solved\": true, \"solution\": [1, 5, 8, 6, 3, 7, 2, 4], \"seconds\": 0.001816}\n",
+          "stderr": "",
+          "engine": "claire",
+          "iteration": -1,
+          "result": {
+            "size": 8,
+            "branch_attempts": 41,
+            "failed_branches": 37,
+            "rule_firings": 321,
+            "candidate_removals": 225,
+            "solved": true,
+            "solution": [
+              1,
+              5,
+              8,
+              6,
+              3,
+              7,
+              2,
+              4
+            ],
+            "seconds": 0.001816
+          }
+        },
+        {
+          "command": [
+            "/Users/francoispachet/IdeaProjects/boojum/.venv/bin/python",
+            "-m",
+            "benchmarks.claire_refresh",
+            "--worker",
+            "queens",
+            "snarky",
+            "8",
+            "--binary",
+            "/Users/francoispachet/IdeaProjects/CLAIRE4/interpreter/macos/claire4"
+          ],
+          "seconds": 0.41086175001692027,
+          "returncode": 0,
+          "timed_out": false,
+          "stdout": "{\"seconds\": 0.2604753330233507, \"preparation_seconds\": 0.001273375004529953, \"solution\": [1, 5, 8, 6, 3, 7, 2, 4], \"explored_nodes\": 16, \"failed_branches\": 10, \"solution_decisions\": 3}\n",
+          "stderr": "",
+          "engine": "snarky",
+          "iteration": -1,
+          "result": {
+            "seconds": 0.2604753330233507,
+            "preparation_seconds": 0.001273375004529953,
+            "solution": [
+              1,
+              5,
+              8,
+              6,
+              3,
+              7,
+              2,
+              4
+            ],
+            "explored_nodes": 16,
+            "failed_branches": 10,
+            "solution_decisions": 3
+          }
+        },
+        {
+          "command": [
+            "/Users/francoispachet/IdeaProjects/boojum/.venv/bin/python",
+            "-m",
+            "benchmarks.claire_refresh",
+            "--worker",
+            "queens",
+            "snarky",
+            "8",
+            "--binary",
+            "/Users/francoispachet/IdeaProjects/CLAIRE4/interpreter/macos/claire4"
+          ],
+          "seconds": 0.4417557089764159,
+          "returncode": 0,
+          "timed_out": false,
+          "stdout": "{\"seconds\": 0.28412370799924247, \"preparation_seconds\": 0.0013180839887354523, \"solution\": [1, 5, 8, 6, 3, 7, 2, 4], \"explored_nodes\": 16, \"failed_branches\": 10, \"solution_decisions\": 3}\n",
+          "stderr": "",
+          "engine": "snarky",
+          "iteration": 0,
+          "result": {
+            "seconds": 0.28412370799924247,
+            "preparation_seconds": 0.0013180839887354523,
+            "solution": [
+              1,
+              5,
+              8,
+              6,
+              3,
+              7,
+              2,
+              4
+            ],
+            "explored_nodes": 16,
+            "failed_branches": 10,
+            "solution_decisions": 3
+          }
+        },
+        {
+          "command": [
+            "/Users/francoispachet/IdeaProjects/boojum/.venv/bin/python",
+            "-m",
+            "benchmarks.claire_refresh",
+            "--worker",
+            "queens",
+            "claire",
+            "8",
+            "--binary",
+            "/Users/francoispachet/IdeaProjects/CLAIRE4/interpreter/macos/claire4"
+          ],
+          "seconds": 0.2239061669970397,
+          "returncode": 0,
+          "timed_out": false,
+          "stdout": "{\"size\": 8, \"branch_attempts\": 41, \"failed_branches\": 37, \"rule_firings\": 321, \"candidate_removals\": 225, \"solved\": true, \"solution\": [1, 5, 8, 6, 3, 7, 2, 4], \"seconds\": 0.001683}\n",
+          "stderr": "",
+          "engine": "claire",
+          "iteration": 0,
+          "result": {
+            "size": 8,
+            "branch_attempts": 41,
+            "failed_branches": 37,
+            "rule_firings": 321,
+            "candidate_removals": 225,
+            "solved": true,
+            "solution": [
+              1,
+              5,
+              8,
+              6,
+              3,
+              7,
+              2,
+              4
+            ],
+            "seconds": 0.001683
+          }
+        },
+        {
+          "command": [
+            "/Users/francoispachet/IdeaProjects/boojum/.venv/bin/python",
+            "-m",
+            "benchmarks.claire_refresh",
+            "--worker",
+            "queens",
+            "native_global",
+            "8",
+            "--binary",
+            "/Users/francoispachet/IdeaProjects/CLAIRE4/interpreter/macos/claire4"
+          ],
+          "seconds": 0.1628912919841241,
+          "returncode": 0,
+          "timed_out": false,
+          "stdout": "{\"seconds\": 0.0213025419798214, \"preparation_seconds\": 4.5374996261671185e-05, \"construction_seconds\": 0.00022325001191347837, \"solution\": [1, 5, 8, 6, 3, 7, 2, 4], \"nodes\": 36, \"failures\": 20, \"revisions\": 1244, \"status\": \"feasible\"}\n",
+          "stderr": "",
+          "engine": "native_global",
+          "iteration": 0,
+          "result": {
+            "seconds": 0.0213025419798214,
+            "preparation_seconds": 4.5374996261671185e-05,
+            "construction_seconds": 0.00022325001191347837,
+            "solution": [
+              1,
+              5,
+              8,
+              6,
+              3,
+              7,
+              2,
+              4
+            ],
+            "nodes": 36,
+            "failures": 20,
+            "revisions": 1244,
+            "status": "feasible"
+          }
+        },
+        {
+          "command": [
+            "/Users/francoispachet/IdeaProjects/boojum/.venv/bin/python",
+            "-m",
+            "benchmarks.claire_refresh",
+            "--worker",
+            "queens",
+            "native_global",
+            "8",
+            "--binary",
+            "/Users/francoispachet/IdeaProjects/CLAIRE4/interpreter/macos/claire4"
+          ],
+          "seconds": 0.16072112499387003,
+          "returncode": 0,
+          "timed_out": false,
+          "stdout": "{\"seconds\": 0.021395208983449265, \"preparation_seconds\": 4.3041014578193426e-05, \"construction_seconds\": 0.00021674999152310193, \"solution\": [1, 5, 8, 6, 3, 7, 2, 4], \"nodes\": 36, \"failures\": 20, \"revisions\": 1244, \"status\": \"feasible\"}\n",
+          "stderr": "",
+          "engine": "native_global",
+          "iteration": 1,
+          "result": {
+            "seconds": 0.021395208983449265,
+            "preparation_seconds": 4.3041014578193426e-05,
+            "construction_seconds": 0.00021674999152310193,
+            "solution": [
+              1,
+              5,
+              8,
+              6,
+              3,
+              7,
+              2,
+              4
+            ],
+            "nodes": 36,
+            "failures": 20,
+            "revisions": 1244,
+            "status": "feasible"
+          }
+        },
+        {
+          "command": [
+            "/Users/francoispachet/IdeaProjects/boojum/.venv/bin/python",
+            "-m",
+            "benchmarks.claire_refresh",
+            "--worker",
+            "queens",
+            "claire",
+            "8",
+            "--binary",
+            "/Users/francoispachet/IdeaProjects/CLAIRE4/interpreter/macos/claire4"
+          ],
+          "seconds": 0.17452412500279024,
+          "returncode": 0,
+          "timed_out": false,
+          "stdout": "{\"size\": 8, \"branch_attempts\": 41, \"failed_branches\": 37, \"rule_firings\": 321, \"candidate_removals\": 225, \"solved\": true, \"solution\": [1, 5, 8, 6, 3, 7, 2, 4], \"seconds\": 0.001665}\n",
+          "stderr": "",
+          "engine": "claire",
+          "iteration": 1,
+          "result": {
+            "size": 8,
+            "branch_attempts": 41,
+            "failed_branches": 37,
+            "rule_firings": 321,
+            "candidate_removals": 225,
+            "solved": true,
+            "solution": [
+              1,
+              5,
+              8,
+              6,
+              3,
+              7,
+              2,
+              4
+            ],
+            "seconds": 0.001665
+          }
+        },
+        {
+          "command": [
+            "/Users/francoispachet/IdeaProjects/boojum/.venv/bin/python",
+            "-m",
+            "benchmarks.claire_refresh",
+            "--worker",
+            "queens",
+            "snarky",
+            "8",
+            "--binary",
+            "/Users/francoispachet/IdeaProjects/CLAIRE4/interpreter/macos/claire4"
+          ],
+          "seconds": 0.39158979200874455,
+          "returncode": 0,
+          "timed_out": false,
+          "stdout": "{\"seconds\": 0.2493490839842707, \"preparation_seconds\": 0.0012966660142410547, \"solution\": [1, 5, 8, 6, 3, 7, 2, 4], \"explored_nodes\": 16, \"failed_branches\": 10, \"solution_decisions\": 3}\n",
+          "stderr": "",
+          "engine": "snarky",
+          "iteration": 1,
+          "result": {
+            "seconds": 0.2493490839842707,
+            "preparation_seconds": 0.0012966660142410547,
+            "solution": [
+              1,
+              5,
+              8,
+              6,
+              3,
+              7,
+              2,
+              4
+            ],
+            "explored_nodes": 16,
+            "failed_branches": 10,
+            "solution_decisions": 3
+          }
+        },
+        {
+          "command": [
+            "/Users/francoispachet/IdeaProjects/boojum/.venv/bin/python",
+            "-m",
+            "benchmarks.claire_refresh",
+            "--worker",
+            "queens",
+            "snarky",
+            "8",
+            "--binary",
+            "/Users/francoispachet/IdeaProjects/CLAIRE4/interpreter/macos/claire4"
+          ],
+          "seconds": 0.3995572499989066,
+          "returncode": 0,
+          "timed_out": false,
+          "stdout": "{\"seconds\": 0.25889345799805596, \"preparation_seconds\": 0.0012286660203244537, \"solution\": [1, 5, 8, 6, 3, 7, 2, 4], \"explored_nodes\": 16, \"failed_branches\": 10, \"solution_decisions\": 3}\n",
+          "stderr": "",
+          "engine": "snarky",
+          "iteration": 2,
+          "result": {
+            "seconds": 0.25889345799805596,
+            "preparation_seconds": 0.0012286660203244537,
+            "solution": [
+              1,
+              5,
+              8,
+              6,
+              3,
+              7,
+              2,
+              4
+            ],
+            "explored_nodes": 16,
+            "failed_branches": 10,
+            "solution_decisions": 3
+          }
+        },
+        {
+          "command": [
+            "/Users/francoispachet/IdeaProjects/boojum/.venv/bin/python",
+            "-m",
+            "benchmarks.claire_refresh",
+            "--worker",
+            "queens",
+            "claire",
+            "8",
+            "--binary",
+            "/Users/francoispachet/IdeaProjects/CLAIRE4/interpreter/macos/claire4"
+          ],
+          "seconds": 0.18637354200473055,
+          "returncode": 0,
+          "timed_out": false,
+          "stdout": "{\"size\": 8, \"branch_attempts\": 41, \"failed_branches\": 37, \"rule_firings\": 321, \"candidate_removals\": 225, \"solved\": true, \"solution\": [1, 5, 8, 6, 3, 7, 2, 4], \"seconds\": 0.001798}\n",
+          "stderr": "",
+          "engine": "claire",
+          "iteration": 2,
+          "result": {
+            "size": 8,
+            "branch_attempts": 41,
+            "failed_branches": 37,
+            "rule_firings": 321,
+            "candidate_removals": 225,
+            "solved": true,
+            "solution": [
+              1,
+              5,
+              8,
+              6,
+              3,
+              7,
+              2,
+              4
+            ],
+            "seconds": 0.001798
+          }
+        },
+        {
+          "command": [
+            "/Users/francoispachet/IdeaProjects/boojum/.venv/bin/python",
+            "-m",
+            "benchmarks.claire_refresh",
+            "--worker",
+            "queens",
+            "native_global",
+            "8",
+            "--binary",
+            "/Users/francoispachet/IdeaProjects/CLAIRE4/interpreter/macos/claire4"
+          ],
+          "seconds": 0.17160537498421036,
+          "returncode": 0,
+          "timed_out": false,
+          "stdout": "{\"seconds\": 0.02298191699082963, \"preparation_seconds\": 4.7833018470555544e-05, \"construction_seconds\": 0.0002474999928381294, \"solution\": [1, 5, 8, 6, 3, 7, 2, 4], \"nodes\": 36, \"failures\": 20, \"revisions\": 1244, \"status\": \"feasible\"}\n",
+          "stderr": "",
+          "engine": "native_global",
+          "iteration": 2,
+          "result": {
+            "seconds": 0.02298191699082963,
+            "preparation_seconds": 4.7833018470555544e-05,
+            "construction_seconds": 0.0002474999928381294,
+            "solution": [
+              1,
+              5,
+              8,
+              6,
+              3,
+              7,
+              2,
+              4
+            ],
+            "nodes": 36,
+            "failures": 20,
+            "revisions": 1244,
+            "status": "feasible"
+          }
+        }
+      ],
+      "median_seconds": {
+        "snarky": 0.25889345799805596,
+        "claire": 0.001683,
+        "native_global": 0.021395208983449265
+      }
+    },
+    {
+      "family": "queens",
+      "size": 10,
+      "samples": [
+        {
+          "command": [
+            "/Users/francoispachet/IdeaProjects/boojum/.venv/bin/python",
+            "-m",
+            "benchmarks.claire_refresh",
+            "--worker",
+            "queens",
+            "native_global",
+            "10",
+            "--binary",
+            "/Users/francoispachet/IdeaProjects/CLAIRE4/interpreter/macos/claire4"
+          ],
+          "seconds": 0.16303004199289717,
+          "returncode": 0,
+          "timed_out": false,
+          "stdout": "{\"seconds\": 0.013701165997190401, \"preparation_seconds\": 5.874998169019818e-05, \"construction_seconds\": 0.00028858400764875114, \"solution\": [1, 3, 6, 9, 7, 10, 4, 2, 5, 8], \"nodes\": 14, \"failures\": 5, \"revisions\": 622, \"status\": \"feasible\"}\n",
+          "stderr": "",
+          "engine": "native_global",
+          "iteration": -1,
+          "result": {
+            "seconds": 0.013701165997190401,
+            "preparation_seconds": 5.874998169019818e-05,
+            "construction_seconds": 0.00028858400764875114,
+            "solution": [
+              1,
+              3,
+              6,
+              9,
+              7,
+              10,
+              4,
+              2,
+              5,
+              8
+            ],
+            "nodes": 14,
+            "failures": 5,
+            "revisions": 622,
+            "status": "feasible"
+          }
+        },
+        {
+          "command": [
+            "/Users/francoispachet/IdeaProjects/boojum/.venv/bin/python",
+            "-m",
+            "benchmarks.claire_refresh",
+            "--worker",
+            "queens",
+            "claire",
+            "10",
+            "--binary",
+            "/Users/francoispachet/IdeaProjects/CLAIRE4/interpreter/macos/claire4"
+          ],
+          "seconds": 0.17616258299676701,
+          "returncode": 0,
+          "timed_out": false,
+          "stdout": "{\"size\": 10, \"branch_attempts\": 21, \"failed_branches\": 15, \"rule_firings\": 150, \"candidate_removals\": 161, \"solved\": true, \"solution\": [1, 3, 6, 9, 7, 10, 4, 2, 5, 8], \"seconds\": 0.001506}\n",
+          "stderr": "",
+          "engine": "claire",
+          "iteration": -1,
+          "result": {
+            "size": 10,
+            "branch_attempts": 21,
+            "failed_branches": 15,
+            "rule_firings": 150,
+            "candidate_removals": 161,
+            "solved": true,
+            "solution": [
+              1,
+              3,
+              6,
+              9,
+              7,
+              10,
+              4,
+              2,
+              5,
+              8
+            ],
+            "seconds": 0.001506
+          }
+        },
+        {
+          "command": [
+            "/Users/francoispachet/IdeaProjects/boojum/.venv/bin/python",
+            "-m",
+            "benchmarks.claire_refresh",
+            "--worker",
+            "queens",
+            "snarky",
+            "10",
+            "--binary",
+            "/Users/francoispachet/IdeaProjects/CLAIRE4/interpreter/macos/claire4"
+          ],
+          "seconds": 0.44807037501595914,
+          "returncode": 0,
+          "timed_out": false,
+          "stdout": "{\"seconds\": 0.2974653330165893, \"preparation_seconds\": 0.0014515419898089021, \"solution\": [1, 3, 6, 9, 7, 10, 4, 2, 5, 8], \"explored_nodes\": 13, \"failed_branches\": 4, \"solution_decisions\": 6}\n",
+          "stderr": "",
+          "engine": "snarky",
+          "iteration": -1,
+          "result": {
+            "seconds": 0.2974653330165893,
+            "preparation_seconds": 0.0014515419898089021,
+            "solution": [
+              1,
+              3,
+              6,
+              9,
+              7,
+              10,
+              4,
+              2,
+              5,
+              8
+            ],
+            "explored_nodes": 13,
+            "failed_branches": 4,
+            "solution_decisions": 6
+          }
+        },
+        {
+          "command": [
+            "/Users/francoispachet/IdeaProjects/boojum/.venv/bin/python",
+            "-m",
+            "benchmarks.claire_refresh",
+            "--worker",
+            "queens",
+            "snarky",
+            "10",
+            "--binary",
+            "/Users/francoispachet/IdeaProjects/CLAIRE4/interpreter/macos/claire4"
+          ],
+          "seconds": 0.45005729200784117,
+          "returncode": 0,
+          "timed_out": false,
+          "stdout": "{\"seconds\": 0.2990235000033863, \"preparation_seconds\": 0.0015450830105692148, \"solution\": [1, 3, 6, 9, 7, 10, 4, 2, 5, 8], \"explored_nodes\": 13, \"failed_branches\": 4, \"solution_decisions\": 6}\n",
+          "stderr": "",
+          "engine": "snarky",
+          "iteration": 0,
+          "result": {
+            "seconds": 0.2990235000033863,
+            "preparation_seconds": 0.0015450830105692148,
+            "solution": [
+              1,
+              3,
+              6,
+              9,
+              7,
+              10,
+              4,
+              2,
+              5,
+              8
+            ],
+            "explored_nodes": 13,
+            "failed_branches": 4,
+            "solution_decisions": 6
+          }
+        },
+        {
+          "command": [
+            "/Users/francoispachet/IdeaProjects/boojum/.venv/bin/python",
+            "-m",
+            "benchmarks.claire_refresh",
+            "--worker",
+            "queens",
+            "claire",
+            "10",
+            "--binary",
+            "/Users/francoispachet/IdeaProjects/CLAIRE4/interpreter/macos/claire4"
+          ],
+          "seconds": 0.17015720802010037,
+          "returncode": 0,
+          "timed_out": false,
+          "stdout": "{\"size\": 10, \"branch_attempts\": 21, \"failed_branches\": 15, \"rule_firings\": 150, \"candidate_removals\": 161, \"solved\": true, \"solution\": [1, 3, 6, 9, 7, 10, 4, 2, 5, 8], \"seconds\": 0.001038}\n",
+          "stderr": "",
+          "engine": "claire",
+          "iteration": 0,
+          "result": {
+            "size": 10,
+            "branch_attempts": 21,
+            "failed_branches": 15,
+            "rule_firings": 150,
+            "candidate_removals": 161,
+            "solved": true,
+            "solution": [
+              1,
+              3,
+              6,
+              9,
+              7,
+              10,
+              4,
+              2,
+              5,
+              8
+            ],
+            "seconds": 0.001038
+          }
+        },
+        {
+          "command": [
+            "/Users/francoispachet/IdeaProjects/boojum/.venv/bin/python",
+            "-m",
+            "benchmarks.claire_refresh",
+            "--worker",
+            "queens",
+            "native_global",
+            "10",
+            "--binary",
+            "/Users/francoispachet/IdeaProjects/CLAIRE4/interpreter/macos/claire4"
+          ],
+          "seconds": 0.16338479198748246,
+          "returncode": 0,
+          "timed_out": false,
+          "stdout": "{\"seconds\": 0.013306334003573284, \"preparation_seconds\": 5.745800444856286e-05, \"construction_seconds\": 0.0002780419890768826, \"solution\": [1, 3, 6, 9, 7, 10, 4, 2, 5, 8], \"nodes\": 14, \"failures\": 5, \"revisions\": 622, \"status\": \"feasible\"}\n",
+          "stderr": "",
+          "engine": "native_global",
+          "iteration": 0,
+          "result": {
+            "seconds": 0.013306334003573284,
+            "preparation_seconds": 5.745800444856286e-05,
+            "construction_seconds": 0.0002780419890768826,
+            "solution": [
+              1,
+              3,
+              6,
+              9,
+              7,
+              10,
+              4,
+              2,
+              5,
+              8
+            ],
+            "nodes": 14,
+            "failures": 5,
+            "revisions": 622,
+            "status": "feasible"
+          }
+        },
+        {
+          "command": [
+            "/Users/francoispachet/IdeaProjects/boojum/.venv/bin/python",
+            "-m",
+            "benchmarks.claire_refresh",
+            "--worker",
+            "queens",
+            "native_global",
+            "10",
+            "--binary",
+            "/Users/francoispachet/IdeaProjects/CLAIRE4/interpreter/macos/claire4"
+          ],
+          "seconds": 0.1508044170041103,
+          "returncode": 0,
+          "timed_out": false,
+          "stdout": "{\"seconds\": 0.01333616700139828, \"preparation_seconds\": 6.141699850559235e-05, \"construction_seconds\": 0.0003069159865844995, \"solution\": [1, 3, 6, 9, 7, 10, 4, 2, 5, 8], \"nodes\": 14, \"failures\": 5, \"revisions\": 622, \"status\": \"feasible\"}\n",
+          "stderr": "",
+          "engine": "native_global",
+          "iteration": 1,
+          "result": {
+            "seconds": 0.01333616700139828,
+            "preparation_seconds": 6.141699850559235e-05,
+            "construction_seconds": 0.0003069159865844995,
+            "solution": [
+              1,
+              3,
+              6,
+              9,
+              7,
+              10,
+              4,
+              2,
+              5,
+              8
+            ],
+            "nodes": 14,
+            "failures": 5,
+            "revisions": 622,
+            "status": "feasible"
+          }
+        },
+        {
+          "command": [
+            "/Users/francoispachet/IdeaProjects/boojum/.venv/bin/python",
+            "-m",
+            "benchmarks.claire_refresh",
+            "--worker",
+            "queens",
+            "claire",
+            "10",
+            "--binary",
+            "/Users/francoispachet/IdeaProjects/CLAIRE4/interpreter/macos/claire4"
+          ],
+          "seconds": 0.18679425001027994,
+          "returncode": 0,
+          "timed_out": false,
+          "stdout": "{\"size\": 10, \"branch_attempts\": 21, \"failed_branches\": 15, \"rule_firings\": 150, \"candidate_removals\": 161, \"solved\": true, \"solution\": [1, 3, 6, 9, 7, 10, 4, 2, 5, 8], \"seconds\": 0.001038}\n",
+          "stderr": "",
+          "engine": "claire",
+          "iteration": 1,
+          "result": {
+            "size": 10,
+            "branch_attempts": 21,
+            "failed_branches": 15,
+            "rule_firings": 150,
+            "candidate_removals": 161,
+            "solved": true,
+            "solution": [
+              1,
+              3,
+              6,
+              9,
+              7,
+              10,
+              4,
+              2,
+              5,
+              8
+            ],
+            "seconds": 0.001038
+          }
+        },
+        {
+          "command": [
+            "/Users/francoispachet/IdeaProjects/boojum/.venv/bin/python",
+            "-m",
+            "benchmarks.claire_refresh",
+            "--worker",
+            "queens",
+            "snarky",
+            "10",
+            "--binary",
+            "/Users/francoispachet/IdeaProjects/CLAIRE4/interpreter/macos/claire4"
+          ],
+          "seconds": 0.42848458301159553,
+          "returncode": 0,
+          "timed_out": false,
+          "stdout": "{\"seconds\": 0.28901691699866205, \"preparation_seconds\": 0.0013584999833256006, \"solution\": [1, 3, 6, 9, 7, 10, 4, 2, 5, 8], \"explored_nodes\": 13, \"failed_branches\": 4, \"solution_decisions\": 6}\n",
+          "stderr": "",
+          "engine": "snarky",
+          "iteration": 1,
+          "result": {
+            "seconds": 0.28901691699866205,
+            "preparation_seconds": 0.0013584999833256006,
+            "solution": [
+              1,
+              3,
+              6,
+              9,
+              7,
+              10,
+              4,
+              2,
+              5,
+              8
+            ],
+            "explored_nodes": 13,
+            "failed_branches": 4,
+            "solution_decisions": 6
+          }
+        },
+        {
+          "command": [
+            "/Users/francoispachet/IdeaProjects/boojum/.venv/bin/python",
+            "-m",
+            "benchmarks.claire_refresh",
+            "--worker",
+            "queens",
+            "snarky",
+            "10",
+            "--binary",
+            "/Users/francoispachet/IdeaProjects/CLAIRE4/interpreter/macos/claire4"
+          ],
+          "seconds": 0.42793333300505765,
+          "returncode": 0,
+          "timed_out": false,
+          "stdout": "{\"seconds\": 0.28881291701691225, \"preparation_seconds\": 0.001416417013388127, \"solution\": [1, 3, 6, 9, 7, 10, 4, 2, 5, 8], \"explored_nodes\": 13, \"failed_branches\": 4, \"solution_decisions\": 6}\n",
+          "stderr": "",
+          "engine": "snarky",
+          "iteration": 2,
+          "result": {
+            "seconds": 0.28881291701691225,
+            "preparation_seconds": 0.001416417013388127,
+            "solution": [
+              1,
+              3,
+              6,
+              9,
+              7,
+              10,
+              4,
+              2,
+              5,
+              8
+            ],
+            "explored_nodes": 13,
+            "failed_branches": 4,
+            "solution_decisions": 6
+          }
+        },
+        {
+          "command": [
+            "/Users/francoispachet/IdeaProjects/boojum/.venv/bin/python",
+            "-m",
+            "benchmarks.claire_refresh",
+            "--worker",
+            "queens",
+            "claire",
+            "10",
+            "--binary",
+            "/Users/francoispachet/IdeaProjects/CLAIRE4/interpreter/macos/claire4"
+          ],
+          "seconds": 0.16096545799518935,
+          "returncode": 0,
+          "timed_out": false,
+          "stdout": "{\"size\": 10, \"branch_attempts\": 21, \"failed_branches\": 15, \"rule_firings\": 150, \"candidate_removals\": 161, \"solved\": true, \"solution\": [1, 3, 6, 9, 7, 10, 4, 2, 5, 8], \"seconds\": 0.001064}\n",
+          "stderr": "",
+          "engine": "claire",
+          "iteration": 2,
+          "result": {
+            "size": 10,
+            "branch_attempts": 21,
+            "failed_branches": 15,
+            "rule_firings": 150,
+            "candidate_removals": 161,
+            "solved": true,
+            "solution": [
+              1,
+              3,
+              6,
+              9,
+              7,
+              10,
+              4,
+              2,
+              5,
+              8
+            ],
+            "seconds": 0.001064
+          }
+        },
+        {
+          "command": [
+            "/Users/francoispachet/IdeaProjects/boojum/.venv/bin/python",
+            "-m",
+            "benchmarks.claire_refresh",
+            "--worker",
+            "queens",
+            "native_global",
+            "10",
+            "--binary",
+            "/Users/francoispachet/IdeaProjects/CLAIRE4/interpreter/macos/claire4"
+          ],
+          "seconds": 0.15444141699117608,
+          "returncode": 0,
+          "timed_out": false,
+          "stdout": "{\"seconds\": 0.013206625008024275, \"preparation_seconds\": 6.612500874325633e-05, \"construction_seconds\": 0.0003378750116098672, \"solution\": [1, 3, 6, 9, 7, 10, 4, 2, 5, 8], \"nodes\": 14, \"failures\": 5, \"revisions\": 622, \"status\": \"feasible\"}\n",
+          "stderr": "",
+          "engine": "native_global",
+          "iteration": 2,
+          "result": {
+            "seconds": 0.013206625008024275,
+            "preparation_seconds": 6.612500874325633e-05,
+            "construction_seconds": 0.0003378750116098672,
+            "solution": [
+              1,
+              3,
+              6,
+              9,
+              7,
+              10,
+              4,
+              2,
+              5,
+              8
+            ],
+            "nodes": 14,
+            "failures": 5,
+            "revisions": 622,
+            "status": "feasible"
+          }
+        }
+      ],
+      "median_seconds": {
+        "snarky": 0.28901691699866205,
+        "claire": 0.001038,
+        "native_global": 0.013306334003573284
+      }
+    },
+    {
+      "family": "queens",
+      "size": 12,
+      "samples": [
+        {
+          "command": [
+            "/Users/francoispachet/IdeaProjects/boojum/.venv/bin/python",
+            "-m",
+            "benchmarks.claire_refresh",
+            "--worker",
+            "queens",
+            "native_global",
+            "12",
+            "--binary",
+            "/Users/francoispachet/IdeaProjects/CLAIRE4/interpreter/macos/claire4"
+          ],
+          "seconds": 0.18102416599867865,
+          "returncode": 0,
+          "timed_out": false,
+          "stdout": "{\"seconds\": 0.04559979200712405, \"preparation_seconds\": 7.691601058468223e-05, \"construction_seconds\": 0.00036183398333378136, \"solution\": [1, 3, 5, 11, 8, 10, 12, 4, 2, 7, 9, 6], \"nodes\": 51, \"failures\": 28, \"revisions\": 2327, \"status\": \"feasible\"}\n",
+          "stderr": "",
+          "engine": "native_global",
+          "iteration": -1,
+          "result": {
+            "seconds": 0.04559979200712405,
+            "preparation_seconds": 7.691601058468223e-05,
+            "construction_seconds": 0.00036183398333378136,
+            "solution": [
+              1,
+              3,
+              5,
+              11,
+              8,
+              10,
+              12,
+              4,
+              2,
+              7,
+              9,
+              6
+            ],
+            "nodes": 51,
+            "failures": 28,
+            "revisions": 2327,
+            "status": "feasible"
+          }
+        },
+        {
+          "command": [
+            "/Users/francoispachet/IdeaProjects/boojum/.venv/bin/python",
+            "-m",
+            "benchmarks.claire_refresh",
+            "--worker",
+            "queens",
+            "claire",
+            "12",
+            "--binary",
+            "/Users/francoispachet/IdeaProjects/CLAIRE4/interpreter/macos/claire4"
+          ],
+          "seconds": 0.1894836249994114,
+          "returncode": 0,
+          "timed_out": false,
+          "stdout": "{\"size\": 12, \"branch_attempts\": 85, \"failed_branches\": 78, \"rule_firings\": 674, \"candidate_removals\": 596, \"solved\": true, \"solution\": [1, 3, 5, 11, 8, 10, 12, 4, 2, 7, 9, 6], \"seconds\": 0.004312}\n",
+          "stderr": "",
+          "engine": "claire",
+          "iteration": -1,
+          "result": {
+            "size": 12,
+            "branch_attempts": 85,
+            "failed_branches": 78,
+            "rule_firings": 674,
+            "candidate_removals": 596,
+            "solved": true,
+            "solution": [
+              1,
+              3,
+              5,
+              11,
+              8,
+              10,
+              12,
+              4,
+              2,
+              7,
+              9,
+              6
+            ],
+            "seconds": 0.004312
+          }
+        },
+        {
+          "command": [
+            "/Users/francoispachet/IdeaProjects/boojum/.venv/bin/python",
+            "-m",
+            "benchmarks.claire_refresh",
+            "--worker",
+            "queens",
+            "snarky",
+            "12",
+            "--binary",
+            "/Users/francoispachet/IdeaProjects/CLAIRE4/interpreter/macos/claire4"
+          ],
+          "seconds": 1.445727500016801,
+          "returncode": 0,
+          "timed_out": false,
+          "stdout": "{\"seconds\": 1.298157415993046, \"preparation_seconds\": 0.0016208750021178275, \"solution\": [1, 3, 5, 11, 8, 10, 12, 4, 2, 7, 9, 6], \"explored_nodes\": 46, \"failed_branches\": 26, \"solution_decisions\": 6}\n",
+          "stderr": "",
+          "engine": "snarky",
+          "iteration": -1,
+          "result": {
+            "seconds": 1.298157415993046,
+            "preparation_seconds": 0.0016208750021178275,
+            "solution": [
+              1,
+              3,
+              5,
+              11,
+              8,
+              10,
+              12,
+              4,
+              2,
+              7,
+              9,
+              6
+            ],
+            "explored_nodes": 46,
+            "failed_branches": 26,
+            "solution_decisions": 6
+          }
+        },
+        {
+          "command": [
+            "/Users/francoispachet/IdeaProjects/boojum/.venv/bin/python",
+            "-m",
+            "benchmarks.claire_refresh",
+            "--worker",
+            "queens",
+            "snarky",
+            "12",
+            "--binary",
+            "/Users/francoispachet/IdeaProjects/CLAIRE4/interpreter/macos/claire4"
+          ],
+          "seconds": 1.4292847090109717,
+          "returncode": 0,
+          "timed_out": false,
+          "stdout": "{\"seconds\": 1.286096499999985, \"preparation_seconds\": 0.0016424170171376318, \"solution\": [1, 3, 5, 11, 8, 10, 12, 4, 2, 7, 9, 6], \"explored_nodes\": 46, \"failed_branches\": 26, \"solution_decisions\": 6}\n",
+          "stderr": "",
+          "engine": "snarky",
+          "iteration": 0,
+          "result": {
+            "seconds": 1.286096499999985,
+            "preparation_seconds": 0.0016424170171376318,
+            "solution": [
+              1,
+              3,
+              5,
+              11,
+              8,
+              10,
+              12,
+              4,
+              2,
+              7,
+              9,
+              6
+            ],
+            "explored_nodes": 46,
+            "failed_branches": 26,
+            "solution_decisions": 6
+          }
+        },
+        {
+          "command": [
+            "/Users/francoispachet/IdeaProjects/boojum/.venv/bin/python",
+            "-m",
+            "benchmarks.claire_refresh",
+            "--worker",
+            "queens",
+            "claire",
+            "12",
+            "--binary",
+            "/Users/francoispachet/IdeaProjects/CLAIRE4/interpreter/macos/claire4"
+          ],
+          "seconds": 0.16646783298347145,
+          "returncode": 0,
+          "timed_out": false,
+          "stdout": "{\"size\": 12, \"branch_attempts\": 85, \"failed_branches\": 78, \"rule_firings\": 674, \"candidate_removals\": 596, \"solved\": true, \"solution\": [1, 3, 5, 11, 8, 10, 12, 4, 2, 7, 9, 6], \"seconds\": 0.004313}\n",
+          "stderr": "",
+          "engine": "claire",
+          "iteration": 0,
+          "result": {
+            "size": 12,
+            "branch_attempts": 85,
+            "failed_branches": 78,
+            "rule_firings": 674,
+            "candidate_removals": 596,
+            "solved": true,
+            "solution": [
+              1,
+              3,
+              5,
+              11,
+              8,
+              10,
+              12,
+              4,
+              2,
+              7,
+              9,
+              6
+            ],
+            "seconds": 0.004313
+          }
+        },
+        {
+          "command": [
+            "/Users/francoispachet/IdeaProjects/boojum/.venv/bin/python",
+            "-m",
+            "benchmarks.claire_refresh",
+            "--worker",
+            "queens",
+            "native_global",
+            "12",
+            "--binary",
+            "/Users/francoispachet/IdeaProjects/CLAIRE4/interpreter/macos/claire4"
+          ],
+          "seconds": 0.18601379098254256,
+          "returncode": 0,
+          "timed_out": false,
+          "stdout": "{\"seconds\": 0.046121374994982034, \"preparation_seconds\": 7.191702025011182e-05, \"construction_seconds\": 0.000363041996024549, \"solution\": [1, 3, 5, 11, 8, 10, 12, 4, 2, 7, 9, 6], \"nodes\": 51, \"failures\": 28, \"revisions\": 2327, \"status\": \"feasible\"}\n",
+          "stderr": "",
+          "engine": "native_global",
+          "iteration": 0,
+          "result": {
+            "seconds": 0.046121374994982034,
+            "preparation_seconds": 7.191702025011182e-05,
+            "construction_seconds": 0.000363041996024549,
+            "solution": [
+              1,
+              3,
+              5,
+              11,
+              8,
+              10,
+              12,
+              4,
+              2,
+              7,
+              9,
+              6
+            ],
+            "nodes": 51,
+            "failures": 28,
+            "revisions": 2327,
+            "status": "feasible"
+          }
+        },
+        {
+          "command": [
+            "/Users/francoispachet/IdeaProjects/boojum/.venv/bin/python",
+            "-m",
+            "benchmarks.claire_refresh",
+            "--worker",
+            "queens",
+            "native_global",
+            "12",
+            "--binary",
+            "/Users/francoispachet/IdeaProjects/CLAIRE4/interpreter/macos/claire4"
+          ],
+          "seconds": 0.19290750002255663,
+          "returncode": 0,
+          "timed_out": false,
+          "stdout": "{\"seconds\": 0.04636654199566692, \"preparation_seconds\": 7.387500954791903e-05, \"construction_seconds\": 0.00037799999699927866, \"solution\": [1, 3, 5, 11, 8, 10, 12, 4, 2, 7, 9, 6], \"nodes\": 51, \"failures\": 28, \"revisions\": 2327, \"status\": \"feasible\"}\n",
+          "stderr": "",
+          "engine": "native_global",
+          "iteration": 1,
+          "result": {
+            "seconds": 0.04636654199566692,
+            "preparation_seconds": 7.387500954791903e-05,
+            "construction_seconds": 0.00037799999699927866,
+            "solution": [
+              1,
+              3,
+              5,
+              11,
+              8,
+              10,
+              12,
+              4,
+              2,
+              7,
+              9,
+              6
+            ],
+            "nodes": 51,
+            "failures": 28,
+            "revisions": 2327,
+            "status": "feasible"
+          }
+        },
+        {
+          "command": [
+            "/Users/francoispachet/IdeaProjects/boojum/.venv/bin/python",
+            "-m",
+            "benchmarks.claire_refresh",
+            "--worker",
+            "queens",
+            "claire",
+            "12",
+            "--binary",
+            "/Users/francoispachet/IdeaProjects/CLAIRE4/interpreter/macos/claire4"
+          ],
+          "seconds": 0.19897212498472072,
+          "returncode": 0,
+          "timed_out": false,
+          "stdout": "{\"size\": 12, \"branch_attempts\": 85, \"failed_branches\": 78, \"rule_firings\": 674, \"candidate_removals\": 596, \"solved\": true, \"solution\": [1, 3, 5, 11, 8, 10, 12, 4, 2, 7, 9, 6], \"seconds\": 0.00563}\n",
+          "stderr": "",
+          "engine": "claire",
+          "iteration": 1,
+          "result": {
+            "size": 12,
+            "branch_attempts": 85,
+            "failed_branches": 78,
+            "rule_firings": 674,
+            "candidate_removals": 596,
+            "solved": true,
+            "solution": [
+              1,
+              3,
+              5,
+              11,
+              8,
+              10,
+              12,
+              4,
+              2,
+              7,
+              9,
+              6
+            ],
+            "seconds": 0.00563
+          }
+        },
+        {
+          "command": [
+            "/Users/francoispachet/IdeaProjects/boojum/.venv/bin/python",
+            "-m",
+            "benchmarks.claire_refresh",
+            "--worker",
+            "queens",
+            "snarky",
+            "12",
+            "--binary",
+            "/Users/francoispachet/IdeaProjects/CLAIRE4/interpreter/macos/claire4"
+          ],
+          "seconds": 1.6035406659939326,
+          "returncode": 0,
+          "timed_out": false,
+          "stdout": "{\"seconds\": 1.4014354170067236, \"preparation_seconds\": 0.0030034160008654, \"solution\": [1, 3, 5, 11, 8, 10, 12, 4, 2, 7, 9, 6], \"explored_nodes\": 46, \"failed_branches\": 26, \"solution_decisions\": 6}\n",
+          "stderr": "",
+          "engine": "snarky",
+          "iteration": 1,
+          "result": {
+            "seconds": 1.4014354170067236,
+            "preparation_seconds": 0.0030034160008654,
+            "solution": [
+              1,
+              3,
+              5,
+              11,
+              8,
+              10,
+              12,
+              4,
+              2,
+              7,
+              9,
+              6
+            ],
+            "explored_nodes": 46,
+            "failed_branches": 26,
+            "solution_decisions": 6
+          }
+        },
+        {
+          "command": [
+            "/Users/francoispachet/IdeaProjects/boojum/.venv/bin/python",
+            "-m",
+            "benchmarks.claire_refresh",
+            "--worker",
+            "queens",
+            "snarky",
+            "12",
+            "--binary",
+            "/Users/francoispachet/IdeaProjects/CLAIRE4/interpreter/macos/claire4"
+          ],
+          "seconds": 1.521364749991335,
+          "returncode": 0,
+          "timed_out": false,
+          "stdout": "{\"seconds\": 1.3590255830204114, \"preparation_seconds\": 0.001882916985778138, \"solution\": [1, 3, 5, 11, 8, 10, 12, 4, 2, 7, 9, 6], \"explored_nodes\": 46, \"failed_branches\": 26, \"solution_decisions\": 6}\n",
+          "stderr": "",
+          "engine": "snarky",
+          "iteration": 2,
+          "result": {
+            "seconds": 1.3590255830204114,
+            "preparation_seconds": 0.001882916985778138,
+            "solution": [
+              1,
+              3,
+              5,
+              11,
+              8,
+              10,
+              12,
+              4,
+              2,
+              7,
+              9,
+              6
+            ],
+            "explored_nodes": 46,
+            "failed_branches": 26,
+            "solution_decisions": 6
+          }
+        },
+        {
+          "command": [
+            "/Users/francoispachet/IdeaProjects/boojum/.venv/bin/python",
+            "-m",
+            "benchmarks.claire_refresh",
+            "--worker",
+            "queens",
+            "claire",
+            "12",
+            "--binary",
+            "/Users/francoispachet/IdeaProjects/CLAIRE4/interpreter/macos/claire4"
+          ],
+          "seconds": 0.1812073749897536,
+          "returncode": 0,
+          "timed_out": false,
+          "stdout": "{\"size\": 12, \"branch_attempts\": 85, \"failed_branches\": 78, \"rule_firings\": 674, \"candidate_removals\": 596, \"solved\": true, \"solution\": [1, 3, 5, 11, 8, 10, 12, 4, 2, 7, 9, 6], \"seconds\": 0.004237}\n",
+          "stderr": "",
+          "engine": "claire",
+          "iteration": 2,
+          "result": {
+            "size": 12,
+            "branch_attempts": 85,
+            "failed_branches": 78,
+            "rule_firings": 674,
+            "candidate_removals": 596,
+            "solved": true,
+            "solution": [
+              1,
+              3,
+              5,
+              11,
+              8,
+              10,
+              12,
+              4,
+              2,
+              7,
+              9,
+              6
+            ],
+            "seconds": 0.004237
+          }
+        },
+        {
+          "command": [
+            "/Users/francoispachet/IdeaProjects/boojum/.venv/bin/python",
+            "-m",
+            "benchmarks.claire_refresh",
+            "--worker",
+            "queens",
+            "native_global",
+            "12",
+            "--binary",
+            "/Users/francoispachet/IdeaProjects/CLAIRE4/interpreter/macos/claire4"
+          ],
+          "seconds": 0.19334849997540005,
+          "returncode": 0,
+          "timed_out": false,
+          "stdout": "{\"seconds\": 0.04892600001767278, \"preparation_seconds\": 7.429099059663713e-05, \"construction_seconds\": 0.00036987499333918095, \"solution\": [1, 3, 5, 11, 8, 10, 12, 4, 2, 7, 9, 6], \"nodes\": 51, \"failures\": 28, \"revisions\": 2327, \"status\": \"feasible\"}\n",
+          "stderr": "",
+          "engine": "native_global",
+          "iteration": 2,
+          "result": {
+            "seconds": 0.04892600001767278,
+            "preparation_seconds": 7.429099059663713e-05,
+            "construction_seconds": 0.00036987499333918095,
+            "solution": [
+              1,
+              3,
+              5,
+              11,
+              8,
+              10,
+              12,
+              4,
+              2,
+              7,
+              9,
+              6
+            ],
+            "nodes": 51,
+            "failures": 28,
+            "revisions": 2327,
+            "status": "feasible"
+          }
+        }
+      ],
+      "median_seconds": {
+        "snarky": 1.3590255830204114,
+        "claire": 0.004313,
+        "native_global": 0.04636654199566692
+      }
+    },
+    {
+      "family": "queens",
+      "size": 14,
+      "samples": [
+        {
+          "command": [
+            "/Users/francoispachet/IdeaProjects/boojum/.venv/bin/python",
+            "-m",
+            "benchmarks.claire_refresh",
+            "--worker",
+            "queens",
+            "native_global",
+            "14",
+            "--binary",
+            "/Users/francoispachet/IdeaProjects/CLAIRE4/interpreter/macos/claire4"
+          ],
+          "seconds": 0.20590550001361407,
+          "returncode": 0,
+          "timed_out": false,
+          "stdout": "{\"seconds\": 0.049791291006840765, \"preparation_seconds\": 0.0003625419922173023, \"construction_seconds\": 0.0004885420203208923, \"solution\": [1, 3, 5, 12, 9, 4, 13, 11, 14, 7, 2, 6, 8, 10], \"nodes\": 47, \"failures\": 23, \"revisions\": 2117, \"status\": \"feasible\"}\n",
+          "stderr": "",
+          "engine": "native_global",
+          "iteration": -1,
+          "result": {
+            "seconds": 0.049791291006840765,
+            "preparation_seconds": 0.0003625419922173023,
+            "construction_seconds": 0.0004885420203208923,
+            "solution": [
+              1,
+              3,
+              5,
+              12,
+              9,
+              4,
+              13,
+              11,
+              14,
+              7,
+              2,
+              6,
+              8,
+              10
+            ],
+            "nodes": 47,
+            "failures": 23,
+            "revisions": 2117,
+            "status": "feasible"
+          }
+        },
+        {
+          "command": [
+            "/Users/francoispachet/IdeaProjects/boojum/.venv/bin/python",
+            "-m",
+            "benchmarks.claire_refresh",
+            "--worker",
+            "queens",
+            "claire",
+            "14",
+            "--binary",
+            "/Users/francoispachet/IdeaProjects/CLAIRE4/interpreter/macos/claire4"
+          ],
+          "seconds": 0.20764979199157096,
+          "returncode": 0,
+          "timed_out": false,
+          "stdout": "{\"size\": 14, \"branch_attempts\": 66, \"failed_branches\": 56, \"rule_firings\": 567, \"candidate_removals\": 527, \"solved\": true, \"solution\": [1, 3, 5, 12, 9, 4, 13, 11, 14, 7, 2, 6, 8, 10], \"seconds\": 0.004007}\n",
+          "stderr": "",
+          "engine": "claire",
+          "iteration": -1,
+          "result": {
+            "size": 14,
+            "branch_attempts": 66,
+            "failed_branches": 56,
+            "rule_firings": 567,
+            "candidate_removals": 527,
+            "solved": true,
+            "solution": [
+              1,
+              3,
+              5,
+              12,
+              9,
+              4,
+              13,
+              11,
+              14,
+              7,
+              2,
+              6,
+              8,
+              10
+            ],
+            "seconds": 0.004007
+          }
+        },
+        {
+          "command": [
+            "/Users/francoispachet/IdeaProjects/boojum/.venv/bin/python",
+            "-m",
+            "benchmarks.claire_refresh",
+            "--worker",
+            "queens",
+            "snarky",
+            "14",
+            "--binary",
+            "/Users/francoispachet/IdeaProjects/CLAIRE4/interpreter/macos/claire4"
+          ],
+          "seconds": 1.6413435410067905,
+          "returncode": 0,
+          "timed_out": false,
+          "stdout": "{\"seconds\": 1.4887360830034595, \"preparation_seconds\": 0.002003333007451147, \"solution\": [1, 3, 5, 12, 9, 4, 13, 11, 14, 7, 2, 6, 8, 10], \"explored_nodes\": 37, \"failed_branches\": 17, \"solution_decisions\": 10}\n",
+          "stderr": "",
+          "engine": "snarky",
+          "iteration": -1,
+          "result": {
+            "seconds": 1.4887360830034595,
+            "preparation_seconds": 0.002003333007451147,
+            "solution": [
+              1,
+              3,
+              5,
+              12,
+              9,
+              4,
+              13,
+              11,
+              14,
+              7,
+              2,
+              6,
+              8,
+              10
+            ],
+            "explored_nodes": 37,
+            "failed_branches": 17,
+            "solution_decisions": 10
+          }
+        },
+        {
+          "command": [
+            "/Users/francoispachet/IdeaProjects/boojum/.venv/bin/python",
+            "-m",
+            "benchmarks.claire_refresh",
+            "--worker",
+            "queens",
+            "snarky",
+            "14",
+            "--binary",
+            "/Users/francoispachet/IdeaProjects/CLAIRE4/interpreter/macos/claire4"
+          ],
+          "seconds": 1.649310125008924,
+          "returncode": 0,
+          "timed_out": false,
+          "stdout": "{\"seconds\": 1.5047307499917224, \"preparation_seconds\": 0.0020579999836627394, \"solution\": [1, 3, 5, 12, 9, 4, 13, 11, 14, 7, 2, 6, 8, 10], \"explored_nodes\": 37, \"failed_branches\": 17, \"solution_decisions\": 10}\n",
+          "stderr": "",
+          "engine": "snarky",
+          "iteration": 0,
+          "result": {
+            "seconds": 1.5047307499917224,
+            "preparation_seconds": 0.0020579999836627394,
+            "solution": [
+              1,
+              3,
+              5,
+              12,
+              9,
+              4,
+              13,
+              11,
+              14,
+              7,
+              2,
+              6,
+              8,
+              10
+            ],
+            "explored_nodes": 37,
+            "failed_branches": 17,
+            "solution_decisions": 10
+          }
+        },
+        {
+          "command": [
+            "/Users/francoispachet/IdeaProjects/boojum/.venv/bin/python",
+            "-m",
+            "benchmarks.claire_refresh",
+            "--worker",
+            "queens",
+            "claire",
+            "14",
+            "--binary",
+            "/Users/francoispachet/IdeaProjects/CLAIRE4/interpreter/macos/claire4"
+          ],
+          "seconds": 0.1692438340105582,
+          "returncode": 0,
+          "timed_out": false,
+          "stdout": "{\"size\": 14, \"branch_attempts\": 66, \"failed_branches\": 56, \"rule_firings\": 567, \"candidate_removals\": 527, \"solved\": true, \"solution\": [1, 3, 5, 12, 9, 4, 13, 11, 14, 7, 2, 6, 8, 10], \"seconds\": 0.005735}\n",
+          "stderr": "",
+          "engine": "claire",
+          "iteration": 0,
+          "result": {
+            "size": 14,
+            "branch_attempts": 66,
+            "failed_branches": 56,
+            "rule_firings": 567,
+            "candidate_removals": 527,
+            "solved": true,
+            "solution": [
+              1,
+              3,
+              5,
+              12,
+              9,
+              4,
+              13,
+              11,
+              14,
+              7,
+              2,
+              6,
+              8,
+              10
+            ],
+            "seconds": 0.005735
+          }
+        },
+        {
+          "command": [
+            "/Users/francoispachet/IdeaProjects/boojum/.venv/bin/python",
+            "-m",
+            "benchmarks.claire_refresh",
+            "--worker",
+            "queens",
+            "native_global",
+            "14",
+            "--binary",
+            "/Users/francoispachet/IdeaProjects/CLAIRE4/interpreter/macos/claire4"
+          ],
+          "seconds": 0.19284904198138975,
+          "returncode": 0,
+          "timed_out": false,
+          "stdout": "{\"seconds\": 0.04527279202011414, \"preparation_seconds\": 0.00023854098981246352, \"construction_seconds\": 0.0005625000048894435, \"solution\": [1, 3, 5, 12, 9, 4, 13, 11, 14, 7, 2, 6, 8, 10], \"nodes\": 47, \"failures\": 23, \"revisions\": 2117, \"status\": \"feasible\"}\n",
+          "stderr": "",
+          "engine": "native_global",
+          "iteration": 0,
+          "result": {
+            "seconds": 0.04527279202011414,
+            "preparation_seconds": 0.00023854098981246352,
+            "construction_seconds": 0.0005625000048894435,
+            "solution": [
+              1,
+              3,
+              5,
+              12,
+              9,
+              4,
+              13,
+              11,
+              14,
+              7,
+              2,
+              6,
+              8,
+              10
+            ],
+            "nodes": 47,
+            "failures": 23,
+            "revisions": 2117,
+            "status": "feasible"
+          }
+        },
+        {
+          "command": [
+            "/Users/francoispachet/IdeaProjects/boojum/.venv/bin/python",
+            "-m",
+            "benchmarks.claire_refresh",
+            "--worker",
+            "queens",
+            "native_global",
+            "14",
+            "--binary",
+            "/Users/francoispachet/IdeaProjects/CLAIRE4/interpreter/macos/claire4"
+          ],
+          "seconds": 0.18709458300145343,
+          "returncode": 0,
+          "timed_out": false,
+          "stdout": "{\"seconds\": 0.04592958398279734, \"preparation_seconds\": 0.00022612500470131636, \"construction_seconds\": 0.00046704101259820163, \"solution\": [1, 3, 5, 12, 9, 4, 13, 11, 14, 7, 2, 6, 8, 10], \"nodes\": 47, \"failures\": 23, \"revisions\": 2117, \"status\": \"feasible\"}\n",
+          "stderr": "",
+          "engine": "native_global",
+          "iteration": 1,
+          "result": {
+            "seconds": 0.04592958398279734,
+            "preparation_seconds": 0.00022612500470131636,
+            "construction_seconds": 0.00046704101259820163,
+            "solution": [
+              1,
+              3,
+              5,
+              12,
+              9,
+              4,
+              13,
+              11,
+              14,
+              7,
+              2,
+              6,
+              8,
+              10
+            ],
+            "nodes": 47,
+            "failures": 23,
+            "revisions": 2117,
+            "status": "feasible"
+          }
+        },
+        {
+          "command": [
+            "/Users/francoispachet/IdeaProjects/boojum/.venv/bin/python",
+            "-m",
+            "benchmarks.claire_refresh",
+            "--worker",
+            "queens",
+            "claire",
+            "14",
+            "--binary",
+            "/Users/francoispachet/IdeaProjects/CLAIRE4/interpreter/macos/claire4"
+          ],
+          "seconds": 0.17801054200390354,
+          "returncode": 0,
+          "timed_out": false,
+          "stdout": "{\"size\": 14, \"branch_attempts\": 66, \"failed_branches\": 56, \"rule_firings\": 567, \"candidate_removals\": 527, \"solved\": true, \"solution\": [1, 3, 5, 12, 9, 4, 13, 11, 14, 7, 2, 6, 8, 10], \"seconds\": 0.004265}\n",
+          "stderr": "",
+          "engine": "claire",
+          "iteration": 1,
+          "result": {
+            "size": 14,
+            "branch_attempts": 66,
+            "failed_branches": 56,
+            "rule_firings": 567,
+            "candidate_removals": 527,
+            "solved": true,
+            "solution": [
+              1,
+              3,
+              5,
+              12,
+              9,
+              4,
+              13,
+              11,
+              14,
+              7,
+              2,
+              6,
+              8,
+              10
+            ],
+            "seconds": 0.004265
+          }
+        },
+        {
+          "command": [
+            "/Users/francoispachet/IdeaProjects/boojum/.venv/bin/python",
+            "-m",
+            "benchmarks.claire_refresh",
+            "--worker",
+            "queens",
+            "snarky",
+            "14",
+            "--binary",
+            "/Users/francoispachet/IdeaProjects/CLAIRE4/interpreter/macos/claire4"
+          ],
+          "seconds": 1.6164994169957936,
+          "returncode": 0,
+          "timed_out": false,
+          "stdout": "{\"seconds\": 1.4716809170204215, \"preparation_seconds\": 0.0017568749899510294, \"solution\": [1, 3, 5, 12, 9, 4, 13, 11, 14, 7, 2, 6, 8, 10], \"explored_nodes\": 37, \"failed_branches\": 17, \"solution_decisions\": 10}\n",
+          "stderr": "",
+          "engine": "snarky",
+          "iteration": 1,
+          "result": {
+            "seconds": 1.4716809170204215,
+            "preparation_seconds": 0.0017568749899510294,
+            "solution": [
+              1,
+              3,
+              5,
+              12,
+              9,
+              4,
+              13,
+              11,
+              14,
+              7,
+              2,
+              6,
+              8,
+              10
+            ],
+            "explored_nodes": 37,
+            "failed_branches": 17,
+            "solution_decisions": 10
+          }
+        },
+        {
+          "command": [
+            "/Users/francoispachet/IdeaProjects/boojum/.venv/bin/python",
+            "-m",
+            "benchmarks.claire_refresh",
+            "--worker",
+            "queens",
+            "snarky",
+            "14",
+            "--binary",
+            "/Users/francoispachet/IdeaProjects/CLAIRE4/interpreter/macos/claire4"
+          ],
+          "seconds": 1.6464419580006506,
+          "returncode": 0,
+          "timed_out": false,
+          "stdout": "{\"seconds\": 1.49967529202695, \"preparation_seconds\": 0.001870292006060481, \"solution\": [1, 3, 5, 12, 9, 4, 13, 11, 14, 7, 2, 6, 8, 10], \"explored_nodes\": 37, \"failed_branches\": 17, \"solution_decisions\": 10}\n",
+          "stderr": "",
+          "engine": "snarky",
+          "iteration": 2,
+          "result": {
+            "seconds": 1.49967529202695,
+            "preparation_seconds": 0.001870292006060481,
+            "solution": [
+              1,
+              3,
+              5,
+              12,
+              9,
+              4,
+              13,
+              11,
+              14,
+              7,
+              2,
+              6,
+              8,
+              10
+            ],
+            "explored_nodes": 37,
+            "failed_branches": 17,
+            "solution_decisions": 10
+          }
+        },
+        {
+          "command": [
+            "/Users/francoispachet/IdeaProjects/boojum/.venv/bin/python",
+            "-m",
+            "benchmarks.claire_refresh",
+            "--worker",
+            "queens",
+            "claire",
+            "14",
+            "--binary",
+            "/Users/francoispachet/IdeaProjects/CLAIRE4/interpreter/macos/claire4"
+          ],
+          "seconds": 0.17688437501783483,
+          "returncode": 0,
+          "timed_out": false,
+          "stdout": "{\"size\": 14, \"branch_attempts\": 66, \"failed_branches\": 56, \"rule_firings\": 567, \"candidate_removals\": 527, \"solved\": true, \"solution\": [1, 3, 5, 12, 9, 4, 13, 11, 14, 7, 2, 6, 8, 10], \"seconds\": 0.003857}\n",
+          "stderr": "",
+          "engine": "claire",
+          "iteration": 2,
+          "result": {
+            "size": 14,
+            "branch_attempts": 66,
+            "failed_branches": 56,
+            "rule_firings": 567,
+            "candidate_removals": 527,
+            "solved": true,
+            "solution": [
+              1,
+              3,
+              5,
+              12,
+              9,
+              4,
+              13,
+              11,
+              14,
+              7,
+              2,
+              6,
+              8,
+              10
+            ],
+            "seconds": 0.003857
+          }
+        },
+        {
+          "command": [
+            "/Users/francoispachet/IdeaProjects/boojum/.venv/bin/python",
+            "-m",
+            "benchmarks.claire_refresh",
+            "--worker",
+            "queens",
+            "native_global",
+            "14",
+            "--binary",
+            "/Users/francoispachet/IdeaProjects/CLAIRE4/interpreter/macos/claire4"
+          ],
+          "seconds": 0.18690108301234432,
+          "returncode": 0,
+          "timed_out": false,
+          "stdout": "{\"seconds\": 0.04544033398269676, \"preparation_seconds\": 0.0002166659978684038, \"construction_seconds\": 0.0004587500006891787, \"solution\": [1, 3, 5, 12, 9, 4, 13, 11, 14, 7, 2, 6, 8, 10], \"nodes\": 47, \"failures\": 23, \"revisions\": 2117, \"status\": \"feasible\"}\n",
+          "stderr": "",
+          "engine": "native_global",
+          "iteration": 2,
+          "result": {
+            "seconds": 0.04544033398269676,
+            "preparation_seconds": 0.0002166659978684038,
+            "construction_seconds": 0.0004587500006891787,
+            "solution": [
+              1,
+              3,
+              5,
+              12,
+              9,
+              4,
+              13,
+              11,
+              14,
+              7,
+              2,
+              6,
+              8,
+              10
+            ],
+            "nodes": 47,
+            "failures": 23,
+            "revisions": 2117,
+            "status": "feasible"
+          }
+        }
+      ],
+      "median_seconds": {
+        "snarky": 1.49967529202695,
+        "claire": 0.004265,
+        "native_global": 0.04544033398269676
+      }
+    },
+    {
+      "family": "talarian",
+      "size": 100,
+      "samples": [
+        {
+          "command": [
+            "/Users/francoispachet/IdeaProjects/boojum/.venv/bin/python",
+            "-m",
+            "benchmarks.claire_refresh",
+            "--worker",
+            "talarian",
+            "claire",
+            "100",
+            "--binary",
+            "/Users/francoispachet/IdeaProjects/CLAIRE4/interpreter/macos/claire4"
+          ],
+          "seconds": 0.17944004098535515,
+          "returncode": 0,
+          "timed_out": false,
+          "stdout": "{\"size\": 100, \"rule_firings\": 1000, \"outputs\": 1000, \"checksum\": 4000, \"preparation_seconds\": 6.6e-05, \"seconds\": 0.001773}\n",
+          "stderr": "",
+          "engine": "claire",
+          "iteration": -1,
+          "result": {
+            "size": 100,
+            "rule_firings": 1000,
+            "outputs": 1000,
+            "checksum": 4000,
+            "preparation_seconds": 6.6e-05,
+            "seconds": 0.001773
+          }
+        },
+        {
+          "command": [
+            "/Users/francoispachet/IdeaProjects/boojum/.venv/bin/python",
+            "-m",
+            "benchmarks.claire_refresh",
+            "--worker",
+            "talarian",
+            "snarky",
+            "100",
+            "--binary",
+            "/Users/francoispachet/IdeaProjects/CLAIRE4/interpreter/macos/claire4"
+          ],
+          "seconds": 0.17894666700158268,
+          "returncode": 0,
+          "timed_out": false,
+          "stdout": "{\"seconds\": 0.03349762500147335, \"preparation_seconds\": 0.003817208984401077, \"rule_firings\": 1000, \"outputs\": 1000, \"checksum\": 4000, \"match_attempts\": 1018, \"candidate_facts\": 1018, \"activations_produced\": 1000, \"rule_evaluations\": 1009, \"rule_skips\": 18991, \"event_rule_evaluations\": 1009, \"event_rule_candidates\": 1018}\n",
+          "stderr": "",
+          "engine": "snarky",
+          "iteration": -1,
+          "result": {
+            "seconds": 0.03349762500147335,
+            "preparation_seconds": 0.003817208984401077,
+            "rule_firings": 1000,
+            "outputs": 1000,
+            "checksum": 4000,
+            "match_attempts": 1018,
+            "candidate_facts": 1018,
+            "activations_produced": 1000,
+            "rule_evaluations": 1009,
+            "rule_skips": 18991,
+            "event_rule_evaluations": 1009,
+            "event_rule_candidates": 1018
+          }
+        },
+        {
+          "command": [
+            "/Users/francoispachet/IdeaProjects/boojum/.venv/bin/python",
+            "-m",
+            "benchmarks.claire_refresh",
+            "--worker",
+            "talarian",
+            "snarky",
+            "100",
+            "--binary",
+            "/Users/francoispachet/IdeaProjects/CLAIRE4/interpreter/macos/claire4"
+          ],
+          "seconds": 0.18441700001130812,
+          "returncode": 0,
+          "timed_out": false,
+          "stdout": "{\"seconds\": 0.03810412497841753, \"preparation_seconds\": 0.004824708012165502, \"rule_firings\": 1000, \"outputs\": 1000, \"checksum\": 4000, \"match_attempts\": 1018, \"candidate_facts\": 1018, \"activations_produced\": 1000, \"rule_evaluations\": 1009, \"rule_skips\": 18991, \"event_rule_evaluations\": 1009, \"event_rule_candidates\": 1018}\n",
+          "stderr": "",
+          "engine": "snarky",
+          "iteration": 0,
+          "result": {
+            "seconds": 0.03810412497841753,
+            "preparation_seconds": 0.004824708012165502,
+            "rule_firings": 1000,
+            "outputs": 1000,
+            "checksum": 4000,
+            "match_attempts": 1018,
+            "candidate_facts": 1018,
+            "activations_produced": 1000,
+            "rule_evaluations": 1009,
+            "rule_skips": 18991,
+            "event_rule_evaluations": 1009,
+            "event_rule_candidates": 1018
+          }
+        },
+        {
+          "command": [
+            "/Users/francoispachet/IdeaProjects/boojum/.venv/bin/python",
+            "-m",
+            "benchmarks.claire_refresh",
+            "--worker",
+            "talarian",
+            "claire",
+            "100",
+            "--binary",
+            "/Users/francoispachet/IdeaProjects/CLAIRE4/interpreter/macos/claire4"
+          ],
+          "seconds": 0.18111716699786484,
+          "returncode": 0,
+          "timed_out": false,
+          "stdout": "{\"size\": 100, \"rule_firings\": 1000, \"outputs\": 1000, \"checksum\": 4000, \"preparation_seconds\": 6.8e-05, \"seconds\": 0.001709}\n",
+          "stderr": "",
+          "engine": "claire",
+          "iteration": 0,
+          "result": {
+            "size": 100,
+            "rule_firings": 1000,
+            "outputs": 1000,
+            "checksum": 4000,
+            "preparation_seconds": 6.8e-05,
+            "seconds": 0.001709
+          }
+        },
+        {
+          "command": [
+            "/Users/francoispachet/IdeaProjects/boojum/.venv/bin/python",
+            "-m",
+            "benchmarks.claire_refresh",
+            "--worker",
+            "talarian",
+            "claire",
+            "100",
+            "--binary",
+            "/Users/francoispachet/IdeaProjects/CLAIRE4/interpreter/macos/claire4"
+          ],
+          "seconds": 0.17634445801377296,
+          "returncode": 0,
+          "timed_out": false,
+          "stdout": "{\"size\": 100, \"rule_firings\": 1000, \"outputs\": 1000, \"checksum\": 4000, \"preparation_seconds\": 6.6e-05, \"seconds\": 0.001693}\n",
+          "stderr": "",
+          "engine": "claire",
+          "iteration": 1,
+          "result": {
+            "size": 100,
+            "rule_firings": 1000,
+            "outputs": 1000,
+            "checksum": 4000,
+            "preparation_seconds": 6.6e-05,
+            "seconds": 0.001693
+          }
+        },
+        {
+          "command": [
+            "/Users/francoispachet/IdeaProjects/boojum/.venv/bin/python",
+            "-m",
+            "benchmarks.claire_refresh",
+            "--worker",
+            "talarian",
+            "snarky",
+            "100",
+            "--binary",
+            "/Users/francoispachet/IdeaProjects/CLAIRE4/interpreter/macos/claire4"
+          ],
+          "seconds": 0.18791433301521465,
+          "returncode": 0,
+          "timed_out": false,
+          "stdout": "{\"seconds\": 0.03596883299178444, \"preparation_seconds\": 0.004353666998213157, \"rule_firings\": 1000, \"outputs\": 1000, \"checksum\": 4000, \"match_attempts\": 1018, \"candidate_facts\": 1018, \"activations_produced\": 1000, \"rule_evaluations\": 1009, \"rule_skips\": 18991, \"event_rule_evaluations\": 1009, \"event_rule_candidates\": 1018}\n",
+          "stderr": "",
+          "engine": "snarky",
+          "iteration": 1,
+          "result": {
+            "seconds": 0.03596883299178444,
+            "preparation_seconds": 0.004353666998213157,
+            "rule_firings": 1000,
+            "outputs": 1000,
+            "checksum": 4000,
+            "match_attempts": 1018,
+            "candidate_facts": 1018,
+            "activations_produced": 1000,
+            "rule_evaluations": 1009,
+            "rule_skips": 18991,
+            "event_rule_evaluations": 1009,
+            "event_rule_candidates": 1018
+          }
+        },
+        {
+          "command": [
+            "/Users/francoispachet/IdeaProjects/boojum/.venv/bin/python",
+            "-m",
+            "benchmarks.claire_refresh",
+            "--worker",
+            "talarian",
+            "snarky",
+            "100",
+            "--binary",
+            "/Users/francoispachet/IdeaProjects/CLAIRE4/interpreter/macos/claire4"
+          ],
+          "seconds": 0.20107325000572018,
+          "returncode": 0,
+          "timed_out": false,
+          "stdout": "{\"seconds\": 0.03745708300266415, \"preparation_seconds\": 0.004498624999541789, \"rule_firings\": 1000, \"outputs\": 1000, \"checksum\": 4000, \"match_attempts\": 1018, \"candidate_facts\": 1018, \"activations_produced\": 1000, \"rule_evaluations\": 1009, \"rule_skips\": 18991, \"event_rule_evaluations\": 1009, \"event_rule_candidates\": 1018}\n",
+          "stderr": "",
+          "engine": "snarky",
+          "iteration": 2,
+          "result": {
+            "seconds": 0.03745708300266415,
+            "preparation_seconds": 0.004498624999541789,
+            "rule_firings": 1000,
+            "outputs": 1000,
+            "checksum": 4000,
+            "match_attempts": 1018,
+            "candidate_facts": 1018,
+            "activations_produced": 1000,
+            "rule_evaluations": 1009,
+            "rule_skips": 18991,
+            "event_rule_evaluations": 1009,
+            "event_rule_candidates": 1018
+          }
+        },
+        {
+          "command": [
+            "/Users/francoispachet/IdeaProjects/boojum/.venv/bin/python",
+            "-m",
+            "benchmarks.claire_refresh",
+            "--worker",
+            "talarian",
+            "claire",
+            "100",
+            "--binary",
+            "/Users/francoispachet/IdeaProjects/CLAIRE4/interpreter/macos/claire4"
+          ],
+          "seconds": 0.18893962501897477,
+          "returncode": 0,
+          "timed_out": false,
+          "stdout": "{\"size\": 100, \"rule_firings\": 1000, \"outputs\": 1000, \"checksum\": 4000, \"preparation_seconds\": 7e-05, \"seconds\": 0.001826}\n",
+          "stderr": "",
+          "engine": "claire",
+          "iteration": 2,
+          "result": {
+            "size": 100,
+            "rule_firings": 1000,
+            "outputs": 1000,
+            "checksum": 4000,
+            "preparation_seconds": 7e-05,
+            "seconds": 0.001826
+          }
+        }
+      ],
+      "median_seconds": {
+        "snarky": 0.03745708300266415,
+        "claire": 0.001709
+      }
+    },
+    {
+      "family": "talarian",
+      "size": 1000,
+      "samples": [
+        {
+          "command": [
+            "/Users/francoispachet/IdeaProjects/boojum/.venv/bin/python",
+            "-m",
+            "benchmarks.claire_refresh",
+            "--worker",
+            "talarian",
+            "claire",
+            "1000",
+            "--binary",
+            "/Users/francoispachet/IdeaProjects/CLAIRE4/interpreter/macos/claire4"
+          ],
+          "seconds": 0.19940141699044034,
+          "returncode": 0,
+          "timed_out": false,
+          "stdout": "{\"size\": 1000, \"rule_firings\": 10000, \"outputs\": 10000, \"checksum\": 40000, \"preparation_seconds\": 0.000624, \"seconds\": 0.016868}\n",
+          "stderr": "",
+          "engine": "claire",
+          "iteration": -1,
+          "result": {
+            "size": 1000,
+            "rule_firings": 10000,
+            "outputs": 10000,
+            "checksum": 40000,
+            "preparation_seconds": 0.000624,
+            "seconds": 0.016868
+          }
+        },
+        {
+          "command": [
+            "/Users/francoispachet/IdeaProjects/boojum/.venv/bin/python",
+            "-m",
+            "benchmarks.claire_refresh",
+            "--worker",
+            "talarian",
+            "snarky",
+            "1000",
+            "--binary",
+            "/Users/francoispachet/IdeaProjects/CLAIRE4/interpreter/macos/claire4"
+          ],
+          "seconds": 0.5792859159992076,
+          "returncode": 0,
+          "timed_out": false,
+          "stdout": "{\"seconds\": 0.37257808400318027, \"preparation_seconds\": 0.02839800002402626, \"rule_firings\": 10000, \"outputs\": 10000, \"checksum\": 40000, \"match_attempts\": 10018, \"candidate_facts\": 10018, \"activations_produced\": 10000, \"rule_evaluations\": 10009, \"rule_skips\": 189991, \"event_rule_evaluations\": 10009, \"event_rule_candidates\": 10018}\n",
+          "stderr": "",
+          "engine": "snarky",
+          "iteration": -1,
+          "result": {
+            "seconds": 0.37257808400318027,
+            "preparation_seconds": 0.02839800002402626,
+            "rule_firings": 10000,
+            "outputs": 10000,
+            "checksum": 40000,
+            "match_attempts": 10018,
+            "candidate_facts": 10018,
+            "activations_produced": 10000,
+            "rule_evaluations": 10009,
+            "rule_skips": 189991,
+            "event_rule_evaluations": 10009,
+            "event_rule_candidates": 10018
+          }
+        },
+        {
+          "command": [
+            "/Users/francoispachet/IdeaProjects/boojum/.venv/bin/python",
+            "-m",
+            "benchmarks.claire_refresh",
+            "--worker",
+            "talarian",
+            "snarky",
+            "1000",
+            "--binary",
+            "/Users/francoispachet/IdeaProjects/CLAIRE4/interpreter/macos/claire4"
+          ],
+          "seconds": 0.5959982079803012,
+          "returncode": 0,
+          "timed_out": false,
+          "stdout": "{\"seconds\": 0.38273183300043456, \"preparation_seconds\": 0.028278666984988376, \"rule_firings\": 10000, \"outputs\": 10000, \"checksum\": 40000, \"match_attempts\": 10018, \"candidate_facts\": 10018, \"activations_produced\": 10000, \"rule_evaluations\": 10009, \"rule_skips\": 189991, \"event_rule_evaluations\": 10009, \"event_rule_candidates\": 10018}\n",
+          "stderr": "",
+          "engine": "snarky",
+          "iteration": 0,
+          "result": {
+            "seconds": 0.38273183300043456,
+            "preparation_seconds": 0.028278666984988376,
+            "rule_firings": 10000,
+            "outputs": 10000,
+            "checksum": 40000,
+            "match_attempts": 10018,
+            "candidate_facts": 10018,
+            "activations_produced": 10000,
+            "rule_evaluations": 10009,
+            "rule_skips": 189991,
+            "event_rule_evaluations": 10009,
+            "event_rule_candidates": 10018
+          }
+        },
+        {
+          "command": [
+            "/Users/francoispachet/IdeaProjects/boojum/.venv/bin/python",
+            "-m",
+            "benchmarks.claire_refresh",
+            "--worker",
+            "talarian",
+            "claire",
+            "1000",
+            "--binary",
+            "/Users/francoispachet/IdeaProjects/CLAIRE4/interpreter/macos/claire4"
+          ],
+          "seconds": 0.1855173750082031,
+          "returncode": 0,
+          "timed_out": false,
+          "stdout": "{\"size\": 1000, \"rule_firings\": 10000, \"outputs\": 10000, \"checksum\": 40000, \"preparation_seconds\": 0.000641, \"seconds\": 0.016758}\n",
+          "stderr": "",
+          "engine": "claire",
+          "iteration": 0,
+          "result": {
+            "size": 1000,
+            "rule_firings": 10000,
+            "outputs": 10000,
+            "checksum": 40000,
+            "preparation_seconds": 0.000641,
+            "seconds": 0.016758
+          }
+        },
+        {
+          "command": [
+            "/Users/francoispachet/IdeaProjects/boojum/.venv/bin/python",
+            "-m",
+            "benchmarks.claire_refresh",
+            "--worker",
+            "talarian",
+            "claire",
+            "1000",
+            "--binary",
+            "/Users/francoispachet/IdeaProjects/CLAIRE4/interpreter/macos/claire4"
+          ],
+          "seconds": 0.19731083401711658,
+          "returncode": 0,
+          "timed_out": false,
+          "stdout": "{\"size\": 1000, \"rule_firings\": 10000, \"outputs\": 10000, \"checksum\": 40000, \"preparation_seconds\": 0.000699, \"seconds\": 0.01689}\n",
+          "stderr": "",
+          "engine": "claire",
+          "iteration": 1,
+          "result": {
+            "size": 1000,
+            "rule_firings": 10000,
+            "outputs": 10000,
+            "checksum": 40000,
+            "preparation_seconds": 0.000699,
+            "seconds": 0.01689
+          }
+        },
+        {
+          "command": [
+            "/Users/francoispachet/IdeaProjects/boojum/.venv/bin/python",
+            "-m",
+            "benchmarks.claire_refresh",
+            "--worker",
+            "talarian",
+            "snarky",
+            "1000",
+            "--binary",
+            "/Users/francoispachet/IdeaProjects/CLAIRE4/interpreter/macos/claire4"
+          ],
+          "seconds": 0.625583374989219,
+          "returncode": 0,
+          "timed_out": false,
+          "stdout": "{\"seconds\": 0.4002213329949882, \"preparation_seconds\": 0.028899291006382555, \"rule_firings\": 10000, \"outputs\": 10000, \"checksum\": 40000, \"match_attempts\": 10018, \"candidate_facts\": 10018, \"activations_produced\": 10000, \"rule_evaluations\": 10009, \"rule_skips\": 189991, \"event_rule_evaluations\": 10009, \"event_rule_candidates\": 10018}\n",
+          "stderr": "",
+          "engine": "snarky",
+          "iteration": 1,
+          "result": {
+            "seconds": 0.4002213329949882,
+            "preparation_seconds": 0.028899291006382555,
+            "rule_firings": 10000,
+            "outputs": 10000,
+            "checksum": 40000,
+            "match_attempts": 10018,
+            "candidate_facts": 10018,
+            "activations_produced": 10000,
+            "rule_evaluations": 10009,
+            "rule_skips": 189991,
+            "event_rule_evaluations": 10009,
+            "event_rule_candidates": 10018
+          }
+        },
+        {
+          "command": [
+            "/Users/francoispachet/IdeaProjects/boojum/.venv/bin/python",
+            "-m",
+            "benchmarks.claire_refresh",
+            "--worker",
+            "talarian",
+            "snarky",
+            "1000",
+            "--binary",
+            "/Users/francoispachet/IdeaProjects/CLAIRE4/interpreter/macos/claire4"
+          ],
+          "seconds": 0.5814627079817001,
+          "returncode": 0,
+          "timed_out": false,
+          "stdout": "{\"seconds\": 0.37517045802087523, \"preparation_seconds\": 0.028495416016085073, \"rule_firings\": 10000, \"outputs\": 10000, \"checksum\": 40000, \"match_attempts\": 10018, \"candidate_facts\": 10018, \"activations_produced\": 10000, \"rule_evaluations\": 10009, \"rule_skips\": 189991, \"event_rule_evaluations\": 10009, \"event_rule_candidates\": 10018}\n",
+          "stderr": "",
+          "engine": "snarky",
+          "iteration": 2,
+          "result": {
+            "seconds": 0.37517045802087523,
+            "preparation_seconds": 0.028495416016085073,
+            "rule_firings": 10000,
+            "outputs": 10000,
+            "checksum": 40000,
+            "match_attempts": 10018,
+            "candidate_facts": 10018,
+            "activations_produced": 10000,
+            "rule_evaluations": 10009,
+            "rule_skips": 189991,
+            "event_rule_evaluations": 10009,
+            "event_rule_candidates": 10018
+          }
+        },
+        {
+          "command": [
+            "/Users/francoispachet/IdeaProjects/boojum/.venv/bin/python",
+            "-m",
+            "benchmarks.claire_refresh",
+            "--worker",
+            "talarian",
+            "claire",
+            "1000",
+            "--binary",
+            "/Users/francoispachet/IdeaProjects/CLAIRE4/interpreter/macos/claire4"
+          ],
+          "seconds": 0.20551458300906233,
+          "returncode": 0,
+          "timed_out": false,
+          "stdout": "{\"size\": 1000, \"rule_firings\": 10000, \"outputs\": 10000, \"checksum\": 40000, \"preparation_seconds\": 0.00064, \"seconds\": 0.017896}\n",
+          "stderr": "",
+          "engine": "claire",
+          "iteration": 2,
+          "result": {
+            "size": 1000,
+            "rule_firings": 10000,
+            "outputs": 10000,
+            "checksum": 40000,
+            "preparation_seconds": 0.00064,
+            "seconds": 0.017896
+          }
+        }
+      ],
+      "median_seconds": {
+        "snarky": 0.38273183300043456,
+        "claire": 0.01689
+      }
+    },
+    {
+      "family": "triangles",
+      "size": 25,
+      "samples": [
+        {
+          "command": [
+            "/Users/francoispachet/IdeaProjects/boojum/.venv/bin/python",
+            "-m",
+            "benchmarks.claire_refresh",
+            "--worker",
+            "triangles",
+            "claire",
+            "25",
+            "--binary",
+            "/Users/francoispachet/IdeaProjects/CLAIRE4/interpreter/macos/claire4"
+          ],
+          "seconds": 0.19978991599055007,
+          "returncode": 0,
+          "timed_out": false,
+          "stdout": "{\"groups\": 25, \"width\": 8, \"rule_firings\": 1600, \"outputs\": 1600, \"checksum\": 20800, \"preparation_seconds\": 0.000214, \"seconds\": 0.012961}\n",
+          "stderr": "",
+          "engine": "claire",
+          "iteration": -1,
+          "result": {
+            "groups": 25,
+            "width": 8,
+            "rule_firings": 1600,
+            "outputs": 1600,
+            "checksum": 20800,
+            "preparation_seconds": 0.000214,
+            "seconds": 0.012961
+          }
+        },
+        {
+          "command": [
+            "/Users/francoispachet/IdeaProjects/boojum/.venv/bin/python",
+            "-m",
+            "benchmarks.claire_refresh",
+            "--worker",
+            "triangles",
+            "snarky",
+            "25",
+            "--binary",
+            "/Users/francoispachet/IdeaProjects/CLAIRE4/interpreter/macos/claire4"
+          ],
+          "seconds": 0.25185620799311437,
+          "returncode": 0,
+          "timed_out": false,
+          "stdout": "{\"groups\": 25, \"width\": 8, \"seconds\": 0.08838016699883156, \"preparation_seconds\": 0.01596533300471492, \"rule_firings\": 1600, \"outputs\": 1600, \"checksum\": 20800, \"match_attempts\": 4800, \"candidate_facts\": 4800, \"rule_evaluations\": 1600, \"rule_skips\": 1600, \"partial_join_builds\": 0, \"partial_join_updates\": 0, \"partial_join_bypasses\": 0, \"factorized_event_evaluations\": 1600, \"factorized_event_candidates\": 1600, \"factorized_event_lookups\": 3200}\n",
+          "stderr": "",
+          "engine": "snarky",
+          "iteration": -1,
+          "result": {
+            "groups": 25,
+            "width": 8,
+            "seconds": 0.08838016699883156,
+            "preparation_seconds": 0.01596533300471492,
+            "rule_firings": 1600,
+            "outputs": 1600,
+            "checksum": 20800,
+            "match_attempts": 4800,
+            "candidate_facts": 4800,
+            "rule_evaluations": 1600,
+            "rule_skips": 1600,
+            "partial_join_builds": 0,
+            "partial_join_updates": 0,
+            "partial_join_bypasses": 0,
+            "factorized_event_evaluations": 1600,
+            "factorized_event_candidates": 1600,
+            "factorized_event_lookups": 3200
+          }
+        },
+        {
+          "command": [
+            "/Users/francoispachet/IdeaProjects/boojum/.venv/bin/python",
+            "-m",
+            "benchmarks.claire_refresh",
+            "--worker",
+            "triangles",
+            "snarky",
+            "25",
+            "--binary",
+            "/Users/francoispachet/IdeaProjects/CLAIRE4/interpreter/macos/claire4"
+          ],
+          "seconds": 0.24720279200118966,
+          "returncode": 0,
+          "timed_out": false,
+          "stdout": "{\"groups\": 25, \"width\": 8, \"seconds\": 0.08661479101283476, \"preparation_seconds\": 0.016015457978937775, \"rule_firings\": 1600, \"outputs\": 1600, \"checksum\": 20800, \"match_attempts\": 4800, \"candidate_facts\": 4800, \"rule_evaluations\": 1600, \"rule_skips\": 1600, \"partial_join_builds\": 0, \"partial_join_updates\": 0, \"partial_join_bypasses\": 0, \"factorized_event_evaluations\": 1600, \"factorized_event_candidates\": 1600, \"factorized_event_lookups\": 3200}\n",
+          "stderr": "",
+          "engine": "snarky",
+          "iteration": 0,
+          "result": {
+            "groups": 25,
+            "width": 8,
+            "seconds": 0.08661479101283476,
+            "preparation_seconds": 0.016015457978937775,
+            "rule_firings": 1600,
+            "outputs": 1600,
+            "checksum": 20800,
+            "match_attempts": 4800,
+            "candidate_facts": 4800,
+            "rule_evaluations": 1600,
+            "rule_skips": 1600,
+            "partial_join_builds": 0,
+            "partial_join_updates": 0,
+            "partial_join_bypasses": 0,
+            "factorized_event_evaluations": 1600,
+            "factorized_event_candidates": 1600,
+            "factorized_event_lookups": 3200
+          }
+        },
+        {
+          "command": [
+            "/Users/francoispachet/IdeaProjects/boojum/.venv/bin/python",
+            "-m",
+            "benchmarks.claire_refresh",
+            "--worker",
+            "triangles",
+            "claire",
+            "25",
+            "--binary",
+            "/Users/francoispachet/IdeaProjects/CLAIRE4/interpreter/macos/claire4"
+          ],
+          "seconds": 0.18710179199115373,
+          "returncode": 0,
+          "timed_out": false,
+          "stdout": "{\"groups\": 25, \"width\": 8, \"rule_firings\": 1600, \"outputs\": 1600, \"checksum\": 20800, \"preparation_seconds\": 0.000198, \"seconds\": 0.012396}\n",
+          "stderr": "",
+          "engine": "claire",
+          "iteration": 0,
+          "result": {
+            "groups": 25,
+            "width": 8,
+            "rule_firings": 1600,
+            "outputs": 1600,
+            "checksum": 20800,
+            "preparation_seconds": 0.000198,
+            "seconds": 0.012396
+          }
+        },
+        {
+          "command": [
+            "/Users/francoispachet/IdeaProjects/boojum/.venv/bin/python",
+            "-m",
+            "benchmarks.claire_refresh",
+            "--worker",
+            "triangles",
+            "claire",
+            "25",
+            "--binary",
+            "/Users/francoispachet/IdeaProjects/CLAIRE4/interpreter/macos/claire4"
+          ],
+          "seconds": 0.19416183300199918,
+          "returncode": 0,
+          "timed_out": false,
+          "stdout": "{\"groups\": 25, \"width\": 8, \"rule_firings\": 1600, \"outputs\": 1600, \"checksum\": 20800, \"preparation_seconds\": 0.00021, \"seconds\": 0.012535}\n",
+          "stderr": "",
+          "engine": "claire",
+          "iteration": 1,
+          "result": {
+            "groups": 25,
+            "width": 8,
+            "rule_firings": 1600,
+            "outputs": 1600,
+            "checksum": 20800,
+            "preparation_seconds": 0.00021,
+            "seconds": 0.012535
+          }
+        },
+        {
+          "command": [
+            "/Users/francoispachet/IdeaProjects/boojum/.venv/bin/python",
+            "-m",
+            "benchmarks.claire_refresh",
+            "--worker",
+            "triangles",
+            "snarky",
+            "25",
+            "--binary",
+            "/Users/francoispachet/IdeaProjects/CLAIRE4/interpreter/macos/claire4"
+          ],
+          "seconds": 0.2582506670150906,
+          "returncode": 0,
+          "timed_out": false,
+          "stdout": "{\"groups\": 25, \"width\": 8, \"seconds\": 0.09108816698426381, \"preparation_seconds\": 0.020893874985631555, \"rule_firings\": 1600, \"outputs\": 1600, \"checksum\": 20800, \"match_attempts\": 4800, \"candidate_facts\": 4800, \"rule_evaluations\": 1600, \"rule_skips\": 1600, \"partial_join_builds\": 0, \"partial_join_updates\": 0, \"partial_join_bypasses\": 0, \"factorized_event_evaluations\": 1600, \"factorized_event_candidates\": 1600, \"factorized_event_lookups\": 3200}\n",
+          "stderr": "",
+          "engine": "snarky",
+          "iteration": 1,
+          "result": {
+            "groups": 25,
+            "width": 8,
+            "seconds": 0.09108816698426381,
+            "preparation_seconds": 0.020893874985631555,
+            "rule_firings": 1600,
+            "outputs": 1600,
+            "checksum": 20800,
+            "match_attempts": 4800,
+            "candidate_facts": 4800,
+            "rule_evaluations": 1600,
+            "rule_skips": 1600,
+            "partial_join_builds": 0,
+            "partial_join_updates": 0,
+            "partial_join_bypasses": 0,
+            "factorized_event_evaluations": 1600,
+            "factorized_event_candidates": 1600,
+            "factorized_event_lookups": 3200
+          }
+        },
+        {
+          "command": [
+            "/Users/francoispachet/IdeaProjects/boojum/.venv/bin/python",
+            "-m",
+            "benchmarks.claire_refresh",
+            "--worker",
+            "triangles",
+            "snarky",
+            "25",
+            "--binary",
+            "/Users/francoispachet/IdeaProjects/CLAIRE4/interpreter/macos/claire4"
+          ],
+          "seconds": 0.25287608298822306,
+          "returncode": 0,
+          "timed_out": false,
+          "stdout": "{\"groups\": 25, \"width\": 8, \"seconds\": 0.08869429101468995, \"preparation_seconds\": 0.015635707997716963, \"rule_firings\": 1600, \"outputs\": 1600, \"checksum\": 20800, \"match_attempts\": 4800, \"candidate_facts\": 4800, \"rule_evaluations\": 1600, \"rule_skips\": 1600, \"partial_join_builds\": 0, \"partial_join_updates\": 0, \"partial_join_bypasses\": 0, \"factorized_event_evaluations\": 1600, \"factorized_event_candidates\": 1600, \"factorized_event_lookups\": 3200}\n",
+          "stderr": "",
+          "engine": "snarky",
+          "iteration": 2,
+          "result": {
+            "groups": 25,
+            "width": 8,
+            "seconds": 0.08869429101468995,
+            "preparation_seconds": 0.015635707997716963,
+            "rule_firings": 1600,
+            "outputs": 1600,
+            "checksum": 20800,
+            "match_attempts": 4800,
+            "candidate_facts": 4800,
+            "rule_evaluations": 1600,
+            "rule_skips": 1600,
+            "partial_join_builds": 0,
+            "partial_join_updates": 0,
+            "partial_join_bypasses": 0,
+            "factorized_event_evaluations": 1600,
+            "factorized_event_candidates": 1600,
+            "factorized_event_lookups": 3200
+          }
+        },
+        {
+          "command": [
+            "/Users/francoispachet/IdeaProjects/boojum/.venv/bin/python",
+            "-m",
+            "benchmarks.claire_refresh",
+            "--worker",
+            "triangles",
+            "claire",
+            "25",
+            "--binary",
+            "/Users/francoispachet/IdeaProjects/CLAIRE4/interpreter/macos/claire4"
+          ],
+          "seconds": 0.18426537499180995,
+          "returncode": 0,
+          "timed_out": false,
+          "stdout": "{\"groups\": 25, \"width\": 8, \"rule_firings\": 1600, \"outputs\": 1600, \"checksum\": 20800, \"preparation_seconds\": 0.000195, \"seconds\": 0.012217}\n",
+          "stderr": "",
+          "engine": "claire",
+          "iteration": 2,
+          "result": {
+            "groups": 25,
+            "width": 8,
+            "rule_firings": 1600,
+            "outputs": 1600,
+            "checksum": 20800,
+            "preparation_seconds": 0.000195,
+            "seconds": 0.012217
+          }
+        }
+      ],
+      "median_seconds": {
+        "snarky": 0.08869429101468995,
+        "claire": 0.012396
+      }
+    },
+    {
+      "family": "triangles",
+      "size": 100,
+      "samples": [
+        {
+          "command": [
+            "/Users/francoispachet/IdeaProjects/boojum/.venv/bin/python",
+            "-m",
+            "benchmarks.claire_refresh",
+            "--worker",
+            "triangles",
+            "claire",
+            "100",
+            "--binary",
+            "/Users/francoispachet/IdeaProjects/CLAIRE4/interpreter/macos/claire4"
+          ],
+          "seconds": 0.3306035000132397,
+          "returncode": 0,
+          "timed_out": false,
+          "stdout": "{\"groups\": 100, \"width\": 8, \"rule_firings\": 6400, \"outputs\": 6400, \"checksum\": 323200, \"preparation_seconds\": 0.000775, \"seconds\": 0.158673}\n",
+          "stderr": "",
+          "engine": "claire",
+          "iteration": -1,
+          "result": {
+            "groups": 100,
+            "width": 8,
+            "rule_firings": 6400,
+            "outputs": 6400,
+            "checksum": 323200,
+            "preparation_seconds": 0.000775,
+            "seconds": 0.158673
+          }
+        },
+        {
+          "command": [
+            "/Users/francoispachet/IdeaProjects/boojum/.venv/bin/python",
+            "-m",
+            "benchmarks.claire_refresh",
+            "--worker",
+            "triangles",
+            "snarky",
+            "100",
+            "--binary",
+            "/Users/francoispachet/IdeaProjects/CLAIRE4/interpreter/macos/claire4"
+          ],
+          "seconds": 0.5923589580052067,
+          "returncode": 0,
+          "timed_out": false,
+          "stdout": "{\"groups\": 100, \"width\": 8, \"seconds\": 0.36029429102200083, \"preparation_seconds\": 0.06290641700616106, \"rule_firings\": 6400, \"outputs\": 6400, \"checksum\": 323200, \"match_attempts\": 19200, \"candidate_facts\": 19200, \"rule_evaluations\": 6400, \"rule_skips\": 6400, \"partial_join_builds\": 0, \"partial_join_updates\": 0, \"partial_join_bypasses\": 0, \"factorized_event_evaluations\": 6400, \"factorized_event_candidates\": 6400, \"factorized_event_lookups\": 12800}\n",
+          "stderr": "",
+          "engine": "snarky",
+          "iteration": -1,
+          "result": {
+            "groups": 100,
+            "width": 8,
+            "seconds": 0.36029429102200083,
+            "preparation_seconds": 0.06290641700616106,
+            "rule_firings": 6400,
+            "outputs": 6400,
+            "checksum": 323200,
+            "match_attempts": 19200,
+            "candidate_facts": 19200,
+            "rule_evaluations": 6400,
+            "rule_skips": 6400,
+            "partial_join_builds": 0,
+            "partial_join_updates": 0,
+            "partial_join_bypasses": 0,
+            "factorized_event_evaluations": 6400,
+            "factorized_event_candidates": 6400,
+            "factorized_event_lookups": 12800
+          }
+        },
+        {
+          "command": [
+            "/Users/francoispachet/IdeaProjects/boojum/.venv/bin/python",
+            "-m",
+            "benchmarks.claire_refresh",
+            "--worker",
+            "triangles",
+            "snarky",
+            "100",
+            "--binary",
+            "/Users/francoispachet/IdeaProjects/CLAIRE4/interpreter/macos/claire4"
+          ],
+          "seconds": 0.6233989160100464,
+          "returncode": 0,
+          "timed_out": false,
+          "stdout": "{\"groups\": 100, \"width\": 8, \"seconds\": 0.39309500000672415, \"preparation_seconds\": 0.061219750001328066, \"rule_firings\": 6400, \"outputs\": 6400, \"checksum\": 323200, \"match_attempts\": 19200, \"candidate_facts\": 19200, \"rule_evaluations\": 6400, \"rule_skips\": 6400, \"partial_join_builds\": 0, \"partial_join_updates\": 0, \"partial_join_bypasses\": 0, \"factorized_event_evaluations\": 6400, \"factorized_event_candidates\": 6400, \"factorized_event_lookups\": 12800}\n",
+          "stderr": "",
+          "engine": "snarky",
+          "iteration": 0,
+          "result": {
+            "groups": 100,
+            "width": 8,
+            "seconds": 0.39309500000672415,
+            "preparation_seconds": 0.061219750001328066,
+            "rule_firings": 6400,
+            "outputs": 6400,
+            "checksum": 323200,
+            "match_attempts": 19200,
+            "candidate_facts": 19200,
+            "rule_evaluations": 6400,
+            "rule_skips": 6400,
+            "partial_join_builds": 0,
+            "partial_join_updates": 0,
+            "partial_join_bypasses": 0,
+            "factorized_event_evaluations": 6400,
+            "factorized_event_candidates": 6400,
+            "factorized_event_lookups": 12800
+          }
+        },
+        {
+          "command": [
+            "/Users/francoispachet/IdeaProjects/boojum/.venv/bin/python",
+            "-m",
+            "benchmarks.claire_refresh",
+            "--worker",
+            "triangles",
+            "claire",
+            "100",
+            "--binary",
+            "/Users/francoispachet/IdeaProjects/CLAIRE4/interpreter/macos/claire4"
+          ],
+          "seconds": 0.33557995801675133,
+          "returncode": 0,
+          "timed_out": false,
+          "stdout": "{\"groups\": 100, \"width\": 8, \"rule_firings\": 6400, \"outputs\": 6400, \"checksum\": 323200, \"preparation_seconds\": 0.000761, \"seconds\": 0.16186}\n",
+          "stderr": "",
+          "engine": "claire",
+          "iteration": 0,
+          "result": {
+            "groups": 100,
+            "width": 8,
+            "rule_firings": 6400,
+            "outputs": 6400,
+            "checksum": 323200,
+            "preparation_seconds": 0.000761,
+            "seconds": 0.16186
+          }
+        },
+        {
+          "command": [
+            "/Users/francoispachet/IdeaProjects/boojum/.venv/bin/python",
+            "-m",
+            "benchmarks.claire_refresh",
+            "--worker",
+            "triangles",
+            "claire",
+            "100",
+            "--binary",
+            "/Users/francoispachet/IdeaProjects/CLAIRE4/interpreter/macos/claire4"
+          ],
+          "seconds": 0.3390048329893034,
+          "returncode": 0,
+          "timed_out": false,
+          "stdout": "{\"groups\": 100, \"width\": 8, \"rule_firings\": 6400, \"outputs\": 6400, \"checksum\": 323200, \"preparation_seconds\": 0.000923, \"seconds\": 0.158923}\n",
+          "stderr": "",
+          "engine": "claire",
+          "iteration": 1,
+          "result": {
+            "groups": 100,
+            "width": 8,
+            "rule_firings": 6400,
+            "outputs": 6400,
+            "checksum": 323200,
+            "preparation_seconds": 0.000923,
+            "seconds": 0.158923
+          }
+        },
+        {
+          "command": [
+            "/Users/francoispachet/IdeaProjects/boojum/.venv/bin/python",
+            "-m",
+            "benchmarks.claire_refresh",
+            "--worker",
+            "triangles",
+            "snarky",
+            "100",
+            "--binary",
+            "/Users/francoispachet/IdeaProjects/CLAIRE4/interpreter/macos/claire4"
+          ],
+          "seconds": 0.583033750008326,
+          "returncode": 0,
+          "timed_out": false,
+          "stdout": "{\"groups\": 100, \"width\": 8, \"seconds\": 0.35471458299434744, \"preparation_seconds\": 0.05908108298899606, \"rule_firings\": 6400, \"outputs\": 6400, \"checksum\": 323200, \"match_attempts\": 19200, \"candidate_facts\": 19200, \"rule_evaluations\": 6400, \"rule_skips\": 6400, \"partial_join_builds\": 0, \"partial_join_updates\": 0, \"partial_join_bypasses\": 0, \"factorized_event_evaluations\": 6400, \"factorized_event_candidates\": 6400, \"factorized_event_lookups\": 12800}\n",
+          "stderr": "",
+          "engine": "snarky",
+          "iteration": 1,
+          "result": {
+            "groups": 100,
+            "width": 8,
+            "seconds": 0.35471458299434744,
+            "preparation_seconds": 0.05908108298899606,
+            "rule_firings": 6400,
+            "outputs": 6400,
+            "checksum": 323200,
+            "match_attempts": 19200,
+            "candidate_facts": 19200,
+            "rule_evaluations": 6400,
+            "rule_skips": 6400,
+            "partial_join_builds": 0,
+            "partial_join_updates": 0,
+            "partial_join_bypasses": 0,
+            "factorized_event_evaluations": 6400,
+            "factorized_event_candidates": 6400,
+            "factorized_event_lookups": 12800
+          }
+        },
+        {
+          "command": [
+            "/Users/francoispachet/IdeaProjects/boojum/.venv/bin/python",
+            "-m",
+            "benchmarks.claire_refresh",
+            "--worker",
+            "triangles",
+            "snarky",
+            "100",
+            "--binary",
+            "/Users/francoispachet/IdeaProjects/CLAIRE4/interpreter/macos/claire4"
+          ],
+          "seconds": 0.5939455000043381,
+          "returncode": 0,
+          "timed_out": false,
+          "stdout": "{\"groups\": 100, \"width\": 8, \"seconds\": 0.3610156250069849, \"preparation_seconds\": 0.06032349998713471, \"rule_firings\": 6400, \"outputs\": 6400, \"checksum\": 323200, \"match_attempts\": 19200, \"candidate_facts\": 19200, \"rule_evaluations\": 6400, \"rule_skips\": 6400, \"partial_join_builds\": 0, \"partial_join_updates\": 0, \"partial_join_bypasses\": 0, \"factorized_event_evaluations\": 6400, \"factorized_event_candidates\": 6400, \"factorized_event_lookups\": 12800}\n",
+          "stderr": "",
+          "engine": "snarky",
+          "iteration": 2,
+          "result": {
+            "groups": 100,
+            "width": 8,
+            "seconds": 0.3610156250069849,
+            "preparation_seconds": 0.06032349998713471,
+            "rule_firings": 6400,
+            "outputs": 6400,
+            "checksum": 323200,
+            "match_attempts": 19200,
+            "candidate_facts": 19200,
+            "rule_evaluations": 6400,
+            "rule_skips": 6400,
+            "partial_join_builds": 0,
+            "partial_join_updates": 0,
+            "partial_join_bypasses": 0,
+            "factorized_event_evaluations": 6400,
+            "factorized_event_candidates": 6400,
+            "factorized_event_lookups": 12800
+          }
+        },
+        {
+          "command": [
+            "/Users/francoispachet/IdeaProjects/boojum/.venv/bin/python",
+            "-m",
+            "benchmarks.claire_refresh",
+            "--worker",
+            "triangles",
+            "claire",
+            "100",
+            "--binary",
+            "/Users/francoispachet/IdeaProjects/CLAIRE4/interpreter/macos/claire4"
+          ],
+          "seconds": 0.3354285419918597,
+          "returncode": 0,
+          "timed_out": false,
+          "stdout": "{\"groups\": 100, \"width\": 8, \"rule_firings\": 6400, \"outputs\": 6400, \"checksum\": 323200, \"preparation_seconds\": 0.000815, \"seconds\": 0.161643}\n",
+          "stderr": "",
+          "engine": "claire",
+          "iteration": 2,
+          "result": {
+            "groups": 100,
+            "width": 8,
+            "rule_firings": 6400,
+            "outputs": 6400,
+            "checksum": 323200,
+            "preparation_seconds": 0.000815,
+            "seconds": 0.161643
+          }
+        }
+      ],
+      "median_seconds": {
+        "snarky": 0.3610156250069849,
+        "claire": 0.161643
+      }
+    }
+  ],
+  "finished_at": "2026-09-16T21:00:40.067855+00:00"
+}

@@ -124,6 +124,19 @@ class FiniteCSPRuleLibrary:
         )
 
 
+@dataclass(frozen=True, slots=True)
+class PreparedFiniteCSPSearch:
+    """One initialized finite-CSP session and its configured search."""
+
+    session: InferenceSession
+    search: SessionChoiceSearch
+
+    def solve(self) -> ChoiceSearchResult:
+        """Run the prepared search."""
+
+        return self.search.solve(self.session)
+
+
 def binary_constraint_facts(
     constraint: Atom,
     relation: Atom,
@@ -288,6 +301,35 @@ def solve_finite_csp(
     compatibility.
     """
 
+    return prepare_finite_csp_search(
+        model,
+        max_solutions=max_solutions,
+        max_nodes=max_nodes,
+        policy=policy,
+        traversal=traversal,
+        seed=seed,
+        reversible_depth_first=reversible_depth_first,
+        lazy_frontier=lazy_frontier,
+        rule_groups=rule_groups,
+        program=program,
+    ).solve()
+
+
+def prepare_finite_csp_search(
+    model: FiniteCSP,
+    *,
+    max_solutions: int = 1,
+    max_nodes: int = 10_000,
+    policy: ChoicePolicy | None = None,
+    traversal: ChoiceTraversal = ChoiceTraversal.DEPTH_FIRST,
+    seed: int = 0,
+    reversible_depth_first: bool = True,
+    lazy_frontier: bool = True,
+    rule_groups: Sequence[RuleGroup] | None = None,
+    program: RuleProgram | None = None,
+) -> PreparedFiniteCSPSearch:
+    """Initialize a single-use finite-CSP search without executing it."""
+
     if rule_groups is not None and program is not None:
         raise ValueError("rule_groups and program are mutually exclusive")
     selected_groups = (
@@ -439,7 +481,7 @@ def solve_finite_csp(
         ),
         steps=search_steps,
     )
-    return search.solve(session)
+    return PreparedFiniteCSPSearch(session, search)
 
 
 def _supports_compiled_finite_domain(
@@ -496,11 +538,9 @@ def assignment_from_solution(
 def finite_csp_rule_library() -> FiniteCSPRuleLibrary:
     """Load individually selectable groups implementing the CSP protocol."""
 
-    root = Path(__file__).resolve().parents[1]
-    decision_text = (root / "csp_solver" / "rules.rules").read_text()
-    binary_text = (
-        root / "rulebases" / "constraints" / "binary" / "rules.rules"
-    ).read_text()
+    root = Path(__file__).resolve().parent
+    decision_text = (root / "rules.rules").read_text(encoding="utf-8")
+    binary_text = (root / "binary.rules").read_text(encoding="utf-8")
     (choices,) = parse_rule_groups(decision_text)
     binary_constraints, domains, problems = parse_rule_groups(binary_text)
     return FiniteCSPRuleLibrary(

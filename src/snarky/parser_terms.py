@@ -2,12 +2,11 @@
 
 from __future__ import annotations
 
-from .parser_lexer import ParseError, _Token, _tokenize
+from .parser_lexer import ParseError, _parse_number, _Token, _tokenize
 from .terms import (
     Atom,
     FiniteSequence,
     FiniteSet,
-    Number,
     Status,
     Term,
     Triple,
@@ -70,8 +69,7 @@ def _parse_term_tokens(
     if token.kind == "VARIABLE":
         return Variable(token.value[1:]), position + 1
     if token.kind == "NUMBER":
-        value = float(token.value) if "." in token.value else int(token.value)
-        return Number(value), position + 1
+        return _parse_number(token.value), position + 1
     if token.kind == "ATOM":
         if token.value[0] in "VFIN":
             status = _STATUSES.get(token.value)

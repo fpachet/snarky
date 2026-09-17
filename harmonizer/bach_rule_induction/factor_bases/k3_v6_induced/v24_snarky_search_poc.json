@@ -1,0 +1,216 @@
+{
+  "experiment": {
+    "id": "K3-V24-SNARKY-SEARCH-POC-1",
+    "status": "SOLVED",
+    "gibbs_used_for_generation": false,
+    "historical_rules_loaded": false,
+    "test_loaded": false
+  },
+  "fragment": {
+    "piece_id": "bach/bwv108.6",
+    "start": 0,
+    "blocks": 6,
+    "boundary_blocks_fixed": true,
+    "soprano_fixed": true,
+    "rhythm_fixed": true,
+    "top_pitches_per_lower_voice": 3
+  },
+  "model": {
+    "factor_catalogue": "/Users/francoispachet/IdeaProjects/boojum/harmonizer/bach_rule_induction/factor_bases/k3_v6_induced/v24_contrastive_full_factors.yaml",
+    "factor_program": "/Users/francoispachet/IdeaProjects/boojum/harmonizer/bach_rule_induction/factor_bases/k3_v6_induced/v24_contrastive_full.factors",
+    "factor_count": 65,
+    "learned_constraints": 23,
+    "learned_constraint_instances": 92,
+    "persistent_table_constraints": 100,
+    "block_variables": 6,
+    "window_variables": 4
+  },
+  "search": {
+    "status": "solved",
+    "traversal": "depth_first",
+    "explored_nodes": 4,
+    "failed_branches": 0,
+    "decisions": 3,
+    "backtracks": 0,
+    "failure_trace": []
+  },
+  "propagation": {
+    "initial_candidates": 4646,
+    "remaining_candidates": 4646,
+    "candidate_removals": 0,
+    "by_constraint": []
+  },
+  "solution": {
+    "log_weight": -6.619423774802532,
+    "decisions": [
+      {
+        "point": "apply_csp_choices:choose_csp_value:0[problem=learned_v24_snarky_harmonization,variable=v24_window_1]",
+        "alternative": "SEQ[SEQ[71 66 62 47] SEQ[71 66 62 47] SEQ[71 66 62 47]]",
+        "weight": 1.0
+      },
+      {
+        "point": "apply_csp_choices:choose_csp_value:0[problem=learned_v24_snarky_harmonization,variable=v24_window_2]",
+        "alternative": "SEQ[SEQ[71 66 62 47] SEQ[71 66 62 47] SEQ[71 59 59 47]]",
+        "weight": 0.5020691764034334
+      },
+      {
+        "point": "apply_csp_choices:choose_csp_value:0[problem=learned_v24_snarky_harmonization,variable=v24_window_3]",
+        "alternative": "SEQ[SEQ[71 66 62 47] SEQ[71 59 59 47] SEQ[71 59 59 47]]",
+        "weight": 0.002657401780958843
+      }
+    ],
+    "blocks": [
+      {
+        "local_time": 0,
+        "absolute_time": 0,
+        "offset": 0.0,
+        "metric_level": 1,
+        "attacks": [
+          1,
+          1,
+          1,
+          1
+        ],
+        "pitches": [
+          71,
+          66,
+          62,
+          47
+        ]
+      },
+      {
+        "local_time": 1,
+        "absolute_time": 1,
+        "offset": 1.0,
+        "metric_level": 3,
+        "attacks": [
+          1,
+          1,
+          1,
+          1
+        ],
+        "pitches": [
+          71,
+          66,
+          62,
+          47
+        ]
+      },
+      {
+        "local_time": 2,
+        "absolute_time": 2,
+        "offset": 1.5,
+        "metric_level": 0,
+        "attacks": [
+          0,
+          0,
+          0,
+          1
+        ],
+        "pitches": [
+          71,
+          66,
+          62,
+          47
+        ]
+      },
+      {
+        "local_time": 3,
+        "absolute_time": 3,
+        "offset": 2.0,
+        "metric_level": 1,
+        "attacks": [
+          1,
+          1,
+          1,
+          1
+        ],
+        "pitches": [
+          71,
+          59,
+          59,
+          47
+        ]
+      },
+      {
+        "local_time": 4,
+        "absolute_time": 4,
+        "offset": 2.5,
+        "metric_level": 0,
+        "attacks": [
+          0,
+          0,
+          0,
+          1
+        ],
+        "pitches": [
+          71,
+          59,
+          59,
+          47
+        ]
+      },
+      {
+        "local_time": 5,
+        "absolute_time": 5,
+        "offset": 3.0,
+        "metric_level": 2,
+        "attacks": [
+          1,
+          1,
+          1,
+          1
+        ],
+        "pitches": [
+          78,
+          66,
+          62,
+          59
+        ]
+      }
+    ],
+    "windows": [
+      {
+        "local_central": 1,
+        "absolute_central": 1,
+        "energy": 5.824015606860186,
+        "base_score": 4.044536281892003,
+        "factor_score": 1.7794793249681842,
+        "snarky_factor_score": 1.7794793249681835,
+        "active_factor_instances": 8
+      },
+      {
+        "local_central": 2,
+        "absolute_central": 2,
+        "energy": 1.6548723635160627,
+        "base_score": 1.4320417007553814,
+        "factor_score": 0.22283066276068153,
+        "snarky_factor_score": 0.22283066276068123,
+        "active_factor_instances": 4
+      },
+      {
+        "local_central": 3,
+        "absolute_central": 3,
+        "energy": 0.12720187376598036,
+        "base_score": 3.7578068784163117,
+        "factor_score": -3.6306050046503313,
+        "snarky_factor_score": -3.6306050046503313,
+        "active_factor_instances": 9
+      },
+      {
+        "local_central": 4,
+        "absolute_central": 4,
+        "energy": -2.178099920535014,
+        "base_score": 1.4320417007553814,
+        "factor_score": -3.6101416212903965,
+        "snarky_factor_score": -3.610141621290396,
+        "active_factor_instances": 4
+      }
+    ]
+  },
+  "factor_parity": {
+    "maximum_absolute_error": 6.661338147750939e-16,
+    "tolerance": 1e-12,
+    "status": "PASS"
+  }
+}

@@ -179,8 +179,19 @@ EXPERIMENTAL_API = frozenset(
         "AdaptiveInstantiationStrategy",
         "ConstraintInstantiationStrategy",
         "DomainPropagator",
+        "FactorActivation",
+        "FactorDefinition",
+        "FactorEvaluation",
+        "FactorGroup",
+        "FactorModel",
+        "FactorParameter",
         "PriorityMRVChoicePolicy",
         "PriorityWeightedRandomChoicePolicy",
+        "WeightedFactor",
+        "evaluate_factor_model",
+        "factor",
+        "parse_factor_groups",
+        "parse_factors",
     }
 )
 

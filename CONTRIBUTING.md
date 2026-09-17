@@ -10,12 +10,37 @@ Discuss substantial work in a GitHub issue before investing in it.
 git clone https://github.com/fpachet/snarky.git
 cd snarky
 python -m pip install -e ".[dev]"
+python -m snarky check --syntax-only --format .
 pytest
 ruff check .
 mypy src
 ```
 
 Python 3.12 or newer is required.
+
+The optional CSP companion has its own local distribution:
+`python -m pip install ./csp_solver`. Install it after the core to use
+`snarky check` on `.constraints` files outside the checkout. After changing
+companion sources, reinstall it; module invocations from the checkout use
+the current sources directly.
+
+Research unit tests require the optional NumPy extra:
+
+```sh
+uv sync --frozen --extra dev --extra research
+uv run --frozen pytest harmonizer/bach_rule_induction/experiments --durations=10
+```
+
+Alternatively, use `python -m pip install -e ".[dev,research]"` followed by
+`pytest harmonizer/bach_rule_induction/experiments`.
+These tests use synthetic and tracked fixtures, not a new corpus-training run.
+Music21, MuSES, and the historical DeepBach environment are only needed for
+their corresponding corpus/export experiments; see those experiment guides.
+The default test suite intentionally excludes the research directory; its
+explicit invocation runs in a separate CI job.
+
+Use `pytest -m "not slow"` for the shorter feedback loop and `pytest -m slow`
+for expensive integrations. `pytest` still runs the full configured suite.
 
 ## Change requirements
 
@@ -32,6 +57,7 @@ Python 3.12 or newer is required.
 Run the complete local gate before requesting review:
 
 ```sh
+python -m snarky check --syntax-only --format .
 ruff check .
 mypy src
 pytest
@@ -40,6 +66,17 @@ python -m build --outdir dist
 python scripts/check_distribution.py dist
 python scripts/check_wheel_install.py dist
 ```
+
+For changes to the companion or CLI, also build and test the companion:
+
+```sh
+python -m build --outdir dist/csp csp_solver
+python scripts/check_wheel_install.py dist \
+  --companion dist/csp/snarky_csp-0.1.0-py3-none-any.whl
+```
+
+Keep `csp_solver/binary.rules`, bundled for installed use, synchronized with
+`rulebases/constraints/binary/rules.rules`. A regression test guards this copy.
 
 ## External material
 

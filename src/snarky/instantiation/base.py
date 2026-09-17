@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+from collections.abc import Sequence
 from dataclasses import dataclass
 from functools import cache
 from typing import Protocol, runtime_checkable
@@ -70,6 +71,11 @@ class InstantiationMetrics:
     structural_index_lookups: int = 0
     adaptive_join_reorders: int = 0
     residual_witness_promotions: int = 0
+    event_rule_evaluations: int = 0
+    event_rule_candidates: int = 0
+    factorized_event_evaluations: int = 0
+    factorized_event_candidates: int = 0
+    factorized_event_lookups: int = 0
     domain_filter_runs: int = 0
     domain_filter_fallbacks: int = 0
     domain_filter_selections: int = 0
@@ -132,6 +138,11 @@ class InstantiationMetrics:
         self.structural_index_lookups = 0
         self.adaptive_join_reorders = 0
         self.residual_witness_promotions = 0
+        self.event_rule_evaluations = 0
+        self.event_rule_candidates = 0
+        self.factorized_event_evaluations = 0
+        self.factorized_event_candidates = 0
+        self.factorized_event_lookups = 0
         self.domain_filter_runs = 0
         self.domain_filter_fallbacks = 0
         self.domain_filter_selections = 0
@@ -181,7 +192,7 @@ class InstantiationStrategy(Protocol):
     def instantiate(
         self,
         rule: Rule,
-        facts: tuple[Fact, ...],
+        facts: Sequence[Fact],
         delta: FactDelta | tuple[Fact, ...] | None = None,
     ) -> tuple[Activation, ...]: ...
 

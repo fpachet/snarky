@@ -1,0 +1,646 @@
+{
+  "experiment": {
+    "id": "F-K3-V17-PAIRED-FINITE-DIFFERENCE-SCREEN",
+    "status": "NO_CANDIDATE_PASSES_SHORT_HORIZON_SCREEN",
+    "source_model": "/Users/francoispachet/IdeaProjects/boojum/harmonizer/bach_rule_induction/factor_bases/k3_v6_induced/v13_exact_directed_metric_model.json",
+    "shortlist": "/Users/francoispachet/IdeaProjects/boojum/harmonizer/bach_rule_induction/factor_bases/k3_v6_induced/v16_exact_candidate_shortlist.json",
+    "split_role": "train",
+    "pieces": 8,
+    "piece_ids": [
+      "bach/bwv308",
+      "bach/bwv265",
+      "bach/bwv55.5",
+      "bach/bwv412",
+      "bach/bwv174.5",
+      "bach/bwv56.5",
+      "bach/bwv406",
+      "bach/bwv264"
+    ],
+    "seeds": [
+      10103,
+      20207
+    ],
+    "sweeps": 6,
+    "candidate_count": 12,
+    "candidate_ranks": [
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7,
+      8,
+      9,
+      10,
+      11,
+      12
+    ],
+    "max_abs_step": 0.15,
+    "paired_initialization": true,
+    "paired_random_stream": true,
+    "test_loaded": false
+  },
+  "metric_keys": [
+    "bass_semitone_rate",
+    "bass_repeat_rate",
+    "bass_large_leap_rate",
+    "bass_outside_natural_scale_rate",
+    "triadic_block_rate",
+    "strong_nontriadic_rate",
+    "strong_pair_dissonances_per_block",
+    "weak_pair_dissonances_per_block",
+    "dominant_65_strong_rate",
+    "dominant_65_weak_rate"
+  ],
+  "diagnostic_scales": [
+    0.06700889428621178,
+    0.04810469662652491,
+    0.058676294810190974,
+    0.06983857386636177,
+    0.047031287644338685,
+    0.05535385000013423,
+    0.1268553694256933,
+    0.1163720991107206,
+    0.021213203435596423,
+    0.04564086048964977
+  ],
+  "candidates": [
+    {
+      "rank": 12,
+      "family": "universal_melodic_interval_class",
+      "feature": {
+        "kind": "any_voice_adjacent_abs_class",
+        "target_voice": -1,
+        "other_voice": null,
+        "value": 6,
+        "second_value": null,
+        "complexity": 1,
+        "key": "any_voice_adjacent_abs_class:-1:-:6:-",
+        "label": "any_voice_adjacent_abs_class(all_voices)=6"
+      },
+      "conditional": {
+        "gradient": -0.014444071800267915,
+        "variance": 271.2796869689105,
+        "z_score": -6.378147939245787,
+        "approximate_nll_gain": 0.002796698139344512,
+        "column_score": 0.001574104417337838,
+        "observed_mean": 0.051423071634813695,
+        "expected_mean": 0.0658671434350816,
+        "testable_opportunities": 7273,
+        "piece_support": 32
+      },
+      "weight_step": -0.15,
+      "paired": {
+        "baseline_standardized_l1": 5.1212231264228505,
+        "candidate_standardized_l1": 3.959756321561728,
+        "ensemble_relative_remaining": 0.7732051941129928,
+        "per_seed_relative_remaining": [
+          0.8077383384581877,
+          1.3101906203573954
+        ],
+        "per_piece_standardized_l1_delta": {
+          "mean": 1.0530570218946131,
+          "ci95_low": -0.5736150983307908,
+          "ci95_high": 2.679729142120017
+        },
+        "guarded_absolute_error_deltas": {
+          "bass_large_leap_rate": 0.017428299486996146,
+          "strong_nontriadic_rate": -0.023895162231559186,
+          "strong_pair_dissonances_per_block": -0.06993245214752564
+        },
+        "improves_ensemble": true,
+        "improves_every_seed": false,
+        "passes_guarded_metrics": false
+      }
+    },
+    {
+      "rank": 9,
+      "family": "universal_pair_motion",
+      "feature": {
+        "kind": "any_pair_arrival_abs_class_same_sign",
+        "target_voice": -1,
+        "other_voice": null,
+        "value": 10,
+        "second_value": null,
+        "complexity": 2,
+        "key": "any_pair_arrival_abs_class_same_sign:-1:-:10:-",
+        "label": "any_pair_arrival_abs_class_same_sign(all_voices)=10"
+      },
+      "conditional": {
+        "gradient": -0.018040884196613968,
+        "variance": 280.85551027589673,
+        "z_score": -7.829426147238733,
+        "approximate_nll_gain": 0.004214211040496738,
+        "column_score": 0.0017690235964833898,
+        "observed_mean": 0.040031771247021446,
+        "expected_mean": 0.060875512432402454,
+        "testable_opportunities": 6295,
+        "piece_support": 32
+      },
+      "weight_step": -0.15,
+      "paired": {
+        "baseline_standardized_l1": 5.1212231264228505,
+        "candidate_standardized_l1": 4.419211144828662,
+        "ensemble_relative_remaining": 0.8629210318972099,
+        "per_seed_relative_remaining": [
+          0.7752534225416322,
+          0.9685887783486791
+        ],
+        "per_piece_standardized_l1_delta": {
+          "mean": 0.5610757077355654,
+          "ci95_low": -2.3544665049236606,
+          "ci95_high": 3.4766179203947916
+        },
+        "guarded_absolute_error_deltas": {
+          "bass_large_leap_rate": 0.006347351251702604,
+          "strong_nontriadic_rate": -0.024726550342359155,
+          "strong_pair_dissonances_per_block": -0.06007282426859628
+        },
+        "improves_ensemble": true,
+        "improves_every_seed": true,
+        "passes_guarded_metrics": false
+      }
+    },
+    {
+      "rank": 7,
+      "family": "voice_pair_vertical_interval_class",
+      "feature": {
+        "kind": "central_pair_abs_class",
+        "target_voice": 2,
+        "other_voice": 1,
+        "value": 7,
+        "second_value": null,
+        "complexity": 1,
+        "key": "central_pair_abs_class:2:1:7:-",
+        "label": "central_pair_abs_class(v2,v1)=7"
+      },
+      "conditional": {
+        "gradient": 0.013563230514854998,
+        "variance": 217.2389600777289,
+        "z_score": 6.692800395361662,
+        "approximate_nll_gain": 0.0030794429487249557,
+        "column_score": 0.0018568492267182818,
+        "observed_mean": 0.38499330058061637,
+        "expected_mean": 0.362964409215154,
+        "testable_opportunities": 4478,
+        "piece_support": 32
+      },
+      "weight_step": 0.15,
+      "paired": {
+        "baseline_standardized_l1": 5.1212231264228505,
+        "candidate_standardized_l1": 4.445308192466065,
+        "ensemble_relative_remaining": 0.8680168941537784,
+        "per_seed_relative_remaining": [
+          0.6909596677301878,
+          1.316658157437628
+        ],
+        "per_piece_standardized_l1_delta": {
+          "mean": 1.7153930778110076,
+          "ci95_low": -0.025168373594151028,
+          "ci95_high": 3.455954529216166
+        },
+        "guarded_absolute_error_deltas": {
+          "bass_large_leap_rate": 0.02289572669661255,
+          "strong_nontriadic_rate": -0.03002453411920314,
+          "strong_pair_dissonances_per_block": -0.08722569930750068
+        },
+        "improves_ensemble": true,
+        "improves_every_seed": false,
+        "passes_guarded_metrics": false
+      }
+    },
+    {
+      "rank": 4,
+      "family": "voice_pair_vertical_interval_class",
+      "feature": {
+        "kind": "central_pair_abs_class",
+        "target_voice": 1,
+        "other_voice": 3,
+        "value": 5,
+        "second_value": null,
+        "complexity": 1,
+        "key": "central_pair_abs_class:1:3:5:-",
+        "label": "central_pair_abs_class(v1,v3)=5"
+      },
+      "conditional": {
+        "gradient": -0.01173598565328624,
+        "variance": 132.1112505694628,
+        "z_score": -7.426142107671578,
+        "approximate_nll_gain": 0.0037912544069388745,
+        "column_score": 0.0025686606849322008,
+        "observed_mean": 0.08384458077709611,
+        "expected_mean": 0.10323922373468541,
+        "testable_opportunities": 4401,
+        "piece_support": 32
+      },
+      "weight_step": -0.15,
+      "paired": {
+        "baseline_standardized_l1": 5.1212231264228505,
+        "candidate_standardized_l1": 4.871032685431903,
+        "ensemble_relative_remaining": 0.9511463502341667,
+        "per_seed_relative_remaining": [
+          0.6961444489061143,
+          1.1807012472428327
+        ],
+        "per_piece_standardized_l1_delta": {
+          "mean": 0.014029344442056613,
+          "ci95_low": -1.26068393405482,
+          "ci95_high": 1.288742622938933
+        },
+        "guarded_absolute_error_deltas": {
+          "bass_large_leap_rate": -0.024757588490610716,
+          "strong_nontriadic_rate": 0.002761170440398364,
+          "strong_pair_dissonances_per_block": 0.015429043145035792
+        },
+        "improves_ensemble": true,
+        "improves_every_seed": false,
+        "passes_guarded_metrics": false
+      }
+    },
+    {
+      "rank": 11,
+      "family": "directed_pair_interval_metric_trajectory",
+      "feature": {
+        "kind": "central_pair_abs_class_metric_target_rearticulated",
+        "target_voice": 1,
+        "other_voice": 0,
+        "value": 1,
+        "second_value": 1,
+        "complexity": 4,
+        "key": "central_pair_abs_class_metric_target_rearticulated:1:0:1:1",
+        "label": "central_pair_abs_class_metric_target_rearticulated(v1,v0)=1,1"
+      },
+      "conditional": {
+        "gradient": 0.002208060026318508,
+        "variance": 2.7191003733190295,
+        "z_score": 9.738943434329721,
+        "approximate_nll_gain": 0.0065204880528718515,
+        "column_score": 0.0016301131648451556,
+        "observed_mean": 0.22764227642276422,
+        "expected_mean": 0.09707950754947557,
+        "testable_opportunities": 123,
+        "piece_support": 28
+      },
+      "weight_step": 0.15,
+      "paired": {
+        "baseline_standardized_l1": 5.1212231264228505,
+        "candidate_standardized_l1": 4.932712245804288,
+        "ensemble_relative_remaining": 0.9631902621766381,
+        "per_seed_relative_remaining": [
+          0.9440360767382231,
+          1.03577200306927
+        ],
+        "per_piece_standardized_l1_delta": {
+          "mean": 0.12243795185785511,
+          "ci95_low": -0.36384524956475006,
+          "ci95_high": 0.6087211532804603
+        },
+        "guarded_absolute_error_deltas": {
+          "bass_large_leap_rate": -0.0032582321146871207,
+          "strong_nontriadic_rate": -0.007997685185185177,
+          "strong_pair_dissonances_per_block": -0.004465039488017353
+        },
+        "improves_ensemble": true,
+        "improves_every_seed": false,
+        "passes_guarded_metrics": true
+      }
+    },
+    {
+      "rank": 1,
+      "family": "directed_pair_interval_metric_trajectory",
+      "feature": {
+        "kind": "central_pair_abs_class_metric_target_rearticulated",
+        "target_voice": 1,
+        "other_voice": 2,
+        "value": 7,
+        "second_value": 1,
+        "complexity": 4,
+        "key": "central_pair_abs_class_metric_target_rearticulated:1:2:7:1",
+        "label": "central_pair_abs_class_metric_target_rearticulated(v1,v2)=7,1"
+      },
+      "conditional": {
+        "gradient": 0.011969039801948278,
+        "variance": 66.32902190623447,
+        "z_score": 10.688606827418331,
+        "approximate_nll_gain": 0.007854139688652121,
+        "column_score": 0.002963764800625425,
+        "observed_mean": 0.46296296296296297,
+        "expected_mean": 0.3478163670905159,
+        "testable_opportunities": 756,
+        "piece_support": 32
+      },
+      "weight_step": 0.15,
+      "paired": {
+        "baseline_standardized_l1": 5.1212231264228505,
+        "candidate_standardized_l1": 5.093878686328334,
+        "ensemble_relative_remaining": 0.9946605645917996,
+        "per_seed_relative_remaining": [
+          0.9044166032459482,
+          1.0792586803604611
+        ],
+        "per_piece_standardized_l1_delta": {
+          "mean": -0.2677806710314464,
+          "ci95_low": -0.813747285659054,
+          "ci95_high": 0.2781859435961611
+        },
+        "guarded_absolute_error_deltas": {
+          "bass_large_leap_rate": -0.0015610778743448406,
+          "strong_nontriadic_rate": -0.0002344479458449844,
+          "strong_pair_dissonances_per_block": -0.03815490779645181
+        },
+        "improves_ensemble": true,
+        "improves_every_seed": false,
+        "passes_guarded_metrics": true
+      }
+    },
+    {
+      "rank": 8,
+      "family": "voice_melodic_interval_class",
+      "feature": {
+        "kind": "abs_class_from_previous",
+        "target_voice": 3,
+        "other_voice": null,
+        "value": 0,
+        "second_value": null,
+        "complexity": 1,
+        "key": "abs_class_from_previous:3:-:0:-",
+        "label": "abs_class_from_previous(v3)=0"
+      },
+      "conditional": {
+        "gradient": 0.01096219886597963,
+        "variance": 144.80659410636105,
+        "z_score": 6.62547614256668,
+        "approximate_nll_gain": 0.003017801052916283,
+        "column_score": 0.001795207330909609,
+        "observed_mean": 0.23600165906262963,
+        "expected_mean": 0.20293319271992122,
+        "testable_opportunities": 2411,
+        "piece_support": 32
+      },
+      "weight_step": 0.15,
+      "paired": {
+        "baseline_standardized_l1": 5.1212231264228505,
+        "candidate_standardized_l1": 5.190314836002531,
+        "ensemble_relative_remaining": 1.013491251576836,
+        "per_seed_relative_remaining": [
+          1.0420492034230597,
+          0.8436683074604976
+        ],
+        "per_piece_standardized_l1_delta": {
+          "mean": 0.5758796178634495,
+          "ci95_low": -0.5091075006947581,
+          "ci95_high": 1.6608667364216572
+        },
+        "guarded_absolute_error_deltas": {
+          "bass_large_leap_rate": 0.0025313919643306093,
+          "strong_nontriadic_rate": 0.0016086504046063377,
+          "strong_pair_dissonances_per_block": -0.006373059640522816
+        },
+        "improves_ensemble": false,
+        "improves_every_seed": false,
+        "passes_guarded_metrics": false
+      }
+    },
+    {
+      "rank": 10,
+      "family": "voice_pair_vertical_interval_class",
+      "feature": {
+        "kind": "central_pair_abs_class",
+        "target_voice": 3,
+        "other_voice": 0,
+        "value": 3,
+        "second_value": null,
+        "complexity": 1,
+        "key": "central_pair_abs_class:3:0:3:-",
+        "label": "central_pair_abs_class(v3,v0)=3"
+      },
+      "conditional": {
+        "gradient": 0.009067876445078962,
+        "variance": 102.65740607568493,
+        "z_score": 6.509146382023171,
+        "approximate_nll_gain": 0.002912758601856547,
+        "column_score": 0.001690164879849873,
+        "observed_mean": 0.4330153463293239,
+        "expected_mean": 0.4056612752446871,
+        "testable_opportunities": 2411,
+        "piece_support": 32
+      },
+      "weight_step": 0.15,
+      "paired": {
+        "baseline_standardized_l1": 5.1212231264228505,
+        "candidate_standardized_l1": 5.339127325606941,
+        "ensemble_relative_remaining": 1.0425492492330237,
+        "per_seed_relative_remaining": [
+          1.0285739586214189,
+          1.1165913266568672
+        ],
+        "per_piece_standardized_l1_delta": {
+          "mean": 0.6959824656271728,
+          "ci95_low": -1.2133438755747115,
+          "ci95_high": 2.605308806829057
+        },
+        "guarded_absolute_error_deltas": {
+          "bass_large_leap_rate": 0.012741750136447905,
+          "strong_nontriadic_rate": -0.011105810379707426,
+          "strong_pair_dissonances_per_block": -0.06887855489417993
+        },
+        "improves_ensemble": false,
+        "improves_every_seed": false,
+        "passes_guarded_metrics": false
+      }
+    },
+    {
+      "rank": 2,
+      "family": "three_block_direction_shape",
+      "feature": {
+        "kind": "three_block_sign_shape",
+        "target_voice": 1,
+        "other_voice": null,
+        "value": 0,
+        "second_value": -1,
+        "complexity": 2,
+        "key": "three_block_sign_shape:1:-:0:-1",
+        "label": "three_block_sign_shape(v1)=0,-1"
+      },
+      "conditional": {
+        "gradient": 0.012905592054404745,
+        "variance": 113.81806164264964,
+        "z_score": 8.798039914587271,
+        "approximate_nll_gain": 0.005321429007195845,
+        "column_score": 0.0028762415631824975,
+        "observed_mean": 0.4328571428571429,
+        "expected_mean": 0.3658125921345101,
+        "testable_opportunities": 1400,
+        "piece_support": 32
+      },
+      "weight_step": 0.15,
+      "paired": {
+        "baseline_standardized_l1": 5.1212231264228505,
+        "candidate_standardized_l1": 5.376756711441137,
+        "ensemble_relative_remaining": 1.0498969833397547,
+        "per_seed_relative_remaining": [
+          1.1837611523266507,
+          1.3074781130025288
+        ],
+        "per_piece_standardized_l1_delta": {
+          "mean": 0.8083871729455366,
+          "ci95_low": -0.10546580548445139,
+          "ci95_high": 1.7222401513755248
+        },
+        "guarded_absolute_error_deltas": {
+          "bass_large_leap_rate": 0.00435094084750709,
+          "strong_nontriadic_rate": -0.010859836990351757,
+          "strong_pair_dissonances_per_block": -0.0285227007469655
+        },
+        "improves_ensemble": false,
+        "improves_every_seed": false,
+        "passes_guarded_metrics": false
+      }
+    },
+    {
+      "rank": 3,
+      "family": "voice_melodic_distance_threshold",
+      "feature": {
+        "kind": "abs_step_to_next_gt",
+        "target_voice": 1,
+        "other_voice": null,
+        "value": 1,
+        "second_value": null,
+        "complexity": 1,
+        "key": "abs_step_to_next_gt:1:-:1:-",
+        "label": "abs_step_to_next_gt(v1)=1"
+      },
+      "conditional": {
+        "gradient": 0.02035627531286509,
+        "variance": 368.7817168531024,
+        "z_score": 7.709517748817206,
+        "approximate_nll_gain": 0.004086117415050703,
+        "column_score": 0.002863523693044029,
+        "observed_mean": 1.2164705882352942,
+        "expected_mean": 1.1467994398350738,
+        "testable_opportunities": 2125,
+        "piece_support": 32
+      },
+      "weight_step": 0.15,
+      "paired": {
+        "baseline_standardized_l1": 5.1212231264228505,
+        "candidate_standardized_l1": 5.801154935028456,
+        "ensemble_relative_remaining": 1.1327674642992043,
+        "per_seed_relative_remaining": [
+          1.2900386454515222,
+          1.0031019897570632
+        ],
+        "per_piece_standardized_l1_delta": {
+          "mean": 0.8515536641865735,
+          "ci95_low": -1.633253881294227,
+          "ci95_high": 3.3363612096673743
+        },
+        "guarded_absolute_error_deltas": {
+          "bass_large_leap_rate": -0.009576509308978576,
+          "strong_nontriadic_rate": 0.003386097494553375,
+          "strong_pair_dissonances_per_block": -0.021242048902894384
+        },
+        "improves_ensemble": false,
+        "improves_every_seed": false,
+        "passes_guarded_metrics": false
+      }
+    },
+    {
+      "rank": 5,
+      "family": "three_block_direction_shape",
+      "feature": {
+        "kind": "any_voice_three_block_sign_shape",
+        "target_voice": -1,
+        "other_voice": null,
+        "value": 0,
+        "second_value": -1,
+        "complexity": 2,
+        "key": "any_voice_three_block_sign_shape:-1:-:0:-1",
+        "label": "any_voice_three_block_sign_shape(all_voices)=0,-1"
+      },
+      "conditional": {
+        "gradient": 0.01913780923230168,
+        "variance": 268.9395782663389,
+        "z_score": 8.487473845454328,
+        "approximate_nll_gain": 0.004952372630088772,
+        "column_score": 0.002507185186075424,
+        "observed_mean": 0.5994813767090995,
+        "expected_mean": 0.5666691922332555,
+        "testable_opportunities": 4242,
+        "piece_support": 32
+      },
+      "weight_step": 0.15,
+      "paired": {
+        "baseline_standardized_l1": 5.1212231264228505,
+        "candidate_standardized_l1": 5.95327771524636,
+        "ensemble_relative_remaining": 1.162471848674302,
+        "per_seed_relative_remaining": [
+          1.0357518497819926,
+          1.5558472997034989
+        ],
+        "per_piece_standardized_l1_delta": {
+          "mean": 0.8409894652351474,
+          "ci95_low": -1.2481107304182637,
+          "ci95_high": 2.9300896608885583
+        },
+        "guarded_absolute_error_deltas": {
+          "bass_large_leap_rate": 0.006721899054459968,
+          "strong_nontriadic_rate": -0.028182286803610235,
+          "strong_pair_dissonances_per_block": -0.07614021650326797
+        },
+        "improves_ensemble": false,
+        "improves_every_seed": false,
+        "passes_guarded_metrics": false
+      }
+    },
+    {
+      "rank": 6,
+      "family": "voice_pair_vertical_interval_class",
+      "feature": {
+        "kind": "central_pair_abs_class",
+        "target_voice": 0,
+        "other_voice": 3,
+        "value": 3,
+        "second_value": null,
+        "complexity": 1,
+        "key": "central_pair_abs_class:0:3:3:-",
+        "label": "central_pair_abs_class(v0,v3)=3"
+      },
+      "conditional": {
+        "gradient": 0.008848606761465542,
+        "variance": 84.00733115538425,
+        "z_score": 7.021499817039915,
+        "approximate_nll_gain": 0.003389348252488077,
+        "column_score": 0.0021667545304814026,
+        "observed_mean": 0.42526199669056813,
+        "expected_mean": 0.3897650761300944,
+        "testable_opportunities": 1813,
+        "piece_support": 32
+      },
+      "weight_step": 0.15,
+      "paired": {
+        "baseline_standardized_l1": 5.1212231264228505,
+        "candidate_standardized_l1": 6.136832944470358,
+        "ensemble_relative_remaining": 1.1983139170030472,
+        "per_seed_relative_remaining": [
+          1.1853230977847764,
+          1.011435848907006
+        ],
+        "per_piece_standardized_l1_delta": {
+          "mean": 1.126714834143792,
+          "ci95_low": -0.8978237652185941,
+          "ci95_high": 3.151253433506178
+        },
+        "guarded_absolute_error_deltas": {
+          "bass_large_leap_rate": 0.013726033136159999,
+          "strong_nontriadic_rate": 0.009077308006536,
+          "strong_pair_dissonances_per_block": -0.0023689406318082584
+        },
+        "improves_ensemble": false,
+        "improves_every_seed": false,
+        "passes_guarded_metrics": false
+      }
+    }
+  ]
+}

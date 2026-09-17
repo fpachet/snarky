@@ -1,0 +1,6 @@
+output ["{\n","  \"selected\" : ",concat(["[",join(", ",[showJSON(slice_1d(selected,[X_INTRODUCED_3567_..X_INTRODUCED_3567_,index_set_2of2(selected)],index_set_2of2(selected))) | X_INTRODUCED_3567_ in index_set_1of2(selected)]),"]"]),",\n  \"sequence\" : ",showJSON(sequence),"\n}\n"];
+set of int: value = 0..39;
+array [1..40] of int: X_INTRODUCED_1601_;
+array [value] of int: sequence = array1d(0..39,X_INTRODUCED_1601_);
+array [1..1600] of int: X_INTRODUCED_0_;
+array [value,value] of int: selected = array2d(0..39,0..39,X_INTRODUCED_0_);

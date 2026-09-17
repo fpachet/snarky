@@ -1,0 +1,40 @@
+schema_version: 1
+id: K3-V31-ATTACK-CYCLE-GROUP-1
+status: FROZEN
+frozen_on: 2026-07-31
+baseline_model: v29_strong_succession_full_model.json
+source_exact_cache: ../../experiments/v5_k3_clean/work/k3-exact-v29-selected-32x50.npz
+
+group:
+  id: attack_cycle_status
+  size: 8
+  dimensions:
+    voice: [Soprano, Alto, Tenor, Bass]
+    status: [first_aba_return, continued_abab_cycle]
+  learning: joint
+  l1_inside_group: 0.0005
+  l2_group_scaled_by_sqrt_size: true
+
+estimation:
+  objective: exact_conditional_pseudolikelihood
+  optimizer: adam_plus_sparse_group_proximal
+  learning_rate: 0.02
+  steps_baseline_prefit: 120
+  steps_comparison: 180
+  l1_baseline_by_clause_complexity: 0.001
+  l2: 0.001
+  group_penalty_path: [0.6, 0.3, 0.1, 0.03, 0.0]
+
+selection:
+  discovery_validation_pieces: 10
+  confirmation_validation_pieces: 40
+  criterion: paired_bootstrap_then_piece_disjoint_stability
+  paired_bootstrap_resamples: 100000
+  paired_bootstrap_seed: 31031
+  minimum_positive_piece_fraction: 0.6
+
+provenance_guards:
+  vocabulary_frozen_before_weight_learning: true
+  generated_bwv108_6_used_for_weight_learning: false
+  validation_effects_loaded_before_freeze: false
+  test_opened: false

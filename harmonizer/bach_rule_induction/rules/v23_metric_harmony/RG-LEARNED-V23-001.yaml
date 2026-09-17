@@ -1,0 +1,72 @@
+schema_version: 1
+id: RG-LEARNED-V23-001
+title: Famille d'accord nommée et renversement sur temps fort
+lifecycle: SUPPORTED_PRETEST
+status: RULE_GROUP
+statement: Quand le bloc vertical fort possède une analyse d'accord nommée unique,
+  pondérer conjointement sa famille et son renversement ; l'absence d'analyse unique
+  constitue l'état de référence.
+scope:
+  voices: SATB
+  window:
+  - current
+  metric: strong
+  attack_hold_semantics: true
+  requires_unique_named_chord_analysis: true
+parameterization:
+  dimensions:
+  - chord_family
+  - inversion
+  parameter_count: 14
+  reference_state: no_strict_unique_named_chord
+  joint_learning: exact_conditional_pseudolikelihood
+  group_penalty: 0.6
+statistics:
+  four_fold_mean_nll_improvement: 0.0027235069906819467
+  four_fold_positive_pieces: 24/32
+  four_fold_bootstrap_95_interval:
+  - 0.0008139133210845957
+  - 0.004597080824097343
+  full_validation_mean_nll_improvement: 0.003276113862826904
+  full_validation_positive_pieces: 38/50
+  full_validation_bootstrap_95_interval:
+  - 0.0018852099748274036
+  - 0.004723074817212304
+conclusion:
+  kind: joint_factor_group
+  absolute_prohibition: false
+  weights:
+  - label: triades majeures/mineures, fondamentale
+    weight: 0.2807751580200416
+  - label: triades majeures/mineures, 1er renversement
+    weight: 0.14068668239736704
+  - label: triades majeures/mineures, 2e renversement
+    weight: -0.052600129411019936
+  - label: triades diminuées/augmentées, fondamentale
+    weight: -0.10163956372696693
+  - label: triades diminuées/augmentées, 1er renversement
+    weight: -0.20830462547380585
+  - label: triades diminuées/augmentées, 2e renversement
+    weight: -0.22856429442393394
+  - label: 7es dominante/majeure/mineure, fondamentale
+    weight: -0.0060192134894722
+  - label: 7es dominante/majeure/mineure, 1er renversement
+    weight: -0.07013625005408265
+  - label: 7es dominante/majeure/mineure, 2e renversement
+    weight: -0.2656310917089157
+  - label: 7es dominante/majeure/mineure, 3e renversement
+    weight: 0.2739407024913201
+  - label: 7es altérées, fondamentale
+    weight: -0.17571531955166597
+  - label: 7es altérées, 1er renversement
+    weight: 0.2245971054727108
+  - label: 7es altérées, 2e renversement
+    weight: -0.14706322786630419
+  - label: 7es altérées, 3e renversement
+    weight: 0.2409399008504001
+provenance:
+  origin: learned_from_bach_corpus
+  human_authored_rule: false
+  human_authored_parameter_sharing: true
+  historical_rules_loaded: false
+  test_opened: false

@@ -1,0 +1,18 @@
+# Generated from v32_attack_cycle_factor_model.json.
+# Activation facts are pure finite-state observations over four attacks.
+FACTOR_GROUP attacked_two_note_cycle
+    FACTOR F-K3-V32-CYCLE-INNER
+    SCOPE $scope
+    LOG_WEIGHT -1.6994526035525033
+    WHEN
+        ($scope k3_factor_active F-K3-V32-CYCLE-INNER)
+    END_FACTOR
+
+    FACTOR F-K3-V32-CYCLE-BASS
+    SCOPE $scope
+    LOG_WEIGHT -2.4203681286504293
+    WHEN
+        ($scope k3_factor_active F-K3-V32-CYCLE-BASS)
+    END_FACTOR
+
+END_FACTOR_GROUP

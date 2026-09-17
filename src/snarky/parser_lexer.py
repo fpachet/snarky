@@ -5,6 +5,8 @@ from __future__ import annotations
 import re
 from dataclasses import dataclass
 
+from .terms import Number
+
 
 class ParseError(ValueError):
     """Raised when text does not conform to the supported DSL."""
@@ -22,7 +24,7 @@ _TOKEN_RE = re.compile(
     r"(?P<LBRACKET>\[)|(?P<RBRACKET>\])|"
     r"(?P<OP>==|!=|<=|>=|<|>)|(?P<QUOTE>')|"
     r"(?P<VARIABLE>\$[^\s()\[\]'<>!=]+)|"
-    r"(?P<NUMBER>-?(?:\d+(?:\.\d*)?|\.\d+))|"
+    r"(?P<NUMBER>-?(?:\d+(?:\.\d*)?|\.\d+)(?:[eE][+-]?\d+)?)|"
     r"(?P<ATOM>[^\s()\[\]'<>!=]+)"
     r")"
 )
@@ -30,9 +32,17 @@ _ARITH_TOKEN_RE = re.compile(
     r"\s*(?:"
     r"(?P<LPAREN>\()|(?P<RPAREN>\))|(?P<OP>[+*/%-])|"
     r"(?P<VARIABLE>\$[^\s()+*/%-]+)|"
-    r"(?P<NUMBER>(?:\d+(?:\.\d*)?|\.\d+))"
+    r"(?P<NUMBER>(?:\d+(?:\.\d*)?|\.\d+)(?:[eE][+-]?\d+)?)"
     r")"
 )
+
+
+def _parse_number(text: str) -> Number:
+    try:
+        value = float(text) if any(char in text for char in ".eE") else int(text)
+        return Number(value)
+    except ValueError as error:
+        raise ParseError(f"invalid numeric literal {text!r}: {error}") from error
 
 
 def _only_whitespace_remains(text: str, position: int) -> bool:

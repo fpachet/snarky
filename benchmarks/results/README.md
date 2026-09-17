@@ -12,3 +12,170 @@ and individual samples where the format supports them.
 Do not overwrite a historical record with results from another environment.
 Create a new dated file and interpret it through
 [`../README.md`](../README.md).
+
+## Redesign baseline — 2026-09-16
+
+[`redesign_baseline_2026-09-16.json`](redesign_baseline_2026-09-16.json)
+records 17 non-Bach rule, incremental-join, CSP, and mixed Sudoku cases against
+runtime commit `2fbdd9d`. Each has one discarded warmup and seven retained
+samples, with stable work counters. The checkout was dirty with documentation
+and the new collector; runtime sources were unchanged. Source and collector
+hashes are recorded. This is an initial local baseline, not a paired comparison.
+
+The [performance document](../../docs/performance_baseline.md) gives the timing
+boundaries, full table, validation limitations, comparison protocol, and ledger.
+
+## Dependency-scheduler baseline — 2026-07-27
+
+The complete baseline before event-handler specialization uses Python 3.13.11
+on macOS ARM64. The scheduler itself is commit `84f7b57`; commit `ccce61b`
+only adds the shared clean/dirty provenance fields used by the broader
+application runners.
+
+Primary optimization measurements:
+
+- [`claire_talarian_filter_dependency_scheduler_2026-07-27.json`](claire_talarian_filter_dependency_scheduler_2026-07-27.json)
+  — five runs for 100, 1,000, and 5,000 frames;
+- [`incremental_conjunctions_dependency_scheduler_2026-07-27.json`](incremental_conjunctions_dependency_scheduler_2026-07-27.json)
+  — five cold and streamed runs for 25, 100, and 250 groups.
+
+Application and search guards:
+
+- [`claire_n_queens_dependency_scheduler_2026-07-27.json`](claire_n_queens_dependency_scheduler_2026-07-27.json)
+  — three runs for N=8, 10, 12, and 14;
+- [`rulebase_suite_dependency_scheduler_2026-07-27.json`](rulebase_suite_dependency_scheduler_2026-07-27.json)
+  — seven runs for every documented rulebase and primary strategy;
+- [`sudoku_rules_dependency_scheduler_2026-07-27.json`](sudoku_rules_dependency_scheduler_2026-07-27.json)
+  — five runs for p1–p7 and each primary strategy;
+- [`choice_search_dependency_scheduler_2026-07-27.json`](choice_search_dependency_scheduler_2026-07-27.json),
+  [`choice_trail_dependency_scheduler_2026-07-27.json`](choice_trail_dependency_scheduler_2026-07-27.json),
+  and
+  [`choice_formulations_dependency_scheduler_2026-07-27.json`](choice_formulations_dependency_scheduler_2026-07-27.json);
+- [`classical_csp_dependency_scheduler_2026-07-27.json`](classical_csp_dependency_scheduler_2026-07-27.json)
+  — magic squares, Latin squares, and Sudoku p7;
+- [`csp_harmonizer_next_dependency_scheduler_2026-07-27.json`](csp_harmonizer_next_dependency_scheduler_2026-07-27.json)
+  and
+  [`muses_harmonizer_dependency_scheduler_2026-07-27.json`](muses_harmonizer_dependency_scheduler_2026-07-27.json);
+- [`fibonacci_explicit_dependency_scheduler_2026-07-27.json`](fibonacci_explicit_dependency_scheduler_2026-07-27.json)
+  — seven runs for all four instantiation strategies.
+
+Every payload records its exact commit and `snarky_dirty=false`. Each runner
+also checks its logical outputs or stable search counters before emitting the
+timings.
+
+## Simple event-rule specialization — 2026-07-27
+
+The direct A/B comparison uses commit `02ac84e`, Python 3.13.11, a clean
+checkout, and five runs for 100, 1,000, and 5,000 Talarian frames:
+
+- [`claire_talarian_filter_event_rules_2026-07-27.json`](claire_talarian_filter_event_rules_2026-07-27.json)
+  — specialization enabled;
+- [`claire_talarian_filter_event_rules_disabled_2026-07-27.json`](claire_talarian_filter_event_rules_disabled_2026-07-27.json)
+  — identical Snarky workload through the generic semi-naïve path.
+
+Both records retain identical firings, outputs, checksums, rule evaluations,
+and skips. The specialization improves median inference time by ×1.49,
+×1.46, and ×1.47 respectively.
+
+## Bounded partial-join memory — 2026-07-27
+
+[`incremental_conjunctions_partial_memory_2026-07-27.json`](incremental_conjunctions_partial_memory_2026-07-27.json)
+uses commit `1d1dc5e`, Python 3.13.11, a clean checkout, and three runs per
+case. It contains:
+
+- the original cold and streamed conjunction guards at 25, 100, and 250
+  groups, where the new memory deliberately remains inactive;
+- a direct memory/generic A/B at 2, 5, 10, and 25 groups for a bound
+  comparison that prevents the last fact premise from being reordered.
+
+The A/B retains identical facts, firings, outputs, rule evaluations, and
+skips. Median speedups are ×12.6, ×30.6, ×60.9, and ×132.9. At 25 groups,
+match attempts fall from 2,881,600 to 6,598.
+
+## Common CLAIRE triangle closure — 2026-07-27
+
+The common three-premise workload is archived in:
+
+- [`claire_triangle_closure_2026-07-27.json`](claire_triangle_closure_2026-07-27.json)
+  — five clean runs of both Snarky and interpreted CLAIRE4;
+- [`claire_triangle_closure_partial_memory_disabled_2026-07-27.json`](claire_triangle_closure_partial_memory_disabled_2026-07-27.json)
+  — three clean Snarky runs through the generic semi-naïve path.
+
+Every group prepares 16 membership relations, then streams 64 closing edges.
+Both engines validate 64 rule firings and outputs per group plus the same hub
+checksum. With partial memory, Snarky's median is 0.0081, 0.0214, 0.0467, and
+0.1431 seconds for 2, 5, 10, and 25 groups. Interpreted CLAIRE4 takes 0.000345,
+0.001059, 0.002920, and 0.013240 seconds, so the observed cross-engine gap
+narrows from ×23.4 to ×10.8 as the combinatorial workload grows.
+
+Disabling partial memory raises Snarky's corresponding medians to 0.1089,
+0.6423, 2.5315, and 16.2327 seconds. At 25 groups, the optimization therefore
+gives a ×113.5 internal gain and reduces match attempts from 2,881,600 to
+6,598. The CLAIRE rule is a natural event-demon formulation that scans the
+instantiated hubs; this is a language-level comparison, not a claim that both
+runtimes use the same physical join strategy.
+
+## Factorized multi-premise events — 2026-07-27
+
+The engine implementation is commit `4b433e8`; every primary record below
+uses Python 3.13.11 on macOS ARM64 with `snarky_dirty=false`:
+
+- [`claire_triangle_closure_factorized_events_2026-07-27.json`](claire_triangle_closure_factorized_events_2026-07-27.json)
+  — five runs of factorized Snarky and interpreted CLAIRE4 through 100 groups;
+- [`claire_triangle_closure_partial_memory_2026-07-27.json`](claire_triangle_closure_partial_memory_2026-07-27.json)
+  — three runs with only the previous bounded prefix memory;
+- [`claire_triangle_closure_generic_2026-07-27.json`](claire_triangle_closure_generic_2026-07-27.json)
+  — three runs with both specializations disabled;
+- [`claire_triangle_closure_budget_cliff_2026-07-27.json`](claire_triangle_closure_budget_cliff_2026-07-27.json)
+  — the one-run 33-group boundary where bounded memory falls back;
+- [`incremental_conjunctions_factorized_events_2026-07-27.json`](incremental_conjunctions_factorized_events_2026-07-27.json)
+  — cold/streamed guards plus the three-way factorized/memory/generic A/B.
+
+The common-language result is:
+
+| Groups | Snarky | Interpreted CLAIRE4 | Observed gap |
+| ---: | ---: | ---: | ---: |
+| 2 | 0.00750 s | 0.000343 s | ×21.9 |
+| 5 | 0.01864 s | 0.001191 s | ×15.7 |
+| 10 | 0.03782 s | 0.002892 s | ×13.1 |
+| 25 | 0.09495 s | 0.013004 s | ×7.30 |
+| 33 | 0.12486 s | 0.020969 s | ×5.95 |
+| 50 | 0.19238 s | 0.044907 s | ×4.28 |
+| 100 | 0.42016 s | 0.165307 s | ×2.54 |
+
+Snarky performs exactly three matches and two indexed support lookups per
+closing edge: 19,200 matches and 12,800 lookups for 6,400 outputs at 100
+groups. Its factorized path is ×1.20–×1.31 faster than bounded prefix memory
+through 25 groups and ×14.5–×166.3 faster than the generic join. The
+asymptotic result is more important: at 33 groups bounded memory exceeds its
+2,048-state budget and takes 27.5449 seconds, while factorized execution takes
+0.12486 seconds, a ×220.6 difference.
+
+The independent conjunction runner retains identical outputs, facts,
+activations, evaluations, and skips. At 25 barrier groups its medians are
+0.08727 seconds factorized, 0.11927 seconds with prefix memory, and 15.88971
+seconds generic. Match attempts are respectively 4,800, 6,598, and 2,881,600.
+
+[`rulebase_suite_factorized_events_2026-07-27.json`](rulebase_suite_factorized_events_2026-07-27.json)
+uses follow-up commit `570f54d`, three clean runs, all 12 documented
+rulebases, and the three primary strategies. Every application oracle passes;
+the semi-naive four-queens scenario exercises two factorized event
+evaluations, while focused MEA rules deliberately remain unspecialized.
+
+
+Native Markov redesign scaling: [finite_markov_2026-09-16.json](finite_markov_2026-09-16.json)
+contains six synthetic cases, seven samples per case, incumbent/proof evidence and
+isolated Python-allocation measurements. Four runs hit the node limit; they are
+retained explicitly. See the [performance document](../../docs/performance_baseline.md).
+
+Unified redesign comparison:
+[redesign_comparison_2026-09-16_corrected.json](redesign_comparison_2026-09-16_corrected.json)
+contains 30 comparisons, three alternating paired sessions, seven samples per
+side/session and 60 isolated allocation samples. Adjacent
+[reference](redesign_comparison_2026-09-16_corrected.reference.tar.gz) and
+[candidate](redesign_comparison_2026-09-16_corrected.candidate.tar.gz) source archives
+preserve the measured code. The [report](../../docs/performance_comparison_2026-09-16.md)
+records acceptance, incomplete proofs and the reproduced
+[completion-cache memory tradeoff](redesign_memory_investigation_2026-09-16.json).
+The earlier `redesign_comparison_2026-09-16.partial.json` is an interrupted harness
+record, retained for provenance, not a completed comparison.

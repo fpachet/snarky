@@ -1,0 +1,2969 @@
+{
+  "started_at": "2026-09-17T03:54:46.160871+00:00",
+  "mode": "diagnose",
+  "python": "3.13.11 | packaged by Anaconda, Inc. | (main, Dec 10 2025, 21:21:08) [Clang 20.1.8 ]",
+  "platform": "macOS-15.7.7-arm64-arm-64bit-Mach-O",
+  "baseline_sha256": "8a5bdcffa9ea02cbbefc577a2dcd2b2726815ac4ac76cd47e41581b9271b89ba",
+  "candidate_commit": "104d90347711ca5ea9ce8f5c360c6842a43ee94b",
+  "candidate_dirty": true,
+  "reference_ref": "88c366f",
+  "source_hashes": {
+    "candidate": {
+      "src/snarky/choice_fixed_point.py": "a7e64355ae156c2e50fa798d62f509cdd15814ca5714169b0ff8fde44de51870",
+      "src/snarky/terms.py": "f72622bb6730df24e1e309831b064688b4ed9c50b3df5aae7d12ef07feed2862",
+      "src/snarky/group_templates.py": "d370c6dadbb19c57764e077006f3f89567abc8eca1b7c2cd5d40330f3839e8d9",
+      "src/snarky/standard_rules.py": "f0e9e717cdd8d1736ca160dda5888f3b170edb7eaf622f1132c01162ca874b36",
+      "src/snarky/parser_actions.py": "3e5d982a69893cb95311eadf459df4335e73fb55291b8fb07bcdea804c1b90c2",
+      "src/snarky/facts.py": "3d597b94757d0f6db2edee812d29a0a11e6ad7eca273c6ce268ff5c23d82c267",
+      "src/snarky/computed.py": "ddcaed355801e1a2b8ec8d0b7dc8a08b81d64292044c99db571fce03fbd39603",
+      "src/snarky/premises.py": "a05a9478a97af03e05d3984d4dd75abf151322f164bc862f3b2cc24028955cae",
+      "src/snarky/api_stability.py": "8d21b6acc971fe05cfca8b9e502f48a2622d01de4eb36c8c59acb28461a4e3a8",
+      "src/snarky/factors.py": "2716497b0025d4fdf7ca6fe5a2619ed9c823d122c87d2343eb6249a089c2bc68",
+      "src/snarky/parser_premises.py": "a9a705cc250e38499cf1d55d1c806efb1ee4363c309e019d4bddab245abfef45",
+      "src/snarky/spinoza.py": "ffb4f54d4f97e0fb699d06dda9b20360926934dba202a342d5ed7c3bfe6b558e",
+      "src/snarky/parser_factors.py": "e44533d3aa70e6e7cc9e5f367c9e73ae96bfe644ade24e0e261b772297b1b87f",
+      "src/snarky/expressions.py": "c5b42a53d4f95b399595a381d3dc4b2c9aaf5306a7ee5e334cbb5b7ab07b740d",
+      "src/snarky/choice.py": "ff87df17c973b20c3374a8a2c20557419be5eb0181ff407127530f145a6cd350",
+      "src/snarky/actions.py": "910cab225e92cb08b024f79d635cc9774071a97b9013249f407716d035ec89c6",
+      "src/snarky/__init__.py": "169d10d79895ed483edc6063f1c243fa5ba1db515616c4594a2092103342d238",
+      "src/snarky/rules.py": "c3bd52396565cc3cff16327f22cdf85b9e84abfa4db0134b28d55188c3887fbb",
+      "src/snarky/parser_lexer.py": "86fb194d2398f7250769a688d3ee1d2e039c6c8f588f18ed116f9112ccf8c05e",
+      "src/snarky/formatting.py": "f54c308505904991f6b928f95cbd0eb71e3fb2623520a08a7fb4c3b9713f1013",
+      "src/snarky/parser_arithmetic.py": "746661b0bf82428d91879abb0d555023fc1a4854cd3100f351db8f8950e676c8",
+      "src/snarky/substitutions.py": "91394074261bc6a484886f7ae25f7405a76afc8510208c736df4819b1a4934ed",
+      "src/snarky/unification.py": "3fe417e4b812bbbe0366cc5ce4b762fe5461f2e9dcad66fd6db835c7a8f1c3f5",
+      "src/snarky/matching.py": "daaf2349ac62ae1874e09247fac91c3e8ba23095794577d0753c690fb370e0ba",
+      "src/snarky/parser.py": "3ab38966fe09be2b967844f7710bab0fbf8c2c72324e1b1531a4ba2d4d8c5aea",
+      "src/snarky/programs.py": "d79b0a79b48f6302acca2c5c9dc3c5439bcd9cdabb2746f5b4811480e2c7dee8",
+      "src/snarky/cli.py": "06c9510efcade5667c86750d61c05e3537fb0b37093c46133ab6ac43d3c88847",
+      "src/snarky/propagation.py": "c38054f12f0f5cd6c9459b7afd2726a39f085abda812c5fcd4d6d2373f6b8ceb",
+      "src/snarky/choice_search.py": "fb82dbe0c1abaf9fea37936867d7c8b340473603bcbdd45c778b2b0bbc22b2a2",
+      "src/snarky/plans.py": "4d10b0a0b48b2fcd53dfaaf000ebf36e6ecb0db6c8ef3afdd3b375e079287bd4",
+      "src/snarky/tooling.py": "e83891302281c1816dff92be935f3880c9a3e8462fafcac07c6d88e08eadea65",
+      "src/snarky/choice_production.py": "abb5952afc9b1346925cda9146e12c158fbab80e61bccf7a9ae80f3d6b2e0a87",
+      "src/snarky/search.py": "43c319ada7a215a4f39619646e49df94f7dab5ce0cdca91ec610e5e1342c309d",
+      "src/snarky/parser_terms.py": "e5d85985d27a3bc822b5e322f4c3a4b0bd0e6cb8e39bc6e2d39c51456a82040b",
+      "src/snarky/constraints.py": "8cacdf295fbda7011cf1f5c701cdb630497b1c8815543830ce9934aabc1797c8",
+      "src/snarky/choice_frontier.py": "49727487cfdb66fb06ed7dc6f1652ce83bb251da965c9c1a10b4ddc687a3a40f",
+      "src/snarky/__main__.py": "9bff14ab8b3f46db184fd4acc7facb74c47b2f1ef4e572bc78a091fd7cb0b632",
+      "src/snarky/choice_policies.py": "b134bab4ac4a7afe13688c04863b5e1d08caf53d8ba235ce767781ac2fc1459a",
+      "src/snarky/instantiation/domain_planning.py": "399ffa9572eb55d1fcfce144e28693adc13da2369451b75058932a75d27c5d4c",
+      "src/snarky/instantiation/fact_index.py": "49476fc0fae4277e56eb446ac4ccb0c0cac3d316066eab2282632920a49efd65",
+      "src/snarky/instantiation/__init__.py": "9daf9687870a08f5036fccd02edf9dc7228165b2a4c8dabaeb90e499b0584fb7",
+      "src/snarky/instantiation/compiled.py": "17407857cdf1686871fbce9c9cbff01d35246f84a31bff43117a62f6bfb49afa",
+      "src/snarky/instantiation/adaptive_selection.py": "b7a84f798b4e431420e497181a9ef0f03d35161dad9ad121491cee7a2f94216c",
+      "src/snarky/instantiation/domain_filter.py": "2b64630dbaa1a6a689758ae5234298d4c3e3871c5a64aaa544a2bdb1dc8c6d76",
+      "src/snarky/instantiation/domain_tables.py": "b9809816ae4e5e97cc2130742110449c1d8157ead6cb0af93f021cc1a04b31f8",
+      "src/snarky/instantiation/query_memory.py": "853d9ca40d833259c3845b9df9ce31e85c73490a45129ca2ad8df66a91d2fdc3",
+      "src/snarky/instantiation/semi_naive_join.py": "4d55b98d3d964ee40acf28eee56225c50937418369f0e3cafe28694b6d70a8c5",
+      "src/snarky/instantiation/comparison_propagators.py": "ae0d962c8bce0593c0a57baa94d8a52e632b63b80ec78fd27718e6208f7ebe11",
+      "src/snarky/instantiation/naive_join.py": "5876474781c7b77b78d9f3c1cbbded6eb06fca2c609e3edd9dc86c1c7359bbbb",
+      "src/snarky/instantiation/event_rules.py": "b40b4d6e3c78a03672ee2c1c1e387739dbb65da373cdb6d8d4388e7b2b3c9088",
+      "src/snarky/instantiation/base.py": "923b69570f14e86507b60ac792d0fc17badab1e0fe62cff5e34b4d95e3056bdb",
+      "src/snarky/instantiation/indexed.py": "8ee7104af0768dee65d32f9a9c8b5d90f5402a3698d72d1d5b006ea77646075f",
+      "src/snarky/finite/measure.py": "729c603de0b3872ad6ac6ca0b1e5fad2052995375b147b448f5311677a6a3a4a",
+      "src/snarky/finite/regular.py": "f562909358abfe91dfc0aa2d9ba7f3d08625a25f42f011a30603a437d8907785",
+      "src/snarky/finite/predicates.py": "bb9c17cd92721ea8af020b912f86e0df231229b96e717c6f86ba7d3321bb9c93",
+      "src/snarky/finite/factors.py": "736f643bf07de0903ca0a54b0ff32316c3d4c8355aee9305625e82c732e81997",
+      "src/snarky/finite/markov.py": "d4e30a450c2bec3644a17bd6a1c3b346938746abe6d20036a5dbf5029df2d474",
+      "src/snarky/finite/domains.py": "7fa10d674b6001cfe79aed16971006598332ea5ee85f3faea599117aa4a2e2b4",
+      "src/snarky/finite/__init__.py": "daf7255fdcdcc64f823d92611efc2ddd8954ba41134247ab01f58010181f9b5b",
+      "src/snarky/finite/variable_markov.py": "74b0d6b53a5c434632a50f5e7a214bbf8b93eb531075b4c24df4601fa9baed3b",
+      "src/snarky/finite/product_assignment.py": "41b3cd548322940260bb9250a25010e1accad97565c7e85acfaccd33823978bb",
+      "src/snarky/finite/model.py": "71b66c9d3177e000328660468390fff61d18d2ac9dcb4849814946521b8b6b09",
+      "src/snarky/finite/mixed.py": "bef646cf6faa79b66204f71a7b7e97725a8f0469a4c07a32047635435d378e0d",
+      "src/snarky/finite/nvalue.py": "1c5196059fc6f49284acd47d1c9241d719063392f2ae62abb2c9367bf0c44d20",
+      "src/snarky/finite/cli.py": "bd99ac0223b6657e376f4ea8a22ae0659e2fa5ecd502eb11b4d45c272a53100f",
+      "src/snarky/finite/propagation.py": "534d585a97d2c306123a5f6923ce65fcf2b67758172c8989dad2870e7059f766",
+      "src/snarky/finite/examples.py": "6cced54da964f1141ed91423fed98dcbf44487a33516ab4d49c8ebb966bf41e0",
+      "src/snarky/finite/kernels.py": "fb3b78b1aca09c8eb705b52fde1017d00e3891895deedc2ab7e0952195b48ee9",
+      "src/snarky/finite/language.py": "be38cc0a66931fa3e692eaa227d5cdcaa89d73b3fef963c35a640cd01a262924",
+      "src/snarky/finite/search.py": "0589e1eef0ffd9d20b86682efed3eb761afb4e2911f77534d44e40654dda5513",
+      "src/snarky/finite/inference.py": "0280f74cd5b17efa3264b5db3261dfd759bb99529edf3dd8262f9a04cacf4957",
+      "src/snarky/finite/sparse_chain.py": "a1caaa1754bb79b9c08d3b5150e4ebfc8ab602810561aa71a288b5c88175aec9",
+      "src/snarky/finite/constraints.py": "533639051cf3685f32cea65835c7bde0e752980d404c366b4f4676919ecb8314",
+      "src/snarky/finite/oracle.py": "366867ad43317c25e39b4c2625d9f1c78f93598744afe36e44c72f10b0cde0e2",
+      "src/snarky/finite/bounds.py": "327037d38ae5c1d8a86bfe1564e38a76987020d6ee596a674401b034953a5beb",
+      "src/snarky/finite/product_objective.py": "3409bee3ecaef827c98e91ddd2102f9512d951f4c063601d73a2f2908138b801",
+      "src/snarky/finite/closure.py": "357fdf029c11781291a50930f5455f65568b3a7e5af0636db176840fa76e345d",
+      "src/snarky/serialization/yaml_format.py": "791bdcdd0d1fc52ccb99a161bf996ac980e8d9666f40c03dfd0f5267e7b3ba5b",
+      "src/snarky/serialization/__init__.py": "05e6c306a5bc25b452de1e0a5a951190c3263ec9f096b55696a8076c93484622",
+      "src/snarky/stores/__init__.py": "e2fb6b399a933bfe2f57f8b05e49760420b9e85bd3cae4f6b9d4d1025e5b1e51",
+      "src/snarky/stores/naive.py": "38cc7cf1991616b3041cd0b8480d956b7f4b1a6d8951c1b6222b9529b08a01df",
+      "src/snarky/integrations/__init__.py": "cd767d15d031a91d7f5be216d6fc3dc5fdb9806eae9ca963da5943668e7d58d7",
+      "src/snarky/integrations/objects.py": "94cd17c0213d269b9faaaf30bf5e35242758d506d041dc837af58a152e764a8b",
+      "src/snarky/integrations/muses.py": "b2a423a82b2b9338c4fc4c9588cd5258e853505822537894d61f52e9247c760f",
+      "src/snarky/engine/agenda.py": "0f5479df42bcf85492b81c76c1538c5f64ede3453609c800fd05688cd0c7b99d",
+      "src/snarky/engine/session_state.py": "aaa3f399973d2ef59edd0e23c2fbf29d51c37bb566f8637fa1dda5c0e307f3e4",
+      "src/snarky/engine/mutations.py": "a678da1d1d4d7be57084b448d9bd2ef3c33e47509f3bbddb68c7ad936d5f43a2",
+      "src/snarky/engine/events.py": "0bcc864e9901f0f4c2740c4f2ab0dfac78ca6d3a43a0de60f9db9bb23aefd549",
+      "src/snarky/engine/__init__.py": "67536474adc9807cc521c9a4e15d9ebe8cc125e07feda3474c9cc660238ab6eb",
+      "src/snarky/engine/conflict.py": "bc22350c9a2dcc86af9debd575ea72b88dc111036830f10cb94c951a708b38d7",
+      "src/snarky/engine/group_execution.py": "b0184b2d86129ab3ff05dcb0098222721e3eb002d09274ad4681df1a7bea41bd",
+      "src/snarky/engine/forward.py": "14a3de9a9be8e2517dc2e9b0977be70e60b1785768b29d46f80f43af72bd5016",
+      "src/snarky/engine/refraction.py": "48ce855654bea8253188c34d52ce95f6a608e7ca49e9757c39be61e4b76d644a",
+      "src/snarky/engine/provenance.py": "19caee854982d64d74143afc059ba156b45893502a887a80f3738043a7eea4e7",
+      "benchmarks/csp_diagnostics.py": "ddc85dea08496df9040f518e456f1556fc5168db57a18b2d49b1bbbba471cabf",
+      "benchmarks/csp_followup.py": "67fdeb099090bed70959a21c98ef9d67b0b13e50c24d8fd68639591279873678",
+      "benchmarks/prune_bridge.py": "b7d4ebc0bbf7d147cea0ee97b0307e00a0739d2606adcb23615931b5a8e4384e",
+      "benchmarks/prune_comparison.py": "f8d01e4e7e111a624f86cebc2d08def9b740207586079bcda9941364cbd336d1"
+    }
+  },
+  "source_paths": {
+    "candidate": "/Users/francoispachet/IdeaProjects/boojum"
+  },
+  "protocol": {
+    "cooperative_seconds": 5.0,
+    "hard_seconds": 10.0,
+    "nodes": 100000,
+    "repeats": 3,
+    "warmups": 1,
+    "allocation": false,
+    "scope": "fresh process plus separate construction/native-preparation/search timings; CPU/allocation diagnostics separate from uninstrumented comparisons",
+    "policy": "dom_wdeg; declared values; encodings may change search trees",
+    "nvalue_encoding": {
+      "reference": "decomposed",
+      "candidate": "native"
+    },
+    "objective_propagation": {
+      "reference": "auto",
+      "candidate": "auto"
+    }
+  },
+  "cases": [
+    {
+      "id": "optimization/knapsack_20_opt",
+      "artifact": "artifacts/optimization--knapsack_20_opt.fzn.json",
+      "fzn_sha256": "f5ea21e2daa5425a7e9d891202238c187224f05880776fcd5565679fe23f57ce",
+      "modes": {
+        "first": [
+          {
+            "command": [
+              "/Users/francoispachet/IdeaProjects/boojum/.venv/bin/python",
+              "/Users/francoispachet/IdeaProjects/boojum/benchmarks/csp_diagnostics.py",
+              "--source",
+              "/Users/francoispachet/IdeaProjects/boojum",
+              "--model",
+              "/Users/francoispachet/IdeaProjects/boojum/benchmarks/results/prune_comparison_2026-09-16/artifacts/optimization--knapsack_20_opt.fzn.json",
+              "--nvalue",
+              "native",
+              "--objective-propagation",
+              "auto",
+              "--diagnostic",
+              "--seconds",
+              "5.0",
+              "--nodes",
+              "100000",
+              "--profile",
+              "/Users/francoispachet/IdeaProjects/boojum/benchmarks/results/csp_objective_profiles_2026-09-17/optimization--knapsack_20_opt.prof"
+            ],
+            "seconds": 5.143695959006436,
+            "returncode": 0,
+            "timed_out": false,
+            "stdout": "{\"nvalue_encoding\": \"native\", \"objective_propagation\": true, \"variables\": 21, \"constraints\": 2, \"lowerings\": {}, \"status\": \"feasible\", \"termination\": \"time_limit\", \"complete\": false, \"nodes\": 6818, \"failures\": 3375, \"pruned\": 0, \"revisions\": 29683, \"objective\": 110, \"objective_bound\": 307, \"incumbent_history\": [{\"value\": 0, \"nodes\": 21, \"seconds\": 0.03741674998309463}, {\"value\": 7, \"nodes\": 22, \"seconds\": 0.03839620799408294}, {\"value\": 14, \"nodes\": 24, \"seconds\": 0.04006329199182801}, {\"value\": 21, \"nodes\": 25, \"seconds\": 0.04098354198504239}, {\"value\": 23, \"nodes\": 27, \"seconds\": 0.04300054197665304}, {\"value\": 30, \"nodes\": 29, \"seconds\": 0.04464187499252148}, {\"value\": 37, \"nodes\": 30, \"seconds\": 0.045562957995571196}, {\"value\": 39, \"nodes\": 32, \"seconds\": 0.047978791990317404}, {\"value\": 46, \"nodes\": 33, \"seconds\": 0.04895949998172}, {\"value\": 47, \"nodes\": 36, \"seconds\": 0.0520810000016354}, {\"value\": 54, \"nodes\": 37, \"seconds\": 0.05305974997463636}, {\"value\": 56, \"nodes\": 39, \"seconds\": 0.055567707982845604}, {\"value\": 63, \"nodes\": 40, \"seconds\": 0.056608041981235147}, {\"value\": 66, \"nodes\": 42, \"seconds\": 0.05964183298056014}, {\"value\": 68, \"nodes\": 44, \"seconds\": 0.061521457973867655}, {\"value\": 75, \"nodes\": 45, \"seconds\": 0.06254345798515715}, {\"value\": 76, \"nodes\": 48, \"seconds\": 0.06663770799059421}, {\"value\": 77, \"nodes\": 51, \"seconds\": 0.069136999984039}, {\"value\": 84, \"nodes\": 52, \"seconds\": 0.06999562497367151}, {\"value\": 86, \"nodes\": 54, \"seconds\": 0.0720304999849759}, {\"value\": 93, \"nodes\": 55, \"seconds\": 0.07304858299903572}, {\"value\": 96, \"nodes\": 57, \"seconds\": 0.07549108300008811}, {\"value\": 98, \"nodes\": 59, \"seconds\": 0.07723208298557438}, {\"value\": 105, \"nodes\": 60, \"seconds\": 0.07815874999505468}, {\"value\": 106, \"nodes\": 66, \"seconds\": 0.08467366697732359}, {\"value\": 107, \"nodes\": 68, \"seconds\": 0.08713520798482932}, {\"value\": 108, \"nodes\": 75, \"seconds\": 0.09340704197529703}, {\"value\": 109, \"nodes\": 109, \"seconds\": 0.11731595799210481}, {\"value\": 110, \"nodes\": 685, \"seconds\": 0.546547499980079}], \"construction_seconds\": 0.001931042002979666, \"preparation_seconds\": 0.0001532500027678907, \"solve_seconds\": 5.000420291995397, \"families\": {\"LinearSumConstraint\": {\"attempts\": 29683, \"completed\": 29683, \"failures\": 3375, \"effective\": 7718, \"removed\": 62762, \"seconds\": 2.7106900443613995}}, \"root_propagation_seconds\": 0.002598999999463558, \"propagation_seconds\": 4.449335911311209, \"traced_peak_bytes\": null, \"process_peak_rss_bytes\": 27164672, \"rss_scope\": \"whole process high-water mark, including imports\", \"diagnostic\": true, \"cpu_profile\": true, \"allocation\": false, \"progress_hook_available\": true, \"runtime_file\": \"/Users/francoispachet/IdeaProjects/boojum/src/snarky/__init__.py\", \"flat_output\": \"objective = 110;\\nselected = [0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 1, 1, 1, 0, 0, 1, 1, 0];\\n----------\\n\"}\n",
+            "stderr": "{\"event\": \"construction_start\", \"elapsed_seconds\": 5.441700341179967e-05, \"progress\": {}, \"families\": {}}\n{\"event\": \"prepared\", \"elapsed_seconds\": 0.00208604201907292, \"progress\": {}, \"families\": {}, \"variables\": 21, \"constraints\": 2}\n{\"event\": \"search\", \"elapsed_seconds\": 0.002321459003724158, \"progress\": {\"event\": \"start\", \"nodes\": 0, \"failures\": 0, \"pruned\": 0, \"revisions\": 0, \"depth\": 0, \"search_elapsed_seconds\": 5.720797344110906e-05, \"root_objective_bound\": null, \"incumbent\": null}, \"families\": {}}\n{\"event\": \"search\", \"elapsed_seconds\": 0.03981795901199803, \"progress\": {\"event\": \"incumbent\", \"nodes\": 21, \"failures\": 0, \"pruned\": 0, \"revisions\": 63, \"depth\": 20, \"search_elapsed_seconds\": 0.037420582986669615, \"root_objective_bound\": 307, \"incumbent\": 0}, \"families\": {\"LinearSumConstraint\": {\"attempts\": 63, \"completed\": 63, \"failures\": 0, \"effective\": 21, \"removed\": 307, \"seconds\": 0.02105425004265271}}, \"validated_assignment\": {\"X_INTRODUCED_0_\": 0, \"X_INTRODUCED_1_\": 0, \"X_INTRODUCED_2_\": 0, \"X_INTRODUCED_3_\": 0, \"X_INTRODUCED_4_\": 0, \"X_INTRODUCED_5_\": 0, \"X_INTRODUCED_6_\": 0, \"X_INTRODUCED_7_\": 0, \"X_INTRODUCED_8_\": 0, \"X_INTRODUCED_9_\": 0, \"X_INTRODUCED_10_\": 0, \"X_INTRODUCED_11_\": 0, \"X_INTRODUCED_12_\": 0, \"X_INTRODUCED_13_\": 0, \"X_INTRODUCED_14_\": 0, \"X_INTRODUCED_15_\": 0, \"X_INTRODUCED_16_\": 0, \"X_INTRODUCED_17_\": 0, \"X_INTRODUCED_18_\": 0, \"X_INTRODUCED_19_\": 0, \"objective\": 0}}\n{\"event\": \"search\", \"elapsed_seconds\": 0.04077562500606291, \"progress\": {\"event\": \"incumbent\", \"nodes\": 22, \"failures\": 0, \"pruned\": 0, \"revisions\": 67, \"depth\": 20, \"search_elapsed_seconds\": 0.03839849997893907, \"root_objective_bound\": 307, \"incumbent\": 7}, \"families\": {\"LinearSumConstraint\": {\"attempts\": 67, \"completed\": 67, \"failures\": 0, \"effective\": 22, \"removed\": 308, \"seconds\": 0.02126795900403522}}, \"validated_assignment\": {\"X_INTRODUCED_0_\": 0, \"X_INTRODUCED_1_\": 0, \"X_INTRODUCED_2_\": 0, \"X_INTRODUCED_3_\": 0, \"X_INTRODUCED_4_\": 0, \"X_INTRODUCED_5_\": 0, \"X_INTRODUCED_6_\": 0, \"X_INTRODUCED_7_\": 0, \"X_INTRODUCED_8_\": 0, \"X_INTRODUCED_9_\": 0, \"X_INTRODUCED_10_\": 0, \"X_INTRODUCED_11_\": 0, \"X_INTRODUCED_12_\": 0, \"X_INTRODUCED_13_\": 0, \"X_INTRODUCED_14_\": 0, \"X_INTRODUCED_15_\": 0, \"X_INTRODUCED_16_\": 0, \"X_INTRODUCED_17_\": 0, \"X_INTRODUCED_18_\": 0, \"X_INTRODUCED_19_\": 1, \"objective\": 7}}\n{\"event\": \"search\", \"elapsed_seconds\": 0.04244187500444241, \"progress\": {\"event\": \"incumbent\", \"nodes\": 24, \"failures\": 0, \"pruned\": 0, \"revisions\": 76, \"depth\": 20, \"search_elapsed_seconds\": 0.04006574998493306, \"root_objective_bound\": 307, \"incumbent\": 14}, \"families\": {\"LinearSumConstraint\": {\"attempts\": 76, \"completed\": 76, \"failures\": 0, \"effective\": 24, \"removed\": 311, \"seconds\": 0.02187321102246642}}, \"validated_assignment\": {\"X_INTRODUCED_0_\": 0, \"X_INTRODUCED_1_\": 0, \"X_INTRODUCED_2_\": 0, \"X_INTRODUCED_3_\": 0, \"X_INTRODUCED_4_\": 0, \"X_INTRODUCED_5_\": 0, \"X_INTRODUCED_6_\": 0, \"X_INTRODUCED_7_\": 0, \"X_INTRODUCED_8_\": 0, \"X_INTRODUCED_9_\": 0, \"X_INTRODUCED_10_\": 0, \"X_INTRODUCED_11_\": 0, \"X_INTRODUCED_12_\": 0, \"X_INTRODUCED_13_\": 0, \"X_INTRODUCED_14_\": 0, \"X_INTRODUCED_15_\": 0, \"X_INTRODUCED_16_\": 0, \"X_INTRODUCED_17_\": 0, \"X_INTRODUCED_18_\": 1, \"X_INTRODUCED_19_\": 0, \"objective\": 14}}\n{\"event\": \"search\", \"elapsed_seconds\": 0.04336220902041532, \"progress\": {\"event\": \"incumbent\", \"nodes\": 25, \"failures\": 0, \"pruned\": 0, \"revisions\": 80, \"depth\": 20, \"search_elapsed_seconds\": 0.040985707979416475, \"root_objective_bound\": 307, \"incumbent\": 21}, \"families\": {\"LinearSumConstraint\": {\"attempts\": 80, \"completed\": 80, \"failures\": 0, \"effective\": 25, \"removed\": 312, \"seconds\": 0.02208837799844332}}, \"validated_assignment\": {\"X_INTRODUCED_0_\": 0, \"X_INTRODUCED_1_\": 0, \"X_INTRODUCED_2_\": 0, \"X_INTRODUCED_3_\": 0, \"X_INTRODUCED_4_\": 0, \"X_INTRODUCED_5_\": 0, \"X_INTRODUCED_6_\": 0, \"X_INTRODUCED_7_\": 0, \"X_INTRODUCED_8_\": 0, \"X_INTRODUCED_9_\": 0, \"X_INTRODUCED_10_\": 0, \"X_INTRODUCED_11_\": 0, \"X_INTRODUCED_12_\": 0, \"X_INTRODUCED_13_\": 0, \"X_INTRODUCED_14_\": 0, \"X_INTRODUCED_15_\": 0, \"X_INTRODUCED_16_\": 0, \"X_INTRODUCED_17_\": 0, \"X_INTRODUCED_18_\": 1, \"X_INTRODUCED_19_\": 1, \"objective\": 21}}\n{\"event\": \"search\", \"elapsed_seconds\": 0.045379624993074685, \"progress\": {\"event\": \"incumbent\", \"nodes\": 27, \"failures\": 0, \"pruned\": 0, \"revisions\": 90, \"depth\": 19, \"search_elapsed_seconds\": 0.04300333297578618, \"root_objective_bound\": 307, \"incumbent\": 23}, \"families\": {\"LinearSumConstraint\": {\"attempts\": 90, \"completed\": 90, \"failures\": 0, \"effective\": 27, \"removed\": 320, \"seconds\": 0.02283754400559701}}, \"validated_assignment\": {\"X_INTRODUCED_0_\": 0, \"X_INTRODUCED_1_\": 0, \"X_INTRODUCED_2_\": 0, \"X_INTRODUCED_3_\": 0, \"X_INTRODUCED_4_\": 0, \"X_INTRODUCED_5_\": 0, \"X_INTRODUCED_6_\": 0, \"X_INTRODUCED_7_\": 0, \"X_INTRODUCED_8_\": 0, \"X_INTRODUCED_9_\": 0, \"X_INTRODUCED_10_\": 0, \"X_INTRODUCED_11_\": 0, \"X_INTRODUCED_12_\": 0, \"X_INTRODUCED_13_\": 0, \"X_INTRODUCED_14_\": 0, \"X_INTRODUCED_15_\": 0, \"X_INTRODUCED_16_\": 0, \"X_INTRODUCED_17_\": 1, \"X_INTRODUCED_18_\": 0, \"X_INTRODUCED_19_\": 1, \"objective\": 23}}\n{\"event\": \"search\", \"elapsed_seconds\": 0.047019499994348735, \"progress\": {\"event\": \"incumbent\", \"nodes\": 29, \"failures\": 0, \"pruned\": 0, \"revisions\": 99, \"depth\": 20, \"search_elapsed_seconds\": 0.04464420798467472, \"root_objective_bound\": 307, \"incumbent\": 30}, \"families\": {\"LinearSumConstraint\": {\"attempts\": 99, \"completed\": 99, \"failures\": 0, \"effective\": 29, \"removed\": 322, \"seconds\": 0.02342783601488918}}, \"validated_assignment\": {\"X_INTRODUCED_0_\": 0, \"X_INTRODUCED_1_\": 0, \"X_INTRODUCED_2_\": 0, \"X_INTRODUCED_3_\": 0, \"X_INTRODUCED_4_\": 0, \"X_INTRODUCED_5_\": 0, \"X_INTRODUCED_6_\": 0, \"X_INTRODUCED_7_\": 0, \"X_INTRODUCED_8_\": 0, \"X_INTRODUCED_9_\": 0, \"X_INTRODUCED_10_\": 0, \"X_INTRODUCED_11_\": 0, \"X_INTRODUCED_12_\": 0, \"X_INTRODUCED_13_\": 0, \"X_INTRODUCED_14_\": 0, \"X_INTRODUCED_15_\": 0, \"X_INTRODUCED_16_\": 0, \"X_INTRODUCED_17_\": 1, \"X_INTRODUCED_18_\": 1, \"X_INTRODUCED_19_\": 0, \"objective\": 30}}\n{\"event\": \"search\", \"elapsed_seconds\": 0.0479376669973135, \"progress\": {\"event\": \"incumbent\", \"nodes\": 30, \"failures\": 0, \"pruned\": 0, \"revisions\": 103, \"depth\": 20, \"search_elapsed_seconds\": 0.04556491697439924, \"root_objective_bound\": 307, \"incumbent\": 37}, \"families\": {\"LinearSumConstraint\": {\"attempts\": 103, \"completed\": 103, \"failures\": 0, \"effective\": 30, \"removed\": 323, \"seconds\": 0.0236454620026052}}, \"validated_assignment\": {\"X_INTRODUCED_0_\": 0, \"X_INTRODUCED_1_\": 0, \"X_INTRODUCED_2_\": 0, \"X_INTRODUCED_3_\": 0, \"X_INTRODUCED_4_\": 0, \"X_INTRODUCED_5_\": 0, \"X_INTRODUCED_6_\": 0, \"X_INTRODUCED_7_\": 0, \"X_INTRODUCED_8_\": 0, \"X_INTRODUCED_9_\": 0, \"X_INTRODUCED_10_\": 0, \"X_INTRODUCED_11_\": 0, \"X_INTRODUCED_12_\": 0, \"X_INTRODUCED_13_\": 0, \"X_INTRODUCED_14_\": 0, \"X_INTRODUCED_15_\": 0, \"X_INTRODUCED_16_\": 0, \"X_INTRODUCED_17_\": 1, \"X_INTRODUCED_18_\": 1, \"X_INTRODUCED_19_\": 1, \"objective\": 37}}\n{\"event\": \"search\", \"elapsed_seconds\": 0.05036879199906252, \"progress\": {\"event\": \"incumbent\", \"nodes\": 32, \"failures\": 0, \"pruned\": 0, \"revisions\": 114, \"depth\": 18, \"search_elapsed_seconds\": 0.04798204198596068, \"root_objective_bound\": 307, \"incumbent\": 39}, \"families\": {\"LinearSumConstraint\": {\"attempts\": 114, \"completed\": 114, \"failures\": 0, \"effective\": 33, \"removed\": 337, \"seconds\": 0.024619422008981928}}, \"validated_assignment\": {\"X_INTRODUCED_0_\": 0, \"X_INTRODUCED_1_\": 0, \"X_INTRODUCED_2_\": 0, \"X_INTRODUCED_3_\": 0, \"X_INTRODUCED_4_\": 0, \"X_INTRODUCED_5_\": 0, \"X_INTRODUCED_6_\": 0, \"X_INTRODUCED_7_\": 0, \"X_INTRODUCED_8_\": 0, \"X_INTRODUCED_9_\": 0, \"X_INTRODUCED_10_\": 0, \"X_INTRODUCED_11_\": 0, \"X_INTRODUCED_12_\": 0, \"X_INTRODUCED_13_\": 0, \"X_INTRODUCED_14_\": 0, \"X_INTRODUCED_15_\": 0, \"X_INTRODUCED_16_\": 1, \"X_INTRODUCED_17_\": 1, \"X_INTRODUCED_18_\": 1, \"X_INTRODUCED_19_\": 0, \"objective\": 39}}\n{\"event\": \"search\", \"elapsed_seconds\": 0.05134054200607352, \"progress\": {\"event\": \"incumbent\", \"nodes\": 33, \"failures\": 0, \"pruned\": 0, \"revisions\": 118, \"depth\": 18, \"search_elapsed_seconds\": 0.04896170800202526, \"root_objective_bound\": 307, \"incumbent\": 46}, \"families\": {\"LinearSumConstraint\": {\"attempts\": 118, \"completed\": 118, \"failures\": 0, \"effective\": 34, \"removed\": 338, \"seconds\": 0.024846213025739416}}, \"validated_assignment\": {\"X_INTRODUCED_0_\": 0, \"X_INTRODUCED_1_\": 0, \"X_INTRODUCED_2_\": 0, \"X_INTRODUCED_3_\": 0, \"X_INTRODUCED_4_\": 0, \"X_INTRODUCED_5_\": 0, \"X_INTRODUCED_6_\": 0, \"X_INTRODUCED_7_\": 0, \"X_INTRODUCED_8_\": 0, \"X_INTRODUCED_9_\": 0, \"X_INTRODUCED_10_\": 0, \"X_INTRODUCED_11_\": 0, \"X_INTRODUCED_12_\": 0, \"X_INTRODUCED_13_\": 0, \"X_INTRODUCED_14_\": 0, \"X_INTRODUCED_15_\": 0, \"X_INTRODUCED_16_\": 1, \"X_INTRODUCED_17_\": 1, \"X_INTRODUCED_18_\": 1, \"X_INTRODUCED_19_\": 1, \"objective\": 46}}\n{\"event\": \"search\", \"elapsed_seconds\": 0.0544686249922961, \"progress\": {\"event\": \"incumbent\", \"nodes\": 36, \"failures\": 0, \"pruned\": 0, \"revisions\": 133, \"depth\": 18, \"search_elapsed_seconds\": 0.052084291994106025, \"root_objective_bound\": 307, \"incumbent\": 47}, \"families\": {\"LinearSumConstraint\": {\"attempts\": 133, \"completed\": 133, \"failures\": 0, \"effective\": 37, \"removed\": 365, \"seconds\": 0.026159004017245024}}, \"validated_assignment\": {\"X_INTRODUCED_0_\": 0, \"X_INTRODUCED_1_\": 0, \"X_INTRODUCED_2_\": 0, \"X_INTRODUCED_3_\": 0, \"X_INTRODUCED_4_\": 0, \"X_INTRODUCED_5_\": 0, \"X_INTRODUCED_6_\": 0, \"X_INTRODUCED_7_\": 0, \"X_INTRODUCED_8_\": 0, \"X_INTRODUCED_9_\": 0, \"X_INTRODUCED_10_\": 0, \"X_INTRODUCED_11_\": 0, \"X_INTRODUCED_12_\": 0, \"X_INTRODUCED_13_\": 0, \"X_INTRODUCED_14_\": 0, \"X_INTRODUCED_15_\": 1, \"X_INTRODUCED_16_\": 0, \"X_INTRODUCED_17_\": 1, \"X_INTRODUCED_18_\": 1, \"X_INTRODUCED_19_\": 0, \"objective\": 47}}\n{\"event\": \"search\", \"elapsed_seconds\": 0.05544237501453608, \"progress\": {\"event\": \"incumbent\", \"nodes\": 37, \"failures\": 0, \"pruned\": 0, \"revisions\": 137, \"depth\": 18, \"search_elapsed_seconds\": 0.05306233299779706, \"root_objective_bound\": 307, \"incumbent\": 54}, \"families\": {\"LinearSumConstraint\": {\"attempts\": 137, \"completed\": 137, \"failures\": 0, \"effective\": 38, \"removed\": 366, \"seconds\": 0.02637579504516907}}, \"validated_assignment\": {\"X_INTRODUCED_0_\": 0, \"X_INTRODUCED_1_\": 0, \"X_INTRODUCED_2_\": 0, \"X_INTRODUCED_3_\": 0, \"X_INTRODUCED_4_\": 0, \"X_INTRODUCED_5_\": 0, \"X_INTRODUCED_6_\": 0, \"X_INTRODUCED_7_\": 0, \"X_INTRODUCED_8_\": 0, \"X_INTRODUCED_9_\": 0, \"X_INTRODUCED_10_\": 0, \"X_INTRODUCED_11_\": 0, \"X_INTRODUCED_12_\": 0, \"X_INTRODUCED_13_\": 0, \"X_INTRODUCED_14_\": 0, \"X_INTRODUCED_15_\": 1, \"X_INTRODUCED_16_\": 0, \"X_INTRODUCED_17_\": 1, \"X_INTRODUCED_18_\": 1, \"X_INTRODUCED_19_\": 1, \"objective\": 54}}\n{\"event\": \"search\", \"elapsed_seconds\": 0.05796062501030974, \"progress\": {\"event\": \"incumbent\", \"nodes\": 39, \"failures\": 0, \"pruned\": 0, \"revisions\": 148, \"depth\": 18, \"search_elapsed_seconds\": 0.05557245798991062, \"root_objective_bound\": 307, \"incumbent\": 56}, \"families\": {\"LinearSumConstraint\": {\"attempts\": 148, \"completed\": 148, \"failures\": 0, \"effective\": 41, \"removed\": 372, \"seconds\": 0.027289128047414124}}, \"validated_assignment\": {\"X_INTRODUCED_0_\": 0, \"X_INTRODUCED_1_\": 0, \"X_INTRODUCED_2_\": 0, \"X_INTRODUCED_3_\": 0, \"X_INTRODUCED_4_\": 0, \"X_INTRODUCED_5_\": 0, \"X_INTRODUCED_6_\": 0, \"X_INTRODUCED_7_\": 0, \"X_INTRODUCED_8_\": 0, \"X_INTRODUCED_9_\": 0, \"X_INTRODUCED_10_\": 0, \"X_INTRODUCED_11_\": 0, \"X_INTRODUCED_12_\": 0, \"X_INTRODUCED_13_\": 0, \"X_INTRODUCED_14_\": 0, \"X_INTRODUCED_15_\": 1, \"X_INTRODUCED_16_\": 1, \"X_INTRODUCED_17_\": 1, \"X_INTRODUCED_18_\": 1, \"X_INTRODUCED_19_\": 0, \"objective\": 56}}\n{\"event\": \"search\", \"elapsed_seconds\": 0.0590472920157481, \"progress\": {\"event\": \"incumbent\", \"nodes\": 40, \"failures\": 0, \"pruned\": 0, \"revisions\": 152, \"depth\": 18, \"search_elapsed_seconds\": 0.056610832980368286, \"root_objective_bound\": 307, \"incumbent\": 63}, \"families\": {\"LinearSumConstraint\": {\"attempts\": 152, \"completed\": 152, \"failures\": 0, \"effective\": 42, \"removed\": 373, \"seconds\": 0.027512004075106233}}, \"validated_assignment\": {\"X_INTRODUCED_0_\": 0, \"X_INTRODUCED_1_\": 0, \"X_INTRODUCED_2_\": 0, \"X_INTRODUCED_3_\": 0, \"X_INTRODUCED_4_\": 0, \"X_INTRODUCED_5_\": 0, \"X_INTRODUCED_6_\": 0, \"X_INTRODUCED_7_\": 0, \"X_INTRODUCED_8_\": 0, \"X_INTRODUCED_9_\": 0, \"X_INTRODUCED_10_\": 0, \"X_INTRODUCED_11_\": 0, \"X_INTRODUCED_12_\": 0, \"X_INTRODUCED_13_\": 0, \"X_INTRODUCED_14_\": 0, \"X_INTRODUCED_15_\": 1, \"X_INTRODUCED_16_\": 1, \"X_INTRODUCED_17_\": 1, \"X_INTRODUCED_18_\": 1, \"X_INTRODUCED_19_\": 1, \"objective\": 63}}\n{\"event\": \"search\", \"elapsed_seconds\": 0.0620374999998603, \"progress\": {\"event\": \"incumbent\", \"nodes\": 42, \"failures\": 0, \"pruned\": 0, \"revisions\": 164, \"depth\": 16, \"search_elapsed_seconds\": 0.059645957982866094, \"root_objective_bound\": 307, \"incumbent\": 66}, \"families\": {\"LinearSumConstraint\": {\"attempts\": 164, \"completed\": 164, \"failures\": 0, \"effective\": 45, \"removed\": 420, \"seconds\": 0.028542546118842438}}, \"validated_assignment\": {\"X_INTRODUCED_0_\": 0, \"X_INTRODUCED_1_\": 0, \"X_INTRODUCED_2_\": 0, \"X_INTRODUCED_3_\": 0, \"X_INTRODUCED_4_\": 0, \"X_INTRODUCED_5_\": 0, \"X_INTRODUCED_6_\": 0, \"X_INTRODUCED_7_\": 0, \"X_INTRODUCED_8_\": 0, \"X_INTRODUCED_9_\": 0, \"X_INTRODUCED_10_\": 0, \"X_INTRODUCED_11_\": 0, \"X_INTRODUCED_12_\": 0, \"X_INTRODUCED_13_\": 0, \"X_INTRODUCED_14_\": 1, \"X_INTRODUCED_15_\": 1, \"X_INTRODUCED_16_\": 0, \"X_INTRODUCED_17_\": 1, \"X_INTRODUCED_18_\": 1, \"X_INTRODUCED_19_\": 1, \"objective\": 66}}\n{\"event\": \"search\", \"elapsed_seconds\": 0.06389799999305978, \"progress\": {\"event\": \"incumbent\", \"nodes\": 44, \"failures\": 0, \"pruned\": 0, \"revisions\": 173, \"depth\": 17, \"search_elapsed_seconds\": 0.06152358299004845, \"root_objective_bound\": 307, \"incumbent\": 68}, \"families\": {\"LinearSumConstraint\": {\"attempts\": 173, \"completed\": 173, \"failures\": 0, \"effective\": 47, \"removed\": 422, \"seconds\": 0.029159964149584994}}, \"validated_assignment\": {\"X_INTRODUCED_0_\": 0, \"X_INTRODUCED_1_\": 0, \"X_INTRODUCED_2_\": 0, \"X_INTRODUCED_3_\": 0, \"X_INTRODUCED_4_\": 0, \"X_INTRODUCED_5_\": 0, \"X_INTRODUCED_6_\": 0, \"X_INTRODUCED_7_\": 0, \"X_INTRODUCED_8_\": 0, \"X_INTRODUCED_9_\": 0, \"X_INTRODUCED_10_\": 0, \"X_INTRODUCED_11_\": 0, \"X_INTRODUCED_12_\": 0, \"X_INTRODUCED_13_\": 0, \"X_INTRODUCED_14_\": 1, \"X_INTRODUCED_15_\": 1, \"X_INTRODUCED_16_\": 1, \"X_INTRODUCED_17_\": 1, \"X_INTRODUCED_18_\": 1, \"X_INTRODUCED_19_\": 0, \"objective\": 68}}\n{\"event\": \"search\", \"elapsed_seconds\": 0.06492112501291558, \"progress\": {\"event\": \"incumbent\", \"nodes\": 45, \"failures\": 0, \"pruned\": 0, \"revisions\": 177, \"depth\": 17, \"search_elapsed_seconds\": 0.06254570800228976, \"root_objective_bound\": 307, \"incumbent\": 75}, \"families\": {\"LinearSumConstraint\": {\"attempts\": 177, \"completed\": 177, \"failures\": 0, \"effective\": 48, \"removed\": 423, \"seconds\": 0.029418548161629587}}, \"validated_assignment\": {\"X_INTRODUCED_0_\": 0, \"X_INTRODUCED_1_\": 0, \"X_INTRODUCED_2_\": 0, \"X_INTRODUCED_3_\": 0, \"X_INTRODUCED_4_\": 0, \"X_INTRODUCED_5_\": 0, \"X_INTRODUCED_6_\": 0, \"X_INTRODUCED_7_\": 0, \"X_INTRODUCED_8_\": 0, \"X_INTRODUCED_9_\": 0, \"X_INTRODUCED_10_\": 0, \"X_INTRODUCED_11_\": 0, \"X_INTRODUCED_12_\": 0, \"X_INTRODUCED_13_\": 0, \"X_INTRODUCED_14_\": 1, \"X_INTRODUCED_15_\": 1, \"X_INTRODUCED_16_\": 1, \"X_INTRODUCED_17_\": 1, \"X_INTRODUCED_18_\": 1, \"X_INTRODUCED_19_\": 1, \"objective\": 75}}\n{\"event\": \"search\", \"elapsed_seconds\": 0.06901445900439285, \"progress\": {\"event\": \"incumbent\", \"nodes\": 48, \"failures\": 0, \"pruned\": 0, \"revisions\": 192, \"depth\": 16, \"search_elapsed_seconds\": 0.06664020798052661, \"root_objective_bound\": 307, \"incumbent\": 76}, \"families\": {\"LinearSumConstraint\": {\"attempts\": 192, \"completed\": 192, \"failures\": 0, \"effective\": 51, \"removed\": 496, \"seconds\": 0.030923589161830023}}, \"validated_assignment\": {\"X_INTRODUCED_0_\": 0, \"X_INTRODUCED_1_\": 0, \"X_INTRODUCED_2_\": 0, \"X_INTRODUCED_3_\": 0, \"X_INTRODUCED_4_\": 0, \"X_INTRODUCED_5_\": 0, \"X_INTRODUCED_6_\": 0, \"X_INTRODUCED_7_\": 0, \"X_INTRODUCED_8_\": 0, \"X_INTRODUCED_9_\": 0, \"X_INTRODUCED_10_\": 0, \"X_INTRODUCED_11_\": 0, \"X_INTRODUCED_12_\": 0, \"X_INTRODUCED_13_\": 1, \"X_INTRODUCED_14_\": 0, \"X_INTRODUCED_15_\": 0, \"X_INTRODUCED_16_\": 1, \"X_INTRODUCED_17_\": 1, \"X_INTRODUCED_18_\": 1, \"X_INTRODUCED_19_\": 1, \"objective\": 76}}\n{\"event\": \"search\", \"elapsed_seconds\": 0.0715093339968007, \"progress\": {\"event\": \"incumbent\", \"nodes\": 51, \"failures\": 0, \"pruned\": 0, \"revisions\": 207, \"depth\": 18, \"search_elapsed_seconds\": 0.06913904199609533, \"root_objective_bound\": 307, \"incumbent\": 77}, \"families\": {\"LinearSumConstraint\": {\"attempts\": 207, \"completed\": 207, \"failures\": 0, \"effective\": 54, \"removed\": 503, \"seconds\": 0.03198825512663461}}, \"validated_assignment\": {\"X_INTRODUCED_0_\": 0, \"X_INTRODUCED_1_\": 0, \"X_INTRODUCED_2_\": 0, \"X_INTRODUCED_3_\": 0, \"X_INTRODUCED_4_\": 0, \"X_INTRODUCED_5_\": 0, \"X_INTRODUCED_6_\": 0, \"X_INTRODUCED_7_\": 0, \"X_INTRODUCED_8_\": 0, \"X_INTRODUCED_9_\": 0, \"X_INTRODUCED_10_\": 0, \"X_INTRODUCED_11_\": 0, \"X_INTRODUCED_12_\": 0, \"X_INTRODUCED_13_\": 1, \"X_INTRODUCED_14_\": 0, \"X_INTRODUCED_15_\": 1, \"X_INTRODUCED_16_\": 0, \"X_INTRODUCED_17_\": 1, \"X_INTRODUCED_18_\": 1, \"X_INTRODUCED_19_\": 0, \"objective\": 77}}\n{\"event\": \"search\", \"elapsed_seconds\": 0.07236279200878926, \"progress\": {\"event\": \"incumbent\", \"nodes\": 52, \"failures\": 0, \"pruned\": 0, \"revisions\": 211, \"depth\": 18, \"search_elapsed_seconds\": 0.06999779198667966, \"root_objective_bound\": 307, \"incumbent\": 84}, \"families\": {\"LinearSumConstraint\": {\"attempts\": 211, \"completed\": 211, \"failures\": 0, \"effective\": 55, \"removed\": 504, \"seconds\": 0.032193047110922635}}, \"validated_assignment\": {\"X_INTRODUCED_0_\": 0, \"X_INTRODUCED_1_\": 0, \"X_INTRODUCED_2_\": 0, \"X_INTRODUCED_3_\": 0, \"X_INTRODUCED_4_\": 0, \"X_INTRODUCED_5_\": 0, \"X_INTRODUCED_6_\": 0, \"X_INTRODUCED_7_\": 0, \"X_INTRODUCED_8_\": 0, \"X_INTRODUCED_9_\": 0, \"X_INTRODUCED_10_\": 0, \"X_INTRODUCED_11_\": 0, \"X_INTRODUCED_12_\": 0, \"X_INTRODUCED_13_\": 1, \"X_INTRODUCED_14_\": 0, \"X_INTRODUCED_15_\": 1, \"X_INTRODUCED_16_\": 0, \"X_INTRODUCED_17_\": 1, \"X_INTRODUCED_18_\": 1, \"X_INTRODUCED_19_\": 1, \"objective\": 84}}\n{\"event\": \"search\", \"elapsed_seconds\": 0.07441200001630932, \"progress\": {\"event\": \"incumbent\", \"nodes\": 54, \"failures\": 0, \"pruned\": 0, \"revisions\": 222, \"depth\": 18, \"search_elapsed_seconds\": 0.07203320797998458, \"root_objective_bound\": 307, \"incumbent\": 86}, \"families\": {\"LinearSumConstraint\": {\"attempts\": 222, \"completed\": 222, \"failures\": 0, \"effective\": 58, \"removed\": 510, \"seconds\": 0.0330340881482698}}, \"validated_assignment\": {\"X_INTRODUCED_0_\": 0, \"X_INTRODUCED_1_\": 0, \"X_INTRODUCED_2_\": 0, \"X_INTRODUCED_3_\": 0, \"X_INTRODUCED_4_\": 0, \"X_INTRODUCED_5_\": 0, \"X_INTRODUCED_6_\": 0, \"X_INTRODUCED_7_\": 0, \"X_INTRODUCED_8_\": 0, \"X_INTRODUCED_9_\": 0, \"X_INTRODUCED_10_\": 0, \"X_INTRODUCED_11_\": 0, \"X_INTRODUCED_12_\": 0, \"X_INTRODUCED_13_\": 1, \"X_INTRODUCED_14_\": 0, \"X_INTRODUCED_15_\": 1, \"X_INTRODUCED_16_\": 1, \"X_INTRODUCED_17_\": 1, \"X_INTRODUCED_18_\": 1, \"X_INTRODUCED_19_\": 0, \"objective\": 86}}\n{\"event\": \"search\", \"elapsed_seconds\": 0.07544787501683459, \"progress\": {\"event\": \"incumbent\", \"nodes\": 55, \"failures\": 0, \"pruned\": 0, \"revisions\": 226, \"depth\": 18, \"search_elapsed_seconds\": 0.07305187499150634, \"root_objective_bound\": 307, \"incumbent\": 93}, \"families\": {\"LinearSumConstraint\": {\"attempts\": 226, \"completed\": 226, \"failures\": 0, \"effective\": 59, \"removed\": 511, \"seconds\": 0.03324679611250758}}, \"validated_assignment\": {\"X_INTRODUCED_0_\": 0, \"X_INTRODUCED_1_\": 0, \"X_INTRODUCED_2_\": 0, \"X_INTRODUCED_3_\": 0, \"X_INTRODUCED_4_\": 0, \"X_INTRODUCED_5_\": 0, \"X_INTRODUCED_6_\": 0, \"X_INTRODUCED_7_\": 0, \"X_INTRODUCED_8_\": 0, \"X_INTRODUCED_9_\": 0, \"X_INTRODUCED_10_\": 0, \"X_INTRODUCED_11_\": 0, \"X_INTRODUCED_12_\": 0, \"X_INTRODUCED_13_\": 1, \"X_INTRODUCED_14_\": 0, \"X_INTRODUCED_15_\": 1, \"X_INTRODUCED_16_\": 1, \"X_INTRODUCED_17_\": 1, \"X_INTRODUCED_18_\": 1, \"X_INTRODUCED_19_\": 1, \"objective\": 93}}\n{\"event\": \"search\", \"elapsed_seconds\": 0.07787450001342222, \"progress\": {\"event\": \"incumbent\", \"nodes\": 57, \"failures\": 0, \"pruned\": 0, \"revisions\": 238, \"depth\": 16, \"search_elapsed_seconds\": 0.07549387498875149, \"root_objective_bound\": 307, \"incumbent\": 96}, \"families\": {\"LinearSumConstraint\": {\"attempts\": 238, \"completed\": 238, \"failures\": 0, \"effective\": 62, \"removed\": 529, \"seconds\": 0.03422625517123379}}, \"validated_assignment\": {\"X_INTRODUCED_0_\": 0, \"X_INTRODUCED_1_\": 0, \"X_INTRODUCED_2_\": 0, \"X_INTRODUCED_3_\": 0, \"X_INTRODUCED_4_\": 0, \"X_INTRODUCED_5_\": 0, \"X_INTRODUCED_6_\": 0, \"X_INTRODUCED_7_\": 0, \"X_INTRODUCED_8_\": 0, \"X_INTRODUCED_9_\": 0, \"X_INTRODUCED_10_\": 0, \"X_INTRODUCED_11_\": 0, \"X_INTRODUCED_12_\": 0, \"X_INTRODUCED_13_\": 1, \"X_INTRODUCED_14_\": 1, \"X_INTRODUCED_15_\": 1, \"X_INTRODUCED_16_\": 0, \"X_INTRODUCED_17_\": 1, \"X_INTRODUCED_18_\": 1, \"X_INTRODUCED_19_\": 1, \"objective\": 96}}\n{\"event\": \"search\", \"elapsed_seconds\": 0.07961237500421703, \"progress\": {\"event\": \"incumbent\", \"nodes\": 59, \"failures\": 0, \"pruned\": 0, \"revisions\": 247, \"depth\": 17, \"search_elapsed_seconds\": 0.07723437499953434, \"root_objective_bound\": 307, \"incumbent\": 98}, \"families\": {\"LinearSumConstraint\": {\"attempts\": 247, \"completed\": 247, \"failures\": 0, \"effective\": 64, \"removed\": 531, \"seconds\": 0.034849631163524464}}, \"validated_assignment\": {\"X_INTRODUCED_0_\": 0, \"X_INTRODUCED_1_\": 0, \"X_INTRODUCED_2_\": 0, \"X_INTRODUCED_3_\": 0, \"X_INTRODUCED_4_\": 0, \"X_INTRODUCED_5_\": 0, \"X_INTRODUCED_6_\": 0, \"X_INTRODUCED_7_\": 0, \"X_INTRODUCED_8_\": 0, \"X_INTRODUCED_9_\": 0, \"X_INTRODUCED_10_\": 0, \"X_INTRODUCED_11_\": 0, \"X_INTRODUCED_12_\": 0, \"X_INTRODUCED_13_\": 1, \"X_INTRODUCED_14_\": 1, \"X_INTRODUCED_15_\": 1, \"X_INTRODUCED_16_\": 1, \"X_INTRODUCED_17_\": 1, \"X_INTRODUCED_18_\": 1, \"X_INTRODUCED_19_\": 0, \"objective\": 98}}\n{\"event\": \"search\", \"elapsed_seconds\": 0.08056204201420769, \"progress\": {\"event\": \"incumbent\", \"nodes\": 60, \"failures\": 0, \"pruned\": 0, \"revisions\": 251, \"depth\": 17, \"search_elapsed_seconds\": 0.07816099998308346, \"root_objective_bound\": 307, \"incumbent\": 105}, \"families\": {\"LinearSumConstraint\": {\"attempts\": 251, \"completed\": 251, \"failures\": 0, \"effective\": 65, \"removed\": 532, \"seconds\": 0.03506508917780593}}, \"validated_assignment\": {\"X_INTRODUCED_0_\": 0, \"X_INTRODUCED_1_\": 0, \"X_INTRODUCED_2_\": 0, \"X_INTRODUCED_3_\": 0, \"X_INTRODUCED_4_\": 0, \"X_INTRODUCED_5_\": 0, \"X_INTRODUCED_6_\": 0, \"X_INTRODUCED_7_\": 0, \"X_INTRODUCED_8_\": 0, \"X_INTRODUCED_9_\": 0, \"X_INTRODUCED_10_\": 0, \"X_INTRODUCED_11_\": 0, \"X_INTRODUCED_12_\": 0, \"X_INTRODUCED_13_\": 1, \"X_INTRODUCED_14_\": 1, \"X_INTRODUCED_15_\": 1, \"X_INTRODUCED_16_\": 1, \"X_INTRODUCED_17_\": 1, \"X_INTRODUCED_18_\": 1, \"X_INTRODUCED_19_\": 1, \"objective\": 105}}\n{\"event\": \"search\", \"elapsed_seconds\": 0.08705258401460014, \"progress\": {\"event\": \"incumbent\", \"nodes\": 66, \"failures\": 2, \"pruned\": 0, \"revisions\": 285, \"depth\": 15, \"search_elapsed_seconds\": 0.08467625000048429, \"root_objective_bound\": 307, \"incumbent\": 106}, \"families\": {\"LinearSumConstraint\": {\"attempts\": 285, \"completed\": 285, \"failures\": 2, \"effective\": 76, \"removed\": 764, \"seconds\": 0.038209341146284714}}, \"validated_assignment\": {\"X_INTRODUCED_0_\": 0, \"X_INTRODUCED_1_\": 0, \"X_INTRODUCED_2_\": 0, \"X_INTRODUCED_3_\": 0, \"X_INTRODUCED_4_\": 0, \"X_INTRODUCED_5_\": 0, \"X_INTRODUCED_6_\": 0, \"X_INTRODUCED_7_\": 0, \"X_INTRODUCED_8_\": 0, \"X_INTRODUCED_9_\": 0, \"X_INTRODUCED_10_\": 0, \"X_INTRODUCED_11_\": 1, \"X_INTRODUCED_12_\": 0, \"X_INTRODUCED_13_\": 1, \"X_INTRODUCED_14_\": 1, \"X_INTRODUCED_15_\": 0, \"X_INTRODUCED_16_\": 1, \"X_INTRODUCED_17_\": 1, \"X_INTRODUCED_18_\": 1, \"X_INTRODUCED_19_\": 0, \"objective\": 106}}\n{\"event\": \"search\", \"elapsed_seconds\": 0.08965350000653416, \"progress\": {\"event\": \"incumbent\", \"nodes\": 68, \"failures\": 2, \"pruned\": 0, \"revisions\": 298, \"depth\": 16, \"search_elapsed_seconds\": 0.08714195797801949, \"root_objective_bound\": 307, \"incumbent\": 107}, \"families\": {\"LinearSumConstraint\": {\"attempts\": 298, \"completed\": 298, \"failures\": 2, \"effective\": 81, \"removed\": 775, \"seconds\": 0.03927034218213521}}, \"validated_assignment\": {\"X_INTRODUCED_0_\": 0, \"X_INTRODUCED_1_\": 0, \"X_INTRODUCED_2_\": 0, \"X_INTRODUCED_3_\": 0, \"X_INTRODUCED_4_\": 0, \"X_INTRODUCED_5_\": 0, \"X_INTRODUCED_6_\": 0, \"X_INTRODUCED_7_\": 0, \"X_INTRODUCED_8_\": 0, \"X_INTRODUCED_9_\": 0, \"X_INTRODUCED_10_\": 0, \"X_INTRODUCED_11_\": 1, \"X_INTRODUCED_12_\": 0, \"X_INTRODUCED_13_\": 1, \"X_INTRODUCED_14_\": 1, \"X_INTRODUCED_15_\": 1, \"X_INTRODUCED_16_\": 0, \"X_INTRODUCED_17_\": 1, \"X_INTRODUCED_18_\": 0, \"X_INTRODUCED_19_\": 1, \"objective\": 107}}\n{\"event\": \"search\", \"elapsed_seconds\": 0.09580995899159461, \"progress\": {\"event\": \"incumbent\", \"nodes\": 75, \"failures\": 5, \"pruned\": 0, \"revisions\": 334, \"depth\": 15, \"search_elapsed_seconds\": 0.09341079197474755, \"root_objective_bound\": 307, \"incumbent\": 108}, \"families\": {\"LinearSumConstraint\": {\"attempts\": 334, \"completed\": 334, \"failures\": 5, \"effective\": 93, \"removed\": 825, \"seconds\": 0.04218192619737238}}, \"validated_assignment\": {\"X_INTRODUCED_0_\": 0, \"X_INTRODUCED_1_\": 0, \"X_INTRODUCED_2_\": 0, \"X_INTRODUCED_3_\": 0, \"X_INTRODUCED_4_\": 0, \"X_INTRODUCED_5_\": 0, \"X_INTRODUCED_6_\": 0, \"X_INTRODUCED_7_\": 0, \"X_INTRODUCED_8_\": 0, \"X_INTRODUCED_9_\": 0, \"X_INTRODUCED_10_\": 0, \"X_INTRODUCED_11_\": 1, \"X_INTRODUCED_12_\": 1, \"X_INTRODUCED_13_\": 1, \"X_INTRODUCED_14_\": 1, \"X_INTRODUCED_15_\": 0, \"X_INTRODUCED_16_\": 0, \"X_INTRODUCED_17_\": 1, \"X_INTRODUCED_18_\": 1, \"X_INTRODUCED_19_\": 1, \"objective\": 108}}\n{\"event\": \"search\", \"elapsed_seconds\": 0.11969700001645833, \"progress\": {\"event\": \"incumbent\", \"nodes\": 109, \"failures\": 21, \"pruned\": 0, \"revisions\": 485, \"depth\": 17, \"search_elapsed_seconds\": 0.11731866697664373, \"root_objective_bound\": 307, \"incumbent\": 109}, \"families\": {\"LinearSumConstraint\": {\"attempts\": 485, \"completed\": 485, \"failures\": 21, \"effective\": 132, \"removed\": 1141, \"seconds\": 0.054762350278906524}}, \"validated_assignment\": {\"X_INTRODUCED_0_\": 0, \"X_INTRODUCED_1_\": 0, \"X_INTRODUCED_2_\": 0, \"X_INTRODUCED_3_\": 0, \"X_INTRODUCED_4_\": 0, \"X_INTRODUCED_5_\": 0, \"X_INTRODUCED_6_\": 0, \"X_INTRODUCED_7_\": 0, \"X_INTRODUCED_8_\": 0, \"X_INTRODUCED_9_\": 0, \"X_INTRODUCED_10_\": 1, \"X_INTRODUCED_11_\": 1, \"X_INTRODUCED_12_\": 1, \"X_INTRODUCED_13_\": 1, \"X_INTRODUCED_14_\": 1, \"X_INTRODUCED_15_\": 0, \"X_INTRODUCED_16_\": 0, \"X_INTRODUCED_17_\": 1, \"X_INTRODUCED_18_\": 1, \"X_INTRODUCED_19_\": 0, \"objective\": 109}}\n{\"event\": \"revision_start\", \"elapsed_seconds\": 0.3698158340121154, \"progress\": {\"event\": \"node\", \"nodes\": 435, \"failures\": 182, \"pruned\": 0, \"revisions\": 1898, \"depth\": 17, \"search_elapsed_seconds\": 0.3673587499943096, \"root_objective_bound\": 307, \"incumbent\": 109}, \"families\": {\"LinearSumConstraint\": {\"attempts\": 1901, \"completed\": 1900, \"failures\": 182, \"effective\": 480, \"removed\": 3823, \"seconds\": 0.1891002198390197}}, \"constraint_family\": \"LinearSumConstraint\", \"revisions\": 1901}\n{\"event\": \"search\", \"elapsed_seconds\": 0.5489320000051521, \"progress\": {\"event\": \"incumbent\", \"nodes\": 685, \"failures\": 308, \"pruned\": 0, \"revisions\": 2984, \"depth\": 17, \"search_elapsed_seconds\": 0.5465502500010189, \"root_objective_bound\": 307, \"incumbent\": 110}, \"families\": {\"LinearSumConstraint\": {\"attempts\": 2984, \"completed\": 2984, \"failures\": 308, \"effective\": 755, \"removed\": 5841, \"seconds\": 0.2853274848603178}}, \"validated_assignment\": {\"X_INTRODUCED_0_\": 0, \"X_INTRODUCED_1_\": 0, \"X_INTRODUCED_2_\": 0, \"X_INTRODUCED_3_\": 0, \"X_INTRODUCED_4_\": 0, \"X_INTRODUCED_5_\": 0, \"X_INTRODUCED_6_\": 0, \"X_INTRODUCED_7_\": 1, \"X_INTRODUCED_8_\": 1, \"X_INTRODUCED_9_\": 0, \"X_INTRODUCED_10_\": 0, \"X_INTRODUCED_11_\": 0, \"X_INTRODUCED_12_\": 1, \"X_INTRODUCED_13_\": 1, \"X_INTRODUCED_14_\": 1, \"X_INTRODUCED_15_\": 0, \"X_INTRODUCED_16_\": 0, \"X_INTRODUCED_17_\": 1, \"X_INTRODUCED_18_\": 1, \"X_INTRODUCED_19_\": 0, \"objective\": 110}}\n{\"event\": \"revision_start\", \"elapsed_seconds\": 0.798988416994689, \"progress\": {\"event\": \"node\", \"nodes\": 1033, \"failures\": 482, \"pruned\": 0, \"revisions\": 4489, \"depth\": 15, \"search_elapsed_seconds\": 0.7960770829813555, \"root_objective_bound\": 307, \"incumbent\": 110}, \"families\": {\"LinearSumConstraint\": {\"attempts\": 4494, \"completed\": 4493, \"failures\": 482, \"effective\": 1144, \"removed\": 8830, \"seconds\": 0.4190524632285815}}, \"constraint_family\": \"LinearSumConstraint\", \"revisions\": 4494}\n{\"event\": \"revision_start\", \"elapsed_seconds\": 1.0490132920094766, \"progress\": {\"event\": \"node\", \"nodes\": 1372, \"failures\": 651, \"pruned\": 0, \"revisions\": 5965, \"depth\": 17, \"search_elapsed_seconds\": 1.0466979169868864, \"root_objective_bound\": 307, \"incumbent\": 110}, \"families\": {\"LinearSumConstraint\": {\"attempts\": 5966, \"completed\": 5965, \"failures\": 651, \"effective\": 1515, \"removed\": 11557, \"seconds\": 0.5535631243546959}}, \"constraint_family\": \"LinearSumConstraint\", \"revisions\": 5966}\n{\"event\": \"search\", \"elapsed_seconds\": 1.299121042015031, \"progress\": {\"event\": \"bound\", \"nodes\": 1696, \"failures\": 814, \"pruned\": 0, \"revisions\": 7367, \"depth\": 14, \"search_elapsed_seconds\": 1.296860000002198, \"root_objective_bound\": 307, \"incumbent\": 110}, \"families\": {\"LinearSumConstraint\": {\"attempts\": 7367, \"completed\": 7367, \"failures\": 814, \"effective\": 1876, \"removed\": 14486, \"seconds\": 0.6893882473232225}}}\n{\"event\": \"revision_start\", \"elapsed_seconds\": 1.5491257499961648, \"progress\": {\"event\": \"node\", \"nodes\": 2048, \"failures\": 990, \"pruned\": 0, \"revisions\": 8895, \"depth\": 14, \"search_elapsed_seconds\": 1.5466163749806583, \"root_objective_bound\": 307, \"incumbent\": 110}, \"families\": {\"LinearSumConstraint\": {\"attempts\": 8898, \"completed\": 8897, \"failures\": 990, \"effective\": 2267, \"removed\": 17568, \"seconds\": 0.8244084427133203}}, \"constraint_family\": \"LinearSumConstraint\", \"revisions\": 8898}\n{\"event\": \"revision_start\", \"elapsed_seconds\": 1.7991293749946635, \"progress\": {\"event\": \"node\", \"nodes\": 2400, \"failures\": 1165, \"pruned\": 0, \"revisions\": 10412, \"depth\": 15, \"search_elapsed_seconds\": 1.7968561250017956, \"root_objective_bound\": 307, \"incumbent\": 110}, \"families\": {\"LinearSumConstraint\": {\"attempts\": 10413, \"completed\": 10412, \"failures\": 1165, \"effective\": 2654, \"removed\": 20664, \"seconds\": 0.9603553271736018}}, \"constraint_family\": \"LinearSumConstraint\", \"revisions\": 10413}\n{\"event\": \"revision_start\", \"elapsed_seconds\": 2.0491815420100465, \"progress\": {\"event\": \"node\", \"nodes\": 2757, \"failures\": 1344, \"pruned\": 0, \"revisions\": 11963, \"depth\": 14, \"search_elapsed_seconds\": 2.046678416983923, \"root_objective_bound\": 307, \"incumbent\": 110}, \"families\": {\"LinearSumConstraint\": {\"attempts\": 11966, \"completed\": 11965, \"failures\": 1344, \"effective\": 3054, \"removed\": 23871, \"seconds\": 1.0967460260726511}}, \"constraint_family\": \"LinearSumConstraint\", \"revisions\": 11966}\n{\"event\": \"revision_start\", \"elapsed_seconds\": 2.299257625010796, \"progress\": {\"event\": \"node\", \"nodes\": 3105, \"failures\": 1520, \"pruned\": 0, \"revisions\": 13471, \"depth\": 11, \"search_elapsed_seconds\": 2.296637749997899, \"root_objective_bound\": 307, \"incumbent\": 110}, \"families\": {\"LinearSumConstraint\": {\"attempts\": 13473, \"completed\": 13472, \"failures\": 1520, \"effective\": 3448, \"removed\": 27074, \"seconds\": 1.2323740943393204}}, \"constraint_family\": \"LinearSumConstraint\", \"revisions\": 13473}\n{\"event\": \"revision_start\", \"elapsed_seconds\": 2.5492762500070967, \"progress\": {\"event\": \"node\", \"nodes\": 3450, \"failures\": 1691, \"pruned\": 0, \"revisions\": 14986, \"depth\": 14, \"search_elapsed_seconds\": 2.5468675829761196, \"root_objective_bound\": 307, \"incumbent\": 110}, \"families\": {\"LinearSumConstraint\": {\"attempts\": 14988, \"completed\": 14987, \"failures\": 1691, \"effective\": 3850, \"removed\": 30434, \"seconds\": 1.3694204272760544}}, \"constraint_family\": \"LinearSumConstraint\", \"revisions\": 14988}\n{\"event\": \"revision_start\", \"elapsed_seconds\": 2.799405875004595, \"progress\": {\"event\": \"node\", \"nodes\": 3801, \"failures\": 1867, \"pruned\": 0, \"revisions\": 16508, \"depth\": 12, \"search_elapsed_seconds\": 2.7967813329887576, \"root_objective_bound\": 307, \"incumbent\": 110}, \"families\": {\"LinearSumConstraint\": {\"attempts\": 16511, \"completed\": 16510, \"failures\": 1867, \"effective\": 4244, \"removed\": 33606, \"seconds\": 1.5058700877125375}}, \"constraint_family\": \"LinearSumConstraint\", \"revisions\": 16511}\n{\"event\": \"revision_start\", \"elapsed_seconds\": 3.0497049590048846, \"progress\": {\"event\": \"node\", \"nodes\": 4138, \"failures\": 2034, \"pruned\": 0, \"revisions\": 17992, \"depth\": 16, \"search_elapsed_seconds\": 3.046886208001524, \"root_objective_bound\": 307, \"incumbent\": 110}, \"families\": {\"LinearSumConstraint\": {\"attempts\": 17996, \"completed\": 17995, \"failures\": 2034, \"effective\": 4641, \"removed\": 36986, \"seconds\": 1.642779306101147}}, \"constraint_family\": \"LinearSumConstraint\", \"revisions\": 17996}\n{\"event\": \"revision_start\", \"elapsed_seconds\": 3.2999481250008103, \"progress\": {\"event\": \"node\", \"nodes\": 4490, \"failures\": 2210, \"pruned\": 0, \"revisions\": 19528, \"depth\": 16, \"search_elapsed_seconds\": 3.2972089999821037, \"root_objective_bound\": 307, \"incumbent\": 110}, \"families\": {\"LinearSumConstraint\": {\"attempts\": 19532, \"completed\": 19531, \"failures\": 2210, \"effective\": 5046, \"removed\": 40267, \"seconds\": 1.7793531173083466}}, \"constraint_family\": \"LinearSumConstraint\", \"revisions\": 19532}\n{\"event\": \"revision_start\", \"elapsed_seconds\": 3.5499690000142436, \"progress\": {\"event\": \"node\", \"nodes\": 4833, \"failures\": 2383, \"pruned\": 0, \"revisions\": 21012, \"depth\": 13, \"search_elapsed_seconds\": 3.547556874982547, \"root_objective_bound\": 307, \"incumbent\": 110}, \"families\": {\"LinearSumConstraint\": {\"attempts\": 21014, \"completed\": 21013, \"failures\": 2383, \"effective\": 5433, \"removed\": 43545, \"seconds\": 1.9166071149520576}}, \"constraint_family\": \"LinearSumConstraint\", \"revisions\": 21014}\n{\"event\": \"search\", \"elapsed_seconds\": 3.799973459012108, \"progress\": {\"event\": \"node\", \"nodes\": 5172, \"failures\": 2551, \"pruned\": 0, \"revisions\": 22513, \"depth\": 17, \"search_elapsed_seconds\": 3.7977131249790546, \"root_objective_bound\": 307, \"incumbent\": 110}, \"families\": {\"LinearSumConstraint\": {\"attempts\": 22513, \"completed\": 22513, \"failures\": 2551, \"effective\": 5841, \"removed\": 47075, \"seconds\": 2.054566088685533}}}\n{\"event\": \"revision_start\", \"elapsed_seconds\": 4.04998891701689, \"progress\": {\"event\": \"node\", \"nodes\": 5518, \"failures\": 2725, \"pruned\": 0, \"revisions\": 24022, \"depth\": 16, \"search_elapsed_seconds\": 4.047627666994231, \"root_objective_bound\": 307, \"incumbent\": 110}, \"families\": {\"LinearSumConstraint\": {\"attempts\": 24024, \"completed\": 24023, \"failures\": 2725, \"effective\": 6241, \"removed\": 50474, \"seconds\": 2.1917337205377407}}, \"constraint_family\": \"LinearSumConstraint\", \"revisions\": 24024}\n{\"event\": \"revision_start\", \"elapsed_seconds\": 4.300058249995345, \"progress\": {\"event\": \"node\", \"nodes\": 5848, \"failures\": 2889, \"pruned\": 0, \"revisions\": 25463, \"depth\": 17, \"search_elapsed_seconds\": 4.297376417001942, \"root_objective_bound\": 307, \"incumbent\": 110}, \"families\": {\"LinearSumConstraint\": {\"attempts\": 25467, \"completed\": 25466, \"failures\": 2889, \"effective\": 6625, \"removed\": 54102, \"seconds\": 2.3288757978589274}}, \"constraint_family\": \"LinearSumConstraint\", \"revisions\": 25467}\n{\"event\": \"revision_start\", \"elapsed_seconds\": 4.550232500012498, \"progress\": {\"event\": \"node\", \"nodes\": 6201, \"failures\": 3066, \"pruned\": 0, \"revisions\": 26999, \"depth\": 13, \"search_elapsed_seconds\": 4.546863374998793, \"root_objective_bound\": 307, \"incumbent\": 110}, \"families\": {\"LinearSumConstraint\": {\"attempts\": 27004, \"completed\": 27003, \"failures\": 3066, \"effective\": 7023, \"removed\": 57107, \"seconds\": 2.4649857856566086}}, \"constraint_family\": \"LinearSumConstraint\", \"revisions\": 27004}\n{\"event\": \"search\", \"elapsed_seconds\": 4.800427042006049, \"progress\": {\"event\": \"bound\", \"nodes\": 6534, \"failures\": 3234, \"pruned\": 0, \"revisions\": 28452, \"depth\": 13, \"search_elapsed_seconds\": 4.798165874992264, \"root_objective_bound\": 307, \"incumbent\": 110}, \"families\": {\"LinearSumConstraint\": {\"attempts\": 28452, \"completed\": 28452, \"failures\": 3234, \"effective\": 7406, \"removed\": 60388, \"seconds\": 2.601403795328224}}}\n{\"event\": \"search\", \"elapsed_seconds\": 5.0024601250188425, \"progress\": {\"event\": \"finished\", \"nodes\": 6818, \"failures\": 3375, \"pruned\": 0, \"revisions\": 29683, \"depth\": 15, \"search_elapsed_seconds\": 5.0001977079955395, \"root_objective_bound\": 307, \"incumbent\": 110}, \"families\": {\"LinearSumConstraint\": {\"attempts\": 29683, \"completed\": 29683, \"failures\": 3375, \"effective\": 7718, \"removed\": 62762, \"seconds\": 2.7106900443613995}}}\n",
+            "engine": "candidate",
+            "iteration": 0,
+            "progress": [
+              {
+                "event": "construction_start",
+                "elapsed_seconds": 5.441700341179967e-05,
+                "progress": {},
+                "families": {}
+              },
+              {
+                "event": "prepared",
+                "elapsed_seconds": 0.00208604201907292,
+                "progress": {},
+                "families": {},
+                "variables": 21,
+                "constraints": 2
+              },
+              {
+                "event": "search",
+                "elapsed_seconds": 0.002321459003724158,
+                "progress": {
+                  "event": "start",
+                  "nodes": 0,
+                  "failures": 0,
+                  "pruned": 0,
+                  "revisions": 0,
+                  "depth": 0,
+                  "search_elapsed_seconds": 5.720797344110906e-05,
+                  "root_objective_bound": null,
+                  "incumbent": null
+                },
+                "families": {}
+              },
+              {
+                "event": "search",
+                "elapsed_seconds": 0.03981795901199803,
+                "progress": {
+                  "event": "incumbent",
+                  "nodes": 21,
+                  "failures": 0,
+                  "pruned": 0,
+                  "revisions": 63,
+                  "depth": 20,
+                  "search_elapsed_seconds": 0.037420582986669615,
+                  "root_objective_bound": 307,
+                  "incumbent": 0
+                },
+                "families": {
+                  "LinearSumConstraint": {
+                    "attempts": 63,
+                    "completed": 63,
+                    "failures": 0,
+                    "effective": 21,
+                    "removed": 307,
+                    "seconds": 0.02105425004265271
+                  }
+                },
+                "validated_assignment": {
+                  "X_INTRODUCED_0_": 0,
+                  "X_INTRODUCED_1_": 0,
+                  "X_INTRODUCED_2_": 0,
+                  "X_INTRODUCED_3_": 0,
+                  "X_INTRODUCED_4_": 0,
+                  "X_INTRODUCED_5_": 0,
+                  "X_INTRODUCED_6_": 0,
+                  "X_INTRODUCED_7_": 0,
+                  "X_INTRODUCED_8_": 0,
+                  "X_INTRODUCED_9_": 0,
+                  "X_INTRODUCED_10_": 0,
+                  "X_INTRODUCED_11_": 0,
+                  "X_INTRODUCED_12_": 0,
+                  "X_INTRODUCED_13_": 0,
+                  "X_INTRODUCED_14_": 0,
+                  "X_INTRODUCED_15_": 0,
+                  "X_INTRODUCED_16_": 0,
+                  "X_INTRODUCED_17_": 0,
+                  "X_INTRODUCED_18_": 0,
+                  "X_INTRODUCED_19_": 0,
+                  "objective": 0
+                }
+              },
+              {
+                "event": "search",
+                "elapsed_seconds": 0.04077562500606291,
+                "progress": {
+                  "event": "incumbent",
+                  "nodes": 22,
+                  "failures": 0,
+                  "pruned": 0,
+                  "revisions": 67,
+                  "depth": 20,
+                  "search_elapsed_seconds": 0.03839849997893907,
+                  "root_objective_bound": 307,
+                  "incumbent": 7
+                },
+                "families": {
+                  "LinearSumConstraint": {
+                    "attempts": 67,
+                    "completed": 67,
+                    "failures": 0,
+                    "effective": 22,
+                    "removed": 308,
+                    "seconds": 0.02126795900403522
+                  }
+                },
+                "validated_assignment": {
+                  "X_INTRODUCED_0_": 0,
+                  "X_INTRODUCED_1_": 0,
+                  "X_INTRODUCED_2_": 0,
+                  "X_INTRODUCED_3_": 0,
+                  "X_INTRODUCED_4_": 0,
+                  "X_INTRODUCED_5_": 0,
+                  "X_INTRODUCED_6_": 0,
+                  "X_INTRODUCED_7_": 0,
+                  "X_INTRODUCED_8_": 0,
+                  "X_INTRODUCED_9_": 0,
+                  "X_INTRODUCED_10_": 0,
+                  "X_INTRODUCED_11_": 0,
+                  "X_INTRODUCED_12_": 0,
+                  "X_INTRODUCED_13_": 0,
+                  "X_INTRODUCED_14_": 0,
+                  "X_INTRODUCED_15_": 0,
+                  "X_INTRODUCED_16_": 0,
+                  "X_INTRODUCED_17_": 0,
+                  "X_INTRODUCED_18_": 0,
+                  "X_INTRODUCED_19_": 1,
+                  "objective": 7
+                }
+              },
+              {
+                "event": "search",
+                "elapsed_seconds": 0.04244187500444241,
+                "progress": {
+                  "event": "incumbent",
+                  "nodes": 24,
+                  "failures": 0,
+                  "pruned": 0,
+                  "revisions": 76,
+                  "depth": 20,
+                  "search_elapsed_seconds": 0.04006574998493306,
+                  "root_objective_bound": 307,
+                  "incumbent": 14
+                },
+                "families": {
+                  "LinearSumConstraint": {
+                    "attempts": 76,
+                    "completed": 76,
+                    "failures": 0,
+                    "effective": 24,
+                    "removed": 311,
+                    "seconds": 0.02187321102246642
+                  }
+                },
+                "validated_assignment": {
+                  "X_INTRODUCED_0_": 0,
+                  "X_INTRODUCED_1_": 0,
+                  "X_INTRODUCED_2_": 0,
+                  "X_INTRODUCED_3_": 0,
+                  "X_INTRODUCED_4_": 0,
+                  "X_INTRODUCED_5_": 0,
+                  "X_INTRODUCED_6_": 0,
+                  "X_INTRODUCED_7_": 0,
+                  "X_INTRODUCED_8_": 0,
+                  "X_INTRODUCED_9_": 0,
+                  "X_INTRODUCED_10_": 0,
+                  "X_INTRODUCED_11_": 0,
+                  "X_INTRODUCED_12_": 0,
+                  "X_INTRODUCED_13_": 0,
+                  "X_INTRODUCED_14_": 0,
+                  "X_INTRODUCED_15_": 0,
+                  "X_INTRODUCED_16_": 0,
+                  "X_INTRODUCED_17_": 0,
+                  "X_INTRODUCED_18_": 1,
+                  "X_INTRODUCED_19_": 0,
+                  "objective": 14
+                }
+              },
+              {
+                "event": "search",
+                "elapsed_seconds": 0.04336220902041532,
+                "progress": {
+                  "event": "incumbent",
+                  "nodes": 25,
+                  "failures": 0,
+                  "pruned": 0,
+                  "revisions": 80,
+                  "depth": 20,
+                  "search_elapsed_seconds": 0.040985707979416475,
+                  "root_objective_bound": 307,
+                  "incumbent": 21
+                },
+                "families": {
+                  "LinearSumConstraint": {
+                    "attempts": 80,
+                    "completed": 80,
+                    "failures": 0,
+                    "effective": 25,
+                    "removed": 312,
+                    "seconds": 0.02208837799844332
+                  }
+                },
+                "validated_assignment": {
+                  "X_INTRODUCED_0_": 0,
+                  "X_INTRODUCED_1_": 0,
+                  "X_INTRODUCED_2_": 0,
+                  "X_INTRODUCED_3_": 0,
+                  "X_INTRODUCED_4_": 0,
+                  "X_INTRODUCED_5_": 0,
+                  "X_INTRODUCED_6_": 0,
+                  "X_INTRODUCED_7_": 0,
+                  "X_INTRODUCED_8_": 0,
+                  "X_INTRODUCED_9_": 0,
+                  "X_INTRODUCED_10_": 0,
+                  "X_INTRODUCED_11_": 0,
+                  "X_INTRODUCED_12_": 0,
+                  "X_INTRODUCED_13_": 0,
+                  "X_INTRODUCED_14_": 0,
+                  "X_INTRODUCED_15_": 0,
+                  "X_INTRODUCED_16_": 0,
+                  "X_INTRODUCED_17_": 0,
+                  "X_INTRODUCED_18_": 1,
+                  "X_INTRODUCED_19_": 1,
+                  "objective": 21
+                }
+              },
+              {
+                "event": "search",
+                "elapsed_seconds": 0.045379624993074685,
+                "progress": {
+                  "event": "incumbent",
+                  "nodes": 27,
+                  "failures": 0,
+                  "pruned": 0,
+                  "revisions": 90,
+                  "depth": 19,
+                  "search_elapsed_seconds": 0.04300333297578618,
+                  "root_objective_bound": 307,
+                  "incumbent": 23
+                },
+                "families": {
+                  "LinearSumConstraint": {
+                    "attempts": 90,
+                    "completed": 90,
+                    "failures": 0,
+                    "effective": 27,
+                    "removed": 320,
+                    "seconds": 0.02283754400559701
+                  }
+                },
+                "validated_assignment": {
+                  "X_INTRODUCED_0_": 0,
+                  "X_INTRODUCED_1_": 0,
+                  "X_INTRODUCED_2_": 0,
+                  "X_INTRODUCED_3_": 0,
+                  "X_INTRODUCED_4_": 0,
+                  "X_INTRODUCED_5_": 0,
+                  "X_INTRODUCED_6_": 0,
+                  "X_INTRODUCED_7_": 0,
+                  "X_INTRODUCED_8_": 0,
+                  "X_INTRODUCED_9_": 0,
+                  "X_INTRODUCED_10_": 0,
+                  "X_INTRODUCED_11_": 0,
+                  "X_INTRODUCED_12_": 0,
+                  "X_INTRODUCED_13_": 0,
+                  "X_INTRODUCED_14_": 0,
+                  "X_INTRODUCED_15_": 0,
+                  "X_INTRODUCED_16_": 0,
+                  "X_INTRODUCED_17_": 1,
+                  "X_INTRODUCED_18_": 0,
+                  "X_INTRODUCED_19_": 1,
+                  "objective": 23
+                }
+              },
+              {
+                "event": "search",
+                "elapsed_seconds": 0.047019499994348735,
+                "progress": {
+                  "event": "incumbent",
+                  "nodes": 29,
+                  "failures": 0,
+                  "pruned": 0,
+                  "revisions": 99,
+                  "depth": 20,
+                  "search_elapsed_seconds": 0.04464420798467472,
+                  "root_objective_bound": 307,
+                  "incumbent": 30
+                },
+                "families": {
+                  "LinearSumConstraint": {
+                    "attempts": 99,
+                    "completed": 99,
+                    "failures": 0,
+                    "effective": 29,
+                    "removed": 322,
+                    "seconds": 0.02342783601488918
+                  }
+                },
+                "validated_assignment": {
+                  "X_INTRODUCED_0_": 0,
+                  "X_INTRODUCED_1_": 0,
+                  "X_INTRODUCED_2_": 0,
+                  "X_INTRODUCED_3_": 0,
+                  "X_INTRODUCED_4_": 0,
+                  "X_INTRODUCED_5_": 0,
+                  "X_INTRODUCED_6_": 0,
+                  "X_INTRODUCED_7_": 0,
+                  "X_INTRODUCED_8_": 0,
+                  "X_INTRODUCED_9_": 0,
+                  "X_INTRODUCED_10_": 0,
+                  "X_INTRODUCED_11_": 0,
+                  "X_INTRODUCED_12_": 0,
+                  "X_INTRODUCED_13_": 0,
+                  "X_INTRODUCED_14_": 0,
+                  "X_INTRODUCED_15_": 0,
+                  "X_INTRODUCED_16_": 0,
+                  "X_INTRODUCED_17_": 1,
+                  "X_INTRODUCED_18_": 1,
+                  "X_INTRODUCED_19_": 0,
+                  "objective": 30
+                }
+              },
+              {
+                "event": "search",
+                "elapsed_seconds": 0.0479376669973135,
+                "progress": {
+                  "event": "incumbent",
+                  "nodes": 30,
+                  "failures": 0,
+                  "pruned": 0,
+                  "revisions": 103,
+                  "depth": 20,
+                  "search_elapsed_seconds": 0.04556491697439924,
+                  "root_objective_bound": 307,
+                  "incumbent": 37
+                },
+                "families": {
+                  "LinearSumConstraint": {
+                    "attempts": 103,
+                    "completed": 103,
+                    "failures": 0,
+                    "effective": 30,
+                    "removed": 323,
+                    "seconds": 0.0236454620026052
+                  }
+                },
+                "validated_assignment": {
+                  "X_INTRODUCED_0_": 0,
+                  "X_INTRODUCED_1_": 0,
+                  "X_INTRODUCED_2_": 0,
+                  "X_INTRODUCED_3_": 0,
+                  "X_INTRODUCED_4_": 0,
+                  "X_INTRODUCED_5_": 0,
+                  "X_INTRODUCED_6_": 0,
+                  "X_INTRODUCED_7_": 0,
+                  "X_INTRODUCED_8_": 0,
+                  "X_INTRODUCED_9_": 0,
+                  "X_INTRODUCED_10_": 0,
+                  "X_INTRODUCED_11_": 0,
+                  "X_INTRODUCED_12_": 0,
+                  "X_INTRODUCED_13_": 0,
+                  "X_INTRODUCED_14_": 0,
+                  "X_INTRODUCED_15_": 0,
+                  "X_INTRODUCED_16_": 0,
+                  "X_INTRODUCED_17_": 1,
+                  "X_INTRODUCED_18_": 1,
+                  "X_INTRODUCED_19_": 1,
+                  "objective": 37
+                }
+              },
+              {
+                "event": "search",
+                "elapsed_seconds": 0.05036879199906252,
+                "progress": {
+                  "event": "incumbent",
+                  "nodes": 32,
+                  "failures": 0,
+                  "pruned": 0,
+                  "revisions": 114,
+                  "depth": 18,
+                  "search_elapsed_seconds": 0.04798204198596068,
+                  "root_objective_bound": 307,
+                  "incumbent": 39
+                },
+                "families": {
+                  "LinearSumConstraint": {
+                    "attempts": 114,
+                    "completed": 114,
+                    "failures": 0,
+                    "effective": 33,
+                    "removed": 337,
+                    "seconds": 0.024619422008981928
+                  }
+                },
+                "validated_assignment": {
+                  "X_INTRODUCED_0_": 0,
+                  "X_INTRODUCED_1_": 0,
+                  "X_INTRODUCED_2_": 0,
+                  "X_INTRODUCED_3_": 0,
+                  "X_INTRODUCED_4_": 0,
+                  "X_INTRODUCED_5_": 0,
+                  "X_INTRODUCED_6_": 0,
+                  "X_INTRODUCED_7_": 0,
+                  "X_INTRODUCED_8_": 0,
+                  "X_INTRODUCED_9_": 0,
+                  "X_INTRODUCED_10_": 0,
+                  "X_INTRODUCED_11_": 0,
+                  "X_INTRODUCED_12_": 0,
+                  "X_INTRODUCED_13_": 0,
+                  "X_INTRODUCED_14_": 0,
+                  "X_INTRODUCED_15_": 0,
+                  "X_INTRODUCED_16_": 1,
+                  "X_INTRODUCED_17_": 1,
+                  "X_INTRODUCED_18_": 1,
+                  "X_INTRODUCED_19_": 0,
+                  "objective": 39
+                }
+              },
+              {
+                "event": "search",
+                "elapsed_seconds": 0.05134054200607352,
+                "progress": {
+                  "event": "incumbent",
+                  "nodes": 33,
+                  "failures": 0,
+                  "pruned": 0,
+                  "revisions": 118,
+                  "depth": 18,
+                  "search_elapsed_seconds": 0.04896170800202526,
+                  "root_objective_bound": 307,
+                  "incumbent": 46
+                },
+                "families": {
+                  "LinearSumConstraint": {
+                    "attempts": 118,
+                    "completed": 118,
+                    "failures": 0,
+                    "effective": 34,
+                    "removed": 338,
+                    "seconds": 0.024846213025739416
+                  }
+                },
+                "validated_assignment": {
+                  "X_INTRODUCED_0_": 0,
+                  "X_INTRODUCED_1_": 0,
+                  "X_INTRODUCED_2_": 0,
+                  "X_INTRODUCED_3_": 0,
+                  "X_INTRODUCED_4_": 0,
+                  "X_INTRODUCED_5_": 0,
+                  "X_INTRODUCED_6_": 0,
+                  "X_INTRODUCED_7_": 0,
+                  "X_INTRODUCED_8_": 0,
+                  "X_INTRODUCED_9_": 0,
+                  "X_INTRODUCED_10_": 0,
+                  "X_INTRODUCED_11_": 0,
+                  "X_INTRODUCED_12_": 0,
+                  "X_INTRODUCED_13_": 0,
+                  "X_INTRODUCED_14_": 0,
+                  "X_INTRODUCED_15_": 0,
+                  "X_INTRODUCED_16_": 1,
+                  "X_INTRODUCED_17_": 1,
+                  "X_INTRODUCED_18_": 1,
+                  "X_INTRODUCED_19_": 1,
+                  "objective": 46
+                }
+              },
+              {
+                "event": "search",
+                "elapsed_seconds": 0.0544686249922961,
+                "progress": {
+                  "event": "incumbent",
+                  "nodes": 36,
+                  "failures": 0,
+                  "pruned": 0,
+                  "revisions": 133,
+                  "depth": 18,
+                  "search_elapsed_seconds": 0.052084291994106025,
+                  "root_objective_bound": 307,
+                  "incumbent": 47
+                },
+                "families": {
+                  "LinearSumConstraint": {
+                    "attempts": 133,
+                    "completed": 133,
+                    "failures": 0,
+                    "effective": 37,
+                    "removed": 365,
+                    "seconds": 0.026159004017245024
+                  }
+                },
+                "validated_assignment": {
+                  "X_INTRODUCED_0_": 0,
+                  "X_INTRODUCED_1_": 0,
+                  "X_INTRODUCED_2_": 0,
+                  "X_INTRODUCED_3_": 0,
+                  "X_INTRODUCED_4_": 0,
+                  "X_INTRODUCED_5_": 0,
+                  "X_INTRODUCED_6_": 0,
+                  "X_INTRODUCED_7_": 0,
+                  "X_INTRODUCED_8_": 0,
+                  "X_INTRODUCED_9_": 0,
+                  "X_INTRODUCED_10_": 0,
+                  "X_INTRODUCED_11_": 0,
+                  "X_INTRODUCED_12_": 0,
+                  "X_INTRODUCED_13_": 0,
+                  "X_INTRODUCED_14_": 0,
+                  "X_INTRODUCED_15_": 1,
+                  "X_INTRODUCED_16_": 0,
+                  "X_INTRODUCED_17_": 1,
+                  "X_INTRODUCED_18_": 1,
+                  "X_INTRODUCED_19_": 0,
+                  "objective": 47
+                }
+              },
+              {
+                "event": "search",
+                "elapsed_seconds": 0.05544237501453608,
+                "progress": {
+                  "event": "incumbent",
+                  "nodes": 37,
+                  "failures": 0,
+                  "pruned": 0,
+                  "revisions": 137,
+                  "depth": 18,
+                  "search_elapsed_seconds": 0.05306233299779706,
+                  "root_objective_bound": 307,
+                  "incumbent": 54
+                },
+                "families": {
+                  "LinearSumConstraint": {
+                    "attempts": 137,
+                    "completed": 137,
+                    "failures": 0,
+                    "effective": 38,
+                    "removed": 366,
+                    "seconds": 0.02637579504516907
+                  }
+                },
+                "validated_assignment": {
+                  "X_INTRODUCED_0_": 0,
+                  "X_INTRODUCED_1_": 0,
+                  "X_INTRODUCED_2_": 0,
+                  "X_INTRODUCED_3_": 0,
+                  "X_INTRODUCED_4_": 0,
+                  "X_INTRODUCED_5_": 0,
+                  "X_INTRODUCED_6_": 0,
+                  "X_INTRODUCED_7_": 0,
+                  "X_INTRODUCED_8_": 0,
+                  "X_INTRODUCED_9_": 0,
+                  "X_INTRODUCED_10_": 0,
+                  "X_INTRODUCED_11_": 0,
+                  "X_INTRODUCED_12_": 0,
+                  "X_INTRODUCED_13_": 0,
+                  "X_INTRODUCED_14_": 0,
+                  "X_INTRODUCED_15_": 1,
+                  "X_INTRODUCED_16_": 0,
+                  "X_INTRODUCED_17_": 1,
+                  "X_INTRODUCED_18_": 1,
+                  "X_INTRODUCED_19_": 1,
+                  "objective": 54
+                }
+              },
+              {
+                "event": "search",
+                "elapsed_seconds": 0.05796062501030974,
+                "progress": {
+                  "event": "incumbent",
+                  "nodes": 39,
+                  "failures": 0,
+                  "pruned": 0,
+                  "revisions": 148,
+                  "depth": 18,
+                  "search_elapsed_seconds": 0.05557245798991062,
+                  "root_objective_bound": 307,
+                  "incumbent": 56
+                },
+                "families": {
+                  "LinearSumConstraint": {
+                    "attempts": 148,
+                    "completed": 148,
+                    "failures": 0,
+                    "effective": 41,
+                    "removed": 372,
+                    "seconds": 0.027289128047414124
+                  }
+                },
+                "validated_assignment": {
+                  "X_INTRODUCED_0_": 0,
+                  "X_INTRODUCED_1_": 0,
+                  "X_INTRODUCED_2_": 0,
+                  "X_INTRODUCED_3_": 0,
+                  "X_INTRODUCED_4_": 0,
+                  "X_INTRODUCED_5_": 0,
+                  "X_INTRODUCED_6_": 0,
+                  "X_INTRODUCED_7_": 0,
+                  "X_INTRODUCED_8_": 0,
+                  "X_INTRODUCED_9_": 0,
+                  "X_INTRODUCED_10_": 0,
+                  "X_INTRODUCED_11_": 0,
+                  "X_INTRODUCED_12_": 0,
+                  "X_INTRODUCED_13_": 0,
+                  "X_INTRODUCED_14_": 0,
+                  "X_INTRODUCED_15_": 1,
+                  "X_INTRODUCED_16_": 1,
+                  "X_INTRODUCED_17_": 1,
+                  "X_INTRODUCED_18_": 1,
+                  "X_INTRODUCED_19_": 0,
+                  "objective": 56
+                }
+              },
+              {
+                "event": "search",
+                "elapsed_seconds": 0.0590472920157481,
+                "progress": {
+                  "event": "incumbent",
+                  "nodes": 40,
+                  "failures": 0,
+                  "pruned": 0,
+                  "revisions": 152,
+                  "depth": 18,
+                  "search_elapsed_seconds": 0.056610832980368286,
+                  "root_objective_bound": 307,
+                  "incumbent": 63
+                },
+                "families": {
+                  "LinearSumConstraint": {
+                    "attempts": 152,
+                    "completed": 152,
+                    "failures": 0,
+                    "effective": 42,
+                    "removed": 373,
+                    "seconds": 0.027512004075106233
+                  }
+                },
+                "validated_assignment": {
+                  "X_INTRODUCED_0_": 0,
+                  "X_INTRODUCED_1_": 0,
+                  "X_INTRODUCED_2_": 0,
+                  "X_INTRODUCED_3_": 0,
+                  "X_INTRODUCED_4_": 0,
+                  "X_INTRODUCED_5_": 0,
+                  "X_INTRODUCED_6_": 0,
+                  "X_INTRODUCED_7_": 0,
+                  "X_INTRODUCED_8_": 0,
+                  "X_INTRODUCED_9_": 0,
+                  "X_INTRODUCED_10_": 0,
+                  "X_INTRODUCED_11_": 0,
+                  "X_INTRODUCED_12_": 0,
+                  "X_INTRODUCED_13_": 0,
+                  "X_INTRODUCED_14_": 0,
+                  "X_INTRODUCED_15_": 1,
+                  "X_INTRODUCED_16_": 1,
+                  "X_INTRODUCED_17_": 1,
+                  "X_INTRODUCED_18_": 1,
+                  "X_INTRODUCED_19_": 1,
+                  "objective": 63
+                }
+              },
+              {
+                "event": "search",
+                "elapsed_seconds": 0.0620374999998603,
+                "progress": {
+                  "event": "incumbent",
+                  "nodes": 42,
+                  "failures": 0,
+                  "pruned": 0,
+                  "revisions": 164,
+                  "depth": 16,
+                  "search_elapsed_seconds": 0.059645957982866094,
+                  "root_objective_bound": 307,
+                  "incumbent": 66
+                },
+                "families": {
+                  "LinearSumConstraint": {
+                    "attempts": 164,
+                    "completed": 164,
+                    "failures": 0,
+                    "effective": 45,
+                    "removed": 420,
+                    "seconds": 0.028542546118842438
+                  }
+                },
+                "validated_assignment": {
+                  "X_INTRODUCED_0_": 0,
+                  "X_INTRODUCED_1_": 0,
+                  "X_INTRODUCED_2_": 0,
+                  "X_INTRODUCED_3_": 0,
+                  "X_INTRODUCED_4_": 0,
+                  "X_INTRODUCED_5_": 0,
+                  "X_INTRODUCED_6_": 0,
+                  "X_INTRODUCED_7_": 0,
+                  "X_INTRODUCED_8_": 0,
+                  "X_INTRODUCED_9_": 0,
+                  "X_INTRODUCED_10_": 0,
+                  "X_INTRODUCED_11_": 0,
+                  "X_INTRODUCED_12_": 0,
+                  "X_INTRODUCED_13_": 0,
+                  "X_INTRODUCED_14_": 1,
+                  "X_INTRODUCED_15_": 1,
+                  "X_INTRODUCED_16_": 0,
+                  "X_INTRODUCED_17_": 1,
+                  "X_INTRODUCED_18_": 1,
+                  "X_INTRODUCED_19_": 1,
+                  "objective": 66
+                }
+              },
+              {
+                "event": "search",
+                "elapsed_seconds": 0.06389799999305978,
+                "progress": {
+                  "event": "incumbent",
+                  "nodes": 44,
+                  "failures": 0,
+                  "pruned": 0,
+                  "revisions": 173,
+                  "depth": 17,
+                  "search_elapsed_seconds": 0.06152358299004845,
+                  "root_objective_bound": 307,
+                  "incumbent": 68
+                },
+                "families": {
+                  "LinearSumConstraint": {
+                    "attempts": 173,
+                    "completed": 173,
+                    "failures": 0,
+                    "effective": 47,
+                    "removed": 422,
+                    "seconds": 0.029159964149584994
+                  }
+                },
+                "validated_assignment": {
+                  "X_INTRODUCED_0_": 0,
+                  "X_INTRODUCED_1_": 0,
+                  "X_INTRODUCED_2_": 0,
+                  "X_INTRODUCED_3_": 0,
+                  "X_INTRODUCED_4_": 0,
+                  "X_INTRODUCED_5_": 0,
+                  "X_INTRODUCED_6_": 0,
+                  "X_INTRODUCED_7_": 0,
+                  "X_INTRODUCED_8_": 0,
+                  "X_INTRODUCED_9_": 0,
+                  "X_INTRODUCED_10_": 0,
+                  "X_INTRODUCED_11_": 0,
+                  "X_INTRODUCED_12_": 0,
+                  "X_INTRODUCED_13_": 0,
+                  "X_INTRODUCED_14_": 1,
+                  "X_INTRODUCED_15_": 1,
+                  "X_INTRODUCED_16_": 1,
+                  "X_INTRODUCED_17_": 1,
+                  "X_INTRODUCED_18_": 1,
+                  "X_INTRODUCED_19_": 0,
+                  "objective": 68
+                }
+              },
+              {
+                "event": "search",
+                "elapsed_seconds": 0.06492112501291558,
+                "progress": {
+                  "event": "incumbent",
+                  "nodes": 45,
+                  "failures": 0,
+                  "pruned": 0,
+                  "revisions": 177,
+                  "depth": 17,
+                  "search_elapsed_seconds": 0.06254570800228976,
+                  "root_objective_bound": 307,
+                  "incumbent": 75
+                },
+                "families": {
+                  "LinearSumConstraint": {
+                    "attempts": 177,
+                    "completed": 177,
+                    "failures": 0,
+                    "effective": 48,
+                    "removed": 423,
+                    "seconds": 0.029418548161629587
+                  }
+                },
+                "validated_assignment": {
+                  "X_INTRODUCED_0_": 0,
+                  "X_INTRODUCED_1_": 0,
+                  "X_INTRODUCED_2_": 0,
+                  "X_INTRODUCED_3_": 0,
+                  "X_INTRODUCED_4_": 0,
+                  "X_INTRODUCED_5_": 0,
+                  "X_INTRODUCED_6_": 0,
+                  "X_INTRODUCED_7_": 0,
+                  "X_INTRODUCED_8_": 0,
+                  "X_INTRODUCED_9_": 0,
+                  "X_INTRODUCED_10_": 0,
+                  "X_INTRODUCED_11_": 0,
+                  "X_INTRODUCED_12_": 0,
+                  "X_INTRODUCED_13_": 0,
+                  "X_INTRODUCED_14_": 1,
+                  "X_INTRODUCED_15_": 1,
+                  "X_INTRODUCED_16_": 1,
+                  "X_INTRODUCED_17_": 1,
+                  "X_INTRODUCED_18_": 1,
+                  "X_INTRODUCED_19_": 1,
+                  "objective": 75
+                }
+              },
+              {
+                "event": "search",
+                "elapsed_seconds": 0.06901445900439285,
+                "progress": {
+                  "event": "incumbent",
+                  "nodes": 48,
+                  "failures": 0,
+                  "pruned": 0,
+                  "revisions": 192,
+                  "depth": 16,
+                  "search_elapsed_seconds": 0.06664020798052661,
+                  "root_objective_bound": 307,
+                  "incumbent": 76
+                },
+                "families": {
+                  "LinearSumConstraint": {
+                    "attempts": 192,
+                    "completed": 192,
+                    "failures": 0,
+                    "effective": 51,
+                    "removed": 496,
+                    "seconds": 0.030923589161830023
+                  }
+                },
+                "validated_assignment": {
+                  "X_INTRODUCED_0_": 0,
+                  "X_INTRODUCED_1_": 0,
+                  "X_INTRODUCED_2_": 0,
+                  "X_INTRODUCED_3_": 0,
+                  "X_INTRODUCED_4_": 0,
+                  "X_INTRODUCED_5_": 0,
+                  "X_INTRODUCED_6_": 0,
+                  "X_INTRODUCED_7_": 0,
+                  "X_INTRODUCED_8_": 0,
+                  "X_INTRODUCED_9_": 0,
+                  "X_INTRODUCED_10_": 0,
+                  "X_INTRODUCED_11_": 0,
+                  "X_INTRODUCED_12_": 0,
+                  "X_INTRODUCED_13_": 1,
+                  "X_INTRODUCED_14_": 0,
+                  "X_INTRODUCED_15_": 0,
+                  "X_INTRODUCED_16_": 1,
+                  "X_INTRODUCED_17_": 1,
+                  "X_INTRODUCED_18_": 1,
+                  "X_INTRODUCED_19_": 1,
+                  "objective": 76
+                }
+              },
+              {
+                "event": "search",
+                "elapsed_seconds": 0.0715093339968007,
+                "progress": {
+                  "event": "incumbent",
+                  "nodes": 51,
+                  "failures": 0,
+                  "pruned": 0,
+                  "revisions": 207,
+                  "depth": 18,
+                  "search_elapsed_seconds": 0.06913904199609533,
+                  "root_objective_bound": 307,
+                  "incumbent": 77
+                },
+                "families": {
+                  "LinearSumConstraint": {
+                    "attempts": 207,
+                    "completed": 207,
+                    "failures": 0,
+                    "effective": 54,
+                    "removed": 503,
+                    "seconds": 0.03198825512663461
+                  }
+                },
+                "validated_assignment": {
+                  "X_INTRODUCED_0_": 0,
+                  "X_INTRODUCED_1_": 0,
+                  "X_INTRODUCED_2_": 0,
+                  "X_INTRODUCED_3_": 0,
+                  "X_INTRODUCED_4_": 0,
+                  "X_INTRODUCED_5_": 0,
+                  "X_INTRODUCED_6_": 0,
+                  "X_INTRODUCED_7_": 0,
+                  "X_INTRODUCED_8_": 0,
+                  "X_INTRODUCED_9_": 0,
+                  "X_INTRODUCED_10_": 0,
+                  "X_INTRODUCED_11_": 0,
+                  "X_INTRODUCED_12_": 0,
+                  "X_INTRODUCED_13_": 1,
+                  "X_INTRODUCED_14_": 0,
+                  "X_INTRODUCED_15_": 1,
+                  "X_INTRODUCED_16_": 0,
+                  "X_INTRODUCED_17_": 1,
+                  "X_INTRODUCED_18_": 1,
+                  "X_INTRODUCED_19_": 0,
+                  "objective": 77
+                }
+              },
+              {
+                "event": "search",
+                "elapsed_seconds": 0.07236279200878926,
+                "progress": {
+                  "event": "incumbent",
+                  "nodes": 52,
+                  "failures": 0,
+                  "pruned": 0,
+                  "revisions": 211,
+                  "depth": 18,
+                  "search_elapsed_seconds": 0.06999779198667966,
+                  "root_objective_bound": 307,
+                  "incumbent": 84
+                },
+                "families": {
+                  "LinearSumConstraint": {
+                    "attempts": 211,
+                    "completed": 211,
+                    "failures": 0,
+                    "effective": 55,
+                    "removed": 504,
+                    "seconds": 0.032193047110922635
+                  }
+                },
+                "validated_assignment": {
+                  "X_INTRODUCED_0_": 0,
+                  "X_INTRODUCED_1_": 0,
+                  "X_INTRODUCED_2_": 0,
+                  "X_INTRODUCED_3_": 0,
+                  "X_INTRODUCED_4_": 0,
+                  "X_INTRODUCED_5_": 0,
+                  "X_INTRODUCED_6_": 0,
+                  "X_INTRODUCED_7_": 0,
+                  "X_INTRODUCED_8_": 0,
+                  "X_INTRODUCED_9_": 0,
+                  "X_INTRODUCED_10_": 0,
+                  "X_INTRODUCED_11_": 0,
+                  "X_INTRODUCED_12_": 0,
+                  "X_INTRODUCED_13_": 1,
+                  "X_INTRODUCED_14_": 0,
+                  "X_INTRODUCED_15_": 1,
+                  "X_INTRODUCED_16_": 0,
+                  "X_INTRODUCED_17_": 1,
+                  "X_INTRODUCED_18_": 1,
+                  "X_INTRODUCED_19_": 1,
+                  "objective": 84
+                }
+              },
+              {
+                "event": "search",
+                "elapsed_seconds": 0.07441200001630932,
+                "progress": {
+                  "event": "incumbent",
+                  "nodes": 54,
+                  "failures": 0,
+                  "pruned": 0,
+                  "revisions": 222,
+                  "depth": 18,
+                  "search_elapsed_seconds": 0.07203320797998458,
+                  "root_objective_bound": 307,
+                  "incumbent": 86
+                },
+                "families": {
+                  "LinearSumConstraint": {
+                    "attempts": 222,
+                    "completed": 222,
+                    "failures": 0,
+                    "effective": 58,
+                    "removed": 510,
+                    "seconds": 0.0330340881482698
+                  }
+                },
+                "validated_assignment": {
+                  "X_INTRODUCED_0_": 0,
+                  "X_INTRODUCED_1_": 0,
+                  "X_INTRODUCED_2_": 0,
+                  "X_INTRODUCED_3_": 0,
+                  "X_INTRODUCED_4_": 0,
+                  "X_INTRODUCED_5_": 0,
+                  "X_INTRODUCED_6_": 0,
+                  "X_INTRODUCED_7_": 0,
+                  "X_INTRODUCED_8_": 0,
+                  "X_INTRODUCED_9_": 0,
+                  "X_INTRODUCED_10_": 0,
+                  "X_INTRODUCED_11_": 0,
+                  "X_INTRODUCED_12_": 0,
+                  "X_INTRODUCED_13_": 1,
+                  "X_INTRODUCED_14_": 0,
+                  "X_INTRODUCED_15_": 1,
+                  "X_INTRODUCED_16_": 1,
+                  "X_INTRODUCED_17_": 1,
+                  "X_INTRODUCED_18_": 1,
+                  "X_INTRODUCED_19_": 0,
+                  "objective": 86
+                }
+              },
+              {
+                "event": "search",
+                "elapsed_seconds": 0.07544787501683459,
+                "progress": {
+                  "event": "incumbent",
+                  "nodes": 55,
+                  "failures": 0,
+                  "pruned": 0,
+                  "revisions": 226,
+                  "depth": 18,
+                  "search_elapsed_seconds": 0.07305187499150634,
+                  "root_objective_bound": 307,
+                  "incumbent": 93
+                },
+                "families": {
+                  "LinearSumConstraint": {
+                    "attempts": 226,
+                    "completed": 226,
+                    "failures": 0,
+                    "effective": 59,
+                    "removed": 511,
+                    "seconds": 0.03324679611250758
+                  }
+                },
+                "validated_assignment": {
+                  "X_INTRODUCED_0_": 0,
+                  "X_INTRODUCED_1_": 0,
+                  "X_INTRODUCED_2_": 0,
+                  "X_INTRODUCED_3_": 0,
+                  "X_INTRODUCED_4_": 0,
+                  "X_INTRODUCED_5_": 0,
+                  "X_INTRODUCED_6_": 0,
+                  "X_INTRODUCED_7_": 0,
+                  "X_INTRODUCED_8_": 0,
+                  "X_INTRODUCED_9_": 0,
+                  "X_INTRODUCED_10_": 0,
+                  "X_INTRODUCED_11_": 0,
+                  "X_INTRODUCED_12_": 0,
+                  "X_INTRODUCED_13_": 1,
+                  "X_INTRODUCED_14_": 0,
+                  "X_INTRODUCED_15_": 1,
+                  "X_INTRODUCED_16_": 1,
+                  "X_INTRODUCED_17_": 1,
+                  "X_INTRODUCED_18_": 1,
+                  "X_INTRODUCED_19_": 1,
+                  "objective": 93
+                }
+              },
+              {
+                "event": "search",
+                "elapsed_seconds": 0.07787450001342222,
+                "progress": {
+                  "event": "incumbent",
+                  "nodes": 57,
+                  "failures": 0,
+                  "pruned": 0,
+                  "revisions": 238,
+                  "depth": 16,
+                  "search_elapsed_seconds": 0.07549387498875149,
+                  "root_objective_bound": 307,
+                  "incumbent": 96
+                },
+                "families": {
+                  "LinearSumConstraint": {
+                    "attempts": 238,
+                    "completed": 238,
+                    "failures": 0,
+                    "effective": 62,
+                    "removed": 529,
+                    "seconds": 0.03422625517123379
+                  }
+                },
+                "validated_assignment": {
+                  "X_INTRODUCED_0_": 0,
+                  "X_INTRODUCED_1_": 0,
+                  "X_INTRODUCED_2_": 0,
+                  "X_INTRODUCED_3_": 0,
+                  "X_INTRODUCED_4_": 0,
+                  "X_INTRODUCED_5_": 0,
+                  "X_INTRODUCED_6_": 0,
+                  "X_INTRODUCED_7_": 0,
+                  "X_INTRODUCED_8_": 0,
+                  "X_INTRODUCED_9_": 0,
+                  "X_INTRODUCED_10_": 0,
+                  "X_INTRODUCED_11_": 0,
+                  "X_INTRODUCED_12_": 0,
+                  "X_INTRODUCED_13_": 1,
+                  "X_INTRODUCED_14_": 1,
+                  "X_INTRODUCED_15_": 1,
+                  "X_INTRODUCED_16_": 0,
+                  "X_INTRODUCED_17_": 1,
+                  "X_INTRODUCED_18_": 1,
+                  "X_INTRODUCED_19_": 1,
+                  "objective": 96
+                }
+              },
+              {
+                "event": "search",
+                "elapsed_seconds": 0.07961237500421703,
+                "progress": {
+                  "event": "incumbent",
+                  "nodes": 59,
+                  "failures": 0,
+                  "pruned": 0,
+                  "revisions": 247,
+                  "depth": 17,
+                  "search_elapsed_seconds": 0.07723437499953434,
+                  "root_objective_bound": 307,
+                  "incumbent": 98
+                },
+                "families": {
+                  "LinearSumConstraint": {
+                    "attempts": 247,
+                    "completed": 247,
+                    "failures": 0,
+                    "effective": 64,
+                    "removed": 531,
+                    "seconds": 0.034849631163524464
+                  }
+                },
+                "validated_assignment": {
+                  "X_INTRODUCED_0_": 0,
+                  "X_INTRODUCED_1_": 0,
+                  "X_INTRODUCED_2_": 0,
+                  "X_INTRODUCED_3_": 0,
+                  "X_INTRODUCED_4_": 0,
+                  "X_INTRODUCED_5_": 0,
+                  "X_INTRODUCED_6_": 0,
+                  "X_INTRODUCED_7_": 0,
+                  "X_INTRODUCED_8_": 0,
+                  "X_INTRODUCED_9_": 0,
+                  "X_INTRODUCED_10_": 0,
+                  "X_INTRODUCED_11_": 0,
+                  "X_INTRODUCED_12_": 0,
+                  "X_INTRODUCED_13_": 1,
+                  "X_INTRODUCED_14_": 1,
+                  "X_INTRODUCED_15_": 1,
+                  "X_INTRODUCED_16_": 1,
+                  "X_INTRODUCED_17_": 1,
+                  "X_INTRODUCED_18_": 1,
+                  "X_INTRODUCED_19_": 0,
+                  "objective": 98
+                }
+              },
+              {
+                "event": "search",
+                "elapsed_seconds": 0.08056204201420769,
+                "progress": {
+                  "event": "incumbent",
+                  "nodes": 60,
+                  "failures": 0,
+                  "pruned": 0,
+                  "revisions": 251,
+                  "depth": 17,
+                  "search_elapsed_seconds": 0.07816099998308346,
+                  "root_objective_bound": 307,
+                  "incumbent": 105
+                },
+                "families": {
+                  "LinearSumConstraint": {
+                    "attempts": 251,
+                    "completed": 251,
+                    "failures": 0,
+                    "effective": 65,
+                    "removed": 532,
+                    "seconds": 0.03506508917780593
+                  }
+                },
+                "validated_assignment": {
+                  "X_INTRODUCED_0_": 0,
+                  "X_INTRODUCED_1_": 0,
+                  "X_INTRODUCED_2_": 0,
+                  "X_INTRODUCED_3_": 0,
+                  "X_INTRODUCED_4_": 0,
+                  "X_INTRODUCED_5_": 0,
+                  "X_INTRODUCED_6_": 0,
+                  "X_INTRODUCED_7_": 0,
+                  "X_INTRODUCED_8_": 0,
+                  "X_INTRODUCED_9_": 0,
+                  "X_INTRODUCED_10_": 0,
+                  "X_INTRODUCED_11_": 0,
+                  "X_INTRODUCED_12_": 0,
+                  "X_INTRODUCED_13_": 1,
+                  "X_INTRODUCED_14_": 1,
+                  "X_INTRODUCED_15_": 1,
+                  "X_INTRODUCED_16_": 1,
+                  "X_INTRODUCED_17_": 1,
+                  "X_INTRODUCED_18_": 1,
+                  "X_INTRODUCED_19_": 1,
+                  "objective": 105
+                }
+              },
+              {
+                "event": "search",
+                "elapsed_seconds": 0.08705258401460014,
+                "progress": {
+                  "event": "incumbent",
+                  "nodes": 66,
+                  "failures": 2,
+                  "pruned": 0,
+                  "revisions": 285,
+                  "depth": 15,
+                  "search_elapsed_seconds": 0.08467625000048429,
+                  "root_objective_bound": 307,
+                  "incumbent": 106
+                },
+                "families": {
+                  "LinearSumConstraint": {
+                    "attempts": 285,
+                    "completed": 285,
+                    "failures": 2,
+                    "effective": 76,
+                    "removed": 764,
+                    "seconds": 0.038209341146284714
+                  }
+                },
+                "validated_assignment": {
+                  "X_INTRODUCED_0_": 0,
+                  "X_INTRODUCED_1_": 0,
+                  "X_INTRODUCED_2_": 0,
+                  "X_INTRODUCED_3_": 0,
+                  "X_INTRODUCED_4_": 0,
+                  "X_INTRODUCED_5_": 0,
+                  "X_INTRODUCED_6_": 0,
+                  "X_INTRODUCED_7_": 0,
+                  "X_INTRODUCED_8_": 0,
+                  "X_INTRODUCED_9_": 0,
+                  "X_INTRODUCED_10_": 0,
+                  "X_INTRODUCED_11_": 1,
+                  "X_INTRODUCED_12_": 0,
+                  "X_INTRODUCED_13_": 1,
+                  "X_INTRODUCED_14_": 1,
+                  "X_INTRODUCED_15_": 0,
+                  "X_INTRODUCED_16_": 1,
+                  "X_INTRODUCED_17_": 1,
+                  "X_INTRODUCED_18_": 1,
+                  "X_INTRODUCED_19_": 0,
+                  "objective": 106
+                }
+              },
+              {
+                "event": "search",
+                "elapsed_seconds": 0.08965350000653416,
+                "progress": {
+                  "event": "incumbent",
+                  "nodes": 68,
+                  "failures": 2,
+                  "pruned": 0,
+                  "revisions": 298,
+                  "depth": 16,
+                  "search_elapsed_seconds": 0.08714195797801949,
+                  "root_objective_bound": 307,
+                  "incumbent": 107
+                },
+                "families": {
+                  "LinearSumConstraint": {
+                    "attempts": 298,
+                    "completed": 298,
+                    "failures": 2,
+                    "effective": 81,
+                    "removed": 775,
+                    "seconds": 0.03927034218213521
+                  }
+                },
+                "validated_assignment": {
+                  "X_INTRODUCED_0_": 0,
+                  "X_INTRODUCED_1_": 0,
+                  "X_INTRODUCED_2_": 0,
+                  "X_INTRODUCED_3_": 0,
+                  "X_INTRODUCED_4_": 0,
+                  "X_INTRODUCED_5_": 0,
+                  "X_INTRODUCED_6_": 0,
+                  "X_INTRODUCED_7_": 0,
+                  "X_INTRODUCED_8_": 0,
+                  "X_INTRODUCED_9_": 0,
+                  "X_INTRODUCED_10_": 0,
+                  "X_INTRODUCED_11_": 1,
+                  "X_INTRODUCED_12_": 0,
+                  "X_INTRODUCED_13_": 1,
+                  "X_INTRODUCED_14_": 1,
+                  "X_INTRODUCED_15_": 1,
+                  "X_INTRODUCED_16_": 0,
+                  "X_INTRODUCED_17_": 1,
+                  "X_INTRODUCED_18_": 0,
+                  "X_INTRODUCED_19_": 1,
+                  "objective": 107
+                }
+              },
+              {
+                "event": "search",
+                "elapsed_seconds": 0.09580995899159461,
+                "progress": {
+                  "event": "incumbent",
+                  "nodes": 75,
+                  "failures": 5,
+                  "pruned": 0,
+                  "revisions": 334,
+                  "depth": 15,
+                  "search_elapsed_seconds": 0.09341079197474755,
+                  "root_objective_bound": 307,
+                  "incumbent": 108
+                },
+                "families": {
+                  "LinearSumConstraint": {
+                    "attempts": 334,
+                    "completed": 334,
+                    "failures": 5,
+                    "effective": 93,
+                    "removed": 825,
+                    "seconds": 0.04218192619737238
+                  }
+                },
+                "validated_assignment": {
+                  "X_INTRODUCED_0_": 0,
+                  "X_INTRODUCED_1_": 0,
+                  "X_INTRODUCED_2_": 0,
+                  "X_INTRODUCED_3_": 0,
+                  "X_INTRODUCED_4_": 0,
+                  "X_INTRODUCED_5_": 0,
+                  "X_INTRODUCED_6_": 0,
+                  "X_INTRODUCED_7_": 0,
+                  "X_INTRODUCED_8_": 0,
+                  "X_INTRODUCED_9_": 0,
+                  "X_INTRODUCED_10_": 0,
+                  "X_INTRODUCED_11_": 1,
+                  "X_INTRODUCED_12_": 1,
+                  "X_INTRODUCED_13_": 1,
+                  "X_INTRODUCED_14_": 1,
+                  "X_INTRODUCED_15_": 0,
+                  "X_INTRODUCED_16_": 0,
+                  "X_INTRODUCED_17_": 1,
+                  "X_INTRODUCED_18_": 1,
+                  "X_INTRODUCED_19_": 1,
+                  "objective": 108
+                }
+              },
+              {
+                "event": "search",
+                "elapsed_seconds": 0.11969700001645833,
+                "progress": {
+                  "event": "incumbent",
+                  "nodes": 109,
+                  "failures": 21,
+                  "pruned": 0,
+                  "revisions": 485,
+                  "depth": 17,
+                  "search_elapsed_seconds": 0.11731866697664373,
+                  "root_objective_bound": 307,
+                  "incumbent": 109
+                },
+                "families": {
+                  "LinearSumConstraint": {
+                    "attempts": 485,
+                    "completed": 485,
+                    "failures": 21,
+                    "effective": 132,
+                    "removed": 1141,
+                    "seconds": 0.054762350278906524
+                  }
+                },
+                "validated_assignment": {
+                  "X_INTRODUCED_0_": 0,
+                  "X_INTRODUCED_1_": 0,
+                  "X_INTRODUCED_2_": 0,
+                  "X_INTRODUCED_3_": 0,
+                  "X_INTRODUCED_4_": 0,
+                  "X_INTRODUCED_5_": 0,
+                  "X_INTRODUCED_6_": 0,
+                  "X_INTRODUCED_7_": 0,
+                  "X_INTRODUCED_8_": 0,
+                  "X_INTRODUCED_9_": 0,
+                  "X_INTRODUCED_10_": 1,
+                  "X_INTRODUCED_11_": 1,
+                  "X_INTRODUCED_12_": 1,
+                  "X_INTRODUCED_13_": 1,
+                  "X_INTRODUCED_14_": 1,
+                  "X_INTRODUCED_15_": 0,
+                  "X_INTRODUCED_16_": 0,
+                  "X_INTRODUCED_17_": 1,
+                  "X_INTRODUCED_18_": 1,
+                  "X_INTRODUCED_19_": 0,
+                  "objective": 109
+                }
+              },
+              {
+                "event": "revision_start",
+                "elapsed_seconds": 0.3698158340121154,
+                "progress": {
+                  "event": "node",
+                  "nodes": 435,
+                  "failures": 182,
+                  "pruned": 0,
+                  "revisions": 1898,
+                  "depth": 17,
+                  "search_elapsed_seconds": 0.3673587499943096,
+                  "root_objective_bound": 307,
+                  "incumbent": 109
+                },
+                "families": {
+                  "LinearSumConstraint": {
+                    "attempts": 1901,
+                    "completed": 1900,
+                    "failures": 182,
+                    "effective": 480,
+                    "removed": 3823,
+                    "seconds": 0.1891002198390197
+                  }
+                },
+                "constraint_family": "LinearSumConstraint",
+                "revisions": 1901
+              },
+              {
+                "event": "search",
+                "elapsed_seconds": 0.5489320000051521,
+                "progress": {
+                  "event": "incumbent",
+                  "nodes": 685,
+                  "failures": 308,
+                  "pruned": 0,
+                  "revisions": 2984,
+                  "depth": 17,
+                  "search_elapsed_seconds": 0.5465502500010189,
+                  "root_objective_bound": 307,
+                  "incumbent": 110
+                },
+                "families": {
+                  "LinearSumConstraint": {
+                    "attempts": 2984,
+                    "completed": 2984,
+                    "failures": 308,
+                    "effective": 755,
+                    "removed": 5841,
+                    "seconds": 0.2853274848603178
+                  }
+                },
+                "validated_assignment": {
+                  "X_INTRODUCED_0_": 0,
+                  "X_INTRODUCED_1_": 0,
+                  "X_INTRODUCED_2_": 0,
+                  "X_INTRODUCED_3_": 0,
+                  "X_INTRODUCED_4_": 0,
+                  "X_INTRODUCED_5_": 0,
+                  "X_INTRODUCED_6_": 0,
+                  "X_INTRODUCED_7_": 1,
+                  "X_INTRODUCED_8_": 1,
+                  "X_INTRODUCED_9_": 0,
+                  "X_INTRODUCED_10_": 0,
+                  "X_INTRODUCED_11_": 0,
+                  "X_INTRODUCED_12_": 1,
+                  "X_INTRODUCED_13_": 1,
+                  "X_INTRODUCED_14_": 1,
+                  "X_INTRODUCED_15_": 0,
+                  "X_INTRODUCED_16_": 0,
+                  "X_INTRODUCED_17_": 1,
+                  "X_INTRODUCED_18_": 1,
+                  "X_INTRODUCED_19_": 0,
+                  "objective": 110
+                }
+              },
+              {
+                "event": "revision_start",
+                "elapsed_seconds": 0.798988416994689,
+                "progress": {
+                  "event": "node",
+                  "nodes": 1033,
+                  "failures": 482,
+                  "pruned": 0,
+                  "revisions": 4489,
+                  "depth": 15,
+                  "search_elapsed_seconds": 0.7960770829813555,
+                  "root_objective_bound": 307,
+                  "incumbent": 110
+                },
+                "families": {
+                  "LinearSumConstraint": {
+                    "attempts": 4494,
+                    "completed": 4493,
+                    "failures": 482,
+                    "effective": 1144,
+                    "removed": 8830,
+                    "seconds": 0.4190524632285815
+                  }
+                },
+                "constraint_family": "LinearSumConstraint",
+                "revisions": 4494
+              },
+              {
+                "event": "revision_start",
+                "elapsed_seconds": 1.0490132920094766,
+                "progress": {
+                  "event": "node",
+                  "nodes": 1372,
+                  "failures": 651,
+                  "pruned": 0,
+                  "revisions": 5965,
+                  "depth": 17,
+                  "search_elapsed_seconds": 1.0466979169868864,
+                  "root_objective_bound": 307,
+                  "incumbent": 110
+                },
+                "families": {
+                  "LinearSumConstraint": {
+                    "attempts": 5966,
+                    "completed": 5965,
+                    "failures": 651,
+                    "effective": 1515,
+                    "removed": 11557,
+                    "seconds": 0.5535631243546959
+                  }
+                },
+                "constraint_family": "LinearSumConstraint",
+                "revisions": 5966
+              },
+              {
+                "event": "search",
+                "elapsed_seconds": 1.299121042015031,
+                "progress": {
+                  "event": "bound",
+                  "nodes": 1696,
+                  "failures": 814,
+                  "pruned": 0,
+                  "revisions": 7367,
+                  "depth": 14,
+                  "search_elapsed_seconds": 1.296860000002198,
+                  "root_objective_bound": 307,
+                  "incumbent": 110
+                },
+                "families": {
+                  "LinearSumConstraint": {
+                    "attempts": 7367,
+                    "completed": 7367,
+                    "failures": 814,
+                    "effective": 1876,
+                    "removed": 14486,
+                    "seconds": 0.6893882473232225
+                  }
+                }
+              },
+              {
+                "event": "revision_start",
+                "elapsed_seconds": 1.5491257499961648,
+                "progress": {
+                  "event": "node",
+                  "nodes": 2048,
+                  "failures": 990,
+                  "pruned": 0,
+                  "revisions": 8895,
+                  "depth": 14,
+                  "search_elapsed_seconds": 1.5466163749806583,
+                  "root_objective_bound": 307,
+                  "incumbent": 110
+                },
+                "families": {
+                  "LinearSumConstraint": {
+                    "attempts": 8898,
+                    "completed": 8897,
+                    "failures": 990,
+                    "effective": 2267,
+                    "removed": 17568,
+                    "seconds": 0.8244084427133203
+                  }
+                },
+                "constraint_family": "LinearSumConstraint",
+                "revisions": 8898
+              },
+              {
+                "event": "revision_start",
+                "elapsed_seconds": 1.7991293749946635,
+                "progress": {
+                  "event": "node",
+                  "nodes": 2400,
+                  "failures": 1165,
+                  "pruned": 0,
+                  "revisions": 10412,
+                  "depth": 15,
+                  "search_elapsed_seconds": 1.7968561250017956,
+                  "root_objective_bound": 307,
+                  "incumbent": 110
+                },
+                "families": {
+                  "LinearSumConstraint": {
+                    "attempts": 10413,
+                    "completed": 10412,
+                    "failures": 1165,
+                    "effective": 2654,
+                    "removed": 20664,
+                    "seconds": 0.9603553271736018
+                  }
+                },
+                "constraint_family": "LinearSumConstraint",
+                "revisions": 10413
+              },
+              {
+                "event": "revision_start",
+                "elapsed_seconds": 2.0491815420100465,
+                "progress": {
+                  "event": "node",
+                  "nodes": 2757,
+                  "failures": 1344,
+                  "pruned": 0,
+                  "revisions": 11963,
+                  "depth": 14,
+                  "search_elapsed_seconds": 2.046678416983923,
+                  "root_objective_bound": 307,
+                  "incumbent": 110
+                },
+                "families": {
+                  "LinearSumConstraint": {
+                    "attempts": 11966,
+                    "completed": 11965,
+                    "failures": 1344,
+                    "effective": 3054,
+                    "removed": 23871,
+                    "seconds": 1.0967460260726511
+                  }
+                },
+                "constraint_family": "LinearSumConstraint",
+                "revisions": 11966
+              },
+              {
+                "event": "revision_start",
+                "elapsed_seconds": 2.299257625010796,
+                "progress": {
+                  "event": "node",
+                  "nodes": 3105,
+                  "failures": 1520,
+                  "pruned": 0,
+                  "revisions": 13471,
+                  "depth": 11,
+                  "search_elapsed_seconds": 2.296637749997899,
+                  "root_objective_bound": 307,
+                  "incumbent": 110
+                },
+                "families": {
+                  "LinearSumConstraint": {
+                    "attempts": 13473,
+                    "completed": 13472,
+                    "failures": 1520,
+                    "effective": 3448,
+                    "removed": 27074,
+                    "seconds": 1.2323740943393204
+                  }
+                },
+                "constraint_family": "LinearSumConstraint",
+                "revisions": 13473
+              },
+              {
+                "event": "revision_start",
+                "elapsed_seconds": 2.5492762500070967,
+                "progress": {
+                  "event": "node",
+                  "nodes": 3450,
+                  "failures": 1691,
+                  "pruned": 0,
+                  "revisions": 14986,
+                  "depth": 14,
+                  "search_elapsed_seconds": 2.5468675829761196,
+                  "root_objective_bound": 307,
+                  "incumbent": 110
+                },
+                "families": {
+                  "LinearSumConstraint": {
+                    "attempts": 14988,
+                    "completed": 14987,
+                    "failures": 1691,
+                    "effective": 3850,
+                    "removed": 30434,
+                    "seconds": 1.3694204272760544
+                  }
+                },
+                "constraint_family": "LinearSumConstraint",
+                "revisions": 14988
+              },
+              {
+                "event": "revision_start",
+                "elapsed_seconds": 2.799405875004595,
+                "progress": {
+                  "event": "node",
+                  "nodes": 3801,
+                  "failures": 1867,
+                  "pruned": 0,
+                  "revisions": 16508,
+                  "depth": 12,
+                  "search_elapsed_seconds": 2.7967813329887576,
+                  "root_objective_bound": 307,
+                  "incumbent": 110
+                },
+                "families": {
+                  "LinearSumConstraint": {
+                    "attempts": 16511,
+                    "completed": 16510,
+                    "failures": 1867,
+                    "effective": 4244,
+                    "removed": 33606,
+                    "seconds": 1.5058700877125375
+                  }
+                },
+                "constraint_family": "LinearSumConstraint",
+                "revisions": 16511
+              },
+              {
+                "event": "revision_start",
+                "elapsed_seconds": 3.0497049590048846,
+                "progress": {
+                  "event": "node",
+                  "nodes": 4138,
+                  "failures": 2034,
+                  "pruned": 0,
+                  "revisions": 17992,
+                  "depth": 16,
+                  "search_elapsed_seconds": 3.046886208001524,
+                  "root_objective_bound": 307,
+                  "incumbent": 110
+                },
+                "families": {
+                  "LinearSumConstraint": {
+                    "attempts": 17996,
+                    "completed": 17995,
+                    "failures": 2034,
+                    "effective": 4641,
+                    "removed": 36986,
+                    "seconds": 1.642779306101147
+                  }
+                },
+                "constraint_family": "LinearSumConstraint",
+                "revisions": 17996
+              },
+              {
+                "event": "revision_start",
+                "elapsed_seconds": 3.2999481250008103,
+                "progress": {
+                  "event": "node",
+                  "nodes": 4490,
+                  "failures": 2210,
+                  "pruned": 0,
+                  "revisions": 19528,
+                  "depth": 16,
+                  "search_elapsed_seconds": 3.2972089999821037,
+                  "root_objective_bound": 307,
+                  "incumbent": 110
+                },
+                "families": {
+                  "LinearSumConstraint": {
+                    "attempts": 19532,
+                    "completed": 19531,
+                    "failures": 2210,
+                    "effective": 5046,
+                    "removed": 40267,
+                    "seconds": 1.7793531173083466
+                  }
+                },
+                "constraint_family": "LinearSumConstraint",
+                "revisions": 19532
+              },
+              {
+                "event": "revision_start",
+                "elapsed_seconds": 3.5499690000142436,
+                "progress": {
+                  "event": "node",
+                  "nodes": 4833,
+                  "failures": 2383,
+                  "pruned": 0,
+                  "revisions": 21012,
+                  "depth": 13,
+                  "search_elapsed_seconds": 3.547556874982547,
+                  "root_objective_bound": 307,
+                  "incumbent": 110
+                },
+                "families": {
+                  "LinearSumConstraint": {
+                    "attempts": 21014,
+                    "completed": 21013,
+                    "failures": 2383,
+                    "effective": 5433,
+                    "removed": 43545,
+                    "seconds": 1.9166071149520576
+                  }
+                },
+                "constraint_family": "LinearSumConstraint",
+                "revisions": 21014
+              },
+              {
+                "event": "search",
+                "elapsed_seconds": 3.799973459012108,
+                "progress": {
+                  "event": "node",
+                  "nodes": 5172,
+                  "failures": 2551,
+                  "pruned": 0,
+                  "revisions": 22513,
+                  "depth": 17,
+                  "search_elapsed_seconds": 3.7977131249790546,
+                  "root_objective_bound": 307,
+                  "incumbent": 110
+                },
+                "families": {
+                  "LinearSumConstraint": {
+                    "attempts": 22513,
+                    "completed": 22513,
+                    "failures": 2551,
+                    "effective": 5841,
+                    "removed": 47075,
+                    "seconds": 2.054566088685533
+                  }
+                }
+              },
+              {
+                "event": "revision_start",
+                "elapsed_seconds": 4.04998891701689,
+                "progress": {
+                  "event": "node",
+                  "nodes": 5518,
+                  "failures": 2725,
+                  "pruned": 0,
+                  "revisions": 24022,
+                  "depth": 16,
+                  "search_elapsed_seconds": 4.047627666994231,
+                  "root_objective_bound": 307,
+                  "incumbent": 110
+                },
+                "families": {
+                  "LinearSumConstraint": {
+                    "attempts": 24024,
+                    "completed": 24023,
+                    "failures": 2725,
+                    "effective": 6241,
+                    "removed": 50474,
+                    "seconds": 2.1917337205377407
+                  }
+                },
+                "constraint_family": "LinearSumConstraint",
+                "revisions": 24024
+              },
+              {
+                "event": "revision_start",
+                "elapsed_seconds": 4.300058249995345,
+                "progress": {
+                  "event": "node",
+                  "nodes": 5848,
+                  "failures": 2889,
+                  "pruned": 0,
+                  "revisions": 25463,
+                  "depth": 17,
+                  "search_elapsed_seconds": 4.297376417001942,
+                  "root_objective_bound": 307,
+                  "incumbent": 110
+                },
+                "families": {
+                  "LinearSumConstraint": {
+                    "attempts": 25467,
+                    "completed": 25466,
+                    "failures": 2889,
+                    "effective": 6625,
+                    "removed": 54102,
+                    "seconds": 2.3288757978589274
+                  }
+                },
+                "constraint_family": "LinearSumConstraint",
+                "revisions": 25467
+              },
+              {
+                "event": "revision_start",
+                "elapsed_seconds": 4.550232500012498,
+                "progress": {
+                  "event": "node",
+                  "nodes": 6201,
+                  "failures": 3066,
+                  "pruned": 0,
+                  "revisions": 26999,
+                  "depth": 13,
+                  "search_elapsed_seconds": 4.546863374998793,
+                  "root_objective_bound": 307,
+                  "incumbent": 110
+                },
+                "families": {
+                  "LinearSumConstraint": {
+                    "attempts": 27004,
+                    "completed": 27003,
+                    "failures": 3066,
+                    "effective": 7023,
+                    "removed": 57107,
+                    "seconds": 2.4649857856566086
+                  }
+                },
+                "constraint_family": "LinearSumConstraint",
+                "revisions": 27004
+              },
+              {
+                "event": "search",
+                "elapsed_seconds": 4.800427042006049,
+                "progress": {
+                  "event": "bound",
+                  "nodes": 6534,
+                  "failures": 3234,
+                  "pruned": 0,
+                  "revisions": 28452,
+                  "depth": 13,
+                  "search_elapsed_seconds": 4.798165874992264,
+                  "root_objective_bound": 307,
+                  "incumbent": 110
+                },
+                "families": {
+                  "LinearSumConstraint": {
+                    "attempts": 28452,
+                    "completed": 28452,
+                    "failures": 3234,
+                    "effective": 7406,
+                    "removed": 60388,
+                    "seconds": 2.601403795328224
+                  }
+                }
+              },
+              {
+                "event": "search",
+                "elapsed_seconds": 5.0024601250188425,
+                "progress": {
+                  "event": "finished",
+                  "nodes": 6818,
+                  "failures": 3375,
+                  "pruned": 0,
+                  "revisions": 29683,
+                  "depth": 15,
+                  "search_elapsed_seconds": 5.0001977079955395,
+                  "root_objective_bound": 307,
+                  "incumbent": 110
+                },
+                "families": {
+                  "LinearSumConstraint": {
+                    "attempts": 29683,
+                    "completed": 29683,
+                    "failures": 3375,
+                    "effective": 7718,
+                    "removed": 62762,
+                    "seconds": 2.7106900443613995
+                  }
+                }
+              }
+            ],
+            "progress_truncated": false,
+            "result": {
+              "nvalue_encoding": "native",
+              "objective_propagation": true,
+              "variables": 21,
+              "constraints": 2,
+              "lowerings": {},
+              "status": "feasible",
+              "termination": "time_limit",
+              "complete": false,
+              "nodes": 6818,
+              "failures": 3375,
+              "pruned": 0,
+              "revisions": 29683,
+              "objective": 110,
+              "objective_bound": 307,
+              "incumbent_history": [
+                {
+                  "value": 0,
+                  "nodes": 21,
+                  "seconds": 0.03741674998309463
+                },
+                {
+                  "value": 7,
+                  "nodes": 22,
+                  "seconds": 0.03839620799408294
+                },
+                {
+                  "value": 14,
+                  "nodes": 24,
+                  "seconds": 0.04006329199182801
+                },
+                {
+                  "value": 21,
+                  "nodes": 25,
+                  "seconds": 0.04098354198504239
+                },
+                {
+                  "value": 23,
+                  "nodes": 27,
+                  "seconds": 0.04300054197665304
+                },
+                {
+                  "value": 30,
+                  "nodes": 29,
+                  "seconds": 0.04464187499252148
+                },
+                {
+                  "value": 37,
+                  "nodes": 30,
+                  "seconds": 0.045562957995571196
+                },
+                {
+                  "value": 39,
+                  "nodes": 32,
+                  "seconds": 0.047978791990317404
+                },
+                {
+                  "value": 46,
+                  "nodes": 33,
+                  "seconds": 0.04895949998172
+                },
+                {
+                  "value": 47,
+                  "nodes": 36,
+                  "seconds": 0.0520810000016354
+                },
+                {
+                  "value": 54,
+                  "nodes": 37,
+                  "seconds": 0.05305974997463636
+                },
+                {
+                  "value": 56,
+                  "nodes": 39,
+                  "seconds": 0.055567707982845604
+                },
+                {
+                  "value": 63,
+                  "nodes": 40,
+                  "seconds": 0.056608041981235147
+                },
+                {
+                  "value": 66,
+                  "nodes": 42,
+                  "seconds": 0.05964183298056014
+                },
+                {
+                  "value": 68,
+                  "nodes": 44,
+                  "seconds": 0.061521457973867655
+                },
+                {
+                  "value": 75,
+                  "nodes": 45,
+                  "seconds": 0.06254345798515715
+                },
+                {
+                  "value": 76,
+                  "nodes": 48,
+                  "seconds": 0.06663770799059421
+                },
+                {
+                  "value": 77,
+                  "nodes": 51,
+                  "seconds": 0.069136999984039
+                },
+                {
+                  "value": 84,
+                  "nodes": 52,
+                  "seconds": 0.06999562497367151
+                },
+                {
+                  "value": 86,
+                  "nodes": 54,
+                  "seconds": 0.0720304999849759
+                },
+                {
+                  "value": 93,
+                  "nodes": 55,
+                  "seconds": 0.07304858299903572
+                },
+                {
+                  "value": 96,
+                  "nodes": 57,
+                  "seconds": 0.07549108300008811
+                },
+                {
+                  "value": 98,
+                  "nodes": 59,
+                  "seconds": 0.07723208298557438
+                },
+                {
+                  "value": 105,
+                  "nodes": 60,
+                  "seconds": 0.07815874999505468
+                },
+                {
+                  "value": 106,
+                  "nodes": 66,
+                  "seconds": 0.08467366697732359
+                },
+                {
+                  "value": 107,
+                  "nodes": 68,
+                  "seconds": 0.08713520798482932
+                },
+                {
+                  "value": 108,
+                  "nodes": 75,
+                  "seconds": 0.09340704197529703
+                },
+                {
+                  "value": 109,
+                  "nodes": 109,
+                  "seconds": 0.11731595799210481
+                },
+                {
+                  "value": 110,
+                  "nodes": 685,
+                  "seconds": 0.546547499980079
+                }
+              ],
+              "construction_seconds": 0.001931042002979666,
+              "preparation_seconds": 0.0001532500027678907,
+              "solve_seconds": 5.000420291995397,
+              "families": {
+                "LinearSumConstraint": {
+                  "attempts": 29683,
+                  "completed": 29683,
+                  "failures": 3375,
+                  "effective": 7718,
+                  "removed": 62762,
+                  "seconds": 2.7106900443613995
+                }
+              },
+              "root_propagation_seconds": 0.002598999999463558,
+              "propagation_seconds": 4.449335911311209,
+              "traced_peak_bytes": null,
+              "process_peak_rss_bytes": 27164672,
+              "rss_scope": "whole process high-water mark, including imports",
+              "diagnostic": true,
+              "cpu_profile": true,
+              "allocation": false,
+              "progress_hook_available": true,
+              "runtime_file": "/Users/francoispachet/IdeaProjects/boojum/src/snarky/__init__.py",
+              "flat_output": "objective = 110;\nselected = [0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 1, 1, 1, 0, 0, 1, 1, 0];\n----------\n"
+            },
+            "normalized": {
+              "status": "feasible",
+              "solutions": [
+                "{\"objective\":110,\"selected\":[0,0,0,0,0,0,0,1,1,0,0,0,1,1,1,0,0,1,1,0]}"
+              ]
+            }
+          }
+        ]
+      }
+    },
+    {
+      "id": "optimization/bin_packing_20_opt",
+      "artifact": "artifacts/optimization--bin_packing_20_opt.fzn.json",
+      "fzn_sha256": "6b1e9ad7569040a07f15ad31a52823ae19cf76badeb5391689e1228049b1775c",
+      "modes": {
+        "first": [
+          {
+            "command": [
+              "/Users/francoispachet/IdeaProjects/boojum/.venv/bin/python",
+              "/Users/francoispachet/IdeaProjects/boojum/benchmarks/csp_diagnostics.py",
+              "--source",
+              "/Users/francoispachet/IdeaProjects/boojum",
+              "--model",
+              "/Users/francoispachet/IdeaProjects/boojum/benchmarks/results/prune_comparison_2026-09-16/artifacts/optimization--bin_packing_20_opt.fzn.json",
+              "--nvalue",
+              "native",
+              "--objective-propagation",
+              "auto",
+              "--diagnostic",
+              "--seconds",
+              "5.0",
+              "--nodes",
+              "100000",
+              "--profile",
+              "/Users/francoispachet/IdeaProjects/boojum/benchmarks/results/csp_objective_profiles_2026-09-17/optimization--bin_packing_20_opt.prof"
+            ],
+            "seconds": 5.134690209000837,
+            "returncode": 0,
+            "timed_out": false,
+            "stdout": "{\"nvalue_encoding\": \"native\", \"objective_propagation\": true, \"variables\": 131, \"constraints\": 131, \"lowerings\": {}, \"status\": \"unknown\", \"termination\": \"time_limit\", \"complete\": false, \"nodes\": 2184, \"failures\": 1059, \"pruned\": 0, \"revisions\": 57059, \"objective\": null, \"objective_bound\": 1, \"incumbent_history\": [], \"construction_seconds\": 0.006307500007096678, \"preparation_seconds\": 0.0007451660057995468, \"solve_seconds\": 5.001801791979233, \"families\": {\"LinearSumConstraint\": {\"attempts\": 57059, \"completed\": 57059, \"failures\": 1059, \"effective\": 10667, \"removed\": 30537, \"seconds\": 2.8271462761913426}}, \"root_propagation_seconds\": 0.00855508298263885, \"propagation_seconds\": 4.491661196341738, \"traced_peak_bytes\": null, \"process_peak_rss_bytes\": 27279360, \"rss_scope\": \"whole process high-water mark, including imports\", \"diagnostic\": true, \"cpu_profile\": true, \"allocation\": false, \"progress_hook_available\": true, \"runtime_file\": \"/Users/francoispachet/IdeaProjects/boojum/src/snarky/__init__.py\", \"flat_output\": \"=====UNKNOWN=====\\n\"}\n",
+            "stderr": "{\"event\": \"construction_start\", \"elapsed_seconds\": 3.737499355338514e-05, \"progress\": {}, \"families\": {}}\n{\"event\": \"prepared\", \"elapsed_seconds\": 0.0070541659952141345, \"progress\": {}, \"families\": {}, \"variables\": 131, \"constraints\": 131}\n{\"event\": \"search\", \"elapsed_seconds\": 0.00781770801404491, \"progress\": {\"event\": \"start\", \"nodes\": 0, \"failures\": 0, \"pruned\": 0, \"revisions\": 0, \"depth\": 0, \"search_elapsed_seconds\": 0.0005579580029007047, \"root_objective_bound\": null, \"incumbent\": null}, \"families\": {}}\n{\"event\": \"revision_start\", \"elapsed_seconds\": 0.25805916599347256, \"progress\": {\"event\": \"node\", \"nodes\": 84, \"failures\": 37, \"pruned\": 0, \"revisions\": 2507, \"depth\": 11, \"search_elapsed_seconds\": 0.2489706659980584, \"root_objective_bound\": 1, \"incumbent\": null}, \"families\": {\"LinearSumConstraint\": {\"attempts\": 2522, \"completed\": 2521, \"failures\": 37, \"effective\": 616, \"removed\": 1539, \"seconds\": 0.13814716594060883}}, \"constraint_family\": \"LinearSumConstraint\", \"revisions\": 2522}\n{\"event\": \"search\", \"elapsed_seconds\": 0.5082287499972153, \"progress\": {\"event\": \"bound\", \"nodes\": 183, \"failures\": 88, \"pruned\": 0, \"revisions\": 5268, \"depth\": 11, \"search_elapsed_seconds\": 0.5009733749902807, \"root_objective_bound\": 1, \"incumbent\": null}, \"families\": {\"LinearSumConstraint\": {\"attempts\": 5268, \"completed\": 5268, \"failures\": 88, \"effective\": 1156, \"removed\": 3173, \"seconds\": 0.2822770128841512}}}\n{\"event\": \"search\", \"elapsed_seconds\": 0.7583679580129683, \"progress\": {\"event\": \"node\", \"nodes\": 306, \"failures\": 148, \"pruned\": 0, \"revisions\": 7708, \"depth\": 12, \"search_elapsed_seconds\": 0.7511127080069855, \"root_objective_bound\": 1, \"incumbent\": null}, \"families\": {\"LinearSumConstraint\": {\"attempts\": 7708, \"completed\": 7708, \"failures\": 148, \"effective\": 1782, \"removed\": 4816, \"seconds\": 0.42581535372301005}}}\n{\"event\": \"revision_start\", \"elapsed_seconds\": 1.0086910410027485, \"progress\": {\"event\": \"node\", \"nodes\": 415, \"failures\": 198, \"pruned\": 0, \"revisions\": 10157, \"depth\": 22, \"search_elapsed_seconds\": 1.0005950409977231, \"root_objective_bound\": 1, \"incumbent\": null}, \"families\": {\"LinearSumConstraint\": {\"attempts\": 10163, \"completed\": 10162, \"failures\": 198, \"effective\": 2280, \"removed\": 6314, \"seconds\": 0.570746515848441}}, \"constraint_family\": \"LinearSumConstraint\", \"revisions\": 10163}\n{\"event\": \"revision_start\", \"elapsed_seconds\": 1.258771708002314, \"progress\": {\"event\": \"node\", \"nodes\": 507, \"failures\": 251, \"pruned\": 0, \"revisions\": 12921, \"depth\": 9, \"search_elapsed_seconds\": 1.2513712079962716, \"root_objective_bound\": 1, \"incumbent\": null}, \"families\": {\"LinearSumConstraint\": {\"attempts\": 12923, \"completed\": 12922, \"failures\": 251, \"effective\": 2848, \"removed\": 8006, \"seconds\": 0.716429739492014}}, \"constraint_family\": \"LinearSumConstraint\", \"revisions\": 12923}\n{\"event\": \"search\", \"elapsed_seconds\": 1.5089535409933887, \"progress\": {\"event\": \"node\", \"nodes\": 622, \"failures\": 310, \"pruned\": 0, \"revisions\": 15530, \"depth\": 3, \"search_elapsed_seconds\": 1.5016984999820124, \"root_objective_bound\": 1, \"incumbent\": null}, \"families\": {\"LinearSumConstraint\": {\"attempts\": 15530, \"completed\": 15530, \"failures\": 310, \"effective\": 3339, \"removed\": 9425, \"seconds\": 0.8608631111856084}}}\n{\"event\": \"revision_start\", \"elapsed_seconds\": 1.7589940830075648, \"progress\": {\"event\": \"node\", \"nodes\": 777, \"failures\": 353, \"pruned\": 0, \"revisions\": 17885, \"depth\": 75, \"search_elapsed_seconds\": 1.7509450409852434, \"root_objective_bound\": 1, \"incumbent\": null}, \"families\": {\"LinearSumConstraint\": {\"attempts\": 17896, \"completed\": 17895, \"failures\": 353, \"effective\": 3813, \"removed\": 10665, \"seconds\": 0.9892541074950714}}, \"constraint_family\": \"LinearSumConstraint\", \"revisions\": 17896}\n{\"event\": \"revision_start\", \"elapsed_seconds\": 2.0090499999932945, \"progress\": {\"event\": \"node\", \"nodes\": 872, \"failures\": 403, \"pruned\": 0, \"revisions\": 20863, \"depth\": 70, \"search_elapsed_seconds\": 2.0002132910012733, \"root_objective_bound\": 1, \"incumbent\": null}, \"families\": {\"LinearSumConstraint\": {\"attempts\": 20880, \"completed\": 20879, \"failures\": 403, \"effective\": 4264, \"removed\": 12245, \"seconds\": 1.1352626531152055}}, \"constraint_family\": \"LinearSumConstraint\", \"revisions\": 20880}\n{\"event\": \"revision_start\", \"elapsed_seconds\": 2.259052541019628, \"progress\": {\"event\": \"node\", \"nodes\": 975, \"failures\": 453, \"pruned\": 0, \"revisions\": 23767, \"depth\": 77, \"search_elapsed_seconds\": 2.2515382079873234, \"root_objective_bound\": 1, \"incumbent\": null}, \"families\": {\"LinearSumConstraint\": {\"attempts\": 23771, \"completed\": 23770, \"failures\": 453, \"effective\": 4750, \"removed\": 13699, \"seconds\": 1.2771735610440373}}, \"constraint_family\": \"LinearSumConstraint\", \"revisions\": 23771}\n{\"event\": \"revision_start\", \"elapsed_seconds\": 2.5090824580111075, \"progress\": {\"event\": \"node\", \"nodes\": 1075, \"failures\": 505, \"pruned\": 0, \"revisions\": 26805, \"depth\": 74, \"search_elapsed_seconds\": 2.501406291004969, \"root_objective_bound\": 1, \"incumbent\": null}, \"families\": {\"LinearSumConstraint\": {\"attempts\": 26811, \"completed\": 26810, \"failures\": 505, \"effective\": 5277, \"removed\": 15274, \"seconds\": 1.4197315106575843}}, \"constraint_family\": \"LinearSumConstraint\", \"revisions\": 26811}\n{\"event\": \"search\", \"elapsed_seconds\": 2.759318833006546, \"progress\": {\"event\": \"bound\", \"nodes\": 1195, \"failures\": 566, \"pruned\": 0, \"revisions\": 29672, \"depth\": 69, \"search_elapsed_seconds\": 2.7520635410037357, \"root_objective_bound\": 1, \"incumbent\": null}, \"families\": {\"LinearSumConstraint\": {\"attempts\": 29672, \"completed\": 29672, \"failures\": 566, \"effective\": 5807, \"removed\": 16741, \"seconds\": 1.5615149987279437}}}\n{\"event\": \"revision_start\", \"elapsed_seconds\": 3.009332874993561, \"progress\": {\"event\": \"node\", \"nodes\": 1302, \"failures\": 618, \"pruned\": 0, \"revisions\": 32798, \"depth\": 73, \"search_elapsed_seconds\": 3.000739540992072, \"root_objective_bound\": 1, \"incumbent\": null}, \"families\": {\"LinearSumConstraint\": {\"attempts\": 32812, \"completed\": 32811, \"failures\": 618, \"effective\": 6394, \"removed\": 18369, \"seconds\": 1.7022447552008089}}, \"constraint_family\": \"LinearSumConstraint\", \"revisions\": 32812}\n{\"event\": \"revision_start\", \"elapsed_seconds\": 3.2593360829923768, \"progress\": {\"event\": \"node\", \"nodes\": 1423, \"failures\": 676, \"pruned\": 0, \"revisions\": 35780, \"depth\": 78, \"search_elapsed_seconds\": 3.2519004579808097, \"root_objective_bound\": 1, \"incumbent\": null}, \"families\": {\"LinearSumConstraint\": {\"attempts\": 35783, \"completed\": 35782, \"failures\": 676, \"effective\": 6915, \"removed\": 19828, \"seconds\": 1.8420722277078312}}, \"constraint_family\": \"LinearSumConstraint\", \"revisions\": 35783}\n{\"event\": \"revision_start\", \"elapsed_seconds\": 3.509337625000626, \"progress\": {\"event\": \"node\", \"nodes\": 1525, \"failures\": 731, \"pruned\": 0, \"revisions\": 38854, \"depth\": 71, \"search_elapsed_seconds\": 3.500963041005889, \"root_objective_bound\": 1, \"incumbent\": null}, \"families\": {\"LinearSumConstraint\": {\"attempts\": 38863, \"completed\": 38862, \"failures\": 731, \"effective\": 7460, \"removed\": 21409, \"seconds\": 1.9851335379935335}}, \"constraint_family\": \"LinearSumConstraint\", \"revisions\": 38863}\n{\"event\": \"revision_start\", \"elapsed_seconds\": 3.7593986660067458, \"progress\": {\"event\": \"node\", \"nodes\": 1643, \"failures\": 786, \"pruned\": 0, \"revisions\": 41846, \"depth\": 81, \"search_elapsed_seconds\": 3.749545540980762, \"root_objective_bound\": 1, \"incumbent\": null}, \"families\": {\"LinearSumConstraint\": {\"attempts\": 41892, \"completed\": 41891, \"failures\": 786, \"effective\": 8003, \"removed\": 22935, \"seconds\": 2.125488777528517}}, \"constraint_family\": \"LinearSumConstraint\", \"revisions\": 41892}\n{\"event\": \"revision_start\", \"elapsed_seconds\": 4.0094737079925835, \"progress\": {\"event\": \"node\", \"nodes\": 1750, \"failures\": 843, \"pruned\": 0, \"revisions\": 45153, \"depth\": 71, \"search_elapsed_seconds\": 4.001955707994057, \"root_objective_bound\": 1, \"incumbent\": null}, \"families\": {\"LinearSumConstraint\": {\"attempts\": 45157, \"completed\": 45156, \"failures\": 843, \"effective\": 8660, \"removed\": 24608, \"seconds\": 2.26449250546284}}, \"constraint_family\": \"LinearSumConstraint\", \"revisions\": 45157}\n{\"event\": \"revision_start\", \"elapsed_seconds\": 4.259515208017547, \"progress\": {\"event\": \"node\", \"nodes\": 1868, \"failures\": 902, \"pruned\": 0, \"revisions\": 48099, \"depth\": 71, \"search_elapsed_seconds\": 4.251753374992404, \"root_objective_bound\": 1, \"incumbent\": null}, \"families\": {\"LinearSumConstraint\": {\"attempts\": 48106, \"completed\": 48105, \"failures\": 902, \"effective\": 9185, \"removed\": 26012, \"seconds\": 2.4056610914121848}}, \"constraint_family\": \"LinearSumConstraint\", \"revisions\": 48106}\n{\"event\": \"revision_start\", \"elapsed_seconds\": 4.509531165997032, \"progress\": {\"event\": \"node\", \"nodes\": 1977, \"failures\": 957, \"pruned\": 0, \"revisions\": 51242, \"depth\": 70, \"search_elapsed_seconds\": 4.500630499998806, \"root_objective_bound\": 1, \"incumbent\": null}, \"families\": {\"LinearSumConstraint\": {\"attempts\": 51261, \"completed\": 51260, \"failures\": 957, \"effective\": 9743, \"removed\": 27589, \"seconds\": 2.5454388484940864}}, \"constraint_family\": \"LinearSumConstraint\", \"revisions\": 51261}\n{\"event\": \"revision_start\", \"elapsed_seconds\": 4.759744083014084, \"progress\": {\"event\": \"node\", \"nodes\": 2086, \"failures\": 1010, \"pruned\": 0, \"revisions\": 54178, \"depth\": 72, \"search_elapsed_seconds\": 4.751217624987476, \"root_objective_bound\": 1, \"incumbent\": null}, \"families\": {\"LinearSumConstraint\": {\"attempts\": 54188, \"completed\": 54187, \"failures\": 1010, \"effective\": 10219, \"removed\": 29107, \"seconds\": 2.68676657800097}}, \"constraint_family\": \"LinearSumConstraint\", \"revisions\": 54188}\n{\"event\": \"search\", \"elapsed_seconds\": 5.008795375004411, \"progress\": {\"event\": \"finished\", \"nodes\": 2184, \"failures\": 1059, \"pruned\": 0, \"revisions\": 57059, \"depth\": 75, \"search_elapsed_seconds\": 5.001539916003821, \"root_objective_bound\": 1, \"incumbent\": null}, \"families\": {\"LinearSumConstraint\": {\"attempts\": 57059, \"completed\": 57059, \"failures\": 1059, \"effective\": 10667, \"removed\": 30537, \"seconds\": 2.8271462761913426}}}\n",
+            "engine": "candidate",
+            "iteration": 0,
+            "progress": [
+              {
+                "event": "construction_start",
+                "elapsed_seconds": 3.737499355338514e-05,
+                "progress": {},
+                "families": {}
+              },
+              {
+                "event": "prepared",
+                "elapsed_seconds": 0.0070541659952141345,
+                "progress": {},
+                "families": {},
+                "variables": 131,
+                "constraints": 131
+              },
+              {
+                "event": "search",
+                "elapsed_seconds": 0.00781770801404491,
+                "progress": {
+                  "event": "start",
+                  "nodes": 0,
+                  "failures": 0,
+                  "pruned": 0,
+                  "revisions": 0,
+                  "depth": 0,
+                  "search_elapsed_seconds": 0.0005579580029007047,
+                  "root_objective_bound": null,
+                  "incumbent": null
+                },
+                "families": {}
+              },
+              {
+                "event": "revision_start",
+                "elapsed_seconds": 0.25805916599347256,
+                "progress": {
+                  "event": "node",
+                  "nodes": 84,
+                  "failures": 37,
+                  "pruned": 0,
+                  "revisions": 2507,
+                  "depth": 11,
+                  "search_elapsed_seconds": 0.2489706659980584,
+                  "root_objective_bound": 1,
+                  "incumbent": null
+                },
+                "families": {
+                  "LinearSumConstraint": {
+                    "attempts": 2522,
+                    "completed": 2521,
+                    "failures": 37,
+                    "effective": 616,
+                    "removed": 1539,
+                    "seconds": 0.13814716594060883
+                  }
+                },
+                "constraint_family": "LinearSumConstraint",
+                "revisions": 2522
+              },
+              {
+                "event": "search",
+                "elapsed_seconds": 0.5082287499972153,
+                "progress": {
+                  "event": "bound",
+                  "nodes": 183,
+                  "failures": 88,
+                  "pruned": 0,
+                  "revisions": 5268,
+                  "depth": 11,
+                  "search_elapsed_seconds": 0.5009733749902807,
+                  "root_objective_bound": 1,
+                  "incumbent": null
+                },
+                "families": {
+                  "LinearSumConstraint": {
+                    "attempts": 5268,
+                    "completed": 5268,
+                    "failures": 88,
+                    "effective": 1156,
+                    "removed": 3173,
+                    "seconds": 0.2822770128841512
+                  }
+                }
+              },
+              {
+                "event": "search",
+                "elapsed_seconds": 0.7583679580129683,
+                "progress": {
+                  "event": "node",
+                  "nodes": 306,
+                  "failures": 148,
+                  "pruned": 0,
+                  "revisions": 7708,
+                  "depth": 12,
+                  "search_elapsed_seconds": 0.7511127080069855,
+                  "root_objective_bound": 1,
+                  "incumbent": null
+                },
+                "families": {
+                  "LinearSumConstraint": {
+                    "attempts": 7708,
+                    "completed": 7708,
+                    "failures": 148,
+                    "effective": 1782,
+                    "removed": 4816,
+                    "seconds": 0.42581535372301005
+                  }
+                }
+              },
+              {
+                "event": "revision_start",
+                "elapsed_seconds": 1.0086910410027485,
+                "progress": {
+                  "event": "node",
+                  "nodes": 415,
+                  "failures": 198,
+                  "pruned": 0,
+                  "revisions": 10157,
+                  "depth": 22,
+                  "search_elapsed_seconds": 1.0005950409977231,
+                  "root_objective_bound": 1,
+                  "incumbent": null
+                },
+                "families": {
+                  "LinearSumConstraint": {
+                    "attempts": 10163,
+                    "completed": 10162,
+                    "failures": 198,
+                    "effective": 2280,
+                    "removed": 6314,
+                    "seconds": 0.570746515848441
+                  }
+                },
+                "constraint_family": "LinearSumConstraint",
+                "revisions": 10163
+              },
+              {
+                "event": "revision_start",
+                "elapsed_seconds": 1.258771708002314,
+                "progress": {
+                  "event": "node",
+                  "nodes": 507,
+                  "failures": 251,
+                  "pruned": 0,
+                  "revisions": 12921,
+                  "depth": 9,
+                  "search_elapsed_seconds": 1.2513712079962716,
+                  "root_objective_bound": 1,
+                  "incumbent": null
+                },
+                "families": {
+                  "LinearSumConstraint": {
+                    "attempts": 12923,
+                    "completed": 12922,
+                    "failures": 251,
+                    "effective": 2848,
+                    "removed": 8006,
+                    "seconds": 0.716429739492014
+                  }
+                },
+                "constraint_family": "LinearSumConstraint",
+                "revisions": 12923
+              },
+              {
+                "event": "search",
+                "elapsed_seconds": 1.5089535409933887,
+                "progress": {
+                  "event": "node",
+                  "nodes": 622,
+                  "failures": 310,
+                  "pruned": 0,
+                  "revisions": 15530,
+                  "depth": 3,
+                  "search_elapsed_seconds": 1.5016984999820124,
+                  "root_objective_bound": 1,
+                  "incumbent": null
+                },
+                "families": {
+                  "LinearSumConstraint": {
+                    "attempts": 15530,
+                    "completed": 15530,
+                    "failures": 310,
+                    "effective": 3339,
+                    "removed": 9425,
+                    "seconds": 0.8608631111856084
+                  }
+                }
+              },
+              {
+                "event": "revision_start",
+                "elapsed_seconds": 1.7589940830075648,
+                "progress": {
+                  "event": "node",
+                  "nodes": 777,
+                  "failures": 353,
+                  "pruned": 0,
+                  "revisions": 17885,
+                  "depth": 75,
+                  "search_elapsed_seconds": 1.7509450409852434,
+                  "root_objective_bound": 1,
+                  "incumbent": null
+                },
+                "families": {
+                  "LinearSumConstraint": {
+                    "attempts": 17896,
+                    "completed": 17895,
+                    "failures": 353,
+                    "effective": 3813,
+                    "removed": 10665,
+                    "seconds": 0.9892541074950714
+                  }
+                },
+                "constraint_family": "LinearSumConstraint",
+                "revisions": 17896
+              },
+              {
+                "event": "revision_start",
+                "elapsed_seconds": 2.0090499999932945,
+                "progress": {
+                  "event": "node",
+                  "nodes": 872,
+                  "failures": 403,
+                  "pruned": 0,
+                  "revisions": 20863,
+                  "depth": 70,
+                  "search_elapsed_seconds": 2.0002132910012733,
+                  "root_objective_bound": 1,
+                  "incumbent": null
+                },
+                "families": {
+                  "LinearSumConstraint": {
+                    "attempts": 20880,
+                    "completed": 20879,
+                    "failures": 403,
+                    "effective": 4264,
+                    "removed": 12245,
+                    "seconds": 1.1352626531152055
+                  }
+                },
+                "constraint_family": "LinearSumConstraint",
+                "revisions": 20880
+              },
+              {
+                "event": "revision_start",
+                "elapsed_seconds": 2.259052541019628,
+                "progress": {
+                  "event": "node",
+                  "nodes": 975,
+                  "failures": 453,
+                  "pruned": 0,
+                  "revisions": 23767,
+                  "depth": 77,
+                  "search_elapsed_seconds": 2.2515382079873234,
+                  "root_objective_bound": 1,
+                  "incumbent": null
+                },
+                "families": {
+                  "LinearSumConstraint": {
+                    "attempts": 23771,
+                    "completed": 23770,
+                    "failures": 453,
+                    "effective": 4750,
+                    "removed": 13699,
+                    "seconds": 1.2771735610440373
+                  }
+                },
+                "constraint_family": "LinearSumConstraint",
+                "revisions": 23771
+              },
+              {
+                "event": "revision_start",
+                "elapsed_seconds": 2.5090824580111075,
+                "progress": {
+                  "event": "node",
+                  "nodes": 1075,
+                  "failures": 505,
+                  "pruned": 0,
+                  "revisions": 26805,
+                  "depth": 74,
+                  "search_elapsed_seconds": 2.501406291004969,
+                  "root_objective_bound": 1,
+                  "incumbent": null
+                },
+                "families": {
+                  "LinearSumConstraint": {
+                    "attempts": 26811,
+                    "completed": 26810,
+                    "failures": 505,
+                    "effective": 5277,
+                    "removed": 15274,
+                    "seconds": 1.4197315106575843
+                  }
+                },
+                "constraint_family": "LinearSumConstraint",
+                "revisions": 26811
+              },
+              {
+                "event": "search",
+                "elapsed_seconds": 2.759318833006546,
+                "progress": {
+                  "event": "bound",
+                  "nodes": 1195,
+                  "failures": 566,
+                  "pruned": 0,
+                  "revisions": 29672,
+                  "depth": 69,
+                  "search_elapsed_seconds": 2.7520635410037357,
+                  "root_objective_bound": 1,
+                  "incumbent": null
+                },
+                "families": {
+                  "LinearSumConstraint": {
+                    "attempts": 29672,
+                    "completed": 29672,
+                    "failures": 566,
+                    "effective": 5807,
+                    "removed": 16741,
+                    "seconds": 1.5615149987279437
+                  }
+                }
+              },
+              {
+                "event": "revision_start",
+                "elapsed_seconds": 3.009332874993561,
+                "progress": {
+                  "event": "node",
+                  "nodes": 1302,
+                  "failures": 618,
+                  "pruned": 0,
+                  "revisions": 32798,
+                  "depth": 73,
+                  "search_elapsed_seconds": 3.000739540992072,
+                  "root_objective_bound": 1,
+                  "incumbent": null
+                },
+                "families": {
+                  "LinearSumConstraint": {
+                    "attempts": 32812,
+                    "completed": 32811,
+                    "failures": 618,
+                    "effective": 6394,
+                    "removed": 18369,
+                    "seconds": 1.7022447552008089
+                  }
+                },
+                "constraint_family": "LinearSumConstraint",
+                "revisions": 32812
+              },
+              {
+                "event": "revision_start",
+                "elapsed_seconds": 3.2593360829923768,
+                "progress": {
+                  "event": "node",
+                  "nodes": 1423,
+                  "failures": 676,
+                  "pruned": 0,
+                  "revisions": 35780,
+                  "depth": 78,
+                  "search_elapsed_seconds": 3.2519004579808097,
+                  "root_objective_bound": 1,
+                  "incumbent": null
+                },
+                "families": {
+                  "LinearSumConstraint": {
+                    "attempts": 35783,
+                    "completed": 35782,
+                    "failures": 676,
+                    "effective": 6915,
+                    "removed": 19828,
+                    "seconds": 1.8420722277078312
+                  }
+                },
+                "constraint_family": "LinearSumConstraint",
+                "revisions": 35783
+              },
+              {
+                "event": "revision_start",
+                "elapsed_seconds": 3.509337625000626,
+                "progress": {
+                  "event": "node",
+                  "nodes": 1525,
+                  "failures": 731,
+                  "pruned": 0,
+                  "revisions": 38854,
+                  "depth": 71,
+                  "search_elapsed_seconds": 3.500963041005889,
+                  "root_objective_bound": 1,
+                  "incumbent": null
+                },
+                "families": {
+                  "LinearSumConstraint": {
+                    "attempts": 38863,
+                    "completed": 38862,
+                    "failures": 731,
+                    "effective": 7460,
+                    "removed": 21409,
+                    "seconds": 1.9851335379935335
+                  }
+                },
+                "constraint_family": "LinearSumConstraint",
+                "revisions": 38863
+              },
+              {
+                "event": "revision_start",
+                "elapsed_seconds": 3.7593986660067458,
+                "progress": {
+                  "event": "node",
+                  "nodes": 1643,
+                  "failures": 786,
+                  "pruned": 0,
+                  "revisions": 41846,
+                  "depth": 81,
+                  "search_elapsed_seconds": 3.749545540980762,
+                  "root_objective_bound": 1,
+                  "incumbent": null
+                },
+                "families": {
+                  "LinearSumConstraint": {
+                    "attempts": 41892,
+                    "completed": 41891,
+                    "failures": 786,
+                    "effective": 8003,
+                    "removed": 22935,
+                    "seconds": 2.125488777528517
+                  }
+                },
+                "constraint_family": "LinearSumConstraint",
+                "revisions": 41892
+              },
+              {
+                "event": "revision_start",
+                "elapsed_seconds": 4.0094737079925835,
+                "progress": {
+                  "event": "node",
+                  "nodes": 1750,
+                  "failures": 843,
+                  "pruned": 0,
+                  "revisions": 45153,
+                  "depth": 71,
+                  "search_elapsed_seconds": 4.001955707994057,
+                  "root_objective_bound": 1,
+                  "incumbent": null
+                },
+                "families": {
+                  "LinearSumConstraint": {
+                    "attempts": 45157,
+                    "completed": 45156,
+                    "failures": 843,
+                    "effective": 8660,
+                    "removed": 24608,
+                    "seconds": 2.26449250546284
+                  }
+                },
+                "constraint_family": "LinearSumConstraint",
+                "revisions": 45157
+              },
+              {
+                "event": "revision_start",
+                "elapsed_seconds": 4.259515208017547,
+                "progress": {
+                  "event": "node",
+                  "nodes": 1868,
+                  "failures": 902,
+                  "pruned": 0,
+                  "revisions": 48099,
+                  "depth": 71,
+                  "search_elapsed_seconds": 4.251753374992404,
+                  "root_objective_bound": 1,
+                  "incumbent": null
+                },
+                "families": {
+                  "LinearSumConstraint": {
+                    "attempts": 48106,
+                    "completed": 48105,
+                    "failures": 902,
+                    "effective": 9185,
+                    "removed": 26012,
+                    "seconds": 2.4056610914121848
+                  }
+                },
+                "constraint_family": "LinearSumConstraint",
+                "revisions": 48106
+              },
+              {
+                "event": "revision_start",
+                "elapsed_seconds": 4.509531165997032,
+                "progress": {
+                  "event": "node",
+                  "nodes": 1977,
+                  "failures": 957,
+                  "pruned": 0,
+                  "revisions": 51242,
+                  "depth": 70,
+                  "search_elapsed_seconds": 4.500630499998806,
+                  "root_objective_bound": 1,
+                  "incumbent": null
+                },
+                "families": {
+                  "LinearSumConstraint": {
+                    "attempts": 51261,
+                    "completed": 51260,
+                    "failures": 957,
+                    "effective": 9743,
+                    "removed": 27589,
+                    "seconds": 2.5454388484940864
+                  }
+                },
+                "constraint_family": "LinearSumConstraint",
+                "revisions": 51261
+              },
+              {
+                "event": "revision_start",
+                "elapsed_seconds": 4.759744083014084,
+                "progress": {
+                  "event": "node",
+                  "nodes": 2086,
+                  "failures": 1010,
+                  "pruned": 0,
+                  "revisions": 54178,
+                  "depth": 72,
+                  "search_elapsed_seconds": 4.751217624987476,
+                  "root_objective_bound": 1,
+                  "incumbent": null
+                },
+                "families": {
+                  "LinearSumConstraint": {
+                    "attempts": 54188,
+                    "completed": 54187,
+                    "failures": 1010,
+                    "effective": 10219,
+                    "removed": 29107,
+                    "seconds": 2.68676657800097
+                  }
+                },
+                "constraint_family": "LinearSumConstraint",
+                "revisions": 54188
+              },
+              {
+                "event": "search",
+                "elapsed_seconds": 5.008795375004411,
+                "progress": {
+                  "event": "finished",
+                  "nodes": 2184,
+                  "failures": 1059,
+                  "pruned": 0,
+                  "revisions": 57059,
+                  "depth": 75,
+                  "search_elapsed_seconds": 5.001539916003821,
+                  "root_objective_bound": 1,
+                  "incumbent": null
+                },
+                "families": {
+                  "LinearSumConstraint": {
+                    "attempts": 57059,
+                    "completed": 57059,
+                    "failures": 1059,
+                    "effective": 10667,
+                    "removed": 30537,
+                    "seconds": 2.8271462761913426
+                  }
+                }
+              }
+            ],
+            "progress_truncated": false,
+            "result": {
+              "nvalue_encoding": "native",
+              "objective_propagation": true,
+              "variables": 131,
+              "constraints": 131,
+              "lowerings": {},
+              "status": "unknown",
+              "termination": "time_limit",
+              "complete": false,
+              "nodes": 2184,
+              "failures": 1059,
+              "pruned": 0,
+              "revisions": 57059,
+              "objective": null,
+              "objective_bound": 1,
+              "incumbent_history": [],
+              "construction_seconds": 0.006307500007096678,
+              "preparation_seconds": 0.0007451660057995468,
+              "solve_seconds": 5.001801791979233,
+              "families": {
+                "LinearSumConstraint": {
+                  "attempts": 57059,
+                  "completed": 57059,
+                  "failures": 1059,
+                  "effective": 10667,
+                  "removed": 30537,
+                  "seconds": 2.8271462761913426
+                }
+              },
+              "root_propagation_seconds": 0.00855508298263885,
+              "propagation_seconds": 4.491661196341738,
+              "traced_peak_bytes": null,
+              "process_peak_rss_bytes": 27279360,
+              "rss_scope": "whole process high-water mark, including imports",
+              "diagnostic": true,
+              "cpu_profile": true,
+              "allocation": false,
+              "progress_hook_available": true,
+              "runtime_file": "/Users/francoispachet/IdeaProjects/boojum/src/snarky/__init__.py",
+              "flat_output": "=====UNKNOWN=====\n"
+            },
+            "normalized": {
+              "status": "unknown",
+              "solutions": []
+            }
+          }
+        ]
+      }
+    }
+  ],
+  "validation_cache": [
+    {
+      "command": [
+        "/Applications/MiniZincIDE.app/Contents/Resources/minizinc",
+        "--solver",
+        "org.gecode.gecode",
+        "-p",
+        "1",
+        "--output-mode",
+        "json",
+        "--cmdline-json-data",
+        "{\"objective\":110,\"selected\":[0,0,0,0,0,0,0,1,1,0,0,0,1,1,1,0,0,1,1,0]}",
+        "/Users/francoispachet/IdeaProjects/boojum/benchmarks/data/prune_d82c64c/benchmarks/models/knapsack_opt.mzn",
+        "/Users/francoispachet/IdeaProjects/boojum/benchmarks/data/prune_d82c64c/benchmarks/data/knapsack_20.dzn"
+      ],
+      "seconds": 0.14729845797410235,
+      "returncode": 0,
+      "timed_out": false,
+      "stdout": "{\n  \"selected\" : [0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 1, 1, 1, 0, 0, 1, 1, 0],\n  \"objective\" : 110\n}\n----------\n==========\n",
+      "stderr": "",
+      "normalized": {
+        "status": "complete",
+        "solutions": [
+          "{\"objective\":110,\"selected\":[0,0,0,0,0,0,0,1,1,0,0,0,1,1,1,0,0,1,1,0]}"
+        ]
+      }
+    }
+  ],
+  "finished_at": "2026-09-17T03:54:56.878678+00:00"
+}

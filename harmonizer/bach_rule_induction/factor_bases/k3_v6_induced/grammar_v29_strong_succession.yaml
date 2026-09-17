@@ -1,0 +1,53 @@
+schema_version: 1
+id: K3-V29-STRONG-SUCCESSION-GRAMMAR-1
+status: FROZEN
+frozen_on: 2026-07-31
+extends: grammar_v28_bass_motion.yaml
+purpose: >
+  Représenter chaque arrivée forte par une cellule unique croisant la qualité
+  de la sonorité précédente, celle de la sonorité courante et la taille du
+  mouvement de basse.
+
+extensions:
+  strong_succession_status_features: true
+
+additional_generated_relations:
+  - previous_sonority_tier
+  - current_sonority_tier
+  - bass_arrival_size
+  - strong_succession_status
+
+families:
+  - id: strong_succession_status
+    feature_kinds:
+      - central_strong_succession_status
+    dimensions:
+      previous_sonority:
+        - consonant_scaffold
+        - other_named_sonority
+        - residual_sonority
+      current_sonority:
+        - consonant_scaffold
+        - other_named_sonority
+        - residual_sonority
+      bass_arrival:
+        - repeated_bass
+        - semitone_arrival
+        - whole_tone_arrival
+        - skip_or_leap_arrival
+    parameter_count: 36
+    complexity: 5
+    shared_block_potential: true
+    mutually_exclusive_on_strong_blocks: true
+
+structure_learning:
+  maximum_clause_complexity: 5
+  group_learning: joint_only
+  individual_clause_selection: forbidden
+
+provenance_guards:
+  vocabulary_frozen_before_weight_learning: true
+  generated_bwv108_6_used_for_weight_learning: false
+  no_status_is_an_absolute_prohibition: true
+  validation_effects_loaded: false
+  test_opened: false
