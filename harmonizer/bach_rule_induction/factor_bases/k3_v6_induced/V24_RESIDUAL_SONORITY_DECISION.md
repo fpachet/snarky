@@ -1,5 +1,8 @@
 # V24 — statuts résiduels des sonorités fortes
 
+The generated files referenced below are local artifacts and are not included
+in this repository. Paths are relative to this document.
+
 ## Question
 
 V23 reconnaît bien les accords nommés dont l'analyse est unique, mais ne dit
@@ -127,5 +130,5 @@ La prochaine induction doit séparer deux résidus :
 - [Validation V23–V24, 10 × 5](V24C_V23_GENERATION_VALIDATION10X5_SWEEP6.md)
 - [Ablation du Gibbs conjoint](V24_BLOCKED_VALIDATION10X3_SWEEP6.md)
 - [Parité Snarky](V24_SNARKY_PARITY.md)
-- [MusicXML BWV 108.6](../../../generated/v24_contrastive_bwv108_6_seed_22304.musicxml)
-- [MP3 piano BWV 108.6](../../../generated/v24_contrastive_bwv108_6_seed_22304_piano.mp3)
+- MusicXML BWV 108.6: `../../../generated/v24_contrastive_bwv108_6_seed_22304.musicxml`
+- MP3 piano BWV 108.6: `../../../generated/v24_contrastive_bwv108_6_seed_22304_piano.mp3`

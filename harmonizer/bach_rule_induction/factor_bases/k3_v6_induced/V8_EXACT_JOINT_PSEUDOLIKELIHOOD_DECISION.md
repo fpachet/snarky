@@ -1,5 +1,8 @@
 # V8 — pseudo-vraisemblance exacte et décision générative
 
+The generated files referenced below are local artifacts and are not included
+in this repository. Paths are relative to this document.
+
 ## Rectification
 
 La première V8 utilisait bien la somme de tous les facteurs dans son softmax,
@@ -123,9 +126,9 @@ dissonances faibles, avec une région de confiance autour de l'optimum exact.
 
 ## Exemple d'écoute
 
-- [MP3](../../../generated/v8_exact_joint_pl_listening/v8_exact_joint_pl_bwv108_6.mp3)
-- [MusicXML MuSES](../../../generated/v8_exact_joint_pl_listening/v8_exact_joint_pl_bwv108_6.musicxml)
-- [MIDI](../../../generated/v8_exact_joint_pl_listening/v8_exact_joint_pl_bwv108_6.mid)
+- MP3: `../../../generated/v8_exact_joint_pl_listening/v8_exact_joint_pl_bwv108_6.mp3`
+- MusicXML MuSES: `../../../generated/v8_exact_joint_pl_listening/v8_exact_joint_pl_bwv108_6.musicxml`
+- MIDI: `../../../generated/v8_exact_joint_pl_listening/v8_exact_joint_pl_bwv108_6.mid`
 
 L'exemple utilise BWV 108.6, son soprano et son rythme, la graine `5517` et
 `30` sweeps. Il est expérimental et non promu.

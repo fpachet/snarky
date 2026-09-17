@@ -26,6 +26,8 @@ details are documented in [docs/versioning.md](docs/versioning.md).
 
 - Made CLAIRE binary-resolution tests cover both macOS and Linux, and removed
   three research tests' dependency on an untracked corpus cache.
+- Replaced broken links to local research artifacts with explicit local paths
+  and linked DeepBach references to the tracked source audit.
 - Reorganized the main README around the rule engine, standalone finite
   CSP/optimization engine and mixed coordinator, with runnable quick starts and
   explicit distinctions between the core finite API and legacy CSP companion.

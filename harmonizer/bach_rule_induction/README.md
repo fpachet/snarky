@@ -38,7 +38,7 @@ Comparer sur les mêmes pièces et la même tâche :
 | `F-K3-V6-INDUCED` | structure et paramètres factoriels appris depuis le corpus |
 | `S-HYBRID` | contraintes/règles expertes et facteurs appris, explicitement séparés |
 | `E0` | règles historiques de CHORAL reconstruites |
-| `D0-legacy` | [DeepBach historique](../../../deepbach-reference/README.md), poids et code figés |
+| `D0-legacy` | [DeepBach historique](sources/DEEPBACH.md), poids et code figés |
 | `D0-modern` | port DeepBach maintenu et validé différentiellement |
 | `H0` | combinaison DeepBach–Snarky |
 | `BACH-REFERENCE` | harmonisation authentique tenue à part |
@@ -297,7 +297,7 @@ bach_rule_induction/
 
 Les partitions ou modèles externes volumineux ne doivent pas être recopiés
 ici. Ils restent dans `third_party/` ou dans le cache ignoré du projet frère
-[`deepbach-reference/`](../../../deepbach-reference/README.md) ; ce dossier ne
+[`deepbach-reference/`](sources/DEEPBACH.md) ; ce dossier ne
 conserve que leurs manifestes, empreintes, licences et transformations
 reproductibles.
 

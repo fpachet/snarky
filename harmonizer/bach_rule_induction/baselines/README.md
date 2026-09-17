@@ -16,7 +16,7 @@ révision, environnement, paramètres, graine, entrée, sortie et empreinte des
 artefacts utilisés.
 
 Le projet frère
-[`deepbach-reference/`](../../../../deepbach-reference/README.md) fournit déjà
+[`deepbach-reference/`](../sources/DEEPBACH.md) fournit déjà
 `D0-compat`, une exécution Keras 3 déterministe des poids Keras 2.0.2
 historiques. Elle deviendra `D0-legacy` uniquement après comparaison avec
 TensorFlow 1.1 sur Linux/x86.

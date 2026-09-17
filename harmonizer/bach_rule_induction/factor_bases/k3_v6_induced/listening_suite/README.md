@@ -1,5 +1,8 @@
 # V6 — suite d'écoute de l'apprentissage des poids
 
+The generated files referenced below are local artifacts and are not included
+in this repository. Paths are relative to this document.
+
 ## Protocole
 
 Les quatre générations utilisent exactement :
@@ -17,7 +20,7 @@ multi-graines.
 
 ## Fichier continu
 
-[`05_v6_learning_suite.mp3`](../../../../generated/v6_learning_suite/05_v6_learning_suite.mp3)
+05_v6_learning_suite.mp3: `../../../../generated/v6_learning_suite/05_v6_learning_suite.mp3`
 enchaîne :
 
 | Début | Version | Rôle |
@@ -33,11 +36,11 @@ Un silence de `1,5` seconde sépare les versions. Chaque extrait dure
 
 ## Extraits séparés
 
-- [Bach original](../../../../generated/v6_learning_suite/00_bach_original.mp3)
-- [V6 conditionnel](../../../../generated/v6_learning_suite/01_v6_conditional.mp3)
-- [V6 moments train64](../../../../generated/v6_learning_suite/02_v6_train64_moments.mp3)
-- [V6 multivarié, itération 1](../../../../generated/v6_learning_suite/03_v6_multimetric_iteration1.mp3)
-- [V6 multivarié, itération 2](../../../../generated/v6_learning_suite/04_v6_multimetric_iteration2.mp3)
+- Bach original: `../../../../generated/v6_learning_suite/00_bach_original.mp3`
+- V6 conditionnel: `../../../../generated/v6_learning_suite/01_v6_conditional.mp3`
+- V6 moments train64: `../../../../generated/v6_learning_suite/02_v6_train64_moments.mp3`
+- V6 multivarié, itération 1: `../../../../generated/v6_learning_suite/03_v6_multimetric_iteration1.mp3`
+- V6 multivarié, itération 2: `../../../../generated/v6_learning_suite/04_v6_multimetric_iteration2.mp3`
 
 Le SoundFont disponible ne contient pas le programme General MIDI `choir`.
 FluidSynth lui substitue donc le même piano dans les cinq extraits. Cette
@@ -45,10 +48,10 @@ substitution est constante et ne biaise pas leur comparaison.
 
 ## Exemple final
 
-- [MusicXML MuSES](../../../../generated/v6_learning_suite/04_v6_multimetric_iteration2.musicxml)
-- [MusicXML avec mise en page source](../../../../generated/v6_learning_suite/04_v6_multimetric_iteration2_source_layout.musicxml)
-- [MIDI](../../../../generated/v6_learning_suite/04_v6_multimetric_iteration2.mid)
-- [MP3](../../../../generated/v6_learning_suite/04_v6_multimetric_iteration2.mp3)
+- MusicXML MuSES: `../../../../generated/v6_learning_suite/04_v6_multimetric_iteration2.musicxml`
+- MusicXML avec mise en page source: `../../../../generated/v6_learning_suite/04_v6_multimetric_iteration2_source_layout.musicxml`
+- MIDI: `../../../../generated/v6_learning_suite/04_v6_multimetric_iteration2.mid`
+- MP3: `../../../../generated/v6_learning_suite/04_v6_multimetric_iteration2.mp3`
 
 ## Ce que montre cet exemple unique
 

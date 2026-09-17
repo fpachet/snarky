@@ -13,9 +13,9 @@ PDF publié sur le site de l'auteur :
 
 <https://global-supercomputing.com/people/kemal.ebcioglu/pdf/RC12628.pdf>
 
-Copie locale de référence :
+Optional local reference copy (not tracked):
 
-[`docs/RC12628-Ebcioglu-CHORAL.pdf`](../../../docs/RC12628-Ebcioglu-CHORAL.pdf)
+`../../../docs/RC12628-Ebcioglu-CHORAL.pdf`
 
 Le rapport est fondé sur la thèse d'Ebcioğlu :
 

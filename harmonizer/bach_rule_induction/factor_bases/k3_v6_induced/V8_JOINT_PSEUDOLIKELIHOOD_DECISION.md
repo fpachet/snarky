@@ -1,5 +1,8 @@
 # V8 — décision sur la pseudo-vraisemblance conjointe
 
+The generated files referenced below are local artifacts and are not included
+in this repository. Paths are relative to this document.
+
 > **Rectificatif.** Cette expérience additionnait correctement tous les
 > facteurs du noyau central, mais pas toutes les instances des noyaux voisins
 > que le sampler recompte lorsqu'une attaque et sa tenue changent. Son résultat
@@ -119,9 +122,9 @@ corrigera la basse et la distribution stationnaire.
 
 ## Exemple d'écoute
 
-- [MP3 V8](../../../generated/v8_joint_pl_listening/v8_joint_pl_bwv108_6.mp3)
-- [MusicXML MuSES](../../../generated/v8_joint_pl_listening/v8_joint_pl_bwv108_6.musicxml)
-- [MIDI](../../../generated/v8_joint_pl_listening/v8_joint_pl_bwv108_6.mid)
+- MP3 V8: `../../../generated/v8_joint_pl_listening/v8_joint_pl_bwv108_6.mp3`
+- MusicXML MuSES: `../../../generated/v8_joint_pl_listening/v8_joint_pl_bwv108_6.musicxml`
+- MIDI: `../../../generated/v8_joint_pl_listening/v8_joint_pl_bwv108_6.mid`
 
 L'exemple utilise BWV 108.6, son soprano et son rythme, la graine `5517` et
 `30` sweeps. Il est expérimental et non promu.

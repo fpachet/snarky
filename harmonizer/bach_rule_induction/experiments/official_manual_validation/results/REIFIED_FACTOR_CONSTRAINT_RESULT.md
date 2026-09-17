@@ -1,5 +1,8 @@
 # Accords réifiés, facteurs purs et contraintes propagées
 
+The generated files referenced below are local artifacts and are not included
+in this repository. Paths are relative to this document.
+
 ## Question expérimentale
 
 Peut-on harmoniser chaque note d'un soprano imposé, sans squelette harmonique,
@@ -67,9 +70,9 @@ auditer seulement sur une partition complète.
 
 ## Artefacts d'écoute
 
-- [MusicXML V40](../../../../generated/two_loop_full_bwv108_6_v40_reified_strict_window.musicxml)
-- [MIDI piano V40](../../../../generated/two_loop_full_bwv108_6_v40_reified_strict_window.mid)
-- [MP3 piano V40](../../../../generated/two_loop_full_bwv108_6_v40_reified_strict_window.mp3)
+- MusicXML V40: `../../../../generated/two_loop_full_bwv108_6_v40_reified_strict_window.musicxml`
+- MIDI piano V40: `../../../../generated/two_loop_full_bwv108_6_v40_reified_strict_window.mid`
+- MP3 piano V40: `../../../../generated/two_loop_full_bwv108_6_v40_reified_strict_window.mp3`
 - [Résultat JSON V40](../../../factor_bases/k3_v6_induced/two_loop_full_generation_v40_reified_strict_window.json)
 
 ## Limite restante
@@ -106,6 +109,6 @@ blocs sont des accords nommés à trois classes de hauteur. Ce correctif ne règ
 pas encore la mauvaise conduite mélodique des voix intérieures ; il supprime
 uniquement l'admission et le choix arbitraire observés à la frontière.
 
-- [MusicXML V42](../../../../generated/two_loop_full_bwv108_6_v42_complete_boundary_voicing.musicxml)
-- [MP3 piano V42](../../../../generated/two_loop_full_bwv108_6_v42_complete_boundary_voicing.mp3)
+- MusicXML V42: `../../../../generated/two_loop_full_bwv108_6_v42_complete_boundary_voicing.musicxml`
+- MP3 piano V42: `../../../../generated/two_loop_full_bwv108_6_v42_complete_boundary_voicing.mp3`
 - [Résultat JSON V42](../../../factor_bases/k3_v6_induced/two_loop_full_generation_v42_complete_boundary_voicing.json)

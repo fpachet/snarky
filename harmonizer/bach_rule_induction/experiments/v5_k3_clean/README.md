@@ -1,5 +1,8 @@
 # V5-K3-CLEAN
 
+The generated files referenced below are local artifacts and are not included
+in this repository. Paths are relative to this document.
+
 Expérience clean-room fondée sur une seule hypothèse musicale structurelle :
 les règles portent sur trois blocs verticaux consécutifs.
 
@@ -319,9 +322,9 @@ Résultats principaux :
   audits de couverture exécutés avant l'ajustement des poids ;
 - [`export_v29_strong_succession.py`](export_v29_strong_succession.py),
   export des 137 facteurs confirmés V29 vers Snarky ;
-- [`../../../generated/v24_contrastive_bwv108_6_seed_22304_piano.mp3`](../../../generated/v24_contrastive_bwv108_6_seed_22304_piano.mp3),
+- `../../../generated/v24_contrastive_bwv108_6_seed_22304_piano.mp3`,
   exemple V24 BWV 108.6 à 30 balayages, rendu au piano acoustique ;
-- [`../../../generated/v16_rank5_local_piano/README.md`](../../../generated/v16_rank5_local_piano/README.md),
+- `../../../generated/v16_rank5_local_piano/README.md`,
   exemple BWV 108.6 à 30 balayages du petit pas V16 utile en régime long,
   rendu explicitement avec un piano acoustique ;
 - `v5_1_k3_compact_model.json`, modèle complet pour le Gibbs.

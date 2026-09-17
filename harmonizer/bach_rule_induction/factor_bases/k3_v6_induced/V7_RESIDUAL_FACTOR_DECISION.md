@@ -1,5 +1,8 @@
 # V7 — décision sur les facteurs résiduels
 
+The generated files referenced below are local artifacts and are not included
+in this repository. Paths are relative to this document.
+
 ## Modèle à six facteurs
 
 Deux candidates stables par famille sont ajoutées au socle V6 :
@@ -61,10 +64,10 @@ Le résultat scientifique est néanmoins positif :
 Deux générations sur BWV 108.6 utilisent le même soprano, rythme, bord,
 graine `5517` et `30` sweeps :
 
-- [Itération 2 — MP3](../../../generated/v7_listening_comparison/01_iteration2_bwv108_6.mp3)
-- [V7-Sonority expérimental — MP3](../../../generated/v7_listening_comparison/02_v7_sonority_bwv108_6.mp3)
-- [Itération 2 — MusicXML](../../../generated/v7_listening_comparison/01_iteration2_bwv108_6.musicxml)
-- [V7-Sonority — MusicXML](../../../generated/v7_listening_comparison/02_v7_sonority_bwv108_6.musicxml)
+- Itération 2 — MP3: `../../../generated/v7_listening_comparison/01_iteration2_bwv108_6.mp3`
+- V7-Sonority expérimental — MP3: `../../../generated/v7_listening_comparison/02_v7_sonority_bwv108_6.mp3`
+- Itération 2 — MusicXML: `../../../generated/v7_listening_comparison/01_iteration2_bwv108_6.musicxml`
+- V7-Sonority — MusicXML: `../../../generated/v7_listening_comparison/02_v7_sonority_bwv108_6.musicxml`
 
 Cette paire sert à comprendre qualitativement l'effet des quatre facteurs.
 Elle ne contredit pas leur rejet statistique à l'horizon long.

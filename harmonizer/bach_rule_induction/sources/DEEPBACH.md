@@ -24,7 +24,7 @@ de chorals.
 | Élément | Valeur |
 |---|---|
 | Dépôt officiel | <https://github.com/Ghadjeres/DeepBach> |
-| Projet local autonome | [`deepbach-reference/`](../../../../deepbach-reference/README.md) |
+| Projet local autonome | `deepbach-reference/` |
 | Clone amont complet | `deepbach-reference/upstream/deepbach/` |
 | Révision auditée | `6d75cb940f3aa53e02f9eade34d58e472e0c95d7` |
 | Date de la révision | `2022-08-17T11:49:52+02:00` |
@@ -36,7 +36,7 @@ de chorals.
 
 Les révisions pertinentes sont également conservées, sans modification, dans
 le projet frère
-[`deepbach-reference/`](../../../../deepbach-reference/README.md). Le tag Keras
+`deepbach-reference/`. Le tag Keras
 `v2.0` contemporain de l'article y est distingué de la tête Keras de 2018 et
 du port PyTorch officiel ultérieur.
 
@@ -173,7 +173,7 @@ exécutable, sous réserve de réussir le chargement contrôlé des artefacts.
 ### État d'exécution du 26 juillet 2026
 
 Le projet frère
-[`deepbach-reference/`](../../../../deepbach-reference/README.md) fournit
+`deepbach-reference/` fournit
 désormais une baseline Keras exécutable sur macOS ARM64 :
 
 - reconstruction sous Keras 3 des architectures YAML Keras 2.0.2 ;
