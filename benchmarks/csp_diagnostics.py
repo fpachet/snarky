@@ -38,6 +38,15 @@ def worker(args):
     numeric_enabled = numeric_available and args.numeric_masks != "off"
     state_options = dict(numeric_masks=numeric_enabled) if numeric_available else {}
 
+    different_available = (
+        "alldifferent_masks" in inspect.signature(NativeState).parameters
+    )
+    if args.alldifferent_masks == "on" and not different_available:
+        raise ValueError("selected runtime has no all-different mask propagation")
+    different_enabled = different_available and args.alldifferent_masks != "off"
+    if different_available:
+        state_options["alldifferent_masks"] = different_enabled
+
     started = perf_counter()
     last_emission = -1.0
     families = defaultdict(
@@ -97,6 +106,27 @@ def worker(args):
                 item["completed"] += 1
                 item["failures"] += not valid
                 removed = volume - sum(map(len, scoped.values()))
+                item["removed"] += removed
+                item["effective"] += removed > 0
+                return valid
+            finally:
+                item["seconds"] += perf_counter() - tick
+
+        def _revise_alldifferent(self, plan, cause):
+            item = families["AllDifferentConstraint:mask"]
+            item["attempts"] += 1
+            emit(
+                "revision_start",
+                constraint_family="AllDifferentConstraint:mask",
+                revisions=self.revisions,
+            )
+            volume = sum(self.domains.size(v) for v in plan.variables)
+            tick = perf_counter()
+            try:
+                valid = super()._revise_alldifferent(plan, cause)
+                item["completed"] += 1
+                item["failures"] += not valid
+                removed = volume - sum(self.domains.size(v) for v in plan.variables)
                 item["removed"] += removed
                 item["effective"] += removed > 0
                 return valid
@@ -212,6 +242,7 @@ def worker(args):
         nvalue_encoding=args.nvalue,
         objective_propagation=cut_enabled,
         numeric_masks=numeric_enabled,
+        alldifferent_masks=different_enabled,
         variables=len(bridge.model.variables),
         constraints=len(bridge.model.constraints),
         lowerings=dict(bridge.lowerings),
@@ -260,6 +291,9 @@ def main():
     parser.add_argument("--profile", type=Path)
     parser.add_argument("--allocation", action="store_true")
     parser.add_argument("--nvalue", choices=["native", "decomposed"], default="native")
+    parser.add_argument(
+        "--alldifferent-masks", choices=["auto", "on", "off"], default="auto"
+    )
     parser.add_argument(
         "--numeric-masks", choices=["auto", "on", "off"], default="auto"
     )

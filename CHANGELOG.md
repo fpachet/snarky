@@ -39,6 +39,11 @@ details are documented in [docs/versioning.md](docs/versioning.md).
 
 ### Added
 
+- Native and mixed all-different propagation compiles value IDs, repairs integer
+  matchings, and retains exact support masks directly. Bounded compilation keeps
+  the reference fallback; `alldifferent_masks=False` selects it explicitly.
+  See the [compiled all-different report](docs/performance_csp_alldifferent_masks_2026-09-17.md).
+
 - Native and mixed arithmetic propagation shares compiled integer contributions
   and filters candidate masks directly for inequalities and unary/binary equalities.
   Mask-checked extrema caches preserve rollback and exact supports; bounded

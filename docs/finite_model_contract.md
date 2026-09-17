@@ -30,6 +30,15 @@ accept `numeric_masks=False` to select the reference numeric path; inference
 queries retain their own existing execution paths. See the
 [numeric report](performance_csp_numeric_2026-09-17.md) for limits and measurements.
 
+All-different constraints also compile stable value IDs and filter masks directly
+in native and mixed states, preserving exact supported values. Matching arrays
+are hints validated against current domains after rollback; domain reductions
+retain ordinary explanations and trails. Compilation is bounded by 2,048 original
+distinct values per constraint and 262,144 mapping entries per state; overflow
+uses the reference kernel. `alldifferent_masks=False` on either state constructor
+or DFS `solve` selects that kernel independently of `numeric_masks`. See the
+[all-different mask report](performance_csp_alldifferent_masks_2026-09-17.md).
+
 The native backend supports pure finite CSPs and mixed models. Pure CSPs use no
 inference session. Mixed models coordinate the existing incremental matcher with
 the native domain store. The enumerator supports the same declarative fragment.

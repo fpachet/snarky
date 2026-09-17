@@ -44,6 +44,13 @@ views, stronger search/bounds, GCC residual-flow work and P5 compact domains
 remain separate follow-ups. The earlier status statements describe their slices
 at the time they were recorded.
 
+The [seventh slice](performance_csp_alldifferent_masks_2026-09-17.md) extends P2
+compiled masks to all-different, with stable value IDs, reusable integer matching
+storage, exact alternating-graph filtering and a reference fallback. This changes
+implementation cost, not supported values or search policy. Matching repair and
+sparse traversal use iterative integer algorithms; further graph incrementality,
+affine views, search bounds and compact domains remain separate investigations.
+
 ## Objective and boundaries
 
 Make Snarky's Python CSP and exact optimization engine materially more efficient,

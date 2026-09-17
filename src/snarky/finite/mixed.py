@@ -31,9 +31,17 @@ class MixedState:
     session owns derived facts and provenance; one checkpoint spans both stores.
     """
 
-    def __init__(self, model: FiniteModel, *, numeric_masks: bool = True) -> None:
+    def __init__(
+        self,
+        model: FiniteModel,
+        *,
+        numeric_masks: bool = True,
+        alldifferent_masks: bool = True,
+    ) -> None:
         self.model = model
-        self._native = NativeState(model, numeric_masks=numeric_masks)
+        self._native = NativeState(
+            model, numeric_masks=numeric_masks, alldifferent_masks=alldifferent_masks
+        )
         self.domains = self._native.domains
         self.session = ForwardEngine(
             (),

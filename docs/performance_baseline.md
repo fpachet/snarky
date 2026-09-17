@@ -496,3 +496,15 @@ excluding seven Snarky timeouts. A fresh CLAIRE run on `690d8b8` measures native
 queens at 26.5 ms versus 2.79 ms (9.5×), and Talarian/triangle rule gaps of
 22.3×/2.6×. Prune includes startup; CLAIRE excludes it and uses its interpreter.
 The report retains full records, source identity and the aggregation formula.
+
+The [compiled all-different slice](performance_csp_alldifferent_masks_2026-09-17.md)
+replaces repeated symbolic conversions with stable value IDs, integer matching
+repair and direct support masks. Paired process gains are 1.69× for queens 50
+and 1.75× for incremental Latin 16, with unchanged search counters and solutions;
+same-source ablation reproduces the gains. Fixed 30-node allocation traces reduce
+peaks by 19–26% on queens 50/104 and Latin 16. Small-case regressions remain in
+the report. Rule, mixed, legacy and exact Boulez controls retain their results.
+Full completion stays 52/59 versus Prune's 59/59 (optimization 3/5 versus 5/5).
+Average process times on the jointly completed subset are 165.8 versus 6.29 ms
+(26.4×); a fresh internal-time CLAIRE comparison measures native queens at
+12.2 versus 2.84 ms (4.3×). These suites have different timing boundaries.

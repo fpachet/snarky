@@ -10,6 +10,7 @@ from time import perf_counter
 from ..facts import Fact
 from ..terms import Atom, Term, Triple
 from . import kernels
+from .alldifferent import AllDifferentPlan, AllDifferentPlans
 from .constraints import (
     AllDifferentConstraint,
     BinaryComparisonConstraint,
@@ -78,10 +79,19 @@ class NativeCheckpoint:
 class NativeState:
     """Reversible finite problem state; constraint state is branch-local."""
 
-    def __init__(self, model: FiniteModel, *, numeric_masks: bool = True) -> None:
+    def __init__(
+        self,
+        model: FiniteModel,
+        *,
+        numeric_masks: bool = True,
+        alldifferent_masks: bool = True,
+    ) -> None:
         self.model = model
         self.domains = FiniteDomains(model.variables)
         self._numeric = NumericPlans(self.domains) if numeric_masks else None
+        self._alldifferent = (
+            AllDifferentPlans(self.domains) if alldifferent_masks else None
+        )
         self.failure: Atom | None = None
         self.revisions = 0
         self._adjacency: dict[Term, list[int]] = {
@@ -167,7 +177,17 @@ class NativeState:
                 and isinstance(constraint, (LinearSumConstraint, SumConstraint))
                 else None
             )
-            if plan is not None:
+            different = (
+                self._alldifferent.get(index, constraint)
+                if self._alldifferent is not None
+                and isinstance(constraint, AllDifferentConstraint)
+                else None
+            )
+            if different is not None:
+                if not self._revise_alldifferent(different, cause):
+                    self.failure = cause
+                    return False
+            elif plan is not None:
                 assert isinstance(constraint, (LinearSumConstraint, SumConstraint))
                 if not self._revise_numeric(index, constraint, plan, cause):
                     self.failure = cause
@@ -193,6 +213,14 @@ class NativeState:
                         queued.add(incident)
                         pending.append(incident)
         return self.failure is None and not self.domains.empty
+
+    def _revise_alldifferent(self, plan: AllDifferentPlan, cause: Atom) -> bool:
+        supported = plan.supports(self.domains)
+        if supported is None:
+            return False
+        for variable, mask in zip(plan.variables, supported, strict=True):
+            self.domains.retain_mask(variable, mask, cause)
+        return True
 
     def _revise_numeric(
         self,

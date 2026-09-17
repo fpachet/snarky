@@ -386,10 +386,16 @@ solutions and search counters. Compiled caches increase traced peak memory in
 the measured prefixes. A fresh full run remains **52/59 versus Prune's 59/59**;
 optimization remains **3/5 versus 5/5**.
 
-The [current comparison averages](docs/performance_solver_averages_2026-09-17.md)
-are **179.6 ms for Snarky versus 6.34 ms for Prune** on the 52 jointly completed
-workloads (28.3×, including startup; seven Snarky timeouts excluded). A fresh
-CLAIRE rerun averages **26.5 versus 2.79 ms** on native-CSP queens (9.5×);
+The [compiled all-different follow-up](docs/performance_csp_alldifferent_masks_2026-09-17.md)
+improves paired process medians **1.69× for queens 50** and **1.75× for incremental
+Latin 16**, preserving exact supported values and all search counters. Fixed-work
+traces reduce peak allocations by about **19–26%** on queens 50/104 and Latin 16.
+The full completion score remains **52/59 versus Prune's 59/59**.
+
+The [latest comparison averages](docs/performance_csp_alldifferent_masks_2026-09-17.md#updated-averages)
+are **165.8 ms for Snarky versus 6.29 ms for Prune** on the 52 jointly completed
+workloads (26.4×, including startup; seven Snarky timeouts excluded). A fresh
+CLAIRE rerun averages **12.2 versus 2.84 ms** on native-CSP queens (4.3×);
 Talarian and triangle rule workloads have 22.3× and 2.6× gaps respectively.
 CLAIRE timings exclude startup and use its interpreter, so the two suites have
 different timing boundaries and must be read separately.

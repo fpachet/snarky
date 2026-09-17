@@ -1,6 +1,10 @@
 # Prune / Snarky benchmark baseline — 16 September 2026
 
 This baseline is frozen. The latest
+[compiled all-different report](performance_csp_alldifferent_masks_2026-09-17.md)
+records faster queens/Latin solves with unchanged completion at 52/59 versus
+Prune's 59/59, plus a 26.4× ratio of average times on jointly completed workloads.
+The preceding
 [numeric-mask report](performance_csp_numeric_2026-09-17.md) records 2.23× faster
 FT06 and 1.20× faster queens 50 in paired Python runs, with identical search work.
 A fresh full comparison completes **52/59 for Snarky and 59/59 for Prune** in all

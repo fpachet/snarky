@@ -1,8 +1,10 @@
 # Refreshed CLAIRE comparisons — 16 September 2026
 
 This historical record is preserved. The
+[compiled all-different report](performance_csp_alldifferent_masks_2026-09-17.md)
+contains the latest CLAIRE rerun and current averages. The earlier
 [17 September refresh and averages](performance_solver_averages_2026-09-17.md)
-measure the current numeric-mask runtime and retain new raw samples separately.
+measure the earlier numeric-mask runtime and retain their raw samples separately.
 
 This refresh preserves the existing CLAIRE4 workloads and adds an explicitly
 separate Snarky native-global queens formulation. Historical July measurements

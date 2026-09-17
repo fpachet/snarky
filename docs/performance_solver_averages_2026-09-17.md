@@ -1,5 +1,9 @@
 # Current Prune and CLAIRE averages — 17 September 2026
 
+This record predates compiled all-different masks and is preserved. The
+[newer measurements](performance_csp_alldifferent_masks_2026-09-17.md#updated-averages)
+record updated averages and a separate CLAIRE rerun after that optimization.
+
 Snarky remains slower on these recorded workloads. The latest numeric changes
 reduce arithmetic propagation cost, but they do not remove the seven outstanding
 Prune-portfolio timeouts. This report records the aggregate comparison and a fresh
