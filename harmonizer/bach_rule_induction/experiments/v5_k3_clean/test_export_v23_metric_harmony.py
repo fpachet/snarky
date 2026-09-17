@@ -11,7 +11,9 @@ HERE = Path(__file__).resolve().parent
 FACTOR_BASE = HERE.parents[1] / "factor_bases/k3_v6_induced"
 
 
-def test_export_retains_v22_and_adds_exactly_fourteen_harmony_cells() -> None:
+def test_export_retains_v22_and_adds_exactly_fourteen_harmony_cells(
+    synthetic_context_path: Path,
+) -> None:
     fit = json.loads(
         (FACTOR_BASE / "v23d_retained_harmony_full_fit.json").read_text(
             encoding="utf-8"
@@ -42,7 +44,7 @@ def test_export_retains_v22_and_adds_exactly_fourteen_harmony_cells() -> None:
         source=source,
         baseline=baseline,
         grammar=grammar,
-        context=HERE / "work/k3-train-validation-context-full.npz",
+        context=synthetic_context_path,
         groups=[
             {
                 "id": "bass",

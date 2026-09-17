@@ -10,7 +10,9 @@ HERE = Path(__file__).resolve().parent
 FACTOR_BASE = HERE.parents[1] / "factor_bases/k3_v6_induced"
 
 
-def test_v23_selected_feature_blocks_are_complete_and_disjoint() -> None:
+def test_v23_selected_feature_blocks_are_complete_and_disjoint(
+    synthetic_context_path: Path,
+) -> None:
     source = json.loads(
         (FACTOR_BASE / "v6_induced_model.json").read_text(encoding="utf-8")
     )
@@ -40,7 +42,7 @@ def test_v23_selected_feature_blocks_are_complete_and_disjoint() -> None:
         source=source,
         baseline=baseline,
         grammar=grammar,
-        context=HERE / "work/k3-train-validation-context-full.npz",
+        context=synthetic_context_path,
         groups=groups,
     )
 

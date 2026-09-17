@@ -10,7 +10,9 @@ HERE = Path(__file__).resolve().parent
 FACTOR_BASE = HERE.parents[1] / "factor_bases/k3_v6_induced"
 
 
-def test_v24_cache_contains_v23_plus_eight_residual_statuses() -> None:
+def test_v24_cache_contains_v23_plus_eight_residual_statuses(
+    synthetic_context_path: Path,
+) -> None:
     source = json.loads(
         (FACTOR_BASE / "v6_induced_model.json").read_text(encoding="utf-8")
     )
@@ -26,7 +28,7 @@ def test_v24_cache_contains_v23_plus_eight_residual_statuses() -> None:
         source=source,
         baseline=baseline,
         grammar=grammar,
-        context=HERE / "work/k3-train-validation-context-full.npz",
+        context=synthetic_context_path,
         group={
             "feature_kind": "central_residual_strong_sonority_status",
             "size": 8,

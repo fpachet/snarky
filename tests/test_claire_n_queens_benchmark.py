@@ -57,9 +57,19 @@ def test_validate_solution_accepts_four_queens_oracle() -> None:
     validate_solution(4, (2, 4, 1, 3))
 
 
-def test_resolve_explicit_claire_checkout(tmp_path: Path) -> None:
+@pytest.mark.parametrize(
+    ("system", "binary_directory"),
+    [("Darwin", "macos"), ("Linux", "ubuntu")],
+)
+def test_resolve_explicit_claire_checkout(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+    system: str,
+    binary_directory: str,
+) -> None:
+    monkeypatch.setattr("benchmarks.claire_support.platform.system", lambda: system)
     root = tmp_path / "CLAIRE4"
-    binary = root / "interpreter" / "macos" / "claire4"
+    binary = root / "interpreter" / binary_directory / "claire4"
     binary.parent.mkdir(parents=True)
     (root / "README").write_text("CLAIRE4", encoding="utf-8")
     binary.write_bytes(b"binary")

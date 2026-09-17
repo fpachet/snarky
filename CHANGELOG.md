@@ -24,6 +24,8 @@ details are documented in [docs/versioning.md](docs/versioning.md).
 
 ### Validation and documentation
 
+- Made CLAIRE binary-resolution tests cover both macOS and Linux, and removed
+  three research tests' dependency on an untracked corpus cache.
 - Reorganized the main README around the rule engine, standalone finite
   CSP/optimization engine and mixed coordinator, with runnable quick starts and
   explicit distinctions between the core finite API and legacy CSP companion.
