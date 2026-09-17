@@ -489,3 +489,10 @@ increases of 0.44 MiB for queens 50 and 0.50 MiB for FT06. All rule/mixed/Markov
 controls preserve their observations. The fresh full comparison remains
 52/59 versus Prune's 59/59, with optimization 3/5 versus 5/5; all 54 inputs and
 all 52 completed Snarky outputs/counters match the preceding record.
+
+The [current averages report](performance_solver_averages_2026-09-17.md) derives
+179.6 ms versus 6.34 ms (28.3×) from the 52 jointly completed Prune workloads,
+excluding seven Snarky timeouts. A fresh CLAIRE run on `690d8b8` measures native
+queens at 26.5 ms versus 2.79 ms (9.5×), and Talarian/triangle rule gaps of
+22.3×/2.6×. Prune includes startup; CLAIRE excludes it and uses its interpreter.
+The report retains full records, source identity and the aggregation formula.

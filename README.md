@@ -386,6 +386,14 @@ solutions and search counters. Compiled caches increase traced peak memory in
 the measured prefixes. A fresh full run remains **52/59 versus Prune's 59/59**;
 optimization remains **3/5 versus 5/5**.
 
+The [current comparison averages](docs/performance_solver_averages_2026-09-17.md)
+are **179.6 ms for Snarky versus 6.34 ms for Prune** on the 52 jointly completed
+workloads (28.3×, including startup; seven Snarky timeouts excluded). A fresh
+CLAIRE rerun averages **26.5 versus 2.79 ms** on native-CSP queens (9.5×);
+Talarian and triangle rule workloads have 22.3× and 2.6× gaps respectively.
+CLAIRE timings exclude startup and use its interpreter, so the two suites have
+different timing boundaries and must be read separately.
+
 The separate [ALICE-inspired experiment](docs/performance_alice_magic_2026-09-17.md)
 compares certified sum cancellation and elimination on magic squares. Its frozen
 measurements at `104d903` show a policy-dependent 4×4 gain and slower 5×5 solves;

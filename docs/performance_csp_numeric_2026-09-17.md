@@ -1,5 +1,9 @@
 # Compiled numeric masks — 17 September 2026
 
+The [aggregate comparison](performance_solver_averages_2026-09-17.md) calculates
+the Prune averages from this record and adds a fresh CLAIRE run on the updated
+runtime, with separate timing boundaries and explicit timeout exclusions.
+
 This follows objective propagation at `32842b5`. The native and mixed runtimes
 now use compiled candidate-index arithmetic for integer inequalities and
 unary/binary equalities. This reduces repeated representation work; it does not

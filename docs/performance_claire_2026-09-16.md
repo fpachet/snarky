@@ -1,5 +1,9 @@
 # Refreshed CLAIRE comparisons — 16 September 2026
 
+This historical record is preserved. The
+[17 September refresh and averages](performance_solver_averages_2026-09-17.md)
+measure the current numeric-mask runtime and retain new raw samples separately.
+
 This refresh preserves the existing CLAIRE4 workloads and adds an explicitly
 separate Snarky native-global queens formulation. Historical July measurements
 remain unchanged. The current collector is

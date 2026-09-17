@@ -24,6 +24,9 @@ details are documented in [docs/versioning.md](docs/versioning.md).
 
 ### Validation and documentation
 
+- Added current Prune average timings and a fresh CLAIRE comparison after numeric
+  optimization, with archived evidence, explicit timeout exclusions and separate
+  timing boundaries in the [comparison report](docs/performance_solver_averages_2026-09-17.md).
 - Retained the ALICE-inspired magic-square benchmark, exact deduction certificates,
   small exhaustive regression tests and historical performance report at `104d903`.
   This is a modeling experiment; engine defaults are unchanged.

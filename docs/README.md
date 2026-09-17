@@ -51,6 +51,9 @@ should not be mechanically mixed with English sections.
   historical timings at `104d903`, without changing engine defaults.
 - [Refreshed CLAIRE comparisons](performance_claire_2026-09-16.md): historical
   rule/choice workloads and a separately labelled native-global queens variant.
+- [Current Prune and CLAIRE averages](performance_solver_averages_2026-09-17.md):
+  average per-workload medians, explicit timeout treatment and a fresh CLAIRE run
+  after numeric-mask optimization, with archived samples and source identity.
 - [Redesign implementation evidence](redesign_progress.md)
 - [Markov constraints action plan](markov_constraints_plan.md): audited LSDB Blues,
   four scoring modes, numerical guarantees, and ordered solver improvements.
