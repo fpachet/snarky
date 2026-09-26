@@ -99,6 +99,11 @@ environment, and dirty-checkout status.
 
 ### Applications and search
 
+The [bounded Boulez sampling probe](../docs/research/boulez_exact_sampling_probe_2026-09-17.md)
+measures exact completion counting, sampling, and exact MDD state reduction on
+the existing 24-chord instance. Its standalone C++ kernel and Python runner retain
+small exhaustive oracles and raw records; it does not modify the solver runtime.
+
 | Module | Comparison |
 |---|---|
 | `alice_magic` | [ALICE-inspired sum cancellation and exact elimination](../docs/performance_alice_magic_2026-09-17.md) on 4×4/5×5 magic squares, with default and MRV search controls |
