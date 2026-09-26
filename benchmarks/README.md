@@ -405,3 +405,15 @@ candidate files, and checks their hashes remain unchanged. The output embeds the
 published-witness record needed by the worker; when reproducing an archive alone,
 restore it as `benchmarks/results/blues_published_witness_2026-09-16.json`.
 Restore the embedded Sudoku input to its recorded path as well.
+
+### Workforce scheduling
+
+Run `python -m benchmarks.workforce_scheduling` for the basic preference tradeoff,
+or `python -m benchmarks.workforce_scheduling_extended` for breaks, rest, coverage
+and optional alternatives. The [scheduling guide](../docs/scheduling.md) explains
+the API, limitations and repeated A/B measurements.
+
+`python -m benchmarks.scheduling_comparison --baseline /path/to/snapshot --output
+generated/scheduling_comparison.json` compares a previous source snapshot with
+the current runtime in fresh processes. See the [raw records](results/scheduling_2026-09-26.json)
+and [reference patch](results/scheduling_2026-09-26_before.patch).

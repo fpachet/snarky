@@ -1,6 +1,15 @@
 """Experimental declarative finite models; independent of legacy CHOICE weights."""
 
-from .constraints import NValueConstraint
+from .constraints import (
+    AllOfConstraint,
+    AnyOfConstraint,
+    AvailabilityConstraint,
+    CapacityConstraint,
+    NValueConstraint,
+    ResourceLoadConstraint,
+    Task,
+    WorkloadConstraint,
+)
 from .factors import FactorObjective, IntegerFactor, ScoreContribution, TableFactor
 from .inference import InferenceSummary, infer
 from .language import ModelDocument, QueryRequest, parse_model_document
@@ -23,10 +32,36 @@ from .model import (
 )
 from .oracle import enumerate_model
 from .product_objective import RationalProductObjective
+from .scheduling import (
+    Capacity,
+    Coverage,
+    ExactlyOne,
+    NoOverlap,
+    OptionalTask,
+    Precedence,
+    StartWindow,
+    Workload,
+    availability_constraints,
+    no_overlap_constraints,
+    resource_capacity_constraints,
+)
 from .search import solve
 from .variable_markov import MarkovGeneration, MarkovGraph, MarkovOptimum, NGramModel
 
 __all__ = [
+    "AllOfConstraint",
+    "AvailabilityConstraint",
+    "ResourceLoadConstraint",
+    "WorkloadConstraint",
+    "Coverage",
+    "ExactlyOne",
+    "StartWindow",
+    "Workload",
+    "no_overlap_constraints",
+    "resource_capacity_constraints",
+    "AnyOfConstraint",
+    "Capacity",
+    "CapacityConstraint",
     "FactConstraint",
     "FactorObjective",
     "FiniteModel",
@@ -42,6 +77,9 @@ __all__ = [
     "MarkovOptimum",
     "NGramModel",
     "NValueConstraint",
+    "NoOverlap",
+    "OptionalTask",
+    "Precedence",
     "Measure",
     "ModelDocument",
     "PredicateConstraint",
@@ -55,8 +93,10 @@ __all__ = [
     "Solution",
     "Termination",
     "TableFactor",
+    "Task",
     "WeightTable",
     "enumerate_model",
+    "availability_constraints",
     "markov_model",
     "infer",
     "negative_log2_measure",

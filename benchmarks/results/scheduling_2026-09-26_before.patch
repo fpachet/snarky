@@ -1,0 +1,801 @@
+--- a/src/snarky/finite/__init__.py
++++ b/src/snarky/finite/__init__.py
+@@ -1,6 +1,6 @@
+ """Experimental declarative finite models; independent of legacy CHOICE weights."""
+ 
+-from .constraints import NValueConstraint
++from .constraints import AnyOfConstraint, CapacityConstraint, NValueConstraint, Task
+ from .factors import FactorObjective, IntegerFactor, ScoreContribution, TableFactor
+ from .inference import InferenceSummary, infer
+ from .language import ModelDocument, QueryRequest, parse_model_document
+@@ -23,10 +23,20 @@
+ )
+ from .oracle import enumerate_model
+ from .product_objective import RationalProductObjective
++from .scheduling import (
++    Capacity,
++    NoOverlap,
++    OptionalTask,
++    Precedence,
++    availability_constraints,
++)
+ from .search import solve
+ from .variable_markov import MarkovGeneration, MarkovGraph, MarkovOptimum, NGramModel
+ 
+ __all__ = [
++    "AnyOfConstraint",
++    "Capacity",
++    "CapacityConstraint",
+     "FactConstraint",
+     "FactorObjective",
+     "FiniteModel",
+@@ -42,6 +52,9 @@
+     "MarkovOptimum",
+     "NGramModel",
+     "NValueConstraint",
++    "NoOverlap",
++    "OptionalTask",
++    "Precedence",
+     "Measure",
+     "ModelDocument",
+     "PredicateConstraint",
+@@ -55,8 +68,10 @@
+     "Solution",
+     "Termination",
+     "TableFactor",
++    "Task",
+     "WeightTable",
+     "enumerate_model",
++    "availability_constraints",
+     "markov_model",
+     "infer",
+     "negative_log2_measure",
+--- /dev/null
++++ b/src/snarky/finite/capacity.py
+@@ -0,0 +1,72 @@
++"""Small discrete capacity propagator using already fixed intervals.
++
++Each candidate is tested against the load of fixed, present tasks at each slot.
++Unfixed intervals are ignored; there is no mandatory-part/timetable analysis.
++The relaxation is exact on singletons and respects shared variable references.
++Only candidate start/end boundaries need checking: load is constant in between.
++"""
++
++from __future__ import annotations
++
++from time import perf_counter
++
++from ..terms import Term
++from .constraints import CapacityConstraint
++from .predicates import integer
++
++
++def revise_capacity(
++    constraint: CapacityConstraint,
++    domains: dict[Term, set[Term]],
++    *,
++    deadline: float | None = None,
++) -> bool:
++    numeric = {v: {integer(x) for x in values} for v, values in domains.items()}
++    if any(not values for values in numeric.values()):
++        return False
++    for task in constraint.tasks:
++        if task.present is not None and not numeric[task.present] <= {0, 1}:
++            raise ValueError("task presence domains require Number(0/1)")
++    slots = sorted(
++        {
++            boundary
++            for task in constraint.tasks
++            for start in numeric[task.start]
++            for boundary in (start, start + task.duration)
++        }
++    )
++
++    def possible(variable: Term | None = None, candidate: int = 0) -> bool:
++        loads = [0] * len(slots)
++        for task, demand in zip(constraint.tasks, constraint.demands, strict=True):
++            if deadline is not None and perf_counter() >= deadline:
++                raise TimeoutError("capacity propagation time limit")
++            presence = (
++                {candidate}
++                if task.present == variable and variable is not None
++                else numeric[task.present]
++                if task.present is not None
++                else {1}
++            )
++            if 0 in presence or not demand:
++                continue
++            starts = {candidate} if task.start == variable else numeric[task.start]
++            if len(starts) != 1:
++                continue
++            start = next(iter(starts))
++            for index, slot in enumerate(slots):
++                if start <= slot < start + task.duration:
++                    loads[index] += demand
++                    if loads[index] > constraint.capacity:
++                        return False
++        return True
++
++    if not possible():
++        return False
++    for variable, values in domains.items():
++        supported = {v for v in values if possible(variable, integer(v))}
++        if not supported:
++            return False
++        values.intersection_update(supported)
++        numeric[variable] = {integer(v) for v in values}
++    return True
+--- a/src/snarky/finite/constraints.py
++++ b/src/snarky/finite/constraints.py
+@@ -260,6 +260,88 @@
+         return tuple(dict.fromkeys((*self.left, *self.right)))
+ 
+ 
++@dataclass(frozen=True, slots=True)
++class AnyOfConstraint:
++    """Require at least one ordinary constraint; an empty disjunction is false.
++
++    Propagation retains the union of each alternative's supported domains.
++    Alternatives are persistent constraints, not fact guards or callbacks.
++    """
++
++    name: Atom
++    alternatives: tuple[PersistentConstraint, ...]
++
++    def __post_init__(self) -> None:
++        object.__setattr__(self, "alternatives", tuple(self.alternatives))
++
++    @property
++    def variables(self) -> tuple[Term, ...]:
++        return tuple(dict.fromkeys(v for c in self.alternatives for v in c.variables))
++
++
++@dataclass(frozen=True, slots=True)
++class Task:
++    """A positive-duration interval [start, start + duration).
++
++    Fields reference ordinary finite variables. ``present``, when supplied,
++    uses integer Number(0/1) values. No variables or constraints are posted here.
++    """
++
++    name: str
++    start: Atom
++    duration: int
++    resource: Atom | None = None
++    present: Atom | None = None
++
++    def __post_init__(self) -> None:
++        if not self.name:
++            raise ValueError("a task needs a name")
++        if type(self.duration) is not int or self.duration <= 0:
++            raise ValueError("task duration must be a positive integer")
++        if not isinstance(self.start, Atom) or any(
++            v is not None and not isinstance(v, Atom)
++            for v in (self.resource, self.present)
++        ):
++            raise TypeError("task fields must reference finite variable names (atoms)")
++
++
++@dataclass(frozen=True, slots=True)
++class CapacityConstraint:
++    """Bound the total demand of present tasks at every discrete time slot.
++
++    This is one shared pool, independent of the tasks' resource assignments.
++    """
++
++    name: Atom
++    tasks: tuple[Task, ...]
++    capacity: int
++    demands: tuple[int, ...]
++
++    def __post_init__(self) -> None:
++        tasks, demands = tuple(self.tasks), tuple(self.demands)
++        if type(self.capacity) is not int or self.capacity < 0:
++            raise ValueError("capacity must be a nonnegative integer")
++        if len(demands) != len(tasks) or any(
++            type(d) is not int or d < 0 for d in demands
++        ):
++            raise ValueError("demands must contain one nonnegative integer per task")
++        if len({task.name for task in tasks}) != len(tasks):
++            raise ValueError("capacity task names must be distinct")
++        object.__setattr__(self, "tasks", tasks)
++        object.__setattr__(self, "demands", demands)
++
++    @property
++    def variables(self) -> tuple[Term, ...]:
++        return tuple(
++            dict.fromkeys(
++                v
++                for task in self.tasks
++                for v in (task.start, task.present)
++                if v is not None
++            )
++        )
++
++
+ type PersistentConstraint = (
+     AllDifferentConstraint
+     | SumConstraint
+@@ -271,6 +353,8 @@
+     | GlobalCardinalityConstraint
+     | TableConstraint
+     | LexLessEqualConstraint
++    | AnyOfConstraint
++    | CapacityConstraint
+ )
+ 
+ 
+--- a/src/snarky/finite/predicates.py
++++ b/src/snarky/finite/predicates.py
+@@ -7,8 +7,10 @@
+ from ..terms import Number, Term
+ from .constraints import (
+     AllDifferentConstraint,
++    AnyOfConstraint,
+     BinaryComparisonConstraint,
+     BinaryComparisonOperator,
++    CapacityConstraint,
+     ConstraintOperator,
+     CountConstraint,
+     ElementConstraint,
+@@ -44,6 +46,26 @@
+ 
+ def accepts(constraint: PersistentConstraint, assignment: Mapping[Term, Term]) -> bool:
+     """Check the predicate directly, without consulting propagator output."""
++    if isinstance(constraint, AnyOfConstraint):
++        return any(accepts(c, assignment) for c in constraint.alternatives)
++    if isinstance(constraint, CapacityConstraint):
++        # Independently check the actual intervals. Peak load can only increase
++        # at an interval's start, so this is equivalent to checking every slot.
++        intervals = []
++        for task, demand in zip(constraint.tasks, constraint.demands, strict=True):
++            if task.present is not None:
++                present = integer(assignment[task.present])
++                if present not in (0, 1):
++                    raise ValueError("task presence domains require Number(0/1)")
++                if not present:
++                    continue
++            start = integer(assignment[task.start])
++            intervals.append((start, start + task.duration, demand))
++        return all(
++            sum(d for start, end, d in intervals if start <= slot < end)
++            <= constraint.capacity
++            for slot, _, _ in intervals
++        )
+     values = tuple(assignment[var] for var in constraint.variables)
+     if isinstance(constraint, AllDifferentConstraint):
+         return len(set(values)) == len(values)
+--- a/src/snarky/finite/propagation.py
++++ b/src/snarky/finite/propagation.py
+@@ -11,9 +11,12 @@
+ from ..terms import Atom, Term, Triple
+ from . import kernels
+ from .alldifferent import AllDifferentPlan, AllDifferentPlans
++from .capacity import revise_capacity
+ from .constraints import (
+     AllDifferentConstraint,
++    AnyOfConstraint,
+     BinaryComparisonConstraint,
++    CapacityConstraint,
+     CountConstraint,
+     ElementConstraint,
+     GlobalCardinalityConstraint,
+@@ -94,6 +97,7 @@
+         )
+         self.failure: Atom | None = None
+         self.revisions = 0
++        self._deadline: float | None = None
+         self._adjacency: dict[Term, list[int]] = {
+             var.name: [] for var in model.variables
+         }
+@@ -133,6 +137,7 @@
+         facts: frozenset[Fact] | None = None,
+         objective_cut: LinearSumConstraint | None = None,
+     ) -> bool:
++        self._deadline = deadline
+         changed = self.domains.take_changed()
+         indices = (
+             set(range(len(self.model.constraints)))
+@@ -242,15 +247,49 @@
+         constraint: PersistentConstraint,
+         scoped: dict[Term, set[Term]],
+     ) -> bool:
++        # Preserve the revision hook used by existing diagnostic subclasses.
++        return self._revise_constraint(index, constraint, scoped)
++
++    def _revise_constraint(
++        self,
++        index: int,
++        constraint: PersistentConstraint,
++        scoped: dict[Term, set[Term]],
++        *,
++        compiled: bool = True,
++    ) -> bool:
++        deadline = self._deadline
++        if isinstance(constraint, AnyOfConstraint):
++            supported: dict[Term, set[Term]] = {var: set() for var in scoped}
++            viable = False
++            for alternative in constraint.alternatives:
++                if deadline is not None and perf_counter() >= deadline:
++                    raise TimeoutError("disjunction propagation time limit")
++                branch = {v: set(scoped[v]) for v in alternative.variables}
++                if not self._revise_constraint(
++                    index, alternative, branch, compiled=False
++                ):
++                    continue
++                viable = True
++                for var, values in scoped.items():
++                    supported[var].update(branch.get(var, values))
++            if not viable:
++                return False
++            for var, values in scoped.items():
++                values.intersection_update(supported[var])
++            return True
++        if isinstance(constraint, CapacityConstraint):
++            return revise_capacity(constraint, scoped, deadline=deadline)
+         if isinstance(constraint, TableConstraint):
+-            return self._tables[index].revise(scoped)
++            table = self._tables[index] if compiled else TableSupports(constraint)
++            return table.revise(scoped)
+         if isinstance(constraint, AllDifferentConstraint):
+             valid, matching = kernels._revise_all_different_with_matching(
+                 constraint,
+                 scoped,
+-                self._matchings.get(index),
+-            )
+-            if matching is not None:
++                self._matchings.get(index) if compiled else None,
++            )
++            if matching is not None and compiled:
+                 self._matchings[index] = matching
+             return valid
+         if isinstance(constraint, LinearSumConstraint):
+--- /dev/null
++++ b/src/snarky/finite/scheduling.py
+@@ -0,0 +1,154 @@
++"""Thin scheduling conveniences over ordinary finite constraints and factors."""
++
++from __future__ import annotations
++
++from collections.abc import Mapping, Sequence
++from dataclasses import replace
++
++from ..facts import Fact
++from ..terms import Atom, Number, Term, Triple
++from .constraints import (
++    AnyOfConstraint,
++    BinaryComparisonConstraint,
++    BinaryComparisonOperator,
++    CapacityConstraint,
++    ConstraintOperator,
++    LinearSumConstraint,
++    PersistentConstraint,
++    TableConstraint,
++    Task,
++)
++from .model import VALUE, GuardedConstraint
++
++
++def OptionalTask(task: Task, present: Atom) -> Task:
++    """Return a task controlled by an ordinary Number(0/1) decision variable."""
++    if task.present is not None:
++        raise ValueError("task already has a presence variable")
++    return replace(task, present=present)
++
++
++def _when_present(
++    constraint: PersistentConstraint, *tasks: Task
++) -> PersistentConstraint:
++    presence = tuple(dict.fromkeys(t.present for t in tasks if t.present is not None))
++    if not presence:
++        return constraint
++    return AnyOfConstraint(
++        constraint.name,
++        (
++            *(
++                TableConstraint(
++                    Atom(f"{constraint.name.name}:absent:{v.name}"),
++                    (v,),
++                    ((Number(0),),),
++                )
++                for v in presence
++            ),
++            constraint,
++        ),
++    )
++
++
++def Precedence(a: Task, b: Task, *, name: Atom | None = None) -> PersistentConstraint:
++    """Require a to finish before b starts, when both are present."""
++    name = name or Atom(f"precedence:{a.name}:{b.name}")
++    constraint: PersistentConstraint = (
++        AnyOfConstraint(name, ())
++        if a.start == b.start
++        else LinearSumConstraint(
++            name,
++            ((1, a.start), (-1, b.start)),
++            ConstraintOperator.LESS_EQUAL,
++            -a.duration,
++        )
++    )
++    return _when_present(constraint, a, b)
++
++
++def NoOverlap(
++    a: Task, b: Task, *, when_same_resource: bool = False, name: Atom | None = None
++) -> PersistentConstraint:
++    """Disjoin the two orders, optionally allowing different resources."""
++    name = name or Atom(f"no_overlap:{a.name}:{b.name}")
++    # Presence is handled once around the whole disjunction.
++    left, right = replace(a, present=None), replace(b, present=None)
++    alternatives = [Precedence(left, right), Precedence(right, left)]
++    if when_same_resource:
++        if a.resource is None or b.resource is None:
++            raise ValueError("conditional non-overlap requires both resource variables")
++        if a.resource != b.resource:
++            alternatives.append(
++                BinaryComparisonConstraint(
++                    Atom(f"{name.name}:different_resources"),
++                    a.resource,
++                    b.resource,
++                    BinaryComparisonOperator.NOT_EQUAL,
++                )
++            )
++    return _when_present(AnyOfConstraint(name, tuple(alternatives)), a, b)
++
++
++def Capacity(
++    tasks: Sequence[Task],
++    capacity: int,
++    demands: Sequence[int] | None = None,
++    *,
++    name: Atom | None = None,
++) -> CapacityConstraint:
++    """Use one shared pool; demands default to one per present task."""
++    tasks = tuple(tasks)
++    return CapacityConstraint(
++        name or Atom("capacity:" + ":".join(t.name for t in tasks)),
++        tasks,
++        capacity,
++        (1,) * len(tasks) if demands is None else tuple(demands),
++    )
++
++
++def availability_constraints(
++    task: Task, windows: Mapping[Term, tuple[int, int]], *, name: Atom | None = None
++) -> tuple[PersistentConstraint | GuardedConstraint, ...]:
++    """One [open, close) window per resource; missing resources are unavailable.
++
++    Resource value facts activate ordinary lower/upper start bounds. Optional
++    absence disables these bounds and the allowed-resource constraint.
++    """
++    if task.resource is None:
++        raise ValueError("availability requires a resource variable")
++    prefix = (name or Atom(f"availability:{task.name}")).name
++    for lower, upper in windows.values():
++        if type(lower) is not int or type(upper) is not int or lower > upper:
++            raise ValueError("availability windows require integer open <= close")
++    allowed: PersistentConstraint = (
++        TableConstraint(
++            Atom(prefix + ":resources"),
++            (task.resource,),
++            tuple((worker,) for worker in windows),
++        )
++        if windows
++        else AnyOfConstraint(Atom(prefix + ":resources"), ())
++    )
++    result: list[PersistentConstraint | GuardedConstraint] = [
++        _when_present(allowed, task)
++    ]
++    for index, (worker, (lower, upper)) in enumerate(windows.items()):
++        guard = Fact(Triple(task.resource, VALUE, worker))
++        for label, operator, bound in (
++            ("open", ConstraintOperator.GREATER_EQUAL, lower),
++            ("close", ConstraintOperator.LESS_EQUAL, upper - task.duration),
++        ):
++            bound_name = Atom(f"{prefix}:{index}:{label}")
++            result.append(
++                GuardedConstraint(
++                    bound_name,
++                    guard,
++                    _when_present(
++                        LinearSumConstraint(
++                            bound_name, ((1, task.start),), operator, bound
++                        ),
++                        task,
++                    ),
++                )
++            )
++    return tuple(result)
+--- /dev/null
++++ b/benchmarks/workforce_scheduling.py
+@@ -0,0 +1,289 @@
++"""Self-contained synthetic workforce demo: python -m benchmarks.workforce_scheduling.
++
++Five fictional workers, ten tasks, one day in hourly slots. No IATP installation
++or external data is needed; the context facts stand in for persona attributes.
++"""
++
++from dataclasses import dataclass, replace
++from itertools import combinations
++
++from snarky import Atom, Fact, Number, Triple, Variable, parse_rule_groups
++from snarky.factors import FactorDefinition
++from snarky.finite import (
++    Capacity,
++    FactorObjective,
++    FiniteModel,
++    FiniteVariable,
++    IntegerFactor,
++    NoOverlap,
++    Precedence,
++    Query,
++    QueryKind,
++    ResultStatus,
++    TableFactor,
++    Task,
++    availability_constraints,
++    solve,
++)
++from snarky.finite.constraints import (
++    ConstraintOperator,
++    LinearSumConstraint,
++    TableConstraint,
++)
++from snarky.finite.model import Constraint, Solution
++from snarky.finite.predicates import integer
++from snarky.premises import FactPremise
++
++
++@dataclass(frozen=True)
++class Worker:
++    name: str
++    skill: str
++    available: tuple[int, int]
++    commute: int = 15
++    transport: str = "car"
++    young_children: bool = False
++    avoids_weekends: bool = False
++
++
++WORKERS = (
++    Worker("alice", "electrical", (6, 20), 60, "public_transport"),
++    Worker("bob", "electrical", (6, 20), young_children=True),
++    Worker("chloe", "logistics", (8, 18)),
++    Worker("diego", "logistics", (6, 18), avoids_weekends=True),
++    Worker("erin", "care", (8, 20), young_children=True),
++)
++
++RULES = parse_rule_groups("""
++GROUP persona_preferences
++    RULE long_commute
++    WHEN
++        ($worker commute $minutes)
++        ($worker transport public_transport)
++        $minutes > 45
++    THEN
++        ADD ($worker avoid early)
++    END
++    RULE family_time
++    WHEN
++        ($worker young_children yes)
++    THEN
++        ADD ($worker prefer finish_by_18)
++    END
++    RULE early_shift_penalty
++    WHEN
++        ($task worker_variable $wv)
++        ($wv value $worker)
++        ($worker avoid early)
++        ($task start_variable $sv)
++        ($sv value $start)
++        $start < 8
++    THEN
++        ADD ($task penalty early)
++    END
++    RULE late_shift_penalty
++    WHEN
++        ($task worker_variable $wv)
++        ($wv value $worker)
++        ($worker prefer finish_by_18)
++        ($task latest_family_start $latest)
++        ($task start_variable $sv)
++        ($sv value $start)
++        $start > $latest
++    THEN
++        ADD ($task penalty late)
++    END
++    RULE weekend_penalty
++    WHEN
++        ($task worker_variable $wv)
++        ($wv value $worker)
++        ($worker avoids_weekends yes)
++        ($task day weekend)
++    THEN
++        ADD ($task penalty weekend)
++    END
++END_GROUP
++""")
++
++
++def build_model(human_weight: int = 1) -> tuple[FiniteModel, tuple[Task, ...]]:
++    """Operational costs + human_weight * rule-derived preference penalties."""
++    # Candidate resources are filtered by skills below. Fixed choices represent
++    # existing commitments; four tasks still have time/worker alternatives.
++    specs = (
++        ("inspection", "electrical", (6, 8), 2, ("alice", "bob")),
++        ("repair", "electrical", (10,), 2, ("bob",)),
++        ("delivery", "logistics", (8,), 2, ("diego", "chloe")),
++        ("loading", "logistics", (6,), 2, ("diego",)),
++        ("care_visit", "care", (8,), 2, ("erin",)),
++        ("signoff", "electrical", (14,), 2, ("alice",)),
++        ("report", "electrical", (18, 16), 1, ("bob",)),
++        ("stocktake", "logistics", (12,), 2, ("chloe",)),
++        ("dispatch", "logistics", (14,), 2, ("diego",)),
++        ("care_notes", "care", (18, 16), 1, ("erin",)),
++    )
++    tasks: list[Task] = []
++    variables: list[FiniteVariable] = []
++    constraints: list[Constraint] = []
++    context: list[Fact] = []
++    operational: list[TableFactor] = []
++    for worker in WORKERS:
++        for key, value in (
++            ("commute", Number(worker.commute)),
++            ("transport", Atom(worker.transport)),
++            ("young_children", Atom("yes" if worker.young_children else "no")),
++            ("avoids_weekends", Atom("yes" if worker.avoids_weekends else "no")),
++        ):
++            context.append(Fact(Triple(Atom(worker.name), Atom(key), value)))
++    for name, skill, starts, duration, candidates in specs:
++        start, resource = Atom(name + "_start"), Atom(name + "_worker")
++        task = Task(name, start, duration, resource)
++        tasks.append(task)
++        eligible = tuple(
++            Atom(w.name) for w in WORKERS if w.skill == skill and w.name in candidates
++        )
++        # Preserve the declared choice order to make the hard-only baseline clear.
++        eligible = tuple(Atom(w) for w in candidates if Atom(w) in eligible)
++        variables.extend(
++            (
++                FiniteVariable(start, tuple(map(Number, starts))),
++                FiniteVariable(resource, eligible),
++            )
++        )
++        windows = {
++            Atom(w.name): w.available for w in WORKERS if Atom(w.name) in eligible
++        }
++        constraints.extend(availability_constraints(task, windows))
++        context.extend(
++            (
++                Fact(Triple(Atom(name), Atom("start_variable"), start)),
++                Fact(Triple(Atom(name), Atom("worker_variable"), resource)),
++                Fact(
++                    Triple(
++                        Atom(name), Atom("latest_family_start"), Number(18 - duration)
++                    )
++                ),
++                Fact(Triple(Atom(name), Atom("day"), Atom("weekend"))),
++            )
++        )
++        operational.append(
++            TableFactor(
++                "operations:" + name,
++                (start,),
++                {(Number(s),): (1 if name == "inspection" else 2) for s in starts[1:]},
++            )
++        )
++        if name in ("inspection", "delivery"):
++            operational.append(
++                TableFactor(
++                    "operations:assignment:" + name,
++                    (resource,),
++                    {(eligible[1],): 3 if name == "inspection" else 1},
++                )
++            )
++    constraints.extend(Precedence(tasks[i], tasks[i + 5]) for i in range(5))
++    constraints.extend(
++        NoOverlap(a, b, when_same_resource=True) for a, b in combinations(tasks, 2)
++    )
++    constraints.append(Capacity(tasks, capacity=3, name=Atom("shared_equipment")))
++    # Maximum hours is already a table channel plus a linear sum. Only eligible
++    # task/worker pairs need an auxiliary hours variable (12 here, not 50).
++    for worker in WORKERS:
++        hours = []
++        for task in tasks:
++            assert task.resource is not None
++            domain = next(v.domain for v in variables if v.name == task.resource)
++            if Atom(worker.name) not in domain:
++                continue
++            h = Atom(f"hours_{worker.name}_{task.name}")
++            rows = tuple(
++                (w, Number(task.duration if w == Atom(worker.name) else 0))
++                for w in domain
++            )
++            variables.append(FiniteVariable(h, tuple(row[1] for row in rows)))
++            constraints.append(
++                TableConstraint(Atom(h.name + "_channel"), (task.resource, h), rows)
++            )
++            hours.append((1, h))
++        constraints.append(
++            LinearSumConstraint(
++                Atom("max_hours_" + worker.name),
++                tuple(hours),
++                ConstraintOperator.LESS_EQUAL,
++                6,
++            )
++        )
++    preferences = tuple(
++        IntegerFactor(
++            FactorDefinition(
++                "human:" + kind,
++                Variable("task"),
++                (FactPremise(Triple(Variable("task"), Atom("penalty"), Atom(kind))),),
++            ),
++            human_weight * penalty,
++        )
++        for kind, penalty in (("early", 5), ("late", 5), ("weekend", 3))
++    )
++    return FiniteModel(
++        "workforce",
++        tuple(variables),
++        tuple(constraints),
++        tuple(context),
++        RULES,
++        FactorObjective((*operational, *preferences)),
++    ), tuple(tasks)
++
++
++def costs(model: FiniteModel, solution: Solution) -> tuple[int, int]:
++    assert isinstance(model.objective, FactorObjective)
++    contributions = model.objective.contributions(solution.assignment, solution.facts)
++    return (
++        sum(c.value for c in contributions if c.factor_name.startswith("operations:")),
++        sum(c.value for c in contributions if c.factor_name.startswith("human:")),
++    )
++
++
++def run_demo() -> None:
++    model, tasks = build_model()
++    baseline = solve(replace(model, objective=None))
++    optimized = solve(model, Query(QueryKind.MINIMIZE), bounding="local")
++    assert baseline.incumbent is not None
++    assert optimized.status is ResultStatus.OPTIMAL and optimized.incumbent is not None
++    for label, result in (
++        ("A: hard constraints only", baseline),
++        ("B: operational + human preference costs", optimized),
++    ):
++        solution = result.incumbent
++        assert solution is not None
++        op, human = costs(model, solution)
++        print(f"\nSchedule {label} ({result.status})")
++        print(f"operational cost = {op}; human penalty = {human}; total = {op + human}")
++        print(f"{'Task':14} {'Worker':8} {'Interval':8}")
++        for task in tasks:
++            assert task.resource is not None
++            worker = solution.assignment[task.resource]
++            assert isinstance(worker, Atom)
++            start = integer(solution.assignment[task.start])
++            print(
++                f"{task.name:14} {worker.name:8} "
++                f"{start:02d}–{start + task.duration:02d}"
++            )
++    assert baseline.incumbent.assignment != optimized.incumbent.assignment
++    assert costs(model, optimized.incumbent)[1] < costs(model, baseline.incumbent)[1]
++    penalties = [
++        c
++        for c in model.objective.contributions(
++            baseline.incumbent.assignment, baseline.incumbent.facts
++        )
++        if c.factor_name.startswith("human:")
++    ]
++    print("\nBaseline preference explanations (rule derivations are also retained):")
++    for c in penalties:
++        print(
++            f"  {c.factor_name}: +{c.value}, scope={c.scope}, "
++            f"supports={c.support_facts}"
++        )
++
++
++if __name__ == "__main__":
++    run_demo()

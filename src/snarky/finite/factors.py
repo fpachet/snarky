@@ -28,7 +28,8 @@ class IntegerFactor:
     """One integer contribution per distinct ground scope, irrespective of witnesses.
 
     Uses the existing pure FactorDefinition grammar. Evaluation observes the
-    complete closed snapshot; no partial bound is claimed for general premises.
+    complete closed snapshot. The solver can bound positive fact/comparison
+    queries through a separate, bounded compiler; general premises retain no bound.
     """
 
     definition: FactorDefinition

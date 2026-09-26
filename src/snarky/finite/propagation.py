@@ -11,9 +11,14 @@ from ..facts import Fact
 from ..terms import Atom, Term, Triple
 from . import kernels
 from .alldifferent import AllDifferentPlan, AllDifferentPlans
+from .capacity import revise_capacity
 from .constraints import (
     AllDifferentConstraint,
+    AllOfConstraint,
+    AnyOfConstraint,
+    AvailabilityConstraint,
     BinaryComparisonConstraint,
+    CapacityConstraint,
     CountConstraint,
     ElementConstraint,
     GlobalCardinalityConstraint,
@@ -21,8 +26,10 @@ from .constraints import (
     LinearSumConstraint,
     NValueConstraint,
     PersistentConstraint,
+    ResourceLoadConstraint,
     SumConstraint,
     TableConstraint,
+    WorkloadConstraint,
 )
 from .domains import DomainCheckpoint, FiniteDomains
 from .model import (
@@ -36,6 +43,11 @@ from .model import (
 )
 from .numeric import NumericPlan, NumericPlans
 from .nvalue import revise_nvalue
+from .scheduling_kernels import (
+    revise_availability,
+    revise_resource_load,
+    revise_workload,
+)
 
 
 class TableSupports:
@@ -94,10 +106,12 @@ class NativeState:
         )
         self.failure: Atom | None = None
         self.revisions = 0
+        self._deadline: float | None = None
         self._adjacency: dict[Term, list[int]] = {
             var.name: [] for var in model.variables
         }
         self._tables: dict[int, TableSupports] = {}
+        self._nested_tables: dict[int, TableSupports] = {}
         self._matchings: dict[int, dict[Term, Term]] = {}
         self._guarded: list[int] = []
         for index, constraint in enumerate(model.constraints):
@@ -133,6 +147,7 @@ class NativeState:
         facts: frozenset[Fact] | None = None,
         objective_cut: LinearSumConstraint | None = None,
     ) -> bool:
+        self._deadline = deadline
         changed = self.domains.take_changed()
         indices = (
             set(range(len(self.model.constraints)))
@@ -242,15 +257,81 @@ class NativeState:
         constraint: PersistentConstraint,
         scoped: dict[Term, set[Term]],
     ) -> bool:
+        # Preserve the revision hook used by existing diagnostic subclasses.
+        try:
+            return self._revise_constraint(index, constraint, scoped)
+        except TimeoutError:
+            self._initialized = False
+            raise
+
+    def _revise_constraint(
+        self,
+        index: int,
+        constraint: PersistentConstraint,
+        scoped: dict[Term, set[Term]],
+        *,
+        compiled: bool = True,
+    ) -> bool:
+        deadline = self._deadline
+        if isinstance(constraint, AllOfConstraint):
+            while True:
+                volume = sum(map(len, scoped.values()))
+                for child in constraint.constraints:
+                    if deadline is not None and perf_counter() >= deadline:
+                        raise TimeoutError("conjunction propagation time limit")
+                    branch = {v: set(scoped[v]) for v in child.variables}
+                    if not self._revise_constraint(
+                        index, child, branch, compiled=False
+                    ):
+                        return False
+                    scoped.update(branch)
+                if sum(map(len, scoped.values())) == volume:
+                    return True
+        if isinstance(constraint, AvailabilityConstraint):
+            return revise_availability(constraint, scoped, deadline=deadline)
+        if isinstance(constraint, ResourceLoadConstraint):
+            return revise_resource_load(constraint, scoped, deadline=deadline)
+        if isinstance(constraint, WorkloadConstraint):
+            return revise_workload(constraint, scoped, deadline=deadline)
+        if isinstance(constraint, AnyOfConstraint):
+            supported: dict[Term, set[Term]] = {var: set() for var in scoped}
+            viable = False
+            for alternative in constraint.alternatives:
+                if deadline is not None and perf_counter() >= deadline:
+                    raise TimeoutError("disjunction propagation time limit")
+                branch = {v: set(scoped[v]) for v in alternative.variables}
+                if not self._revise_constraint(
+                    index, alternative, branch, compiled=False
+                ):
+                    continue
+                viable = True
+                for var, values in scoped.items():
+                    supported[var].update(branch.get(var, values))
+                if all(supported[v] == values for v, values in scoped.items()):
+                    return True
+            if not viable:
+                return False
+            for var, values in scoped.items():
+                values.intersection_update(supported[var])
+            return True
+        if isinstance(constraint, CapacityConstraint):
+            return revise_capacity(constraint, scoped, deadline=deadline)
         if isinstance(constraint, TableConstraint):
-            return self._tables[index].revise(scoped)
+            if compiled:
+                table = self._tables[index]
+            else:
+                key = id(constraint)
+                if key not in self._nested_tables:
+                    self._nested_tables[key] = TableSupports(constraint)
+                table = self._nested_tables[key]
+            return table.revise(scoped)
         if isinstance(constraint, AllDifferentConstraint):
             valid, matching = kernels._revise_all_different_with_matching(
                 constraint,
                 scoped,
-                self._matchings.get(index),
+                self._matchings.get(index) if compiled else None,
             )
-            if matching is not None:
+            if matching is not None and compiled:
                 self._matchings[index] = matching
             return valid
         if isinstance(constraint, LinearSumConstraint):

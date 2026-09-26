@@ -15,6 +15,7 @@ from time import perf_counter
 
 from ..terms import Term
 from .constraints import PersistentConstraint
+from .factor_bounds import compile_positive_factor_bound
 from .factors import FactorObjective, TableFactor
 from .model import FactConstraint, FiniteModel, GuardedConstraint, PredicateConstraint
 from .predicates import accepts
@@ -155,10 +156,13 @@ def compile_objective_bound(
                 return ProductPermutationBound(model, deadline=deadline)
             return ProductChainBound(model, deadline=deadline)
         return objective.bounds
-    if not isinstance(objective, FactorObjective) or any(
-        not isinstance(f, TableFactor) for f in objective.factors
-    ):
+    if not isinstance(objective, FactorObjective):
         return objective.bounds
+    if any(not isinstance(f, TableFactor) for f in objective.factors):
+        return (
+            compile_positive_factor_bound(model, budget=max_edges, deadline=deadline)
+            or objective.bounds
+        )
     positions: dict[Term, int] = {v.name: i for i, v in enumerate(model.variables)}
     width = max(
         (

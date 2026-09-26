@@ -41,6 +41,9 @@ behavior and modern extensions are documented separately.
 - **Finite constraints:** `ALL_DIFFERENT`, `SUM`, `LINEAR_SUM`, comparisons,
   `ELEMENT`, `COUNT`, `NVALUE`, `GCC`, `TABLE` and lexicographic constraints,
   with reversible domain propagation and exact complete-assignment checks.
+- **Discrete scheduling:** [thin task helpers](docs/scheduling.md) for precedence,
+  resource non-overlap/rest, multi-window availability, optional alternatives,
+  capacity, staffing coverage and workload, with rule-derived preference bounds.
 - **Search and optimization:** feasibility, enumeration, integer branch-and-bound,
   factor objectives, exact rational-product objectives, admissible bounds and
   propagated integer incumbent cuts. Results distinguish a feasible solution,

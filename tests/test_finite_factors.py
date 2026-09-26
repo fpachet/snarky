@@ -88,7 +88,7 @@ def test_mixed_factor_scoring_deduplicates_witnesses_and_restores_between_branch
             assert scopes[(Atom("b"),)].witness_count == 1
             assert sum(c.value for c in best.contributions) == best.objective_value
     # Unknown factor bounds do not turn into a falsely finite global bound.
-    stopped = solve(model, Query(QueryKind.MAXIMIZE, max_nodes=1))
+    stopped = solve(model, Query(QueryKind.MAXIMIZE, max_nodes=1), bounding="local")
     assert not stopped.complete and stopped.objective_bound is None
 
 

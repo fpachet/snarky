@@ -46,6 +46,23 @@ details are documented in [docs/versioning.md](docs/versioning.md).
 
 ### Added
 
+- Scheduling now includes joint multi-window availability, minimum rest and
+  precedence gaps, staffing coverage, capacity per assigned resource, working-time
+  bounds and optional alternatives. Pair generation omits provably irrelevant
+  conflicts; capacity uses endpoint events and compound constraints reuse table
+  indexes. See the [scheduling guide](docs/scheduling.md).
+- Positive rule-derived integer factors now have bounded must/may objective
+  bounds, including negative weights, recursion and alternative witnesses.
+  The existing engine retains scoring and provenance; unsupported premises and
+  oversized compilation fall back safely. Repeated scheduling A/B measurements
+  and a more constrained workforce demo are included.
+
+- Minimal [discrete scheduling](docs/scheduling.md) in the finite Python API:
+  task helpers reuse arithmetic and fact guards; ordinary disjunction supports
+  optional tasks and resource non-overlap; basic capacity filters candidates
+  against fixed intervals. A five-worker demo uses existing rule-derived factors
+  for preferences, with pruning, provenance, rollback and exhaustive oracle tests.
+
 - Native and mixed all-different propagation compiles value IDs, repairs integer
   matchings, and retains exact support masks directly. Bounded compilation keeps
   the reference fallback; `alldifferent_masks=False` selects it explicitly.
