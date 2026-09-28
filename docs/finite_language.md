@@ -92,8 +92,8 @@ rejected in `.model`; they remain usable in ordinary Core programs.
 
 ## Hard constraints
 
-Every declaration has the form `CONSTRAINT name ... END_CONSTRAINT`. The complete
-existing persistent vocabulary is available directly in the core package:
+Every declaration has the form `CONSTRAINT name ... END_CONSTRAINT`. The following
+persistent constraint vocabulary is supported by the text language:
 
 | `KIND` | Required fields | Example field values |
 |---|---|---|
@@ -108,6 +108,12 @@ existing persistent vocabulary is available directly in the core package:
 | `TABLE` | `SCOPE`, one or more `ALLOW` rows | `SEQ[x y]`, `ALLOW SEQ[1 2]` |
 | `LEX_LESS_EQUAL` | `LEFT`, `RIGHT` | `SEQ[x y]`, `SEQ[z w]` |
 | `FACTS` | zero or more `REQUIRE` and `FORBID` facts | `REQUIRE (job approved yes)` |
+
+The [workforce scheduling helpers](scheduling.md), including `Task`,
+`Precedence`, `NoOverlap`, availability, capacity, coverage and workload, are
+available through the Python `snarky.finite` API. They have no dedicated `.model`
+declarations. The packaged `scheduling.model` below illustrates slot assignments,
+guards and factors; the larger workforce examples use Python model construction.
 
 Aggregate operators are `EQUAL`, `LESS_EQUAL`, `GREATER_EQUAL`. Binary comparison
 operators are `LESS_THAN`, `LESS_EQUAL`, `NOT_EQUAL`. Coefficients, targets and

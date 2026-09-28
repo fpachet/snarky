@@ -8,6 +8,7 @@ own dated protocols and promotion decisions.
 |---|---|---|
 | [Core 0.1](core_0_1_baseline.md) | Frozen symbolic language and supported API; not a public release | Differential semantics, rollback/provenance, parser, and installed-package tests |
 | [Finite CSP/optimization and mixed models](finite_model_contract.md) | Implemented experimental core namespace `snarky.finite` and `.model` language; independent solving plus coordinated positive rules and factors | Non-Bach manifest, exhaustive oracles, installed examples and paired performance evidence in [redesign progress](redesign_progress.md) |
+| [Workforce scheduling](scheduling.md) | Experimental Python helpers for discrete tasks, availability, rest, optional alternatives, capacity, coverage and workload; bounded positive-factor optimization | Complete-assignment oracles, shared-variable and rollback checks, workforce examples and archived A/B measurements |
 | [Legacy fact-backed CSP](../csp_solver/README.md) | Optional installable companion; existing rule/choice interface and application catalogue, with an experimental Python API | Independent solution oracles, propagator support oracles, installed rule data |
 | [Markov constraints](markov_constraints_application.md) | Exact first-order Blues optimization and fixed- and variable-order melody modes; Python API and research examples | Independent DP/exhaustive oracles, completed Boulez proof, mixed-constraint tests and archived performance evidence |
 | [Sudoku](../sudoku/README.md) | Explainable reference techniques plus optional search | Reference puzzles and explanation replay |
@@ -89,6 +90,23 @@ configured; remote CI execution is separate from these local results.
 The [factor support benchmark](../benchmarks/README.md) records the raw
 interleaved measurements and exact logical-output checks. Its speedup applies
 to the synthetic shared-scope evaluator workload, not all applications.
+
+## Scheduling validation — 26 September 2026
+
+The scheduling implementation passed the full configured suite: **1,155 tests
+passed and 6 skipped**. Focused coverage includes temporal windows and gaps,
+joint availability filtering, optional alternatives, weighted resource loads,
+coverage, clipped workload, shared variable references, rollback and resuming
+after a propagation timeout. Positive-factor tests check signed weights,
+recursive and alternative proofs, admissible bounds and compilation fallback.
+
+Ruff, mypy (100 source files), syntax/format validation (305 DSL files), Markdown
+links, distribution checks and isolated wheel installation checks passed.
+The [measurement archive](../benchmarks/results/scheduling_2026-09-26.json)
+records repeated timings and identical assignments/scores for all 32 solutions
+of the basic demo before and after optimization. The extended demo's tested
+optimum is 8. See the [scheduling guide](scheduling.md) for modeling limits and
+the source snapshot used for performance comparisons.
 
 ## Remaining work outside the review fixes
 

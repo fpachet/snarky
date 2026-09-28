@@ -24,6 +24,10 @@ details are documented in [docs/versioning.md](docs/versioning.md).
 
 ### Validation and documentation
 
+- Added a workforce scheduling README quick start, modeling and result-reading
+  guidance, documentation navigation and current validation evidence. Updated
+  the finite contract to describe positive rule-derived objective bounds and
+  the scheduling API's Python-only surface.
 - Made CLAIRE binary-resolution tests cover both macOS and Linux, and removed
   three research tests' dependency on an untracked corpus cache.
 - Replaced broken links to local research artifacts with explicit local paths

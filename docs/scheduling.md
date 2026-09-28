@@ -4,6 +4,25 @@ Scheduling uses `snarky.finite` variables, propagation, rules, factors, search,
 rollback and provenance. Time is discrete; positive constant durations form
 half-open intervals `[start, start + duration)`. Touching endpoints do not overlap.
 
+## Building a workforce model
+
+1. Choose one integer time unit, such as 15 minutes, and use it for starts,
+   durations, gaps and availability windows. Declare finite domains for each
+   task's start and resource, restricting resource domains to qualified workers.
+2. Create `Task` metadata and declare any optional presence variables. Post
+   `ExactlyOne` for mutually exclusive alternatives.
+3. Add availability, precedence, rest and load constraints. A task must fit
+   entirely within one continuous availability window; split work into separate
+   tasks if it may stop during a break.
+4. Add hard workload bounds and explicit preference factors. Use positive rules
+   for preferences that depend on worker attributes or assignment combinations.
+5. Solve with an explicit time budget and inspect both status and termination.
+   For optimization, `value_policy="objective"` enables bound-based value ordering.
+
+The core helpers are installed with `snarky`; the runnable `benchmarks` examples
+require a source checkout. Start with the [README quick start](../README.md#workforce-scheduling)
+or the two-task model below.
+
 ## Architecture and reuse
 
 | Requirement | Implementation |
@@ -60,6 +79,7 @@ model = FiniteModel(
     ),
 )
 result = solve(model)
+assert result.incumbent is not None
 ```
 
 Creating a task posts nothing. Declare all referenced variables in the model.
@@ -84,6 +104,12 @@ Presence domains must contain only integer `Number(0/1)`. Pairwise precedence an
 non-overlap are disabled if either task is absent. Absent tasks do not consume
 capacity, coverage or workload. Their start/resource variables still have values;
 custom preferences should include presence to avoid charging absent tasks.
+
+Presence dependencies are explicit: precedence does not require a predecessor
+to be present when its successor is present. Add an ordinary linear constraint
+`present(successor) <= present(predecessor)` when the application needs that rule.
+Likewise, `ExactlyOne` selects an alternative but does not assign its worker;
+declare its resource domain and availability separately.
 
 ### Multiple availability windows
 
@@ -185,6 +211,35 @@ it is opt-in and is used by both workforce demos.
 For unsupported factors, complete scoring remains available even when no useful
 partial objective bound is known. This is still finite search, so broad domains
 and tightly coupled rules may remain expensive.
+
+### Reading an optimization result
+
+This example uses the extended model from the source checkout:
+
+```python
+from benchmarks.workforce_scheduling_extended import build_extended_model
+from snarky.finite import Query, QueryKind, ResultStatus, solve
+
+model, tasks = build_extended_model()
+result = solve(
+    model,
+    Query(QueryKind.MINIMIZE, time_limit_seconds=10),
+    value_policy="objective",
+)
+print(result.status, result.termination)
+if result.incumbent is not None:
+    print("Cost:", result.incumbent.objective_value)
+    for contribution in result.incumbent.contributions:
+        print(contribution)
+if result.status is ResultStatus.OPTIMAL:
+    assert result.incumbent.objective_value == 8
+```
+
+`FEASIBLE` means a valid incumbent exists without an optimality proof. `UNKNOWN`
+means the search stopped without finding a solution or proving infeasibility.
+`INFEASIBLE` means no schedule satisfies the model. Only `OPTIMAL` proves the
+incumbent's objective value is best. Inspect `incumbent.derivations` for rule
+proofs and `incumbent.reductions` for recorded domain-removal causes.
 
 ## Examples and measurements
 

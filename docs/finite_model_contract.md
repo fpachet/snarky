@@ -1,6 +1,6 @@
 # Declarative finite model contract
 
-Status: implemented opt-in, pre-1.0 interface, 16 September 2026. This records
+Status: implemented opt-in, pre-1.0 interface, updated 26 September 2026. This records
 the semantic and architectural decisions of the [redesign](redesign_plan.md),
 without changing the frozen operational Core language.
 
@@ -82,6 +82,27 @@ Callbacks must return a Boolean and obey the documented purity contract; no
 arbitrary Python is parsed from the model language. A callback without a
 propagator is checked at complete assignments, not guessed at partial states.
 
+## Discrete scheduling
+
+The Python [scheduling API](scheduling.md) uses the same immutable models, native
+propagation, mixed closure and rollback. A `Task` references declared start,
+optional resource and optional presence variables. Integer starts and positive
+constant durations define half-open intervals. Presence uses `Number(0/1)`;
+absent tasks retain assignments but contribute no scheduling load.
+
+`Precedence`, `StartWindow`, `NoOverlap` and `ExactlyOne` compose arithmetic,
+table, `AllOfConstraint` and `AnyOfConstraint` constraints. Availability filters
+starts, resources and presence jointly. `CapacityConstraint`,
+`ResourceLoadConstraint` and `WorkloadConstraint` provide shared capacity,
+staffing coverage, per-resource capacity and assigned-duration bounds. Complete
+predicates define feasibility independently of the filtering kernels.
+
+These constraints provide sound pruning but do not guarantee full consistency
+across correlated tasks. Coverage counts tasks; worker non-overlap is needed
+when using that count as distinct headcount. Pair elimination through
+`no_overlap_constraints` relies on declared domains, so widening them requires
+rebuilding the constraints. The helpers add no `.model` syntax.
+
 ## Initial scoreable rule fragment
 
 Admit function-free, positive, range-restricted rules over flat triples with
@@ -146,9 +167,11 @@ objectives whose scopes span at most two preceding model variables and whose
 initial edge-volume estimate is at most 100,000. It includes unconditional hard
 constraints fitting that window and relaxes the others. Dynamic programming uses
 the current branch domains; cached local edge costs depend only on the immutable
-model. Other objectives fall back to local bounds. `bounding="local"` selects
-that fallback explicitly. `value_policy="objective"` optionally orders candidate
-values by their completion bounds. Neither option changes feasibility or scores.
+model. Positive integer factors instead use the rule-derived bounds described
+below when compilation succeeds. Other cases fall back to local bounds.
+`bounding="local"` selects that fallback explicitly. `value_policy="objective"`
+optionally orders candidate values by their completion bounds. Neither option
+changes feasibility or scores.
 Reaching a valid root bound proves optimality without traversing remaining branches.
 The chain computation cooperatively respects the search deadline.
 
@@ -230,10 +253,23 @@ support and a witness count, not repeated energy. Different scopes contribute
 separately. Python integers remain exact, including weights above float precision.
 The older floating-point factor API retains its behavior unchanged.
 
-General premise factors currently have no partial bound. Their presence disables
-objective pruning, while feasibility propagation and exhaustive optimization
-remain available. An interrupted query reports no objective bound in that case.
-This is deliberate: lack of a bound cannot justify an invented pruning rule.
+With default `bounding="auto"`, factors using only positive fact and comparison
+premises can receive safe partial bounds. A bounded compiler grounds positive
+rule implications, then computes closure from singleton assignments for required
+facts and from all remaining candidate assignments for possible facts. It bounds
+matching ground scopes, accounts for negative weights, and adds table-factor
+bounds. Multiple witnesses still contribute only once per ground scope. Recursive
+rules and alternative derivations are supported.
+
+The candidate closure is a relaxation: alternative values can coexist there
+without being jointly feasible. Compilation is limited to 100,000 counted
+operations and 4,096 facts by default, with at most 256 cached closures. It obeys
+the query deadline. Unsupported premises or exceeded compilation budgets fall
+back to existing bounds; `bounding="local"` also uses that fallback. If no bound
+is available, objective pruning is disabled and interrupted queries report no
+objective bound. Complete scoring and feasibility propagation remain available.
+See the [scheduling guide](scheduling.md#preferences-and-optimization) for usage
+and measured effects.
 
 Solutions include separate immutable factor contributions, supporting facts and
 witness counts, alongside rule derivations and domain reductions. Scoring neither

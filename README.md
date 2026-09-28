@@ -183,6 +183,56 @@ No rules or candidate facts are needed. `SOLVE` asks for a feasible solution;
 [finite model guide](docs/finite_model_contract.md) documents query statuses,
 objectives, factors and backend capabilities.
 
+### Workforce scheduling
+
+Use integer time slots and constant task durations to schedule work. This example
+places a two-hour preparation task before a one-hour delivery, with a gap of
+one to three hours and a delivery deadline:
+
+```python
+from snarky import Atom, Number
+from snarky.finite import (
+    FiniteModel, FiniteVariable, Precedence, ResultStatus, StartWindow, Task, solve,
+)
+
+prep_start, delivery_start = Atom("prep_start"), Atom("delivery_start")
+prep = Task("preparation", prep_start, duration=2)
+delivery = Task("delivery", delivery_start, duration=1)
+model = FiniteModel(
+    "delivery_schedule",
+    variables=(
+        FiniteVariable(prep_start, tuple(map(Number, range(8, 13)))),
+        FiniteVariable(delivery_start, tuple(map(Number, range(8, 17)))),
+    ),
+    constraints=(
+        Precedence(prep, delivery, min_lag=1, max_lag=3),
+        StartWindow(delivery, earliest=11, latest_end=16),
+    ),
+)
+result = solve(model)
+assert result.status is ResultStatus.FEASIBLE
+assert result.incumbent is not None
+print(result.incumbent.assignment)
+```
+
+Tasks can also reference worker and presence variables. The
+[scheduling guide](docs/scheduling.md) covers worker non-overlap and rest,
+availability across breaks, optional alternatives, shared and per-resource
+capacity, staffing coverage, workload limits and rule-derived preferences.
+These helpers use the experimental Python API; time intervals are half-open,
+and durations are positive integer constants.
+
+Run the workforce examples from a source checkout:
+
+```sh
+python -m benchmarks.workforce_scheduling
+python -m benchmarks.workforce_scheduling_extended
+```
+
+The extended example combines five workers, ten mandatory tasks and two optional
+alternatives. Both demos optimize operational costs plus human preferences and
+report whether the result is feasible or proved optimal.
+
 ### Rules and constraints together
 
 The packaged [scheduling model](src/snarky/finite/models/scheduling.model) declares
@@ -292,6 +342,7 @@ formulation, with explicit timing and interpreter limitations.
 | Project | Purpose |
 |---|---|
 | [Finite models](docs/finite_language.md) | Standalone CSP, optimization and mixed rule/constraint models, with packaged examples and reproducible benchmarks |
+| [Workforce scheduling](docs/scheduling.md) | Discrete tasks, worker availability and rest, optional alternatives, capacity, coverage, workload and rule-derived preferences |
 | [Legacy CSP catalogue](csp_solver/README.md) | Classical puzzles, sequencing, scheduling and coloring through fact-backed domains, rules and choices |
 | [Markov constraints](docs/markov_constraints_application.md) | Ordinary, exotic and Boulez Blues; four melody scoring modes, forbidden patterns, contour control and continuation, with exact optimization and measured performance |
 | [Sudoku](sudoku/README.md) | progressive, explainable human techniques followed by explicit search |
@@ -324,6 +375,7 @@ the [finite-CSP guide](csp_solver/README.md) for formulations and commands.
 - [Architecture: two engines and their coordinator](docs/architecture.md)
 - [Finite CSP, optimization and mixed-model contract](docs/finite_model_contract.md)
 - [Declarative finite model language](docs/finite_language.md)
+- [Workforce scheduling API and examples](docs/scheduling.md)
 - [Runtime boundary tutorials](docs/runtime_tutorial.md)
 - [Learned-factor language plan](docs/learned_factor_language_plan.md)
 - [Current CSP optimization roadmap](docs/csp_optimization_roadmap_2026-09-16.md)
@@ -339,6 +391,14 @@ should be imported from their defining modules. All historical explicit root
 imports remain compatible during the 0.1 series.
 
 ## Reproducibility and performance
+
+The [scheduling measurements](docs/scheduling.md#examples-and-measurements)
+compare three fresh-process runs per configuration. The basic workforce model
+falls from a 100 ms median to 37 ms with automatic positive-factor bounds, or
+18 ms with objective-based value ordering. A wider-domain variant proves its
+optimum in 89 ms with both options; the earlier version finds only a feasible
+schedule within five seconds. These are small synthetic workloads; the archive
+records source hashes and checks that all 32 basic schedules retain their scores.
 
 The [Prune comparison](docs/performance_prune_2026-09-16.md) adds a shared-model
 pure CSP/optimization portfolio with independent Gecode validation, recorded
@@ -418,12 +478,13 @@ and the optional regular-BP adapter are implemented; learned parameters and
 broader probabilistic extensions remain research.
 
 Validation covers rule matching, CSP support oracles, exact optimization, mixed
-fixed points, rollback, explanations and Markov applications. The
-[latest solver validation](benchmarks/results/csp_admask_2026-09-17/validation.md)
-records 1,113 passing tests and 3 skipped, plus package checks. Historical
-[review-fix evidence](docs/project_status.md#review-fix-validation--8-september-2026)
-and [runtime tutorials](docs/runtime_tutorial.md) retain the operational behavior
-and compatibility checks.
+fixed points, rollback, explanations, scheduling and Markov applications. The
+[scheduling validation](docs/project_status.md#scheduling-validation--26-september-2026)
+records 1,155 passing tests and 6 skipped, plus package checks. Earlier results
+remain in the [solver validation](benchmarks/results/csp_admask_2026-09-17/validation.md)
+and [review-fix evidence](docs/project_status.md#review-fix-validation--8-september-2026).
+The [runtime tutorials](docs/runtime_tutorial.md) demonstrate operational behavior
+and compatibility boundaries.
 
 The [Blues research handoff](docs/research/blues_villani_2026-09-16/README.md)
 collects ordinary, exotic and Boulez results, performance evidence and LaTeX tables.

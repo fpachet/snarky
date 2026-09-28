@@ -72,6 +72,21 @@ the direct finite runtime, although constraint definitions and reference kernels
 are shared. It remains available for compatibility and existing applications;
 the standalone finite solver does not require installing the companion.
 
+### Scheduling within the finite runtime
+
+The [scheduling API](scheduling.md) represents tasks through ordinary start,
+resource and presence variables. Temporal helpers compose arithmetic and Boolean
+constraints; availability, capacity, resource load and workload use native
+filtering kernels. All participate in the incident queue, guarded activation,
+checkpoint restoration and domain-removal explanations. Independent complete
+predicates check their feasibility.
+
+Worker preferences use existing rules and factors. For supported positive
+integer factors, automatic bounds compile a finite rule relaxation and bound
+the matching scopes using required and possible facts. The ordinary rule engine
+still supplies complete scores and provenance. Compilation budgets bound this
+additional work; unsupported cases retain the existing safe fallback.
+
 ### Language model
 
 `terms.py`, `facts.py`, `substitutions.py`, `matching.py`, `premises.py`,

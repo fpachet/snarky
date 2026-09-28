@@ -15,6 +15,8 @@ should not be mechanically mixed with English sections.
   engines, their mixed coordinator, and the legacy fact-backed CSP interface.
 - [Finite model language](finite_language.md): standalone solving, explicit
   objectives and mixed rules/constraints through `.model` and Python.
+- [Workforce scheduling](scheduling.md): Python task helpers, availability and
+  rest, optional alternatives, capacity, staffing, workload and preference costs.
 - [Project status and validation map](project_status.md): completed review
   fixes, compatibility boundaries, test scopes, and remaining research work.
 - [Runtime boundary tutorials](runtime_tutorial.md): executable examples of
@@ -88,6 +90,8 @@ should not be mechanically mixed with English sections.
 
 ## Applications
 
+- [Workforce scheduling](scheduling.md): runnable basic and extended workforce
+  examples, optimization bounds, measured performance and modeling limits.
 - [Markov constraints](markov_constraints_application.md): exact Blues and melody
   optimization, paper reproductions, control examples and performance records.
 - [Finite CSP](../csp_solver/README.md)
