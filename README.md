@@ -44,6 +44,8 @@ behavior and modern extensions are documented separately.
 - **Discrete scheduling:** [thin task helpers](docs/scheduling.md) for precedence,
   resource non-overlap/rest, multi-window availability, optional alternatives,
   capacity, staffing coverage and workload, with rule-derived preference bounds.
+  Explicitly certified interchangeable tasks can use opt-in resource ordering
+  for optimization; workload filtering updates only affected task contributions.
 - **Search and optimization:** feasibility, enumeration, integer branch-and-bound,
   factor objectives, exact rational-product objectives, admissible bounds and
   propagated integer incumbent cuts. Results distinguish a feasible solution,
@@ -392,6 +394,13 @@ imports remain compatible during the 0.1 series.
 
 ## Reproducibility and performance
 
+The [32-task scheduling benchmark](docs/performance_scheduling_2026-09-28.md)
+proves the population POC's optimum in **148 ms** with explicitly certified task
+symmetry and optimized workload filtering. Symmetry alone takes 3.40 seconds;
+the original model finds the optimum but cannot prove it within ten seconds.
+The report separates propagation and symmetry gains, measures existing scheduling
+test runtimes and documents API migration.
+
 The [scheduling measurements](docs/scheduling.md#examples-and-measurements)
 compare three fresh-process runs per configuration. The basic workforce model
 falls from a 100 ms median to 37 ms with automatic positive-factor bounds, or
@@ -479,8 +488,8 @@ broader probabilistic extensions remain research.
 
 Validation covers rule matching, CSP support oracles, exact optimization, mixed
 fixed points, rollback, explanations, scheduling and Markov applications. The
-[scheduling validation](docs/project_status.md#scheduling-validation--26-september-2026)
-records 1,155 passing tests and 6 skipped, plus package checks. Earlier results
+[scheduling optimization validation](docs/performance_scheduling_2026-09-28.md#validation)
+records 1,189 passing tests and 6 skipped, plus package checks. Earlier results
 remain in the [solver validation](benchmarks/results/csp_admask_2026-09-17/validation.md)
 and [review-fix evidence](docs/project_status.md#review-fix-validation--8-september-2026).
 The [runtime tutorials](docs/runtime_tutorial.md) demonstrate operational behavior

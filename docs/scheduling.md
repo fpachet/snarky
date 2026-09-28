@@ -181,6 +181,70 @@ Otherwise posting every pair with `NoOverlap` remains correct.
 
 ## Preferences and optimization
 
+### Interchangeable tasks
+
+`interchangeable_task_constraints` builds resource-order constraints for a group
+of **explicitly certified interchangeable mandatory tasks**. It is opt-in:
+neither model construction nor `solve` discovers groups or applies symmetry
+reduction automatically. Import it from `snarky.finite`.
+
+```python
+from snarky.finite import interchangeable_task_constraints
+
+ordering = interchangeable_task_constraints(
+    group,
+    model.domains,
+    resource_order=workers_in_rank_order,
+    private_resources={task.name: emergency_for_task[task.name] for task in group},
+    certified=True,
+    distinct_resources=True,
+)
+```
+
+Here `group` contains the application's tasks, `workers_in_rank_order` is an
+ordered sequence of resource values, and `emergency_for_task` maps task names to
+their private resource values. Add the returned constraints to a **separate model
+for optimization**, for example with `dataclasses.replace`. Omit
+`private_resources` when there are no private alternatives. Pass `name=Atom(...)`
+to distinguish multiple groups with otherwise colliding constraint names.
+
+The certification has a precise meaning: permuting complete task assignments,
+including starts and resources, and renaming each private resource with its task
+must preserve **all hard constraints and the objective**. Availability, eligibility,
+costs, rules, guards, coverage, precedence and Python predicates must respect that
+permutation. Equal duration and start domains alone do not establish this property.
+An emergency can move to another task only by becoming that task's private
+emergency with equivalent availability, costs and other effects.
+
+The helper checks equal durations, identical nonempty integer start domains,
+equal shared-resource eligibility, distinct task variables and task names,
+mandatory presence, a unique explicit resource order, and private alternatives
+that are unique, declared for their own task and absent from the shared order.
+It rejects unknown resource values. It cannot prove that the rest of the model
+respects the certification; passing `certified=True` with asymmetric preferences
+or restrictions can remove the true optimum.
+
+By default, shared resource ranks are nondecreasing: one worker may execute
+multiple tasks. `distinct_resources=True` additionally certifies that every shared
+resource can occur at most once within this group; shared ranks then increase
+strictly. Private alternatives sort last and can repeat their rank because their
+identities are distinct. The helper returns adjacent binary tables, or an always
+false disjunction if an adjacent pair has no allowed row.
+
+Under these assumptions, sorting each assignment by resource rank retains a
+feasible representative with the same score, so an optimal value and a witness
+are preserved for minimization or maximization. Counts, probabilities and the
+selected tied witness can change. The returned objects are ordinary constraints:
+they do not carry a query restriction. **Do not add them to the original model
+used for enumeration, partition functions or sampling.** There is no automatic
+restoration of removed permutations. Rebuild them if domains or eligibility change.
+
+See the [32-task optimization report](performance_scheduling_2026-09-28.md) for
+the POC migration, independent validation and separate measurements of symmetry
+and workload propagation.
+
+### Preference factors
+
 A `TableFactor` can score `(worker, start)` tuples, with zero default for all
 other assignments. Rules can instead derive `(task penalty early)` facts from
 commute, family or transport attributes. An `IntegerFactor` queries those facts

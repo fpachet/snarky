@@ -45,10 +45,12 @@ from .scheduling import (
     no_overlap_constraints,
     resource_capacity_constraints,
 )
+from .scheduling_symmetry import interchangeable_task_constraints
 from .search import solve
 from .variable_markov import MarkovGeneration, MarkovGraph, MarkovOptimum, NGramModel
 
 __all__ = [
+    "interchangeable_task_constraints",
     "AllOfConstraint",
     "AvailabilityConstraint",
     "ResourceLoadConstraint",

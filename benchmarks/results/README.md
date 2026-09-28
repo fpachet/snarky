@@ -1,5 +1,18 @@
 # Archived benchmark results
 
+Workforce task symmetry and workload propagation:
+[scheduling_symmetry_2026-09-28.json](scheduling_symmetry_2026-09-28.json) records
+24 fresh-process runs across four ablations and two model sizes, plus separate
+profiles. The [candidate patch](scheduling_symmetry_2026-09-28_candidate.patch)
+reconstructs the measured runtime and collector over `f8c82b5`; the
+[original profile](scheduling_symmetry_2026-09-28_profile_original.txt) identifies
+the initial bottleneck. See the [report](../../docs/performance_scheduling_2026-09-28.md).
+
+[scheduling_tests_2026-09-28.json](scheduling_tests_2026-09-28.json) records five
+interleaved repetitions per workload kernel of the same 40 existing scheduling
+and factor-bound tests, with outcomes and per-test durations. It measures the
+effect on regression-test execution separately from the 32-task benchmark.
+
 These JSON and CSV files are immutable raw records produced by benchmark
 programs. They are tracked as scientific evidence because they document A/B
 decisions, but they are not runtime source and are excluded from Python

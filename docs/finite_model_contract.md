@@ -103,6 +103,19 @@ when using that count as distinct headcount. Pair elimination through
 `no_overlap_constraints` relies on declared domains, so widening them requires
 rebuilding the constraints. The helpers add no `.model` syntax.
 
+`interchangeable_task_constraints` is an explicit modeling operation for
+optimization. The caller certifies that complete task permutations and private
+resource renaming preserve hard constraints and scores; the helper checks only
+structural prerequisites. Its ordinary constraints reduce the labeled solution
+set. Keep the original model for enumeration and probability queries. See the
+[certification contract](scheduling.md#interchangeable-tasks).
+
+Workload filtering keeps per-task contribution extrema and updates only the
+relations affected by a candidate. Shared variable references are considered
+together, and constant contributions are excluded from candidate checks. This
+state is local to each revision and survives no rollback boundary. Filtering
+retains the same independent-task sum relaxation as the reference kernel.
+
 ## Initial scoreable rule fragment
 
 Admit function-free, positive, range-restricted rules over flat triples with

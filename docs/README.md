@@ -17,6 +17,8 @@ should not be mechanically mixed with English sections.
   objectives and mixed rules/constraints through `.model` and Python.
 - [Workforce scheduling](scheduling.md): Python task helpers, availability and
   rest, optional alternatives, capacity, staffing, workload and preference costs.
+- [Scheduling optimization](performance_scheduling_2026-09-28.md): explicit task
+  symmetry, faster workload filtering and controlled 32-task proof measurements.
 - [Project status and validation map](project_status.md): completed review
   fixes, compatibility boundaries, test scopes, and remaining research work.
 - [Runtime boundary tutorials](runtime_tutorial.md): executable examples of

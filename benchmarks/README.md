@@ -417,3 +417,35 @@ the API, limitations and repeated A/B measurements.
 generated/scheduling_comparison.json` compares a previous source snapshot with
 the current runtime in fresh processes. See the [raw records](results/scheduling_2026-09-26.json)
 and [reference patch](results/scheduling_2026-09-26_before.patch).
+
+The [32-task collector](scheduling_symmetry.py) ports the population POC's archived
+inputs and model without its API dependency. Run:
+
+```sh
+python -m benchmarks.scheduling_symmetry --repeat 3 --seconds 10 \
+  --output generated/scheduling_symmetry_new.json
+```
+
+It compares the original workload kernel from `f8c82b5`, symmetry alone, optimized
+workload propagation alone and both changes. Each variant runs monolithically
+and as four independently solved skill groups. The ten-second limit is per solve;
+decomposed totals may therefore exceed ten seconds. Profiles run separately from
+latency measurements. No cache reuses component proofs. Every incumbent is
+independently checked; a matching oracle is called only after each solve.
+The output refuses to overwrite an existing record and embeds the reference
+kernel, inputs and current source hashes. See the
+[report](../docs/performance_scheduling_2026-09-28.md) and
+[raw archive](results/scheduling_symmetry_2026-09-28.json).
+
+To measure the effect on the 40 existing scheduling and factor-bound tests:
+
+```sh
+python -m benchmarks.scheduling_test_comparison --repeat 5 \
+  --output generated/scheduling_tests_new.json
+```
+
+This uses the same historical workload kernel and current tests in fresh
+processes, with no added symmetry constraints. It records whole pytest invocation
+time and individual test-call durations; no timing is an assertion. See the
+[test timing archive](results/scheduling_tests_2026-09-28.json) and the
+[interpretation](../docs/performance_scheduling_2026-09-28.md#effect-on-existing-scheduling-tests).

@@ -108,6 +108,16 @@ of the basic demo before and after optimization. The extended demo's tested
 optimum is 8. See the [scheduling guide](scheduling.md) for modeling limits and
 the source snapshot used for performance comparisons.
 
+## Scheduling optimization — 28 September 2026
+
+An explicit caller-certified task-symmetry helper and faster workload filtering
+prove the 32-task population POC's optimum in a median 148 ms. The controlled
+comparison isolates both changes, retains monolithic and decomposed variants,
+and validates all incumbents independently. Full validation passed 1,189 tests
+with 6 skipped, plus lint, type, DSL, documentation and packaging checks.
+The [report](performance_scheduling_2026-09-28.md) records reproduction, API
+limits and the exact migration from the POC's handwritten ordering constraints.
+
 ## Remaining work outside the review fixes
 
 Publication still requires the decisions recorded in

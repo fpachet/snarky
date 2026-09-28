@@ -131,7 +131,7 @@ def revise_workload(
     options: list[tuple[tuple[Term, ...], list[tuple[tuple[Term, ...], int]]]] = []
     for task in constraint.tasks:
         assert task.resource is not None
-        scope = tuple(
+        scope: tuple[Term, ...] = tuple(
             dict.fromkeys(
                 v
                 for v in (
@@ -161,21 +161,62 @@ def revise_workload(
             rows.append((row, load))
         options.append((scope, rows))
 
-    def possible() -> bool:
-        lower = upper = 0
-        for scope, rows in options:
-            _check(deadline)
-            loads = [
-                load
-                for row, load in rows
-                if all(
-                    value in domains[var] for var, value in zip(scope, row, strict=True)
-                )
-            ]
-            if not loads:
-                return False
-            lower += min(loads)
-            upper += max(loads)
-        return lower <= constraint.maximum and upper >= constraint.minimum
-
-    return _filter_candidates(domains, possible, deadline)
+    if any(not values for values in domains.values()):
+        return False
+    # Each candidate only changes relations mentioning its variable. Keep total
+    # extrema and replace those incident contributions instead of rescanning the
+    # entire workforce. All state is local to this revision, so rollback is free.
+    lows, highs = [], []
+    incident: dict[Term, list[tuple[int, int]]] = {v: [] for v in domains}
+    for i, (scope, rows) in enumerate(options):
+        loads = [load for _, load in rows]
+        if not loads:
+            return False
+        lows.append(min(loads))
+        highs.append(max(loads))
+        # Constant contributions (including ineligible workers) cannot affect
+        # candidate support. Retain their constant in the total only.
+        if lows[-1] != highs[-1]:
+            for position, var in enumerate(scope):
+                incident[var].append((i, position))
+    lower, upper = sum(lows), sum(highs)
+    if lower > constraint.maximum or upper < constraint.minimum:
+        return False
+    for var, affected in incident.items():
+        _check(deadline)
+        if not affected:
+            continue
+        base_low = lower - sum(lows[i] for i, _ in affected)
+        base_high = upper - sum(highs[i] for i, _ in affected)
+        supported = set()
+        for value in domains[var]:
+            candidate_low, candidate_high = base_low, base_high
+            for i, position in affected:
+                _check(deadline)
+                loads = [load for row, load in options[i][1] if row[position] == value]
+                if not loads:
+                    break
+                candidate_low += min(loads)
+                candidate_high += max(loads)
+            else:
+                if (
+                    candidate_low <= constraint.maximum
+                    and candidate_high >= constraint.minimum
+                ):
+                    supported.add(value)
+        if not supported:
+            domains[var] = set()
+            return False
+        if supported == domains[var]:
+            continue
+        domains[var] = supported
+        for i, position in affected:
+            scope, rows = options[i]
+            rows = [(row, load) for row, load in rows if row[position] in supported]
+            options[i] = scope, rows
+            loads = [load for _, load in rows]
+            low, high = min(loads), max(loads)
+            lower += low - lows[i]
+            upper += high - highs[i]
+            lows[i], highs[i] = low, high
+    return True

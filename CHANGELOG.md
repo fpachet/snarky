@@ -24,6 +24,9 @@ details are documented in [docs/versioning.md](docs/versioning.md).
 
 ### Validation and documentation
 
+- Archived a five-repeat comparison of the 40 existing scheduling/factor tests
+  under historical and optimized workload filtering, documenting the modest
+  regression-suite gains separately from the larger scheduling benchmark.
 - Added a workforce scheduling README quick start, modeling and result-reading
   guidance, documentation navigation and current validation evidence. Updated
   the finite contract to describe positive rule-derived objective bounds and
@@ -50,6 +53,14 @@ details are documented in [docs/versioning.md](docs/versioning.md).
 
 ### Added
 
+- Added `interchangeable_task_constraints` for caller-certified scheduling
+  symmetry, with explicit shared-resource order and private alternatives.
+  Default ordering permits resource reuse; strict ordering requires a separate
+  uniqueness certification. Original enumeration and inference remain unchanged.
+- Workload propagation now updates affected task contribution bounds instead
+  of scanning every task for every candidate. Shared-variable semantics,
+  independent complete checks, deadlines and rollback are preserved. See the
+  [32-task benchmark](docs/performance_scheduling_2026-09-28.md).
 - Scheduling now includes joint multi-window availability, minimum rest and
   precedence gaps, staffing coverage, capacity per assigned resource, working-time
   bounds and optional alternatives. Pair generation omits provably irrelevant
