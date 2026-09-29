@@ -373,19 +373,19 @@ def test_invalid_scheduling_arguments():
         ).propagate()
 
 
-def test_cumulative_three_tasks_and_weak_propagation_is_documented():
+def test_cumulative_three_tasks_and_compulsory_overload():
     tasks = (Task("a", X, 2), Task("b", Y, 2), Task("c", Z, 2))
     s = state(
         (variable(X, [0]), variable(Y, [0]), variable(Z, [0, 1, 2])), Capacity(tasks, 2)
     )
     assert s.propagate()
     assert values(s, Z) == {Number(2)}
-    # No mandatory-part/energetic reasoning: search detects this impossibility.
+    # Every task must cover [1,2); three units exceed capacity two.
     weak = state(
         (variable(X, [0, 1]), variable(Y, [0, 1]), variable(Z, [0, 1])),
         Capacity(tasks, 2),
     )
-    assert weak.propagate()
+    assert not weak.propagate()
     assert solve(weak.model).status is ResultStatus.INFEASIBLE
 
 

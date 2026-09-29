@@ -415,7 +415,10 @@ def search[Checkpoint](
             values = state.domains.values(variable)
             if reverse_values:
                 values = values[::-1]
-            if value_policy == "objective":
+            if value_policy == "objective" and not (
+                isinstance(model.objective, LinearObjective)
+                and variable not in model.objective.variables
+            ):
                 current_domains = dict(state.domains.snapshot())
                 ranked = []
                 for symbol in values:

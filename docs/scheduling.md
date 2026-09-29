@@ -160,11 +160,14 @@ formulation—table channels to hours variables plus a linear sum—remains usef
 when those hours also participate in a soft fairness objective.
 
 These propagators provide sound filtering, not complete consistency across
-correlated tasks. Capacity considers fixed intervals for lower-bound loads;
-coverage sums each task's possible contribution for an upper bound. Candidate
-restrictions apply to every shared variable reference. Some infeasibility still
-requires search. There is no mandatory-part timetable, energetic reasoning or
-edge finding. Endpoint checks avoid allocating a dense calendar.
+correlated tasks. For mandatory tasks with distinct starts, `Capacity` uses
+compulsory intervals and detects resource overload in windows containing whole
+execution envelopes. Optional tasks and shared starts retain fixed-interval
+filtering. Coverage sums each task's possible contribution for an upper bound.
+Candidate restrictions apply to every shared variable reference. Some
+infeasibility still requires search; full energetic reasoning and edge finding
+are not implemented. Endpoint checks avoid allocating a dense calendar. See the
+[propagation comparison](performance_scheduling_improvements_2026-09-29.md).
 
 ### Avoiding unnecessary pairs
 

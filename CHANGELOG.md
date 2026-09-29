@@ -53,6 +53,13 @@ details are documented in [docs/versioning.md](docs/versioning.md).
 
 ### Added
 
+- Mandatory `Capacity` tasks with distinct starts now share a compulsory-load
+  profile and detect overload in windows containing whole execution envelopes.
+  Binary numeric disjunctions, including fixed-machine `NoOverlap`, use compiled
+  support masks; linear objective ordering skips unrelated variables. The
+  [scheduling comparison](docs/performance_scheduling_improvements_2026-09-29.md)
+  measures these changes and optional constructive incumbents against an archived
+  runtime, with independent schedule validation and exhaustive small-model tests.
 - Added `interchangeable_task_constraints` for caller-certified scheduling
   symmetry, with explicit shared-resource order and private alternatives.
   Default ordering permits resource reuse; strict ordering requires a separate

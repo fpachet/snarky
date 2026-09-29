@@ -147,3 +147,23 @@ Retain these notices when redistributing the benchmark fixtures. The fixtures
 are excluded from Snarky's Python distributions by the existing package whitelist.
 The benchmark runner records its temporary MiniZinc syntax compatibility patch
 separately; no upstream solver code is copied into the Snarky runtime.
+
+## Established scheduling benchmark data
+
+The [scheduling manifest](benchmarks/data/scheduling_standard/manifest.json) pins
+unmodified upstream downloads and selected J30 member hashes, retrieved
+2026-09-29. Inputs live only in the ignored
+`generated/scheduling_standard/cache/` directory and are fetched explicitly by
+`python -m benchmarks.scheduling_standard --fetch`.
+
+| Material | Origin and terms | Decision |
+|---|---|---|
+| PSPLIB single-mode J30 archive and optimal objective table | R. Kolisch and A. Sprecher; optimum table E. Demeulemeester / W. Herroelen (June 1995). The [library notice](https://www.om-db.wi.tum.de/psplib/library.php) expressly permits downloading and using the datasets to evaluate algorithms; no explicit redistribution license was found on the library, general information or download pages. | Cache only; exclude upstream inputs and solution tables from Git, tagged releases, wheels and source distributions pending redistribution review. |
+| OR-Library `jobshop1.txt` | J. E. Beasley; contributors Dirk C. Mattfeld and Rob J. M. Vaessens. FT instances: Fisher and Thompson (1963); LA instances: Lawrence (1984). The [legal notice](https://people.brunel.ac.uk/~mastjjb/jeb/orlib/legal.html) applies MIT, copyright (c) 2010 J E Beasley, requiring preservation of the copyright and permission notice. | Cache only in this assessment; preserve the MIT notice with any future redistributed copy. |
+
+Published job-shop objective values are cited numerical evaluation metadata from
+Piroozfard, Wong and Hassan (2016), [Table 2 and its optimality footnote](https://doi.org/10.1155/2016/7319036).
+No paper text, reference schedules or upstream solver code is bundled. Generated
+Snarky start vectors, counters and measurements are first-party evidence. The
+package whitelist excludes benchmark code, metadata and results. Synthetic unit
+test instances are original to this repository.

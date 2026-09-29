@@ -449,3 +449,50 @@ processes, with no added symmetry constraints. It records whole pytest invocatio
 time and individual test-call durations; no timing is an assertion. See the
 [test timing archive](results/scheduling_tests_2026-09-28.json) and the
 [interpretation](../docs/performance_scheduling_2026-09-28.md#effect-on-existing-scheduling-tests).
+
+## Established scheduling: PSPLIB J30 and OR-Library job shop
+
+```sh
+python -m benchmarks.scheduling_standard --fetch
+python -m benchmarks.scheduling_standard --repeat 3 --seconds 10 \
+  --output generated/scheduling_standard_new.json
+pytest tests/test_scheduling_standard.py
+```
+
+Run from an installed source checkout. Fetch verifies the pinned hashes and caches
+upstream data under ignored `generated/`; normal runs are offline. A changed
+upstream download fails verification and requires a reviewed manifest update.
+Outputs refuse overwriting. Each case uses a fresh process, with case order
+reversed on alternate repetitions. No published objective enters a model.
+
+The [fixed selection and protocol](data/scheduling_standard/README.md) include
+12 J30 projects and FT06/LA01–LA05. The
+[importers, models and validators](scheduling_instances.py) preserve original
+precedences, integer durations, resource demands and makespan minimization.
+The [report](../docs/performance_scheduling_standard_2026-09-29.md) explains the
+zero-duration encoding and domain bounds. The
+[raw results](results/scheduling_standard_2026-09-29.json) retain every timeout,
+all incumbent start vectors, independently checked witnesses, search counters,
+construction/first-feasible/proof timings, bounds, gaps and source hashes.
+
+To revalidate saved witnesses without rerunning search:
+
+```sh
+python -m benchmarks.scheduling_verify \
+  benchmarks/results/scheduling_standard_2026-09-29.json
+```
+
+The [optimization follow-up](../docs/performance_scheduling_improvements_2026-09-29.md)
+uses the archived runtime as a reference and compares kernel changes, constructive
+incumbents and compact models on the same cases:
+
+```sh
+python -m benchmarks.scheduling_improvements --repeat 3 --seconds 10 \
+  --output generated/scheduling_improvements_new.json
+python -m benchmarks.scheduling_verify \
+  benchmarks/results/scheduling_improvements_2026-09-29.json
+```
+
+The [comparison protocol](data/scheduling_standard/IMPROVEMENTS.md) includes
+heuristic generation in the ten-second budget. The witness verifier also checks
+the saved constructive improvement history.

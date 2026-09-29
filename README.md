@@ -401,6 +401,19 @@ the original model finds the optimum but cannot prove it within ten seconds.
 The report separates propagation and symmetry gains, measures existing scheduling
 test runtimes and documents API migration.
 
+The [established scheduling assessment](docs/performance_scheduling_standard_2026-09-29.md)
+adds fixed PSPLIB J30 and OR-Library job-shop cases, reproducible downloads,
+independent schedule validators and repeated fresh-process measurements.
+With ten seconds per search, nine of 12 selected J30 cases and FT06 were proved
+optimal in all three repetitions; three J30 cases and LA01–LA05 found no feasible
+schedule within the budget.
+
+The [optimization follow-up](docs/performance_scheduling_improvements_2026-09-29.md)
+compares compiled numeric alternatives, stronger capacity filtering, constructive
+incumbents and compact models against that archived baseline. With the new kernels
+and constructive incumbents, 12 of 18 cases are proved optimal and all 18 have
+validated schedules, consistently across three repetitions.
+
 The [scheduling measurements](docs/scheduling.md#examples-and-measurements)
 compare three fresh-process runs per configuration. The basic workforce model
 falls from a 100 ms median to 37 ms with automatic positive-factor bounds, or

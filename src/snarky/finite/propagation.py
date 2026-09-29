@@ -198,7 +198,25 @@ class NativeState:
                 and isinstance(constraint, AllDifferentConstraint)
                 else None
             )
-            if different is not None:
+            disjunction = (
+                self._numeric.disjunction(index, constraint)
+                if self._numeric is not None and isinstance(constraint, AnyOfConstraint)
+                else None
+            )
+            if disjunction is not None:
+                assert isinstance(constraint, AnyOfConstraint)
+                left, right = constraint.alternatives
+                assert isinstance(left, LinearSumConstraint)
+                assert isinstance(right, LinearSumConstraint)
+                supported = disjunction.supports(
+                    self.domains, (left.target, right.target)
+                )
+                if supported is None:
+                    self.failure = cause
+                    return False
+                for var, mask in zip(disjunction.variables, supported, strict=True):
+                    self.domains.retain_mask(var, mask, cause)
+            elif different is not None:
                 if not self._revise_alldifferent(different, cause):
                     self.failure = cause
                     return False

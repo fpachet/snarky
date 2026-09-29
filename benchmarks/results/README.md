@@ -192,3 +192,32 @@ records acceptance, incomplete proofs and the reproduced
 [completion-cache memory tradeoff](redesign_memory_investigation_2026-09-16.json).
 The earlier `redesign_comparison_2026-09-16.partial.json` is an interrupted harness
 record, retained for provenance, not a completed comparison.
+
+Established scheduling assessment:
+[scheduling_standard_2026-09-29.json](scheduling_standard_2026-09-29.json)
+records three fresh processes for each of 12 fixed PSPLIB J30 instances and
+FT06/LA01–LA05, with a common ten-second search budget. It retains every timeout
+and failure, all incumbent witnesses and source/data checksums. External inputs
+are fetched to an ignored cache using the pinned manifest. See the
+[assessment](../../docs/performance_scheduling_standard_2026-09-29.md).
+
+The adjacent [source snapshot](scheduling_standard_2026-09-29_sources.tar.gz),
+[separate profiles](scheduling_standard_2026-09-29_profiles.json),
+[smoke result](scheduling_standard_2026-09-29_smoke.json) and
+[validation log](scheduling_standard_2026-09-29_validation.txt) preserve the
+measurement context. The source snapshot contains only first-party files.
+
+Scheduling optimization comparison:
+[scheduling_improvements_2026-09-29.json](scheduling_improvements_2026-09-29.json)
+compares four variants on the same 18 cases, with three fresh processes per
+case/variant. The ten-second budget includes constructive generation and search.
+The [source snapshot](scheduling_improvements_2026-09-29_sources.tar.gz) preserves
+the measured implementation. The
+[report](../../docs/performance_scheduling_improvements_2026-09-29.md) separates
+proofs, feasible schedules, timeouts and regressions. The adjacent pilot is
+exploratory evidence and is excluded from the complete comparison's aggregates.
+The [kernel ablations](scheduling_improvements_2026-09-29_ablations.json) retain
+45 separate one-second diagnostic runs; their outcomes are not mixed with the
+main ten-second assessment.
+The [validation log](scheduling_improvements_2026-09-29_validation.txt) records
+1,233 passed tests, six skips, witness replay and package checks.

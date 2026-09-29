@@ -10,7 +10,12 @@ from __future__ import annotations
 from bisect import bisect_left, bisect_right
 
 from ..terms import Number, Term
-from .constraints import ConstraintOperator, LinearSumConstraint, SumConstraint
+from .constraints import (
+    AnyOfConstraint,
+    ConstraintOperator,
+    LinearSumConstraint,
+    SumConstraint,
+)
 from .domains import FiniteDomains
 
 # Bound extra compiled entries, not the domain store or integer magnitudes.
@@ -132,6 +137,9 @@ class NumericPlans:
             int, tuple[LinearSumConstraint | SumConstraint, NumericPlan | None]
         ] = {}
         self.entries = 0
+        self.disjunctions: dict[
+            int, tuple[AnyOfConstraint, NumericDisjunction | None]
+        ] = {}
 
     def get(
         self, index: int, constraint: LinearSumConstraint | SumConstraint
@@ -163,6 +171,28 @@ class NumericPlans:
         else:
             plan = self._compile(terms, operator)
         self.plans[index] = (constraint, plan)
+        return plan
+
+    def disjunction(
+        self, index: int, constraint: AnyOfConstraint
+    ) -> NumericDisjunction | None:
+        previous = self.disjunctions.get(index)
+        if previous is not None and previous[0] is constraint:
+            return previous[1]
+        plan = None
+        alternatives = constraint.alternatives
+        if len(alternatives) == 2 and all(
+            isinstance(c, LinearSumConstraint) for c in alternatives
+        ):
+            left, right = alternatives
+            assert isinstance(left, LinearSumConstraint)
+            assert isinstance(right, LinearSumConstraint)
+            if len(left.terms) == 2 and set(left.variables) == set(right.variables):
+                a = self._compile(left.terms, left.operator)
+                b = self._compile(right.terms, right.operator)
+                if a is not None and b is not None:
+                    plan = NumericDisjunction((a, b))
+        self.disjunctions[index] = (constraint, plan)
         return plan
 
     def _compile(
@@ -197,3 +227,32 @@ class NumericPlans:
                 self.entries += len(alphabet)
             columns.append(column)
         return NumericPlan(tuple(columns), operator)
+
+
+class NumericDisjunction:
+    """Exact union of two local numeric support sets; never prune an OR branch.
+
+    Both alternatives must cover the same two variables. Keeping alternative
+    supports separate is essential: applying either to global domains would turn
+    a disjunction into a conjunction. Mask-tagged caches remain rollback-safe.
+    """
+
+    def __init__(self, plans: tuple[NumericPlan, NumericPlan]) -> None:
+        self.plans = plans
+        self.variables = tuple(c.variable for c in plans[0].columns)
+        self.positions = tuple(
+            tuple(self.variables.index(c.variable) for c in p.columns) for p in plans
+        )
+
+    def supports(
+        self, domains: FiniteDomains, targets: tuple[int, int]
+    ) -> tuple[int, ...] | None:
+        union = [0, 0]
+        for plan, positions, target in zip(
+            self.plans, self.positions, targets, strict=True
+        ):
+            supported = plan.supports(domains, target)
+            if supported is not None:
+                for position, mask in zip(positions, supported, strict=True):
+                    union[position] |= mask
+        return tuple(union) if all(union) else None
