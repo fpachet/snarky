@@ -213,7 +213,7 @@ def validate_jobshop(instance, starts, makespan):
     return True
 
 
-def build_model(instance, *, compact=False, incumbent=None):
+def build_model(instance, *, compact=False, incumbent=None, conflicts=False):
     """Serial horizon, precedence heads/tails, elementary workload lower bound.
 
     Reference objectives and symmetry never enter this function. An optional
@@ -310,6 +310,29 @@ def build_model(instance, *, compact=False, incumbent=None):
             )
         )
     if isinstance(instance, Project):
+        if conflicts:
+            # A resource that cannot fit both activities implies a disjunction.
+            # Skip pairs already ordered by the original precedence graph.
+            reachable = [set() for _ in durations]
+            for i in reversed(order):
+                for j in successors[i]:
+                    reachable[i].add(j)
+                    reachable[i].update(reachable[j])
+            for a, b in combinations(tasks, 2):
+                if (
+                    b not in reachable[a]
+                    and a not in reachable[b]
+                    and any(
+                        x + y > cap
+                        for x, y, cap in zip(
+                            instance.demands[a],
+                            instance.demands[b],
+                            instance.capacities,
+                            strict=True,
+                        )
+                    )
+                ):
+                    constraints.append(NoOverlap(tasks[a], tasks[b]))
         for r, cap in enumerate(instance.capacities):
             ids = [i for i in tasks if instance.demands[i][r]]
             if ids:

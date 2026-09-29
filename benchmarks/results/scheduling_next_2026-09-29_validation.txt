@@ -1,0 +1,48 @@
+........................................................................ [  5%]
+........................................................................ [ 11%]
+........................................................................ [ 17%]
+........................................................................ [ 23%]
+........................................................................ [ 28%]
+........................................................................ [ 34%]
+...............................................................s.......s [ 40%]
+....s.....................................................ss............ [ 46%]
+........................................................................ [ 52%]
+........................................................................ [ 57%]
+........................................................................ [ 63%]
+........................................................................ [ 69%]
+........................................................................ [ 75%]
+........................................................................ [ 80%]
+........................................................................ [ 86%]
+........................................................................ [ 92%]
+........................................................................ [ 98%]
+.....................                                                    [100%]
+============================= slowest 10 durations =============================
+26.88s call     tests/test_harmonizer_project.py::test_long_form_harmonization_uses_a_prolonged_predominant
+23.89s call     tests/test_harmonizer_project.py::test_eight_bar_form_derives_a_plan_from_the_soprano_in_two_steps
+19.17s call     tests/test_harmonizer_project.py::test_appoggiatura_is_relative_to_metric_level_and_selected_harmony
+18.79s call     tests/test_harmonizer_project.py::test_lower_direction_new_role_candidates_are_derived[melody1-metric_levels1-escape_tone-derive_lower_escape_tone]
+15.03s call     tests/test_harmonizer_project.py::test_lower_direction_new_role_candidates_are_derived[melody0-metric_levels0-appoggiatura-derive_lower_appoggiatura]
+12.95s call     tests/test_harmonizer_project.py::test_long_weak_step_is_harmonized_instead_of_called_passing
+10.65s call     tests/test_harmonizer_project.py::test_neighbor_tone_candidates_are_generated_declaratively[melody0-upper_neighbor]
+10.45s call     tests/test_harmonizer_project.py::test_each_diatonic_note_receives_an_independent_harmonic_decision
+8.74s call     tests/test_harmonizer_project.py::test_neighbor_tone_candidates_are_generated_declaratively[melody1-lower_neighbor]
+5.18s call     tests/test_redesign_conformance.py::test_rulebases_preserve_complete_reference_observations[NaiveInstantiationStrategy-thesis/four_queens]
+1240 passed, 6 skipped in 207.14s (0:03:27)
+
+Additional checks:
+ruff check .: passed
+ruff format --check: passed (5 solver/harness/test files)
+mypy src: passed (102 source files)
+snarky check --syntax-only --format .: passed (305 files)
+Markdown links: passed
+git diff --check: passed
+Source distribution and wheel build (--no-isolation): passed
+Distribution content audit: passed
+Isolated wheel installation, imports, inference and console: passed
+Isolated exact scheduling order search: passed
+Main comparison: 162 runs, no errors or reference contradictions
+Main replay: 1446 stored schedule records independently validated
+Supplemental replay: 497 records across 21 runs independently validated
+All five archives: source_unchanged=true, identical runtime/harness hashes
+Source snapshot: all 110 members match recorded hashes and current workspace
+General finite solver source unchanged; new scheduling engine is opt-in

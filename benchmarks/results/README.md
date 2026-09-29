@@ -221,3 +221,19 @@ The [kernel ablations](scheduling_improvements_2026-09-29_ablations.json) retain
 main ten-second assessment.
 The [validation log](scheduling_improvements_2026-09-29_validation.txt) records
 1,233 passed tests, six skips, witness replay and package checks.
+
+Scheduling local improvement and order search:
+[scheduling_next_2026-09-29.json](scheduling_next_2026-09-29.json) compares the
+previous seeded method, local improvement with finite search, and a portfolio
+that shares incumbents with an explicit order solver. The
+[source snapshot](scheduling_next_2026-09-29_sources.tar.gz) preserves all measured
+runtime and driver files. See the
+[report](../../docs/performance_scheduling_order_2026-09-29.md) for scope, proof
+semantics and separate diagnostics.
+The [search diagnostics](scheduling_next_2026-09-29_search_diagnostics.json),
+[six-second controls](scheduling_next_2026-09-29_diagnostic_control.json),
+[model diagnostics](scheduling_next_2026-09-29_model_diagnostics.json) and
+[60-second runs](scheduling_next_2026-09-29_extended.json) retain all supplemental
+outcomes. They are excluded from the main three-repeat aggregates.
+The [validation log](scheduling_next_2026-09-29_validation.txt) records 1,240
+passed tests, six skips, independent witness replay and installed-package checks.

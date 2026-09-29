@@ -169,6 +169,13 @@ infeasibility still requires search; full energetic reasoning and edge finding
 are not implemented. Endpoint checks avoid allocating a dense calendar. See the
 [propagation comparison](performance_scheduling_improvements_2026-09-29.md).
 
+For mandatory fixed-duration schedules with fixed resource demands, an explicit
+`SchedulingProblem` / `solve_schedule` API searches over task orders. It supports
+precedence DAGs and renewable capacities, but does not support optional tasks,
+calendars, resource choices or mixed rules. See the
+[API example and comparison](performance_scheduling_order_2026-09-29.md#api-example).
+The general finite `solve` API continues to use its existing search.
+
 ### Avoiding unnecessary pairs
 
 ```python

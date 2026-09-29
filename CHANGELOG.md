@@ -53,6 +53,11 @@ details are documented in [docs/versioning.md](docs/versioning.md).
 
 ### Added
 
+- Added an opt-in scheduling order solver for mandatory fixed-duration tasks
+  and renewable resources, with resource bounds, forced precedences and exact
+  overloaded-set branching. Local schedule improvement and a benchmark portfolio
+  share incumbents across search phases. See the
+  [order-search comparison](docs/performance_scheduling_order_2026-09-29.md).
 - Mandatory `Capacity` tasks with distinct starts now share a compulsory-load
   profile and detect overload in windows containing whole execution envelopes.
   Binary numeric disjunctions, including fixed-machine `NoOverlap`, use compiled

@@ -44,6 +44,12 @@ assert result.status is ResultStatus.OPTIMAL
 assert result.incumbent.objective_value == -3
 print("isolated native CSP optimization without companion: ok")
 
+from snarky.finite.scheduling_search import SchedulingProblem, solve_schedule
+schedule = SchedulingProblem((2, 2, 2), ((), (), ()), ((1,),) * 3, (2,))
+scheduled = solve_schedule(schedule, (0, 2, 4))
+assert scheduled.status == "optimal" and scheduled.objective == scheduled.bound == 4
+print("isolated exact scheduling order search: ok")
+
 from dataclasses import replace
 from snarky.finite import NValueConstraint
 nvalue_model = replace(model, constraints=(NValueConstraint(Atom("one"), (x, y), 1),))

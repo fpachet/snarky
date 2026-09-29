@@ -414,6 +414,12 @@ incumbents and compact models against that archived baseline. With the new kerne
 and constructive incumbents, 12 of 18 cases are proved optimal and all 18 have
 validated schedules, consistently across three repetitions.
 
+The [order-search follow-up](docs/performance_scheduling_order_2026-09-29.md)
+adds local schedule improvement and an opt-in native search over task orders.
+Its portfolio proves **16 of 18 cases**, including every selected job shop, and
+finds schedules matching all 18 known optima. Two J30 cases remain unproved at
+ten seconds; preparation also adds overhead to some easy cases.
+
 The [scheduling measurements](docs/scheduling.md#examples-and-measurements)
 compare three fresh-process runs per configuration. The basic workforce model
 falls from a 100 ms median to 37 ms with automatic positive-factor bounds, or

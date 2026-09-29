@@ -496,3 +496,16 @@ python -m benchmarks.scheduling_verify \
 The [comparison protocol](data/scheduling_standard/IMPROVEMENTS.md) includes
 heuristic generation in the ten-second budget. The witness verifier also checks
 the saved constructive improvement history.
+
+The [order-search follow-up](../docs/performance_scheduling_order_2026-09-29.md)
+adds deterministic local improvement and an explicit scheduling search over
+precedence graphs. The [protocol](data/scheduling_standard/NEXT.md) includes
+incumbent sharing and phase budgets; optional propagation and longer runs remain
+separate diagnostics.
+
+```sh
+python -m benchmarks.scheduling_next --repeat 3 --seconds 10 \
+  --output generated/scheduling_next_new.json
+python -m benchmarks.scheduling_verify \
+  benchmarks/results/scheduling_next_2026-09-29.json
+```
