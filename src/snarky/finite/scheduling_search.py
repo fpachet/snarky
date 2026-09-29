@@ -7,7 +7,7 @@ It does not handle optional tasks, calendars, resource choices or mixed rules.
 from __future__ import annotations
 
 from collections.abc import Callable, Sequence
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from itertools import combinations
 from time import perf_counter
 
@@ -58,6 +58,73 @@ class ScheduleResult:
     nodes: int
     seconds: float
     history: tuple[tuple[int, tuple[int, ...], float], ...]
+    statistics: dict[str, int] = field(default_factory=dict)
+
+
+def add_conflict_cliques(
+    problem: SchedulingProblem, *, limit: int = 128, node_limit: int = 10_000
+) -> SchedulingProblem:
+    """Add redundant unary resources for pairwise incompatible task groups.
+
+    Two tasks are adjacent when their combined demand exceeds any original
+    capacity. Every clique is mutually exclusive even when its edges come from
+    different resources. Bounded, deterministic maximal-clique enumeration may
+    omit useful groups, but this never excludes an originally feasible schedule.
+    Existing unary groups and groups smaller than three are skipped.
+    """
+    if (
+        type(limit) is not int
+        or type(node_limit) is not int
+        or min(limit, node_limit) < 0
+    ):
+        raise ValueError("clique limits must be nonnegative integers")
+    n = len(problem.durations)
+    neighbors: list[set[int]] = [set() for _ in range(n)]
+    for i, j in combinations(range(n), 2):
+        if any(
+            a + b > c
+            for a, b, c in zip(
+                problem.demands[i], problem.demands[j], problem.capacities, strict=True
+            )
+        ):
+            neighbors[i].add(j)
+            neighbors[j].add(i)
+    existing = [
+        {i for i in range(n) if problem.demands[i][r] == c}
+        for r, c in enumerate(problem.capacities)
+    ]
+    groups: list[set[int]] = []
+    stack: list[tuple[set[int], set[int], set[int]]] = [(set(), set(range(n)), set())]
+    visits = 0
+    while stack and len(groups) < limit and visits < node_limit:
+        group, candidates, excluded = stack.pop()
+        visits += 1
+        if not candidates and not excluded:
+            if len(group) > 2 and not any(group <= old for old in existing):
+                groups.append(group)
+            continue
+        pivot = max(
+            sorted(candidates | excluded), key=lambda i: len(candidates & neighbors[i])
+        )
+        children = []
+        for i in sorted(candidates - neighbors[pivot]):
+            children.append(
+                (group | {i}, candidates & neighbors[i], excluded & neighbors[i])
+            )
+            candidates.remove(i)
+            excluded.add(i)
+        stack.extend(reversed(children))
+    if not groups:
+        return problem
+    return SchedulingProblem(
+        problem.durations,
+        problem.successors,
+        tuple(
+            row + tuple(int(i in group) for group in groups)
+            for i, row in enumerate(problem.demands)
+        ),
+        problem.capacities + (1,) * len(groups),
+    )
 
 
 def _paths(
@@ -305,6 +372,18 @@ def solve_schedule(
     nodes = 0
     root_bound = max(max(ds), 0)
     complete = True
+    stats = dict(
+        cycles=0,
+        bounds=0,
+        incompatible=0,
+        duplicates=0,
+        uncached=0,
+        branches=0,
+        covers=0,
+        cover_tasks=0,
+        max_cover=0,
+        energy=0,
+    )
     try:
         while stack:
             if perf_counter() >= deadline:
@@ -316,6 +395,7 @@ def solve_schedule(
             while True:
                 paths = _paths(problem, edges, head_floor, tail_floor)
                 if paths is None:
+                    stats["cycles"] += 1
                     break
                 heads, tails, order = paths
                 bound = _resource_bound(
@@ -324,6 +404,7 @@ def solve_schedule(
                 if nodes == 1:
                     root_bound = max(root_bound, bound)
                 if bound >= best:
+                    stats["bounds"] += 1
                     break
                 if not_first_last:
                     new_heads, new_tails = _not_first_last(
@@ -348,6 +429,7 @@ def solve_schedule(
                     elif not ba and b not in edges[a]:
                         forced.append((a, b))
                 if impossible:
+                    stats["incompatible"] += 1
                     break
                 if forced:
                     update = [set(row) for row in edges]
@@ -364,12 +446,16 @@ def solve_schedule(
                         reach[i] |= (1 << j) | reach[j]
                 key = tuple(reach)
                 if key in seen:
+                    stats["duplicates"] += 1
                     break
                 if len(seen) < 50_000:
                     seen.add(key)
+                else:
+                    stats["uncached"] += 1
                 if energetic and not _energy_possible(
                     problem, heads, tails, resources, best - 1, deadline
                 ):
+                    stats["energy"] += 1
                     break
                 cover = _overload(
                     problem, heads, resources, tails, conflict_policy == "critical"
@@ -383,6 +469,9 @@ def solve_schedule(
                             on_incumbent(best, best_starts)
                     break
                 branches = []
+                stats["covers"] += 1
+                stats["cover_tasks"] += len(cover)
+                stats["max_cover"] = max(stats["max_cover"], len(cover))
                 for a, b in combinations(cover, 2):
                     for i, j in ((a, b), (b, a)):
                         if heads[i] + ds[i] + ds[j] + tails[j] >= best:
@@ -396,6 +485,7 @@ def solve_schedule(
                         )
                         branches.append((priority, tuple(child)))
                 stack.extend(child for _, child in sorted(branches, reverse=True))
+                stats["branches"] += len(branches)
                 break
     except TimeoutError:
         complete = False
@@ -407,4 +497,5 @@ def solve_schedule(
         nodes,
         perf_counter() - began,
         tuple(history),
+        dict(stats, memo_entries=len(seen), frontier=len(stack)),
     )

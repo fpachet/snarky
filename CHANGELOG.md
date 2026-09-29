@@ -53,6 +53,11 @@ details are documented in [docs/versioning.md](docs/versioning.md).
 
 ### Added
 
+- Added opt-in scheduling conflict-clique resources and integer start-domain
+  search with timetable propagation and failed-domain probes. These close the
+  two remaining proofs in the fixed scheduling selection; see the
+  [optimality comparison](docs/performance_scheduling_proofs_2026-09-29.md).
+  Scheduling results now expose search and propagation diagnostic counters.
 - Added an opt-in scheduling order solver for mandatory fixed-duration tasks
   and renewable resources, with resource bounds, forced precedences and exact
   overloaded-set branching. Local schedule improvement and a benchmark portfolio

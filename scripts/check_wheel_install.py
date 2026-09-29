@@ -49,6 +49,15 @@ schedule = SchedulingProblem((2, 2, 2), ((), (), ()), ((1,),) * 3, (2,))
 scheduled = solve_schedule(schedule, (0, 2, 4))
 assert scheduled.status == "optimal" and scheduled.objective == scheduled.bound == 4
 print("isolated exact scheduling order search: ok")
+from snarky.finite.scheduling_search import add_conflict_cliques
+from snarky.finite.scheduling_windows import solve_windows
+windows = solve_windows(schedule, (0, 2, 4))
+assert windows.status == "optimal" and windows.objective == windows.bound == 4
+clique = SchedulingProblem(
+    (2, 2, 2), ((),) * 3, ((1, 1, 0), (1, 0, 1), (0, 1, 1)), (1, 1, 1)
+)
+assert solve_schedule(add_conflict_cliques(clique), (0, 2, 4)).bound == 6
+print("isolated scheduling cliques and domain shaving: ok")
 
 from dataclasses import replace
 from snarky.finite import NValueConstraint

@@ -98,6 +98,8 @@ should not be mechanically mixed with English sections.
   PSPLIB J30 and OR-Library FT06/LA01–LA05, with validators and raw evidence.
 - [Scheduling optimization comparison](performance_scheduling_improvements_2026-09-29.md):
   capacity propagation, numeric alternatives, constructive schedules and proofs.
+- [Scheduling proof search](performance_scheduling_proofs_2026-09-29.md): conflict
+  cliques and start-domain probing close the two remaining selected cases.
 - [Scheduling order search](performance_scheduling_order_2026-09-29.md): local
   improvement, exact precedence search, shared incumbents and remaining proofs.
 - [Markov constraints](markov_constraints_application.md): exact Blues and melody

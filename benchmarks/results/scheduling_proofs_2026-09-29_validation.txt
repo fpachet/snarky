@@ -1,0 +1,89 @@
+
+$ /Users/francoispachet/IdeaProjects/boojum/.venv/bin/python scripts/check_redesign.py --durations=10
+........................................................................ [  5%]
+........................................................................ [ 11%]
+........................................................................ [ 17%]
+........................................................................ [ 23%]
+........................................................................ [ 28%]
+........................................................................ [ 34%]
+...............................................................s.......s [ 40%]
+....s.....................................................ss............ [ 46%]
+........................................................................ [ 51%]
+........................................................................ [ 57%]
+........................................................................ [ 63%]
+........................................................................ [ 69%]
+........................................................................ [ 74%]
+........................................................................ [ 80%]
+........................................................................ [ 86%]
+........................................................................ [ 92%]
+........................................................................ [ 97%]
+..........................                                               [100%]
+============================= slowest 10 durations =============================
+30.59s call     tests/test_harmonizer_project.py::test_long_form_harmonization_uses_a_prolonged_predominant
+27.66s call     tests/test_harmonizer_project.py::test_eight_bar_form_derives_a_plan_from_the_soprano_in_two_steps
+21.52s call     tests/test_harmonizer_project.py::test_lower_direction_new_role_candidates_are_derived[melody1-metric_levels1-escape_tone-derive_lower_escape_tone]
+20.61s call     tests/test_harmonizer_project.py::test_appoggiatura_is_relative_to_metric_level_and_selected_harmony
+16.66s call     tests/test_harmonizer_project.py::test_lower_direction_new_role_candidates_are_derived[melody0-metric_levels0-appoggiatura-derive_lower_appoggiatura]
+13.63s call     tests/test_harmonizer_project.py::test_long_weak_step_is_harmonized_instead_of_called_passing
+11.92s call     tests/test_harmonizer_project.py::test_each_diatonic_note_receives_an_independent_harmonic_decision
+10.58s call     tests/test_harmonizer_project.py::test_neighbor_tone_candidates_are_generated_declaratively[melody0-upper_neighbor]
+10.26s call     tests/test_harmonizer_project.py::test_neighbor_tone_candidates_are_generated_declaratively[melody1-lower_neighbor]
+5.46s call     tests/test_redesign_conformance.py::test_rulebases_preserve_complete_reference_observations[NaiveInstantiationStrategy-thesis/four_queens]
+1245 passed, 6 skipped in 230.38s (0:03:50)
+
+$ .venv/bin/ruff check .
+All checks passed!
+
+$ .venv/bin/ruff format --check src/snarky/finite/scheduling_search.py src/snarky/finite/scheduling_windows.py benchmarks/scheduling_proofs.py tests/test_scheduling_proofs.py
+4 files already formatted
+
+$ .venv/bin/mypy src
+Success: no issues found in 103 source files
+
+$ /Users/francoispachet/IdeaProjects/boojum/.venv/bin/python -m snarky check --syntax-only --format .
+checked 305 file(s)
+
+$ /Users/francoispachet/IdeaProjects/boojum/.venv/bin/python scripts/check_markdown_links.py
+first-party Markdown links: ok
+
+$ /Users/francoispachet/IdeaProjects/boojum/.venv/bin/python -m build --no-isolation --outdir generated/scheduling_proofs/dist
+* Getting build dependencies for sdist...
+* Building sdist...
+* Building wheel from sdist
+* Getting build dependencies for wheel...
+* Building wheel...
+Successfully built snarky-0.1.0.tar.gz and snarky-0.1.0-py3-none-any.whl
+
+$ /Users/francoispachet/IdeaProjects/boojum/.venv/bin/python scripts/check_distribution.py generated/scheduling_proofs/dist
+distribution contents: ok
+
+$ /Users/francoispachet/IdeaProjects/boojum/.venv/bin/python scripts/check_wheel_install.py generated/scheduling_proofs/dist
+WARNING: The directory '/Users/francoispachet/Library/Caches/pip' or its parent directory is not owned or is not writable by the current user. The cache has been disabled. Check the permissions and owner of that directory. If executing pip with sudo, you should use sudo's -H flag.
+Processing /Users/francoispachet/IdeaProjects/boojum/generated/scheduling_proofs/dist/snarky-0.1.0-py3-none-any.whl
+Installing collected packages: snarky
+Successfully installed snarky-0.1.0
+isolated wheel import and inference: ok
+isolated native CSP optimization without companion: ok
+isolated exact scheduling order search: ok
+isolated scheduling cliques and domain shaving: ok
+isolated native NValue optimization: ok
+isolated mixed factor and Markov examples: ok
+isolated exact rational-product optimization: ok
+isolated permutation bound and validated warm start: ok
+isolated variable-order Markov, contour and prefix controls: ok
+isolated rational partition and exact sampling: ok
+isolated packaged MODEL examples: ok
+checked 2 file(s)
+checked 1 file(s)
+isolated console validation (companion=False): ok
+
+$ git diff --check
+
+Benchmark verification:
+Main comparison: 108 runs, 1110 schedule records independently validated
+Ablations: 18 runs, 153 schedule records independently validated
+Main: previous 16/18 proofs; candidate 18/18 proofs in every repetition
+All candidate algorithm totals (including construction) below ten seconds
+No process errors, evaluation contradictions, or mismatched final witnesses
+Both archives: source_unchanged=true, all 113 source/protocol hashes identical
+Source snapshot: all 113 members match recorded hashes and final workspace

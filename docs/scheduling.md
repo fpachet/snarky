@@ -176,6 +176,13 @@ calendars, resource choices or mixed rules. See the
 [API example and comparison](performance_scheduling_order_2026-09-29.md#api-example).
 The general finite `solve` API continues to use its existing search.
 
+For stronger proofs, `add_conflict_cliques` in `snarky.finite.scheduling_search`
+adds valid unary resources for mutually incompatible task groups. The separate
+`snarky.finite.scheduling_windows.solve_windows` API uses integer start domains,
+timetable filtering and failed-domain probes. It accepts incumbent makespans up
+to 10,000 and the same mandatory-task contract as order search. See the
+[optimality guide and measurements](performance_scheduling_proofs_2026-09-29.md).
+
 ### Avoiding unnecessary pairs
 
 ```python

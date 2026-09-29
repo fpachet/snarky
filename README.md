@@ -420,6 +420,11 @@ Its portfolio proves **16 of 18 cases**, including every selected job shop, and
 finds schedules matching all 18 known optima. Two J30 cases remain unproved at
 ten seconds; preparation also adds overhead to some easy cases.
 
+The [optimality follow-up](docs/performance_scheduling_proofs_2026-09-29.md)
+proves **all 18 selected cases in every repetition**, using redundant clique
+resources and start-domain probing. The ten-second budget includes heuristic
+preparation and search; the report records ablations and exhaustive checks.
+
 The [scheduling measurements](docs/scheduling.md#examples-and-measurements)
 compare three fresh-process runs per configuration. The basic workforce model
 falls from a 100 ms median to 37 ms with automatic positive-factor bounds, or

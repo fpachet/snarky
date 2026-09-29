@@ -509,3 +509,15 @@ python -m benchmarks.scheduling_next --repeat 3 --seconds 10 \
 python -m benchmarks.scheduling_verify \
   benchmarks/results/scheduling_next_2026-09-29.json
 ```
+
+The [optimality follow-up](../docs/performance_scheduling_proofs_2026-09-29.md)
+adds conflict-clique resources and root probing of start domains. The
+[protocol](data/scheduling_standard/PROOFS.md) compares the new portfolio with
+the archived `80abc15` runtime and separately removes each improvement.
+
+```sh
+python -m benchmarks.scheduling_proofs --repeat 3 --seconds 10 \
+  --output generated/scheduling_proofs_new.json
+python -m benchmarks.scheduling_verify \
+  benchmarks/results/scheduling_proofs_2026-09-29.json
+```

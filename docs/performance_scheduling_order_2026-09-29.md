@@ -1,5 +1,8 @@
 # Local improvement and exact scheduling order search
 
+The subsequent [optimality follow-up](performance_scheduling_proofs_2026-09-29.md)
+closes the two proofs left open in this comparison.
+
 This follow-up builds on the [kernel comparison](performance_scheduling_improvements_2026-09-29.md).
 **The new portfolio proves 16 of 18 cases within the common ten-second
 heuristic-plus-search budget, up from 12 with the previous seeded method. All

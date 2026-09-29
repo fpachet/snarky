@@ -237,3 +237,15 @@ The [search diagnostics](scheduling_next_2026-09-29_search_diagnostics.json),
 outcomes. They are excluded from the main three-repeat aggregates.
 The [validation log](scheduling_next_2026-09-29_validation.txt) records 1,240
 passed tests, six skips, independent witness replay and installed-package checks.
+
+Scheduling proof search:
+[scheduling_proofs_2026-09-29.json](scheduling_proofs_2026-09-29.json) compares
+the archived `80abc15` order portfolio with clique resources and domain probing.
+The [ablations](scheduling_proofs_2026-09-29_ablations.json) remove the window
+phase, clique resources or root probes on the two formerly unproved cases.
+The [source snapshot](scheduling_proofs_2026-09-29_sources.tar.gz) preserves the
+measured runtime and drivers. The
+[report](../../docs/performance_scheduling_proofs_2026-09-29.md) explains the
+proofs, scope, timing boundaries and independent checks; the
+[validation log](scheduling_proofs_2026-09-29_validation.txt) records 1,245
+passed tests, six skips, package checks and 1,263 validated schedule records.
