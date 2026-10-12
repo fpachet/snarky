@@ -20,7 +20,10 @@ def test_partial_last_record_is_retained_as_truncation_not_a_result():
         read_progress(event + "{broken}\n")
 
 
-def test_worker_node_limit_has_flushed_progress_and_a_truthful_final_result():
+@pytest.mark.parametrize("numeric_masks", ["on", "off"])
+def test_worker_node_limit_has_flushed_progress_and_a_truthful_final_result(
+    numeric_masks,
+):
     record = run(
         [
             sys.executable,
@@ -28,6 +31,8 @@ def test_worker_node_limit_has_flushed_progress_and_a_truthful_final_result():
             "--model",
             BASE / "artifacts/optimization--knapsack_20_opt.fzn.json",
             "--diagnostic",
+            "--numeric-masks",
+            numeric_masks,
             "--nodes",
             "1",
         ],
@@ -38,7 +43,8 @@ def test_worker_node_limit_has_flushed_progress_and_a_truthful_final_result():
     progress = [json.loads(line) for line in record["stderr"].splitlines()]
     assert result["nodes"] == 1 and not result["complete"]
     assert result["termination"] == "node_limit" and result["status"] == "unknown"
-    assert result["families"]["LinearSumConstraint"]["attempts"] > 0
+    family = "LinearSumConstraint" + (":mask" if numeric_masks == "on" else "")
+    assert result["families"][family]["attempts"] > 0
     assert progress[0]["event"] == "construction_start"
     assert progress[-1]["progress"]["event"] == "finished"
 

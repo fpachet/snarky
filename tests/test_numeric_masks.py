@@ -164,6 +164,7 @@ def test_fallback_budgets_and_wide_equalities(monkeypatch):
         Atom("x1"): frozenset((Number(1),)),
     }
     monkeypatch.setattr(numeric, "_MAX_ENTRIES", 100)
+    monkeypatch.setattr(numeric, "_MAX_EQUALITY_SPAN", 0)
     model = model_for([range(3)] * 3, [1, 1, 1], Op.EQUAL, 2)
     state = NativeState(model)
     assert state.propagate()

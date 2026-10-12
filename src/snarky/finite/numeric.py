@@ -1,6 +1,6 @@
 """Compiled integer contributions and exact supports in candidate-mask coordinates.
 
-Only inequalities and unary/binary equalities use this path. Other equalities
+Inequalities and bounded-span integer equalities use this path. Wider equalities
 and noninteger alphabets retain the reference kernels. Caches are mask-tagged,
 not search-depth-tagged, so rollback needs no cache trail.
 """
@@ -21,6 +21,8 @@ from .domains import FiniteDomains
 # Bound extra compiled entries, not the domain store or integer magnitudes.
 _MAX_COLUMN = 4096
 _MAX_ENTRIES = 262144
+_MAX_EQUALITY_SPAN = 4096
+_MAX_EQUALITY_TOTAL_BITS = 1_048_576
 
 
 class NumericColumn:
@@ -86,12 +88,25 @@ class NumericPlan:
         self.last_masks = [-1] * len(columns)
         self.extrema = [0] * len(columns)
         self.total = 0
+        self.equal_masks: tuple[int, ...] | None = None
+        self.equal_target: int | None = None
+        self.equal_result: tuple[int, ...] | None = None
 
     def supports(self, domains: FiniteDomains, target: int) -> tuple[int, ...] | None:
         masks = tuple(domains.mask(c.variable) for c in self.columns)
         if not all(masks):
             return None
         if self.operator is ConstraintOperator.EQUAL:
+            if len(masks) > 2:
+                if masks == self.equal_masks and target == self.equal_target:
+                    return self.equal_result
+                result = self._equality_supports(masks, target)
+                # Exact supports are a fixpoint. Tag successful results with the
+                # filtered masks, including after rollback or sibling visits.
+                self.equal_masks = masks if result is None else result
+                self.equal_target = target
+                self.equal_result = result
+                return result
             if len(masks) == 1:
                 index = self.columns[0].positions.get(target)
                 mask = 0 if index is None else masks[0] & (1 << index)
@@ -125,6 +140,89 @@ class NumericPlan:
             column.threshold(mask, target - self.total + own, upper)
             for column, mask, own in zip(self.columns, masks, self.extrema, strict=True)
         )
+
+    def _equality_supports(
+        self, masks: tuple[int, ...], target: int
+    ) -> tuple[int, ...] | None:
+        extrema = [c.extrema(m) for c, m in zip(self.columns, masks, strict=True)]
+        lower = sum(low for low, _ in extrema)
+        span = sum(high - low for low, high in extrema)
+        residual = target - lower
+        if not 0 <= residual <= span:
+            return None
+        # Fixed terms contribute only to the residual. Avoid building arithmetic
+        # tables for them, and use direct supports near a line's completion.
+        active = [i for i, mask in enumerate(masks) if mask & (mask - 1)]
+        if not active:
+            return masks
+        if len(active) == 1:
+            index = active[0]
+            position = self.columns[index].positions.get(
+                target - lower + extrema[index][0]
+            )
+            support_mask = 0 if position is None else masks[index] & (1 << position)
+            if not support_mask:
+                return None
+            result = list(masks)
+            result[index] = support_mask
+            return tuple(result)
+        if len(active) == 2:
+            left, right = sorted(active, key=lambda i: masks[i].bit_count())
+            remaining = target - lower + extrema[left][0] + extrema[right][0]
+            pending = masks[left]
+            result = list(masks)
+            result[left] = result[right] = 0
+            while pending:
+                bit = pending & -pending
+                pending ^= bit
+                value = self.columns[left].values[bit.bit_length() - 1]
+                position = self.columns[right].positions.get(remaining - value)
+                if position is not None:
+                    other = masks[right] & (1 << position)
+                    if other:
+                        result[left] |= bit
+                        result[right] |= other
+            return tuple(result) if result[left] else None
+        # Normalizing current minima handles signed coefficients and enormous
+        # translations without using absolute integer magnitudes as bit indexes.
+        reflect = residual > span - residual
+        if reflect:
+            residual = span - residual
+        candidates = []
+        for index in active:
+            column, mask = self.columns[index], masks[index]
+            low, high = extrema[index]
+            offsets = []
+            while mask:
+                bit = mask & -mask
+                mask ^= bit
+                value = column.values[bit.bit_length() - 1]
+                shifted = high - value if reflect else value - low
+                if shifted <= residual:
+                    offsets.append((bit, shifted))
+            candidates.append(offsets)
+        limit = (1 << (residual + 1)) - 1
+        prefix = [1]
+        for offsets in candidates:
+            reachable = 0
+            for _, shifted in offsets:
+                reachable |= prefix[-1] << shifted
+            prefix.append(reachable & limit)
+        if not prefix[-1] & (1 << residual):
+            return None
+        backward = 1 << residual
+        supported = list(masks)
+        for index in range(len(active) - 1, -1, -1):
+            reachable = 0
+            variable = active[index]
+            supported[variable] = 0
+            for bit, shifted in candidates[index]:
+                suffix = backward >> shifted
+                if prefix[index] & suffix:
+                    supported[variable] |= bit
+                    reachable |= suffix
+            backward = reachable
+        return tuple(supported)
 
 
 class NumericPlans:
@@ -198,8 +296,29 @@ class NumericPlans:
     def _compile(
         self, terms: tuple[tuple[int, Term], ...], operator: ConstraintOperator
     ) -> NumericPlan | None:
-        if not terms or (operator is ConstraintOperator.EQUAL and len(terms) > 2):
+        if not terms:
             return None
+        if operator is ConstraintOperator.EQUAL and len(terms) > 2:
+            # Preflight representation limits before publishing any columns.
+            # Sparse huge spans retain the existing exact sparse/GCD fallback.
+            span = 0
+            for coefficient, variable in terms:
+                alphabet = self.domains.alphabet(variable)
+                if not alphabet or any(
+                    not isinstance(v, Number) or not isinstance(v.value, int)
+                    for v in alphabet
+                ):
+                    return None
+                contributions = [
+                    coefficient * v.value
+                    for v in alphabet
+                    if isinstance(v, Number) and isinstance(v.value, int)
+                ]
+                span += max(contributions) - min(contributions)
+                if span > _MAX_EQUALITY_SPAN:
+                    return None
+            if (span + 1) * (len(terms) + 2) > _MAX_EQUALITY_TOTAL_BITS:
+                return None
         columns = []
         for coefficient, variable in terms:
             key = (variable, coefficient)

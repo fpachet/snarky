@@ -20,15 +20,23 @@ propagation queue, reversible iterative DFS, and exact integer or rational-produ
 branch-and-bound.
 
 Native and mixed states lazily share compiled integer contribution columns for
-linear inequalities and unary/binary equalities. Supports are retained directly
-as candidate masks, preserving removal explanations and rollback. Extrema caches
-are checked against actual masks after every restoration. Wider equalities,
-noninteger original alphabets and compilation-budget overflow use the existing
-reference kernels. This adds bounded contribution entries, not compact interval
-domains or a global byte budget. `NativeState`, `MixedState`, and DFS `solve`
+linear inequalities and integer equalities. Fixed terms reduce the residual;
+equalities with one or two unfixed variables use direct supports. Larger
+residual equalities use exact reachable-prefix and reflected-suffix
+bitsets when the original total contribution span is at most 4,096 and the
+prefix representation fits its separate bit budget. Current contribution
+minima normalize signed values and arbitrary-size translations. Supports are
+retained directly as candidate masks, preserving removal explanations and
+rollback. Extrema and equality-support caches are checked against actual masks
+and equality targets after every restoration. Larger spans, noninteger original
+alphabets and compilation-budget overflow use the existing reference kernels.
+This adds bounded contribution entries, not compact interval domains or a
+global byte budget. `NativeState`, `MixedState`, and DFS `solve`
 accept `numeric_masks=False` to select the reference numeric path; inference
 queries retain their own existing execution paths. See the
-[numeric report](performance_csp_numeric_2026-09-17.md) for limits and measurements.
+[numeric report](performance_csp_numeric_2026-09-17.md) for the original limits and
+measurements, and the [n-ary sum report](../experiments/neural_attention/MAGIC6_OPTIMIZATION_REPORT.md)
+for the bounded equality extension and magic-square benchmarks.
 
 All-different constraints also compile stable value IDs and filter masks directly
 in native and mixed states, preserving exact supported values. Matching arrays
