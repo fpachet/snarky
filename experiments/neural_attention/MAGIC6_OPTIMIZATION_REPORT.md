@@ -318,6 +318,8 @@ runtime files, and lint/format checks pass. The slow release suite was not rerun
 Portable evidence, source snapshots, raw attempts, repeat runs, profiles, and
 comparison timings are saved in
 [`benchmarks/results/magic_portfolio_2026-10-12/`](../../benchmarks/results/magic_portfolio_2026-10-12/summary.json).
+Archived runner snapshots use `.py.txt` text fixtures, preserving their exact
+historical contents and recorded source hashes.
 Discovery and initial repeats describe the runtime before sparse decoding;
 `decode_comparison` measures both versions. Full CPU profile binaries remain
 under `generated/neural_attention/`. The attempt outcomes and elapsed costs
