@@ -244,3 +244,99 @@ and 58 slow tests deselected. The ordering, successful-path, and original
 magic-square helper suites pass another 28 tests. Mypy checks all 103 runtime
 source files; Ruff, formatting, diff whitespace checks, and first-party Markdown
 links pass. The slow application/release suite was not rerun for this follow-up.
+
+## Follow-up: restart portfolios and sparse support decoding, 12 October 2026
+
+The 11×11 breakthrough uses `dom_wdeg`, independently shuffled complete value
+alphabets, a shuffled variable tie order, seed 1, and the existing blank-square
+symmetry restrictions. It solves in about 0.92 seconds over five repetitions,
+with 258 nodes. This is a search setting, with no reference completion or extra
+sum equations. Random variable ties use `Random(seed + 1000)`; value permutations
+use `Random(seed)`. Saved settings now reproduce both permutations.
+
+The same settings transfer to 12×12 and 16×16. A fixed sequential portfolio
+first tries that configuration, then cycles seeded randomized `dom_wdeg`/MRV
+settings with symmetry on/off and the earlier degree/middle-first control.
+The first experiment allows ten seconds for transfer and four seconds for each
+restart, with a sixty-second total budget per size. Model/state preparation,
+failed attempts, validation, and recording count toward portfolio wall time.
+Interpreter imports are excluded.
+
+| Size | First successful settings | Discovery cost in this experiment |
+|---|---|---:|
+| 12 | transferred 11×11 settings | 1.37 s |
+| 13 | randomized `dom_wdeg`, seed 0, symmetry off | 21.62 s |
+| 16 | transferred 11×11 settings, longer attempt | 72.18 s |
+
+The 16×16 discovery cost includes an unsuccessful sixty-second portfolio and a
+12.17-second solve in the follow-up with fifteen-second attempts. Four-second
+attempts often expire before a first failed branch at these sizes. The runner
+therefore defaults to fifteen-second transfer/restart attempts from size 15;
+smaller sizes retain the original limits. These revised defaults are tuned on
+these observations, not evaluated on independent held-out puzzles. 15×15 remains
+unsolved in the two sixty-second portfolios; subsequent seed controls and their
+costs are retained in the evidence bundle.
+
+Before the decoder optimization, three fresh repetitions confirm 12×12 at
+1.346 seconds/182 nodes, 13×13 at 3.584 seconds/1,488 nodes, and 16×16 at
+11.956 seconds/2,536 nodes. Every solution passes the original normal-square
+validation. Repeated blank instances measure timing reproducibility, not
+generalization across puzzles.
+
+Separate wall attribution and CPU profiles agree on a propagation bottleneck.
+For the first eighty nodes of the transferred 15×15/16×16 searches, sums account
+for about 72% of wall time and all-different about 26%. Neither prefix is a
+completed solve. On the complete 13×13 run, all-different takes about 46% and
+sums 49%. The measured, uninstrumented, and CPU-profiled runs have identical
+search signatures within each workload.
+
+The profile identifies an avoidable scan in unordered all-different support
+decoding. When at most eight global values are removed and they occupy at most
+a quarter of the live domain, the decoder now translates just those removals
+through its immutable tuple layout. Contiguous shifted layouts retain their
+existing path; larger removals retain the full scan. This uses no new inverse
+layout allocation and preserves exact support masks, including after rollback.
+
+Three shuffled, sequential repetitions compare only the old and new decoder
+on identical searches, including setup and excluding validation/imports:
+
+| Size | Previous decoder | New decoder | Time reduction |
+|---|---:|---:|---:|
+| 8 | 0.175 s | 0.177 s | unchanged within timing variation |
+| 11 | 0.904 s | 0.814 s | 10.0% |
+| 12 | 1.371 s | 1.177 s | 14.2% |
+| 13 | 3.601 s | 3.294 s | 8.5% |
+| 16 | 11.978 s | 10.905 s | 9.0% |
+| 15, first 80 nodes | 3.770 s | 3.227 s | 14.4% for this prefix |
+
+All 36 comparison searches preserve nodes, failures, revisions, termination,
+and returned squares. The new decoder does not change the search tree.
+The non-slow redesign gate passes 1,210 tests, with four skips and 58 slow tests
+deselected. The 37 ordering/path/helper tests also pass. Mypy checks all 103
+runtime files, and lint/format checks pass. The slow release suite was not rerun.
+
+Portable evidence, source snapshots, raw attempts, repeat runs, profiles, and
+comparison timings are saved in
+[`benchmarks/results/magic_portfolio_2026-10-12/`](../../benchmarks/results/magic_portfolio_2026-10-12/summary.json).
+Discovery and initial repeats describe the runtime before sparse decoding;
+`decode_comparison` measures both versions. Full CPU profile binaries remain
+under `generated/neural_attention/`. The attempt outcomes and elapsed costs
+provide labels for a future settings selector; four blank sizes are insufficient
+to train and validate one reliably.
+
+```sh
+PYTHONHASHSEED=0 PYTHONPATH=src:. .venv/bin/python \
+  -m experiments.neural_attention.magic_portfolio \
+  --sizes 12 13 15 16 --budget 60 \
+  --output generated/neural_attention/magic_portfolio_NEW
+
+PYTHONHASHSEED=0 PYTHONPATH=src:. .venv/bin/python \
+  -m experiments.neural_attention.magic_alldifferent_benchmark \
+  --before benchmarks/results/magic_portfolio_2026-10-12/alldifferent_before.py \
+  --presets benchmarks/results/magic_portfolio_2026-10-12/decode_presets.json \
+  --output generated/neural_attention/magic_decode_NEW
+```
+
+Use `magic_scaling --sizes 12 13 16 --repeats 3 --limit 30` to repeat the saved
+winning settings. Every output directory must be fresh. To reproduce the initial
+short portfolio, explicitly pass `--transfer-limit 10 --slice 4`.

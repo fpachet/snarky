@@ -84,7 +84,18 @@ class MeasuredNative(NativeState):
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--output", type=Path, required=True)
+    parser.add_argument("--sizes", nargs="+", type=int, default=[10, 11, 14, 18])
+    parser.add_argument(
+        "--presets", type=Path, help="profile settings from a saved preset"
+    )
+    parser.add_argument(
+        "--max-nodes", type=int, help="override every workload's node budget"
+    )
     args = parser.parse_args()
+    if (args.max_nodes is not None and args.max_nodes < 1) or any(
+        n < 3 for n in args.sizes
+    ):
+        parser.error("require positive node budgets and sizes at least three")
     args.output.mkdir(parents=True, exist_ok=False)
     files = [
         *Path("src/snarky").rglob("*.py"),
@@ -93,30 +104,58 @@ def main():
         Path("experiments/neural_attention/magic_search_tuning.py"),
         Path("experiments/neural_attention/optimize_magic6.py"),
     ]
+    if args.presets:
+        files.append(args.presets)
+        preset = json.loads(args.presets.read_text())
+        specs = [
+            dict(
+                size=size,
+                **{
+                    **preset["default"],
+                    **preset["known_size_overrides"].get(str(size), {}),
+                },
+                max_nodes=args.max_nodes if args.max_nodes is not None else 1500,
+            )
+            for size in args.sizes
+        ]
+    else:
+        specs = [
+            dict(
+                size=size,
+                tie="degree" if size >= 14 else "row_major",
+                symmetry=size >= 14,
+                order="middle",
+                policy="mrv",
+                seed=0,
+                max_nodes=args.max_nodes
+                if args.max_nodes is not None
+                else (
+                    1500 if size in (11, 12, 13, 15, 16) else 30 if size >= 17 else None
+                ),
+            )
+            for size in args.sizes
+        ]
     hashes = {str(p): hashlib.sha256(p.read_bytes()).hexdigest() for p in files}
-    specs = [
-        (10, "row_major", False, None),
-        (11, "row_major", False, 1500),
-        (14, "degree", True, None),
-        (18, "degree", True, 30),
-    ]
     frozen = {
         "python": platform.python_version(),
         "source_hashes": hashes,
         "specs": specs,
         "scope": (
             "Search only, excluding model/state setup and validation. "
-            "Fixed node budgets for unsolved cases; 18x18 is only the first "
-            "30 nodes. Wall timers and cProfile use separate runs. "
+            "Node budgets are recorded per workload. "
+            "Wall timers and cProfile use separate runs. "
             "No successful-path tracing."
         ),
     }
     (args.output / "frozen.json").write_text(json.dumps(frozen, indent=2) + "\n")
     rows = []
-    for size, tie, symmetry, max_nodes in specs:
-        original, model = prepare(size, "middle", tie, symmetry)
+    for spec in specs:
+        size, order = spec["size"], spec["order"]
+        original, model = prepare(
+            size, order, spec["tie"], spec["symmetry"], seed=spec.get("seed", 0)
+        )
         signatures = []
-        row = {"size": size, "tie": tie, "symmetry": symmetry, "max_nodes": max_nodes}
+        row = dict(spec)
         for mode in ("baseline", "wall_timers", "cprofile"):
             print(json.dumps({"size": size, "mode": mode}), flush=True)
             state = RankedState.__new__(RankedState)
@@ -124,13 +163,15 @@ def main():
             state.native = (MeasuredNative if mode == "wall_timers" else NativeState)(
                 model
             )
-            state.domains = RankedDomains(state.native.domains, model, "middle")
+            state.domains = RankedDomains(state.native.domains, model, order)
             profiler = cProfile.Profile() if mode == "cprofile" else None
             if profiler:
                 profiler.enable()
             started = perf_counter()
             result = search(
-                state, Query(max_nodes=max_nodes, time_limit_seconds=60), policy="mrv"
+                state,
+                Query(max_nodes=spec["max_nodes"], time_limit_seconds=60),
+                policy=spec["policy"],
             )
             seconds = perf_counter() - started
             if profiler:

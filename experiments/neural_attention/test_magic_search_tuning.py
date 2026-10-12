@@ -9,11 +9,11 @@ from snarky.finite.search import search, solve
 
 
 @pytest.mark.parametrize(
-    "order", ["middle", "middle_high", "line_average", "line_midpoints"]
+    "order", ["middle", "middle_high", "line_average", "line_midpoints", "random"]
 )
-@pytest.mark.parametrize("tie", ["row_major", "degree", "reverse"])
+@pytest.mark.parametrize("tie", ["row_major", "degree", "reverse", "random"])
 def test_tuning_preserves_all_small_solutions_and_restores_native_domains(order, tie):
-    original, model = prepare(3, order, tie, symmetry=False)
+    original, model = prepare(3, order, tie, symmetry=False, seed=1)
     state = RankedState(model, order)
     result = search(state, Query(QueryKind.ENUMERATE), policy="mrv")
     expected = solve(original, Query(QueryKind.ENUMERATE), policy="mrv")
@@ -26,10 +26,10 @@ def test_tuning_preserves_all_small_solutions_and_restores_native_domains(order,
 
 
 @pytest.mark.parametrize(
-    "order", ["middle", "middle_high", "line_average", "line_midpoints"]
+    "order", ["middle", "middle_high", "line_average", "line_midpoints", "random"]
 )
 def test_tuning_preserves_small_symmetry_representative(order):
-    original, model = prepare(3, order, "degree", symmetry=True)
+    original, model = prepare(3, order, "random", symmetry=True, seed=1)
     result = search(RankedState(model, order), Query(QueryKind.ENUMERATE), policy="mrv")
     assert result.complete and len(result.solutions) == 1
     validate(3, result.solutions[0].assignment, original)

@@ -80,9 +80,11 @@ class RankedState:
         return getattr(self.native, name)
 
 
-def prepare(size, order, tie, symmetry):
+def prepare(size, order, tie, symmetry, *, seed=0):
     original, _ = build(size)
-    model = ordered_model(original, "middle", 0)
+    model = ordered_model(
+        original, order if order in ("random", "ascending", "ends") else "middle", seed
+    )
     if order == "middle_high":
         model = replace(
             model,
@@ -113,6 +115,8 @@ def prepare(size, order, tie, symmetry):
         )
     elif tie == "reverse":
         indices.reverse()
+    elif tie == "random":
+        Random(seed + 1000).shuffle(indices)
     elif tie != "row_major":
         raise ValueError(tie)
     model = replace(model, variables=tuple(model.variables[i] for i in indices))
@@ -125,6 +129,8 @@ def main():
     parser.add_argument("--size", type=int, default=7)
     parser.add_argument("--limit", type=float, default=2)
     parser.add_argument("--repeats", type=int, default=1)
+    parser.add_argument("--seed", type=int, default=0)
+    parser.add_argument("--policy", choices=["mrv", "dom_wdeg"], default="mrv")
     parser.add_argument(
         "--orders",
         nargs="+",
@@ -161,10 +167,10 @@ def main():
     Random(141026).shuffle(specs)
     for order, tie, symmetry, repeat in specs:
         started = perf_counter()
-        original, model = prepare(args.size, order, tie, symmetry)
+        original, model = prepare(args.size, order, tie, symmetry, seed=args.seed)
         prepared = perf_counter()
         state = RankedState(model, order)
-        result = search(state, Query(time_limit_seconds=args.limit), policy="mrv")
+        result = search(state, Query(time_limit_seconds=args.limit), policy=args.policy)
         finished = perf_counter()
         if result.status is ResultStatus.INFEASIBLE:
             raise AssertionError("blank square is feasible")
@@ -177,6 +183,8 @@ def main():
             "tie": tie,
             "symmetry": symmetry,
             "repeat": repeat,
+            "seed": args.seed,
+            "policy": args.policy,
             "seconds": finished - prepared,
             "total_seconds": finished - started,
             "solved": bool(squares),

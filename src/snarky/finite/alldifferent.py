@@ -77,6 +77,16 @@ class MaskColumn:
     def decode(self, mask: int, supported: int) -> int:
         if self.shifted:
             return mask & (supported >> self.offset)
+        # Most revisions remove only a few values. Translate those removals
+        # through the immutable layout instead of scanning every live candidate.
+        # The tuple lookup runs in C and adds no inverse-layout allocation.
+        removed = self.encode(mask) & ~supported
+        if removed.bit_count() <= min(8, mask.bit_count() // 4):
+            while removed:
+                bit = removed & -removed
+                removed ^= bit
+                mask &= ~(1 << self.positions.index(bit.bit_length() - 1))
+            return mask
         result = 0
         while mask:
             bit = mask & -mask

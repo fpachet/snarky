@@ -59,7 +59,11 @@ def main():
         for repeat in range(args.repeats):
             started = perf_counter()
             original, model = prepare(
-                size, settings["order"], settings["tie"], settings["symmetry"]
+                size,
+                settings["order"],
+                settings["tie"],
+                settings["symmetry"],
+                seed=settings.get("seed", 0),
             )
             prepared = perf_counter()
             state = RankedState(model, settings["order"])

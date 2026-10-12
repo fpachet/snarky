@@ -1,0 +1,130 @@
+{
+  "date": "2026-10-12",
+  "runtime_baseline_commit": "0006202",
+  "scope": "Blank normal magic squares only. Three repeated timing runs per variant; single instances, not independent puzzle samples.",
+  "discovery": [
+    {
+      "size": 12,
+      "solved": true,
+      "total_seconds": 1.369242416927591,
+      "attempts": 1
+    },
+    {
+      "size": 13,
+      "solved": true,
+      "total_seconds": 21.618532709078863,
+      "attempts": 4
+    },
+    {
+      "size": 15,
+      "solved": false,
+      "total_seconds": 160.24645141814835,
+      "attempts": 20
+    },
+    {
+      "size": 16,
+      "solved": true,
+      "total_seconds": 72.17674662405625,
+      "attempts": 15
+    }
+  ],
+  "decoding_comparison": [
+    {
+      "size": 8,
+      "baseline": 0.17534116585738957,
+      "optimized": 0.1774895410053432,
+      "reduction_percent": -1.2252542849526593,
+      "scope": "complete first solution"
+    },
+    {
+      "size": 11,
+      "baseline": 0.9043519999831915,
+      "optimized": 0.8135205409489572,
+      "reduction_percent": 10.043816902701874,
+      "scope": "complete first solution"
+    },
+    {
+      "size": 12,
+      "baseline": 1.3708065419923514,
+      "optimized": 1.1765030000824481,
+      "reduction_percent": 14.17439558083079,
+      "scope": "complete first solution"
+    },
+    {
+      "size": 13,
+      "baseline": 3.600730957929045,
+      "optimized": 3.293947499943897,
+      "reduction_percent": 8.520032781388199,
+      "scope": "complete first solution"
+    },
+    {
+      "size": 15,
+      "baseline": 3.7700916670728475,
+      "optimized": 3.2271517920307815,
+      "reduction_percent": 14.40123803312221,
+      "scope": "first 80 nodes, not a completed solve"
+    },
+    {
+      "size": 16,
+      "baseline": 11.978477250086144,
+      "optimized": 10.905218667117879,
+      "reduction_percent": 8.959891650339335,
+      "scope": "complete first solution"
+    }
+  ],
+  "profiles_before_decoding_optimization": [
+    {
+      "size": 15,
+      "max_nodes": 80,
+      "solved": false,
+      "sum_percent": 71.79924548780734,
+      "alldifferent_percent": 26.311291908596324,
+      "propagation_percent": 99.38745914602954,
+      "signatures_match": true
+    },
+    {
+      "size": 16,
+      "max_nodes": 80,
+      "solved": false,
+      "sum_percent": 72.4145505711239,
+      "alldifferent_percent": 25.93965764057407,
+      "propagation_percent": 99.48780225508892,
+      "signatures_match": true
+    },
+    {
+      "size": 12,
+      "max_nodes": 2000,
+      "solved": true,
+      "sum_percent": 62.5047452994797,
+      "alldifferent_percent": 33.91495798963169,
+      "propagation_percent": 98.3979658883965,
+      "signatures_match": true
+    },
+    {
+      "size": 13,
+      "max_nodes": 2000,
+      "solved": true,
+      "sum_percent": 48.96962289233346,
+      "alldifferent_percent": 46.12996345805885,
+      "propagation_percent": 97.21499653057728,
+      "signatures_match": true
+    }
+  ],
+  "validation": {
+    "core_tests_passed": 1210,
+    "skipped": 4,
+    "slow_deselected": 58,
+    "experiment_tests_passed": 37,
+    "decoding_searches": 36,
+    "all_search_signatures_match": true,
+    "original_model_validation": true,
+    "mypy_runtime_files": 103,
+    "archived_boards_revalidated": 42
+  },
+  "notes": [
+    "Discovery totals include all failed attempts in both restart-budget experiments and the additional seed-2 controls.",
+    "Repeats and profiles preceding the decoder change are explicitly archived as such.",
+    "Default restarts now allow 15 seconds from size 15, based on these experiments; this is tuned, not a held-out claim.",
+    "No reference square or learned constraints used. Existing optional symmetry restrictions retain a blank-square orbit representative."
+  ]
+}

@@ -12,8 +12,27 @@ from snarky.finite import (
     alldifferent,
     solve,
 )
+from snarky.finite.alldifferent import MaskColumn
 from snarky.finite.constraints import AllDifferentConstraint
 from snarky.finite.propagation import NativeState
+
+
+def test_decode_matches_value_oracle_across_sparse_removals_and_restores():
+    rng = Random(121026)
+    for positions in ((7, 3, 2047, 2, 19, 0), tuple(range(7, 13))):
+        column = MaskColumn(positions)
+        masks = list(range(64))
+        rng.shuffle(masks)
+        for mask in masks:
+            # Exercise cache transitions independently of the mask being decoded.
+            column.encode(rng.randrange(64))
+            for allowed in masks:
+                supported = (1 << 2046) | sum(
+                    1 << value
+                    for i, value in enumerate(positions)
+                    if allowed & (1 << i)
+                )
+                assert column.decode(mask, supported) == mask & allowed
 
 
 def model_for(alphabets):
