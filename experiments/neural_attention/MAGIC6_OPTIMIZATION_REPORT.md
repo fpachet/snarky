@@ -148,3 +148,99 @@ Use `--symmetry only` for the explicit symmetry-restricted formulation, and
 model, while retaining compiled all-different. The runner's full original model
 is reconstructed for every run; only value order and the explicit symmetry
 option differ.
+
+## Follow-up: numeric ordering and larger compiled spans, 12 October 2026
+
+The measurements above describe the earlier runtime. A subsequent profile of the
+complete 14×14 solve attributed about 80% of search time to numeric revisions and
+18% to all-different. Two further optimizations now apply to native and mixed
+numeric propagation:
+
+- Unordered contribution columns maintain a separate numeric-rank mask. Extrema
+  update from changed candidate bits, or rebuild from the surviving domain when
+  that is smaller. Inequality thresholds use numeric ranks too. Declared domain
+  order, value choices, removal explanations, and checkpoint behavior are intact.
+- The original contribution-span limit increases from 4,096 to 16,384, keeping
+  the independent 1,048,576-bit prefix budget, 4,096-candidate column limit, and
+  262,144 logical contribution-entry limit. The 17×17–20×20 line sums therefore
+  use compiled masks rather than the reference set/dictionary kernel. Very wide
+  or noninteger alphabets and exhausted budgets still select exact fallback.
+
+Identical contribution layouts share their read-only values, lookup indexes, and
+numeric-rank tables. Variable-specific masks and extrema caches remain separate.
+This avoids duplicating large tables for every magic-square cell; entry budgets
+still count logical columns conservatively, irrespective of sharing.
+
+The following are medians of three sequential runs per version, with randomized
+run order. They include model and state setup, excluding imports and validation.
+All 54 searches preserve nodes, failures, revisions, termination, and any returned
+square against the saved pre-change numeric implementation. The 36 returned
+squares are validated against their original models. The larger unfinished cases
+use fixed node budgets so profiler or deadline effects cannot change the work.
+
+| Workload | Before (s) | After (s) | Speedup |
+|---|---:|---:|---:|
+| 6×6, complete | 0.0618 | 0.0591 | 1.05× |
+| 7×7, complete | 1.1204 | 1.0832 | 1.03× |
+| 8×8, complete | 0.1823 | 0.1713 | 1.06× |
+| 9×9, complete | 2.4145 | 2.2975 | 1.05× |
+| 10×10, complete | 0.5055 | 0.4718 | 1.07× |
+| 11×11, first 1,500 nodes | 2.8888 | 2.6910 | 1.07× |
+| 14×14, complete | 3.1924 | 2.7920 | 1.14× |
+| 18×18, first 30 nodes | 7.1681 | 4.3411 | 1.65× |
+| 20×20, first 30 nodes | 14.1548 | 8.6928 | 1.63× |
+
+The 14×14 solve still uses 219 nodes, 50 failures, and 5,002 revisions. The 18×18
+prefix has 30 nodes and 1,238 revisions; the 20×20 prefix has 30 nodes and 1,358
+revisions. Their results do not establish complete solve times. Small timing
+differences remain sensitive to system load, and repetitions are of deterministic
+blank instances rather than independent test puzzles.
+
+Separate root-only allocation measurements, covering native state construction
+and root propagation but excluding model construction and imports, show traced
+peaks of 6.86→4.40 MB for 14×14 and 20.15→19.62 MB for 20×20 (decimal MB). These
+are Python traced allocations at the root, not whole-process RSS or whole-search
+memory guarantees. Sharing removes the memory increase seen in the initial
+unshared implementation while retaining the faster arithmetic.
+
+Evidence is under `generated/neural_attention/magic_numeric_optimization/`:
+`comparison_final/` contains frozen hashes, raw runs and summary medians;
+`memory_root_final.json` records the separate allocation check. Intermediate
+`comparison/` and `ablations/` describe the version before layout sharing and
+must not be relabeled as final-runtime measurements. Source snapshots are retained
+as `numeric_before.py` and `numeric_rank_unshared.py`.
+
+Portable final evidence is also committed under
+[`benchmarks/results/magic_numeric_2026-10-12/`](../../benchmarks/results/magic_numeric_2026-10-12/summary.json):
+summary medians, all 54 raw timed runs, normalized source hashes, and the earlier
+profiling and 11×11–20×20 scaling results. The latter two archives explicitly
+identify the pre-optimization runtime. The saved settings are in
+[`magic_best_parameters.json`](magic_best_parameters.json).
+
+The related command-line tools are `magic_scaling` (saved settings, increasing
+sizes, exact validation), `magic_profile` (separate wall attribution and CPU
+profiles), and `magic_solution_paths` (successful-path extraction and static
+replay controls). Each is a module under `experiments.neural_attention` and
+accepts `--output` for a fresh evidence directory; use `--help` for its options.
+
+The comparison can be repeated with a fresh output directory:
+
+```sh
+git show 894d2bd:src/snarky/finite/numeric.py > /tmp/snarky-numeric-before.py
+PYTHONHASHSEED=0 PYTHONPATH=src:. .venv/bin/python \
+  -m experiments.neural_attention.magic_numeric_benchmark \
+  --before /tmp/snarky-numeric-before.py \
+  --output generated/neural_attention/magic_numeric_optimization_NEW
+```
+
+The runner also accepts `--variants baseline rank_only span_only optimized` for
+isolated comparisons. Correctness checks cover shuffled rank masks, shrinks and
+restores, signed newly compiled spans, enormous translations, full enumeration,
+fallback above the new limit, and independent caches for shared layouts under
+equalities and both inequality directions.
+
+Final validation: the non-slow redesign gate passes 1,209 tests, with four skips
+and 58 slow tests deselected. The ordering, successful-path, and original
+magic-square helper suites pass another 28 tests. Mypy checks all 103 runtime
+source files; Ruff, formatting, diff whitespace checks, and first-party Markdown
+links pass. The slow application/release suite was not rerun for this follow-up.

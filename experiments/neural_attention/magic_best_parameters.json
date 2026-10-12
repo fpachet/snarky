@@ -1,0 +1,23 @@
+{
+  "scope": "Empirically selected first-solution settings for blank normal magic squares; not optimality guarantees or settings for clued puzzles.",
+  "default_basis": "Extrapolated from 9x9 and 10x10. No verified winner yet for 11-13 or 15-20.",
+  "default": {
+    "policy": "mrv",
+    "tie": "row_major",
+    "order": "middle",
+    "symmetry": false
+  },
+  "known_size_overrides": {
+    "6": {"order": "middle", "symmetry": true},
+    "7": {"order": "middle_high", "symmetry": true},
+    "8": {"order": "middle_high", "symmetry": true},
+    "9": {"order": "middle", "tie": "row_major", "symmetry": false},
+    "10": {"order": "middle", "tie": "row_major", "symmetry": false},
+    "14": {"order": "middle", "tie": "degree", "symmetry": true}
+  },
+  "evidence": {
+    "9": "benchmarks/results/magic_numeric_2026-10-12/runs.jsonl",
+    "10": "benchmarks/results/magic_numeric_2026-10-12/runs.jsonl",
+    "14": "benchmarks/results/magic_numeric_2026-10-12/scaling_before.json"
+  }
+}

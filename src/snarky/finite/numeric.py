@@ -21,24 +21,58 @@ from .domains import FiniteDomains
 # Bound extra compiled entries, not the domain store or integer magnitudes.
 _MAX_COLUMN = 4096
 _MAX_ENTRIES = 262144
-_MAX_EQUALITY_SPAN = 4096
+_MAX_EQUALITY_SPAN = 16384
 _MAX_EQUALITY_TOTAL_BITS = 1_048_576
 
 
 class NumericColumn:
-    def __init__(self, variable: Term, contributions: tuple[int, ...]) -> None:
+    def __init__(
+        self,
+        variable: Term,
+        contributions: tuple[int, ...],
+        layout: NumericColumn | None = None,
+    ) -> None:
         self.variable = variable
-        self.values = contributions
-        self.positions = {value: i for i, value in enumerate(contributions)}
-        self.ascending = all(
-            a <= b for a, b in zip(contributions, contributions[1:], strict=False)
-        )
-        self.descending = all(
-            a >= b for a, b in zip(contributions, contributions[1:], strict=False)
-        )
-        self.ordered = contributions if self.ascending else contributions[::-1]
+        if layout is None:
+            self.values = contributions
+            self.positions = {value: i for i, value in enumerate(contributions)}
+            self.ascending = all(
+                a <= b for a, b in zip(contributions, contributions[1:], strict=False)
+            )
+            self.descending = all(
+                a >= b for a, b in zip(contributions, contributions[1:], strict=False)
+            )
+            self.ordered = contributions if self.ascending else contributions[::-1]
+            self.rank_indices: tuple[int, ...] = ()
+            self.ranks: tuple[int, ...] = ()
+            if not (self.ascending or self.descending):
+                self.rank_indices = tuple(
+                    sorted(range(len(contributions)), key=contributions.__getitem__)
+                )
+                ranks = [0] * len(contributions)
+                for rank, index in enumerate(self.rank_indices):
+                    ranks[index] = rank
+                self.ranks = tuple(ranks)
+                self.ordered = tuple(contributions[i] for i in self.rank_indices)
+        else:
+            # Only immutable layout data is shared. Every variable/coefficient
+            # keeps its own mask, extrema and numeric-rank cache below.
+            self.values = layout.values
+            self.positions = layout.positions
+            self.ascending = layout.ascending
+            self.descending = layout.descending
+            self.ordered = layout.ordered
+            self.rank_indices = layout.rank_indices
+            self.ranks = layout.ranks
+        # Candidate bits preserve declared branching order. A separate numeric
+        # rank mask gives constant-time extrema after updating only changed bits.
+        # XOR tags also handle rollback and siblings without a cache trail.
+        self.rank_mask = 0
         self.last_mask = -1
         self.last_extrema = (0, 0)
+        if not (self.ascending or self.descending):
+            self.rank_mask = self.last_mask = (1 << len(contributions)) - 1
+            self.last_extrema = (self.ordered[0], self.ordered[-1])
 
     def extrema(self, mask: int) -> tuple[int, int]:
         if mask != self.last_mask:
@@ -47,14 +81,23 @@ class NumericColumn:
                 last = self.values[mask.bit_length() - 1]
                 self.last_extrema = (first, last) if self.ascending else (last, first)
             else:
-                pending = mask
-                low = high = self.values[(mask & -mask).bit_length() - 1]
+                pending = mask ^ self.last_mask
+                # A large shrink is cheaper to encode afresh than to remove
+                # almost every old candidate. Full restores need no conversion.
+                if mask == (1 << len(self.values)) - 1:
+                    self.rank_mask = mask
+                    pending = 0
+                elif mask.bit_count() < pending.bit_count():
+                    self.rank_mask = 0
+                    pending = mask
                 while pending:
                     bit = pending & -pending
                     pending ^= bit
-                    value = self.values[bit.bit_length() - 1]
-                    low, high = min(low, value), max(high, value)
-                self.last_extrema = (low, high)
+                    self.rank_mask ^= 1 << self.ranks[bit.bit_length() - 1]
+                self.last_extrema = (
+                    self.ordered[(self.rank_mask & -self.rank_mask).bit_length() - 1],
+                    self.ordered[self.rank_mask.bit_length() - 1],
+                )
             self.last_mask = mask
         return self.last_extrema
 
@@ -69,13 +112,14 @@ class NumericColumn:
                 prefix <<= len(self.values) - count
             # Complement is intersected with the finite current mask.
             return mask & (prefix if upper else ~prefix)
-        result = 0
-        while mask:
-            bit = mask & -mask
-            mask ^= bit
-            value = self.values[bit.bit_length() - 1]
-            if (value <= bound) if upper else (value >= bound):
-                result |= bit
+        count = (bisect_right if upper else bisect_left)(self.ordered, bound)
+        prefix = (1 << count) - 1
+        removed = self.rank_mask & (~prefix if upper else prefix)
+        result = mask
+        while removed:
+            bit = removed & -removed
+            removed ^= bit
+            result ^= 1 << self.rank_indices[bit.bit_length() - 1]
         return result
 
 
@@ -231,6 +275,7 @@ class NumericPlans:
     def __init__(self, domains: FiniteDomains) -> None:
         self.domains = domains
         self.columns: dict[tuple[Term, int], NumericColumn] = {}
+        self._layouts: dict[tuple[int, ...], NumericColumn] = {}
         self.plans: dict[
             int, tuple[LinearSumConstraint | SumConstraint, NumericPlan | None]
         ] = {}
@@ -342,7 +387,10 @@ class NumericPlans:
                     for v in alphabet
                     if isinstance(v, Number) and isinstance(v.value, int)
                 )
-                column = self.columns[key] = NumericColumn(variable, values)
+                layout = self._layouts.get(values)
+                column = self.columns[key] = NumericColumn(variable, values, layout)
+                if layout is None:
+                    self._layouts[values] = column
                 self.entries += len(alphabet)
             columns.append(column)
         return NumericPlan(tuple(columns), operator)

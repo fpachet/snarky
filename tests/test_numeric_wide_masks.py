@@ -15,6 +15,104 @@ from snarky.finite.propagation import NativeState
 from snarky.finite.search import solve
 
 
+def test_numeric_rank_cache_matches_value_oracle_across_shrinks_and_restores():
+    values = (3, -8, 10**40, -2, 0, 7)
+    column = numeric.NumericColumn(Atom("x"), values)
+    masks = list(range(1, 1 << len(values)))
+    Random(124).shuffle(masks)
+    # Repeated full restores and singletons exercise large cache transitions.
+    masks += [63, 4, 63, 1, 32, 1, 63]
+    for mask in masks:
+        live = [v for i, v in enumerate(values) if mask & (1 << i)]
+        assert column.extrema(mask) == (min(live), max(live))
+        for bound in (-9, -8, -3, 0, 3, 7, 8, 10**40, 10**40 + 1):
+            for upper in (False, True):
+                expected = sum(
+                    1 << i
+                    for i, v in enumerate(values)
+                    if mask & (1 << i) and (v <= bound if upper else v >= bound)
+                )
+                assert column.threshold(mask, bound, upper) == expected
+
+
+@pytest.mark.parametrize("target", [-4800, -1600, 0, 1600, 1601, 4800])
+def test_newly_compiled_spans_match_enumerated_signed_holey_supports(target):
+    values = [[1600, -1600, 0]] * 3
+    coefficients = [2, -1, 1]
+    model = make_model(values, coefficients, target)
+    fast, slow = NativeState(model), NativeState(model, numeric_masks=False)
+    rows = [
+        row
+        for row in product(*values)
+        if sum(c * v for c, v in zip(coefficients, row, strict=True)) == target
+    ]
+    assert fast.propagate() == slow.propagate() == bool(rows)
+    assert fast.domains.snapshot() == slow.domains.snapshot()
+    assert fast.domains.removals == slow.domains.removals
+    assert fast._numeric.plans[0][1] is not None
+    if rows:
+        assert fast.domains.snapshot() == {
+            v.name: frozenset(Number(row[i]) for row in rows)
+            for i, v in enumerate(model.variables)
+        }
+
+
+def test_span_limit_still_falls_back_above_new_boundary():
+    values = [[0, numeric._MAX_EQUALITY_SPAN + 1], [1, 0], [1, 0]]
+    model = make_model(values, [1, 1, 1], 1)
+    fast, slow = NativeState(model), NativeState(model, numeric_masks=False)
+    assert fast.propagate() == slow.propagate()
+    assert fast.domains.snapshot() == slow.domains.snapshot()
+    assert fast.domains.removals == slow.domains.removals
+    assert fast._numeric.plans[0][1] is None
+    assert not fast._numeric.columns
+
+
+def test_newly_compiled_signed_span_preserves_full_search_and_rollback():
+    values = [[1600, -1600, 0]] * 3
+    values[0] = [v + 10**40 for v in values[0]]
+    model = make_model(values, [2, -1, 1], 1600 + 2 * 10**40)
+    fast = solve(model, Query(QueryKind.ENUMERATE))
+    slow = solve(model, Query(QueryKind.ENUMERATE), numeric_masks=False)
+    assert fast.complete and fast.solutions
+    for attribute in (
+        "status",
+        "solutions",
+        "explored_nodes",
+        "failed_branches",
+        "constraint_revisions",
+    ):
+        assert getattr(fast, attribute) == getattr(slow, attribute)
+
+
+@pytest.mark.parametrize("operator", tuple(Op))
+def test_shared_numeric_layouts_keep_independent_caches_and_declared_orders(operator):
+    model = make_model([[3, -2, 0, 1]] * 3, [1, 1, 1], 2)
+    model = replace(
+        model, constraints=(replace(model.constraints[0], operator=operator),)
+    )
+    fast, slow = NativeState(model), NativeState(model, numeric_masks=False)
+    plan = fast._numeric.get(0, model.constraints[0])
+    assert plan is not None
+    left, right, _ = plan.columns
+    assert left is not right and left.values is right.values
+    roots = [s.checkpoint() for s in (fast, slow)]
+    for a, b in ((3, -2), (0, 1), (-2, 3), (1, 3)):
+        for state, root in zip((fast, slow), roots, strict=True):
+            state.rollback(root)
+            state.restrict(model.variables[0].name, Number(a))
+            state.restrict(model.variables[1].name, Number(b))
+        assert fast.propagate() == slow.propagate()
+        assert fast.domains.snapshot() == slow.domains.snapshot()
+        assert fast.domains.removals == slow.domains.removals
+        for v in model.variables:
+            assert fast.domains.values(v.name) == slow.domains.values(v.name)
+    for state, root in zip((fast, slow), roots, strict=True):
+        state.rollback(root)
+        state.release(root)
+        assert state.domains.snapshot() == model.domains
+
+
 def make_model(values, coefficients, target):
     variables = tuple(
         FiniteVariable(Atom(f"x{i}"), tuple(map(Number, v)))

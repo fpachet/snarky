@@ -1,6 +1,6 @@
 # Declarative finite model contract
 
-Status: implemented opt-in, pre-1.0 interface, updated 26 September 2026. This records
+Status: implemented opt-in, pre-1.0 interface, updated 12 October 2026. This records
 the semantic and architectural decisions of the [redesign](redesign_plan.md),
 without changing the frozen operational Core language.
 
@@ -23,12 +23,20 @@ Native and mixed states lazily share compiled integer contribution columns for
 linear inequalities and integer equalities. Fixed terms reduce the residual;
 equalities with one or two unfixed variables use direct supports. Larger
 residual equalities use exact reachable-prefix and reflected-suffix
-bitsets when the original total contribution span is at most 4,096 and the
-prefix representation fits its separate bit budget. Current contribution
+bitsets when the original total contribution span is at most 16,384 and the
+prefix representation fits its separate 1,048,576-bit budget. Current contribution
 minima normalize signed values and arbitrary-size translations. Supports are
 retained directly as candidate masks, preserving removal explanations and
 rollback. Extrema and equality-support caches are checked against actual masks
-and equality targets after every restoration. Larger spans, noninteger original
+and equality targets after every restoration. Unordered integer contributions
+also maintain a numeric-rank mask, updating changed candidate bits or rebuilding
+from the smaller surviving domain. Extrema come from its first/last active ranks;
+inequalities translate excluded numeric ranks back to candidate bits. The numeric
+view adds linear mapping entries and preserves declared branching order. Identical
+contribution layouts share read-only lookup and rank tables; each column retains
+its own variable, mask and extrema caches. Compilation entry limits remain
+conservative counts of logical columns even when their tables are shared.
+Larger spans, noninteger original
 alphabets and compilation-budget overflow use the existing reference kernels.
 This adds bounded contribution entries, not compact interval domains or a
 global byte budget. `NativeState`, `MixedState`, and DFS `solve`

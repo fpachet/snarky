@@ -1,0 +1,67 @@
+{
+  "runtime_commit": "894d2bd",
+  "scope": "Profile measurements taken before the numeric rank and span optimizations.",
+  "results": {
+    "wall_clock_breakdown": [
+      {
+        "size": 10,
+        "scope": "complete solve",
+        "sum_seconds": 0.3289858696516603,
+        "sum_percent": 65.06522271641796,
+        "alldifferent_seconds": 0.14548237528651953,
+        "alldifferent_percent": 28.7727954983404,
+        "other_percent": 6.161981785241637,
+        "propagation_percent": 97.01863272094512,
+        "baseline_seconds": 0.4764759580139071,
+        "wall_timed_seconds": 0.5056247499305755,
+        "root_propagation_seconds": 0.016320041846483946
+      },
+      {
+        "size": 11,
+        "scope": "first 1500 nodes",
+        "sum_seconds": 1.8611252203118056,
+        "sum_percent": 65.54821223732634,
+        "alldifferent_seconds": 0.8455934841185808,
+        "alldifferent_percent": 29.78152171524436,
+        "other_percent": 4.670266047429296,
+        "propagation_percent": 97.63253731359505,
+        "baseline_seconds": 2.9967797501012683,
+        "wall_timed_seconds": 2.8393226249609143,
+        "root_propagation_seconds": 0.024609833024442196
+      },
+      {
+        "size": 14,
+        "scope": "complete solve",
+        "sum_seconds": 2.42490571574308,
+        "sum_percent": 80.0866339449333,
+        "alldifferent_seconds": 0.530867088586092,
+        "alldifferent_percent": 17.5327881496533,
+        "other_percent": 2.3805779054134093,
+        "propagation_percent": 98.9304866492201,
+        "baseline_seconds": 3.0248918330762535,
+        "wall_timed_seconds": 3.027853208826855,
+        "root_propagation_seconds": 0.08251720806583762
+      },
+      {
+        "size": 18,
+        "scope": "first 30 nodes",
+        "sum_seconds": 5.7578199214767665,
+        "sum_percent": 83.88664847063148,
+        "alldifferent_seconds": 0.4653228702954948,
+        "alldifferent_percent": 6.779367291468171,
+        "other_percent": 9.33398423790034,
+        "propagation_percent": 99.87329678433538,
+        "baseline_seconds": 6.658457999816164,
+        "wall_timed_seconds": 6.863809708040208,
+        "root_propagation_seconds": 0.32449325011111796
+      }
+    ],
+    "same_search_work_verified": true,
+    "sources_unchanged_at_measurement_end": true,
+    "numeric_storage_14": {
+      "columns": 196,
+      "nonmonotonic_columns": 196
+    },
+    "scope": "One timing run per mode and workload. cProfile overhead is not included in reported wall-clock percentages. 11x11 and 18x18 are bounded search prefixes, not entire timeout runs."
+  }
+}
