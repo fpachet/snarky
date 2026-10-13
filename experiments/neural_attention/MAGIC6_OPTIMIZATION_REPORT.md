@@ -431,3 +431,141 @@ PYTHONHASHSEED=0 PYTHONPATH=src:. .venv/bin/python \
   --sizes 6 8 9 10 11 12 13 14 15 16 18 20 --repeats 3 \
   --output generated/neural_attention/magic_sum_dense_NEW
 ```
+
+## Follow-up: partial certification experiment, 13 October 2026
+
+Two conservative prototypes extend the interior-support certificate to retain
+certified candidates and check only uncertain ones. The first still builds full
+sum tables. The second computes exact lower/upper edge bands, keeping every
+current value that can contribute to those edges. It introduces no witness cache
+or persistent partial-support state. Signed, translated, reflected, and rollback
+cases preserve exact supports.
+
+Neither prototype gives a consistent improvement on the magic-square workloads.
+The edge version is used once in 3,139 sum-kernel calls for 12×12 and three times
+in 40,047 calls for 16×16; it is unused in the measured 9×9 and 13×13 searches.
+Its two favorable synthetic kernel probes improve by 2.26× and 8.78×, but those
+uncached microbenchmarks do not translate to an end-to-end magic-square gain.
+
+The production numeric source was therefore restored byte for byte. Both
+prototypes, their 144 comparison runs, 108 validated boards, source hashes,
+diagnostic counts, and explicit correctness tests are retained as an opt-in
+[experiment with a readable results table](../../benchmarks/results/magic_sum_partial_2026-10-13/README.md).
+The edge prototype passed 1,225 non-slow core tests before restoration. Twelve
+explicit baseline/candidate experimental cases and the existing 37 experiment
+tests pass after restoration. The comparison tool now accepts `--candidate` to
+load an archived method temporarily without changing production source files.
+
+## Follow-up: indexed residual sum systems, 13 October 2026
+
+An opt-in `SumSystemState` builds variable/equality incidence bitsets and updates
+residual scopes when variables become fixed or are restored after rollback.
+Bounded connected-group discovery selects small closed systems, then exact
+rational elimination checks rank, integer feasibility, and domain membership.
+Targets are recomputed from current branch values; structural plans never cache
+domain support. Ordinary domain updates and backtracking remain native.
+
+Across 72 main blank-square runs, limits of four equations/variables produce no
+extra assignments or contradictions. A wider eight-variable/equation diagnostic
+also gains no deductions. The one closed system found in 10×10 is dependent.
+Every paired search preserves work counters and the returned board. Discovery
+is cheap, but total time generally increases slightly without search savings.
+
+In 41 clued 4×4 diagnostics, one instance saves ten nodes through three earlier
+contradictions, but compilation overhead outweighs the saving. A deliberately
+favorable three-equation example improves from 402 nodes to one and about
+150 ms to 5.5 ms, showing that usefulness depends on the residual structure.
+
+The production solver is unchanged. Fifteen focused tests pass, including 200
+random exhaustive-oracle cases and preservation of all eight 3×3 solutions.
+The [readable experiment report](../../benchmarks/results/magic_sum_systems_2026-10-13/README.md)
+contains timing tables, limitations, raw data, frozen sources, and reproduction
+commands. This experiment runs after native fixpoints; earlier invocation and
+partial deductions from underdetermined systems remain unmeasured.
+
+## Follow-up: exact rank of the entire residual system, 13 October 2026
+
+Offline integer Gauss-Jordan elimination now examines the entire set of sums at
+every search node before native propagation and every successful fixpoint.
+Instrumentation preserves nodes, failures, native revisions, termination, and
+boards against an uninstrumented control. Across 14 sizes, the diagnostic
+captures 8,393 before states and 3,058 after states; 15×15, 18×18, and 20×20 remain
+bounded prefixes. No deductions are applied to search.
+
+After native propagation, squares 4×4 and above have neither a fully determined
+nonterminal residual system nor any individual variable forced by the linear
+equations. This rules out a uniquely solvable closed subset of any size at those
+observed fixpoints. The closest 10×10 state has four unknowns and rank three;
+16×16 has a state with 16 unknowns and rank nine. Before propagation, 10×10 has
+one full-rank system of three unknowns, solved immediately by native propagation.
+No full-rank residual system larger than eight variables occurs in the traces.
+
+The 3×3 case does have additional partial deductions: its initial system forces
+the center to five, despite retaining two degrees of freedom. Larger measured
+sizes have no such extra forced values after native propagation. This conclusion
+concerns exact linear forcing, not finite-domain filtering of derived relations.
+
+Ten diagnostic tests pass, including 400 random matrices checked against a
+separate exact rational RREF implementation. The production runtime is unchanged.
+The [full diagnostic report](../../benchmarks/results/magic_sum_global_rank_2026-10-13/README.md)
+contains rank tables, before/after counts, compressed full state records, exact
+proofs for useful rows, source snapshots, limitations, and reproduction commands.
+
+## Follow-up: selective SUM + ALLDIFF bounds, 13 October 2026
+
+An opt-in `DistinctSumState` adds conservative distinct-value sum bounds inside
+the native numeric revision hook, only when an unconditional ALLDIFF covers
+the entire unit-coefficient sum. The full union of other current domains supplies
+the extrema, excluding fixed and tested values. This is a relaxation of variable
+assignment, not exact joint domain consistency. No witness/support cache is added.
+
+A specialized residual two-variable rule removes `R/2` from both domains in
+`x+y=R, x!=y`. Direct numeric lookup avoids scanning domains. The main selective
+variant adds general bounds only for three active variables with at most 24
+candidates in total. Original models, seeds, symmetries, and heuristic settings
+are retained; joint failures do not increment arbitrary original dom_wdeg weights.
+
+Across 108 main runs, the selective variant reduces median 13×13 time from
+2.356629 s to 0.918941 s (1,488 to 343 nodes), and 16×16 from 6.722612 s to
+6.385560 s (2,536 to 2,204 nodes). 9×9 and 10×10 improve by about 4.3%; 6×6 and
+11×11 regress by about 1.3% and 1.6%. The two-variable-only variant is also useful
+on some presets, but regresses on 11×11. Broad bounds in the preliminary pilot
+cost too much and can increase search through changed heuristic choices.
+
+All 113 boards returned across 140 main/exploratory runs are independently valid.
+Twenty-two tests pass, including 400 exhaustive support checks, 60 random search
+models in five configurations, preservation of all eight 3×3 solutions, guarded
+scope exclusions, huge signed translations, and sibling rollback. The production
+runtime and saved search parameters remain unchanged. The full core suite was
+not rerun for these opt-in files.
+
+The [readable results report](../../benchmarks/results/magic_sum_distinct_2026-10-13/README.md)
+contains complete timings, nodes, regressions, source snapshots, counters,
+limitations, and reproduction commands. Cost-based matching bounds and clued
+puzzle generalization remain untested.
+
+## Follow-up: detection and three-variable cost, 13 October 2026
+
+The experimental coupler now stops eligibility scanning once a size/candidate
+limit excludes filtering, preserving the fast pair rule's priority. Three active
+variables use temporary normalized value bitsets, requiring only three extrema
+per side. Immutable alphabet extrema supply the normalization bounds; spans above
+4,096 use the previous general algorithm. No support/witness cache or branch-local
+logical state is introduced. The original two-variable arithmetic is unchanged.
+
+Forty-four experimental tests pass, including 5,000 exact helper/counter parity
+cases, span-boundary fallbacks, and 864 full reduction/rollback trace comparisons
+(48 models, nine configurations, two policies). The 194 benchmark and pilot runs
+return 158 independently validated squares. Before/after nodes, failures,
+revisions, terminations, boards, and all non-time filtering counters agree.
+
+On 9×9, the main filtering timer falls from 168.992 ms to 151.027 ms; on 16×16,
+162.822 ms to 150.649 ms. Whole-solve effects are small and mixed. An additional
+seven-repeat series measures 8×8 +1.1%, 9×9 -0.7%, and 14×14 -1.8%; the larger
+apparent regressions in the initial series do not recur at the same magnitude.
+The prototype retains the changes, while production and saved presets remain
+unchanged. No uniform end-to-end speedup is claimed.
+
+The [complete cost report](../../benchmarks/results/magic_sum_distinct_cost_2026-10-13/README.md)
+contains the before/after sources, raw runs, equivalence checks, repeated
+measurements, limitations, and reproduction commands.

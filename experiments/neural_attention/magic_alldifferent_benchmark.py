@@ -24,6 +24,9 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--before", type=Path, required=True)
     parser.add_argument(
+        "--candidate", type=Path, help="optional experimental kernel source"
+    )
+    parser.add_argument(
         "--kernel", choices=["alldifferent", "sum"], default="alldifferent"
     )
     parser.add_argument(
@@ -45,7 +48,15 @@ def main():
     module_spec.loader.exec_module(module)
     kernel_class = NumericPlan if args.kernel == "sum" else MaskColumn
     method = "_equality_supports" if args.kernel == "sum" else "decode"
-    optimized = getattr(kernel_class, method)
+    original_method = getattr(kernel_class, method)
+    optimized = original_method
+    if args.candidate:
+        candidate_spec = importlib.util.spec_from_file_location(
+            f"snarky.finite._{args.kernel}_candidate", args.candidate
+        )
+        candidate = importlib.util.module_from_spec(candidate_spec)
+        candidate_spec.loader.exec_module(candidate)
+        optimized = getattr(getattr(candidate, kernel_class.__name__), method)
     implementations = dict(
         baseline=getattr(getattr(module, kernel_class.__name__), method),
         optimized=optimized,
@@ -60,6 +71,8 @@ def main():
         Path("experiments/neural_attention/magic_search_tuning.py"),
         Path("experiments/neural_attention/optimize_magic6.py"),
     ]
+    if args.candidate:
+        files.append(args.candidate)
     hashes = {str(p): hashlib.sha256(p.read_bytes()).hexdigest() for p in files}
     specs = [
         (n, variant, repeat)
@@ -144,7 +157,7 @@ def main():
                 flush=True,
             )
     finally:
-        setattr(kernel_class, method, optimized)
+        setattr(kernel_class, method, original_method)
     summary = [
         dict(
             size=size,

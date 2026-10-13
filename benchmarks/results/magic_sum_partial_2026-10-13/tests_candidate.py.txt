@@ -1,0 +1,473 @@
+"""Compiled n-ary equality supports agree with enumeration and rollback oracles."""
+
+from dataclasses import replace
+from itertools import product
+from random import Random
+
+import pytest
+
+from snarky import Atom, Number
+from snarky.finite import numeric
+from snarky.finite.constraints import ConstraintOperator as Op
+from snarky.finite.constraints import LinearSumConstraint, SumConstraint
+from snarky.finite.model import FiniteModel, FiniteVariable, Query, QueryKind
+from snarky.finite.propagation import NativeState
+from snarky.finite.search import solve
+
+
+def test_numeric_rank_cache_matches_value_oracle_across_shrinks_and_restores():
+    values = (3, -8, 10**40, -2, 0, 7)
+    column = numeric.NumericColumn(Atom("x"), values)
+    masks = list(range(1, 1 << len(values)))
+    Random(124).shuffle(masks)
+    # Repeated full restores and singletons exercise large cache transitions.
+    masks += [63, 4, 63, 1, 32, 1, 63]
+    for mask in masks:
+        live = [v for i, v in enumerate(values) if mask & (1 << i)]
+        assert column.extrema(mask) == (min(live), max(live))
+        for bound in (-9, -8, -3, 0, 3, 7, 8, 10**40, 10**40 + 1):
+            for upper in (False, True):
+                expected = sum(
+                    1 << i
+                    for i, v in enumerate(values)
+                    if mask & (1 << i) and (v <= bound if upper else v >= bound)
+                )
+                assert column.threshold(mask, bound, upper) == expected
+
+
+@pytest.mark.parametrize("target", [-4800, -1600, 0, 1600, 1601, 4800])
+def test_newly_compiled_spans_match_enumerated_signed_holey_supports(target):
+    values = [[1600, -1600, 0]] * 3
+    coefficients = [2, -1, 1]
+    model = make_model(values, coefficients, target)
+    fast, slow = NativeState(model), NativeState(model, numeric_masks=False)
+    rows = [
+        row
+        for row in product(*values)
+        if sum(c * v for c, v in zip(coefficients, row, strict=True)) == target
+    ]
+    assert fast.propagate() == slow.propagate() == bool(rows)
+    assert fast.domains.snapshot() == slow.domains.snapshot()
+    assert fast.domains.removals == slow.domains.removals
+    assert fast._numeric.plans[0][1] is not None
+    if rows:
+        assert fast.domains.snapshot() == {
+            v.name: frozenset(Number(row[i]) for row in rows)
+            for i, v in enumerate(model.variables)
+        }
+
+
+def test_span_limit_still_falls_back_above_new_boundary():
+    values = [[0, numeric._MAX_EQUALITY_SPAN + 1], [1, 0], [1, 0]]
+    model = make_model(values, [1, 1, 1], 1)
+    fast, slow = NativeState(model), NativeState(model, numeric_masks=False)
+    assert fast.propagate() == slow.propagate()
+    assert fast.domains.snapshot() == slow.domains.snapshot()
+    assert fast.domains.removals == slow.domains.removals
+    assert fast._numeric.plans[0][1] is None
+    assert not fast._numeric.columns
+
+
+def test_newly_compiled_signed_span_preserves_full_search_and_rollback():
+    values = [[1600, -1600, 0]] * 3
+    values[0] = [v + 10**40 for v in values[0]]
+    model = make_model(values, [2, -1, 1], 1600 + 2 * 10**40)
+    fast = solve(model, Query(QueryKind.ENUMERATE))
+    slow = solve(model, Query(QueryKind.ENUMERATE), numeric_masks=False)
+    assert fast.complete and fast.solutions
+    for attribute in (
+        "status",
+        "solutions",
+        "explored_nodes",
+        "failed_branches",
+        "constraint_revisions",
+    ):
+        assert getattr(fast, attribute) == getattr(slow, attribute)
+
+
+@pytest.mark.parametrize("operator", tuple(Op))
+def test_shared_numeric_layouts_keep_independent_caches_and_declared_orders(operator):
+    model = make_model([[3, -2, 0, 1]] * 3, [1, 1, 1], 2)
+    model = replace(
+        model, constraints=(replace(model.constraints[0], operator=operator),)
+    )
+    fast, slow = NativeState(model), NativeState(model, numeric_masks=False)
+    plan = fast._numeric.get(0, model.constraints[0])
+    assert plan is not None
+    left, right, _ = plan.columns
+    assert left is not right and left.values is right.values
+    roots = [s.checkpoint() for s in (fast, slow)]
+    for a, b in ((3, -2), (0, 1), (-2, 3), (1, 3)):
+        for state, root in zip((fast, slow), roots, strict=True):
+            state.rollback(root)
+            state.restrict(model.variables[0].name, Number(a))
+            state.restrict(model.variables[1].name, Number(b))
+        assert fast.propagate() == slow.propagate()
+        assert fast.domains.snapshot() == slow.domains.snapshot()
+        assert fast.domains.removals == slow.domains.removals
+        for v in model.variables:
+            assert fast.domains.values(v.name) == slow.domains.values(v.name)
+    for state, root in zip((fast, slow), roots, strict=True):
+        state.rollback(root)
+        state.release(root)
+        assert state.domains.snapshot() == model.domains
+
+
+def make_model(values, coefficients, target):
+    variables = tuple(
+        FiniteVariable(Atom(f"x{i}"), tuple(map(Number, v)))
+        for i, v in enumerate(values)
+    )
+    constraint = LinearSumConstraint(
+        Atom("sum"),
+        tuple(zip(coefficients, (v.name for v in variables), strict=True)),
+        Op.EQUAL,
+        target,
+    )
+    return FiniteModel("wide", variables, (constraint,))
+
+
+def test_signed_holey_shuffled_equalities_match_exhaustive_supports_and_restore():
+    rng = Random(920261012)
+    for case in range(500):
+        count = rng.randrange(3, 7)
+        values = [rng.sample(range(-5, 7), rng.randrange(1, 5)) for _ in range(count)]
+        coefficients = [rng.choice((-3, -1, 1, 2)) for _ in values]
+        target = rng.randrange(-20, 21)
+        if case % 5 == 0:
+            target = sum(
+                c * rng.choice(v) for c, v in zip(coefficients, values, strict=True)
+            )
+        if case % 13 == 0:
+            values[0] = [v + 10**40 for v in values[0]]
+            target += coefficients[0] * 10**40
+        model = make_model(values, coefficients, target)
+        fast, slow = NativeState(model), NativeState(model, numeric_masks=False)
+        roots = [s.checkpoint() for s in (fast, slow)]
+        for visit in range(4):
+            for state, root in zip((fast, slow), roots, strict=True):
+                state.rollback(root)
+                if visit:
+                    variable = model.variables[0]
+                    state.restrict(
+                        variable.name,
+                        variable.domain[(visit - 1) % len(variable.domain)],
+                    )
+            before = fast.domains.snapshot()
+            names = tuple(v.name for v in model.variables)
+            rows = [
+                row
+                for row in product(*(before[n] for n in names))
+                if sum(c * v.value for c, v in zip(coefficients, row, strict=True))
+                == target
+            ]
+            good = fast.propagate()
+            assert good == slow.propagate() == bool(rows)
+            assert fast.domains.snapshot() == slow.domains.snapshot()
+            assert fast.domains.removals == slow.domains.removals
+            assert fast.revisions == slow.revisions
+            assert fast.failure == slow.failure
+            if good:
+                assert fast.domains.snapshot() == {
+                    n: frozenset(row[i] for row in rows) for i, n in enumerate(names)
+                }
+                assert fast._numeric.plans[0][1] is not None
+                # Repeat the support call on filtered masks, then visit a sibling.
+                assert (
+                    fast._numeric.plans[0][1].supports(fast.domains, target) is not None
+                )
+        for state, root in zip((fast, slow), roots, strict=True):
+            state.rollback(root)
+            state.release(root)
+            assert state.domains.snapshot() == model.domains
+            assert not state.domains.removals
+
+
+@pytest.mark.parametrize("budget", ["_MAX_EQUALITY_SPAN", "_MAX_EQUALITY_TOTAL_BITS"])
+def test_wide_sum_budget_falls_back_exactly(monkeypatch, budget):
+    monkeypatch.setattr(numeric, budget, 0)
+    model = make_model([range(3)] * 4, [1, -1, 2, 1], 2)
+    fast, slow = NativeState(model), NativeState(model, numeric_masks=False)
+    assert fast.propagate() == slow.propagate()
+    assert fast.domains.snapshot() == slow.domains.snapshot()
+    assert fast._numeric.plans[0][1] is None
+    assert not fast._numeric.columns
+
+
+def test_huge_sparse_span_falls_back_and_empty_domain_is_infeasible():
+    for values in ([[-(10**40), 10**40]] * 3, [[], [1, 2], [3, 4]]):
+        model = make_model(values, [1, 1, 1], 0)
+        fast, slow = NativeState(model), NativeState(model, numeric_masks=False)
+        assert fast.propagate() == slow.propagate()
+        assert fast.domains.snapshot() == slow.domains.snapshot()
+        assert fast._numeric.plans[0][1] is None
+
+
+def test_complete_nary_sum_search_preserves_outputs_and_search_counters():
+    model = make_model([[3, 0, 1, 2]] * 4, [1, 1, 1, 1], 5)
+    model = replace(
+        model,
+        constraints=(
+            SumConstraint(Atom("sum"), tuple(v.name for v in model.variables), 5),
+        ),
+    )
+    fast = solve(model, Query(QueryKind.ENUMERATE))
+    slow = solve(model, Query(QueryKind.ENUMERATE), numeric_masks=False)
+    for attribute in (
+        "status",
+        "solutions",
+        "explored_nodes",
+        "failed_branches",
+        "constraint_revisions",
+    ):
+        assert getattr(fast, attribute) == getattr(slow, attribute)
+
+
+def test_nary_cache_is_tagged_with_target_as_well_as_masks():
+    model = make_model([range(3)] * 3, [1, 1, 1], 3)
+    state = NativeState(model)
+    plan = state._numeric.get(0, model.constraints[0])
+    assert plan is not None
+    assert plan.supports(state.domains, 3) == (7, 7, 7)
+    assert plan.supports(state.domains, 0) == (1, 1, 1)
+    assert plan.supports(state.domains, 9) is None
+    assert plan.supports(state.domains, 3) == (7, 7, 7)
+
+
+def test_every_fixed_term_pattern_matches_reference_under_sibling_rollback():
+    coefficients = [2, -1, 3, 1, -2, 1]
+    model = make_model([[-3, 0, 2]] * 6, coefficients, 3)
+    fast, slow = NativeState(model), NativeState(model, numeric_masks=False)
+    roots = [s.checkpoint() for s in (fast, slow)]
+    for pattern in range(64):
+        for state, root in zip((fast, slow), roots, strict=True):
+            state.rollback(root)
+            for i, variable in enumerate(model.variables):
+                if pattern & (1 << i):
+                    state.restrict(variable.name, variable.domain[i % 3])
+        before = fast.domains.snapshot()
+        rows = [
+            row
+            for row in product(*(before[v.name] for v in model.variables))
+            if sum(c * v.value for c, v in zip(coefficients, row, strict=True)) == 3
+        ]
+        valid = fast.propagate()
+        assert valid == slow.propagate() == bool(rows)
+        assert fast.domains.snapshot() == slow.domains.snapshot()
+        assert fast.domains.removals == slow.domains.removals
+        if valid:
+            assert fast.domains.snapshot() == {
+                v.name: frozenset(row[i] for row in rows)
+                for i, v in enumerate(model.variables)
+            }
+    for state, root in zip((fast, slow), roots, strict=True):
+        state.rollback(root)
+        state.release(root)
+        assert state.domains.snapshot() == model.domains
+
+
+@pytest.mark.parametrize(
+    "values,coefficients",
+    [
+        ([list(range(-3, 4))] * 4, [1, -1, 1, -1]),
+        ([[0, 2, 3, 4, 5]] * 3, [1, 1, 1]),
+        ([[0, 1, 3, 4, 5]] * 4, [1, -1, 1, -1]),
+        ([[0, 2, 4, 6]] * 3, [1, 1, 1]),
+        ([[0, 1]] * 3 + [[0, 99]], [1, 1, 1, 1]),
+        ([[0, 1]] * 3 + [[0, 10]] * 3, [1] * 6),
+        ([[0, 1, 2], [0, 1, 2], [0, 1, 2], [0, 30]], [1, -1, 2, 1]),
+    ],
+)
+def test_dense_and_holey_boundaries_match_enumeration_for_every_target(
+    values, coefficients
+):
+    # Cover the fringes where plain interval bounds would retain unsupported
+    # candidates, parity holes, and narrow domains mixed with a wide sparse one.
+    model = make_model(values, coefficients, 0)
+    state = NativeState(model)
+    plan = state._numeric.get(0, model.constraints[0])
+    assert plan is not None
+    rows_by_sum = {}
+    for row in product(*values):
+        total = sum(c * v for c, v in zip(coefficients, row, strict=True))
+        rows_by_sum.setdefault(total, []).append(row)
+    targets = list(range(min(rows_by_sum) - 1, max(rows_by_sum) + 2))
+    Random(13).shuffle(targets)
+    for target in targets:
+        rows = rows_by_sum.get(target, [])
+        expected = (
+            tuple(
+                sum(
+                    1 << j
+                    for j, v in enumerate(alphabet)
+                    if any(row[i] == v for row in rows)
+                )
+                for i, alphabet in enumerate(values)
+            )
+            if rows
+            else None
+        )
+        assert plan.supports(state.domains, target) == expected
+
+
+def test_dense_holey_certificates_and_interval_filtering_survive_sibling_restores():
+    values = [[v + 10**40 for v in (4, 0, 5, 3, 2)]] + [[0, 2, 3, 4, 5]] * 3
+    model = make_model(values, [-1, 1, 1, 1], 5 - 10**40)
+    fast, slow = NativeState(model), NativeState(model, numeric_masks=False)
+    roots = [s.checkpoint() for s in (fast, slow)]
+    # Go from broad holey domains to dense intervals, singletons, and sparse
+    # siblings, repeatedly returning to the original support-cache masks.
+    for masks in (
+        (31, 31, 31, 31),
+        (29, 14, 14, 14),
+        (1, 31, 31, 31),
+        (31, 3, 3, 3),
+        (31, 31, 31, 31),
+    ):
+        for state, root in zip((fast, slow), roots, strict=True):
+            state.rollback(root)
+            for variable, mask in zip(model.variables, masks, strict=True):
+                state.domains.retain_mask(variable.name, mask, Atom("branch"))
+        assert fast.propagate() == slow.propagate()
+        assert fast.domains.snapshot() == slow.domains.snapshot()
+        assert fast.domains.removals == slow.domains.removals
+        assert fast.revisions == slow.revisions
+    for state, root in zip((fast, slow), roots, strict=True):
+        state.rollback(root)
+        state.release(root)
+        assert state.domains.snapshot() == model.domains
+
+
+def test_random_dense_holey_sums_match_enumeration_with_signed_translations():
+    rng = Random(131026)
+    for case in range(200):
+        count = rng.randrange(3, 6)
+        values = []
+        for _ in range(count):
+            low = rng.randrange(-4, 3)
+            alphabet = list(range(low, low + rng.randrange(3, 7)))
+            if case % 3 and len(alphabet) > 3:
+                alphabet.remove(rng.choice(alphabet[1:-1]))
+            rng.shuffle(alphabet)
+            values.append(alphabet)
+        coefficients = [rng.choice((-1, 1)) for _ in values]
+        if case % 7 == 0:
+            values[0] = [v + 10**40 for v in values[0]]
+        totals = {}
+        for row in product(*values):
+            total = sum(c * v for c, v in zip(coefficients, row, strict=True))
+            totals.setdefault(total, []).append(row)
+        model = make_model(values, coefficients, 0)
+        state = NativeState(model)
+        plan = state._numeric.get(0, model.constraints[0])
+        assert plan is not None
+        for target in (
+            min(totals) - 1,
+            min(totals),
+            max(totals),
+            rng.choice(list(totals)),
+        ):
+            rows = totals.get(target, [])
+            expected = (
+                tuple(
+                    sum(
+                        1 << j
+                        for j, v in enumerate(alphabet)
+                        if any(row[i] == v for row in rows)
+                    )
+                    for i, alphabet in enumerate(values)
+                )
+                if rows
+                else None
+            )
+            assert plan.supports(state.domains, target) == expected
+
+
+@pytest.mark.parametrize("missing,target,unsupported", [(1, 20, 19), (19, 60, 1)])
+@pytest.mark.parametrize("coefficients", [[1] * 4, [-1, 1, -1, 1]])
+def test_partially_certified_values_still_support_other_variables(
+    missing, target, unsupported, coefficients
+):
+    rng = Random(131027)
+    contributions = [v for v in range(21) if v != missing]
+    values = []
+    for i, coefficient in enumerate(coefficients):
+        alphabet = [
+            coefficient * (v + (10**40 if i == 0 else 0)) for v in contributions
+        ]
+        rng.shuffle(alphabet)
+        values.append(alphabet)
+    model = make_model(values, coefficients, target + 10**40)
+    fast, slow = NativeState(model), NativeState(model, numeric_masks=False)
+    roots = [s.checkpoint() for s in (fast, slow)]
+    for visit in range(3):
+        for state, root in zip((fast, slow), roots, strict=True):
+            state.rollback(root)
+            if visit == 1:
+                state.restrict(model.variables[0].name, Number(values[0][0]))
+        assert fast.propagate() == slow.propagate()
+        assert fast.domains.snapshot() == slow.domains.snapshot()
+        assert fast.domains.removals == slow.domains.removals
+        assert fast.revisions == slow.revisions
+        if visit != 1:
+            for i, variable in enumerate(model.variables):
+                live = {
+                    coefficients[i] * v.value - (10**40 if i == 0 else 0)
+                    for v in fast.domains.values(variable.name)
+                }
+                assert live == set(contributions) - {unsupported}
+                # These boundary values need the certified interior candidates
+                # of other variables to remain in backward reachability.
+                assert 0 in live and 20 in live
+    for state, root in zip((fast, slow), roots, strict=True):
+        state.rollback(root)
+        state.release(root)
+        assert state.domains.snapshot() == model.domains
+
+
+def test_partial_certification_with_zero_margin_matches_reference_bounds():
+    model = make_model([list(range(31))] * 4 + [[0, 50]], [1] * 5, 29)
+    fast, slow = NativeState(model), NativeState(model, numeric_masks=False)
+    assert fast.propagate() == slow.propagate()
+    assert fast.domains.snapshot() == slow.domains.snapshot()
+    assert fast.domains.removals == slow.domains.removals
+    assert fast.domains.values(model.variables[-1].name) == (Number(0),)
+
+
+def test_partial_edge_reachability_matches_independent_set_sum_oracle():
+    rng = Random(131028)
+    for case in range(120):
+        count = rng.randrange(4, 8)
+        alphabets = []
+        for _ in range(count):
+            width = rng.randrange(20, 33)
+            alphabet = list(range(width + 1))
+            for value in rng.sample(range(1, width), rng.randrange(1, 3)):
+                alphabet.remove(value)
+            rng.shuffle(alphabet)
+            alphabets.append(alphabet)
+        widths = [max(a) for a in alphabets]
+        target = max(widths) + rng.randrange(-3, 3)
+        if case % 2:
+            target = sum(widths) - target
+        coefficients = [rng.choice((-1, 1)) for _ in alphabets]
+        values = [
+            [c * (v + (10**40 if i == 0 else 0)) for v in alphabet]
+            for i, (c, alphabet) in enumerate(zip(coefficients, alphabets, strict=True))
+        ]
+        model = make_model(values, coefficients, target + 10**40)
+        state = NativeState(model)
+        plan = state._numeric.get(0, model.constraints[0])
+        assert plan is not None
+        expected = []
+        for i, alphabet in enumerate(alphabets):
+            sums = {0}
+            for j, other in enumerate(alphabets):
+                if j != i:
+                    sums = {a + b for a in sums for b in other}
+            expected.append(
+                sum(
+                    1 << k for k, value in enumerate(alphabet) if target - value in sums
+                )
+            )
+        assert plan.supports(state.domains, target + 10**40) == tuple(expected)

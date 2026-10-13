@@ -1,0 +1,3942 @@
+{
+  "source_hashes": {
+    "/Users/francoispachet/IdeaProjects/boojum/experiments/neural_attention/sum_system_diagnostics.py": "f8bc0f7f4c65dcc8e4a7ca576c35ef4f1e04c7db1dd715e8cd1966dfaf89ac04",
+    "/Users/francoispachet/IdeaProjects/boojum/experiments/neural_attention/sum_systems.py": "e8af14f7684bf699a5017ca8ece88de747315b385d3e47dd5aaaf98d58ca24c4"
+  },
+  "scope": "Separate diagnostics, not magic timing samples. Triangle instances are deliberately favorable, with ascending choices. Clued 4x4 instances use a known valid board only to choose clues, never to guide deductions.",
+  "triangles": [
+    {
+      "scale": 1,
+      "runs": [
+        {
+          "variant": "baseline",
+          "seconds": 0.0003154999576508999,
+          "nodes": 6,
+          "failures": 4,
+          "termination": "solution_limit",
+          "assignments": [
+            {
+              "x": 4,
+              "y": 6,
+              "z": 8
+            }
+          ],
+          "stats": {},
+          "repeat": 2
+        },
+        {
+          "variant": "exact",
+          "seconds": 0.0003422910813242197,
+          "nodes": 1,
+          "failures": 0,
+          "termination": "solution_limit",
+          "assignments": [
+            {
+              "x": 4,
+              "y": 6,
+              "z": 8
+            }
+          ],
+          "stats": {
+            "fixpoints": 2,
+            "topology_updates": 2,
+            "scope_updates": 6,
+            "expansions": 16,
+            "budget_hits": 0,
+            "factorizations": 1,
+            "full_rank": 1,
+            "rank_deficient": 0,
+            "evaluations": 1,
+            "assignments": 3,
+            "contradictions": 0,
+            "native_calls": 2,
+            "discovery_seconds": 0.00013187387958168983,
+            "evaluation_seconds": 4.0082959458231926e-05
+          },
+          "repeat": 0
+        },
+        {
+          "variant": "exact",
+          "seconds": 0.00026050000451505184,
+          "nodes": 1,
+          "failures": 0,
+          "termination": "solution_limit",
+          "assignments": [
+            {
+              "x": 4,
+              "y": 6,
+              "z": 8
+            }
+          ],
+          "stats": {
+            "fixpoints": 2,
+            "topology_updates": 2,
+            "scope_updates": 6,
+            "expansions": 16,
+            "budget_hits": 0,
+            "factorizations": 1,
+            "full_rank": 1,
+            "rank_deficient": 0,
+            "evaluations": 1,
+            "assignments": 3,
+            "contradictions": 0,
+            "native_calls": 2,
+            "discovery_seconds": 9.108311496675014e-05,
+            "evaluation_seconds": 3.054179251194e-05
+          },
+          "repeat": 2
+        },
+        {
+          "variant": "baseline",
+          "seconds": 0.00019462499767541885,
+          "nodes": 6,
+          "failures": 4,
+          "termination": "solution_limit",
+          "assignments": [
+            {
+              "x": 4,
+              "y": 6,
+              "z": 8
+            }
+          ],
+          "stats": {},
+          "repeat": 0
+        },
+        {
+          "variant": "exact",
+          "seconds": 0.0002439578529447317,
+          "nodes": 1,
+          "failures": 0,
+          "termination": "solution_limit",
+          "assignments": [
+            {
+              "x": 4,
+              "y": 6,
+              "z": 8
+            }
+          ],
+          "stats": {
+            "fixpoints": 2,
+            "topology_updates": 2,
+            "scope_updates": 6,
+            "expansions": 16,
+            "budget_hits": 0,
+            "factorizations": 1,
+            "full_rank": 1,
+            "rank_deficient": 0,
+            "evaluations": 1,
+            "assignments": 3,
+            "contradictions": 0,
+            "native_calls": 2,
+            "discovery_seconds": 8.541787974536419e-05,
+            "evaluation_seconds": 2.8333161026239395e-05
+          },
+          "repeat": 1
+        },
+        {
+          "variant": "baseline",
+          "seconds": 0.0001847089733928442,
+          "nodes": 6,
+          "failures": 4,
+          "termination": "solution_limit",
+          "assignments": [
+            {
+              "x": 4,
+              "y": 6,
+              "z": 8
+            }
+          ],
+          "stats": {},
+          "repeat": 1
+        }
+      ],
+      "medians": {
+        "baseline": 0.00019462499767541885,
+        "exact": 0.00026050000451505184
+      }
+    },
+    {
+      "scale": 10,
+      "runs": [
+        {
+          "variant": "baseline",
+          "seconds": 0.0026872081216424704,
+          "nodes": 42,
+          "failures": 40,
+          "termination": "solution_limit",
+          "assignments": [
+            {
+              "x": 40,
+              "y": 60,
+              "z": 80
+            }
+          ],
+          "stats": {},
+          "repeat": 2
+        },
+        {
+          "variant": "exact",
+          "seconds": 0.0007068749982863665,
+          "nodes": 1,
+          "failures": 0,
+          "termination": "solution_limit",
+          "assignments": [
+            {
+              "x": 40,
+              "y": 60,
+              "z": 80
+            }
+          ],
+          "stats": {
+            "fixpoints": 2,
+            "topology_updates": 2,
+            "scope_updates": 6,
+            "expansions": 16,
+            "budget_hits": 0,
+            "factorizations": 1,
+            "full_rank": 1,
+            "rank_deficient": 0,
+            "evaluations": 1,
+            "assignments": 3,
+            "contradictions": 0,
+            "native_calls": 2,
+            "discovery_seconds": 0.00011179200373589993,
+            "evaluation_seconds": 8.300016634166241e-05
+          },
+          "repeat": 2
+        },
+        {
+          "variant": "baseline",
+          "seconds": 0.002046499866992235,
+          "nodes": 42,
+          "failures": 40,
+          "termination": "solution_limit",
+          "assignments": [
+            {
+              "x": 40,
+              "y": 60,
+              "z": 80
+            }
+          ],
+          "stats": {},
+          "repeat": 1
+        },
+        {
+          "variant": "exact",
+          "seconds": 0.0006035000551491976,
+          "nodes": 1,
+          "failures": 0,
+          "termination": "solution_limit",
+          "assignments": [
+            {
+              "x": 40,
+              "y": 60,
+              "z": 80
+            }
+          ],
+          "stats": {
+            "fixpoints": 2,
+            "topology_updates": 2,
+            "scope_updates": 6,
+            "expansions": 16,
+            "budget_hits": 0,
+            "factorizations": 1,
+            "full_rank": 1,
+            "rank_deficient": 0,
+            "evaluations": 1,
+            "assignments": 3,
+            "contradictions": 0,
+            "native_calls": 2,
+            "discovery_seconds": 8.49161297082901e-05,
+            "evaluation_seconds": 7.425015792250633e-05
+          },
+          "repeat": 0
+        },
+        {
+          "variant": "baseline",
+          "seconds": 0.0021638330072164536,
+          "nodes": 42,
+          "failures": 40,
+          "termination": "solution_limit",
+          "assignments": [
+            {
+              "x": 40,
+              "y": 60,
+              "z": 80
+            }
+          ],
+          "stats": {},
+          "repeat": 0
+        },
+        {
+          "variant": "exact",
+          "seconds": 0.0005967910401523113,
+          "nodes": 1,
+          "failures": 0,
+          "termination": "solution_limit",
+          "assignments": [
+            {
+              "x": 40,
+              "y": 60,
+              "z": 80
+            }
+          ],
+          "stats": {
+            "fixpoints": 2,
+            "topology_updates": 2,
+            "scope_updates": 6,
+            "expansions": 16,
+            "budget_hits": 0,
+            "factorizations": 1,
+            "full_rank": 1,
+            "rank_deficient": 0,
+            "evaluations": 1,
+            "assignments": 3,
+            "contradictions": 0,
+            "native_calls": 2,
+            "discovery_seconds": 8.191587403416634e-05,
+            "evaluation_seconds": 7.354095578193665e-05
+          },
+          "repeat": 1
+        }
+      ],
+      "medians": {
+        "baseline": 0.0021638330072164536,
+        "exact": 0.0006035000551491976
+      }
+    },
+    {
+      "scale": 100,
+      "runs": [
+        {
+          "variant": "baseline",
+          "seconds": 0.1504029999487102,
+          "nodes": 402,
+          "failures": 400,
+          "termination": "solution_limit",
+          "assignments": [
+            {
+              "x": 400,
+              "y": 600,
+              "z": 800
+            }
+          ],
+          "stats": {},
+          "repeat": 2
+        },
+        {
+          "variant": "exact",
+          "seconds": 0.005570125067606568,
+          "nodes": 1,
+          "failures": 0,
+          "termination": "solution_limit",
+          "assignments": [
+            {
+              "x": 400,
+              "y": 600,
+              "z": 800
+            }
+          ],
+          "stats": {
+            "fixpoints": 2,
+            "topology_updates": 2,
+            "scope_updates": 6,
+            "expansions": 16,
+            "budget_hits": 0,
+            "factorizations": 1,
+            "full_rank": 1,
+            "rank_deficient": 0,
+            "evaluations": 1,
+            "assignments": 3,
+            "contradictions": 0,
+            "native_calls": 2,
+            "discovery_seconds": 0.00012895907275378704,
+            "evaluation_seconds": 0.00063699996098876
+          },
+          "repeat": 2
+        },
+        {
+          "variant": "baseline",
+          "seconds": 0.14959516702219844,
+          "nodes": 402,
+          "failures": 400,
+          "termination": "solution_limit",
+          "assignments": [
+            {
+              "x": 400,
+              "y": 600,
+              "z": 800
+            }
+          ],
+          "stats": {},
+          "repeat": 0
+        },
+        {
+          "variant": "exact",
+          "seconds": 0.00537629215978086,
+          "nodes": 1,
+          "failures": 0,
+          "termination": "solution_limit",
+          "assignments": [
+            {
+              "x": 400,
+              "y": 600,
+              "z": 800
+            }
+          ],
+          "stats": {
+            "fixpoints": 2,
+            "topology_updates": 2,
+            "scope_updates": 6,
+            "expansions": 16,
+            "budget_hits": 0,
+            "factorizations": 1,
+            "full_rank": 1,
+            "rank_deficient": 0,
+            "evaluations": 1,
+            "assignments": 3,
+            "contradictions": 0,
+            "native_calls": 2,
+            "discovery_seconds": 0.0001041253563016653,
+            "evaluation_seconds": 0.0006436249241232872
+          },
+          "repeat": 1
+        },
+        {
+          "variant": "exact",
+          "seconds": 0.005481415893882513,
+          "nodes": 1,
+          "failures": 0,
+          "termination": "solution_limit",
+          "assignments": [
+            {
+              "x": 400,
+              "y": 600,
+              "z": 800
+            }
+          ],
+          "stats": {
+            "fixpoints": 2,
+            "topology_updates": 2,
+            "scope_updates": 6,
+            "expansions": 16,
+            "budget_hits": 0,
+            "factorizations": 1,
+            "full_rank": 1,
+            "rank_deficient": 0,
+            "evaluations": 1,
+            "assignments": 3,
+            "contradictions": 0,
+            "native_calls": 2,
+            "discovery_seconds": 9.374995715916157e-05,
+            "evaluation_seconds": 0.0006288338918238878
+          },
+          "repeat": 0
+        },
+        {
+          "variant": "baseline",
+          "seconds": 0.14945804211311042,
+          "nodes": 402,
+          "failures": 400,
+          "termination": "solution_limit",
+          "assignments": [
+            {
+              "x": 400,
+              "y": 600,
+              "z": 800
+            }
+          ],
+          "stats": {},
+          "repeat": 1
+        }
+      ],
+      "medians": {
+        "baseline": 0.14959516702219844,
+        "exact": 0.005481415893882513
+      }
+    }
+  ],
+  "clued_magic": [
+    {
+      "unresolved": [
+        0,
+        3,
+        12,
+        15
+      ],
+      "runs": [
+        {
+          "variant": "baseline",
+          "seconds": 0.0004477500915527344,
+          "nodes": 1,
+          "failures": 0,
+          "termination": "solution_limit",
+          "assignments": [
+            {
+              "cell_0": 16,
+              "cell_1": 2,
+              "cell_2": 3,
+              "cell_3": 13,
+              "cell_4": 5,
+              "cell_5": 11,
+              "cell_6": 10,
+              "cell_7": 8,
+              "cell_8": 9,
+              "cell_9": 7,
+              "cell_10": 6,
+              "cell_11": 12,
+              "cell_12": 4,
+              "cell_13": 14,
+              "cell_14": 15,
+              "cell_15": 1
+            }
+          ],
+          "stats": {}
+        },
+        {
+          "variant": "exact",
+          "seconds": 0.0004302919842302799,
+          "nodes": 1,
+          "failures": 0,
+          "termination": "solution_limit",
+          "assignments": [
+            {
+              "cell_0": 16,
+              "cell_1": 2,
+              "cell_2": 3,
+              "cell_3": 13,
+              "cell_4": 5,
+              "cell_5": 11,
+              "cell_6": 10,
+              "cell_7": 8,
+              "cell_8": 9,
+              "cell_9": 7,
+              "cell_10": 6,
+              "cell_11": 12,
+              "cell_12": 4,
+              "cell_13": 14,
+              "cell_14": 15,
+              "cell_15": 1
+            }
+          ],
+          "stats": {
+            "fixpoints": 1,
+            "topology_updates": 1,
+            "scope_updates": 10,
+            "expansions": 0,
+            "budget_hits": 0,
+            "factorizations": 0,
+            "full_rank": 0,
+            "rank_deficient": 0,
+            "evaluations": 0,
+            "assignments": 0,
+            "contradictions": 0,
+            "native_calls": 1,
+            "discovery_seconds": 9.124865755438805e-06,
+            "evaluation_seconds": 0.0
+          }
+        }
+      ]
+    },
+    {
+      "unresolved": [
+        2,
+        8,
+        13,
+        15
+      ],
+      "runs": [
+        {
+          "variant": "baseline",
+          "seconds": 0.0003803330473601818,
+          "nodes": 1,
+          "failures": 0,
+          "termination": "solution_limit",
+          "assignments": [
+            {
+              "cell_0": 16,
+              "cell_1": 2,
+              "cell_2": 3,
+              "cell_3": 13,
+              "cell_4": 5,
+              "cell_5": 11,
+              "cell_6": 10,
+              "cell_7": 8,
+              "cell_8": 9,
+              "cell_9": 7,
+              "cell_10": 6,
+              "cell_11": 12,
+              "cell_12": 4,
+              "cell_13": 14,
+              "cell_14": 15,
+              "cell_15": 1
+            }
+          ],
+          "stats": {}
+        },
+        {
+          "variant": "exact",
+          "seconds": 0.00040908390656113625,
+          "nodes": 1,
+          "failures": 0,
+          "termination": "solution_limit",
+          "assignments": [
+            {
+              "cell_0": 16,
+              "cell_1": 2,
+              "cell_2": 3,
+              "cell_3": 13,
+              "cell_4": 5,
+              "cell_5": 11,
+              "cell_6": 10,
+              "cell_7": 8,
+              "cell_8": 9,
+              "cell_9": 7,
+              "cell_10": 6,
+              "cell_11": 12,
+              "cell_12": 4,
+              "cell_13": 14,
+              "cell_14": 15,
+              "cell_15": 1
+            }
+          ],
+          "stats": {
+            "fixpoints": 1,
+            "topology_updates": 1,
+            "scope_updates": 10,
+            "expansions": 0,
+            "budget_hits": 0,
+            "factorizations": 0,
+            "full_rank": 0,
+            "rank_deficient": 0,
+            "evaluations": 0,
+            "assignments": 0,
+            "contradictions": 0,
+            "native_calls": 1,
+            "discovery_seconds": 5.915993824601173e-06,
+            "evaluation_seconds": 0.0
+          }
+        }
+      ]
+    },
+    {
+      "unresolved": [
+        0,
+        8,
+        10,
+        15
+      ],
+      "runs": [
+        {
+          "variant": "baseline",
+          "seconds": 0.0003446249756962061,
+          "nodes": 1,
+          "failures": 0,
+          "termination": "solution_limit",
+          "assignments": [
+            {
+              "cell_0": 16,
+              "cell_1": 2,
+              "cell_2": 3,
+              "cell_3": 13,
+              "cell_4": 5,
+              "cell_5": 11,
+              "cell_6": 10,
+              "cell_7": 8,
+              "cell_8": 9,
+              "cell_9": 7,
+              "cell_10": 6,
+              "cell_11": 12,
+              "cell_12": 4,
+              "cell_13": 14,
+              "cell_14": 15,
+              "cell_15": 1
+            }
+          ],
+          "stats": {}
+        },
+        {
+          "variant": "exact",
+          "seconds": 0.00038570910692214966,
+          "nodes": 1,
+          "failures": 0,
+          "termination": "solution_limit",
+          "assignments": [
+            {
+              "cell_0": 16,
+              "cell_1": 2,
+              "cell_2": 3,
+              "cell_3": 13,
+              "cell_4": 5,
+              "cell_5": 11,
+              "cell_6": 10,
+              "cell_7": 8,
+              "cell_8": 9,
+              "cell_9": 7,
+              "cell_10": 6,
+              "cell_11": 12,
+              "cell_12": 4,
+              "cell_13": 14,
+              "cell_14": 15,
+              "cell_15": 1
+            }
+          ],
+          "stats": {
+            "fixpoints": 1,
+            "topology_updates": 1,
+            "scope_updates": 10,
+            "expansions": 0,
+            "budget_hits": 0,
+            "factorizations": 0,
+            "full_rank": 0,
+            "rank_deficient": 0,
+            "evaluations": 0,
+            "assignments": 0,
+            "contradictions": 0,
+            "native_calls": 1,
+            "discovery_seconds": 5.541136488318443e-06,
+            "evaluation_seconds": 0.0
+          }
+        }
+      ]
+    },
+    {
+      "unresolved": [
+        2,
+        6,
+        7,
+        12
+      ],
+      "runs": [
+        {
+          "variant": "baseline",
+          "seconds": 0.00036758393980562687,
+          "nodes": 1,
+          "failures": 0,
+          "termination": "solution_limit",
+          "assignments": [
+            {
+              "cell_0": 16,
+              "cell_1": 2,
+              "cell_2": 3,
+              "cell_3": 13,
+              "cell_4": 5,
+              "cell_5": 11,
+              "cell_6": 10,
+              "cell_7": 8,
+              "cell_8": 9,
+              "cell_9": 7,
+              "cell_10": 6,
+              "cell_11": 12,
+              "cell_12": 4,
+              "cell_13": 14,
+              "cell_14": 15,
+              "cell_15": 1
+            }
+          ],
+          "stats": {}
+        },
+        {
+          "variant": "exact",
+          "seconds": 0.00039783306419849396,
+          "nodes": 1,
+          "failures": 0,
+          "termination": "solution_limit",
+          "assignments": [
+            {
+              "cell_0": 16,
+              "cell_1": 2,
+              "cell_2": 3,
+              "cell_3": 13,
+              "cell_4": 5,
+              "cell_5": 11,
+              "cell_6": 10,
+              "cell_7": 8,
+              "cell_8": 9,
+              "cell_9": 7,
+              "cell_10": 6,
+              "cell_11": 12,
+              "cell_12": 4,
+              "cell_13": 14,
+              "cell_14": 15,
+              "cell_15": 1
+            }
+          ],
+          "stats": {
+            "fixpoints": 1,
+            "topology_updates": 1,
+            "scope_updates": 10,
+            "expansions": 0,
+            "budget_hits": 0,
+            "factorizations": 0,
+            "full_rank": 0,
+            "rank_deficient": 0,
+            "evaluations": 0,
+            "assignments": 0,
+            "contradictions": 0,
+            "native_calls": 1,
+            "discovery_seconds": 5.291076377034187e-06,
+            "evaluation_seconds": 0.0
+          }
+        }
+      ]
+    },
+    {
+      "unresolved": [
+        2,
+        5,
+        10,
+        14
+      ],
+      "runs": [
+        {
+          "variant": "baseline",
+          "seconds": 0.0004327909555286169,
+          "nodes": 1,
+          "failures": 0,
+          "termination": "solution_limit",
+          "assignments": [
+            {
+              "cell_0": 16,
+              "cell_1": 2,
+              "cell_2": 3,
+              "cell_3": 13,
+              "cell_4": 5,
+              "cell_5": 11,
+              "cell_6": 10,
+              "cell_7": 8,
+              "cell_8": 9,
+              "cell_9": 7,
+              "cell_10": 6,
+              "cell_11": 12,
+              "cell_12": 4,
+              "cell_13": 14,
+              "cell_14": 15,
+              "cell_15": 1
+            }
+          ],
+          "stats": {}
+        },
+        {
+          "variant": "exact",
+          "seconds": 0.0004493328742682934,
+          "nodes": 1,
+          "failures": 0,
+          "termination": "solution_limit",
+          "assignments": [
+            {
+              "cell_0": 16,
+              "cell_1": 2,
+              "cell_2": 3,
+              "cell_3": 13,
+              "cell_4": 5,
+              "cell_5": 11,
+              "cell_6": 10,
+              "cell_7": 8,
+              "cell_8": 9,
+              "cell_9": 7,
+              "cell_10": 6,
+              "cell_11": 12,
+              "cell_12": 4,
+              "cell_13": 14,
+              "cell_14": 15,
+              "cell_15": 1
+            }
+          ],
+          "stats": {
+            "fixpoints": 1,
+            "topology_updates": 1,
+            "scope_updates": 10,
+            "expansions": 0,
+            "budget_hits": 0,
+            "factorizations": 0,
+            "full_rank": 0,
+            "rank_deficient": 0,
+            "evaluations": 0,
+            "assignments": 0,
+            "contradictions": 0,
+            "native_calls": 1,
+            "discovery_seconds": 6.95791095495224e-06,
+            "evaluation_seconds": 0.0
+          }
+        }
+      ]
+    },
+    {
+      "unresolved": [
+        1,
+        3,
+        6,
+        7
+      ],
+      "runs": [
+        {
+          "variant": "baseline",
+          "seconds": 0.0004092920571565628,
+          "nodes": 1,
+          "failures": 0,
+          "termination": "solution_limit",
+          "assignments": [
+            {
+              "cell_0": 16,
+              "cell_1": 2,
+              "cell_2": 3,
+              "cell_3": 13,
+              "cell_4": 5,
+              "cell_5": 11,
+              "cell_6": 10,
+              "cell_7": 8,
+              "cell_8": 9,
+              "cell_9": 7,
+              "cell_10": 6,
+              "cell_11": 12,
+              "cell_12": 4,
+              "cell_13": 14,
+              "cell_14": 15,
+              "cell_15": 1
+            }
+          ],
+          "stats": {}
+        },
+        {
+          "variant": "exact",
+          "seconds": 0.00042320904321968555,
+          "nodes": 1,
+          "failures": 0,
+          "termination": "solution_limit",
+          "assignments": [
+            {
+              "cell_0": 16,
+              "cell_1": 2,
+              "cell_2": 3,
+              "cell_3": 13,
+              "cell_4": 5,
+              "cell_5": 11,
+              "cell_6": 10,
+              "cell_7": 8,
+              "cell_8": 9,
+              "cell_9": 7,
+              "cell_10": 6,
+              "cell_11": 12,
+              "cell_12": 4,
+              "cell_13": 14,
+              "cell_14": 15,
+              "cell_15": 1
+            }
+          ],
+          "stats": {
+            "fixpoints": 1,
+            "topology_updates": 1,
+            "scope_updates": 10,
+            "expansions": 0,
+            "budget_hits": 0,
+            "factorizations": 0,
+            "full_rank": 0,
+            "rank_deficient": 0,
+            "evaluations": 0,
+            "assignments": 0,
+            "contradictions": 0,
+            "native_calls": 1,
+            "discovery_seconds": 5.834037438035011e-06,
+            "evaluation_seconds": 0.0
+          }
+        }
+      ]
+    },
+    {
+      "unresolved": [
+        3,
+        6,
+        7,
+        11
+      ],
+      "runs": [
+        {
+          "variant": "baseline",
+          "seconds": 0.00036416598595678806,
+          "nodes": 1,
+          "failures": 0,
+          "termination": "solution_limit",
+          "assignments": [
+            {
+              "cell_0": 16,
+              "cell_1": 2,
+              "cell_2": 3,
+              "cell_3": 13,
+              "cell_4": 5,
+              "cell_5": 11,
+              "cell_6": 10,
+              "cell_7": 8,
+              "cell_8": 9,
+              "cell_9": 7,
+              "cell_10": 6,
+              "cell_11": 12,
+              "cell_12": 4,
+              "cell_13": 14,
+              "cell_14": 15,
+              "cell_15": 1
+            }
+          ],
+          "stats": {}
+        },
+        {
+          "variant": "exact",
+          "seconds": 0.00039787497371435165,
+          "nodes": 1,
+          "failures": 0,
+          "termination": "solution_limit",
+          "assignments": [
+            {
+              "cell_0": 16,
+              "cell_1": 2,
+              "cell_2": 3,
+              "cell_3": 13,
+              "cell_4": 5,
+              "cell_5": 11,
+              "cell_6": 10,
+              "cell_7": 8,
+              "cell_8": 9,
+              "cell_9": 7,
+              "cell_10": 6,
+              "cell_11": 12,
+              "cell_12": 4,
+              "cell_13": 14,
+              "cell_14": 15,
+              "cell_15": 1
+            }
+          ],
+          "stats": {
+            "fixpoints": 1,
+            "topology_updates": 1,
+            "scope_updates": 10,
+            "expansions": 0,
+            "budget_hits": 0,
+            "factorizations": 0,
+            "full_rank": 0,
+            "rank_deficient": 0,
+            "evaluations": 0,
+            "assignments": 0,
+            "contradictions": 0,
+            "native_calls": 1,
+            "discovery_seconds": 5.499925464391708e-06,
+            "evaluation_seconds": 0.0
+          }
+        }
+      ]
+    },
+    {
+      "unresolved": [
+        0,
+        9,
+        10,
+        13
+      ],
+      "runs": [
+        {
+          "variant": "baseline",
+          "seconds": 0.000341624952852726,
+          "nodes": 1,
+          "failures": 0,
+          "termination": "solution_limit",
+          "assignments": [
+            {
+              "cell_0": 16,
+              "cell_1": 2,
+              "cell_2": 3,
+              "cell_3": 13,
+              "cell_4": 5,
+              "cell_5": 11,
+              "cell_6": 10,
+              "cell_7": 8,
+              "cell_8": 9,
+              "cell_9": 7,
+              "cell_10": 6,
+              "cell_11": 12,
+              "cell_12": 4,
+              "cell_13": 14,
+              "cell_14": 15,
+              "cell_15": 1
+            }
+          ],
+          "stats": {}
+        },
+        {
+          "variant": "exact",
+          "seconds": 0.0003885410260409117,
+          "nodes": 1,
+          "failures": 0,
+          "termination": "solution_limit",
+          "assignments": [
+            {
+              "cell_0": 16,
+              "cell_1": 2,
+              "cell_2": 3,
+              "cell_3": 13,
+              "cell_4": 5,
+              "cell_5": 11,
+              "cell_6": 10,
+              "cell_7": 8,
+              "cell_8": 9,
+              "cell_9": 7,
+              "cell_10": 6,
+              "cell_11": 12,
+              "cell_12": 4,
+              "cell_13": 14,
+              "cell_14": 15,
+              "cell_15": 1
+            }
+          ],
+          "stats": {
+            "fixpoints": 1,
+            "topology_updates": 1,
+            "scope_updates": 10,
+            "expansions": 0,
+            "budget_hits": 0,
+            "factorizations": 0,
+            "full_rank": 0,
+            "rank_deficient": 0,
+            "evaluations": 0,
+            "assignments": 0,
+            "contradictions": 0,
+            "native_calls": 1,
+            "discovery_seconds": 5.417037755250931e-06,
+            "evaluation_seconds": 0.0
+          }
+        }
+      ]
+    },
+    {
+      "unresolved": [
+        1,
+        7,
+        10,
+        13
+      ],
+      "runs": [
+        {
+          "variant": "baseline",
+          "seconds": 0.00034920801408588886,
+          "nodes": 1,
+          "failures": 0,
+          "termination": "solution_limit",
+          "assignments": [
+            {
+              "cell_0": 16,
+              "cell_1": 2,
+              "cell_2": 3,
+              "cell_3": 13,
+              "cell_4": 5,
+              "cell_5": 11,
+              "cell_6": 10,
+              "cell_7": 8,
+              "cell_8": 9,
+              "cell_9": 7,
+              "cell_10": 6,
+              "cell_11": 12,
+              "cell_12": 4,
+              "cell_13": 14,
+              "cell_14": 15,
+              "cell_15": 1
+            }
+          ],
+          "stats": {}
+        },
+        {
+          "variant": "exact",
+          "seconds": 0.0003860420547425747,
+          "nodes": 1,
+          "failures": 0,
+          "termination": "solution_limit",
+          "assignments": [
+            {
+              "cell_0": 16,
+              "cell_1": 2,
+              "cell_2": 3,
+              "cell_3": 13,
+              "cell_4": 5,
+              "cell_5": 11,
+              "cell_6": 10,
+              "cell_7": 8,
+              "cell_8": 9,
+              "cell_9": 7,
+              "cell_10": 6,
+              "cell_11": 12,
+              "cell_12": 4,
+              "cell_13": 14,
+              "cell_14": 15,
+              "cell_15": 1
+            }
+          ],
+          "stats": {
+            "fixpoints": 1,
+            "topology_updates": 1,
+            "scope_updates": 10,
+            "expansions": 0,
+            "budget_hits": 0,
+            "factorizations": 0,
+            "full_rank": 0,
+            "rank_deficient": 0,
+            "evaluations": 0,
+            "assignments": 0,
+            "contradictions": 0,
+            "native_calls": 1,
+            "discovery_seconds": 5.332985892891884e-06,
+            "evaluation_seconds": 0.0
+          }
+        }
+      ]
+    },
+    {
+      "unresolved": [
+        6,
+        7,
+        9,
+        10,
+        11,
+        13
+      ],
+      "runs": [
+        {
+          "variant": "baseline",
+          "seconds": 0.00048395805060863495,
+          "nodes": 1,
+          "failures": 0,
+          "termination": "solution_limit",
+          "assignments": [
+            {
+              "cell_0": 16,
+              "cell_1": 2,
+              "cell_2": 3,
+              "cell_3": 13,
+              "cell_4": 5,
+              "cell_5": 11,
+              "cell_6": 10,
+              "cell_7": 8,
+              "cell_8": 9,
+              "cell_9": 7,
+              "cell_10": 6,
+              "cell_11": 12,
+              "cell_12": 4,
+              "cell_13": 14,
+              "cell_14": 15,
+              "cell_15": 1
+            }
+          ],
+          "stats": {}
+        },
+        {
+          "variant": "exact",
+          "seconds": 0.0005832919850945473,
+          "nodes": 1,
+          "failures": 0,
+          "termination": "solution_limit",
+          "assignments": [
+            {
+              "cell_0": 16,
+              "cell_1": 2,
+              "cell_2": 3,
+              "cell_3": 13,
+              "cell_4": 5,
+              "cell_5": 11,
+              "cell_6": 10,
+              "cell_7": 8,
+              "cell_8": 9,
+              "cell_9": 7,
+              "cell_10": 6,
+              "cell_11": 12,
+              "cell_12": 4,
+              "cell_13": 14,
+              "cell_14": 15,
+              "cell_15": 1
+            }
+          ],
+          "stats": {
+            "fixpoints": 1,
+            "topology_updates": 1,
+            "scope_updates": 10,
+            "expansions": 0,
+            "budget_hits": 0,
+            "factorizations": 0,
+            "full_rank": 0,
+            "rank_deficient": 0,
+            "evaluations": 0,
+            "assignments": 0,
+            "contradictions": 0,
+            "native_calls": 1,
+            "discovery_seconds": 5.125068128108978e-06,
+            "evaluation_seconds": 0.0
+          }
+        }
+      ]
+    },
+    {
+      "unresolved": [
+        2,
+        3,
+        7,
+        11,
+        12,
+        14
+      ],
+      "runs": [
+        {
+          "variant": "baseline",
+          "seconds": 0.0004094999749213457,
+          "nodes": 1,
+          "failures": 0,
+          "termination": "solution_limit",
+          "assignments": [
+            {
+              "cell_0": 16,
+              "cell_1": 2,
+              "cell_2": 3,
+              "cell_3": 13,
+              "cell_4": 5,
+              "cell_5": 11,
+              "cell_6": 10,
+              "cell_7": 8,
+              "cell_8": 9,
+              "cell_9": 7,
+              "cell_10": 6,
+              "cell_11": 12,
+              "cell_12": 4,
+              "cell_13": 14,
+              "cell_14": 15,
+              "cell_15": 1
+            }
+          ],
+          "stats": {}
+        },
+        {
+          "variant": "exact",
+          "seconds": 0.0004456250462681055,
+          "nodes": 1,
+          "failures": 0,
+          "termination": "solution_limit",
+          "assignments": [
+            {
+              "cell_0": 16,
+              "cell_1": 2,
+              "cell_2": 3,
+              "cell_3": 13,
+              "cell_4": 5,
+              "cell_5": 11,
+              "cell_6": 10,
+              "cell_7": 8,
+              "cell_8": 9,
+              "cell_9": 7,
+              "cell_10": 6,
+              "cell_11": 12,
+              "cell_12": 4,
+              "cell_13": 14,
+              "cell_14": 15,
+              "cell_15": 1
+            }
+          ],
+          "stats": {
+            "fixpoints": 1,
+            "topology_updates": 1,
+            "scope_updates": 10,
+            "expansions": 0,
+            "budget_hits": 0,
+            "factorizations": 0,
+            "full_rank": 0,
+            "rank_deficient": 0,
+            "evaluations": 0,
+            "assignments": 0,
+            "contradictions": 0,
+            "native_calls": 1,
+            "discovery_seconds": 5.124835297465324e-06,
+            "evaluation_seconds": 0.0
+          }
+        }
+      ]
+    },
+    {
+      "unresolved": [
+        2,
+        3,
+        4,
+        7,
+        11,
+        12
+      ],
+      "runs": [
+        {
+          "variant": "baseline",
+          "seconds": 0.0004083330277353525,
+          "nodes": 1,
+          "failures": 0,
+          "termination": "solution_limit",
+          "assignments": [
+            {
+              "cell_0": 16,
+              "cell_1": 2,
+              "cell_2": 3,
+              "cell_3": 13,
+              "cell_4": 5,
+              "cell_5": 11,
+              "cell_6": 10,
+              "cell_7": 8,
+              "cell_8": 9,
+              "cell_9": 7,
+              "cell_10": 6,
+              "cell_11": 12,
+              "cell_12": 4,
+              "cell_13": 14,
+              "cell_14": 15,
+              "cell_15": 1
+            }
+          ],
+          "stats": {}
+        },
+        {
+          "variant": "exact",
+          "seconds": 0.000449625076726079,
+          "nodes": 1,
+          "failures": 0,
+          "termination": "solution_limit",
+          "assignments": [
+            {
+              "cell_0": 16,
+              "cell_1": 2,
+              "cell_2": 3,
+              "cell_3": 13,
+              "cell_4": 5,
+              "cell_5": 11,
+              "cell_6": 10,
+              "cell_7": 8,
+              "cell_8": 9,
+              "cell_9": 7,
+              "cell_10": 6,
+              "cell_11": 12,
+              "cell_12": 4,
+              "cell_13": 14,
+              "cell_14": 15,
+              "cell_15": 1
+            }
+          ],
+          "stats": {
+            "fixpoints": 1,
+            "topology_updates": 1,
+            "scope_updates": 10,
+            "expansions": 0,
+            "budget_hits": 0,
+            "factorizations": 0,
+            "full_rank": 0,
+            "rank_deficient": 0,
+            "evaluations": 0,
+            "assignments": 0,
+            "contradictions": 0,
+            "native_calls": 1,
+            "discovery_seconds": 5.00003807246685e-06,
+            "evaluation_seconds": 0.0
+          }
+        }
+      ]
+    },
+    {
+      "unresolved": [
+        2,
+        3,
+        4,
+        8,
+        12,
+        14
+      ],
+      "runs": [
+        {
+          "variant": "baseline",
+          "seconds": 0.0004064999520778656,
+          "nodes": 1,
+          "failures": 0,
+          "termination": "solution_limit",
+          "assignments": [
+            {
+              "cell_0": 16,
+              "cell_1": 2,
+              "cell_2": 3,
+              "cell_3": 13,
+              "cell_4": 5,
+              "cell_5": 11,
+              "cell_6": 10,
+              "cell_7": 8,
+              "cell_8": 9,
+              "cell_9": 7,
+              "cell_10": 6,
+              "cell_11": 12,
+              "cell_12": 4,
+              "cell_13": 14,
+              "cell_14": 15,
+              "cell_15": 1
+            }
+          ],
+          "stats": {}
+        },
+        {
+          "variant": "exact",
+          "seconds": 0.00044516706839203835,
+          "nodes": 1,
+          "failures": 0,
+          "termination": "solution_limit",
+          "assignments": [
+            {
+              "cell_0": 16,
+              "cell_1": 2,
+              "cell_2": 3,
+              "cell_3": 13,
+              "cell_4": 5,
+              "cell_5": 11,
+              "cell_6": 10,
+              "cell_7": 8,
+              "cell_8": 9,
+              "cell_9": 7,
+              "cell_10": 6,
+              "cell_11": 12,
+              "cell_12": 4,
+              "cell_13": 14,
+              "cell_14": 15,
+              "cell_15": 1
+            }
+          ],
+          "stats": {
+            "fixpoints": 1,
+            "topology_updates": 1,
+            "scope_updates": 10,
+            "expansions": 0,
+            "budget_hits": 0,
+            "factorizations": 0,
+            "full_rank": 0,
+            "rank_deficient": 0,
+            "evaluations": 0,
+            "assignments": 0,
+            "contradictions": 0,
+            "native_calls": 1,
+            "discovery_seconds": 5.250098183751106e-06,
+            "evaluation_seconds": 0.0
+          }
+        }
+      ]
+    },
+    {
+      "unresolved": [
+        1,
+        2,
+        8,
+        9,
+        11,
+        13
+      ],
+      "runs": [
+        {
+          "variant": "baseline",
+          "seconds": 0.0004936251789331436,
+          "nodes": 1,
+          "failures": 0,
+          "termination": "solution_limit",
+          "assignments": [
+            {
+              "cell_0": 16,
+              "cell_1": 2,
+              "cell_2": 3,
+              "cell_3": 13,
+              "cell_4": 5,
+              "cell_5": 11,
+              "cell_6": 10,
+              "cell_7": 8,
+              "cell_8": 9,
+              "cell_9": 7,
+              "cell_10": 6,
+              "cell_11": 12,
+              "cell_12": 4,
+              "cell_13": 14,
+              "cell_14": 15,
+              "cell_15": 1
+            }
+          ],
+          "stats": {}
+        },
+        {
+          "variant": "exact",
+          "seconds": 0.0005027079023420811,
+          "nodes": 1,
+          "failures": 0,
+          "termination": "solution_limit",
+          "assignments": [
+            {
+              "cell_0": 16,
+              "cell_1": 2,
+              "cell_2": 3,
+              "cell_3": 13,
+              "cell_4": 5,
+              "cell_5": 11,
+              "cell_6": 10,
+              "cell_7": 8,
+              "cell_8": 9,
+              "cell_9": 7,
+              "cell_10": 6,
+              "cell_11": 12,
+              "cell_12": 4,
+              "cell_13": 14,
+              "cell_14": 15,
+              "cell_15": 1
+            }
+          ],
+          "stats": {
+            "fixpoints": 1,
+            "topology_updates": 1,
+            "scope_updates": 10,
+            "expansions": 0,
+            "budget_hits": 0,
+            "factorizations": 0,
+            "full_rank": 0,
+            "rank_deficient": 0,
+            "evaluations": 0,
+            "assignments": 0,
+            "contradictions": 0,
+            "native_calls": 1,
+            "discovery_seconds": 5.666166543960571e-06,
+            "evaluation_seconds": 0.0
+          }
+        }
+      ]
+    },
+    {
+      "unresolved": [
+        2,
+        5,
+        8,
+        9,
+        11,
+        14
+      ],
+      "runs": [
+        {
+          "variant": "baseline",
+          "seconds": 0.00044283317402005196,
+          "nodes": 1,
+          "failures": 0,
+          "termination": "solution_limit",
+          "assignments": [
+            {
+              "cell_0": 16,
+              "cell_1": 2,
+              "cell_2": 3,
+              "cell_3": 13,
+              "cell_4": 5,
+              "cell_5": 11,
+              "cell_6": 10,
+              "cell_7": 8,
+              "cell_8": 9,
+              "cell_9": 7,
+              "cell_10": 6,
+              "cell_11": 12,
+              "cell_12": 4,
+              "cell_13": 14,
+              "cell_14": 15,
+              "cell_15": 1
+            }
+          ],
+          "stats": {}
+        },
+        {
+          "variant": "exact",
+          "seconds": 0.000456416979432106,
+          "nodes": 1,
+          "failures": 0,
+          "termination": "solution_limit",
+          "assignments": [
+            {
+              "cell_0": 16,
+              "cell_1": 2,
+              "cell_2": 3,
+              "cell_3": 13,
+              "cell_4": 5,
+              "cell_5": 11,
+              "cell_6": 10,
+              "cell_7": 8,
+              "cell_8": 9,
+              "cell_9": 7,
+              "cell_10": 6,
+              "cell_11": 12,
+              "cell_12": 4,
+              "cell_13": 14,
+              "cell_14": 15,
+              "cell_15": 1
+            }
+          ],
+          "stats": {
+            "fixpoints": 1,
+            "topology_updates": 1,
+            "scope_updates": 10,
+            "expansions": 0,
+            "budget_hits": 0,
+            "factorizations": 0,
+            "full_rank": 0,
+            "rank_deficient": 0,
+            "evaluations": 0,
+            "assignments": 0,
+            "contradictions": 0,
+            "native_calls": 1,
+            "discovery_seconds": 5.417037755250931e-06,
+            "evaluation_seconds": 0.0
+          }
+        }
+      ]
+    },
+    {
+      "unresolved": [
+        0,
+        2,
+        4,
+        6,
+        7,
+        12
+      ],
+      "runs": [
+        {
+          "variant": "baseline",
+          "seconds": 0.0003908751532435417,
+          "nodes": 1,
+          "failures": 0,
+          "termination": "solution_limit",
+          "assignments": [
+            {
+              "cell_0": 16,
+              "cell_1": 2,
+              "cell_2": 3,
+              "cell_3": 13,
+              "cell_4": 5,
+              "cell_5": 11,
+              "cell_6": 10,
+              "cell_7": 8,
+              "cell_8": 9,
+              "cell_9": 7,
+              "cell_10": 6,
+              "cell_11": 12,
+              "cell_12": 4,
+              "cell_13": 14,
+              "cell_14": 15,
+              "cell_15": 1
+            }
+          ],
+          "stats": {}
+        },
+        {
+          "variant": "exact",
+          "seconds": 0.00042579183354973793,
+          "nodes": 1,
+          "failures": 0,
+          "termination": "solution_limit",
+          "assignments": [
+            {
+              "cell_0": 16,
+              "cell_1": 2,
+              "cell_2": 3,
+              "cell_3": 13,
+              "cell_4": 5,
+              "cell_5": 11,
+              "cell_6": 10,
+              "cell_7": 8,
+              "cell_8": 9,
+              "cell_9": 7,
+              "cell_10": 6,
+              "cell_11": 12,
+              "cell_12": 4,
+              "cell_13": 14,
+              "cell_14": 15,
+              "cell_15": 1
+            }
+          ],
+          "stats": {
+            "fixpoints": 1,
+            "topology_updates": 1,
+            "scope_updates": 10,
+            "expansions": 0,
+            "budget_hits": 0,
+            "factorizations": 0,
+            "full_rank": 0,
+            "rank_deficient": 0,
+            "evaluations": 0,
+            "assignments": 0,
+            "contradictions": 0,
+            "native_calls": 1,
+            "discovery_seconds": 5.082925781607628e-06,
+            "evaluation_seconds": 0.0
+          }
+        }
+      ]
+    },
+    {
+      "unresolved": [
+        1,
+        7,
+        10,
+        11,
+        13,
+        15
+      ],
+      "runs": [
+        {
+          "variant": "baseline",
+          "seconds": 0.0006013328675180674,
+          "nodes": 1,
+          "failures": 0,
+          "termination": "solution_limit",
+          "assignments": [
+            {
+              "cell_0": 16,
+              "cell_1": 2,
+              "cell_2": 3,
+              "cell_3": 13,
+              "cell_4": 5,
+              "cell_5": 11,
+              "cell_6": 10,
+              "cell_7": 8,
+              "cell_8": 9,
+              "cell_9": 7,
+              "cell_10": 6,
+              "cell_11": 12,
+              "cell_12": 4,
+              "cell_13": 14,
+              "cell_14": 15,
+              "cell_15": 1
+            }
+          ],
+          "stats": {}
+        },
+        {
+          "variant": "exact",
+          "seconds": 0.000493332976475358,
+          "nodes": 1,
+          "failures": 0,
+          "termination": "solution_limit",
+          "assignments": [
+            {
+              "cell_0": 16,
+              "cell_1": 2,
+              "cell_2": 3,
+              "cell_3": 13,
+              "cell_4": 5,
+              "cell_5": 11,
+              "cell_6": 10,
+              "cell_7": 8,
+              "cell_8": 9,
+              "cell_9": 7,
+              "cell_10": 6,
+              "cell_11": 12,
+              "cell_12": 4,
+              "cell_13": 14,
+              "cell_14": 15,
+              "cell_15": 1
+            }
+          ],
+          "stats": {
+            "fixpoints": 1,
+            "topology_updates": 1,
+            "scope_updates": 10,
+            "expansions": 0,
+            "budget_hits": 0,
+            "factorizations": 0,
+            "full_rank": 0,
+            "rank_deficient": 0,
+            "evaluations": 0,
+            "assignments": 0,
+            "contradictions": 0,
+            "native_calls": 1,
+            "discovery_seconds": 6.333924829959869e-06,
+            "evaluation_seconds": 0.0
+          }
+        }
+      ]
+    },
+    {
+      "unresolved": [
+        2,
+        3,
+        5,
+        7,
+        8,
+        12,
+        14,
+        15
+      ],
+      "runs": [
+        {
+          "variant": "baseline",
+          "seconds": 0.0005462500266730785,
+          "nodes": 1,
+          "failures": 0,
+          "termination": "solution_limit",
+          "assignments": [
+            {
+              "cell_0": 16,
+              "cell_1": 2,
+              "cell_2": 3,
+              "cell_3": 13,
+              "cell_4": 5,
+              "cell_5": 11,
+              "cell_6": 10,
+              "cell_7": 8,
+              "cell_8": 9,
+              "cell_9": 7,
+              "cell_10": 6,
+              "cell_11": 12,
+              "cell_12": 4,
+              "cell_13": 14,
+              "cell_14": 15,
+              "cell_15": 1
+            }
+          ],
+          "stats": {}
+        },
+        {
+          "variant": "exact",
+          "seconds": 0.0005794160533696413,
+          "nodes": 1,
+          "failures": 0,
+          "termination": "solution_limit",
+          "assignments": [
+            {
+              "cell_0": 16,
+              "cell_1": 2,
+              "cell_2": 3,
+              "cell_3": 13,
+              "cell_4": 5,
+              "cell_5": 11,
+              "cell_6": 10,
+              "cell_7": 8,
+              "cell_8": 9,
+              "cell_9": 7,
+              "cell_10": 6,
+              "cell_11": 12,
+              "cell_12": 4,
+              "cell_13": 14,
+              "cell_14": 15,
+              "cell_15": 1
+            }
+          ],
+          "stats": {
+            "fixpoints": 1,
+            "topology_updates": 1,
+            "scope_updates": 10,
+            "expansions": 0,
+            "budget_hits": 0,
+            "factorizations": 0,
+            "full_rank": 0,
+            "rank_deficient": 0,
+            "evaluations": 0,
+            "assignments": 0,
+            "contradictions": 0,
+            "native_calls": 1,
+            "discovery_seconds": 5.749985575675964e-06,
+            "evaluation_seconds": 0.0
+          }
+        }
+      ]
+    },
+    {
+      "unresolved": [
+        1,
+        2,
+        4,
+        8,
+        9,
+        12,
+        13,
+        14
+      ],
+      "runs": [
+        {
+          "variant": "baseline",
+          "seconds": 0.00047587486915290356,
+          "nodes": 1,
+          "failures": 0,
+          "termination": "solution_limit",
+          "assignments": [
+            {
+              "cell_0": 16,
+              "cell_1": 2,
+              "cell_2": 3,
+              "cell_3": 13,
+              "cell_4": 5,
+              "cell_5": 11,
+              "cell_6": 10,
+              "cell_7": 8,
+              "cell_8": 9,
+              "cell_9": 7,
+              "cell_10": 6,
+              "cell_11": 12,
+              "cell_12": 4,
+              "cell_13": 14,
+              "cell_14": 15,
+              "cell_15": 1
+            }
+          ],
+          "stats": {}
+        },
+        {
+          "variant": "exact",
+          "seconds": 0.000516749918460846,
+          "nodes": 1,
+          "failures": 0,
+          "termination": "solution_limit",
+          "assignments": [
+            {
+              "cell_0": 16,
+              "cell_1": 2,
+              "cell_2": 3,
+              "cell_3": 13,
+              "cell_4": 5,
+              "cell_5": 11,
+              "cell_6": 10,
+              "cell_7": 8,
+              "cell_8": 9,
+              "cell_9": 7,
+              "cell_10": 6,
+              "cell_11": 12,
+              "cell_12": 4,
+              "cell_13": 14,
+              "cell_14": 15,
+              "cell_15": 1
+            }
+          ],
+          "stats": {
+            "fixpoints": 1,
+            "topology_updates": 1,
+            "scope_updates": 10,
+            "expansions": 0,
+            "budget_hits": 0,
+            "factorizations": 0,
+            "full_rank": 0,
+            "rank_deficient": 0,
+            "evaluations": 0,
+            "assignments": 0,
+            "contradictions": 0,
+            "native_calls": 1,
+            "discovery_seconds": 5.667097866535187e-06,
+            "evaluation_seconds": 0.0
+          }
+        }
+      ]
+    },
+    {
+      "unresolved": [
+        1,
+        2,
+        3,
+        4,
+        6,
+        7,
+        13,
+        14
+      ],
+      "runs": [
+        {
+          "variant": "baseline",
+          "seconds": 0.0005639169830828905,
+          "nodes": 1,
+          "failures": 0,
+          "termination": "solution_limit",
+          "assignments": [
+            {
+              "cell_0": 16,
+              "cell_1": 2,
+              "cell_2": 3,
+              "cell_3": 13,
+              "cell_4": 5,
+              "cell_5": 11,
+              "cell_6": 10,
+              "cell_7": 8,
+              "cell_8": 9,
+              "cell_9": 7,
+              "cell_10": 6,
+              "cell_11": 12,
+              "cell_12": 4,
+              "cell_13": 14,
+              "cell_14": 15,
+              "cell_15": 1
+            }
+          ],
+          "stats": {}
+        },
+        {
+          "variant": "exact",
+          "seconds": 0.0005797089543193579,
+          "nodes": 1,
+          "failures": 0,
+          "termination": "solution_limit",
+          "assignments": [
+            {
+              "cell_0": 16,
+              "cell_1": 2,
+              "cell_2": 3,
+              "cell_3": 13,
+              "cell_4": 5,
+              "cell_5": 11,
+              "cell_6": 10,
+              "cell_7": 8,
+              "cell_8": 9,
+              "cell_9": 7,
+              "cell_10": 6,
+              "cell_11": 12,
+              "cell_12": 4,
+              "cell_13": 14,
+              "cell_14": 15,
+              "cell_15": 1
+            }
+          ],
+          "stats": {
+            "fixpoints": 1,
+            "topology_updates": 1,
+            "scope_updates": 10,
+            "expansions": 0,
+            "budget_hits": 0,
+            "factorizations": 0,
+            "full_rank": 0,
+            "rank_deficient": 0,
+            "evaluations": 0,
+            "assignments": 0,
+            "contradictions": 0,
+            "native_calls": 1,
+            "discovery_seconds": 5.500158295035362e-06,
+            "evaluation_seconds": 0.0
+          }
+        }
+      ]
+    },
+    {
+      "unresolved": [
+        0,
+        2,
+        3,
+        6,
+        8,
+        11,
+        12,
+        13
+      ],
+      "runs": [
+        {
+          "variant": "baseline",
+          "seconds": 0.0004899580962955952,
+          "nodes": 1,
+          "failures": 0,
+          "termination": "solution_limit",
+          "assignments": [
+            {
+              "cell_0": 16,
+              "cell_1": 2,
+              "cell_2": 3,
+              "cell_3": 13,
+              "cell_4": 5,
+              "cell_5": 11,
+              "cell_6": 10,
+              "cell_7": 8,
+              "cell_8": 9,
+              "cell_9": 7,
+              "cell_10": 6,
+              "cell_11": 12,
+              "cell_12": 4,
+              "cell_13": 14,
+              "cell_14": 15,
+              "cell_15": 1
+            }
+          ],
+          "stats": {}
+        },
+        {
+          "variant": "exact",
+          "seconds": 0.000524790957570076,
+          "nodes": 1,
+          "failures": 0,
+          "termination": "solution_limit",
+          "assignments": [
+            {
+              "cell_0": 16,
+              "cell_1": 2,
+              "cell_2": 3,
+              "cell_3": 13,
+              "cell_4": 5,
+              "cell_5": 11,
+              "cell_6": 10,
+              "cell_7": 8,
+              "cell_8": 9,
+              "cell_9": 7,
+              "cell_10": 6,
+              "cell_11": 12,
+              "cell_12": 4,
+              "cell_13": 14,
+              "cell_14": 15,
+              "cell_15": 1
+            }
+          ],
+          "stats": {
+            "fixpoints": 1,
+            "topology_updates": 1,
+            "scope_updates": 10,
+            "expansions": 0,
+            "budget_hits": 0,
+            "factorizations": 0,
+            "full_rank": 0,
+            "rank_deficient": 0,
+            "evaluations": 0,
+            "assignments": 0,
+            "contradictions": 0,
+            "native_calls": 1,
+            "discovery_seconds": 5.291774868965149e-06,
+            "evaluation_seconds": 0.0
+          }
+        }
+      ]
+    },
+    {
+      "unresolved": [
+        0,
+        2,
+        4,
+        6,
+        7,
+        10,
+        13,
+        14
+      ],
+      "runs": [
+        {
+          "variant": "baseline",
+          "seconds": 0.0004539999645203352,
+          "nodes": 1,
+          "failures": 0,
+          "termination": "solution_limit",
+          "assignments": [
+            {
+              "cell_0": 16,
+              "cell_1": 2,
+              "cell_2": 3,
+              "cell_3": 13,
+              "cell_4": 5,
+              "cell_5": 11,
+              "cell_6": 10,
+              "cell_7": 8,
+              "cell_8": 9,
+              "cell_9": 7,
+              "cell_10": 6,
+              "cell_11": 12,
+              "cell_12": 4,
+              "cell_13": 14,
+              "cell_14": 15,
+              "cell_15": 1
+            }
+          ],
+          "stats": {}
+        },
+        {
+          "variant": "exact",
+          "seconds": 0.0004960829392075539,
+          "nodes": 1,
+          "failures": 0,
+          "termination": "solution_limit",
+          "assignments": [
+            {
+              "cell_0": 16,
+              "cell_1": 2,
+              "cell_2": 3,
+              "cell_3": 13,
+              "cell_4": 5,
+              "cell_5": 11,
+              "cell_6": 10,
+              "cell_7": 8,
+              "cell_8": 9,
+              "cell_9": 7,
+              "cell_10": 6,
+              "cell_11": 12,
+              "cell_12": 4,
+              "cell_13": 14,
+              "cell_14": 15,
+              "cell_15": 1
+            }
+          ],
+          "stats": {
+            "fixpoints": 1,
+            "topology_updates": 1,
+            "scope_updates": 10,
+            "expansions": 0,
+            "budget_hits": 0,
+            "factorizations": 0,
+            "full_rank": 0,
+            "rank_deficient": 0,
+            "evaluations": 0,
+            "assignments": 0,
+            "contradictions": 0,
+            "native_calls": 1,
+            "discovery_seconds": 5.4158736020326614e-06,
+            "evaluation_seconds": 0.0
+          }
+        }
+      ]
+    },
+    {
+      "unresolved": [
+        0,
+        2,
+        3,
+        5,
+        6,
+        9,
+        11,
+        14
+      ],
+      "runs": [
+        {
+          "variant": "baseline",
+          "seconds": 0.0004295001272112131,
+          "nodes": 1,
+          "failures": 0,
+          "termination": "solution_limit",
+          "assignments": [
+            {
+              "cell_0": 16,
+              "cell_1": 2,
+              "cell_2": 3,
+              "cell_3": 13,
+              "cell_4": 5,
+              "cell_5": 11,
+              "cell_6": 10,
+              "cell_7": 8,
+              "cell_8": 9,
+              "cell_9": 7,
+              "cell_10": 6,
+              "cell_11": 12,
+              "cell_12": 4,
+              "cell_13": 14,
+              "cell_14": 15,
+              "cell_15": 1
+            }
+          ],
+          "stats": {}
+        },
+        {
+          "variant": "exact",
+          "seconds": 0.0004729588981717825,
+          "nodes": 1,
+          "failures": 0,
+          "termination": "solution_limit",
+          "assignments": [
+            {
+              "cell_0": 16,
+              "cell_1": 2,
+              "cell_2": 3,
+              "cell_3": 13,
+              "cell_4": 5,
+              "cell_5": 11,
+              "cell_6": 10,
+              "cell_7": 8,
+              "cell_8": 9,
+              "cell_9": 7,
+              "cell_10": 6,
+              "cell_11": 12,
+              "cell_12": 4,
+              "cell_13": 14,
+              "cell_14": 15,
+              "cell_15": 1
+            }
+          ],
+          "stats": {
+            "fixpoints": 1,
+            "topology_updates": 1,
+            "scope_updates": 10,
+            "expansions": 0,
+            "budget_hits": 0,
+            "factorizations": 0,
+            "full_rank": 0,
+            "rank_deficient": 0,
+            "evaluations": 0,
+            "assignments": 0,
+            "contradictions": 0,
+            "native_calls": 1,
+            "discovery_seconds": 5.292007699608803e-06,
+            "evaluation_seconds": 0.0
+          }
+        }
+      ]
+    },
+    {
+      "unresolved": [
+        1,
+        3,
+        7,
+        9,
+        10,
+        11,
+        12,
+        13
+      ],
+      "runs": [
+        {
+          "variant": "baseline",
+          "seconds": 0.0004960410296916962,
+          "nodes": 1,
+          "failures": 0,
+          "termination": "solution_limit",
+          "assignments": [
+            {
+              "cell_0": 16,
+              "cell_1": 2,
+              "cell_2": 3,
+              "cell_3": 13,
+              "cell_4": 5,
+              "cell_5": 11,
+              "cell_6": 10,
+              "cell_7": 8,
+              "cell_8": 9,
+              "cell_9": 7,
+              "cell_10": 6,
+              "cell_11": 12,
+              "cell_12": 4,
+              "cell_13": 14,
+              "cell_14": 15,
+              "cell_15": 1
+            }
+          ],
+          "stats": {}
+        },
+        {
+          "variant": "exact",
+          "seconds": 0.0005360001232475042,
+          "nodes": 1,
+          "failures": 0,
+          "termination": "solution_limit",
+          "assignments": [
+            {
+              "cell_0": 16,
+              "cell_1": 2,
+              "cell_2": 3,
+              "cell_3": 13,
+              "cell_4": 5,
+              "cell_5": 11,
+              "cell_6": 10,
+              "cell_7": 8,
+              "cell_8": 9,
+              "cell_9": 7,
+              "cell_10": 6,
+              "cell_11": 12,
+              "cell_12": 4,
+              "cell_13": 14,
+              "cell_14": 15,
+              "cell_15": 1
+            }
+          ],
+          "stats": {
+            "fixpoints": 1,
+            "topology_updates": 1,
+            "scope_updates": 10,
+            "expansions": 0,
+            "budget_hits": 0,
+            "factorizations": 0,
+            "full_rank": 0,
+            "rank_deficient": 0,
+            "evaluations": 0,
+            "assignments": 0,
+            "contradictions": 0,
+            "native_calls": 1,
+            "discovery_seconds": 5.208887159824371e-06,
+            "evaluation_seconds": 0.0
+          }
+        }
+      ]
+    },
+    {
+      "unresolved": [
+        4,
+        5,
+        7,
+        8,
+        9,
+        10,
+        11,
+        13
+      ],
+      "runs": [
+        {
+          "variant": "baseline",
+          "seconds": 0.000542209018021822,
+          "nodes": 1,
+          "failures": 0,
+          "termination": "solution_limit",
+          "assignments": [
+            {
+              "cell_0": 16,
+              "cell_1": 2,
+              "cell_2": 3,
+              "cell_3": 13,
+              "cell_4": 5,
+              "cell_5": 11,
+              "cell_6": 10,
+              "cell_7": 8,
+              "cell_8": 9,
+              "cell_9": 7,
+              "cell_10": 6,
+              "cell_11": 12,
+              "cell_12": 4,
+              "cell_13": 14,
+              "cell_14": 15,
+              "cell_15": 1
+            }
+          ],
+          "stats": {}
+        },
+        {
+          "variant": "exact",
+          "seconds": 0.0005817501805722713,
+          "nodes": 1,
+          "failures": 0,
+          "termination": "solution_limit",
+          "assignments": [
+            {
+              "cell_0": 16,
+              "cell_1": 2,
+              "cell_2": 3,
+              "cell_3": 13,
+              "cell_4": 5,
+              "cell_5": 11,
+              "cell_6": 10,
+              "cell_7": 8,
+              "cell_8": 9,
+              "cell_9": 7,
+              "cell_10": 6,
+              "cell_11": 12,
+              "cell_12": 4,
+              "cell_13": 14,
+              "cell_14": 15,
+              "cell_15": 1
+            }
+          ],
+          "stats": {
+            "fixpoints": 1,
+            "topology_updates": 1,
+            "scope_updates": 10,
+            "expansions": 0,
+            "budget_hits": 0,
+            "factorizations": 0,
+            "full_rank": 0,
+            "rank_deficient": 0,
+            "evaluations": 0,
+            "assignments": 0,
+            "contradictions": 0,
+            "native_calls": 1,
+            "discovery_seconds": 5.249865353107452e-06,
+            "evaluation_seconds": 0.0
+          }
+        }
+      ]
+    },
+    {
+      "unresolved": [
+        0,
+        1,
+        2,
+        3,
+        5,
+        10,
+        11,
+        12,
+        14,
+        15
+      ],
+      "runs": [
+        {
+          "variant": "baseline",
+          "seconds": 0.0009957500733435154,
+          "nodes": 3,
+          "failures": 1,
+          "termination": "solution_limit",
+          "assignments": [
+            {
+              "cell_0": 16,
+              "cell_1": 2,
+              "cell_2": 3,
+              "cell_3": 13,
+              "cell_4": 5,
+              "cell_5": 11,
+              "cell_6": 10,
+              "cell_7": 8,
+              "cell_8": 9,
+              "cell_9": 7,
+              "cell_10": 6,
+              "cell_11": 12,
+              "cell_12": 4,
+              "cell_13": 14,
+              "cell_14": 15,
+              "cell_15": 1
+            }
+          ],
+          "stats": {}
+        },
+        {
+          "variant": "exact",
+          "seconds": 0.004692457849159837,
+          "nodes": 3,
+          "failures": 1,
+          "termination": "solution_limit",
+          "assignments": [
+            {
+              "cell_0": 16,
+              "cell_1": 2,
+              "cell_2": 3,
+              "cell_3": 13,
+              "cell_4": 5,
+              "cell_5": 11,
+              "cell_6": 10,
+              "cell_7": 8,
+              "cell_8": 9,
+              "cell_9": 7,
+              "cell_10": 6,
+              "cell_11": 12,
+              "cell_12": 4,
+              "cell_13": 14,
+              "cell_14": 15,
+              "cell_15": 1
+            }
+          ],
+          "stats": {
+            "fixpoints": 2,
+            "topology_updates": 2,
+            "scope_updates": 17,
+            "expansions": 454,
+            "budget_hits": 0,
+            "factorizations": 11,
+            "full_rank": 0,
+            "rank_deficient": 11,
+            "evaluations": 11,
+            "assignments": 0,
+            "contradictions": 0,
+            "native_calls": 3,
+            "discovery_seconds": 0.003314458066597581,
+            "evaluation_seconds": 0.00038987514562904835
+          }
+        }
+      ]
+    },
+    {
+      "unresolved": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        8,
+        9,
+        11,
+        12
+      ],
+      "runs": [
+        {
+          "variant": "baseline",
+          "seconds": 0.0006738749798387289,
+          "nodes": 1,
+          "failures": 0,
+          "termination": "solution_limit",
+          "assignments": [
+            {
+              "cell_0": 16,
+              "cell_1": 2,
+              "cell_2": 3,
+              "cell_3": 13,
+              "cell_4": 5,
+              "cell_5": 11,
+              "cell_6": 10,
+              "cell_7": 8,
+              "cell_8": 9,
+              "cell_9": 7,
+              "cell_10": 6,
+              "cell_11": 12,
+              "cell_12": 4,
+              "cell_13": 14,
+              "cell_14": 15,
+              "cell_15": 1
+            }
+          ],
+          "stats": {}
+        },
+        {
+          "variant": "exact",
+          "seconds": 0.0006410419009625912,
+          "nodes": 1,
+          "failures": 0,
+          "termination": "solution_limit",
+          "assignments": [
+            {
+              "cell_0": 16,
+              "cell_1": 2,
+              "cell_2": 3,
+              "cell_3": 13,
+              "cell_4": 5,
+              "cell_5": 11,
+              "cell_6": 10,
+              "cell_7": 8,
+              "cell_8": 9,
+              "cell_9": 7,
+              "cell_10": 6,
+              "cell_11": 12,
+              "cell_12": 4,
+              "cell_13": 14,
+              "cell_14": 15,
+              "cell_15": 1
+            }
+          ],
+          "stats": {
+            "fixpoints": 1,
+            "topology_updates": 1,
+            "scope_updates": 10,
+            "expansions": 0,
+            "budget_hits": 0,
+            "factorizations": 0,
+            "full_rank": 0,
+            "rank_deficient": 0,
+            "evaluations": 0,
+            "assignments": 0,
+            "contradictions": 0,
+            "native_calls": 1,
+            "discovery_seconds": 5.915993824601173e-06,
+            "evaluation_seconds": 0.0
+          }
+        }
+      ]
+    },
+    {
+      "unresolved": [
+        0,
+        3,
+        4,
+        6,
+        7,
+        9,
+        10,
+        12,
+        14,
+        15
+      ],
+      "runs": [
+        {
+          "variant": "baseline",
+          "seconds": 0.0008290410041809082,
+          "nodes": 3,
+          "failures": 1,
+          "termination": "solution_limit",
+          "assignments": [
+            {
+              "cell_0": 16,
+              "cell_1": 2,
+              "cell_2": 3,
+              "cell_3": 13,
+              "cell_4": 5,
+              "cell_5": 11,
+              "cell_6": 10,
+              "cell_7": 8,
+              "cell_8": 9,
+              "cell_9": 7,
+              "cell_10": 6,
+              "cell_11": 12,
+              "cell_12": 4,
+              "cell_13": 14,
+              "cell_14": 15,
+              "cell_15": 1
+            }
+          ],
+          "stats": {}
+        },
+        {
+          "variant": "exact",
+          "seconds": 0.004506000084802508,
+          "nodes": 3,
+          "failures": 1,
+          "termination": "solution_limit",
+          "assignments": [
+            {
+              "cell_0": 16,
+              "cell_1": 2,
+              "cell_2": 3,
+              "cell_3": 13,
+              "cell_4": 5,
+              "cell_5": 11,
+              "cell_6": 10,
+              "cell_7": 8,
+              "cell_8": 9,
+              "cell_9": 7,
+              "cell_10": 6,
+              "cell_11": 12,
+              "cell_12": 4,
+              "cell_13": 14,
+              "cell_14": 15,
+              "cell_15": 1
+            }
+          ],
+          "stats": {
+            "fixpoints": 2,
+            "topology_updates": 2,
+            "scope_updates": 17,
+            "expansions": 454,
+            "budget_hits": 0,
+            "factorizations": 11,
+            "full_rank": 0,
+            "rank_deficient": 11,
+            "evaluations": 11,
+            "assignments": 0,
+            "contradictions": 0,
+            "native_calls": 3,
+            "discovery_seconds": 0.003175501013174653,
+            "evaluation_seconds": 0.0003792080096900463
+          }
+        }
+      ]
+    },
+    {
+      "unresolved": [
+        2,
+        4,
+        5,
+        6,
+        8,
+        9,
+        10,
+        12,
+        13,
+        14
+      ],
+      "runs": [
+        {
+          "variant": "baseline",
+          "seconds": 0.00156812509521842,
+          "nodes": 5,
+          "failures": 1,
+          "termination": "solution_limit",
+          "assignments": [
+            {
+              "cell_0": 16,
+              "cell_1": 2,
+              "cell_2": 3,
+              "cell_3": 13,
+              "cell_4": 5,
+              "cell_5": 11,
+              "cell_6": 10,
+              "cell_7": 8,
+              "cell_8": 9,
+              "cell_9": 7,
+              "cell_10": 6,
+              "cell_11": 12,
+              "cell_12": 4,
+              "cell_13": 14,
+              "cell_14": 15,
+              "cell_15": 1
+            }
+          ],
+          "stats": {}
+        },
+        {
+          "variant": "exact",
+          "seconds": 0.006936500081792474,
+          "nodes": 5,
+          "failures": 1,
+          "termination": "solution_limit",
+          "assignments": [
+            {
+              "cell_0": 16,
+              "cell_1": 2,
+              "cell_2": 3,
+              "cell_3": 13,
+              "cell_4": 5,
+              "cell_5": 11,
+              "cell_6": 10,
+              "cell_7": 8,
+              "cell_8": 9,
+              "cell_9": 7,
+              "cell_10": 6,
+              "cell_11": 12,
+              "cell_12": 4,
+              "cell_13": 14,
+              "cell_14": 15,
+              "cell_15": 1
+            }
+          ],
+          "stats": {
+            "fixpoints": 4,
+            "topology_updates": 4,
+            "scope_updates": 23,
+            "expansions": 2192,
+            "budget_hits": 0,
+            "factorizations": 12,
+            "full_rank": 0,
+            "rank_deficient": 12,
+            "evaluations": 12,
+            "assignments": 0,
+            "contradictions": 0,
+            "native_calls": 5,
+            "discovery_seconds": 0.004817665554583073,
+            "evaluation_seconds": 0.0004807498771697283
+          }
+        }
+      ]
+    },
+    {
+      "unresolved": [
+        0,
+        1,
+        3,
+        4,
+        5,
+        6,
+        7,
+        10,
+        11,
+        14
+      ],
+      "runs": [
+        {
+          "variant": "baseline",
+          "seconds": 0.0006605000235140324,
+          "nodes": 1,
+          "failures": 0,
+          "termination": "solution_limit",
+          "assignments": [
+            {
+              "cell_0": 16,
+              "cell_1": 2,
+              "cell_2": 3,
+              "cell_3": 13,
+              "cell_4": 5,
+              "cell_5": 11,
+              "cell_6": 10,
+              "cell_7": 8,
+              "cell_8": 9,
+              "cell_9": 7,
+              "cell_10": 6,
+              "cell_11": 12,
+              "cell_12": 4,
+              "cell_13": 14,
+              "cell_14": 15,
+              "cell_15": 1
+            }
+          ],
+          "stats": {}
+        },
+        {
+          "variant": "exact",
+          "seconds": 0.0006925419438630342,
+          "nodes": 1,
+          "failures": 0,
+          "termination": "solution_limit",
+          "assignments": [
+            {
+              "cell_0": 16,
+              "cell_1": 2,
+              "cell_2": 3,
+              "cell_3": 13,
+              "cell_4": 5,
+              "cell_5": 11,
+              "cell_6": 10,
+              "cell_7": 8,
+              "cell_8": 9,
+              "cell_9": 7,
+              "cell_10": 6,
+              "cell_11": 12,
+              "cell_12": 4,
+              "cell_13": 14,
+              "cell_14": 15,
+              "cell_15": 1
+            }
+          ],
+          "stats": {
+            "fixpoints": 1,
+            "topology_updates": 1,
+            "scope_updates": 10,
+            "expansions": 0,
+            "budget_hits": 0,
+            "factorizations": 0,
+            "full_rank": 0,
+            "rank_deficient": 0,
+            "evaluations": 0,
+            "assignments": 0,
+            "contradictions": 0,
+            "native_calls": 1,
+            "discovery_seconds": 6.667105481028557e-06,
+            "evaluation_seconds": 0.0
+          }
+        }
+      ]
+    },
+    {
+      "unresolved": [
+        0,
+        2,
+        3,
+        5,
+        7,
+        10,
+        11,
+        12,
+        13,
+        14
+      ],
+      "runs": [
+        {
+          "variant": "baseline",
+          "seconds": 0.0007624169811606407,
+          "nodes": 1,
+          "failures": 0,
+          "termination": "solution_limit",
+          "assignments": [
+            {
+              "cell_0": 16,
+              "cell_1": 2,
+              "cell_2": 3,
+              "cell_3": 13,
+              "cell_4": 5,
+              "cell_5": 11,
+              "cell_6": 10,
+              "cell_7": 8,
+              "cell_8": 9,
+              "cell_9": 7,
+              "cell_10": 6,
+              "cell_11": 12,
+              "cell_12": 4,
+              "cell_13": 14,
+              "cell_14": 15,
+              "cell_15": 1
+            }
+          ],
+          "stats": {}
+        },
+        {
+          "variant": "exact",
+          "seconds": 0.0007865421939641237,
+          "nodes": 1,
+          "failures": 0,
+          "termination": "solution_limit",
+          "assignments": [
+            {
+              "cell_0": 16,
+              "cell_1": 2,
+              "cell_2": 3,
+              "cell_3": 13,
+              "cell_4": 5,
+              "cell_5": 11,
+              "cell_6": 10,
+              "cell_7": 8,
+              "cell_8": 9,
+              "cell_9": 7,
+              "cell_10": 6,
+              "cell_11": 12,
+              "cell_12": 4,
+              "cell_13": 14,
+              "cell_14": 15,
+              "cell_15": 1
+            }
+          ],
+          "stats": {
+            "fixpoints": 1,
+            "topology_updates": 1,
+            "scope_updates": 10,
+            "expansions": 0,
+            "budget_hits": 0,
+            "factorizations": 0,
+            "full_rank": 0,
+            "rank_deficient": 0,
+            "evaluations": 0,
+            "assignments": 0,
+            "contradictions": 0,
+            "native_calls": 1,
+            "discovery_seconds": 5.832873284816742e-06,
+            "evaluation_seconds": 0.0
+          }
+        }
+      ]
+    },
+    {
+      "unresolved": [
+        0,
+        1,
+        2,
+        4,
+        6,
+        7,
+        8,
+        10,
+        14,
+        15
+      ],
+      "runs": [
+        {
+          "variant": "baseline",
+          "seconds": 0.0006213749293237925,
+          "nodes": 1,
+          "failures": 0,
+          "termination": "solution_limit",
+          "assignments": [
+            {
+              "cell_0": 16,
+              "cell_1": 2,
+              "cell_2": 3,
+              "cell_3": 13,
+              "cell_4": 5,
+              "cell_5": 11,
+              "cell_6": 10,
+              "cell_7": 8,
+              "cell_8": 9,
+              "cell_9": 7,
+              "cell_10": 6,
+              "cell_11": 12,
+              "cell_12": 4,
+              "cell_13": 14,
+              "cell_14": 15,
+              "cell_15": 1
+            }
+          ],
+          "stats": {}
+        },
+        {
+          "variant": "exact",
+          "seconds": 0.0006440000142902136,
+          "nodes": 1,
+          "failures": 0,
+          "termination": "solution_limit",
+          "assignments": [
+            {
+              "cell_0": 16,
+              "cell_1": 2,
+              "cell_2": 3,
+              "cell_3": 13,
+              "cell_4": 5,
+              "cell_5": 11,
+              "cell_6": 10,
+              "cell_7": 8,
+              "cell_8": 9,
+              "cell_9": 7,
+              "cell_10": 6,
+              "cell_11": 12,
+              "cell_12": 4,
+              "cell_13": 14,
+              "cell_14": 15,
+              "cell_15": 1
+            }
+          ],
+          "stats": {
+            "fixpoints": 1,
+            "topology_updates": 1,
+            "scope_updates": 10,
+            "expansions": 0,
+            "budget_hits": 0,
+            "factorizations": 0,
+            "full_rank": 0,
+            "rank_deficient": 0,
+            "evaluations": 0,
+            "assignments": 0,
+            "contradictions": 0,
+            "native_calls": 1,
+            "discovery_seconds": 5.709007382392883e-06,
+            "evaluation_seconds": 0.0
+          }
+        }
+      ]
+    },
+    {
+      "unresolved": [
+        0,
+        1,
+        2,
+        5,
+        6,
+        8,
+        9,
+        12,
+        14,
+        15
+      ],
+      "runs": [
+        {
+          "variant": "baseline",
+          "seconds": 0.0005860000383108854,
+          "nodes": 1,
+          "failures": 0,
+          "termination": "solution_limit",
+          "assignments": [
+            {
+              "cell_0": 16,
+              "cell_1": 2,
+              "cell_2": 3,
+              "cell_3": 13,
+              "cell_4": 5,
+              "cell_5": 11,
+              "cell_6": 10,
+              "cell_7": 8,
+              "cell_8": 9,
+              "cell_9": 7,
+              "cell_10": 6,
+              "cell_11": 12,
+              "cell_12": 4,
+              "cell_13": 14,
+              "cell_14": 15,
+              "cell_15": 1
+            }
+          ],
+          "stats": {}
+        },
+        {
+          "variant": "exact",
+          "seconds": 0.0006247921846807003,
+          "nodes": 1,
+          "failures": 0,
+          "termination": "solution_limit",
+          "assignments": [
+            {
+              "cell_0": 16,
+              "cell_1": 2,
+              "cell_2": 3,
+              "cell_3": 13,
+              "cell_4": 5,
+              "cell_5": 11,
+              "cell_6": 10,
+              "cell_7": 8,
+              "cell_8": 9,
+              "cell_9": 7,
+              "cell_10": 6,
+              "cell_11": 12,
+              "cell_12": 4,
+              "cell_13": 14,
+              "cell_14": 15,
+              "cell_15": 1
+            }
+          ],
+          "stats": {
+            "fixpoints": 1,
+            "topology_updates": 1,
+            "scope_updates": 10,
+            "expansions": 0,
+            "budget_hits": 0,
+            "factorizations": 0,
+            "full_rank": 0,
+            "rank_deficient": 0,
+            "evaluations": 0,
+            "assignments": 0,
+            "contradictions": 0,
+            "native_calls": 1,
+            "discovery_seconds": 5.458015948534012e-06,
+            "evaluation_seconds": 0.0
+          }
+        }
+      ]
+    },
+    {
+      "unresolved": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        8,
+        9,
+        11,
+        13,
+        14
+      ],
+      "runs": [
+        {
+          "variant": "baseline",
+          "seconds": 0.0022936661262065172,
+          "nodes": 6,
+          "failures": 2,
+          "termination": "solution_limit",
+          "assignments": [
+            {
+              "cell_0": 15,
+              "cell_1": 2,
+              "cell_2": 3,
+              "cell_3": 14,
+              "cell_4": 5,
+              "cell_5": 12,
+              "cell_6": 9,
+              "cell_7": 8,
+              "cell_8": 10,
+              "cell_9": 7,
+              "cell_10": 6,
+              "cell_11": 11,
+              "cell_12": 4,
+              "cell_13": 13,
+              "cell_14": 16,
+              "cell_15": 1
+            }
+          ],
+          "stats": {}
+        },
+        {
+          "variant": "exact",
+          "seconds": 0.05711745796725154,
+          "nodes": 6,
+          "failures": 2,
+          "termination": "solution_limit",
+          "assignments": [
+            {
+              "cell_0": 15,
+              "cell_1": 2,
+              "cell_2": 3,
+              "cell_3": 14,
+              "cell_4": 5,
+              "cell_5": 12,
+              "cell_6": 9,
+              "cell_7": 8,
+              "cell_8": 10,
+              "cell_9": 7,
+              "cell_10": 6,
+              "cell_11": 11,
+              "cell_12": 4,
+              "cell_13": 13,
+              "cell_14": 16,
+              "cell_15": 1
+            }
+          ],
+          "stats": {
+            "fixpoints": 4,
+            "topology_updates": 4,
+            "scope_updates": 28,
+            "expansions": 4181,
+            "budget_hits": 0,
+            "factorizations": 109,
+            "full_rank": 0,
+            "rank_deficient": 109,
+            "evaluations": 109,
+            "assignments": 0,
+            "contradictions": 0,
+            "native_calls": 6,
+            "discovery_seconds": 0.04938825103454292,
+            "evaluation_seconds": 0.005280707962810993
+          }
+        }
+      ]
+    },
+    {
+      "unresolved": [
+        0,
+        1,
+        2,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10,
+        11,
+        13
+      ],
+      "runs": [
+        {
+          "variant": "baseline",
+          "seconds": 0.0022977921180427074,
+          "nodes": 10,
+          "failures": 5,
+          "termination": "solution_limit",
+          "assignments": [
+            {
+              "cell_0": 16,
+              "cell_1": 2,
+              "cell_2": 3,
+              "cell_3": 13,
+              "cell_4": 5,
+              "cell_5": 11,
+              "cell_6": 10,
+              "cell_7": 8,
+              "cell_8": 9,
+              "cell_9": 7,
+              "cell_10": 6,
+              "cell_11": 12,
+              "cell_12": 4,
+              "cell_13": 14,
+              "cell_14": 15,
+              "cell_15": 1
+            }
+          ],
+          "stats": {}
+        },
+        {
+          "variant": "exact",
+          "seconds": 0.007903625024482608,
+          "nodes": 10,
+          "failures": 5,
+          "termination": "solution_limit",
+          "assignments": [
+            {
+              "cell_0": 16,
+              "cell_1": 2,
+              "cell_2": 3,
+              "cell_3": 13,
+              "cell_4": 5,
+              "cell_5": 11,
+              "cell_6": 10,
+              "cell_7": 8,
+              "cell_8": 9,
+              "cell_9": 7,
+              "cell_10": 6,
+              "cell_11": 12,
+              "cell_12": 4,
+              "cell_13": 14,
+              "cell_14": 15,
+              "cell_15": 1
+            }
+          ],
+          "stats": {
+            "fixpoints": 5,
+            "topology_updates": 5,
+            "scope_updates": 26,
+            "expansions": 3215,
+            "budget_hits": 0,
+            "factorizations": 13,
+            "full_rank": 0,
+            "rank_deficient": 13,
+            "evaluations": 13,
+            "assignments": 0,
+            "contradictions": 0,
+            "native_calls": 10,
+            "discovery_seconds": 0.0051734179724007845,
+            "evaluation_seconds": 0.0004642498679459095
+          }
+        }
+      ]
+    },
+    {
+      "unresolved": [
+        1,
+        3,
+        4,
+        6,
+        7,
+        8,
+        9,
+        10,
+        12,
+        13,
+        14,
+        15
+      ],
+      "runs": [
+        {
+          "variant": "baseline",
+          "seconds": 0.0013252079952508211,
+          "nodes": 2,
+          "failures": 0,
+          "termination": "solution_limit",
+          "assignments": [
+            {
+              "cell_0": 16,
+              "cell_1": 2,
+              "cell_2": 3,
+              "cell_3": 13,
+              "cell_4": 5,
+              "cell_5": 11,
+              "cell_6": 10,
+              "cell_7": 8,
+              "cell_8": 9,
+              "cell_9": 7,
+              "cell_10": 6,
+              "cell_11": 12,
+              "cell_12": 4,
+              "cell_13": 14,
+              "cell_14": 15,
+              "cell_15": 1
+            }
+          ],
+          "stats": {}
+        },
+        {
+          "variant": "exact",
+          "seconds": 0.0018456249963492155,
+          "nodes": 2,
+          "failures": 0,
+          "termination": "solution_limit",
+          "assignments": [
+            {
+              "cell_0": 16,
+              "cell_1": 2,
+              "cell_2": 3,
+              "cell_3": 13,
+              "cell_4": 5,
+              "cell_5": 11,
+              "cell_6": 10,
+              "cell_7": 8,
+              "cell_8": 9,
+              "cell_9": 7,
+              "cell_10": 6,
+              "cell_11": 12,
+              "cell_12": 4,
+              "cell_13": 14,
+              "cell_14": 15,
+              "cell_15": 1
+            }
+          ],
+          "stats": {
+            "fixpoints": 2,
+            "topology_updates": 2,
+            "scope_updates": 20,
+            "expansions": 1114,
+            "budget_hits": 0,
+            "factorizations": 0,
+            "full_rank": 0,
+            "rank_deficient": 0,
+            "evaluations": 0,
+            "assignments": 0,
+            "contradictions": 0,
+            "native_calls": 2,
+            "discovery_seconds": 0.0004851659759879112,
+            "evaluation_seconds": 0.0
+          }
+        }
+      ]
+    },
+    {
+      "unresolved": [
+        0,
+        1,
+        2,
+        3,
+        5,
+        8,
+        10,
+        11,
+        12,
+        13,
+        14,
+        15
+      ],
+      "runs": [
+        {
+          "variant": "baseline",
+          "seconds": 0.0036572499666363,
+          "nodes": 25,
+          "failures": 15,
+          "termination": "solution_limit",
+          "assignments": [
+            {
+              "cell_0": 16,
+              "cell_1": 2,
+              "cell_2": 3,
+              "cell_3": 13,
+              "cell_4": 5,
+              "cell_5": 11,
+              "cell_6": 10,
+              "cell_7": 8,
+              "cell_8": 9,
+              "cell_9": 7,
+              "cell_10": 6,
+              "cell_11": 12,
+              "cell_12": 4,
+              "cell_13": 14,
+              "cell_14": 15,
+              "cell_15": 1
+            }
+          ],
+          "stats": {}
+        },
+        {
+          "variant": "exact",
+          "seconds": 0.020691625075414777,
+          "nodes": 15,
+          "failures": 8,
+          "termination": "solution_limit",
+          "assignments": [
+            {
+              "cell_0": 16,
+              "cell_1": 2,
+              "cell_2": 3,
+              "cell_3": 13,
+              "cell_4": 5,
+              "cell_5": 11,
+              "cell_6": 10,
+              "cell_7": 8,
+              "cell_8": 9,
+              "cell_9": 7,
+              "cell_10": 6,
+              "cell_11": 12,
+              "cell_12": 4,
+              "cell_13": 14,
+              "cell_14": 15,
+              "cell_15": 1
+            }
+          ],
+          "stats": {
+            "fixpoints": 10,
+            "topology_updates": 9,
+            "scope_updates": 47,
+            "expansions": 5087,
+            "budget_hits": 0,
+            "factorizations": 76,
+            "full_rank": 46,
+            "rank_deficient": 30,
+            "evaluations": 27,
+            "assignments": 0,
+            "contradictions": 3,
+            "native_calls": 15,
+            "discovery_seconds": 0.016187624540179968,
+            "evaluation_seconds": 0.0009395410306751728
+          }
+        }
+      ]
+    },
+    {
+      "unresolved": [
+        0,
+        1,
+        2,
+        3,
+        5,
+        6,
+        7,
+        9,
+        11,
+        13,
+        14,
+        15
+      ],
+      "runs": [
+        {
+          "variant": "baseline",
+          "seconds": 0.0017573749646544456,
+          "nodes": 5,
+          "failures": 3,
+          "termination": "solution_limit",
+          "assignments": [
+            {
+              "cell_0": 16,
+              "cell_1": 2,
+              "cell_2": 3,
+              "cell_3": 13,
+              "cell_4": 5,
+              "cell_5": 11,
+              "cell_6": 10,
+              "cell_7": 8,
+              "cell_8": 9,
+              "cell_9": 7,
+              "cell_10": 6,
+              "cell_11": 12,
+              "cell_12": 4,
+              "cell_13": 14,
+              "cell_14": 15,
+              "cell_15": 1
+            }
+          ],
+          "stats": {}
+        },
+        {
+          "variant": "exact",
+          "seconds": 0.002230999991297722,
+          "nodes": 5,
+          "failures": 3,
+          "termination": "solution_limit",
+          "assignments": [
+            {
+              "cell_0": 16,
+              "cell_1": 2,
+              "cell_2": 3,
+              "cell_3": 13,
+              "cell_4": 5,
+              "cell_5": 11,
+              "cell_6": 10,
+              "cell_7": 8,
+              "cell_8": 9,
+              "cell_9": 7,
+              "cell_10": 6,
+              "cell_11": 12,
+              "cell_12": 4,
+              "cell_13": 14,
+              "cell_14": 15,
+              "cell_15": 1
+            }
+          ],
+          "stats": {
+            "fixpoints": 2,
+            "topology_updates": 2,
+            "scope_updates": 19,
+            "expansions": 806,
+            "budget_hits": 0,
+            "factorizations": 0,
+            "full_rank": 0,
+            "rank_deficient": 0,
+            "evaluations": 0,
+            "assignments": 0,
+            "contradictions": 0,
+            "native_calls": 5,
+            "discovery_seconds": 0.00039270916022360325,
+            "evaluation_seconds": 0.0
+          }
+        }
+      ]
+    },
+    {
+      "unresolved": [
+        0,
+        1,
+        2,
+        3,
+        5,
+        6,
+        7,
+        9,
+        10,
+        11,
+        14,
+        15
+      ],
+      "runs": [
+        {
+          "variant": "baseline",
+          "seconds": 0.0031788330525159836,
+          "nodes": 11,
+          "failures": 7,
+          "termination": "solution_limit",
+          "assignments": [
+            {
+              "cell_0": 16,
+              "cell_1": 2,
+              "cell_2": 3,
+              "cell_3": 13,
+              "cell_4": 5,
+              "cell_5": 11,
+              "cell_6": 10,
+              "cell_7": 8,
+              "cell_8": 9,
+              "cell_9": 7,
+              "cell_10": 6,
+              "cell_11": 12,
+              "cell_12": 4,
+              "cell_13": 14,
+              "cell_14": 15,
+              "cell_15": 1
+            }
+          ],
+          "stats": {}
+        },
+        {
+          "variant": "exact",
+          "seconds": 0.007676750188693404,
+          "nodes": 11,
+          "failures": 7,
+          "termination": "solution_limit",
+          "assignments": [
+            {
+              "cell_0": 16,
+              "cell_1": 2,
+              "cell_2": 3,
+              "cell_3": 13,
+              "cell_4": 5,
+              "cell_5": 11,
+              "cell_6": 10,
+              "cell_7": 8,
+              "cell_8": 9,
+              "cell_9": 7,
+              "cell_10": 6,
+              "cell_11": 12,
+              "cell_12": 4,
+              "cell_13": 14,
+              "cell_14": 15,
+              "cell_15": 1
+            }
+          ],
+          "stats": {
+            "fixpoints": 4,
+            "topology_updates": 4,
+            "scope_updates": 26,
+            "expansions": 2163,
+            "budget_hits": 0,
+            "factorizations": 11,
+            "full_rank": 0,
+            "rank_deficient": 11,
+            "evaluations": 11,
+            "assignments": 0,
+            "contradictions": 0,
+            "native_calls": 11,
+            "discovery_seconds": 0.00399595801718533,
+            "evaluation_seconds": 0.0003890001680701971
+          }
+        }
+      ]
+    },
+    {
+      "unresolved": [
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        9,
+        10,
+        11,
+        12,
+        13,
+        15
+      ],
+      "runs": [
+        {
+          "variant": "baseline",
+          "seconds": 0.0023602501023560762,
+          "nodes": 7,
+          "failures": 2,
+          "termination": "solution_limit",
+          "assignments": [
+            {
+              "cell_0": 16,
+              "cell_1": 2,
+              "cell_2": 5,
+              "cell_3": 11,
+              "cell_4": 3,
+              "cell_5": 13,
+              "cell_6": 10,
+              "cell_7": 8,
+              "cell_8": 9,
+              "cell_9": 7,
+              "cell_10": 4,
+              "cell_11": 14,
+              "cell_12": 6,
+              "cell_13": 12,
+              "cell_14": 15,
+              "cell_15": 1
+            }
+          ],
+          "stats": {}
+        },
+        {
+          "variant": "exact",
+          "seconds": 0.00818054098635912,
+          "nodes": 7,
+          "failures": 2,
+          "termination": "solution_limit",
+          "assignments": [
+            {
+              "cell_0": 16,
+              "cell_1": 2,
+              "cell_2": 5,
+              "cell_3": 11,
+              "cell_4": 3,
+              "cell_5": 13,
+              "cell_6": 10,
+              "cell_7": 8,
+              "cell_8": 9,
+              "cell_9": 7,
+              "cell_10": 4,
+              "cell_11": 14,
+              "cell_12": 6,
+              "cell_13": 12,
+              "cell_14": 15,
+              "cell_15": 1
+            }
+          ],
+          "stats": {
+            "fixpoints": 5,
+            "topology_updates": 5,
+            "scope_updates": 29,
+            "expansions": 3677,
+            "budget_hits": 0,
+            "factorizations": 12,
+            "full_rank": 0,
+            "rank_deficient": 12,
+            "evaluations": 12,
+            "assignments": 0,
+            "contradictions": 0,
+            "native_calls": 7,
+            "discovery_seconds": 0.005276999901980162,
+            "evaluation_seconds": 0.0004528339486569166
+          }
+        }
+      ]
+    },
+    {
+      "unresolved": [
+        0,
+        1,
+        2,
+        3,
+        5,
+        8,
+        9,
+        10,
+        12,
+        13,
+        14,
+        15
+      ],
+      "runs": [
+        {
+          "variant": "baseline",
+          "seconds": 0.0011815829202532768,
+          "nodes": 2,
+          "failures": 0,
+          "termination": "solution_limit",
+          "assignments": [
+            {
+              "cell_0": 4,
+              "cell_1": 14,
+              "cell_2": 15,
+              "cell_3": 1,
+              "cell_4": 5,
+              "cell_5": 11,
+              "cell_6": 10,
+              "cell_7": 8,
+              "cell_8": 9,
+              "cell_9": 7,
+              "cell_10": 6,
+              "cell_11": 12,
+              "cell_12": 16,
+              "cell_13": 2,
+              "cell_14": 3,
+              "cell_15": 13
+            }
+          ],
+          "stats": {}
+        },
+        {
+          "variant": "exact",
+          "seconds": 0.0016082499641925097,
+          "nodes": 2,
+          "failures": 0,
+          "termination": "solution_limit",
+          "assignments": [
+            {
+              "cell_0": 4,
+              "cell_1": 14,
+              "cell_2": 15,
+              "cell_3": 1,
+              "cell_4": 5,
+              "cell_5": 11,
+              "cell_6": 10,
+              "cell_7": 8,
+              "cell_8": 9,
+              "cell_9": 7,
+              "cell_10": 6,
+              "cell_11": 12,
+              "cell_12": 16,
+              "cell_13": 2,
+              "cell_14": 3,
+              "cell_15": 13
+            }
+          ],
+          "stats": {
+            "fixpoints": 2,
+            "topology_updates": 2,
+            "scope_updates": 19,
+            "expansions": 856,
+            "budget_hits": 0,
+            "factorizations": 0,
+            "full_rank": 0,
+            "rank_deficient": 0,
+            "evaluations": 0,
+            "assignments": 0,
+            "contradictions": 0,
+            "native_calls": 2,
+            "discovery_seconds": 0.0003755418583750725,
+            "evaluation_seconds": 0.0
+          }
+        }
+      ]
+    }
+  ]
+}

@@ -131,6 +131,10 @@ the prefixes only.
 
 ## Earlier experiments
 
+The subsequent [partial-certification study](../magic_sum_partial_2026-10-13/README.md)
+tested two exact prototypes. Neither showed a consistent magic-square benefit;
+the production kernel and the results above remain unchanged.
+
 - [Restart portfolios and all-different optimization, 12 October](../magic_portfolio_2026-10-12/summary.json): includes failed-attempt costs and discovery of settings for 12×12, 13×13, and 16×16.
 - [11×11 breakthrough, 12 October](../magic11_2026-10-12/summary.json): saved seeded search settings and five repeat solves.
 - [Numeric masks and larger compiled spans, 12 October](../magic_numeric_2026-10-12/summary.json): the preceding numeric-kernel comparison.

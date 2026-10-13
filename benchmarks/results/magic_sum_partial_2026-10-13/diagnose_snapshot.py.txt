@@ -1,0 +1,87 @@
+import importlib.util
+import json
+from collections import Counter
+from pathlib import Path
+from random import Random
+from statistics import median
+from time import perf_counter
+
+from benchmarks.alice_magic import validate
+from experiments.neural_attention.magic_search_tuning import RankedState, prepare
+from snarky import Atom, Number
+from snarky.finite import numeric
+from snarky.finite.constraints import ConstraintOperator, LinearSumConstraint
+from snarky.finite.model import FiniteModel, FiniteVariable, Query
+from snarky.finite.propagation import NativeState
+from snarky.finite.search import search
+
+OUT = Path(__file__).parent
+preset = json.loads(Path('experiments/neural_attention/magic_best_parameters.json').read_text())
+method = numeric.NumericPlan._equality_supports
+helper = numeric._partial_equality_supports
+counts = Counter()
+
+def observe_method(self, masks, target):
+    counts['kernel_calls'] += 1
+    return method(self, masks, target)
+
+def observe_helper(*args):
+    counts['partial_attempts'] += 1
+    result = helper(*args)
+    if result is not None:
+        counts['partial_used'] += 1
+        counts['margin_' + str(args[-1])] += 1
+    return result
+
+usage = []
+try:
+    numeric.NumericPlan._equality_supports = observe_method
+    numeric._partial_equality_supports = observe_helper
+    for size in (9, 12, 13, 16):
+        counts.clear()
+        s = {**preset['default'], **preset['known_size_overrides'].get(str(size), {})}
+        original, model = prepare(size, s['order'], s['tie'], s['symmetry'], seed=s.get('seed', 0))
+        result = search(RankedState(model, s['order']), Query(time_limit_seconds=60), policy=s['policy'])
+        for solution in result.solutions:
+            validate(size, solution.assignment, original)
+        row = dict(size=size, nodes=result.explored_nodes, counts=dict(counts), scope='Outcome counting only; not a latency measurement')
+        usage.append(row)
+        print(json.dumps(row), flush=True)
+finally:
+    numeric.NumericPlan._equality_supports = method
+    numeric._partial_equality_supports = helper
+(OUT/'usage_counts.json').write_text(json.dumps(usage, indent=2)+'\n')
+
+implementations = {'edge_bands': method}
+for name, filename in (('baseline', 'numeric_before.py'), ('backward_checks', 'numeric_candidate.py')):
+    spec = importlib.util.spec_from_file_location('snarky.finite._partial_' + name, OUT/filename)
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    implementations[name] = module.NumericPlan._equality_supports
+micro = []
+for width in (30, 120):
+    values = [v for v in range(width + 1) if v != 1]
+    Random(width).shuffle(values)
+    names = [Atom('x'+str(i)) for i in range(4)]
+    variables = tuple(FiniteVariable(n, tuple(Number(v) for v in values)) for n in names)
+    constraint = LinearSumConstraint(Atom('sum'), tuple((1,n) for n in names), ConstraintOperator.EQUAL, width)
+    state = NativeState(FiniteModel('partial_probe', variables, (constraint,)))
+    plan = state._numeric.get(0, constraint)
+    masks = tuple(state.domains.mask(n) for n in names)
+    expected = implementations['baseline'](plan, masks, width)
+    samples = {name: [] for name in implementations}
+    specs = [(name, repeat) for name in implementations for repeat in range(3)]
+    Random(131029).shuffle(specs)
+    for name, repeat in specs:
+        operation = implementations[name]
+        assert operation(plan, masks, width) == expected
+        started = perf_counter()
+        for _ in range(1000):
+            operation(plan, masks, width)
+        samples[name].append((perf_counter()-started)/1000)
+    row = dict(width=width, samples_seconds_per_call=samples,
+               medians={n: median(v) for n,v in samples.items()},
+               scope='Synthetic four-variable holey equality near its lower bound. Direct uncached support kernel only; excludes setup and bypasses unchanged-query caching. Not an end-to-end solve.')
+    micro.append(row)
+    print(json.dumps(row), flush=True)
+(OUT/'synthetic_micro.json').write_text(json.dumps(micro, indent=2)+'\n')

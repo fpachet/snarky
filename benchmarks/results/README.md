@@ -5,6 +5,30 @@
 contains timing tables, source/evidence links, reproduction commands, and links
 to the earlier experiments.
 
+The [partial sum-certification experiment](magic_sum_partial_2026-10-13/README.md)
+records two exact prototypes that were tested and retained for opt-in use;
+they are not enabled in the production solver.
+
+The [small residual sum-systems experiment](magic_sum_systems_2026-10-13/README.md)
+tests indexed overlap discovery and exact elimination. It remains opt-in: the
+measured blank squares gain no deductions, while favorable constructed systems
+can avoid substantial search.
+
+The [whole-system rank diagnostic](magic_sum_global_rank_2026-10-13/README.md)
+removes the small-system size cap and examines every node before propagation and
+every successful fixpoint. Larger blank squares retain linear freedom; partial
+forcing beyond the native fixpoint appears only in the measured 3×3 case.
+
+The [SUM + ALLDIFF experiment](magic_sum_distinct_2026-10-13/README.md) tests
+distinct-value bounds and a specialized two-variable rule. Selective filtering
+improves several blank-square presets, including 13×13 and 16×16, with small
+regressions elsewhere; production behavior remains unchanged.
+
+The [follow-up on detection and filtering cost](magic_sum_distinct_cost_2026-10-13/README.md)
+adds early gating and a bounded three-variable bitset path, preserving searches
+exactly. Filtering itself becomes cheaper; end-to-end gains remain small and
+mixed across the repeated measurements.
+
 Workforce task symmetry and workload propagation:
 [scheduling_symmetry_2026-09-28.json](scheduling_symmetry_2026-09-28.json) records
 24 fresh-process runs across four ablations and two model sizes, plus separate

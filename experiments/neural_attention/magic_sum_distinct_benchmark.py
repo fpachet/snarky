@@ -1,0 +1,276 @@
+"""Sequential magic-square A/B for opt-in SUM+ALLDIFF bounds."""
+
+from __future__ import annotations
+
+import argparse
+import hashlib
+import importlib.machinery
+import importlib.util
+import json
+import platform
+from pathlib import Path
+from random import Random
+from statistics import median
+from time import perf_counter
+
+from benchmarks.alice_magic import validate
+from snarky.finite.model import Query
+from snarky.finite.search import search
+
+from .magic_search_tuning import RankedDomains, RankedState, prepare
+from .sum_distinct import DistinctSumState
+
+VARIANTS = dict(
+    pair=dict(max_active=2),
+    small=dict(max_active=4, max_candidates=128),
+    all={},
+    fast_pair=dict(max_active=2, pair_fast=True),
+    tiny=dict(max_active=3, max_candidates=24, pair_fast=True),
+)
+VARIANTS.update(before_fast_pair=VARIANTS["fast_pair"], before_tiny=VARIANTS["tiny"])
+
+
+class DistinctRankedState(RankedState):
+    def __init__(self, model, order, *, state_class=DistinctSumState, **settings):
+        self.native = state_class(model, **settings)
+        self.model = model
+        self.domains = RankedDomains(self.native.domains, model, order)
+
+
+def main():
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("--sizes", nargs="+", type=int, default=[6, 8, 9, 11, 12, 16])
+    parser.add_argument(
+        "--variants",
+        nargs="+",
+        choices=["baseline", *VARIANTS],
+        default=["baseline", "pair", "small", "all"],
+    )
+    parser.add_argument("--repeats", type=int, default=3)
+    parser.add_argument("--limit", type=float, default=20)
+    parser.add_argument("--policy", choices=["preset", "mrv"], default="preset")
+    parser.add_argument("--max-nodes", type=int)
+    parser.add_argument(
+        "--before",
+        type=Path,
+        help="archived pre-optimization source for before_* variants",
+    )
+    parser.add_argument(
+        "--presets",
+        type=Path,
+        default=Path(__file__).with_name("magic_best_parameters.json"),
+    )
+    parser.add_argument("--output", type=Path, required=True)
+    args = parser.parse_args()
+    if any(v.startswith("before_") for v in args.variants) and args.before is None:
+        parser.error("before_* variants require --before")
+    if (
+        args.repeats < 1
+        or args.limit <= 0
+        or any(n < 3 for n in args.sizes)
+        or args.max_nodes is not None
+        and args.max_nodes < 1
+    ):
+        parser.error("invalid size, repeats, time limit, or node limit")
+    args.output.mkdir(parents=True, exist_ok=False)
+    presets = json.loads(args.presets.read_text())
+    before_class = None
+    if args.before is not None:
+        loader = importlib.machinery.SourceFileLoader(
+            "_distinct_before_benchmark", str(args.before)
+        )
+        spec = importlib.util.spec_from_loader(loader.name, loader)
+        before = importlib.util.module_from_spec(spec)
+        loader.exec_module(before)
+        before_class = before.DistinctSumState
+    files = [
+        *Path("src/snarky").rglob("*.py"),
+        Path(__file__),
+        Path(__file__).with_name("sum_distinct.py"),
+        Path(__file__).with_name("magic_search_tuning.py"),
+        Path(__file__).with_name("optimize_magic6.py"),
+        Path("benchmarks/alice_magic.py"),
+        args.presets,
+    ]
+    if args.before is not None:
+        files.append(args.before)
+        (args.output / "before_snapshot.py.txt").write_bytes(args.before.read_bytes())
+    hashes = {str(p): hashlib.sha256(p.read_bytes()).hexdigest() for p in files}
+    schedule = [
+        (n, v, r)
+        for n in args.sizes
+        for v in args.variants
+        for r in range(args.repeats)
+    ]
+    Random(131032).shuffle(schedule)
+    frozen = dict(
+        source_hashes=hashes,
+        python=platform.python_version(),
+        platform=platform.platform(),
+        presets=presets,
+        schedule=schedule,
+        variants=VARIANTS,
+        config={k: str(v) if isinstance(v, Path) else v for k, v in vars(args).items()},
+        scope=(
+            "Sequential shuffled runs; setup and discovery included; imports and "
+            "independent validation excluded. Original model and heuristics retained. "
+            "Joint failures do not increment any original dom_wdeg weight. "
+            "Native revisions exclude separate experimental work counters. "
+            "Default prefixes: 15 first80 nodes, >=17 first30 nodes."
+        ),
+    )
+    (args.output / "frozen.json").write_text(json.dumps(frozen, indent=2) + "\n")
+    for name in ["sum_distinct.py", "magic_sum_distinct_benchmark.py"]:
+        (args.output / (name + ".txt")).write_bytes(
+            Path(__file__).with_name(name).read_bytes()
+        )
+    rows, signatures = [], {}
+    for size, variant, repeat in schedule:
+        settings = {
+            **presets["default"],
+            **presets["known_size_overrides"].get(str(size), {}),
+        }
+        if args.policy != "preset":
+            settings["policy"] = args.policy
+        started = perf_counter()
+        original, model = prepare(
+            size,
+            settings["order"],
+            settings["tie"],
+            settings["symmetry"],
+            seed=settings.get("seed", 0),
+        )
+        state = (
+            RankedState(model, settings["order"])
+            if variant == "baseline"
+            else DistinctRankedState(
+                model,
+                settings["order"],
+                state_class=before_class
+                if variant.startswith("before_")
+                else DistinctSumState,
+                **VARIANTS[variant],
+            )
+        )
+        cap = (
+            args.max_nodes
+            if args.max_nodes is not None
+            else 80
+            if size == 15
+            else 30
+            if size >= 17
+            else None
+        )
+        result = search(
+            state,
+            Query(time_limit_seconds=args.limit, max_nodes=cap),
+            policy=settings["policy"],
+        )
+        seconds = perf_counter() - started
+        squares = [validate(size, s.assignment, original) for s in result.solutions]
+        row = dict(
+            size=size,
+            variant=variant,
+            repeat=repeat,
+            settings=settings,
+            total_seconds=seconds,
+            nodes=result.explored_nodes,
+            failures=result.failed_branches,
+            revisions=result.constraint_revisions,
+            termination=result.termination.value,
+            squares=squares,
+            stats={} if variant == "baseline" else state.native.stats,
+        )
+        signature = tuple(
+            json.dumps(row[k], sort_keys=True)
+            for k in ["nodes", "failures", "revisions", "termination", "squares"]
+        )
+        key = (size, variant)
+        if (
+            key in signatures
+            and row["termination"] != "time_limit"
+            and signatures[key][-2] != json.dumps("time_limit")
+        ):
+            assert signatures[key] == signature, "nondeterministic completed search"
+        signatures[key] = signature
+        rows.append(row)
+        with (args.output / "runs.jsonl").open("a") as f:
+            f.write(json.dumps(row) + "\n")
+        print(
+            json.dumps(
+                {k: v for k, v in row.items() if k not in ["squares", "settings"]}
+            ),
+            flush=True,
+        )
+    equivalence = []
+    for size in args.sizes:
+        for variant in args.variants:
+            if not variant.startswith("before_"):
+                continue
+            optimized = variant.removeprefix("before_")
+            if optimized not in args.variants:
+                continue
+            assert signatures[(size, variant)] == signatures[(size, optimized)], (
+                "optimization changed search work"
+            )
+            left = next(
+                r for r in rows if r["size"] == size and r["variant"] == variant
+            )
+            right = next(
+                r for r in rows if r["size"] == size and r["variant"] == optimized
+            )
+            assert {k: v for k, v in left["stats"].items() if k != "seconds"} == {
+                k: v for k, v in right["stats"].items() if k != "seconds"
+            }, "optimization changed filtering counts"
+            equivalence.append(
+                dict(
+                    size=size,
+                    before=variant,
+                    after=optimized,
+                    same_search=True,
+                    same_filter_counts=True,
+                )
+            )
+    (args.output / "equivalence.json").write_text(
+        json.dumps(equivalence, indent=2) + "\n"
+    )
+    summary = [
+        dict(
+            size=n,
+            variants={
+                v: dict(
+                    median_seconds=median(
+                        r["total_seconds"]
+                        for r in rows
+                        if r["size"] == n and r["variant"] == v
+                    ),
+                    runs=[
+                        {
+                            k: r[k]
+                            for k in [
+                                "repeat",
+                                "nodes",
+                                "failures",
+                                "revisions",
+                                "termination",
+                                "stats",
+                            ]
+                        }
+                        for r in rows
+                        if r["size"] == n and r["variant"] == v
+                    ],
+                )
+                for v in args.variants
+            },
+        )
+        for n in args.sizes
+    ]
+    (args.output / "summary.json").write_text(json.dumps(summary, indent=2) + "\n")
+    assert all(
+        hashlib.sha256(Path(p).read_bytes()).hexdigest() == sha
+        for p, sha in hashes.items()
+    )
+
+
+if __name__ == "__main__":
+    main()

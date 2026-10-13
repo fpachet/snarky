@@ -1,0 +1,76 @@
+{
+  "scope": "Empirically selected first-solution settings for blank normal magic squares; not optimality guarantees or settings for clued puzzles.",
+  "default_basis": "Extrapolated from 9x9 and 10x10. No verified winner yet for 15 or 17-20.",
+  "default": {
+    "policy": "mrv",
+    "tie": "row_major",
+    "order": "middle",
+    "symmetry": false
+  },
+  "known_size_overrides": {
+    "6": {
+      "order": "middle",
+      "symmetry": true
+    },
+    "7": {
+      "order": "middle_high",
+      "symmetry": true
+    },
+    "8": {
+      "order": "middle_high",
+      "symmetry": true
+    },
+    "9": {
+      "order": "middle",
+      "tie": "row_major",
+      "symmetry": false
+    },
+    "10": {
+      "order": "middle",
+      "tie": "row_major",
+      "symmetry": false
+    },
+    "11": {
+      "policy": "dom_wdeg",
+      "order": "random",
+      "tie": "random",
+      "symmetry": true,
+      "seed": 1
+    },
+    "12": {
+      "policy": "dom_wdeg",
+      "order": "random",
+      "tie": "random",
+      "symmetry": true,
+      "seed": 1
+    },
+    "13": {
+      "policy": "dom_wdeg",
+      "order": "random",
+      "tie": "random",
+      "symmetry": false,
+      "seed": 0
+    },
+    "14": {
+      "order": "middle",
+      "tie": "degree",
+      "symmetry": true
+    },
+    "16": {
+      "policy": "dom_wdeg",
+      "order": "random",
+      "tie": "random",
+      "symmetry": true,
+      "seed": 1
+    }
+  },
+  "evidence": {
+    "9": "benchmarks/results/magic_numeric_2026-10-12/runs.jsonl",
+    "10": "benchmarks/results/magic_numeric_2026-10-12/runs.jsonl",
+    "11": "benchmarks/results/magic11_2026-10-12/runs.jsonl",
+    "12": "benchmarks/results/magic_portfolio_2026-10-12/repeats/runs.jsonl",
+    "13": "benchmarks/results/magic_portfolio_2026-10-12/repeats/runs.jsonl",
+    "14": "benchmarks/results/magic_numeric_2026-10-12/scaling_before.json",
+    "16": "benchmarks/results/magic_portfolio_2026-10-12/repeats/runs.jsonl"
+  }
+}
