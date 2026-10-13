@@ -193,10 +193,10 @@ without symmetry. Symmetry changes the search tree and is not a propagator
 kernel speedup.
 
 The raw runs are archived as
-[`magic_square_dom_wdeg_2026-07-25.json`](../benchmarks/results/magic_square_dom_wdeg_2026-07-25.json),
-[`magic_square_dom_wdeg_lcv_2026-07-25.json`](../benchmarks/results/magic_square_dom_wdeg_lcv_2026-07-25.json),
+[`magic_square_dom_wdeg_2026-07-25.json`](../benchmarks/history/magic_square_dom_wdeg_2026-07-25.json),
+[`magic_square_dom_wdeg_lcv_2026-07-25.json`](../benchmarks/history/magic_square_dom_wdeg_lcv_2026-07-25.json),
 and
-[`magic_square_dom_wdeg_symmetry_2026-07-25.json`](../benchmarks/results/magic_square_dom_wdeg_symmetry_2026-07-25.json).
+[`magic_square_dom_wdeg_symmetry_2026-07-25.json`](../benchmarks/history/magic_square_dom_wdeg_symmetry_2026-07-25.json).
 
 ## Phase 5: explanation-backed learned impacts
 
@@ -228,9 +228,9 @@ The three-run comparison on the same final implementation is:
 Learned impact is consequently the default value ordering for persistent
 CSPs, wrapping dom/wdeg point selection. Plain dom/wdeg remains available for
 A/B runs. The raw comparison is archived in
-[`magic_square_dom_wdeg_only_2026-07-25.json`](../benchmarks/results/magic_square_dom_wdeg_only_2026-07-25.json)
+[`magic_square_dom_wdeg_only_2026-07-25.json`](../benchmarks/history/magic_square_dom_wdeg_only_2026-07-25.json)
 and
-[`magic_square_learned_impact_2026-07-25.json`](../benchmarks/results/magic_square_learned_impact_2026-07-25.json).
+[`magic_square_learned_impact_2026-07-25.json`](../benchmarks/history/magic_square_learned_impact_2026-07-25.json).
 
 ## Benchmark protocol
 
@@ -241,19 +241,19 @@ uv run python -m benchmarks.classical_csp --repeat 3
 ```
 
 The benchmark validates magic-square, Latin-square, and Sudoku solutions
-before reporting time. Raw JSON belongs under `benchmarks/results/`. For a
+before reporting time. Raw JSON belongs under `benchmarks/history/`. For a
 pure scheduler or kernel optimization, require identical node and failure
 counters. For stronger filtering or changed search policy, archive it as a
 separate formulation and do not present its timing as a direct speedup.
 
 The current three-run archive is
-[`classical_csp_learned_impact_2026-07-25.json`](../benchmarks/results/classical_csp_learned_impact_2026-07-25.json).
+[`classical_csp_learned_impact_2026-07-25.json`](../benchmarks/history/classical_csp_learned_impact_2026-07-25.json).
 The preceding search-policy archive is
-[`classical_csp_dom_wdeg_2026-07-25.json`](../benchmarks/results/classical_csp_dom_wdeg_2026-07-25.json).
+[`classical_csp_dom_wdeg_2026-07-25.json`](../benchmarks/history/classical_csp_dom_wdeg_2026-07-25.json).
 The preceding implementation-speed archive is
-[`classical_csp_incremental_2026-07-25.json`](../benchmarks/results/classical_csp_incremental_2026-07-25.json).
+[`classical_csp_incremental_2026-07-25.json`](../benchmarks/history/classical_csp_incremental_2026-07-25.json).
 The separate
-[`magic_square_6_incremental_2026-07-25.json`](../benchmarks/results/magic_square_6_incremental_2026-07-25.json)
+[`magic_square_6_incremental_2026-07-25.json`](../benchmarks/history/magic_square_6_incremental_2026-07-25.json)
 records the larger three-run case.
 
 ## Phase 6: practical constraint vocabulary

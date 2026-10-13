@@ -68,8 +68,8 @@ intervals. Background load and thermal state remain uncontrolled.
 
 ## Paired Python results
 
-The [paired record](../benchmarks/results/csp_alldiff_2026-09-16/results.json)
-and [summary](../benchmarks/results/csp_alldiff_2026-09-16/summary.json) compare
+The [paired record](../benchmarks/history/csp_alldiff_2026-09-16/results.json)
+and [summary](../benchmarks/history/csp_alldiff_2026-09-16/summary.json) compare
 `ae1f4e6` with the candidate. All seven mutually completed workloads retain
 identical nodes, failures, revisions and normalized solutions in every repetition.
 Queens 104 and 150 time out in both versions in all measured repetitions.
@@ -86,7 +86,7 @@ Queens 104 and 150 time out in both versions in all measured repetitions.
 | Incremental Latin 16 | 0.7912 | 0.4462 | 1.77× |
 | NValue permutation 16 | 0.1389 | 0.1361 | 1.02× |
 
-The separate [shortcut ablation](../benchmarks/results/csp_alldiff_retain_ablation_2026-09-16/summary.json)
+The separate [shortcut ablation](../benchmarks/history/csp_alldiff_retain_ablation_2026-09-16/summary.json)
 compares bitset graphs alone with bitset graphs plus the unchanged-domain shortcut.
 All three cases retain identical search counters and normalized solutions.
 
@@ -103,7 +103,7 @@ dominated by startup and should not be read as propagation-throughput ratios.
 
 ## Graph-selection stress check
 
-The [kernel-only record](../benchmarks/results/csp_alldiff_graphs_2026-09-16/results.json)
+The [kernel-only record](../benchmarks/history/csp_alldiff_graphs_2026-09-16/results.json)
 uses one warmup and seven alternating repetitions per strategy, with the same
 valid cached matching and exact supported values. These times exclude domain
 copying, validation and the rest of the solver.
@@ -125,8 +125,8 @@ heuristic chooses the fastest path on every possible graph.
 
 ## Fresh full Prune comparison
 
-The [new full record](../benchmarks/results/prune_alldiff_2026-09-16/results.json)
-and [59-workload summary](../benchmarks/results/prune_alldiff_2026-09-16/summary.csv)
+The [new full record](../benchmarks/history/prune_alldiff_2026-09-16/results.json)
+and [59-workload summary](../benchmarks/history/prune_alldiff_2026-09-16/summary.csv)
 retain every repetition. Snarky completes **52/59** and Prune **59/59** within the
 five-second cap in all three measured repetitions. Optimization proofs remain
 **3/5 versus 5/5**. This slice reduces execution costs without changing which
@@ -145,7 +145,7 @@ propagators and branching policies. They do not isolate language overhead. This
 collector has a different worker/import path from the paired Python experiment,
 so its process medians must not be combined with that experiment's speedup ratios.
 
-A separate [parity audit](../benchmarks/results/prune_alldiff_2026-09-16/parity_with_nvalue.json)
+A separate [parity audit](../benchmarks/history/prune_alldiff_2026-09-16/parity_with_nvalue.json)
 checks the previous full NValue record: all 54 compiled inputs have identical
 hashes, and all **52 mutually completed workloads preserve nodes, failures,
 revisions, objectives, model sizes, lowerings and normalized solutions** across
@@ -162,7 +162,7 @@ domain representation. Faster exact filtering alone has not removed those gaps.
 
 ## Compatibility and allocation controls
 
-The [separate controls](../benchmarks/results/csp_alldiff_controls_2026-09-16/results.json)
+The [separate controls](../benchmarks/history/csp_alldiff_controls_2026-09-16/results.json)
 use the same worker and models with alternating reference/candidate runs. All six
 retain identical observations, including applicable search counts. Boulez runs
 without a supplied incumbent, proves optimality and recovers the published sequence.
@@ -191,7 +191,7 @@ memory improvements. Instrumented timings are excluded from speedup claims.
 
 ## Remaining profile evidence
 
-Separate [CPU profiles](../benchmarks/results/csp_alldiff_profiles_2026-09-16/results.json)
+Separate [CPU profiles](../benchmarks/history/csp_alldiff_profiles_2026-09-16/results.json)
 use a two-second cooperative search limit and a 200-node ceiling. They are not
 latency runs or matched-work before/after comparisons. Queens 104 and 150 stop
 with unknown status; Latin 16 completes and is validated.
@@ -232,7 +232,7 @@ identical; domain copying and validation are outside its kernel-only timings.
 The full non-Bach gate passes **1,089 tests, three skips**. Ruff, mypy (94 source
 files), textual-source validation (305 files), both distribution builds, contents
 checks and isolated core/companion installation checks pass. Commands and logs
-are retained in the [validation record](../benchmarks/results/csp_alldiff_2026-09-16/validation.md).
+are retained in the [validation record](../benchmarks/history/csp_alldiff_2026-09-16/validation.md).
 
 ## Reproduction
 
@@ -246,16 +246,16 @@ PYTHONHASHSEED=0 PYTHONPATH=src:. .venv/bin/python -m benchmarks.csp_followup co
   --only extended/queens_ --only incremental_all_different/ \
   --only optimization/jobshop_ft06_opt --only extended/magic_square_4 \
   --only nvalue/nvalue_permutation_16_sat --hard-seconds 5 \
-  --warmups 1 --repeats 3 --output benchmarks/results/csp_alldiff_NEW_LABEL
+  --warmups 1 --repeats 3 --output benchmarks/history/csp_alldiff_NEW_LABEL
 PYTHONHASHSEED=0 PYTHONPATH=src:. .venv/bin/python -m benchmarks.prune_comparison \
   --prune /path/to/prune-fzn --seconds 5 --warmups 1 --repeats 3 \
-  --output benchmarks/results/prune_alldiff_NEW_LABEL
+  --output benchmarks/history/prune_alldiff_NEW_LABEL
 PYTHONHASHSEED=0 PYTHONPATH=src:. .venv/bin/python -m benchmarks.claire_refresh \
-  --output benchmarks/results/claire_refresh_NEW_LABEL
+  --output benchmarks/history/claire_refresh_NEW_LABEL
 PYTHONHASHSEED=0 PYTHONPATH=src:. .venv/bin/python -m benchmarks.all_different_graphs \
-  --output benchmarks/results/csp_alldiff_graphs_NEW_LABEL
+  --output benchmarks/history/csp_alldiff_graphs_NEW_LABEL
 PYTHONHASHSEED=0 PYTHONPATH=src:. .venv/bin/python -m benchmarks.csp_controls \
   --reference /tmp/snarky-csp-full-ae1f4e6 --reference-ref ae1f4e6 \
   --memory-reference /tmp/snarky-csp-full-ae1f4e6 \
-  --output benchmarks/results/csp_alldiff_controls_NEW_LABEL
+  --output benchmarks/history/csp_alldiff_controls_NEW_LABEL
 ```

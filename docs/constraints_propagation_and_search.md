@@ -164,7 +164,7 @@ Le filtre bitset supprime tous les rescans — 15 467, 18 187 et 21 588 lignes
 sur les trois Sudoku — mais son gain isolé reste modeste. La jointure directe
 apporte la majeure partie de l'accélération en supprimant les recherches
 d'index et le matching structurel redondants. Les données sont dans
-[`../benchmarks/results/compact_tables_2026-07-24.csv`](../benchmarks/results/compact_tables_2026-07-24.csv).
+[`../benchmarks/history/compact_tables_2026-07-24.csv`](../benchmarks/history/compact_tables_2026-07-24.csv).
 
 ### Intérêt attendu
 

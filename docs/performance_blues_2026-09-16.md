@@ -71,14 +71,14 @@ The collector refuses to overwrite records. It records source hashes, corpus has
 environment, commit/dirty state, full incumbent histories, bounds, local probabilities
 and sequences. The final collector checks its sources did not change during the run.
 
-- [Initial preflight](../benchmarks/results/blues_first_order_2026-09-16_pre_counter.json)
-- [Preflight source snapshot](../benchmarks/results/blues_first_order_2026-09-16_pre_counter.source.tar.gz)
-- [Earlier three-run count-aware baseline (Boulez superseded)](../benchmarks/results/blues_first_order_2026-09-16_counter.json)
-- [Count-aware source snapshot](../benchmarks/results/blues_first_order_2026-09-16_counter.source.tar.gz)
-- [Intermediate generation-only experiment (superseded)](../benchmarks/results/blues_first_order_2026-09-16_boulez24.json)
-- [Generation-only source snapshot](../benchmarks/results/blues_first_order_2026-09-16_boulez24.source.tar.gz)
-- [Two-family training and generation baseline](../benchmarks/results/blues_first_order_2026-09-16_boulez_training24.json)
-- [Two-family training source snapshot](../benchmarks/results/blues_first_order_2026-09-16_boulez_training24.source.tar.gz)
+- [Initial preflight](../benchmarks/history/blues_first_order_2026-09-16_pre_counter.json)
+- [Preflight source snapshot](../benchmarks/history/blues_first_order_2026-09-16_pre_counter.source.tar.gz)
+- [Earlier three-run count-aware baseline (Boulez superseded)](../benchmarks/history/blues_first_order_2026-09-16_counter.json)
+- [Count-aware source snapshot](../benchmarks/history/blues_first_order_2026-09-16_counter.source.tar.gz)
+- [Intermediate generation-only experiment (superseded)](../benchmarks/history/blues_first_order_2026-09-16_boulez24.json)
+- [Generation-only source snapshot](../benchmarks/history/blues_first_order_2026-09-16_boulez24.source.tar.gz)
+- [Two-family training and generation baseline](../benchmarks/history/blues_first_order_2026-09-16_boulez_training24.json)
+- [Two-family training source snapshot](../benchmarks/history/blues_first_order_2026-09-16_boulez_training24.source.tar.gz)
 - [Corpus audit and proposed simplification](../benchmarks/data/omnibook_blues_v2/README.md)
 
 These records extend the [performance ledger](performance_baseline.md). They do
@@ -108,7 +108,7 @@ not rerun for this application-only correction.
 Reading Table 5 of the supplied published paper exposed a stronger feasible
 sequence under the current two-family model: log score -46.921592, versus
 -63.195230 from our five-second search. All 24 symbols, anchors and positive
-transitions were independently checked. The [rescoring record](../benchmarks/results/blues_published_witness_2026-09-16.json)
+transitions were independently checked. The [rescoring record](../benchmarks/history/blues_published_witness_2026-09-16.json)
 contains exact products and local probabilities for all three corpus variants.
 This is an external feasible witness, not a new solver run or proof of optimality.
 The measured search has a substantial incumbent-quality gap in addition to its

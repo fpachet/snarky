@@ -1,60 +1,45 @@
-# Archived benchmark results
+# Benchmark history
 
-**Magic squares:** the
-[latest results README](magic_scheduler_graph_2026-10-13/README.md)
-contains timing tables, source/evidence links, reproduction commands, and links
-to the earlier experiments. Selective ALLDIFF graph aggregation is enabled;
-native three-run medians improve 8×8 by 11.8%, 11×11 by 20.8% and 16×16 by
-13.8%, with identical search counts and explanations. 9×9 improves by only 1.0%.
-The larger node-limited prefixes remain separate from completed solves.
+This is an evidence index. For current summaries and commands, use the
+[benchmark guide](../README.md). Dated records preserve the code and decisions
+of their experiment; they are not all active solver features.
 
-The [earlier dense-domain SUM report](magic_sum_dense_2026-10-13/README.md)
-preserves the preceding measurements and optimization history.
+This directory was renamed from `benchmarks/results/`. Frozen JSON records,
+source snapshots, patches and source archives retain their original bytes,
+including recorded paths with the former name. Current links and benchmark
+tools use `benchmarks/history/`; those old paths are provenance, not current
+output locations. Validate the recent magic-square evidence with
+`python scripts/check_benchmark_history.py` from the repository root. The checker
+uses archived source content and checksums rather than requiring today's solver
+to match every historical version.
 
-The [partial sum-certification experiment](magic_sum_partial_2026-10-13/README.md)
-records two exact prototypes that were tested and retained for opt-in use;
-they are not enabled in the production solver.
+## Magic-square experiment history
 
-The [small residual sum-systems experiment](magic_sum_systems_2026-10-13/README.md)
-tests indexed overlap discovery and exact elimination. It remains opt-in: the
-measured blank squares gain no deductions, while favorable constructed systems
-can avoid substantial search.
+**Current overview:** [Magic squares](../README.md#magic-squares).
+**Latest detailed comparison:** [Selective ALLDIFF graph construction](magic_scheduler_graph_2026-10-13/README.md).
 
-The [whole-system rank diagnostic](magic_sum_global_rank_2026-10-13/README.md)
-removes the small-system size cap and examines every node before propagation and
-every successful fixpoint. Larger blank squares retain linear freedom; partial
-forcing beyond the native fixpoint appears only in the measured 3×3 case.
+The table follows the optimization sequence. “Opt-in” means experimental code
+that must be selected explicitly, not a default native-solver feature.
 
-The [SUM + ALLDIFF experiment](magic_sum_distinct_2026-10-13/README.md) tests
-distinct-value bounds and a specialized two-variable rule. Selective filtering
-improves several blank-square presets, including 13×13 and 16×16, with small
-regressions elsewhere; production behavior remains unchanged.
+| Stage | What was learned or changed | Decision |
+|---|---|---|
+| [Dense-domain SUM](magic_sum_dense_2026-10-13/README.md) | Exact fast paths avoid unnecessary reachable-sum tables | Enabled |
+| [Partial sum certification](magic_sum_partial_2026-10-13/README.md) | Exact prototypes gave no consistent timing gain | Archived experiment |
+| [Small residual sum systems](magic_sum_systems_2026-10-13/README.md) | Useful on suitable systems, no extra deductions on measured blank squares | Opt-in |
+| [Whole-system rank diagnostic](magic_sum_global_rank_2026-10-13/README.md) | Removing the size cap did not reveal uniquely solvable larger residual systems | Diagnostic only |
+| [Joint SUM + ALLDIFF](magic_sum_distinct_2026-10-13/README.md) | Selective distinct-value filtering helps some presets | Opt-in |
+| [Joint-filter cost reduction](magic_sum_distinct_cost_2026-10-13/README.md) | Cheaper detection and bounded three-variable filtering | Opt-in prototype refinement |
+| [Exact three-variable joint filter](magic_sum_distinct_exact_2026-10-13/README.md) | Stronger local supports help several presets | Opt-in |
+| [Lookup, pair budget and matching](magic_sum_lookup_matching_2026-10-13/README.md) | Compiled lookups and expanded eligibility; validated matching fast path | Matching enabled; joint filtering opt-in |
+| [Domain storage and propagation](magic_domain_ops_2026-10-13/README.md) | Lazy explanations, integer IDs, changed-mask application and queue flags | Enabled |
+| [Weighted degrees, batching and graph construction](magic_scheduler_graph_2026-10-13/README.md) | Selective aggregation of repeated ALLDIFF rows gives a consistent gain | Graph aggregation enabled; other variants experimental |
 
-The [follow-up on detection and filtering cost](magic_sum_distinct_cost_2026-10-13/README.md)
-adds early gating and a bounded three-variable bitset path, preserving searches
-exactly. Filtering itself becomes cheaper; end-to-end gains remain small and
-mixed across the repeated measurements.
+Each report links raw runs, source snapshots and reproduction commands. Times
+from different stages are not automatically comparable: check their source
+versions, settings, hash seed and whether the run solved the square or stopped
+at a node limit.
 
-The [exact three-variable SUM + ALLDIFF experiment](magic_sum_distinct_exact_2026-10-13/README.md)
-enumerates at most 64 pairs to obtain exact local joint supports. It compares
-stronger filtering with the existing bounds, including repeated timings and
-additional search seeds; the production solver remains unchanged.
-
-The [compiled lookup, pair-budget and matching follow-up](magic_sum_lookup_matching_2026-10-13/README.md)
-tests reusable numeric maps, broader exact-filter eligibility, and a native
-ALLDIFF fast path for complete validated matchings. Overall timing effects are
-small and mixed; the SUM + ALLDIFF filters remain experimental and optional.
-
-The [domain-store and propagation optimization](magic_domain_ops_2026-10-13/README.md)
-implements deferred explanations, indexed storage, constant-time domain status,
-direct assignment, changed-mask application and cheaper queue membership.
-Its paired comparisons require identical searches and explanations; component
-measurements and instrumented call counts are reported separately.
-
-The [weighted-degree, scheduling and ALLDIFF graph follow-up](magic_scheduler_graph_2026-10-13/README.md)
-tests three further ideas independently. Selective aggregation of repeated
-domain rows is enabled after exact-search comparisons; weighted-degree totals,
-two-queue scheduling and complementary-edge construction remain experimental.
+## Other benchmark records
 
 Workforce task symmetry and workload propagation:
 [scheduling_symmetry_2026-09-28.json](scheduling_symmetry_2026-09-28.json) records

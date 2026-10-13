@@ -9,7 +9,7 @@ PYTHONHASHSEED=0 PYTHONPATH=src:../vo_regular_bp .venv/bin/python scripts/check_
 .venv/bin/mypy src
 PYTHONPATH=src .venv/bin/python -m snarky check --syntax-only --format .
 .venv/bin/python scripts/check_markdown_links.py
-PYTHONHASHSEED=0 PYTHONPATH=src:. /opt/homebrew/bin/python3.12 benchmarks/csp_diagnostics.py --source . --model benchmarks/results/prune_alldiff_2026-09-16/artifacts/incremental_all_different--all_different_incremental_16.fzn.json --seconds 5
+PYTHONHASHSEED=0 PYTHONPATH=src:. /opt/homebrew/bin/python3.12 benchmarks/csp_diagnostics.py --source . --model benchmarks/history/prune_alldiff_2026-09-16/artifacts/incremental_all_different--all_different_incremental_16.fzn.json --seconds 5
 .venv/bin/python -m build --no-isolation --outdir /tmp/snarky-csp-alldiff-dist
 .venv/bin/python -m build --no-isolation --outdir /tmp/snarky-csp-alldiff-dist/csp csp_solver
 .venv/bin/python scripts/check_distribution.py /tmp/snarky-csp-alldiff-dist

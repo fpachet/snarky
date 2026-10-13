@@ -138,10 +138,10 @@ run-to-run noise. No general speedup is claimed.
   Large-instance optimality is established by completed branch-and-bound, not by
   enumerating all 24! sequences independently.
 
-- [Raw paired measurements](../benchmarks/results/boulez_optimization_2026-09-16.json)
-- [Reference sources](../benchmarks/results/boulez_optimization_2026-09-16.reference.tar.gz)
-- [Candidate sources](../benchmarks/results/boulez_optimization_2026-09-16.candidate.tar.gz)
-- [Pre-optimization profile](../benchmarks/results/boulez_profile_2026-09-16.txt)
+- [Raw paired measurements](../benchmarks/history/boulez_optimization_2026-09-16.json)
+- [Reference sources](../benchmarks/history/boulez_optimization_2026-09-16.reference.tar.gz)
+- [Candidate sources](../benchmarks/history/boulez_optimization_2026-09-16.candidate.tar.gz)
+- [Pre-optimization profile](../benchmarks/history/boulez_profile_2026-09-16.txt)
 - [Validation record](../tests/fixtures/boulez_optimization_validation_2026-09-16.json)
 - [Collector and reproduction command](../benchmarks/README.md#boulez-assignment-bound-comparison)
 - [Corpus and proposed reduction map](../benchmarks/data/omnibook_blues_v2/README.md)

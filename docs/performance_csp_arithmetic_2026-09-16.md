@@ -15,7 +15,7 @@ unchanged and is not presented as a new Prune measurement.
 
 ## Why these changes
 
-The [before diagnostics](../benchmarks/results/csp_diagnostics_2026-09-16_before/results.json)
+The [before diagnostics](../benchmarks/history/csp_diagnostics_2026-09-16_before/results.json)
 cover 16 slow cases, with a 200-node/two-second cooperative budget, separate
 CPU profiles, and a ten-second external safety cap. Instrumentation changes
 execution cost; these are diagnostic observations, not latency speedups.
@@ -34,7 +34,7 @@ execution cost; these are diagnostic observations, not latency speedups.
 - The knapsack diagnostic retained valid improving incumbents before its node
   limit. Limited runs now expose search progress rather than only a timeout.
 
-The [after diagnostics](../benchmarks/results/csp_diagnostics_2026-09-16_after/results.json)
+The [after diagnostics](../benchmarks/history/csp_diagnostics_2026-09-16_after/results.json)
 show that Dominating Queens 8 now reaches 21 nodes instead of zero under the
 same two-second profiled budget, and FT06 optimization reaches 169 rather than
 89. Magic sequence 40 reaches one node, but its long weighted equalities remain
@@ -94,7 +94,7 @@ Optimization proofs are retained. Selected process medians:
 
 Small regressions are also retained in the record. The original three-pair run
 showed up to about 8.8% higher process latency on a completed small case. A
-[seven-pair follow-up](../benchmarks/results/csp_startup_check_2026-09-16/summary.json)
+[seven-pair follow-up](../benchmarks/history/csp_startup_check_2026-09-16/summary.json)
 rechecked six selected instances (seven modes), including a compiler-solved empty
 model. It did not establish a uniform startup cost, but some overhead remains:
 
@@ -114,8 +114,8 @@ do not isolate the cause, so this is recorded as an unresolved small-case overhe
 not dismissed as noise. The compiler-solved chain measures overhead only; it
 provides no evidence of support for billion-value native domains.
 
-The [paired raw record](../benchmarks/results/csp_arithmetic_2026-09-16/results.json)
-and [summary](../benchmarks/results/csp_arithmetic_2026-09-16/summary.json)
+The [paired raw record](../benchmarks/history/csp_arithmetic_2026-09-16/results.json)
+and [summary](../benchmarks/history/csp_arithmetic_2026-09-16/summary.json)
 retain all warmups, measured runs, outputs, counters and timeout outcomes. Both
 runtimes use the same worker and frozen FlatZinc JSON. One discarded warmup and
 three alternating measured pairs use fresh processes and a five-second external
@@ -131,7 +131,7 @@ Every timeout is retained. No speedup is inferred between two censored runs.
 
 ## Compatibility controls and memory
 
-The [control record](../benchmarks/results/csp_controls_2026-09-16/results.json)
+The [control record](../benchmarks/history/csp_controls_2026-09-16/results.json)
 contains three alternating pairs per workload, with warmup. These medians include
 preparation and search but exclude process startup, unlike the table above.
 
@@ -186,7 +186,7 @@ restoration. A Python 3.12 diagnostic smoke run proves Golomb 6 optimal at 17.
 
 The final focused set passes all 33 tests. Lint (`ruff check .`) and static types
 (`mypy src`, 93 source files) pass. Validation logs and exact commands are retained
-in the [validation record](../benchmarks/results/csp_arithmetic_2026-09-16/validation.md).
+in the [validation record](../benchmarks/history/csp_arithmetic_2026-09-16/validation.md).
 Textual-source validation, Markdown links, both distribution builds, distribution
 contents and isolated wheel installation with and without the CSP companion also
 pass.
@@ -202,10 +202,10 @@ git archive 88c366f src | tar -x -C /tmp/snarky-csp-reference-88c366f
 PYTHONHASHSEED=0 PYTHONPATH=src:. .venv/bin/python -m benchmarks.csp_followup compare \
   --reference-source /tmp/snarky-csp-reference-88c366f \
   --reference-ref 88c366f --hard-seconds 5 --warmups 1 --repeats 3 \
-  --output benchmarks/results/csp_arithmetic_NEW_LABEL
+  --output benchmarks/history/csp_arithmetic_NEW_LABEL
 PYTHONHASHSEED=0 PYTHONPATH=src:. .venv/bin/python -m benchmarks.csp_followup diagnose \
   --seconds 2 --nodes 200 --hard-seconds 10 \
-  --output benchmarks/results/csp_diagnostics_NEW_LABEL
+  --output benchmarks/history/csp_diagnostics_NEW_LABEL
 ```
 
 Run rule/mixed/Markov controls with:
@@ -213,7 +213,7 @@ Run rule/mixed/Markov controls with:
 ```sh
 PYTHONHASHSEED=0 PYTHONPATH=src:. .venv/bin/python -m benchmarks.csp_controls \
   --reference /tmp/snarky-csp-reference-88c366f \
-  --output benchmarks/results/csp_controls_NEW_LABEL
+  --output benchmarks/history/csp_controls_NEW_LABEL
 ```
 
 To reproduce allocation comparisons, extract `candidate.tar.gz` from the before

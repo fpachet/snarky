@@ -214,7 +214,7 @@ PYTHONHASHSEED=0 PYTHONPATH=src:. .venv/bin/python \
   -m experiments.neural_attention.magic_sum_distinct_benchmark \
   --sizes 6 8 9 10 11 12 13 14 15 16 18 20 \
   --variants baseline fast_pair tiny --repeats 3 --limit 30 \
-  --presets benchmarks/results/magic_sum_distinct_2026-10-13/presets.json \
+  --presets benchmarks/history/magic_sum_distinct_2026-10-13/presets.json \
   --output generated/neural_attention/sum_distinct_NEW
 
 .venv/bin/pytest experiments/neural_attention/test_sum_distinct.py

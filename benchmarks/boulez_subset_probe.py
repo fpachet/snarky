@@ -431,7 +431,7 @@ def main():
                         witness = json.loads(
                             (
                                 ROOT
-                                / "benchmarks/results"
+                                / "benchmarks/history"
                                 / "blues_published_witness_2026-09-16.json"
                             ).read_text()
                         )["sequence"]

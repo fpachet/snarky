@@ -80,8 +80,8 @@ are uncontrolled; three-sample medians are descriptive, not confidence intervals
 
 ## Paired measurements
 
-The [paired record](../benchmarks/results/csp_admask_2026-09-17/results.json) and
-[summary](../benchmarks/results/csp_admask_2026-09-17/summary.json) retain all runs.
+The [paired record](../benchmarks/history/csp_admask_2026-09-17/results.json) and
+[summary](../benchmarks/history/csp_admask_2026-09-17/summary.json) retain all runs.
 All mutually completed cases preserve normalized solutions, objectives, nodes,
 failures and revisions. Values are median process seconds.
 
@@ -117,7 +117,7 @@ score or solve the remaining search difficulties.
 
 ## Same-source ablation
 
-The [on/off record](../benchmarks/results/csp_admask_ablation_2026-09-17/results.json)
+The [on/off record](../benchmarks/history/csp_admask_ablation_2026-09-17/results.json)
 uses identical current sources with `alldifferent_masks` disabled/enabled. Both
 keep numeric masks and the same search policy. Outputs and counters match.
 
@@ -129,8 +129,8 @@ keep numeric masks and the same search policy. Outputs and counters match.
 
 ## Fresh external comparisons
 
-The [Prune record](../benchmarks/results/prune_admask_2026-09-17/results.json)
-and [summary](../benchmarks/results/prune_admask_2026-09-17/summary.csv) cover
+The [Prune record](../benchmarks/history/prune_admask_2026-09-17/results.json)
+and [summary](../benchmarks/history/prune_admask_2026-09-17/summary.csv) cover
 54 inputs and 59 mode workloads. Snarky completes **52/59 in every repetition**;
 Prune completes **59/59**. Optimization remains **3/5 versus 5/5**. The seven
 Snarky timeouts remain: initial queens 104, extended queens 104/150, magic square 5,
@@ -138,7 +138,7 @@ pairwise pigeonhole 10, and knapsack/packing optimization. The upstream missing
 CSPLib/reserved inputs remain outside this portfolio; compiler-eliminated large
 chains still do not exercise compact runtime domains.
 
-The [audit](../benchmarks/results/prune_admask_2026-09-17/audit.json) confirms
+The [audit](../benchmarks/history/prune_admask_2026-09-17/audit.json) confirms
 identical FlatZinc hashes for all 54 inputs, the unchanged Prune binary and identical
 outputs, objectives and counters on all 52 completed Snarky workloads against the
 preceding full run. Candidate runtime/worker hashes and control digests match the
@@ -150,7 +150,7 @@ independent FlatZinc and Gecode checks.
 Take the median of three runs for each workload, then the arithmetic mean of
 those medians with equal weight per workload. Ratios below divide those means;
 they are not means of individual ratios. See the
-[computed aggregates](../benchmarks/results/csp_admask_2026-09-17/comparison_averages.json).
+[computed aggregates](../benchmarks/history/csp_admask_2026-09-17/comparison_averages.json).
 
 | Comparison | Workloads | Snarky average ms | Other solver average ms | Snarky / other |
 | --- | ---: | ---: | ---: | ---: |
@@ -170,7 +170,7 @@ same-source experiments above are the controlled evidence for this optimization.
 
 ### Fresh CLAIRE measurements
 
-The [new CLAIRE record](../benchmarks/results/claire_admask_2026-09-17/results.json)
+The [new CLAIRE record](../benchmarks/history/claire_admask_2026-09-17/results.json)
 uses the same bundled interpreter and workload templates as the previous record,
 one warmup and three alternating repetitions. It archives sources, commands,
 checksums and all samples. CLAIRE checkout `25b14968e1eef80269d56af418eda7d2ccd88cbf`
@@ -193,7 +193,7 @@ These runs do not benchmark compiled CLAIRE or isolate language costs.
 
 ## Compatibility controls
 
-The [same-worker controls](../benchmarks/results/csp_admask_controls_2026-09-17/results.json)
+The [same-worker controls](../benchmarks/history/csp_admask_controls_2026-09-17/results.json)
 preserve every checked observation, including exact Boulez optimality/witness and
 search work. Times below exclude process startup.
 
@@ -213,7 +213,7 @@ differences.
 
 ## Memory at identical work
 
-The control record and [additional allocation runs](../benchmarks/results/csp_admask_memory_2026-09-17/results.json)
+The control record and [additional allocation runs](../benchmarks/history/csp_admask_memory_2026-09-17/results.json)
 use a 30-node limit and one sample per engine, separately from latency collection.
 Each pair preserves status, nodes, failures, revisions, objective and flat output.
 Traced peaks cover construction/preparation/search; RSS is the process high-water
@@ -234,7 +234,7 @@ entries, not bytes or all memory retained by the model and fallback kernels.
 
 ## Remaining costs
 
-The [CPU profiles](../benchmarks/results/csp_admask_profiles_2026-09-17/results.json)
+The [CPU profiles](../benchmarks/history/csp_admask_profiles_2026-09-17/results.json)
 use at most two instrumented seconds/200 nodes and are not latency samples.
 Queens 104 reaches 35 nodes and queens 150 reaches 13, both without a solution.
 All-different hooks consume about 0.66/0.61 s, while numeric channel hooks consume
@@ -264,7 +264,7 @@ The full gate passes **1,113 tests, with 3 skipped**, in 228.95 seconds. The
 121-test focused group, Ruff, mypy (96 source files), textual validation,
 core/companion builds and isolated installation checks also pass. A Python 3.12
 queens-50 smoke preserves 52 nodes and 6,867 revisions. See the
-[validation record and logs](../benchmarks/results/csp_admask_2026-09-17/validation.md).
+[validation record and logs](../benchmarks/history/csp_admask_2026-09-17/validation.md).
 
 ## Reproduction
 
@@ -273,11 +273,11 @@ PYTHONHASHSEED=0 PYTHONPATH=src:. .venv/bin/python -m benchmarks.csp_followup co
   --reference-source /path/to/a291ce7 --reference-ref a291ce7 \
   --reference-nvalue native --only extended/queens_ --only incremental_all_different/ \
   --hard-seconds 5 --warmups 1 --repeats 3 \
-  --output benchmarks/results/alldifferent_masks_NEW_LABEL
+  --output benchmarks/history/alldifferent_masks_NEW_LABEL
 PYTHONHASHSEED=0 PYTHONPATH=src:. .venv/bin/python -m benchmarks.csp_followup compare \
   --reference-source . --reference-ref same-source-alldifferent-masks-off \
   --reference-nvalue native --reference-alldifferent-masks off \
   --candidate-alldifferent-masks on --only extended/queens_50 \
   --hard-seconds 5 --warmups 1 --repeats 3 \
-  --output benchmarks/results/alldifferent_masks_ablation_NEW_LABEL
+  --output benchmarks/history/alldifferent_masks_ablation_NEW_LABEL
 ```

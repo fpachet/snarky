@@ -30,7 +30,7 @@ from benchmarks.scheduling_standard import (
     reference,
 )
 
-PRIOR = ROOT / "benchmarks/results/scheduling_improvements_2026-09-29.json"
+PRIOR = ROOT / "benchmarks/history/scheduling_improvements_2026-09-29.json"
 PRIOR_SOURCES = PRIOR.with_name("scheduling_improvements_2026-09-29_sources.tar.gz")
 REFERENCE = ROOT / "generated/scheduling_standard/reference_bda"
 MAIN = ("previous", "local", "order")

@@ -211,7 +211,7 @@ must not be relabeled as final-runtime measurements. Source snapshots are retain
 as `numeric_before.py` and `numeric_rank_unshared.py`.
 
 Portable final evidence is also committed under
-[`benchmarks/results/magic_numeric_2026-10-12/`](../../benchmarks/results/magic_numeric_2026-10-12/summary.json):
+[`benchmarks/history/magic_numeric_2026-10-12/`](../../benchmarks/history/magic_numeric_2026-10-12/summary.json):
 summary medians, all 54 raw timed runs, normalized source hashes, and the earlier
 profiling and 11×11–20×20 scaling results. The latter two archives explicitly
 identify the pre-optimization runtime. The saved settings are in
@@ -317,7 +317,7 @@ runtime files, and lint/format checks pass. The slow release suite was not rerun
 
 Portable evidence, source snapshots, raw attempts, repeat runs, profiles, and
 comparison timings are saved in
-[`benchmarks/results/magic_portfolio_2026-10-12/`](../../benchmarks/results/magic_portfolio_2026-10-12/summary.json).
+[`benchmarks/history/magic_portfolio_2026-10-12/`](../../benchmarks/history/magic_portfolio_2026-10-12/summary.json).
 Archived runner snapshots use `.py.txt` text fixtures, preserving their exact
 historical contents and recorded source hashes.
 Discovery and initial repeats describe the runtime before sparse decoding;
@@ -334,8 +334,8 @@ PYTHONHASHSEED=0 PYTHONPATH=src:. .venv/bin/python \
 
 PYTHONHASHSEED=0 PYTHONPATH=src:. .venv/bin/python \
   -m experiments.neural_attention.magic_alldifferent_benchmark \
-  --before benchmarks/results/magic_portfolio_2026-10-12/alldifferent_before.py \
-  --presets benchmarks/results/magic_portfolio_2026-10-12/decode_presets.json \
+  --before benchmarks/history/magic_portfolio_2026-10-12/alldifferent_before.py \
+  --presets benchmarks/history/magic_portfolio_2026-10-12/decode_presets.json \
   --output generated/neural_attention/magic_decode_NEW
 ```
 
@@ -415,7 +415,7 @@ certified and fallback states. Mypy checks all 103 runtime files. The slow relea
 suite was not rerun for this change.
 
 Portable evidence is in
-[`benchmarks/results/magic_sum_dense_2026-10-13/`](../../benchmarks/results/magic_sum_dense_2026-10-13/summary.json),
+[`benchmarks/history/magic_sum_dense_2026-10-13/`](../../benchmarks/history/magic_sum_dense_2026-10-13/summary.json),
 including both source snapshots, raw runs, frozen hashes, presets, and the new
 profiles. The executable baseline snapshot is the numeric source at `3309951`;
 historical runner and optimized source snapshots are retained as text fixtures.
@@ -426,8 +426,8 @@ all-different decoder comparison:
 PYTHONHASHSEED=0 PYTHONPATH=src:. .venv/bin/python \
   -m experiments.neural_attention.magic_alldifferent_benchmark \
   --kernel sum \
-  --before benchmarks/results/magic_sum_dense_2026-10-13/numeric_before.py \
-  --presets benchmarks/results/magic_sum_dense_2026-10-13/presets.json \
+  --before benchmarks/history/magic_sum_dense_2026-10-13/numeric_before.py \
+  --presets benchmarks/history/magic_sum_dense_2026-10-13/presets.json \
   --sizes 6 8 9 10 11 12 13 14 15 16 18 20 --repeats 3 \
   --output generated/neural_attention/magic_sum_dense_NEW
 ```
@@ -450,7 +450,7 @@ uncached microbenchmarks do not translate to an end-to-end magic-square gain.
 The production numeric source was therefore restored byte for byte. Both
 prototypes, their 144 comparison runs, 108 validated boards, source hashes,
 diagnostic counts, and explicit correctness tests are retained as an opt-in
-[experiment with a readable results table](../../benchmarks/results/magic_sum_partial_2026-10-13/README.md).
+[experiment with a readable results table](../../benchmarks/history/magic_sum_partial_2026-10-13/README.md).
 The edge prototype passed 1,225 non-slow core tests before restoration. Twelve
 explicit baseline/candidate experimental cases and the existing 37 experiment
 tests pass after restoration. The comparison tool now accepts `--candidate` to
@@ -478,7 +478,7 @@ favorable three-equation example improves from 402 nodes to one and about
 
 The production solver is unchanged. Fifteen focused tests pass, including 200
 random exhaustive-oracle cases and preservation of all eight 3×3 solutions.
-The [readable experiment report](../../benchmarks/results/magic_sum_systems_2026-10-13/README.md)
+The [readable experiment report](../../benchmarks/history/magic_sum_systems_2026-10-13/README.md)
 contains timing tables, limitations, raw data, frozen sources, and reproduction
 commands. This experiment runs after native fixpoints; earlier invocation and
 partial deductions from underdetermined systems remain unmeasured.
@@ -507,7 +507,7 @@ concerns exact linear forcing, not finite-domain filtering of derived relations.
 
 Ten diagnostic tests pass, including 400 random matrices checked against a
 separate exact rational RREF implementation. The production runtime is unchanged.
-The [full diagnostic report](../../benchmarks/results/magic_sum_global_rank_2026-10-13/README.md)
+The [full diagnostic report](../../benchmarks/history/magic_sum_global_rank_2026-10-13/README.md)
 contains rank tables, before/after counts, compressed full state records, exact
 proofs for useful rows, source snapshots, limitations, and reproduction commands.
 
@@ -539,7 +539,7 @@ scope exclusions, huge signed translations, and sibling rollback. The production
 runtime and saved search parameters remain unchanged. The full core suite was
 not rerun for these opt-in files.
 
-The [readable results report](../../benchmarks/results/magic_sum_distinct_2026-10-13/README.md)
+The [readable results report](../../benchmarks/history/magic_sum_distinct_2026-10-13/README.md)
 contains complete timings, nodes, regressions, source snapshots, counters,
 limitations, and reproduction commands. Cost-based matching bounds and clued
 puzzle generalization remain untested.
@@ -566,7 +566,7 @@ apparent regressions in the initial series do not recur at the same magnitude.
 The prototype retains the changes, while production and saved presets remain
 unchanged. No uniform end-to-end speedup is claimed.
 
-The [complete cost report](../../benchmarks/results/magic_sum_distinct_cost_2026-10-13/README.md)
+The [complete cost report](../../benchmarks/history/magic_sum_distinct_cost_2026-10-13/README.md)
 contains the before/after sources, raw runs, equivalence checks, repeated
 measurements, limitations, and reproduction commands.
 
@@ -597,7 +597,7 @@ integers, eligibility and budget boundaries. The combined SUM experiment suite
 has 98 passing tests. Existing non-exact modes preserve their archived behavior.
 
 Keep the exact filter optional. See the [readable experiment and reproduction
-commands](../../benchmarks/results/magic_sum_distinct_exact_2026-10-13/README.md).
+commands](../../benchmarks/history/magic_sum_distinct_exact_2026-10-13/README.md).
 
 ## Follow-up: compiled lookup, pair budget and matching, 13 October 2026
 
@@ -626,7 +626,7 @@ budget, and exact-mask search/rollback trace comparisons with the archived
 three-variable filter. Two additional core tests cover a retained matching with
 a new Hall set and repair across failed siblings and widening.
 
-See the [benchmark tables, source snapshots and reproduction commands](../../benchmarks/results/magic_sum_lookup_matching_2026-10-13/README.md).
+See the [benchmark tables, source snapshots and reproduction commands](../../benchmarks/history/magic_sum_lookup_matching_2026-10-13/README.md).
 The SUM + ALLDIFF changes remain experimental; end-to-end effects of these
 refinements are small and mixed.
 
@@ -650,7 +650,7 @@ random domain histories and full search traces against the archived baseline,
 including sibling rollback, explanations, mixed rules, guards and objectives.
 
 See the [timing tables, component tradeoffs, source snapshots and reproduction
-commands](../../benchmarks/results/magic_domain_ops_2026-10-13/README.md).
+commands](../../benchmarks/history/magic_domain_ops_2026-10-13/README.md).
 
 ## Follow-up: variable scores, propagation order and ALLDIFF graph, 13 October 2026
 
@@ -678,4 +678,4 @@ and from 2.118 s to 5.530 s. These variants remain archived experiments. Larger
 aggregation, but they remain unresolved prefixes, not full-solve timings.
 
 See the [readable report, raw runs, profiles, source snapshots and reproduction
-commands](../../benchmarks/results/magic_scheduler_graph_2026-10-13/README.md).
+commands](../../benchmarks/history/magic_scheduler_graph_2026-10-13/README.md).

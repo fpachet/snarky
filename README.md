@@ -23,6 +23,9 @@ operational Core API has a frozen compatibility contract; `snarky.finite`,
 `.model`, and the companion API remain tested, pre-1.0 experimental surfaces.
 Snarky is a research prototype, not a public stable release.
 
+Start with the [documentation map](docs/README.md) for usage and reference,
+or the [benchmark guide](benchmarks/README.md) for current measured results.
+
 ## Why Snarky?
 
 The name acknowledges the historical SNARK language and nods to Snarky Puppy.
@@ -370,29 +373,32 @@ the [finite-CSP guide](csp_solver/README.md) for formulations and commands.
 
 ## Documentation
 
-- [Documentation map](docs/README.md)
-- [Textual syntax](docs/syntax.md)
-- [Language validation and formatting](docs/language_tooling.md)
-- [Operational Core semantics](docs/semantics.md)
-- [Architecture: two engines and their coordinator](docs/architecture.md)
-- [Finite CSP, optimization and mixed-model contract](docs/finite_model_contract.md)
-- [Declarative finite model language](docs/finite_language.md)
-- [Workforce scheduling API and examples](docs/scheduling.md)
-- [Runtime boundary tutorials](docs/runtime_tutorial.md)
-- [Learned-factor language plan](docs/learned_factor_language_plan.md)
-- [Current CSP optimization roadmap](docs/csp_optimization_roadmap_2026-09-16.md)
-- [API stability](docs/api_stability.md)
-- [Versioning and compatibility](docs/versioning.md)
-- [Strategy lifecycle](docs/strategy_lifecycle.md)
-- [Benchmarks](benchmarks/README.md)
-- [Changelog](CHANGELOG.md)
-- [Contributing](CONTRIBUTING.md)
+| What you need | Entry point |
+|---|---|
+| Usage guides and API reference | [Documentation map](docs/README.md) |
+| Runtime examples | [Runtime tutorials](docs/runtime_tutorial.md) |
+| Constraint modeling | [Finite model language](docs/finite_language.md) |
+| Current performance results | [Benchmarks](benchmarks/README.md) |
+| Current magic-square results | [Magic-square overview](benchmarks/README.md#magic-squares) |
+| Compatibility and validation scope | [Project status](docs/project_status.md) |
+
+The documentation map separates reference guides from dated measurements and
+design plans. Application READMEs describe their own setup and limitations.
+See also the [changelog](CHANGELOG.md) and [contributing guide](CONTRIBUTING.md).
 
 The stable API is exported from `snarky`. Advanced and experimental components
 should be imported from their defining modules. All historical explicit root
 imports remain compatible during the 0.1 series.
 
 ## Reproducibility and performance
+
+Start with the [benchmark guide](benchmarks/README.md) for current results,
+commands and interpretation, including the [magic-square overview](benchmarks/README.md#magic-squares).
+Dated measurements and source snapshots are indexed in the
+[results archive](benchmarks/history/README.md).
+
+<details>
+<summary>Historical performance examples and measurements</summary>
 
 The [32-task scheduling benchmark](docs/performance_scheduling_2026-09-28.md)
 proves the population POC's optimum in **148 ms** with explicitly certified task
@@ -470,7 +476,7 @@ Correctness tests compare optimized strategies with the executable reference
 implementation across mutation, negation, search, propagation, and
 application scenarios.
 Microbenchmarks are separate from tests and write machine-readable results
-under `benchmarks/results/`.
+under `benchmarks/history/`.
 
 Run the cross-rulebase benchmark:
 
@@ -492,15 +498,17 @@ It reports timing together with nodes, failures, depth, and propagation
 counters. Recorded runs compare dependency scheduling, incremental domains,
 dom/wdeg, learned-impact value ordering, propagation-guided ordering, and
 lexicographic symmetry breaking. Start with the
-[classical CSP results](benchmarks/results/classical_csp_learned_impact_2026-07-25.json)
+[classical CSP results](benchmarks/history/classical_csp_learned_impact_2026-07-25.json)
 and the
-[magic-square search results](benchmarks/results/magic_square_learned_impact_2026-07-25.json);
+[magic-square search results](benchmarks/history/magic_square_learned_impact_2026-07-25.json);
 the complete dated archive remains under
-[`benchmarks/results/`](benchmarks/results/).
+[`benchmarks/history`](benchmarks/history).
 
 See [benchmarks/README.md](benchmarks/README.md) for protocols, interpretation,
 and the historical result files. Performance figures are environment-specific;
 logical equivalence is always checked before a change is accepted.
+
+</details>
 
 ## Project status
 
@@ -514,7 +522,7 @@ Validation covers rule matching, CSP support oracles, exact optimization, mixed
 fixed points, rollback, explanations, scheduling and Markov applications. The
 [scheduling optimization validation](docs/performance_scheduling_2026-09-28.md#validation)
 records 1,189 passing tests and 6 skipped, plus package checks. Earlier results
-remain in the [solver validation](benchmarks/results/csp_admask_2026-09-17/validation.md)
+remain in the [solver validation](benchmarks/history/csp_admask_2026-09-17/validation.md)
 and [review-fix evidence](docs/project_status.md#review-fix-validation--8-september-2026).
 The [runtime tutorials](docs/runtime_tutorial.md) demonstrate operational behavior
 and compatibility boundaries.

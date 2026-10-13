@@ -46,21 +46,21 @@ python -m benchmarks.scheduling_standard --repeat 3 --seconds 10 \
 pytest tests/test_scheduling_standard.py
 ```
 
-The [raw archive](../benchmarks/results/scheduling_standard_2026-09-29.json)
+The [raw archive](../benchmarks/history/scheduling_standard_2026-09-29.json)
 contains settings, interpreter/platform, Git revision, every Python runtime source
 hash, measured harness hashes, input manifest, every repetition and every
-incumbent start vector. A [first-party source snapshot](../benchmarks/results/scheduling_standard_2026-09-29_sources.tar.gz)
+incumbent start vector. A [first-party source snapshot](../benchmarks/history/scheduling_standard_2026-09-29_sources.tar.gz)
 preserves every file named in the source hashes; it contains no external dataset.
 File order is the original PSPLIB activity order or
 job-major/operation-major order for job shop. New output paths are required.
-A separate [one-second J30 smoke test](../benchmarks/results/scheduling_standard_2026-09-29_smoke.json)
+A separate [one-second J30 smoke test](../benchmarks/history/scheduling_standard_2026-09-29_smoke.json)
 preceded the repetitions and is excluded from aggregates. Development import
 errors were corrected before that test; no production solver fix was needed.
 No timing threshold is a CI assertion. To revalidate all stored start vectors:
 
 ```sh
 python -m benchmarks.scheduling_verify \
-  benchmarks/results/scheduling_standard_2026-09-29.json
+  benchmarks/history/scheduling_standard_2026-09-29.json
 ```
 
 ## Sources, objective references and rights
@@ -217,7 +217,7 @@ A longer-budget study must retain this baseline and use a declared protocol.
 
 After timing and regression tests, one ten-second cProfile run each examined
 J30 9/1 and LA01. These cases were chosen to diagnose failures, not to revise the
-fixed sample. The [profile archive](../benchmarks/results/scheduling_standard_2026-09-29_profiles.json)
+fixed sample. The [profile archive](../benchmarks/history/scheduling_standard_2026-09-29_profiles.json)
 contains the profiling harness source, measured source hashes, counters and top
 35 cumulative-time entries. They are excluded from latency aggregates; the two
 profiled calls share a process and profiling substantially reduces node throughput.
@@ -266,7 +266,7 @@ The full configured **redesign gate passed 1,224 tests, with 6 skipped**, in
 192.17 seconds, including the existing scheduling, symmetry, objective,
 objective-propagation, factor-bound, search-progress and application suites.
 This includes **49 new tests** for the scheduling assessment. See the
-[validation log](../benchmarks/results/scheduling_standard_2026-09-29_validation.txt).
+[validation log](../benchmarks/history/scheduling_standard_2026-09-29_validation.txt).
 
 The new tests use first-party tiny instances and exhaustive start assignments,
 compare full feasible sets and optimal values, exercise weighted capacity on

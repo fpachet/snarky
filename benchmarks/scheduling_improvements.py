@@ -40,7 +40,7 @@ from benchmarks.scheduling_standard import (
 
 MAIN_VARIANTS = ("baseline", "kernels", "seeded", "combined")
 VARIANTS = (*MAIN_VARIANTS, "numeric_only", "capacity_only", "ordering_only")
-BASELINE = ROOT / "benchmarks/results/scheduling_standard_2026-09-29.json"
+BASELINE = ROOT / "benchmarks/history/scheduling_standard_2026-09-29.json"
 SOURCE_ARCHIVE = BASELINE.with_name("scheduling_standard_2026-09-29_sources.tar.gz")
 REFERENCE_ROOT = ROOT / "generated/scheduling_standard/baseline_runtime"
 

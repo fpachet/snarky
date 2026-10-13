@@ -125,7 +125,7 @@ def test_boulez_has_exactly_two_families_and_rejects_previous_wider_solution(var
     previous = json.loads(
         (
             Path(__file__).resolve().parents[1]
-            / "benchmarks/results"
+            / "benchmarks/history"
             / "blues_first_order_2026-09-16_counter.json"
         ).read_text()
     )

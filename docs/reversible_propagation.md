@@ -110,7 +110,7 @@ python -m benchmarks.propagation_trail --repeat 7
 ```
 
 Les mesures sont conservées dans
-[`../benchmarks/results/pre_backtracking_2026-07-24.csv`](../benchmarks/results/pre_backtracking_2026-07-24.csv).
+[`../benchmarks/history/pre_backtracking_2026-07-24.csv`](../benchmarks/history/pre_backtracking_2026-07-24.csv).
 
 ## Recherche réversible livrée
 

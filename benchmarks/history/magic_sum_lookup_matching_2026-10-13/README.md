@@ -269,29 +269,29 @@ Depuis la racine du dépôt, avec des répertoires de sortie neufs :
 ```sh
 PYTHONHASHSEED=0 PYTHONPATH=src:. .venv/bin/python \
   -m experiments.neural_attention.magic_sum_distinct_benchmark \
-  --before benchmarks/results/magic_sum_lookup_matching_2026-10-13/comparison/before_snapshot.py.txt \
-  --presets benchmarks/results/magic_sum_lookup_matching_2026-10-13/presets.json \
+  --before benchmarks/history/magic_sum_lookup_matching_2026-10-13/comparison/before_snapshot.py.txt \
+  --presets benchmarks/history/magic_sum_lookup_matching_2026-10-13/presets.json \
   --sizes 6 8 9 10 11 12 13 14 15 16 18 20 \
   --variants before_exact exact pairs --repeats 3 --limit 30 \
   --output generated/neural_attention/sum_lookup_NEW
 
 PYTHONHASHSEED=0 PYTHONPATH=src:. .venv/bin/python \
   -m experiments.neural_attention.magic_alldifferent_benchmark \
-  --before benchmarks/results/magic_sum_lookup_matching_2026-10-13/alldifferent_before.py.txt \
-  --presets benchmarks/results/magic_sum_lookup_matching_2026-10-13/presets.json \
+  --before benchmarks/history/magic_sum_lookup_matching_2026-10-13/alldifferent_before.py.txt \
+  --presets benchmarks/history/magic_sum_lookup_matching_2026-10-13/presets.json \
   --kernel matching --sizes 6 8 9 10 11 12 13 14 15 16 18 20 --repeats 3 \
   --output generated/neural_attention/matching_NEW
 
 # Répéter avec --seed 3 pour la seconde graine supplémentaire.
 PYTHONHASHSEED=0 PYTHONPATH=src:. .venv/bin/python \
   -m experiments.neural_attention.magic_sum_distinct_benchmark \
-  --presets benchmarks/results/magic_sum_lookup_matching_2026-10-13/presets.json \
+  --presets benchmarks/history/magic_sum_lookup_matching_2026-10-13/presets.json \
   --sizes 11 12 13 16 --variants exact pairs --seed 2 \
   --max-nodes 1000 --repeats 3 --limit 30 \
   --output generated/neural_attention/sum_lookup_seed2_NEW
 
 PYTHONHASHSEED=0 PYTHONPATH=src:. .venv/bin/python \
-  benchmarks/results/magic_sum_lookup_matching_2026-10-13/matching_micro.py.txt \
+  benchmarks/history/magic_sum_lookup_matching_2026-10-13/matching_micro.py.txt \
   --output generated/neural_attention/matching_micro_NEW.json
 
 .venv/bin/python scripts/check_redesign.py -m "not slow"

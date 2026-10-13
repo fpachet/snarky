@@ -177,7 +177,7 @@ répertoires de sortie :
 ```sh
 PYTHONHASHSEED=0 PYTHONPATH=src:. .venv/bin/python \
   -m experiments.neural_attention.magic_sum_distinct_benchmark \
-  --presets benchmarks/results/magic_sum_distinct_exact_2026-10-13/presets.json \
+  --presets benchmarks/history/magic_sum_distinct_exact_2026-10-13/presets.json \
   --sizes 6 8 9 10 11 12 13 14 15 16 18 20 \
   --variants baseline tiny exact --repeats 3 --limit 30 \
   --output generated/neural_attention/sum_distinct_exact_NEW
@@ -185,7 +185,7 @@ PYTHONHASHSEED=0 PYTHONPATH=src:. .venv/bin/python \
 # Répéter avec --seed 3 pour la deuxième graine supplémentaire.
 PYTHONHASHSEED=0 PYTHONPATH=src:. .venv/bin/python \
   -m experiments.neural_attention.magic_sum_distinct_benchmark \
-  --presets benchmarks/results/magic_sum_distinct_exact_2026-10-13/presets.json \
+  --presets benchmarks/history/magic_sum_distinct_exact_2026-10-13/presets.json \
   --sizes 11 12 13 16 --variants tiny exact --seed 2 \
   --max-nodes 1000 --repeats 3 --limit 30 \
   --output generated/neural_attention/sum_distinct_exact_seed2_NEW

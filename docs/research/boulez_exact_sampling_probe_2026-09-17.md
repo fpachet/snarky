@@ -193,7 +193,7 @@ generator. The usual ideal-random-bit interpretation of exact sampling applies.
 
 - [Python runner](../../benchmarks/boulez_subset_probe.py)
 - [C++ kernel](../../benchmarks/boulez_subset_probe.cpp)
-- [Raw measurements and exact results](../../benchmarks/results/boulez_subset_probe_2026-09-17.json)
+- [Raw measurements and exact results](../../benchmarks/history/boulez_subset_probe_2026-09-17.json)
 
 The raw record is retained for scientific reproducibility; executable files remain
 temporary and no generated music or new external corpus material is added.

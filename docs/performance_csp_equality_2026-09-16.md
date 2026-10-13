@@ -66,8 +66,8 @@ change. Timings include process startup, construction, search and output.
 | `extended/queens_50` | 0.8733 | 0.8163 | 1.07× |
 | `optimization/jobshop_ft06_opt` | 1.3828 | 1.2434 | 1.11× |
 
-The [raw comparison](../benchmarks/results/csp_equality_2026-09-16/results.json)
-and [all 59 summary rows](../benchmarks/results/csp_equality_2026-09-16/summary.json)
+The [raw comparison](../benchmarks/history/csp_equality_2026-09-16/results.json)
+and [all 59 summary rows](../benchmarks/history/csp_equality_2026-09-16/summary.json)
 retain warmups, repetitions, phase timings, counters, proofs and every limit.
 One discarded warmup and three alternating fresh-process pairs use a five-second
 external cap. Compilation and independent Gecode validation are excluded.
@@ -84,7 +84,7 @@ for billion-value domains. The unavailable 31 upstream instances remain excluded
 
 ### Cache ablation
 
-The [ablation](../benchmarks/results/csp_projection_ablation_2026-09-16/summary.json)
+The [ablation](../benchmarks/history/csp_projection_ablation_2026-09-16/summary.json)
 compares the archived equality-only runtime with equality plus the domain cache.
 Each case has one warmup and three alternating measured pairs. All search counts
 and normalized solutions match. This isolates the cache contribution from the
@@ -122,7 +122,7 @@ precise measure of propagation throughput.
 
 ## Compatibility, memory and validation
 
-The [after profiles](../benchmarks/results/csp_equality_profiles_2026-09-16/results.json)
+The [after profiles](../benchmarks/history/csp_equality_profiles_2026-09-16/results.json)
 use separate CPU-instrumented runs with a 200-node/two-second cooperative budget
 and a ten-second process cap. They are not latency samples. Magic sequence 40
 completes at 62 nodes; knapsack reaches the same 200-node limit with valid
@@ -138,7 +138,7 @@ The remaining eleven timeouts and the 3/5 optimization completion count are
 unchanged except for the newly completed magic sequence 40. Compact domains and
 a complete propagation resource-budget API remain separate work.
 
-The [control record](../benchmarks/results/csp_equality_controls_2026-09-16/results.json)
+The [control record](../benchmarks/history/csp_equality_controls_2026-09-16/results.json)
 contains three alternating pairs with warmup. These times include preparation and
 search but exclude process startup. All observations/counters match, including
 Boulez's exact published sequence, proved optimum and unseeded search.
@@ -179,7 +179,7 @@ rollback. Cache tests repeatedly narrow, fail and restore sibling/nested branche
 checking current values, declared order and removal restoration. Existing rule,
 legacy CSP, mixed and Markov regressions also pass. Ruff and mypy (93 source files)
 pass; commands and logs are retained in the
-[validation record](../benchmarks/results/csp_equality_2026-09-16/validation.md).
+[validation record](../benchmarks/history/csp_equality_2026-09-16/validation.md).
 Textual sources, Markdown links, both distribution builds, distribution contents
 and isolated wheel-install checks also pass. A Python 3.12 worker completes
 magic sequence 40 in the same 62 nodes with a validated assignment.
@@ -190,8 +190,8 @@ A new six-case interleaved comparison uses the original Prune collector, pinned
 Rust release binary and unchanged frozen models. It is separate from the
 Python/Python worker above, with its own startup/rendering path. One warmup and
 three measured repetitions use the same five-second cap and independent Gecode
-checks. The [raw record](../benchmarks/results/prune_equality_focus_2026-09-16/results.json)
-and [summary](../benchmarks/results/prune_equality_focus_2026-09-16/summary.csv)
+checks. The [raw record](../benchmarks/history/prune_equality_focus_2026-09-16/results.json)
+and [summary](../benchmarks/history/prune_equality_focus_2026-09-16/summary.csv)
 retain source/binary hashes and all samples.
 
 | Workload | Prune seconds | Snarky seconds | Snarky / Prune |
@@ -218,11 +218,11 @@ git archive d5f9a2d src | tar -x -C /tmp/snarky-csp-reference-d5f9a2d
 PYTHONHASHSEED=0 PYTHONPATH=src:. .venv/bin/python -m benchmarks.csp_followup compare \
   --reference-source /tmp/snarky-csp-reference-d5f9a2d --reference-ref d5f9a2d \
   --hard-seconds 5 --warmups 1 --repeats 3 \
-  --output benchmarks/results/csp_equality_NEW_LABEL
+  --output benchmarks/history/csp_equality_NEW_LABEL
 PYTHONHASHSEED=0 PYTHONPATH=src:. .venv/bin/python -m benchmarks.csp_controls \
   --reference /tmp/snarky-csp-reference-d5f9a2d --reference-ref d5f9a2d \
   --memory-reference /tmp/snarky-csp-reference-d5f9a2d \
-  --output benchmarks/results/csp_equality_controls_NEW_LABEL
+  --output benchmarks/history/csp_equality_controls_NEW_LABEL
 ```
 
 For the cache ablation, extract `reference.tar.gz` from the ablation record to a

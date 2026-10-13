@@ -21,7 +21,7 @@ from benchmarks.prune_comparison import (
     verify,
 )
 
-BASE = ROOT / "benchmarks/results/prune_comparison_2026-09-16"
+BASE = ROOT / "benchmarks/history/prune_comparison_2026-09-16"
 SLOW = (
     "magic_sequence_20",
     "magic_sequence_40",

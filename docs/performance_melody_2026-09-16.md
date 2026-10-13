@@ -9,11 +9,11 @@ that all original implementation details or scores have been recovered.
 
 ## Preserved measurements
 
-- [Raw samples and exact scores](../benchmarks/results/melody_examples_2026-09-16.json)
-- [Source archive](../benchmarks/results/melody_examples_2026-09-16.sources.tar.gz)
+- [Raw samples and exact scores](../benchmarks/history/melody_examples_2026-09-16.json)
+- [Source archive](../benchmarks/history/melody_examples_2026-09-16.sources.tar.gz)
 - [Collector](../benchmarks/melody_examples.py) and [independent oracle](../benchmarks/melody_reference.py)
 - [Versioned corpus and attribution](../benchmarks/data/di_meola_v1/README.md)
-- [Boulez regression control](../benchmarks/results/melody_boulez_control_2026-09-16.json)
+- [Boulez regression control](../benchmarks/history/melody_boulez_control_2026-09-16.json)
 
 Measurements use Python 3.13.11 on the same Apple Silicon host as the previous
 Boulez report, `PYTHONHASHSEED=0`, three sequential repetitions, without concurrent

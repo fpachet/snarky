@@ -353,10 +353,10 @@ Measured solve-time medians over three fresh processes, on the recorded machine:
 Imports and model construction are excluded; bound compilation is included.
 The wide case is a synthetic flexibility probe with existing zero-default cost
 tables. The timeouts do not establish a speedup ratio or an optimum for the old
-solver. The [raw interleaved measurements](../benchmarks/results/scheduling_2026-09-26.json)
+solver. The [raw interleaved measurements](../benchmarks/history/scheduling_2026-09-26.json)
 include all runs, source hashes and exhaustive demo equivalence. The
 [comparison runner](../benchmarks/scheduling_comparison.py) supports a source
-snapshot, and the [before-source patch](../benchmarks/results/scheduling_2026-09-26_before.patch)
+snapshot, and the [before-source patch](../benchmarks/history/scheduling_2026-09-26_before.patch)
 reconstructs that snapshot over commit `d86e035`.
 
 ## Provenance and limits

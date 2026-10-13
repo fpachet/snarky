@@ -77,8 +77,8 @@ does not establish infeasibility or optimality.
 
 ## Fresh full comparison with Prune
 
-The [raw comparison](../benchmarks/results/prune_nvalue_2026-09-16/results.json)
-and [all 59 workload summaries](../benchmarks/results/prune_nvalue_2026-09-16/summary.csv)
+The [raw comparison](../benchmarks/history/prune_nvalue_2026-09-16/results.json)
+and [all 59 workload summaries](../benchmarks/history/prune_nvalue_2026-09-16/summary.csv)
 record a new complete run, not a combination of historical timings. Completion
 requires success in all three measured repetitions. The 54 available instances
 produce 59 instance/mode workloads. The requested 20 CSPLib and 11 reserved
@@ -127,8 +127,8 @@ domains remain a separate capability project.
 
 All six native cases complete in every repetition. The four Dominating Queens
 cases exceed five seconds in every decomposed repetition, including warmups.
-The [raw record](../benchmarks/results/csp_nvalue_ablation_2026-09-16/results.json)
-and [summary](../benchmarks/results/csp_nvalue_ablation_2026-09-16/summary.json)
+The [raw record](../benchmarks/history/csp_nvalue_ablation_2026-09-16/results.json)
+and [summary](../benchmarks/history/csp_nvalue_ablation_2026-09-16/summary.json)
 retain all timings, counters and independently checked outputs.
 
 | Case | Decomposed process seconds | Native process seconds | Native search seconds | Native nodes / revisions |
@@ -153,8 +153,8 @@ visible even though startup makes its process-level percentage much smaller.
 
 ## Representation and root allocation
 
-The [decomposed record](../benchmarks/results/csp_nvalue_decomposed_memory_2026-09-16/results.json)
-and [native record](../benchmarks/results/csp_nvalue_native_memory_2026-09-16/results.json)
+The [decomposed record](../benchmarks/history/csp_nvalue_decomposed_memory_2026-09-16/results.json)
+and [native record](../benchmarks/history/csp_nvalue_native_memory_2026-09-16/results.json)
 contain one separate allocation-instrumented sample per case. Both stop after one
 entered node; propagation may still prove infeasibility there. These runs overlapped
 the correctness gate, so their timings are not used as latency evidence. Traced
@@ -181,7 +181,7 @@ memory is made.
 
 ## Rule, legacy, mixed and Markov controls
 
-The [paired controls](../benchmarks/results/csp_nvalue_controls_2026-09-16/results.json)
+The [paired controls](../benchmarks/history/csp_nvalue_controls_2026-09-16/results.json)
 compare `e296d09` with the candidate using the same worker and workload definitions,
 three alternating pairs and warmups. All recorded outputs and search counters
 match. Boulez again reproduces the published sequence with the same exact optimum
@@ -216,7 +216,7 @@ mixed rules, observer exceptions, objective optimization and exact inference.
 Ruff, mypy (94 source files), textual-source validation (305 files), distribution
 contents checks and isolated core/companion installation checks pass. The installed
 wheel explicitly exercises NValue optimization. The
-[validation record](../benchmarks/results/csp_nvalue_ablation_2026-09-16/validation.md)
+[validation record](../benchmarks/history/csp_nvalue_ablation_2026-09-16/validation.md)
 retains commands and logs. Bach remains outside this portfolio.
 A Python 3.12 worker also solves Dominating Queens 8 in the same 79 nodes and
 80 revisions with a validated assignment; the full regression gate used Python 3.13.
@@ -228,10 +228,10 @@ PYTHONHASHSEED=0 PYTHONPATH=src:. .venv/bin/python -m benchmarks.csp_followup co
   --reference-source . --reference-ref same-source-decomposition-ablation \
   --reference-nvalue decomposed --candidate-nvalue native --only nvalue/ \
   --hard-seconds 5 --warmups 1 --repeats 3 \
-  --output benchmarks/results/csp_nvalue_ablation_NEW_LABEL
+  --output benchmarks/history/csp_nvalue_ablation_NEW_LABEL
 PYTHONHASHSEED=0 PYTHONPATH=src:. .venv/bin/python -m benchmarks.prune_comparison \
   --prune /path/to/prune-fzn --seconds 5 --warmups 1 --repeats 3 \
-  --output benchmarks/results/prune_nvalue_NEW_LABEL
+  --output benchmarks/history/prune_nvalue_NEW_LABEL
 ```
 
 For separate root allocation records, use `benchmarks.csp_followup diagnose

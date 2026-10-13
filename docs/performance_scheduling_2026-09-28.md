@@ -18,7 +18,7 @@ external solver, oracle-selected assignment or oracle-supplied bound was used.
 
 ## Diagnosis
 
-The [original profile](../benchmarks/results/scheduling_symmetry_2026-09-28_profile_original.txt)
+The [original profile](../benchmarks/history/scheduling_symmetry_2026-09-28_profile_original.txt)
 attributes 9.805 seconds of a 10.002-second profiled solve to workload filtering.
 Profiling adds substantial overhead: that run entered nine nodes and found no
 incumbent, so these timings are diagnostic and are not latency comparisons.
@@ -75,7 +75,7 @@ It is a validation tool for this benchmark family, not a general scheduling orac
 
 ## Measurements
 
-The [raw archive](../benchmarks/results/scheduling_symmetry_2026-09-28.json)
+The [raw archive](../benchmarks/history/scheduling_symmetry_2026-09-28.json)
 contains all repeated runs. These measurements used Python 3.13.11 on macOS
 15.7.7 arm64. Medians of three fresh processes:
 
@@ -107,7 +107,7 @@ from 8.765 to 0.216 seconds under instrumentation, with 769 workload revisions
 in each. The original full-model profile and these matched profiles agree that
 repeated workload scans dominated the earlier implementation.
 
-The [candidate patch](../benchmarks/results/scheduling_symmetry_2026-09-28_candidate.patch)
+The [candidate patch](../benchmarks/history/scheduling_symmetry_2026-09-28_candidate.patch)
 reconstructs the measured runtime, fixture and collector on top of `f8c82b5`.
 Apply it in a separate checkout of that commit, then run the collector command
 from the [benchmark guide](../benchmarks/README.md#workforce-scheduling). The
@@ -124,7 +124,7 @@ same 40 existing scheduling and factor-bound tests with the historical and
 optimized workload kernels. It adds no symmetry constraints. Five repetitions
 per variant run in fresh processes, with interleaved order and a fixed hash seed.
 All 40 tests passed in all ten runs. The
-[raw results](../benchmarks/results/scheduling_tests_2026-09-28.json) include
+[raw results](../benchmarks/history/scheduling_tests_2026-09-28.json) include
 per-test durations, outcomes, source hashes and environment details.
 
 | Measurement | Historical filter | Optimized filter | Time reduction |

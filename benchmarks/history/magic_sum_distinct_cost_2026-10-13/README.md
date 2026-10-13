@@ -182,8 +182,8 @@ Depuis la racine du dépôt, avec un nouveau répertoire de sortie :
 ```sh
 PYTHONHASHSEED=0 PYTHONPATH=src:. .venv/bin/python \
   -m experiments.neural_attention.magic_sum_distinct_benchmark \
-  --before benchmarks/results/magic_sum_distinct_cost_2026-10-13/comparison/before_snapshot.py.txt \
-  --presets benchmarks/results/magic_sum_distinct_cost_2026-10-13/presets.json \
+  --before benchmarks/history/magic_sum_distinct_cost_2026-10-13/comparison/before_snapshot.py.txt \
+  --presets benchmarks/history/magic_sum_distinct_cost_2026-10-13/presets.json \
   --sizes 6 8 9 10 11 12 13 14 15 16 18 20 \
   --variants before_fast_pair fast_pair before_tiny tiny \
   --repeats 3 --limit 30 \
@@ -191,7 +191,7 @@ PYTHONHASHSEED=0 PYTHONPATH=src:. .venv/bin/python \
 
 PYTHONHASHSEED=0 PYTHONPATH=src:. .venv/bin/python \
   -m experiments.neural_attention.magic_sum_distinct_benchmark \
-  --before benchmarks/results/magic_sum_distinct_cost_2026-10-13/comparison/before_snapshot.py.txt \
+  --before benchmarks/history/magic_sum_distinct_cost_2026-10-13/comparison/before_snapshot.py.txt \
   --sizes 8 9 14 --variants before_tiny tiny --repeats 7 --limit 30 \
   --output generated/neural_attention/sum_distinct_cost_confirmation_NEW
 

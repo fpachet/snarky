@@ -61,7 +61,7 @@ def main():
     parser.add_argument(
         "--output",
         type=Path,
-        default=Path("benchmarks/results/melody_examples_2026-09-16.json"),
+        default=Path("benchmarks/history/melody_examples_2026-09-16.json"),
     )
     parser.add_argument("--repeats", type=int, default=3)
     parser.add_argument("--csp-seconds", type=float, default=5)

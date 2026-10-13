@@ -215,7 +215,7 @@ and choice workloads and 7 for the tonal workloads. Logical counters are
 identical in both versions. These sub-percent differences are measurement
 noise rather than a material regression. Raw medians, commands, environment,
 and counters are recorded in
-[`consolidation_refactor_2026-07-25.json`](../benchmarks/results/consolidation_refactor_2026-07-25.json).
+[`consolidation_refactor_2026-07-25.json`](../benchmarks/history/consolidation_refactor_2026-07-25.json).
 
 After the policy and traversal extractions, commit `ae2358b` was checked
 again against the post-baseline reference. The four-position search changed
@@ -228,14 +228,14 @@ The first `indexed.py` extraction is guarded independently. Between commits
 constraint chain with removals and structural lookups changed by -0.54%.
 Facts, derivations, cycles, activations, match attempts, index removals, and
 structural-index counters remained identical. The complete protocol is in
-[`fact_index_extraction_2026-07-25.json`](../benchmarks/results/fact_index_extraction_2026-07-25.json).
+[`fact_index_extraction_2026-07-25.json`](../benchmarks/history/fact_index_extraction_2026-07-25.json).
 
 Existential and aggregate query memory was then extracted between commits
 `6d2975c` and `dd42c93`. The residual-witness churn workload changed by
 +0.85%, while its no-residual control changed by -0.81%; both differences
 are below half a millisecond. Cache hits, misses, invalidations, residual
 promotions, and match attempts are identical. Raw results are in
-[`query_memory_extraction_2026-07-25.json`](../benchmarks/results/query_memory_extraction_2026-07-25.json).
+[`query_memory_extraction_2026-07-25.json`](../benchmarks/history/query_memory_extraction_2026-07-25.json).
 
 The semi-naive tranche first removed 216 lines of unreachable pre-compiled
 join code at commit `e110a5d`, then moved delta-anchored traversal to
@@ -245,7 +245,7 @@ path was converted to compiled premise resolvers and one reversible
 54.31 ms, a 1.36x speedup (-26.3%), while facts, cycles, activations,
 candidates, and match attempts remained identical. The interleaved
 21-repetition protocol is recorded in
-[`semi_naive_compiled_delta_2026-07-25.json`](../benchmarks/results/semi_naive_compiled_delta_2026-07-25.json).
+[`semi_naive_compiled_delta_2026-07-25.json`](../benchmarks/history/semi_naive_compiled_delta_2026-07-25.json).
 
 High-churn top-level fact buckets were optimized separately at commit
 `4f82cd5`. Buckets remain compact lists on append-only workloads and promote
@@ -254,7 +254,7 @@ mutated. Residual-witness churn improved by 32.4% and its control by 29.5%;
 append-only semi-naive F(12) changed by only +0.07%. Order, cloning, later
 additions, delta partitioning, and all logical counters remain identical.
 The protocol is recorded in
-[`adaptive_fact_buckets_2026-07-25.json`](../benchmarks/results/adaptive_fact_buckets_2026-07-25.json).
+[`adaptive_fact_buckets_2026-07-25.json`](../benchmarks/history/adaptive_fact_buckets_2026-07-25.json).
 
 Compact extensional tables were extracted from `domain_filter.py` to
 `instantiation/domain_tables.py` at commit `326ea74`. The module now owns
@@ -265,7 +265,7 @@ counts. An interleaved 15-repetition comparison on compact-table Sudoku p1
 changed from 215.13 ms to 213.65 ms (-0.69%), with identical matching,
 bitset, compact-join, and delta counters. This is measurement noise rather
 than a material runtime change. Raw samples and the complete counters are in
-[`domain_tables_extraction_2026-07-25.json`](../benchmarks/results/domain_tables_extraction_2026-07-25.json).
+[`domain_tables_extraction_2026-07-25.json`](../benchmarks/history/domain_tables_extraction_2026-07-25.json).
 
 Specialized comparison propagation was extracted from `domain_filter.py` to
 `instantiation/comparison_propagators.py` at commit `3c3989f`. The public
@@ -276,7 +276,7 @@ independent 729-line module, leaving `domain_filter.py` at 1,227 lines.
 An interleaved 31-repetition `ALL_DIFFERENT` comparison changed from
 48.19 ms to 48.53 ms (+0.71%), with identical facts, activations, matching,
 global-propagation, compact-table, and delta counters. Raw samples are in
-[`comparison_propagators_extraction_2026-07-25.json`](../benchmarks/results/comparison_propagators_extraction_2026-07-25.json).
+[`comparison_propagators_extraction_2026-07-25.json`](../benchmarks/history/comparison_propagators_extraction_2026-07-25.json).
 
 Domain-plan compilation and constraint-graph analysis were extracted to
 `instantiation/domain_planning.py` at commit `558f8e9`. Direct tests cover
@@ -289,7 +289,7 @@ stable ordering. A 200-variable plan now compiles in 0.428 ms instead of
 2.462 ms, a 5.75x speedup (-82.6%). The complete `ALL_DIFFERENT` control
 changed by only +0.53%, with all logical and propagation counters identical.
 Raw interleaved measurements are in
-[`domain_planning_2026-07-25.json`](../benchmarks/results/domain_planning_2026-07-25.json).
+[`domain_planning_2026-07-25.json`](../benchmarks/history/domain_planning_2026-07-25.json).
 
 Adaptive thresholds, per-rule decisions, deferred probe counts, and observed
 cost ratios were extracted to `instantiation/adaptive_selection.py` at commit
@@ -307,7 +307,7 @@ active masks, projected domains, adaptive state, and custom propagators. A
 branch over 3,201 facts and one populated domain memory now succeeds in
 2.05 ms. The adaptive arithmetic control changed by -0.73%, with all logical
 and propagation counters identical. The reproduction and measurements are in
-[`adaptive_selection_branching_2026-07-25.json`](../benchmarks/results/adaptive_selection_branching_2026-07-25.json).
+[`adaptive_selection_branching_2026-07-25.json`](../benchmarks/history/adaptive_selection_branching_2026-07-25.json).
 
 The first `parser.py` tranche is complete. Lexical analysis now lives in
 `parser_lexer.py`, while `parser.py` explicitly re-exports the historical
@@ -319,7 +319,7 @@ in commit `3c31338` reduces a 1,003-token term workload by 19.34% and a
 1,999-token arithmetic workload by 26.32%. Parsing the combined Sudoku
 rulebase changed by +0.28%, within run-to-run noise, and still produces the
 same 9 groups and 18 rules. The protocol and raw medians are recorded in
-[`parser_lexer_2026-07-25.json`](../benchmarks/results/parser_lexer_2026-07-25.json).
+[`parser_lexer_2026-07-25.json`](../benchmarks/history/parser_lexer_2026-07-25.json).
 
 Recursive term parsing now lives in `parser_terms.py`; `parser.py` explicitly
 re-exports `parse_term`, `_parse_all`, and `_parse_term_tokens` so public and
@@ -333,7 +333,7 @@ cheap initial-character guard keeps ordinary atoms on the direct path. A
 controls change by -0.18% and -0.10%, respectively, and a status-bearing
 Spinoza rulebase changes by -0.49%, all within noise outside the targeted
 case. Raw medians and logical controls are in
-[`parser_terms_2026-07-25.json`](../benchmarks/results/parser_terms_2026-07-25.json).
+[`parser_terms_2026-07-25.json`](../benchmarks/history/parser_terms_2026-07-25.json).
 
 Arithmetic expressions shared by `CONSTRAINT` premises and `LET` actions now
 live in `parser_arithmetic.py`, and the complete premise layer lives in
@@ -348,7 +348,7 @@ Commit `51a8037` gates each expression by its possible prefix and computes
 nested-terminator state once per block. A 400-fact block improves by 8.40%, a
 400-line mixed block by 7.25%, and the combined Sudoku rulebase by 6.61% while
 still producing the same 9 groups and 18 rules. Raw medians are in
-[`parser_premises_2026-07-25.json`](../benchmarks/results/parser_premises_2026-07-25.json).
+[`parser_premises_2026-07-25.json`](../benchmarks/history/parser_premises_2026-07-25.json).
 
 Action parsing now lives in `parser_actions.py`, including simple `ADD`,
 `REMOVE`, `LET`, and `FRESH` actions, nested `FOR EACH` blocks, correlated
@@ -363,7 +363,7 @@ keeps the original validation path and diagnostics. A 400-action block
 improves by 3.62% and a nested mixed block by 2.53%; the combined Sudoku
 rulebase changes by -0.18%, within noise, with unchanged logical output. Raw
 medians are in
-[`parser_actions_2026-07-25.json`](../benchmarks/results/parser_actions_2026-07-25.json).
+[`parser_actions_2026-07-25.json`](../benchmarks/history/parser_actions_2026-07-25.json).
 
 The `engine/forward.py` decomposition target is complete for C3. The next
 choice decomposition target is also complete: production, policies, frontier

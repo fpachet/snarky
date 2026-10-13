@@ -20,17 +20,17 @@ not a public release or a claim of uniformly faster arbitrary CSP optimization.
   second-order cases still do not prove optimality. First-incumbent latency can
   increase even when the eventual result improves.
 
-The [raw comparison](../benchmarks/results/redesign_comparison_2026-09-16_corrected.json)
+The [raw comparison](../benchmarks/history/redesign_comparison_2026-09-16_corrected.json)
 contains **1,260 timing samples and 60 isolated memory samples**. Its
-[reference source archive](../benchmarks/results/redesign_comparison_2026-09-16_corrected.reference.tar.gz)
-and [candidate source archive](../benchmarks/results/redesign_comparison_2026-09-16_corrected.candidate.tar.gz)
+[reference source archive](../benchmarks/history/redesign_comparison_2026-09-16_corrected.reference.tar.gz)
+and [candidate source archive](../benchmarks/history/redesign_comparison_2026-09-16_corrected.candidate.tar.gz)
 preserve the exact measured sources. The [baseline protocol](performance_baseline.md)
 defines the fixtures, timing scopes, limits and the earlier interrupted harness run.
 
 ## Memory review and decision
 
 The large second-order case triggers the memory investigation threshold.
-[Two additional isolated pairs](../benchmarks/results/redesign_memory_investigation_2026-09-16.json)
+[Two additional isolated pairs](../benchmarks/history/redesign_memory_investigation_2026-09-16.json)
 reproduce **1,173.5 KiB with local bounds versus 6,096.8 KiB with completion bounds**.
 A separate inspection finds **31,816 cached local edges**. The compiler retains
 immutable edge costs for reuse across branches; this explains the additional

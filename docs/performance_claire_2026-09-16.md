@@ -61,7 +61,7 @@ medians are descriptive; background load and thermal conditions are uncontrolled
 
 ## Results
 
-The [complete record](../benchmarks/results/claire_refresh_2026-09-16/results.json)
+The [complete record](../benchmarks/history/claire_refresh_2026-09-16/results.json)
 contains all samples and engine-specific counters. Times below are medians of
 three internal measurements, in milliseconds; smaller is better.
 
@@ -101,7 +101,7 @@ provide the concrete measurement identity alongside that revision.
 ```sh
 PYTHONHASHSEED=0 PYTHONPATH=src:. .venv/bin/python -m benchmarks.claire_refresh \
   --claire-root ../CLAIRE4 --repeats 3 \
-  --output benchmarks/results/claire_refresh_NEW_LABEL
+  --output benchmarks/history/claire_refresh_NEW_LABEL
 ```
 
 Output directories must be new. The original `claire_n_queens`,

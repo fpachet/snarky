@@ -95,4 +95,4 @@ Le protocole reproductible et les résultats détaillés se trouvent dans
 et
 [`benchmarks/constraint_support_churn.py`](../../../benchmarks/constraint_support_churn.py).
 Les mesures A/B sont conservées dans
-[`benchmarks/results/constraint_indexing_optimizations_2026-07-24.csv`](../../../benchmarks/results/constraint_indexing_optimizations_2026-07-24.csv).
+[`benchmarks/history/constraint_indexing_optimizations_2026-07-24.csv`](../../../benchmarks/history/constraint_indexing_optimizations_2026-07-24.csv).

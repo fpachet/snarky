@@ -102,7 +102,7 @@ recursive and alternative proofs, admissible bounds and compilation fallback.
 
 Ruff, mypy (100 source files), syntax/format validation (305 DSL files), Markdown
 links, distribution checks and isolated wheel installation checks passed.
-The [measurement archive](../benchmarks/results/scheduling_2026-09-26.json)
+The [measurement archive](../benchmarks/history/scheduling_2026-09-26.json)
 records repeated timings and identical assignments/scores for all 32 solutions
 of the basic demo before and after optimization. The extended demo's tested
 optimum is 8. See the [scheduling guide](scheduling.md) for modeling limits and

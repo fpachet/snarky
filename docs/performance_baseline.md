@@ -74,7 +74,7 @@ Run from the repository root, with the existing development environment:
 ```sh
 PYTHONHASHSEED=0 .venv/bin/python -m benchmarks.redesign_baseline \
   --repeat 7 \
-  --output benchmarks/results/redesign_baseline_YYYY-MM-DD_LABEL.json
+  --output benchmarks/history/redesign_baseline_YYYY-MM-DD_LABEL.json
 ```
 
 Replace the filename with a new date and label. The collector refuses to
@@ -194,7 +194,7 @@ workloads unnecessarily.
 ## Measured baseline and ledger
 
 Initial raw record:
-[redesign_baseline_2026-09-16.json](../benchmarks/results/redesign_baseline_2026-09-16.json).
+[redesign_baseline_2026-09-16.json](../benchmarks/history/redesign_baseline_2026-09-16.json).
 This is a first local reference, not a paired optimization comparison.
 
 Recorded on Python 3.13.11, macOS 15.7.7 ARM64, 10 logical CPUs,
@@ -227,13 +227,13 @@ not justify claims about small performance differences.
 
 | Date / change | Reference and candidate | Validation / raw records | Decision |
 |---|---|---|---|
-| 2026-09-16: initial collection | Runtime `2fbdd9d`; no runtime candidate | [17-case raw record](../benchmarks/results/redesign_baseline_2026-09-16.json); existing per-case validators | Establish local baseline; strengthen oracles and add missing metrics before redesign promotion |
+| 2026-09-16: initial collection | Runtime `2fbdd9d`; no runtime candidate | [17-case raw record](../benchmarks/history/redesign_baseline_2026-09-16.json); existing per-case validators | Establish local baseline; strengthen oracles and add missing metrics before redesign promotion |
 
 Append one row per assessed optimization. Include unsuccessful changes and
 regressions when they informed the architecture. Keep raw records immutable.
 
 Historical July and September measurements remain available through the
-[results index](../benchmarks/results/README.md). They have different commits,
+[results index](../benchmarks/history/README.md). They have different commits,
 harnesses or environments and are context, not a direct speedup denominator.
 
 
@@ -247,10 +247,10 @@ it does not replace a realistic application benchmark or a paired comparison.
 
 ```sh
 PYTHONHASHSEED=0 .venv/bin/python -m benchmarks.finite_markov \
-  --repeat 7 --output benchmarks/results/finite_markov_YYYY-MM-DD_LABEL.json
+  --repeat 7 --output benchmarks/history/finite_markov_YYYY-MM-DD_LABEL.json
 ```
 
-The [initial record](../benchmarks/results/finite_markov_2026-09-16.json) retains
+The [initial record](../benchmarks/history/finite_markov_2026-09-16.json) retains
 42 timing samples and six separate subprocess memory runs. Timings exclude
 validation; preparation includes source/model construction and state compilation.
 Search includes propagation, scoring, result construction and rollback. Memory is
@@ -332,9 +332,9 @@ Run after correctness checks, without concurrent benchmarks or tests:
 PYTHONHASHSEED=0 .venv/bin/python benchmarks/redesign_comparison.py \
   --reference /tmp/snarky-redesign-reference-2fbdd9d \
   --repeat 7 --pairs 3 \
-  --output benchmarks/results/redesign_comparison_DATE_LABEL.json
+  --output benchmarks/history/redesign_comparison_DATE_LABEL.json
 .venv/bin/python -m benchmarks.report_redesign \
-  benchmarks/results/redesign_comparison_DATE_LABEL.json \
+  benchmarks/history/redesign_comparison_DATE_LABEL.json \
   --output docs/performance_comparison_DATE_LABEL.md
 ```
 
@@ -355,7 +355,7 @@ faster optimization across all models.
 
 The first paired collection stopped at the mixed fixture because unused legacy
 bookkeeping contained nested context terms outside the admitted positive-rule
-fragment. Its [partial record](../benchmarks/results/redesign_comparison_2026-09-16.partial.json)
+fragment. Its [partial record](../benchmarks/history/redesign_comparison_2026-09-16.partial.json)
 and source archives are retained, but it is not a completed promotion record.
 The corrected fixture removes this unused context from **both** native sides and
 checks identical assignments, nodes and failures. The corrected collection uses
@@ -365,10 +365,10 @@ a new filename and recollects all cases under one preserved collector snapshot.
 
 The [comparison report](performance_comparison_2026-09-16.md) contains the final
 30-case assessment and detailed per-session tables. The
-[completed raw record](../benchmarks/results/redesign_comparison_2026-09-16_corrected.json)
+[completed raw record](../benchmarks/history/redesign_comparison_2026-09-16_corrected.json)
 retains 1,260 timing samples and 60 separate allocation samples. Reference and
 candidate sources are preserved in adjacent tarballs; a separate
-[memory investigation](../benchmarks/results/redesign_memory_investigation_2026-09-16.json)
+[memory investigation](../benchmarks/history/redesign_memory_investigation_2026-09-16.json)
 retains two additional isolated pairs and compiled-cache counts.
 
 | Date / change | Reference and candidate | Validation / evidence | Decision |

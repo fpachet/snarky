@@ -26,7 +26,7 @@ from .magic_search_tuning import RankedDomains, RankedState, prepare
 
 ARCHIVE = (
     Path(__file__).resolve().parents[2]
-    / "benchmarks/results/magic_domain_ops_2026-10-13"
+    / "benchmarks/history/magic_domain_ops_2026-10-13"
 )
 NAMES = ("domains", "numeric", "alldifferent", "propagation", "mixed")
 COMMON = ("model", "constraints", "kernels", "capacity", "nvalue", "scheduling_kernels")

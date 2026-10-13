@@ -79,8 +79,8 @@ descriptive medians, not confidence intervals.
 
 ## Paired performance
 
-The [raw record](../benchmarks/results/csp_numeric_2026-09-17/results.json) and
-[summary](../benchmarks/results/csp_numeric_2026-09-17/summary.json) preserve all
+The [raw record](../benchmarks/history/csp_numeric_2026-09-17/results.json) and
+[summary](../benchmarks/history/csp_numeric_2026-09-17/summary.json) preserve all
 samples and source hashes. Every mutually completed case retains identical
 solutions, objectives, nodes, failures and revisions.
 
@@ -112,7 +112,7 @@ such small differences from noise. All timeout observations remain in the record
 
 ## Same-source on/off check
 
-The [ablation](../benchmarks/results/csp_numeric_ablation_2026-09-17/results.json)
+The [ablation](../benchmarks/history/csp_numeric_ablation_2026-09-17/results.json)
 uses the current source for both paths with only `numeric_masks` changed. All
 completed cases preserve counters and outputs.
 
@@ -124,8 +124,8 @@ completed cases preserve counters and outputs.
 
 ## Fresh Prune comparison
 
-The [full record](../benchmarks/results/prune_numeric_2026-09-17/results.json) and
-[summary](../benchmarks/results/prune_numeric_2026-09-17/summary.csv) cover 54
+The [full record](../benchmarks/history/prune_numeric_2026-09-17/results.json) and
+[summary](../benchmarks/history/prune_numeric_2026-09-17/summary.csv) cover 54
 available inputs and 59 mode workloads. Prune is the same pinned compiled Rust
 binary; Snarky remains Python. Both receive identical FlatZinc inputs. Returned
 assignments and claimed optima are checked independently against original
@@ -155,14 +155,14 @@ Snarky's seven timeouts are initial queens 104, extended queens 104 and 150,
 magic square 5, pairwise pigeonhole 10, knapsack optimization and packing
 optimization. No timeout becomes a proof. The upstream CSPLib/reserved coverage
 gaps remain; the two billion-domain chains still compile away and do not test
-compact runtime domains. The [audit](../benchmarks/results/prune_numeric_2026-09-17/audit.json)
+compact runtime domains. The [audit](../benchmarks/history/prune_numeric_2026-09-17/audit.json)
 confirms all 54 input hashes, the unchanged Prune binary, and unchanged counters,
 objectives and normalized outputs for all 52 completed Snarky workloads against
 the preceding full run.
 
 ## Compatibility and memory
 
-The [controls](../benchmarks/results/csp_numeric_controls_2026-09-17/results.json)
+The [controls](../benchmarks/history/csp_numeric_controls_2026-09-17/results.json)
 preserve observations for rules, joins, legacy CSP, mixed CSP, Markov and the
 exact Boulez result. These medians exclude startup and are separate from the
 process times above.
@@ -194,7 +194,7 @@ scan fallback inside compiled columns.
 
 ## Remaining optimization opportunities
 
-The [separate profiles](../benchmarks/results/csp_numeric_profiles_2026-09-17/results.json)
+The [separate profiles](../benchmarks/history/csp_numeric_profiles_2026-09-17/results.json)
 use two seconds and at most 200 nodes with instrumentation. They must not be read
 as production latency or compared directly with older profiles at different work.
 
@@ -231,7 +231,7 @@ The full workspace gate reports **1,106 passed, 3 skipped**, including two
 pre-existing Alice tests outside this change. Mypy, Ruff, textual validation,
 core/companion builds and isolated installation checks pass. A Python 3.12 FT06
 smoke independently preserves optimum 55 and all search counters. See the
-[validation record](../benchmarks/results/csp_numeric_2026-09-17/validation.md)
+[validation record](../benchmarks/history/csp_numeric_2026-09-17/validation.md)
 for logs and commands. Candidate source hashes were checked after collection.
 
 ## Reproduction
@@ -241,11 +241,11 @@ PYTHONHASHSEED=0 PYTHONPATH=src:. .venv/bin/python -m benchmarks.csp_followup co
   --reference-source /path/to/32842b5 --reference-ref 32842b5 \
   --reference-nvalue native --only optimization/ --only extended/queens_ \
   --hard-seconds 5 --warmups 1 --repeats 3 \
-  --output benchmarks/results/numeric_NEW_LABEL
+  --output benchmarks/history/numeric_NEW_LABEL
 PYTHONHASHSEED=0 PYTHONPATH=src:. .venv/bin/python -m benchmarks.csp_followup compare \
   --reference-source . --reference-ref same-source-numeric-masks-off \
   --reference-nvalue native --reference-numeric-masks off --candidate-numeric-masks on \
   --only optimization/jobshop_ft06_opt --only extended/queens_50 \
   --hard-seconds 5 --warmups 1 --repeats 3 \
-  --output benchmarks/results/numeric_ablation_NEW_LABEL
+  --output benchmarks/history/numeric_ablation_NEW_LABEL
 ```

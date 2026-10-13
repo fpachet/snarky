@@ -1,7 +1,7 @@
 """Fresh-process scheduling A/B measurements; no external data or solver.
 
 python -m benchmarks.scheduling_comparison --baseline /path/to/snapshot \
-    --output benchmarks/results/scheduling_2026-09-26.json
+    --output benchmarks/history/scheduling_2026-09-26.json
 
 The snapshot must contain src/snarky and benchmarks/workforce_scheduling.py.
 Each timing includes solve/bound compilation and excludes imports/model construction.

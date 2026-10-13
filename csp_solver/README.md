@@ -224,7 +224,7 @@ uv run python benchmarks/choice_formulations.py --repeat 3
 ```
 
 Machine-readable historical results are stored under
-[`../benchmarks/results`](../benchmarks/results). Compare logical solutions
+[`../benchmarks/history`](../benchmarks/history). Compare logical solutions
 and search counters before interpreting wall-clock differences.
 
 ## Magic square
@@ -385,14 +385,14 @@ cases with:
 uv run python -m benchmarks.classical_csp --repeat 3
 ```
 
-The [initial](../benchmarks/results/classical_csp_2026-07-25.json) and
-[dependency-scheduled](../benchmarks/results/classical_csp_optimized_2026-07-25.json)
+The [initial](../benchmarks/history/classical_csp_2026-07-25.json) and
+[dependency-scheduled](../benchmarks/history/classical_csp_optimized_2026-07-25.json)
 results are retained alongside the current
-[incremental-domain](../benchmarks/results/classical_csp_incremental_2026-07-25.json)
+[incremental-domain](../benchmarks/history/classical_csp_incremental_2026-07-25.json)
 measurements and the
-[dom/wdeg search-policy run](../benchmarks/results/classical_csp_dom_wdeg_2026-07-25.json).
+[dom/wdeg search-policy run](../benchmarks/history/classical_csp_dom_wdeg_2026-07-25.json).
 The current complete run is
-[learned impact](../benchmarks/results/classical_csp_learned_impact_2026-07-25.json).
+[learned impact](../benchmarks/history/classical_csp_learned_impact_2026-07-25.json).
 
 The historical MRV order-6 run has a three-run median of 19.179 seconds at
 5,358 nodes and 4,236 failed branches. Plain dom/wdeg now takes 2.060 seconds
@@ -417,15 +417,15 @@ uv run python -m benchmarks.classical_csp \
 ```
 
 The corresponding raw archives are
-[dom/wdeg](../benchmarks/results/magic_square_dom_wdeg_2026-07-25.json),
-[current plain dom/wdeg](../benchmarks/results/magic_square_dom_wdeg_only_2026-07-25.json),
-[learned impact](../benchmarks/results/magic_square_learned_impact_2026-07-25.json),
-[dom/wdeg with bounded probes](../benchmarks/results/magic_square_dom_wdeg_lcv_2026-07-25.json),
+[dom/wdeg](../benchmarks/history/magic_square_dom_wdeg_2026-07-25.json),
+[current plain dom/wdeg](../benchmarks/history/magic_square_dom_wdeg_only_2026-07-25.json),
+[learned impact](../benchmarks/history/magic_square_learned_impact_2026-07-25.json),
+[dom/wdeg with bounded probes](../benchmarks/history/magic_square_dom_wdeg_lcv_2026-07-25.json),
 and
-[dom/wdeg with lex symmetry](../benchmarks/results/magic_square_dom_wdeg_symmetry_2026-07-25.json).
+[dom/wdeg with lex symmetry](../benchmarks/history/magic_square_dom_wdeg_symmetry_2026-07-25.json).
 
 The historical MRV raw result remains
-[archived separately](../benchmarks/results/magic_square_6_incremental_2026-07-25.json).
+[archived separately](../benchmarks/history/magic_square_6_incremental_2026-07-25.json).
 
 The earlier MRV deterministic search profile was:
 

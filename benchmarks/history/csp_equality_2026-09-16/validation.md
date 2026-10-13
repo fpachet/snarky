@@ -25,7 +25,7 @@ PYTHONPATH=src .venv/bin/python -m snarky check --syntax-only --format .
 .venv/bin/python -m build --no-isolation --outdir /tmp/snarky-csp-equality-dist/csp csp_solver
 .venv/bin/python scripts/check_distribution.py /tmp/snarky-csp-equality-dist
 .venv/bin/python scripts/check_wheel_install.py /tmp/snarky-csp-equality-dist --companion /tmp/snarky-csp-equality-dist/csp/snarky_csp-0.1.0-py3-none-any.whl
-PYTHONHASHSEED=0 /opt/homebrew/bin/python3.12 benchmarks/csp_diagnostics.py --model benchmarks/results/prune_comparison_2026-09-16/artifacts/extended--magic_sequence_40.fzn.json --diagnostic --nodes 100
+PYTHONHASHSEED=0 /opt/homebrew/bin/python3.12 benchmarks/csp_diagnostics.py --model benchmarks/history/prune_comparison_2026-09-16/artifacts/extended--magic_sequence_40.fzn.json --diagnostic --nodes 100
 ```
 
 - Textual-source validation: 305 files checked.

@@ -694,7 +694,7 @@ def snapshot(root: Path, destination: Path | None = None):
             if p.is_file()
             and p.suffix in extensions
             and not any(
-                part in {"__pycache__", "results", ".venv", "build", "dist"}
+                part in {"__pycache__", "results", "history", ".venv", "build", "dist"}
                 for part in p.relative_to(root).parts
             )
         )

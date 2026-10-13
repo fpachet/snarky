@@ -193,7 +193,7 @@ La baseline indexée initiale couvre les rangs 10 à 17. Le temps croît de
 0,245 s à 27,914 s, le point fixe de 326 à 9 578 faits et les activations
 produites de 1 782 à 95 013. `F(15)` reste sous 10 secondes et `F(17)` sous 30
 secondes. Le tableau complet et sa version CSV se trouvent dans
-`benchmarks/README.md` et `benchmarks/results/`.
+`benchmarks/README.md` et `benchmarks/history/`.
 
 La baseline semi-naïve couvre les rangs 10 à 21. `F(18)` reste sous 10 secondes
 et `F(20)` sous 30 secondes ; `F(21)` prend 32,042 s. Sur `F(17)`, les tentatives
@@ -471,7 +471,7 @@ reçoivent le delta. `AgendaMetrics` expose le travail effectué.
 Sur 200 règles indépendantes, l'ajout ciblé recalcule 1 règle et en réutilise
 199. La médiane passe de 2,206 ms pour une construction froide à 0,572 ms pour
 la mise à jour, soit ×3,86. Voir
-[`../benchmarks/results/agenda_incremental_2026-07-24.csv`](../benchmarks/results/agenda_incremental_2026-07-24.csv).
+[`../benchmarks/history/agenda_incremental_2026-07-24.csv`](../benchmarks/history/agenda_incremental_2026-07-24.csv).
 
 Les activations restent matérialisées parce que MEA doit comparer le conflit
 complet. Une API réellement paresseuse ne sera introduite que si un profil

@@ -64,7 +64,7 @@ the previous 3×3 example, where combining equations can fix the centre.
 
 Raw timings, preparation/search splits, search counters, returned squares,
 certificates, source hashes, commit, dirty status and environment are recorded in
-[the result file](../benchmarks/results/alice_magic_2026-09-17.json).
+[the result file](../benchmarks/history/alice_magic_2026-09-17.json).
 
 ## Results
 
@@ -108,7 +108,7 @@ to system load; portable search counters are reported alongside elapsed time.
 ```sh
 PYTHONHASHSEED=0 .venv/bin/python -m benchmarks.alice_magic \
   --repeats 5 --warmups 1 --limit 10 \
-  --output benchmarks/results/alice_magic_NEW_LABEL.json
+  --output benchmarks/history/alice_magic_NEW_LABEL.json
 .venv/bin/pytest tests/test_alice_magic_benchmark.py
 ```
 

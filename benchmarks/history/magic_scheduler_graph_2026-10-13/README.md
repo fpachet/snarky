@@ -61,7 +61,7 @@ sont comparés sur de petits modèles ; on ne prétend pas préserver la recherc
 ## Premier tri et attribution
 
 Les [40 runs pilotes](pilot/summary.json) servent au tri des candidats, pas à
-annoncer une précision issue de répétitions. Le [profil séparé](profile/)
+annoncer une précision issue de répétitions. Le [profil séparé](profile)
 confirme un coût important dans `AllDifferentPlan.supports` : pour le préfixe
 16×16 de 80 nœuds, 163 appels et environ 4,96 millions d'appels à `bit_length`
 dans l'ensemble du profil. Les temps sous cProfile ne sont pas des temps de
@@ -249,7 +249,7 @@ PYTHONHASHSEED=0 PYTHONPATH=src:. .venv/bin/python -m experiments.neural_attenti
   --output generated/neural_attention/scheduler_graph_micro_replay.json
 
 PYTHONHASHSEED=0 .venv/bin/python -m pytest experiments/neural_attention/test_scheduler_graph.py
-.venv/bin/python benchmarks/results/magic_scheduler_graph_2026-10-13/validate_evidence.py.txt
+.venv/bin/python scripts/check_benchmark_history.py --experiments magic_scheduler_graph_2026-10-13
 ```
 
 Les deux files peuvent être testées à solution complète en remplaçant les
@@ -271,8 +271,10 @@ restent exclus des tableaux de performance.
 - [Outils](validation_tools.txt) : Ruff sur les fichiers modifiés, mypy sur les
   103 fichiers source, liens Markdown et `git diff --check` réussissent.
 
-Le [vérificateur des données](validate_evidence.py.txt) rejoue les validations
-et vérifie que le fichier ALLDIFF courant correspond exactement au prototype
-sélectif mesuré, tandis que recherche et propagation restent identiques à
-`b8e06c1`. Le [manifeste](source_manifest.json) conserve les empreintes des
-sources, archives et patch.
+Le [vérificateur d'origine](validate_evidence.py.txt) conserve les contrôles
+effectués sur le code de l'expérience, avec ses anciens chemins. Le
+[vérificateur actuel](../../../scripts/check_benchmark_history.py) contrôle les
+sources archivées, les données et les témoins après déplacement du répertoire,
+sans exiger que le solveur courant corresponde à une version historique.
+Le [manifeste](source_manifest.json) conserve les empreintes des sources,
+archives et patch.

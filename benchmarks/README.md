@@ -2,14 +2,21 @@
 
 Benchmarks are reproducible programs kept separate from correctness tests.
 They compare implementations only after verifying equivalent logical outputs
-and write machine-readable JSON or CSV under [`results/`](results/).
+and archive machine-readable JSON or CSV under [`history/`](history/).
 
 They are not universal performance claims. Wall-clock values depend on Python,
 hardware, operating system, background load, and benchmark parameters.
 Algorithmic counters and output equivalence are usually more portable.
 
-For the latest **magic-square benchmarks**, start with the
-[ALLDIFF graph results and reproduction guide](results/magic_scheduler_graph_2026-10-13/README.md).
+Use this page for the current overview and commands. The
+[results archive](history/README.md) contains the dated evidence behind each
+comparison; an archived experiment's defaults apply to its recorded version.
+
+## Magic squares
+
+This is the stable entry point for the current magic-square benchmark summary.
+For the latest measured sources and full results, use the
+[ALLDIFF graph results and reproduction guide](history/magic_scheduler_graph_2026-10-13/README.md).
 The latest production change groups identical large domain rows while building
 the reverse graph. Three-run native medians, including model construction:
 
@@ -24,10 +31,11 @@ Each before/after pair preserves search counts, solutions and explanations.
 The report also covers the optional joint SUM+ALLDIFF filter, raw samples,
 source snapshots and the experiments left disabled. Larger 15–20×20 results
 are node-limited prefixes, not completed solves. The
-[results index](results/README.md) links the earlier optimization stages.
+[results index](history/README.md) links the earlier optimization stages.
 
-For the upcoming redesign, use the [performance baseline and comparison
-ledger](../docs/performance_baseline.md). It defines a fixed non-Bach portfolio
+For the September 2026 redesign baseline and acceptance protocol, use the
+[performance baseline and comparison ledger](../docs/performance_baseline.md).
+It defines a fixed non-Bach portfolio
 collected by `python -m benchmarks.redesign_baseline`, with raw samples and
 explicit timing boundaries.
 
@@ -106,10 +114,10 @@ and checking every score, witness count, and ordered support list:
 
 ```sh
 python -m benchmarks.factor_supports --baseline-ref 1a453ad \
-  --output benchmarks/results/factor_supports_review_2026-09-08.json
+  --output benchmarks/history/factor_supports_review_2026-09-08.json
 ```
 
-The [recorded review comparison](results/factor_supports_review_2026-09-08.json)
+The [recorded review comparison](history/factor_supports_review_2026-09-08.json)
 reduces the 4,000-witness median from 1.467 s to 0.00937 s for this synthetic
 shared-scope case. This is an evaluator microbenchmark, not an end-to-end
 harmonization speedup. The record includes raw samples, source hash, commit,
@@ -323,7 +331,7 @@ The archive is chronological evidence, not a single current leaderboard.
 File names include the feature and date:
 
 ```text
-results/
+history/
 ├── classical_csp_2026-07-25.json
 ├── classical_csp_dom_wdeg_2026-07-25.json
 ├── classical_csp_learned_impact_2026-07-25.json
@@ -421,7 +429,7 @@ PYTHONHASHSEED=0 PYTHONPATH=src:. .venv/bin/python -m benchmarks.boulez_optimiza
 Use a fresh output path. The collector archives both source states, including dirty
 candidate files, and checks their hashes remain unchanged. The output embeds the
 published-witness record needed by the worker; when reproducing an archive alone,
-restore it as `benchmarks/results/blues_published_witness_2026-09-16.json`.
+restore it as `benchmarks/history/blues_published_witness_2026-09-16.json`.
 Restore the embedded Sudoku input to its recorded path as well.
 
 ### Workforce scheduling
@@ -433,8 +441,8 @@ the API, limitations and repeated A/B measurements.
 
 `python -m benchmarks.scheduling_comparison --baseline /path/to/snapshot --output
 generated/scheduling_comparison.json` compares a previous source snapshot with
-the current runtime in fresh processes. See the [raw records](results/scheduling_2026-09-26.json)
-and [reference patch](results/scheduling_2026-09-26_before.patch).
+the current runtime in fresh processes. See the [raw records](history/scheduling_2026-09-26.json)
+and [reference patch](history/scheduling_2026-09-26_before.patch).
 
 The [32-task collector](scheduling_symmetry.py) ports the population POC's archived
 inputs and model without its API dependency. Run:
@@ -453,7 +461,7 @@ independently checked; a matching oracle is called only after each solve.
 The output refuses to overwrite an existing record and embeds the reference
 kernel, inputs and current source hashes. See the
 [report](../docs/performance_scheduling_2026-09-28.md) and
-[raw archive](results/scheduling_symmetry_2026-09-28.json).
+[raw archive](history/scheduling_symmetry_2026-09-28.json).
 
 To measure the effect on the 40 existing scheduling and factor-bound tests:
 
@@ -465,7 +473,7 @@ python -m benchmarks.scheduling_test_comparison --repeat 5 \
 This uses the same historical workload kernel and current tests in fresh
 processes, with no added symmetry constraints. It records whole pytest invocation
 time and individual test-call durations; no timing is an assertion. See the
-[test timing archive](results/scheduling_tests_2026-09-28.json) and the
+[test timing archive](history/scheduling_tests_2026-09-28.json) and the
 [interpretation](../docs/performance_scheduling_2026-09-28.md#effect-on-existing-scheduling-tests).
 
 ## Established scheduling: PSPLIB J30 and OR-Library job shop
@@ -489,7 +497,7 @@ The [fixed selection and protocol](data/scheduling_standard/README.md) include
 precedences, integer durations, resource demands and makespan minimization.
 The [report](../docs/performance_scheduling_standard_2026-09-29.md) explains the
 zero-duration encoding and domain bounds. The
-[raw results](results/scheduling_standard_2026-09-29.json) retain every timeout,
+[raw results](history/scheduling_standard_2026-09-29.json) retain every timeout,
 all incumbent start vectors, independently checked witnesses, search counters,
 construction/first-feasible/proof timings, bounds, gaps and source hashes.
 
@@ -497,7 +505,7 @@ To revalidate saved witnesses without rerunning search:
 
 ```sh
 python -m benchmarks.scheduling_verify \
-  benchmarks/results/scheduling_standard_2026-09-29.json
+  benchmarks/history/scheduling_standard_2026-09-29.json
 ```
 
 The [optimization follow-up](../docs/performance_scheduling_improvements_2026-09-29.md)
@@ -508,7 +516,7 @@ incumbents and compact models on the same cases:
 python -m benchmarks.scheduling_improvements --repeat 3 --seconds 10 \
   --output generated/scheduling_improvements_new.json
 python -m benchmarks.scheduling_verify \
-  benchmarks/results/scheduling_improvements_2026-09-29.json
+  benchmarks/history/scheduling_improvements_2026-09-29.json
 ```
 
 The [comparison protocol](data/scheduling_standard/IMPROVEMENTS.md) includes
@@ -525,7 +533,7 @@ separate diagnostics.
 python -m benchmarks.scheduling_next --repeat 3 --seconds 10 \
   --output generated/scheduling_next_new.json
 python -m benchmarks.scheduling_verify \
-  benchmarks/results/scheduling_next_2026-09-29.json
+  benchmarks/history/scheduling_next_2026-09-29.json
 ```
 
 The [optimality follow-up](../docs/performance_scheduling_proofs_2026-09-29.md)
@@ -537,5 +545,5 @@ the archived `80abc15` runtime and separately removes each improvement.
 python -m benchmarks.scheduling_proofs --repeat 3 --seconds 10 \
   --output generated/scheduling_proofs_new.json
 python -m benchmarks.scheduling_verify \
-  benchmarks/results/scheduling_proofs_2026-09-29.json
+  benchmarks/history/scheduling_proofs_2026-09-29.json
 ```

@@ -19,7 +19,7 @@ def experimental_kernel(request, monkeypatch):
         return
     source = (
         Path(__file__).resolve().parents[2]
-        / "benchmarks/results/magic_sum_partial_2026-10-13/candidate_edges.py"
+        / "benchmarks/history/magic_sum_partial_2026-10-13/candidate_edges.py"
     )
     spec = importlib.util.spec_from_file_location(
         "snarky.finite._partial_candidate_test", source

@@ -232,10 +232,10 @@ Prune speedup claim. The full CSV also retains bridge preparation times.
 
 ## Reproduction and archived evidence
 
-[results.json](../benchmarks/results/prune_comparison_2026-09-16/results.json)
+[results.json](../benchmarks/history/prune_comparison_2026-09-16/results.json)
 contains every measured and warmup sample, normalized solutions, Gecode checks,
 compiled input hashes, solver commands, native counters and environment metadata.
-[summary.csv](../benchmarks/results/prune_comparison_2026-09-16/summary.csv) is the
+[summary.csv](../benchmarks/history/prune_comparison_2026-09-16/summary.csv) is the
 complete per-workload summary. The adjacent `artifacts/` directory retains the
 compiled inputs and output specifications; `sources.tar.gz` freezes the Snarky
 runtime, adapter, collector and fixture snapshot actually measured. The record
@@ -249,7 +249,7 @@ cargo build --locked --release --manifest-path /tmp/prune-comparison/Cargo.toml 
 PYTHONHASHSEED=0 PYTHONPATH=src:. .venv/bin/python -m benchmarks.prune_comparison \
   --prune /tmp/prune-comparison/target/release/prune-fzn \
   --minizinc /Applications/MiniZincIDE.app/Contents/Resources/minizinc \
-  --output benchmarks/results/prune_comparison_NEW_LABEL \
+  --output benchmarks/history/prune_comparison_NEW_LABEL \
   --seconds 5 --warmups 1 --repeats 3 \
   --machine-notes 'Record CPU, RAM, power and background conditions here'
 ```
@@ -273,7 +273,7 @@ optimization, budget rejection, provenance hashes and rejection of false or
 incomplete proofs. Ruff passes. A Python 3.12 magic-square smoke run also passed;
 the full pytest suite was run under Python 3.13, not 3.12.
 Commands and outcomes are retained in the
-[validation record](../benchmarks/results/prune_comparison_2026-09-16/validation.json)
+[validation record](../benchmarks/history/prune_comparison_2026-09-16/validation.json)
 and adjacent regression log.
 
 The next measurements should proceed in this order:

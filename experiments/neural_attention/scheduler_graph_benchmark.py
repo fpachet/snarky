@@ -29,7 +29,7 @@ from .magic_search_tuning import RankedDomains, RankedState, prepare
 
 ARCHIVE = (
     Path(__file__).resolve().parents[2]
-    / "benchmarks/results/magic_scheduler_graph_2026-10-13"
+    / "benchmarks/history/magic_scheduler_graph_2026-10-13"
 )
 VARIANTS = (
     "before",

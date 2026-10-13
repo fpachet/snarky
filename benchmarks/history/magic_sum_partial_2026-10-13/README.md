@@ -110,9 +110,9 @@ method afterward; the production source file is not changed.
 PYTHONHASHSEED=0 PYTHONPATH=src:. .venv/bin/python \
   -m experiments.neural_attention.magic_alldifferent_benchmark \
   --kernel sum \
-  --before benchmarks/results/magic_sum_partial_2026-10-13/numeric_before.py \
-  --candidate benchmarks/results/magic_sum_partial_2026-10-13/candidate_edges.py \
-  --presets benchmarks/results/magic_sum_dense_2026-10-13/presets.json \
+  --before benchmarks/history/magic_sum_partial_2026-10-13/numeric_before.py \
+  --candidate benchmarks/history/magic_sum_partial_2026-10-13/candidate_edges.py \
+  --presets benchmarks/history/magic_sum_dense_2026-10-13/presets.json \
   --sizes 6 8 9 10 11 12 13 14 15 16 18 20 --repeats 3 \
   --output generated/neural_attention/magic_sum_partial_NEW
 ```

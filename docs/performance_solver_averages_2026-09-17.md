@@ -78,11 +78,11 @@ this machine, without confidence intervals or controlled background load.
 
 ## Evidence and reproduction
 
-- [Prune samples and validation](../benchmarks/results/prune_numeric_2026-09-17/results.json)
-- [Prune per-workload medians](../benchmarks/results/prune_numeric_2026-09-17/summary.csv)
-- [Fresh CLAIRE samples, commands, environment and binary hashes](../benchmarks/results/claire_numeric_2026-09-17/results.json)
-- [CLAIRE-run Snarky source archive](../benchmarks/results/claire_numeric_2026-09-17/snarky_sources.tar.gz)
-- [Machine-readable averages and input hashes](../benchmarks/results/claire_numeric_2026-09-17/averages.json)
+- [Prune samples and validation](../benchmarks/history/prune_numeric_2026-09-17/results.json)
+- [Prune per-workload medians](../benchmarks/history/prune_numeric_2026-09-17/summary.csv)
+- [Fresh CLAIRE samples, commands, environment and binary hashes](../benchmarks/history/claire_numeric_2026-09-17/results.json)
+- [CLAIRE-run Snarky source archive](../benchmarks/history/claire_numeric_2026-09-17/snarky_sources.tar.gz)
+- [Machine-readable averages and input hashes](../benchmarks/history/claire_numeric_2026-09-17/averages.json)
 
 The records were collected under `/tmp` and then copied unchanged into the
 repository; recorded output command paths retain their original locations.
@@ -95,7 +95,7 @@ To refresh CLAIRE, use a new output directory:
 ```sh
 PYTHONHASHSEED=0 PYTHONPATH=src:. .venv/bin/python -m benchmarks.claire_refresh \
   --claire-root ../CLAIRE4 --repeats 3 \
-  --output benchmarks/results/claire_refresh_NEW_LABEL
+  --output benchmarks/history/claire_refresh_NEW_LABEL
 ```
 
 For the averages, group Prune CSV rows by `(instance, mode)`, retain groups where

@@ -33,7 +33,7 @@ def source_digest() -> tuple[str, int]:
     )
     paths = sorted(
         path.decode() for path in output.split(b"\0")
-        if path and not path.startswith(b"benchmarks/results/")
+        if path and not path.startswith(b"benchmarks/history/")
     )
     digest = hashlib.sha256()
     for relative in paths:

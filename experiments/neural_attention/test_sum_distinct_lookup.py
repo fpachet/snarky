@@ -103,7 +103,7 @@ def test_invalid_pair_budget_settings_are_rejected(settings):
 def test_lookup_reuses_exact_masks_counters_and_full_search_traces(policy):
     source = (
         Path(__file__).resolve().parents[2]
-        / "benchmarks/results/magic_sum_distinct_exact_2026-10-13/sum_distinct.py.txt"
+        / "benchmarks/history/magic_sum_distinct_exact_2026-10-13/sum_distinct.py.txt"
     )
     loader = importlib.machinery.SourceFileLoader("_exact_before_lookup", str(source))
     spec = importlib.util.spec_from_loader(loader.name, loader)

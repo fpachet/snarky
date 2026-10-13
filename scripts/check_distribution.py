@@ -8,7 +8,8 @@ import zipfile
 from pathlib import Path, PurePosixPath
 
 FORBIDDEN_PREFIXES = (
-    "benchmarks/results/",
+    "benchmarks/history/",
+    "benchmarks/results/",  # Exclude the former archive name in old build trees too.
     "docs/",
     "harmonizer/generated/",
     "spinoza/",

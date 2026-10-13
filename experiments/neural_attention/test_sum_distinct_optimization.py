@@ -18,7 +18,7 @@ from .test_sum_distinct import make_model
 def before():
     source = (
         Path(__file__).resolve().parents[2]
-        / "benchmarks/results/magic_sum_distinct_2026-10-13/sum_distinct.py.txt"
+        / "benchmarks/history/magic_sum_distinct_2026-10-13/sum_distinct.py.txt"
     )
     loader = importlib.machinery.SourceFileLoader("_distinct_before_test", str(source))
     spec = importlib.util.spec_from_loader(loader.name, loader)

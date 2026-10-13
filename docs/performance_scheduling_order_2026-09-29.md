@@ -27,9 +27,9 @@ proved. LA01 closes because local improvement meets an elementary resource
 bound. LA02–LA04 require order search. The J30 optima 83 and 50 are found by
 local improvement, but search does not certify them in ten seconds.
 
-The [main archive](../benchmarks/results/scheduling_next_2026-09-29.json) retains
+The [main archive](../benchmarks/history/scheduling_next_2026-09-29.json) retains
 all runs, phases, heuristic histories and witnesses. Its
-[source snapshot](../benchmarks/results/scheduling_next_2026-09-29_sources.tar.gz)
+[source snapshot](../benchmarks/history/scheduling_next_2026-09-29_sources.tar.gz)
 preserves all 110 measured source/protocol files. The measured sources stayed
 unchanged throughout the comparison.
 
@@ -72,8 +72,8 @@ These are single fresh-process diagnostics, declared in the
 They are excluded from the main three-repeat aggregates. Their times are
 individual observations, not stable timing estimates.
 
-The [search diagnostics](../benchmarks/results/scheduling_next_2026-09-29_search_diagnostics.json)
-and [budget controls](../benchmarks/results/scheduling_next_2026-09-29_diagnostic_control.json)
+The [search diagnostics](../benchmarks/history/scheduling_next_2026-09-29_search_diagnostics.json)
+and [budget controls](../benchmarks/history/scheduling_next_2026-09-29_diagnostic_control.json)
 use six seconds including preparation. `objective / time` denotes a proof;
 `feasible` denotes timeout.
 
@@ -91,12 +91,12 @@ all three repetitions. Energy checks leave LA03's first-phase node count at
 3,661 while adding time in this diagnostic. Not-first/not-last filtering also
 fails to improve coverage. These filters therefore remain opt-in.
 
-The [model diagnostics](../benchmarks/results/scheduling_next_2026-09-29_model_diagnostics.json)
+The [model diagnostics](../benchmarks/history/scheduling_next_2026-09-29_model_diagnostics.json)
 try derived conflicts and a compact finite-model phase on the two remaining J30
 cases. All four ten-second runs retain the optimum schedules but time out before
 proof. Adding redundant conflicts is sound, but it is not automatically faster.
 
-The [60-second runs](../benchmarks/results/scheduling_next_2026-09-29_extended.json)
+The [60-second runs](../benchmarks/history/scheduling_next_2026-09-29_extended.json)
 keep the same preparation and initial phase limits and spend the extra time in
 order search:
 
@@ -239,7 +239,7 @@ incumbent and building search structures. Whole-process times include imports.
 python -m benchmarks.scheduling_next --repeat 3 --seconds 10 \
   --output generated/scheduling_next_new.json
 python -m benchmarks.scheduling_verify \
-  benchmarks/results/scheduling_next_2026-09-29.json
+  benchmarks/history/scheduling_next_2026-09-29.json
 ```
 
 ## Validation
@@ -272,4 +272,4 @@ The complete non-Bach redesign gate passed: **1,240 passed, 6 skipped in
 whitespace checks pass. The wheel and source distribution build, distribution
 content audit and isolated installation/import/inference/console checks pass.
 The installed-wheel check explicitly exercises the new order solver. See the
-[validation log](../benchmarks/results/scheduling_next_2026-09-29_validation.txt).
+[validation log](../benchmarks/history/scheduling_next_2026-09-29_validation.txt).

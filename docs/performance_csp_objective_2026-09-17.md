@@ -44,8 +44,8 @@ optimal witness or incumbent history are allowed when the objective agrees.
 
 ## Paired results against the previous runtime
 
-The [record](../benchmarks/results/csp_objective_2026-09-17/results.json) and
-[summary](../benchmarks/results/csp_objective_2026-09-17/summary.json) retain every
+The [record](../benchmarks/history/csp_objective_2026-09-17/results.json) and
+[summary](../benchmarks/history/csp_objective_2026-09-17/summary.json) retain every
 sample and exact source hashes. All completed optimization runs prove the same
 objectives: Golomb 6 = 17, Golomb 7 = 25 and FT06 = 55.
 
@@ -77,8 +77,8 @@ on incumbent quality, ordering and how strongly model constraints transmit the c
 
 ## Same-source ablation
 
-The [on/off record](../benchmarks/results/csp_objective_ablation_2026-09-17/results.json)
-and [summary](../benchmarks/results/csp_objective_ablation_2026-09-17/summary.json)
+The [on/off record](../benchmarks/history/csp_objective_ablation_2026-09-17/results.json)
+and [summary](../benchmarks/history/csp_objective_ablation_2026-09-17/summary.json)
 use the same current runtime for both engines; only `objective_propagation` differs.
 Worker records identify whether the feature is available and enabled, independently
 of the collector's `auto` setting.
@@ -95,8 +95,8 @@ The ablation reproduces the modest FT06 gain and the unchanged timeout outcomes.
 
 ## Fresh Prune comparison
 
-The [full record](../benchmarks/results/prune_objective_2026-09-17/results.json)
-and [summary](../benchmarks/results/prune_objective_2026-09-17/summary.csv) cover
+The [full record](../benchmarks/history/prune_objective_2026-09-17/results.json)
+and [summary](../benchmarks/history/prune_objective_2026-09-17/summary.csv) cover
 54 available inputs and 59 mode workloads at the same five-second cap.
 
 | Engine | Completed per repetition | Optimization proofs per repetition |
@@ -123,7 +123,7 @@ comparisons do not isolate language overhead. The 31 requested upstream cases
 remain unavailable, and compiler-solved billion-range chains still do not measure
 native compact-domain support.
 
-The [parity audit](../benchmarks/results/prune_objective_2026-09-17/parity_with_alldiff.json)
+The [parity audit](../benchmarks/history/prune_objective_2026-09-17/parity_with_alldiff.json)
 confirms unchanged hashes for all 54 compiled inputs and identical normalized
 solutions/objectives for all 52 mutually completed Snarky workloads. FT06 is the
 only one with changed failure/revision counts; the other 51 preserve their recorded
@@ -131,7 +131,7 @@ search statistics. This is an output/work audit, not a paired latency comparison
 
 ## Application controls and remaining bottlenecks
 
-All six [compatibility controls](../benchmarks/results/csp_objective_controls_2026-09-17/results.json)
+All six [compatibility controls](../benchmarks/history/csp_objective_controls_2026-09-17/results.json)
 preserve their observations and applicable search counts. These internal medians
 cover preparation and search/inference, excluding process startup.
 
@@ -148,7 +148,7 @@ Boulez still proves optimality and recovers the published sequence without a
 supplied incumbent. Its rational-product objective does not use the new linear
 cut; the small timing changes in these controls are not claimed as improvements.
 
-The separate [five-second CPU profiles](../benchmarks/results/csp_objective_profiles_2026-09-17/results.json)
+The separate [five-second CPU profiles](../benchmarks/history/csp_objective_profiles_2026-09-17/results.json)
 are instrumented diagnostics, not latency measurements or matched-work comparisons.
 Packing reaches 2,184 nodes with **no incumbent**, so there is no cut to post.
 Knapsack reaches 6,818 nodes and an incumbent of 110, without a proof (the
@@ -160,9 +160,9 @@ cuts alone do not resolve either case under the measured cap.
 
 ## Cut-specific diagnostic audit
 
-A separate [audit script](../benchmarks/results/csp_objective_2026-09-17/audit_cuts.py)
+A separate [audit script](../benchmarks/history/csp_objective_2026-09-17/audit_cuts.py)
 records cut revisions, failures and removals with a five-second cooperative search
-cap. Its [results](../benchmarks/results/csp_objective_2026-09-17/cut_effects.json)
+cap. Its [results](../benchmarks/history/csp_objective_2026-09-17/cut_effects.json)
 validate returned assignments against original FlatZinc primitives. This is a
 single instrumented run per mode, with different work at the time limit; it is
 not a repeated latency comparison and is distinct from the heavier CPU profiles.
@@ -199,7 +199,7 @@ incumbents, rescheduling, synthetic-name collision, nested rollback, state reuse
 limits/exceptions and cost-to-sum-to-rule propagation. Existing factor/product,
 mixed, optimization and application tests remain in the full regression gate.
 The full workspace gate passes **1,099 tests, three skips**; see the
-[validation record](../benchmarks/results/csp_objective_2026-09-17/validation.md)
+[validation record](../benchmarks/history/csp_objective_2026-09-17/validation.md)
 for commands, logs and the scope of concurrent Alice tests.
 
 ## Reproduction
@@ -208,10 +208,10 @@ for commands, logs and the scope of concurrent Alice tests.
 PYTHONHASHSEED=0 PYTHONPATH=src:. .venv/bin/python -m benchmarks.csp_followup compare \
   --reference-source /path/to/104d903 --reference-ref 104d903 \
   --reference-nvalue native --only optimization/ --hard-seconds 5 \
-  --warmups 1 --repeats 3 --output benchmarks/results/objective_NEW_LABEL
+  --warmups 1 --repeats 3 --output benchmarks/history/objective_NEW_LABEL
 PYTHONHASHSEED=0 PYTHONPATH=src:. .venv/bin/python -m benchmarks.csp_followup compare \
   --reference-source . --reference-ref same-source-cut-disabled \
   --reference-nvalue native --reference-objective-propagation off \
   --candidate-objective-propagation on --only optimization/ --hard-seconds 5 \
-  --warmups 1 --repeats 3 --output benchmarks/results/objective_ablation_NEW_LABEL
+  --warmups 1 --repeats 3 --output benchmarks/history/objective_ablation_NEW_LABEL
 ```

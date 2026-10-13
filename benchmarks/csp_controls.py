@@ -55,7 +55,7 @@ def collect(args):
         cases=[],
     )
     witness = (
-        ROOT / "benchmarks/results/blues_published_witness_2026-09-16.json"
+        ROOT / "benchmarks/history/blues_published_witness_2026-09-16.json"
     ).read_bytes()
     (args.output / "boulez_witness.json").write_bytes(witness)
     records["boulez_witness_sha256"] = hashlib.sha256(witness).hexdigest()

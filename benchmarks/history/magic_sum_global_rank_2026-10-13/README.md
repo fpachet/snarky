@@ -158,7 +158,7 @@ Run from the repository root with a fresh output directory:
 PYTHONHASHSEED=0 PYTHONPATH=src:. .venv/bin/python \
   -m experiments.neural_attention.sum_global_rank \
   --sizes 3 4 6 8 9 10 11 12 13 14 15 16 18 20 \
-  --presets benchmarks/results/magic_sum_global_rank_2026-10-13/presets.json \
+  --presets benchmarks/history/magic_sum_global_rank_2026-10-13/presets.json \
   --output generated/neural_attention/sum_global_rank_NEW
 
 .venv/bin/pytest experiments/neural_attention/test_sum_global_rank.py \

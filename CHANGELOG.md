@@ -190,7 +190,7 @@ details are documented in [docs/versioning.md](docs/versioning.md).
 - Limited wildcard package imports to the stable core while retaining all
   historical explicit top-level imports for the 0.1 series.
 - Improved parser, fact-index, query-memory, join, and constraint-propagation
-  hot paths, with benchmark evidence recorded under `benchmarks/results`.
+  hot paths, with benchmark evidence recorded under `benchmarks/history`.
 - Avoided materialized partial products for safe comparison-barrier rules by
   anchoring indexed joins directly on added facts; removals, `FOCUS`, unbound
   comparisons, and unsupported premises retain their previous paths.

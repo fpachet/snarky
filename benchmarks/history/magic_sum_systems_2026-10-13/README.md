@@ -178,7 +178,7 @@ From the repository root, use fresh output directories:
 ```sh
 PYTHONHASHSEED=0 PYTHONPATH=src:. .venv/bin/python \
   -m experiments.neural_attention.magic_sum_system_benchmark \
-  --presets benchmarks/results/magic_sum_systems_2026-10-13/presets.json \
+  --presets benchmarks/history/magic_sum_systems_2026-10-13/presets.json \
   --sizes 6 8 9 10 11 12 13 14 15 16 18 20 \
   --variants baseline exact --repeats 3 \
   --output generated/neural_attention/sum_systems_NEW

@@ -20,7 +20,7 @@ from pathlib import Path
 from time import perf_counter
 
 ROOT = Path(__file__).resolve().parents[1]
-WITNESS = ROOT / "benchmarks/results/blues_published_witness_2026-09-16.json"
+WITNESS = ROOT / "benchmarks/history/blues_published_witness_2026-09-16.json"
 SUDOKU_INPUT = Path(
     "third_party/test_rulebases/clips-6.4.2/clips_examples_642/"
     "sudoku/puzzles/grid3x3-p7.clp"

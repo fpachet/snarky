@@ -160,7 +160,7 @@ comme du code courant.
 Une première série avait laissé les références au modèle et à l'état du solve
 précédent vivantes jusqu'au début du suivant. Leur libération pouvait alors
 être incluse dans le temps de la nouvelle construction. Ses 225 exécutions
-restent dans [initial_series](initial_series/), mais leurs temps ne servent pas
+restent dans [initial_series](initial_series), mais leurs temps ne servent pas
 aux tableaux finaux. La nouvelle série libère ces références et collecte les
 cycles **hors chronométrage avant chaque exécution**. Cela ne change pas les
 sources du solveur. La régression initiale 11×11 ne réapparaît pas dans la
@@ -261,7 +261,8 @@ limite et ne signifie pas que le problème a été résolu.
 Les empreintes des sources de chaque série sont contrôlées, ainsi que
 l'égalité des comptes, témoins, digests d'explications et statistiques conjointes
 hors temps. Les snapshots `after` correspondent exactement au code courant.
-Le [vérificateur conservé](validate_evidence.py.txt) peut être lancé avec
-`.venv/bin/python benchmarks/results/magic_domain_ops_2026-10-13/validate_evidence.py.txt`.
+Le [vérificateur d'origine](validate_evidence.py.txt) reste figé avec ses anciens
+chemins. Depuis la racine du dépôt, vérifier les données déplacées avec
+`.venv/bin/python scripts/check_benchmark_history.py --experiments magic_domain_ops_2026-10-13`.
 Le [manifeste](source_manifest.json) donne aussi les empreintes des sources
 archivées et du paquet de sources.

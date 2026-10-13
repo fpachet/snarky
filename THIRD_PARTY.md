@@ -105,7 +105,7 @@ inherit the dataset notice when they include the fixture.
 - `harmonizer/generated/` contains reproducible MIDI and MusicXML outputs.
   They are ignored by Git and regenerated with
   `python -m harmonizer.example_muses`.
-- `benchmarks/results/` contains tracked, machine-readable experimental
+- `benchmarks/history/` contains tracked, machine-readable experimental
   records. It is first-party evidence, not runtime source, and is excluded
   from Python distributions.
 - caches, wheels, source distributions, coverage reports, and local IDE files

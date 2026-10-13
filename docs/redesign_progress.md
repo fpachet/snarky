@@ -66,7 +66,7 @@ the acceptance decision and the reproduced completion-cache memory tradeoff.
 - Isolated core and companion wheel smoke checks pass, including the installed
   scheduling and Markov examples. Core CSP and Markov examples require no CSP
   companion package. The last built wheels predate incumbent timing instrumentation.
-- [Native Markov measurements](../benchmarks/results/finite_markov_2026-09-16.json):
+- [Native Markov measurements](../benchmarks/history/finite_markov_2026-09-16.json):
   six fixed synthetic cases, seven samples each, preparation/search separated,
   incumbent histories, proof/limit statuses, and isolated Python-allocation peaks.
   Four cases retain an incumbent without proving optimality within 1,000 nodes.

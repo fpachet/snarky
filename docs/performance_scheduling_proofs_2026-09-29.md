@@ -18,7 +18,7 @@ completing this selection does not mean completing all of PSPLIB or OR-Library.
 
 ## Results
 
-The [main archive](../benchmarks/results/scheduling_proofs_2026-09-29.json)
+The [main archive](../benchmarks/history/scheduling_proofs_2026-09-29.json)
 compares the previous portfolio reconstructed from commit `80abc15` with the new
 portfolio. The [protocol](../benchmarks/data/scheduling_standard/PROOFS.md)
 specifies three sequential fresh processes for every case and variant, a shared
@@ -73,13 +73,13 @@ The job-shop strategy is unchanged; its small timing differences should not be
 interpreted as a systematic improvement. The existing two-second local-search
 overhead on some easy project cases is retained.
 
-The [source snapshot](../benchmarks/results/scheduling_proofs_2026-09-29_sources.tar.gz)
+The [source snapshot](../benchmarks/history/scheduling_proofs_2026-09-29_sources.tar.gz)
 preserves all 113 measured runtime, driver and protocol files. Their hashes
 remain unchanged throughout the comparison.
 
 ### Ablations
 
-The [18 additional runs](../benchmarks/results/scheduling_proofs_2026-09-29_ablations.json)
+The [18 additional runs](../benchmarks/history/scheduling_proofs_2026-09-29_ablations.json)
 remove one component at a time on the two formerly open cases, with the same
 ten-second budget and three repetitions. Outcomes are identical in every
 repetition. Times below are median total algorithm times.
@@ -191,7 +191,7 @@ The repeated comparisons and ablations provide the final performance evidence.
 
 ## Validation and reproduction
 
-The [validation log](../benchmarks/results/scheduling_proofs_2026-09-29_validation.txt)
+The [validation log](../benchmarks/history/scheduling_proofs_2026-09-29_validation.txt)
 records **1,245 passed tests and six skips** in the full non-Bach regression gate
 (230.38 s), plus lint, formatting, strict types, DSL checks, Markdown links,
 distribution content checks and isolated installation. The installed wheel
@@ -217,7 +217,7 @@ python -m benchmarks.scheduling_proofs --repeat 3 --seconds 10 \
   --cases j309_1 j3014_1 --variants cliques shaving unshaved \
   --output generated/scheduling_proofs_ablations_new.json
 python -m benchmarks.scheduling_verify \
-  benchmarks/results/scheduling_proofs_2026-09-29.json
+  benchmarks/history/scheduling_proofs_2026-09-29.json
 pytest tests/test_scheduling_proofs.py tests/test_scheduling_order.py
 ```
 

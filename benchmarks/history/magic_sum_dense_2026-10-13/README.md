@@ -95,8 +95,8 @@ Compare both sum kernels with the archived settings:
 PYTHONHASHSEED=0 PYTHONPATH=src:. .venv/bin/python \
   -m experiments.neural_attention.magic_alldifferent_benchmark \
   --kernel sum \
-  --before benchmarks/results/magic_sum_dense_2026-10-13/numeric_before.py \
-  --presets benchmarks/results/magic_sum_dense_2026-10-13/presets.json \
+  --before benchmarks/history/magic_sum_dense_2026-10-13/numeric_before.py \
+  --presets benchmarks/history/magic_sum_dense_2026-10-13/presets.json \
   --sizes 6 8 9 10 11 12 13 14 15 16 18 20 --repeats 3 \
   --output generated/neural_attention/magic_sum_dense_NEW
 ```

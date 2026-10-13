@@ -48,7 +48,7 @@ benchmark; no fitting to the paper's rounded numbers is performed.
 | Two-family proposed | -46.921592 |
 | Paper's reported value, historical model | -46.74 |
 
-[Exact products, local factors and validation provenance](../benchmarks/results/blues_published_witness_2026-09-16.json)
+[Exact products, local factors and validation provenance](../benchmarks/history/blues_published_witness_2026-09-16.json)
 are preserved separately from search measurements. This is an externally supplied
 feasible witness, not an incumbent discovered by our search and not an optimality
 proof for our corpus.

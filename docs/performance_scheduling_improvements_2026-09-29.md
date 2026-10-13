@@ -17,10 +17,10 @@ enters any search, horizon, seed or propagator.
 
 ## Results
 
-The [complete raw archive](../benchmarks/results/scheduling_improvements_2026-09-29.json)
+The [complete raw archive](../benchmarks/history/scheduling_improvements_2026-09-29.json)
 retains every run and incumbent, including constructive improvement histories,
 bounds, gaps, search counters and source hashes. The
-[source snapshot](../benchmarks/results/scheduling_improvements_2026-09-29_sources.tar.gz)
+[source snapshot](../benchmarks/history/scheduling_improvements_2026-09-29_sources.tar.gz)
 contains all 107 measured first-party source files. The archive confirms these
 files stayed unchanged during the comparison. The separate pilot is excluded
 from these aggregates.
@@ -68,7 +68,7 @@ on `j309_1` and `j3014_1`. It therefore remains an explicit option.
 
 ### Which kernel accounts for the improvement?
 
-The [supplemental archive](../benchmarks/results/scheduling_improvements_2026-09-29_ablations.json)
+The [supplemental archive](../benchmarks/history/scheduling_improvements_2026-09-29_ablations.json)
 contains 45 fresh-process runs: three repetitions, three targeted cases and five
 variants. These use a separate **one-second** search limit and the original model,
 with no seed. Each isolated variant restores the other archived implementations.
@@ -213,6 +213,6 @@ wheel installation/import/inference/console checks pass. Both source snapshots
 match every recorded hash; main and diagnostic runs report unchanged sources.
 
 The complete non-Bach redesign gate passed: **1,233 passed, 6 skipped in
-216.94 seconds**. See the [validation log](../benchmarks/results/scheduling_improvements_2026-09-29_validation.txt).
+216.94 seconds**. See the [validation log](../benchmarks/history/scheduling_improvements_2026-09-29_validation.txt).
 The earlier assessment and its archived runtime/results remain intact; no
 workforce instance or POC evidence was changed.

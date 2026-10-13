@@ -507,9 +507,9 @@ solutions restent identiques au chemin avide conservé pour les tests A/B.
 
 Les résultats bruts sont conservés dans :
 
-- [`../benchmarks/results/choice_search_optimized_2026-07-25.json`](../benchmarks/results/choice_search_optimized_2026-07-25.json) ;
-- [`../benchmarks/results/choice_trail_optimized_2026-07-25.json`](../benchmarks/results/choice_trail_optimized_2026-07-25.json) ;
-- [`../benchmarks/results/choice_formulations_2026-07-25.json`](../benchmarks/results/choice_formulations_2026-07-25.json).
+- [`../benchmarks/history/choice_search_optimized_2026-07-25.json`](../benchmarks/history/choice_search_optimized_2026-07-25.json) ;
+- [`../benchmarks/history/choice_trail_optimized_2026-07-25.json`](../benchmarks/history/choice_trail_optimized_2026-07-25.json) ;
+- [`../benchmarks/history/choice_formulations_2026-07-25.json`](../benchmarks/history/choice_formulations_2026-07-25.json).
 
 ## P8 — Base immuable et overlays de branches
 
