@@ -1,0 +1,501 @@
+{
+  "variables": 128,
+  "alphabet": 256,
+  "repeats": 7,
+  "schedule": [
+    [
+      "explained",
+      "before",
+      1
+    ],
+    [
+      "explained",
+      "after",
+      6
+    ],
+    [
+      "sparse",
+      "after",
+      3
+    ],
+    [
+      "explained",
+      "after",
+      4
+    ],
+    [
+      "explained",
+      "after",
+      3
+    ],
+    [
+      "explained",
+      "before",
+      4
+    ],
+    [
+      "assign_rollback",
+      "after",
+      0
+    ],
+    [
+      "sparse",
+      "after",
+      4
+    ],
+    [
+      "assign_rollback",
+      "before",
+      5
+    ],
+    [
+      "sparse",
+      "before",
+      5
+    ],
+    [
+      "sparse",
+      "before",
+      0
+    ],
+    [
+      "sparse",
+      "after",
+      0
+    ],
+    [
+      "explained",
+      "after",
+      2
+    ],
+    [
+      "explained",
+      "before",
+      2
+    ],
+    [
+      "sparse",
+      "before",
+      1
+    ],
+    [
+      "assign_rollback",
+      "before",
+      4
+    ],
+    [
+      "explained",
+      "before",
+      5
+    ],
+    [
+      "assign_rollback",
+      "after",
+      1
+    ],
+    [
+      "assign_rollback",
+      "before",
+      1
+    ],
+    [
+      "assign_rollback",
+      "after",
+      2
+    ],
+    [
+      "assign_rollback",
+      "after",
+      3
+    ],
+    [
+      "sparse",
+      "after",
+      6
+    ],
+    [
+      "explained",
+      "after",
+      0
+    ],
+    [
+      "assign_rollback",
+      "after",
+      5
+    ],
+    [
+      "explained",
+      "before",
+      3
+    ],
+    [
+      "assign_rollback",
+      "after",
+      4
+    ],
+    [
+      "sparse",
+      "before",
+      4
+    ],
+    [
+      "sparse",
+      "after",
+      1
+    ],
+    [
+      "assign_rollback",
+      "after",
+      6
+    ],
+    [
+      "assign_rollback",
+      "before",
+      3
+    ],
+    [
+      "assign_rollback",
+      "before",
+      0
+    ],
+    [
+      "sparse",
+      "after",
+      2
+    ],
+    [
+      "sparse",
+      "before",
+      3
+    ],
+    [
+      "sparse",
+      "after",
+      5
+    ],
+    [
+      "assign_rollback",
+      "before",
+      6
+    ],
+    [
+      "explained",
+      "after",
+      5
+    ],
+    [
+      "sparse",
+      "before",
+      2
+    ],
+    [
+      "explained",
+      "before",
+      0
+    ],
+    [
+      "assign_rollback",
+      "before",
+      2
+    ],
+    [
+      "explained",
+      "before",
+      6
+    ],
+    [
+      "explained",
+      "after",
+      1
+    ],
+    [
+      "sparse",
+      "before",
+      6
+    ]
+  ],
+  "scope": "Constructor/imports/final validation excluded. sparse:4096 removals and rollback. explained:4096 removals with history requested after each128 reductions. assign_rollback:16 rounds of128 singleton assignments, status checks, last-value check, changed-event drain and rollback. Successful explanations are compared separately in the full-solve benchmarks.",
+  "source_hashes": {
+    "/Users/francoispachet/IdeaProjects/boojum/experiments/neural_attention/domain_ops_micro.py": "4523b5c366bc6cb508f098be2f6b9ee4f2c7fd40f0770b2322b0be39ed2b112f",
+    "/Users/francoispachet/IdeaProjects/boojum/experiments/neural_attention/domain_ops_benchmark.py": "ae83f76fb0c26140fde13d6d9babd65f24720fa478527c69aa7d0c0f337e3845",
+    "/Users/francoispachet/IdeaProjects/boojum/benchmarks/results/magic_domain_ops_2026-10-13/before/domains.py.txt": "e5325b73d7bd45237c4ece522258779c8fb099dc75ee52faf0c4c427f9fab7ed",
+    "/Users/francoispachet/IdeaProjects/boojum/benchmarks/results/magic_domain_ops_2026-10-13/after/domains.py.txt": "8e39ea73c63dc60e9d9944b75808afe15f5b56b1460da1c4050b8948f99d89e0"
+  },
+  "runs": [
+    {
+      "case": "explained",
+      "variant": "before",
+      "repeat": 1,
+      "seconds": 0.003882459132000804
+    },
+    {
+      "case": "explained",
+      "variant": "after",
+      "repeat": 6,
+      "seconds": 0.004696583840996027
+    },
+    {
+      "case": "sparse",
+      "variant": "after",
+      "repeat": 3,
+      "seconds": 0.002617417136207223
+    },
+    {
+      "case": "explained",
+      "variant": "after",
+      "repeat": 4,
+      "seconds": 0.005379833048209548
+    },
+    {
+      "case": "explained",
+      "variant": "after",
+      "repeat": 3,
+      "seconds": 0.005147541873157024
+    },
+    {
+      "case": "explained",
+      "variant": "before",
+      "repeat": 4,
+      "seconds": 0.003778250189498067
+    },
+    {
+      "case": "assign_rollback",
+      "variant": "after",
+      "repeat": 0,
+      "seconds": 0.0014840839430689812
+    },
+    {
+      "case": "sparse",
+      "variant": "after",
+      "repeat": 4,
+      "seconds": 0.0031040841713547707
+    },
+    {
+      "case": "assign_rollback",
+      "variant": "before",
+      "repeat": 5,
+      "seconds": 0.04737766599282622
+    },
+    {
+      "case": "sparse",
+      "variant": "before",
+      "repeat": 5,
+      "seconds": 0.006238749949261546
+    },
+    {
+      "case": "sparse",
+      "variant": "before",
+      "repeat": 0,
+      "seconds": 0.004557958105579019
+    },
+    {
+      "case": "sparse",
+      "variant": "after",
+      "repeat": 0,
+      "seconds": 0.002843499882146716
+    },
+    {
+      "case": "explained",
+      "variant": "after",
+      "repeat": 2,
+      "seconds": 0.004990250105038285
+    },
+    {
+      "case": "explained",
+      "variant": "before",
+      "repeat": 2,
+      "seconds": 0.0037868330255150795
+    },
+    {
+      "case": "sparse",
+      "variant": "before",
+      "repeat": 1,
+      "seconds": 0.0043315410148352385
+    },
+    {
+      "case": "assign_rollback",
+      "variant": "before",
+      "repeat": 4,
+      "seconds": 0.0470664999447763
+    },
+    {
+      "case": "explained",
+      "variant": "before",
+      "repeat": 5,
+      "seconds": 0.004261999856680632
+    },
+    {
+      "case": "assign_rollback",
+      "variant": "after",
+      "repeat": 1,
+      "seconds": 0.0017425830010324717
+    },
+    {
+      "case": "assign_rollback",
+      "variant": "before",
+      "repeat": 1,
+      "seconds": 0.048559000017121434
+    },
+    {
+      "case": "assign_rollback",
+      "variant": "after",
+      "repeat": 2,
+      "seconds": 0.0014830408617854118
+    },
+    {
+      "case": "assign_rollback",
+      "variant": "after",
+      "repeat": 3,
+      "seconds": 0.0017868340946733952
+    },
+    {
+      "case": "sparse",
+      "variant": "after",
+      "repeat": 6,
+      "seconds": 0.004588291980326176
+    },
+    {
+      "case": "explained",
+      "variant": "after",
+      "repeat": 0,
+      "seconds": 0.00447254185564816
+    },
+    {
+      "case": "assign_rollback",
+      "variant": "after",
+      "repeat": 5,
+      "seconds": 0.0018129581585526466
+    },
+    {
+      "case": "explained",
+      "variant": "before",
+      "repeat": 3,
+      "seconds": 0.01411191700026393
+    },
+    {
+      "case": "assign_rollback",
+      "variant": "after",
+      "repeat": 4,
+      "seconds": 0.0018411248456686735
+    },
+    {
+      "case": "sparse",
+      "variant": "before",
+      "repeat": 4,
+      "seconds": 0.004932916024699807
+    },
+    {
+      "case": "sparse",
+      "variant": "after",
+      "repeat": 1,
+      "seconds": 0.0028238750528544188
+    },
+    {
+      "case": "assign_rollback",
+      "variant": "after",
+      "repeat": 6,
+      "seconds": 0.0017414579633623362
+    },
+    {
+      "case": "assign_rollback",
+      "variant": "before",
+      "repeat": 3,
+      "seconds": 0.049053250113502145
+    },
+    {
+      "case": "assign_rollback",
+      "variant": "before",
+      "repeat": 0,
+      "seconds": 0.04718112503178418
+    },
+    {
+      "case": "sparse",
+      "variant": "after",
+      "repeat": 2,
+      "seconds": 0.0044602081179618835
+    },
+    {
+      "case": "sparse",
+      "variant": "before",
+      "repeat": 3,
+      "seconds": 0.004592084093019366
+    },
+    {
+      "case": "sparse",
+      "variant": "after",
+      "repeat": 5,
+      "seconds": 0.002952458104118705
+    },
+    {
+      "case": "assign_rollback",
+      "variant": "before",
+      "repeat": 6,
+      "seconds": 0.04712483403272927
+    },
+    {
+      "case": "explained",
+      "variant": "after",
+      "repeat": 5,
+      "seconds": 0.00570933404378593
+    },
+    {
+      "case": "sparse",
+      "variant": "before",
+      "repeat": 2,
+      "seconds": 0.00436608400195837
+    },
+    {
+      "case": "explained",
+      "variant": "before",
+      "repeat": 0,
+      "seconds": 0.005112084094434977
+    },
+    {
+      "case": "assign_rollback",
+      "variant": "before",
+      "repeat": 2,
+      "seconds": 0.04710287507623434
+    },
+    {
+      "case": "explained",
+      "variant": "before",
+      "repeat": 6,
+      "seconds": 0.004074665950611234
+    },
+    {
+      "case": "explained",
+      "variant": "after",
+      "repeat": 1,
+      "seconds": 0.005471458891406655
+    },
+    {
+      "case": "sparse",
+      "variant": "before",
+      "repeat": 6,
+      "seconds": 0.004488041857257485
+    }
+  ],
+  "summary": [
+    {
+      "case": "explained",
+      "medians": {
+        "before": 0.004074665950611234,
+        "after": 0.005147541873157024
+      }
+    },
+    {
+      "case": "sparse",
+      "medians": {
+        "before": 0.004557958105579019,
+        "after": 0.002952458104118705
+      }
+    },
+    {
+      "case": "assign_rollback",
+      "medians": {
+        "before": 0.04718112503178418,
+        "after": 0.0017425830010324717
+      }
+    }
+  ]
+}

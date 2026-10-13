@@ -107,16 +107,14 @@ class NativeState:
         self.failure: Atom | None = None
         self.revisions = 0
         self._deadline: float | None = None
-        self._adjacency: dict[Term, list[int]] = {
-            var.name: [] for var in model.variables
-        }
+        self._adjacency: list[list[int]] = [[] for _ in model.variables]
         self._tables: dict[int, TableSupports] = {}
         self._nested_tables: dict[int, TableSupports] = {}
         self._matchings: dict[int, dict[Term, Term]] = {}
         self._guarded: list[int] = []
         for index, constraint in enumerate(model.constraints):
             for var in constraint.variables:
-                self._adjacency[var].append(index)
+                self._adjacency[self.domains.index(var)].append(index)
             if isinstance(constraint, GuardedConstraint):
                 self._guarded.append(index)
                 constraint = constraint.constraint
@@ -138,7 +136,7 @@ class NativeState:
         self.domains.release(checkpoint.domains)
 
     def restrict(self, variable: Term, value: Term) -> None:
-        self.domains.retain(variable, {value}, Atom("decision"))
+        self.domains.assign(variable, value, Atom("decision"))
 
     def propagate(
         self,
@@ -152,7 +150,11 @@ class NativeState:
         indices = (
             set(range(len(self.model.constraints)))
             if not self._initialized
-            else {index for var in changed for index in self._adjacency[var]}
+            else {
+                index
+                for var in changed
+                for index in self._adjacency[self.domains.index(var)]
+            }
         )
         self._initialized = True
         indices.update(self._guarded)
@@ -164,13 +166,15 @@ class NativeState:
         pending = deque(
             ([cut_index] if objective_cut is not None else []) + sorted(indices)
         )
-        queued = set(pending)
+        queued = bytearray(cut_index + 1)
+        for index in pending:
+            queued[index] = 1
         while pending:
             if deadline is not None and perf_counter() >= deadline:
                 self._initialized = False
                 raise TimeoutError("constraint propagation time limit")
             index = pending.popleft()
-            queued.remove(index)
+            queued[index] = 0
             constraint = (
                 objective_cut if index == cut_index else self.model.constraints[index]
             )
@@ -238,12 +242,16 @@ class NativeState:
                     if len(values) != self.domains.size(var):
                         self.domains.retain(var, values, cause)
             for var in self.domains.take_changed():
-                if var in cut_variables and cut_index not in queued:
-                    queued.add(cut_index)
+                if var in cut_variables and not queued[cut_index]:
+                    queued[cut_index] = 1
                     pending.append(cut_index)
-                for incident in (*self._adjacency[var], *self._guarded):
-                    if incident not in queued:
-                        queued.add(incident)
+                for incident in self._adjacency[self.domains.index(var)]:
+                    if not queued[incident]:
+                        queued[incident] = 1
+                        pending.append(incident)
+                for incident in self._guarded:
+                    if not queued[incident]:
+                        queued[incident] = 1
                         pending.append(incident)
         return self.failure is None and not self.domains.empty
 
@@ -251,8 +259,12 @@ class NativeState:
         supported = plan.supports(self.domains)
         if supported is None:
             return False
-        for variable, mask in zip(plan.variables, supported, strict=True):
-            self.domains.retain_mask(variable, mask, cause)
+        if supported != plan.input_masks:
+            for variable, before, mask in zip(
+                plan.variables, plan.input_masks, supported, strict=True
+            ):
+                if mask != before:
+                    self.domains.retain_mask(variable, mask, cause)
         return True
 
     def _revise_numeric(
@@ -265,8 +277,12 @@ class NativeState:
         supported = plan.supports(self.domains, constraint.target)
         if supported is None:
             return False
-        for column, mask in zip(plan.columns, supported, strict=True):
-            self.domains.retain_mask(column.variable, mask, cause)
+        if supported != plan.input_masks:
+            for column, before, mask in zip(
+                plan.columns, plan.input_masks, supported, strict=True
+            ):
+                if mask != before:
+                    self.domains.retain_mask(column.variable, mask, cause)
         return True
 
     def _revise(

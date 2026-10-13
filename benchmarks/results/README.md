@@ -29,6 +29,22 @@ adds early gating and a bounded three-variable bitset path, preserving searches
 exactly. Filtering itself becomes cheaper; end-to-end gains remain small and
 mixed across the repeated measurements.
 
+The [exact three-variable SUM + ALLDIFF experiment](magic_sum_distinct_exact_2026-10-13/README.md)
+enumerates at most 64 pairs to obtain exact local joint supports. It compares
+stronger filtering with the existing bounds, including repeated timings and
+additional search seeds; the production solver remains unchanged.
+
+The [compiled lookup, pair-budget and matching follow-up](magic_sum_lookup_matching_2026-10-13/README.md)
+tests reusable numeric maps, broader exact-filter eligibility, and a native
+ALLDIFF fast path for complete validated matchings. Overall timing effects are
+small and mixed; the SUM + ALLDIFF filters remain experimental and optional.
+
+The [domain-store and propagation optimization](magic_domain_ops_2026-10-13/README.md)
+implements deferred explanations, indexed storage, constant-time domain status,
+direct assignment, changed-mask application and cheaper queue membership.
+Its paired comparisons require identical searches and explanations; component
+measurements and instrumented call counts are reported separately.
+
 Workforce task symmetry and workload propagation:
 [scheduling_symmetry_2026-09-28.json](scheduling_symmetry_2026-09-28.json) records
 24 fresh-process runs across four ablations and two model sizes, plus separate

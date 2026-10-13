@@ -125,9 +125,19 @@ class NumericColumn:
 
 class NumericPlan:
     def __init__(
-        self, columns: tuple[NumericColumn, ...], operator: ConstraintOperator
+        self,
+        columns: tuple[NumericColumn, ...],
+        operator: ConstraintOperator,
+        domains: FiniteDomains | None = None,
     ) -> None:
         self.columns = columns
+        self._domain_store = domains
+        self.indices = (
+            tuple(domains.index(c.variable) for c in columns)
+            if domains is not None
+            else None
+        )
+        self.input_masks: tuple[int, ...] = ()
         self.operator = operator
         self.last_masks = [-1] * len(columns)
         self.extrema = [0] * len(columns)
@@ -137,7 +147,12 @@ class NumericPlan:
         self.equal_result: tuple[int, ...] | None = None
 
     def supports(self, domains: FiniteDomains, target: int) -> tuple[int, ...] | None:
-        masks = tuple(domains.mask(c.variable) for c in self.columns)
+        masks = (
+            domains.masks_at(self.indices)
+            if domains is self._domain_store and self.indices is not None
+            else tuple(domains.mask(c.variable) for c in self.columns)
+        )
+        self.input_masks = masks
         if not all(masks):
             return None
         if self.operator is ConstraintOperator.EQUAL:
@@ -431,7 +446,7 @@ class NumericPlans:
                     self._layouts[values] = column
                 self.entries += len(alphabet)
             columns.append(column)
-        return NumericPlan(tuple(columns), operator)
+        return NumericPlan(tuple(columns), operator, self.domains)
 
 
 class NumericDisjunction:

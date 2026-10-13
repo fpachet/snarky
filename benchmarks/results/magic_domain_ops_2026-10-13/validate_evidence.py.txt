@@ -1,0 +1,62 @@
+"""Validate preserved before/after evidence without running timed work."""
+import hashlib
+import json
+from collections import Counter
+from pathlib import Path
+from statistics import median
+
+base = Path('benchmarks/results/magic_domain_ops_2026-10-13')
+series = [*sorted((base/'initial_series').iterdir()), *sorted((base/'final_series').iterdir())]
+counts = Counter()
+reports = {}
+for folder in series:
+ frozen=json.loads((folder/'frozen.json').read_text())
+ rows=[json.loads(line) for line in (folder/'runs.jsonl').read_text().splitlines()]
+ assert len(rows)==len(frozen['schedule']),folder
+ assert {(r['size'],r['variant'],r['repeat']) for r in rows}=={tuple(x) for x in frozen['schedule']}
+ for path,digest in frozen['source_hashes'].items():
+  source=folder/'domain_ops_benchmark.py.txt' if path.endswith('/domain_ops_benchmark.py') else Path(path)
+  assert hashlib.sha256(source.read_bytes()).hexdigest()==digest,(folder,path)
+ signatures={}
+ for row in rows:
+  assert row['termination'] in ['solution_limit','node_limit'],row
+  n=row['size']; signature=(row['settings'],row['nodes'],row['failures'],row['revisions'],row['termination'],row['squares'],row['reductions_sha256'],row['reduction_events'],{k:v for k,v in row['stats'].items() if k!='seconds'})
+  if n in signatures: assert signatures[n]==signature,(folder,n)
+  signatures[n]=signature
+  for square in row['squares']:
+   assert sorted(square)==list(range(1,n*n+1))
+   target=n*(n*n+1)//2
+   lines=[square[i*n:(i+1)*n] for i in range(n)] + [square[i::n] for i in range(n)] + [square[::n+1],square[n-1:n*n-1:n-1]]
+   assert len(lines)==2*n+2 and all(len(line)==n and sum(line)==target for line in lines)
+   counts['validated_squares']+=1
+  counts['runs']+=1
+  counts[row['termination']]+=1
+  if row['audit'] and row['variant']=='after':
+   assert row['audit']['no_op_calls']==0
+   assert row['audit']['retain_mask_calls']==row['audit']['mutation_events']
+ for n in signatures:
+  audited=[r for r in rows if r['size']==n and r['audit']]
+  if audited: assert len({r['audit']['mutation_events'] for r in audited})==1
+ report=[]
+ for n in sorted(signatures):
+  medians={v:median(r['total_seconds'] for r in rows if r['size']==n and r['variant']==v) for v in frozen['config']['variants']}
+  report.append(dict(size=n,medians=medians,change_percent=100*(medians['after']/medians['before']-1),nodes=signatures[n][1],failures=signatures[n][2],revisions=signatures[n][3],termination=signatures[n][4]))
+ reports[str(folder.relative_to(base))]=report
+for name in ['domains','numeric','alldifferent','propagation','mixed']:
+ assert (base/'after'/f'{name}.py.txt').read_bytes()==Path(f'src/snarky/finite/{name}.py').read_bytes()
+assert (base/'after/sum_distinct.py.txt').read_bytes()==Path('experiments/neural_attention/sum_distinct.py').read_bytes()
+micro=json.loads((base/'micro.json').read_text())
+assert len(micro['runs'])==42
+for path,digest in micro['source_hashes'].items():
+ source=base/'initial_series/ablation/domain_ops_benchmark.py.txt' if path.endswith('/domain_ops_benchmark.py') else Path(path)
+ assert hashlib.sha256(source.read_bytes()).hexdigest()==digest,path
+for row in micro['summary']:
+ for variant,value in row['medians'].items():
+  assert value==median(r['seconds'] for r in micro['runs'] if r['case']==row['case'] and r['variant']==variant)
+result=dict(counts=counts, separate_micro_trials=42,checks=['all frozen source hashes', 'complete scheduled runs', 'identical per-size settings/nodes/failures/revisions/termination/solutions/explanation digests', 'identical non-time coupling statistics', 'independent normal magic-square row/column/diagonal validation', 'equal mutation counts in instrumented runs, zero no-op calls after', 'live final source equals measured after snapshots'],series=reports)
+(base/'validation.json').write_text(json.dumps(result,indent=2)+'\n')
+print(json.dumps(counts,indent=2))
+for name,report in reports.items():
+ if name.startswith('final_series'):
+  print(name)
+  for row in report: print(row['size'],{v:round(s,6) for v,s in row['medians'].items()},round(row['change_percent'],1))

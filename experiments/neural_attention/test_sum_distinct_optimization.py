@@ -120,7 +120,7 @@ def audit_domains(state):
 )
 @pytest.mark.parametrize("policy", ["mrv", "dom_wdeg"])
 def test_full_reduction_and_rollback_traces_match_archived_prototype(
-    before, settings, policy
+    before, settings, policy, ignore_stats=()
 ):
     rng = Random(131036)
     for _ in range(48):
@@ -153,6 +153,12 @@ def test_full_reduction_and_rollback_traces_match_archived_prototype(
         assert [dict(s.assignment) for s in left.solutions] == [
             dict(s.assignment) for s in right.solutions
         ]
-        assert {k: v for k, v in states[0].stats.items() if k != "seconds"} == {
-            k: v for k, v in states[1].stats.items() if k != "seconds"
+        assert {
+            k: v
+            for k, v in states[0].stats.items()
+            if k not in ("seconds", *ignore_stats)
+        } == {
+            k: v
+            for k, v in states[1].stats.items()
+            if k not in ("seconds", *ignore_stats)
         }

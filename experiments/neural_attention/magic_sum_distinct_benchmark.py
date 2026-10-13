@@ -26,8 +26,14 @@ VARIANTS = dict(
     all={},
     fast_pair=dict(max_active=2, pair_fast=True),
     tiny=dict(max_active=3, max_candidates=24, pair_fast=True),
+    exact=dict(max_active=3, max_candidates=24, pair_fast=True, exact_three=True),
+    pairs=dict(max_active=3, pair_fast=True, exact_three=True, max_pairs=64),
 )
-VARIANTS.update(before_fast_pair=VARIANTS["fast_pair"], before_tiny=VARIANTS["tiny"])
+VARIANTS.update(
+    before_fast_pair=VARIANTS["fast_pair"],
+    before_tiny=VARIANTS["tiny"],
+    before_exact=VARIANTS["exact"],
+)
 
 
 class DistinctRankedState(RankedState):
@@ -50,6 +56,7 @@ def main():
     parser.add_argument("--limit", type=float, default=20)
     parser.add_argument("--policy", choices=["preset", "mrv"], default="preset")
     parser.add_argument("--max-nodes", type=int)
+    parser.add_argument("--seed", type=int, help="override the preset search seed")
     parser.add_argument(
         "--before",
         type=Path,
@@ -132,6 +139,8 @@ def main():
         }
         if args.policy != "preset":
             settings["policy"] = args.policy
+        if args.seed is not None:
+            settings["seed"] = args.seed
         started = perf_counter()
         original, model = prepare(
             size,
@@ -219,16 +228,24 @@ def main():
             right = next(
                 r for r in rows if r["size"] == size and r["variant"] == optimized
             )
-            assert {k: v for k, v in left["stats"].items() if k != "seconds"} == {
-                k: v for k, v in right["stats"].items() if k != "seconds"
-            }, "optimization changed filtering counts"
+            assert {
+                k: v
+                for k, v in left["stats"].items()
+                if k not in ("seconds", "pair_checks")
+            } == {
+                k: v
+                for k, v in right["stats"].items()
+                if k not in ("seconds", "pair_checks")
+            }, "optimization changed deduction counts"
             equivalence.append(
                 dict(
                     size=size,
                     before=variant,
                     after=optimized,
                     same_search=True,
-                    same_filter_counts=True,
+                    same_deduction_counts=True,
+                    pair_checks_before=left["stats"].get("pair_checks"),
+                    pair_checks_after=right["stats"].get("pair_checks"),
                 )
             )
     (args.output / "equivalence.json").write_text(

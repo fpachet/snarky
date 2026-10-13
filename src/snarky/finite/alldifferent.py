@@ -98,9 +98,18 @@ class MaskColumn:
 
 class AllDifferentPlan:
     def __init__(
-        self, variables: tuple[Term, ...], columns: tuple[MaskColumn, ...], count: int
+        self,
+        variables: tuple[Term, ...],
+        columns: tuple[MaskColumn, ...],
+        count: int,
+        domains: FiniteDomains | None = None,
     ) -> None:
         self.variables = variables
+        self._domain_store = domains
+        self.indices = (
+            tuple(domains.index(v) for v in variables) if domains is not None else None
+        )
+        self.input_masks: tuple[int, ...] = ()
         self.columns = columns
         self.matching = [-1] * len(variables)
         self.owners = [-1] * count
@@ -112,6 +121,10 @@ class AllDifferentPlan:
             if value >= 0 and not masks[variable] & (1 << value):
                 self.matching[variable] = -1
                 self.owners[value] = -1
+        # A complete validated matching needs no repair. supports() still
+        # recomputes the graph when domains change, even if every edge survives.
+        if -1 not in self.matching:
+            return True
         occupied = 0
         for value in self.matching:
             if value >= 0:
@@ -158,7 +171,12 @@ class AllDifferentPlan:
         return True
 
     def supports(self, domains: FiniteDomains) -> tuple[int, ...] | None:
-        local = tuple(domains.mask(v) for v in self.variables)
+        local = (
+            domains.masks_at(self.indices)
+            if domains is self._domain_store and self.indices is not None
+            else tuple(domains.mask(v) for v in self.variables)
+        )
+        self.input_masks = local
         if not all(local):
             return None
         if local == self.last_supported:
@@ -234,4 +252,6 @@ class AllDifferentPlans:
                     positions[value] = len(positions)
         columns = tuple(MaskColumn(tuple(positions[v] for v in a)) for a in alphabets)
         self.entries += entries
-        return AllDifferentPlan(constraint.variables, columns, len(positions))
+        return AllDifferentPlan(
+            constraint.variables, columns, len(positions), self.domains
+        )

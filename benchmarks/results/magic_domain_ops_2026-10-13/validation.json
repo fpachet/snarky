@@ -1,0 +1,773 @@
+{
+  "counts": {
+    "validated_squares": 322,
+    "runs": 429,
+    "solution_limit": 322,
+    "node_limit": 107
+  },
+  "separate_micro_trials": 42,
+  "checks": [
+    "all frozen source hashes",
+    "complete scheduled runs",
+    "identical per-size settings/nodes/failures/revisions/termination/solutions/explanation digests",
+    "identical non-time coupling statistics",
+    "independent normal magic-square row/column/diagonal validation",
+    "equal mutation counts in instrumented runs, zero no-op calls after",
+    "live final source equals measured after snapshots"
+  ],
+  "series": {
+    "initial_series/ablation": [
+      {
+        "size": 8,
+        "medians": {
+          "before": 0.12510608416050673,
+          "records": 0.12159429187886417,
+          "indexed": 0.11897520790807903,
+          "delta": 0.1151831669267267,
+          "after": 0.11365483398549259
+        },
+        "change_percent": -9.153232036519176,
+        "nodes": 161,
+        "failures": 84,
+        "revisions": 2944,
+        "termination": "solution_limit"
+      },
+      {
+        "size": 9,
+        "medians": {
+          "before": 2.2056350829079747,
+          "records": 2.141245957929641,
+          "indexed": 2.086237250128761,
+          "delta": 1.989295416045934,
+          "after": 1.9825931249652058
+        },
+        "change_percent": -10.11236898030765,
+        "nodes": 2962,
+        "failures": 2195,
+        "revisions": 56378,
+        "termination": "solution_limit"
+      },
+      {
+        "size": 13,
+        "medians": {
+          "before": 2.3183274581097066,
+          "records": 2.268145707901567,
+          "indexed": 2.259283416904509,
+          "delta": 2.1693234590347856,
+          "after": 2.1233287090435624
+        },
+        "change_percent": -8.41118231093808,
+        "nodes": 1488,
+        "failures": 971,
+        "revisions": 25966,
+        "termination": "solution_limit"
+      },
+      {
+        "size": 15,
+        "medians": {
+          "before": 0.5641274999361485,
+          "records": 0.5520368749275804,
+          "indexed": 0.5433878330513835,
+          "delta": 0.5518132080323994,
+          "after": 0.5399718750268221
+        },
+        "change_percent": -4.281944225739842,
+        "nodes": 80,
+        "failures": 0,
+        "revisions": 2554,
+        "termination": "node_limit"
+      },
+      {
+        "size": 16,
+        "medians": {
+          "before": 6.743647374911234,
+          "records": 6.679988249903545,
+          "indexed": 6.558434209087864,
+          "delta": 6.336409999988973,
+          "after": 6.302674832986668
+        },
+        "change_percent": -6.539080669685382,
+        "nodes": 2536,
+        "failures": 1603,
+        "revisions": 53754,
+        "termination": "solution_limit"
+      },
+      {
+        "size": 18,
+        "medians": {
+          "before": 0.6171965831890702,
+          "records": 0.6778892499860376,
+          "indexed": 0.683419874869287,
+          "delta": 0.6832537080626935,
+          "after": 0.6058780001476407
+        },
+        "change_percent": -1.833870009932026,
+        "nodes": 30,
+        "failures": 0,
+        "revisions": 1190,
+        "termination": "node_limit"
+      },
+      {
+        "size": 20,
+        "medians": {
+          "before": 1.0102989170700312,
+          "records": 0.9602068329695612,
+          "indexed": 1.0107239170465618,
+          "delta": 1.0199485830962658,
+          "after": 1.022996500134468
+        },
+        "change_percent": 1.2568144783586588,
+        "nodes": 30,
+        "failures": 0,
+        "revisions": 1312,
+        "termination": "node_limit"
+      }
+    ],
+    "initial_series/audit_exact": [
+      {
+        "size": 9,
+        "medians": {
+          "before": 0.11506800004281104,
+          "after": 0.11719666700810194
+        },
+        "change_percent": 1.8499208854754867,
+        "nodes": 80,
+        "failures": 24,
+        "revisions": 1560,
+        "termination": "node_limit"
+      },
+      {
+        "size": 16,
+        "medians": {
+          "before": 0.9785298330243677,
+          "after": 0.9395049999002367
+        },
+        "change_percent": -3.988108671507329,
+        "nodes": 80,
+        "failures": 1,
+        "revisions": 2808,
+        "termination": "node_limit"
+      }
+    ],
+    "initial_series/audit_native": [
+      {
+        "size": 9,
+        "medians": {
+          "before": 0.11418900010176003,
+          "after": 0.11739366687834263
+        },
+        "change_percent": 2.8064583924254816,
+        "nodes": 80,
+        "failures": 24,
+        "revisions": 1580,
+        "termination": "node_limit"
+      },
+      {
+        "size": 16,
+        "medians": {
+          "before": 0.9702916669193655,
+          "after": 0.934241791954264
+        },
+        "change_percent": -3.715364791244502,
+        "nodes": 80,
+        "failures": 1,
+        "revisions": 2809,
+        "termination": "node_limit"
+      }
+    ],
+    "initial_series/controls": [
+      {
+        "size": 6,
+        "medians": {
+          "before": 0.05318008316680789,
+          "after": 0.04897504090331495
+        },
+        "change_percent": -7.907175042023063,
+        "nodes": 90,
+        "failures": 56,
+        "revisions": 1894,
+        "termination": "solution_limit"
+      },
+      {
+        "size": 10,
+        "medians": {
+          "before": 0.26530333305709064,
+          "after": 0.2505359170027077
+        },
+        "change_percent": -5.566238420082392,
+        "nodes": 246,
+        "failures": 120,
+        "revisions": 4248,
+        "termination": "solution_limit"
+      },
+      {
+        "size": 11,
+        "medians": {
+          "before": 0.4557797920424491,
+          "after": 0.47074354183860123
+        },
+        "change_percent": 3.2831095317096493,
+        "nodes": 258,
+        "failures": 119,
+        "revisions": 5032,
+        "termination": "solution_limit"
+      },
+      {
+        "size": 12,
+        "medians": {
+          "before": 0.5465046670287848,
+          "after": 0.5271226249169558
+        },
+        "change_percent": -3.546546494690417,
+        "nodes": 182,
+        "failures": 54,
+        "revisions": 3808,
+        "termination": "solution_limit"
+      },
+      {
+        "size": 14,
+        "medians": {
+          "before": 1.1618189590517431,
+          "after": 1.167764333076775
+        },
+        "change_percent": 0.5117298163118678,
+        "nodes": 219,
+        "failures": 50,
+        "revisions": 5002,
+        "termination": "solution_limit"
+      }
+    ],
+    "initial_series/exact": [
+      {
+        "size": 6,
+        "medians": {
+          "before": 0.04864166700281203,
+          "after": 0.04624620801769197
+        },
+        "change_percent": -4.924705777418303,
+        "nodes": 68,
+        "failures": 39,
+        "revisions": 1447,
+        "termination": "solution_limit"
+      },
+      {
+        "size": 8,
+        "medians": {
+          "before": 0.11634199996478856,
+          "after": 0.10823191702365875
+        },
+        "change_percent": -6.9708986811163225,
+        "nodes": 115,
+        "failures": 54,
+        "revisions": 2445,
+        "termination": "solution_limit"
+      },
+      {
+        "size": 9,
+        "medians": {
+          "before": 1.9060706670861691,
+          "after": 1.7129042921587825
+        },
+        "change_percent": -10.134271423560715,
+        "nodes": 2268,
+        "failures": 1684,
+        "revisions": 41806,
+        "termination": "solution_limit"
+      },
+      {
+        "size": 10,
+        "medians": {
+          "before": 0.24006133317016065,
+          "after": 0.2234740830026567
+        },
+        "change_percent": -6.909588457440807,
+        "nodes": 193,
+        "failures": 81,
+        "revisions": 3229,
+        "termination": "solution_limit"
+      },
+      {
+        "size": 11,
+        "medians": {
+          "before": 0.44757770793512464,
+          "after": 0.5244116249959916
+        },
+        "change_percent": 17.1666094398079,
+        "nodes": 206,
+        "failures": 81,
+        "revisions": 4491,
+        "termination": "solution_limit"
+      },
+      {
+        "size": 12,
+        "medians": {
+          "before": 0.5119787498842925,
+          "after": 0.50148258311674
+        },
+        "change_percent": -2.05011766014207,
+        "nodes": 149,
+        "failures": 28,
+        "revisions": 3385,
+        "termination": "solution_limit"
+      },
+      {
+        "size": 13,
+        "medians": {
+          "before": 0.7831005828920752,
+          "after": 0.7674855829682201
+        },
+        "change_percent": -1.993996718299862,
+        "nodes": 228,
+        "failures": 67,
+        "revisions": 5037,
+        "termination": "solution_limit"
+      },
+      {
+        "size": 14,
+        "medians": {
+          "before": 1.1357262500096112,
+          "after": 1.1112089580856264
+        },
+        "change_percent": -2.158732522364204,
+        "nodes": 207,
+        "failures": 43,
+        "revisions": 4782,
+        "termination": "solution_limit"
+      },
+      {
+        "size": 15,
+        "medians": {
+          "before": 0.6759194999467582,
+          "after": 0.5418418329209089
+        },
+        "change_percent": -19.836336580970137,
+        "nodes": 80,
+        "failures": 0,
+        "revisions": 2554,
+        "termination": "node_limit"
+      },
+      {
+        "size": 16,
+        "medians": {
+          "before": 5.437533208867535,
+          "after": 5.114858499960974
+        },
+        "change_percent": -5.934211277649625,
+        "nodes": 1688,
+        "failures": 1025,
+        "revisions": 36329,
+        "termination": "solution_limit"
+      },
+      {
+        "size": 18,
+        "medians": {
+          "before": 0.7258822908625007,
+          "after": 0.6210786250885576
+        },
+        "change_percent": -14.438107540743871,
+        "nodes": 30,
+        "failures": 0,
+        "revisions": 1190,
+        "termination": "node_limit"
+      },
+      {
+        "size": 20,
+        "medians": {
+          "before": 1.0650405830238014,
+          "after": 1.0380414170213044
+        },
+        "change_percent": -2.535036357567011,
+        "nodes": 30,
+        "failures": 0,
+        "revisions": 1312,
+        "termination": "node_limit"
+      }
+    ],
+    "initial_series/pilot": [
+      {
+        "size": 8,
+        "medians": {
+          "before": 0.1279533749911934,
+          "records": 0.1229520000051707,
+          "indexed": 0.12086525000631809,
+          "delta": 0.11434674984775484,
+          "after": 0.11793312500230968
+        },
+        "change_percent": -7.831172870253244,
+        "nodes": 161,
+        "failures": 84,
+        "revisions": 2944,
+        "termination": "solution_limit"
+      },
+      {
+        "size": 16,
+        "medians": {
+          "before": 6.831947583006695,
+          "records": 6.81328995898366,
+          "indexed": 6.698854875052348,
+          "delta": 6.36596458312124,
+          "after": 6.535183875123039
+        },
+        "change_percent": -4.343764413851847,
+        "nodes": 2536,
+        "failures": 1603,
+        "revisions": 53754,
+        "termination": "solution_limit"
+      }
+    ],
+    "final_series/ablation": [
+      {
+        "size": 8,
+        "medians": {
+          "before": 0.1198856660630554,
+          "records": 0.11891700001433492,
+          "indexed": 0.11719016591086984,
+          "delta": 0.11054208315908909,
+          "after": 0.11307237506844103
+        },
+        "change_percent": -5.683157310091458,
+        "nodes": 161,
+        "failures": 84,
+        "revisions": 2932,
+        "termination": "solution_limit"
+      },
+      {
+        "size": 9,
+        "medians": {
+          "before": 2.175751790869981,
+          "records": 2.126270334003493,
+          "indexed": 2.0682245418429375,
+          "delta": 1.9757720830384642,
+          "after": 1.9833563331048936
+        },
+        "change_percent": -8.842711681195837,
+        "nodes": 2962,
+        "failures": 2195,
+        "revisions": 56230,
+        "termination": "solution_limit"
+      },
+      {
+        "size": 13,
+        "medians": {
+          "before": 2.3779777090530843,
+          "records": 2.3480421658605337,
+          "indexed": 2.3110885831993073,
+          "delta": 2.2101010410115123,
+          "after": 2.229918000055477
+        },
+        "change_percent": -6.2262866650909405,
+        "nodes": 1546,
+        "failures": 1017,
+        "revisions": 27530,
+        "termination": "solution_limit"
+      },
+      {
+        "size": 16,
+        "medians": {
+          "before": 6.683440166991204,
+          "records": 6.673264166805893,
+          "indexed": 6.593957791104913,
+          "delta": 6.370734332827851,
+          "after": 6.333269374910742
+        },
+        "change_percent": -5.239379471217798,
+        "nodes": 2540,
+        "failures": 1605,
+        "revisions": 53467,
+        "termination": "solution_limit"
+      }
+    ],
+    "final_series/exact": [
+      {
+        "size": 6,
+        "medians": {
+          "before": 0.04639620799571276,
+          "after": 0.04313645791262388
+        },
+        "change_percent": -7.025897641010004,
+        "nodes": 68,
+        "failures": 39,
+        "revisions": 1446,
+        "termination": "solution_limit"
+      },
+      {
+        "size": 8,
+        "medians": {
+          "before": 0.1113548749126494,
+          "after": 0.1049061669036746
+        },
+        "change_percent": -5.791132192491244,
+        "nodes": 115,
+        "failures": 54,
+        "revisions": 2409,
+        "termination": "solution_limit"
+      },
+      {
+        "size": 9,
+        "medians": {
+          "before": 1.8838939589913934,
+          "after": 1.7045548749156296
+        },
+        "change_percent": -9.519595475096654,
+        "nodes": 2268,
+        "failures": 1684,
+        "revisions": 41915,
+        "termination": "solution_limit"
+      },
+      {
+        "size": 10,
+        "medians": {
+          "before": 0.23435304081067443,
+          "after": 0.22260320908389986
+        },
+        "change_percent": -5.013731285981837,
+        "nodes": 193,
+        "failures": 81,
+        "revisions": 3270,
+        "termination": "solution_limit"
+      },
+      {
+        "size": 11,
+        "medians": {
+          "before": 0.40097058308310807,
+          "after": 0.3868605839088559
+        },
+        "change_percent": -3.5189611830770184,
+        "nodes": 177,
+        "failures": 61,
+        "revisions": 3871,
+        "termination": "solution_limit"
+      },
+      {
+        "size": 12,
+        "medians": {
+          "before": 0.5104831249918789,
+          "after": 0.4968096250668168
+        },
+        "change_percent": -2.678541024305081,
+        "nodes": 149,
+        "failures": 28,
+        "revisions": 3375,
+        "termination": "solution_limit"
+      },
+      {
+        "size": 13,
+        "medians": {
+          "before": 0.7746385000646114,
+          "after": 0.7736028749495745
+        },
+        "change_percent": -0.13369140766313903,
+        "nodes": 228,
+        "failures": 67,
+        "revisions": 5038,
+        "termination": "solution_limit"
+      },
+      {
+        "size": 14,
+        "medians": {
+          "before": 1.12437216588296,
+          "after": 1.1107687910553068
+        },
+        "change_percent": -1.2098640681815986,
+        "nodes": 207,
+        "failures": 43,
+        "revisions": 4790,
+        "termination": "solution_limit"
+      },
+      {
+        "size": 15,
+        "medians": {
+          "before": 0.5544622919987887,
+          "after": 0.5319854998961091
+        },
+        "change_percent": -4.053799947630832,
+        "nodes": 80,
+        "failures": 0,
+        "revisions": 2554,
+        "termination": "node_limit"
+      },
+      {
+        "size": 16,
+        "medians": {
+          "before": 5.239458124851808,
+          "after": 5.117558457888663
+        },
+        "change_percent": -2.326570115809312,
+        "nodes": 1684,
+        "failures": 1022,
+        "revisions": 36260,
+        "termination": "solution_limit"
+      },
+      {
+        "size": 18,
+        "medians": {
+          "before": 0.6123264580965042,
+          "after": 0.6028602921869606
+        },
+        "change_percent": -1.5459344903975603,
+        "nodes": 30,
+        "failures": 0,
+        "revisions": 1190,
+        "termination": "node_limit"
+      },
+      {
+        "size": 20,
+        "medians": {
+          "before": 0.9584939167834818,
+          "after": 0.9431807501241565
+        },
+        "change_percent": -1.5976279443393193,
+        "nodes": 30,
+        "failures": 0,
+        "revisions": 1312,
+        "termination": "node_limit"
+      }
+    ],
+    "final_series/native": [
+      {
+        "size": 6,
+        "medians": {
+          "before": 0.050392167177051306,
+          "after": 0.047088708030059934
+        },
+        "change_percent": -6.555501245629647,
+        "nodes": 90,
+        "failures": 56,
+        "revisions": 1906,
+        "termination": "solution_limit"
+      },
+      {
+        "size": 8,
+        "medians": {
+          "before": 0.12107949983328581,
+          "after": 0.1108176251873374
+        },
+        "change_percent": -8.475319653680414,
+        "nodes": 161,
+        "failures": 84,
+        "revisions": 2911,
+        "termination": "solution_limit"
+      },
+      {
+        "size": 9,
+        "medians": {
+          "before": 2.2399429162032902,
+          "after": 1.9648408340290189
+        },
+        "change_percent": -12.281655937936586,
+        "nodes": 2962,
+        "failures": 2195,
+        "revisions": 56411,
+        "termination": "solution_limit"
+      },
+      {
+        "size": 10,
+        "medians": {
+          "before": 0.2654108330607414,
+          "after": 0.250484999967739
+        },
+        "change_percent": -5.623671393091378,
+        "nodes": 246,
+        "failures": 120,
+        "revisions": 4332,
+        "termination": "solution_limit"
+      },
+      {
+        "size": 11,
+        "medians": {
+          "before": 0.4648435839917511,
+          "after": 0.4481300830375403
+        },
+        "change_percent": -3.5955107330269964,
+        "nodes": 272,
+        "failures": 128,
+        "revisions": 5274,
+        "termination": "solution_limit"
+      },
+      {
+        "size": 12,
+        "medians": {
+          "before": 0.5378792500123382,
+          "after": 0.5252222078852355
+        },
+        "change_percent": -2.3531382046829807,
+        "nodes": 182,
+        "failures": 54,
+        "revisions": 3807,
+        "termination": "solution_limit"
+      },
+      {
+        "size": 13,
+        "medians": {
+          "before": 2.3541020420379937,
+          "after": 2.2027176250703633
+        },
+        "change_percent": -6.4306650376367624,
+        "nodes": 1540,
+        "failures": 1011,
+        "revisions": 27270,
+        "termination": "solution_limit"
+      },
+      {
+        "size": 14,
+        "medians": {
+          "before": 1.1612409169320017,
+          "after": 1.143233000067994
+        },
+        "change_percent": -1.5507477045835216,
+        "nodes": 219,
+        "failures": 50,
+        "revisions": 5019,
+        "termination": "solution_limit"
+      },
+      {
+        "size": 15,
+        "medians": {
+          "before": 0.5550349170807749,
+          "after": 0.5328151250723749
+        },
+        "change_percent": -4.003314264490909,
+        "nodes": 80,
+        "failures": 0,
+        "revisions": 2554,
+        "termination": "node_limit"
+      },
+      {
+        "size": 16,
+        "medians": {
+          "before": 6.719309458043426,
+          "after": 6.395324875134975
+        },
+        "change_percent": -4.821694624000717,
+        "nodes": 2558,
+        "failures": 1614,
+        "revisions": 54105,
+        "termination": "solution_limit"
+      },
+      {
+        "size": 18,
+        "medians": {
+          "before": 0.6122765420004725,
+          "after": 0.6020552499685436
+        },
+        "change_percent": -1.6693914156066136,
+        "nodes": 30,
+        "failures": 0,
+        "revisions": 1190,
+        "termination": "node_limit"
+      },
+      {
+        "size": 20,
+        "medians": {
+          "before": 0.9560002500656992,
+          "after": 0.944876791909337
+        },
+        "change_percent": -1.1635413438017106,
+        "nodes": 30,
+        "failures": 0,
+        "revisions": 1312,
+        "termination": "node_limit"
+      }
+    ]
+  }
+}

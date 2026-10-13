@@ -1,0 +1,38 @@
+"""Measure matching repair only for validated complete matching hints."""
+import hashlib
+import importlib.machinery
+import importlib.util
+import json
+from pathlib import Path
+from random import Random
+from statistics import median
+from time import perf_counter
+from snarky import Atom
+from snarky.finite.alldifferent import AllDifferentPlan, MaskColumn
+
+archive=Path('benchmarks/results/magic_sum_lookup_matching_2026-10-13')
+source=archive/'alldifferent_before.py.txt'
+loader=importlib.machinery.SourceFileLoader('snarky.finite._matching_micro_before',str(source))
+spec=importlib.util.spec_from_loader(loader.name,loader)
+before=importlib.util.module_from_spec(spec)
+loader.exec_module(before)
+implementations={'before':before.AllDifferentPlan._match,'after':AllDifferentPlan._match}
+schedule=[(n,v,r) for n in [64,256,400] for v in implementations for r in range(7)]
+Random(131040).shuffle(schedule)
+rows=[]
+iterations=1000
+for n,variant,repeat in schedule:
+ universe=(1<<n)-1
+ plan=AllDifferentPlan(tuple(Atom(f'x{i}') for i in range(n)),tuple(MaskColumn(tuple(range(n))) for _ in range(n)),n)
+ assert plan._match((universe,)*n)
+ masks=tuple(tuple(universe & ~(1<<((i+step)%n)) for i in range(n)) for step in [1,2])
+ method=implementations[variant]
+ started=perf_counter()
+ for i in range(iterations):
+  assert method(plan,masks[i%2])
+ seconds=perf_counter()-started
+ assert plan.matching==list(range(n)) and plan.owners==list(range(n))
+ rows.append(dict(size=n,variant=variant,repeat=repeat,seconds=seconds))
+result=dict(scope='Only AllDifferentPlan._match with complete validated hints; alternating masks remove unmatched edges. Not full propagation or solve timings.',iterations=iterations,repeats=7,source_hashes={str(p):hashlib.sha256(p.read_bytes()).hexdigest() for p in [source,Path('src/snarky/finite/alldifferent.py')]},schedule=schedule,runs=rows,summary=[dict(size=n,medians={v:median(r['seconds'] for r in rows if r['size']==n and r['variant']==v) for v in implementations}) for n in [64,256,400]])
+(archive/'matching_micro.json').write_text(json.dumps(result,indent=2)+'\n')
+print(json.dumps(result['summary'],indent=2))

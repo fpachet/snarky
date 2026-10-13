@@ -212,3 +212,37 @@ def test_guard_activation_and_failure_cause():
         assert state.propagate()
         state.rollback(root)
         state.release(root)
+
+
+def test_valid_retained_matching_still_filters_new_hall_set():
+    model = model_for([tuple(map(Number, range(3)))] * 3)
+    fast, slow = NativeState(model), NativeState(model, alldifferent_masks=False)
+    roots = [state.checkpoint() for state in (fast, slow)]
+    compare(fast, slow)
+    plan = fast._alldifferent.plans[0]
+    matching = tuple(plan.matching)
+    for state in (fast, slow):
+        for variable in model.variables[:2]:
+            state.domains.retain_mask(variable.name, 3, Atom("branch"))
+    compare(fast, slow)
+    assert tuple(plan.matching) == matching
+    assert fast.domains.values(model.variables[2].name) == (Number(2),)
+    for state, checkpoint in zip((fast, slow), roots, strict=True):
+        state.rollback(checkpoint)
+        state.release(checkpoint)
+    compare(fast, slow)
+
+
+def test_matching_repairs_after_failed_sibling_and_widening():
+    model = model_for([tuple(map(Number, range(3)))] * 3)
+    fast, slow = NativeState(model), NativeState(model, alldifferent_masks=False)
+    roots = [state.checkpoint() for state in (fast, slow)]
+    for masks in [(7, 7, 7), (1, 1, 6), (4, 3, 3), (3, 3, 7), (7, 7, 7)]:
+        for state, checkpoint in zip((fast, slow), roots, strict=True):
+            state.rollback(checkpoint)
+            for variable, mask in zip(model.variables, masks, strict=True):
+                state.domains.retain_mask(variable.name, mask, Atom("branch"))
+        compare(fast, slow)
+    for state, checkpoint in zip((fast, slow), roots, strict=True):
+        state.rollback(checkpoint)
+        state.release(checkpoint)

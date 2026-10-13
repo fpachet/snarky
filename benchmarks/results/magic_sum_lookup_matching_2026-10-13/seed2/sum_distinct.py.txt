@@ -1,0 +1,527 @@
+"""Opt-in distinct-value bounds for unit-coefficient sums covered by ALLDIFF."""
+
+from __future__ import annotations
+
+from collections import Counter
+from time import perf_counter
+
+from snarky import Atom
+from snarky.finite.constraints import (
+    AllDifferentConstraint,
+    ConstraintOperator,
+    LinearSumConstraint,
+    SumConstraint,
+)
+from snarky.finite.propagation import NativeState
+
+
+def candidates(values, mask):
+    while mask:
+        bit = mask & -mask
+        mask ^= bit
+        yield bit, values[bit.bit_length() - 1]
+
+
+def distinct_supports(alphabets, masks, target):
+    """Return conservative support masks, never claiming exact joint supports.
+
+    Fixed values are accounted for exactly. For each remaining candidate, take
+    the smallest/largest distinct values from the FULL union of OTHER domains,
+    excluding that candidate. These extrema relax variable-to-value assignment.
+    The two-variable case additionally excludes the equal-value sum support.
+    """
+    stats = dict(
+        candidate_tests=0, bound_removals=0, pair_removals=0, fixed_exclusions=0
+    )
+    result = list(masks)
+    fixed = set()
+    active = []
+    for i, (values, mask) in enumerate(zip(alphabets, masks, strict=True)):
+        if not mask:
+            return None, stats
+        if mask & (mask - 1):
+            active.append(i)
+        else:
+            value = values[mask.bit_length() - 1]
+            if value in fixed:
+                return None, stats
+            fixed.add(value)
+    residual = target - sum(fixed)
+    if not active:
+        return (tuple(result) if residual == 0 else None), stats
+    domains = {}
+    counts = Counter()
+    for i in active:
+        domain = []
+        for bit, value in candidates(alphabets[i], masks[i]):
+            if value in fixed:
+                result[i] &= ~bit
+                stats["fixed_exclusions"] += 1
+            else:
+                domain.append((bit, value))
+                counts[value] += 1
+        if not domain:
+            return None, stats
+        domains[i] = domain
+    if len(active) == 1:
+        i = active[0]
+        result[i] = sum(bit for bit, value in domains[i] if value == residual)
+        return (tuple(result) if result[i] else None), stats
+    if len(active) == 2:
+        for i in active:
+            for bit, value in domains[i]:
+                stats["candidate_tests"] += 1
+                if 2 * value == residual:
+                    result[i] &= ~bit
+                    stats["pair_removals"] += 1
+        return (tuple(result) if all(result) else None), stats
+    union = sorted(counts)
+    count = len(active)
+    if (
+        len(union) < count
+        or sum(union[:count]) > residual
+        or sum(union[-count:]) < residual
+    ):
+        return None, stats
+    k = count - 1
+    common_bounds = None
+    for i in active:
+        exclusive = {value for _, value in domains[i] if counts[value] == 1}
+        if not exclusive and common_bounds is not None:
+            other, lower, upper = common_bounds
+        else:
+            other = [value for value in union if value not in exclusive]
+            if len(other) < k:
+                return None, stats
+            lower, upper = sum(other[:k]), sum(other[-k:])
+            if not exclusive:
+                common_bounds = (other, lower, upper)
+        for bit, value in domains[i]:
+            stats["candidate_tests"] += 1
+            low, high = lower, upper
+            if counts[value] > 1:
+                if len(other) == k:
+                    result[i] &= ~bit
+                    stats["bound_removals"] += 1
+                    continue
+                if value <= other[k - 1]:
+                    low += other[k] - value
+                if value >= other[-k]:
+                    high += other[-k - 1] - value
+            if value + low > residual or value + high < residual:
+                result[i] &= ~bit
+                stats["bound_removals"] += 1
+    return (tuple(result) if all(result) else None), stats
+
+
+def _three_extrema(mask):
+    """Two or three smallest/largest occupied bit positions; at least two exist."""
+    bit = mask & -mask
+    low0 = bit.bit_length() - 1
+    rest = mask ^ bit
+    bit = rest & -rest
+    low1 = bit.bit_length() - 1
+    tail = rest ^ bit
+    low2 = (tail & -tail).bit_length() - 1 if tail else None
+    high0 = mask.bit_length() - 1
+    rest = mask ^ (1 << high0)
+    high1 = rest.bit_length() - 1
+    high2 = (rest ^ (1 << high1)).bit_length() - 1 if tail else None
+    return low0, low1, low2, high0, high1, high2
+
+
+def three_distinct_supports(alphabets, masks, target, active, bounds=None):
+    """Same union bounds for three active variables using bounded local bitsets.
+
+    Three extrema suffice after excluding one candidate, since the bound needs
+    two distinct other values. All bitsets are rebuilt from current masks and
+    normalized by an immutable alphabet minimum. Huge cross-domain spans use the general
+    algorithm instead. Candidate order and counters are preserved exactly.
+    """
+    assert len(active) == 3
+    stats = dict(
+        candidate_tests=0, bound_removals=0, pair_removals=0, fixed_exclusions=0
+    )
+    if not all(masks):
+        return None, stats
+    base, high = (
+        bounds
+        if bounds is not None
+        else (
+            min(min(alphabets[i]) for i in active),
+            max(max(alphabets[i]) for i in active),
+        )
+    )
+    if high - base > 4096:
+        return distinct_supports(alphabets, masks, target)
+    result = list(masks)
+    fixed = set()
+    for values, mask in zip(alphabets, masks, strict=True):
+        if not mask:
+            return None, stats
+        if not mask & (mask - 1):
+            value = values[mask.bit_length() - 1]
+            if value in fixed:
+                return None, stats
+            fixed.add(value)
+    residual = target - sum(fixed)
+    domains, value_masks = [], []
+    for i in active:
+        domain = []
+        value_mask = 0
+        for bit, value in candidates(alphabets[i], masks[i]):
+            if value in fixed:
+                result[i] &= ~bit
+                stats["fixed_exclusions"] += 1
+            else:
+                domain.append((bit, value))
+                value_mask |= 1 << (value - base)
+        if not domain:
+            return None, stats
+        domains.append(domain)
+        value_masks.append(value_mask)
+    union = value_masks[0] | value_masks[1] | value_masks[2]
+    if union.bit_count() < 3:
+        return None, stats
+    residual -= 3 * base
+    low0, low1, low2, high0, high1, high2 = _three_extrema(union)
+    if low0 + low1 + low2 > residual or high0 + high1 + high2 < residual:
+        return None, stats
+    for position, i in enumerate(active):
+        left, right = ((1, 2), (0, 2), (0, 1))[position]
+        other = value_masks[left] | value_masks[right]
+        if not other & (other - 1):
+            return None, stats
+        low0, low1, low2, high0, high1, high2 = _three_extrema(other)
+        lower, upper = low0 + low1, high0 + high1
+        for bit, value in domains[position]:
+            stats["candidate_tests"] += 1
+            value -= base
+            if low2 is None and value in (low0, low1):
+                result[i] &= ~bit
+                stats["bound_removals"] += 1
+                continue
+            low_bound, high_bound = lower, upper
+            if value == low0:
+                low_bound = low1 + low2
+            elif value == low1:
+                low_bound = low0 + low2
+            if value == high0:
+                high_bound = high1 + high2
+            elif value == high1:
+                high_bound = high0 + high2
+            if value + low_bound > residual or value + high_bound < residual:
+                result[i] &= ~bit
+                stats["bound_removals"] += 1
+    return (tuple(result) if all(result) else None), stats
+
+
+def exact_three_supports(alphabets, masks, target, active):
+    """Exact joint supports for three active terms and any fixed terms.
+
+    Enumerate the two smallest live domains and look up the required third
+    value. No numeric-span assumption or cached branch state is needed.
+    The caller limits the total active candidates to 24 (at most 64 pairs).
+    """
+    assert len(active) == 3
+    counts = dict(pair_checks=0, exact_removals=0, fixed_exclusions=0)
+    fixed = set()
+    for values, mask in zip(alphabets, masks, strict=True):
+        if not mask:
+            return None, counts
+        if not mask & (mask - 1):
+            value = values[mask.bit_length() - 1]
+            if value in fixed:
+                return None, counts
+            fixed.add(value)
+    residual = target - sum(fixed)
+    domains = {}
+    for i in active:
+        domains[i] = [
+            (bit, value)
+            for bit, value in candidates(alphabets[i], masks[i])
+            if value not in fixed
+        ]
+        counts["fixed_exclusions"] += masks[i].bit_count() - len(domains[i])
+        if not domains[i]:
+            return None, counts
+    left, right, third = sorted(active, key=lambda i: len(domains[i]))
+    lookup = {value: bit for bit, value in domains[third]}
+    result = list(masks)
+    for i in active:
+        result[i] = 0
+    for left_bit, x in domains[left]:
+        for right_bit, y in domains[right]:
+            counts["pair_checks"] += 1
+            if x == y:
+                continue
+            z = residual - x - y
+            third_bit = lookup.get(z, 0)
+            if third_bit and z != x and z != y:
+                result[left] |= left_bit
+                result[right] |= right_bit
+                result[third] |= third_bit
+    counts["exact_removals"] = sum(
+        len(domains[i]) - result[i].bit_count() for i in active
+    )
+    return (tuple(result) if all(result) else None), counts
+
+
+def compiled_three_supports(columns, masks, target, active):
+    """Exact supports using two small domains and a compiled third-value map.
+
+    Choose the two smallest CURRENT domains, then exclude fixed values. This
+    bounds the work by the dispatcher's pair budget without decoding the third
+    domain. Deduction counts match exact_three_supports; actual pair_checks may
+    differ because excluding fixed values can change which domains are smallest.
+    """
+    assert len(active) == 3
+    counts = dict(pair_checks=0, exact_removals=0, fixed_exclusions=0)
+    fixed = set()
+    for column, mask in zip(columns, masks, strict=True):
+        if not mask:
+            return None, counts
+        if not mask & (mask - 1):
+            value = column.values[mask.bit_length() - 1]
+            if value in fixed:
+                return None, counts
+            fixed.add(value)
+    residual = target - sum(fixed)
+    left, right, third = sorted(active, key=lambda i: masks[i].bit_count())
+    positions = columns[third].positions
+    third_mask = masks[third]
+    domains = {}
+    # Retain original active order for early-failure deduction counters.
+    for i in active:
+        if i == third:
+            for value in fixed:
+                position = positions.get(value)
+                if position is not None:
+                    third_mask &= ~(1 << position)
+            remaining = third_mask.bit_count()
+        else:
+            domains[i] = [
+                (bit, value)
+                for bit, value in candidates(columns[i].values, masks[i])
+                if value not in fixed
+            ]
+            remaining = len(domains[i])
+        counts["fixed_exclusions"] += masks[i].bit_count() - remaining
+        if not remaining:
+            return None, counts
+    result = list(masks)
+    for i in active:
+        result[i] = 0
+    for left_bit, x in domains[left]:
+        for right_bit, y in domains[right]:
+            counts["pair_checks"] += 1
+            if x == y:
+                continue
+            z = residual - x - y
+            position = positions.get(z)
+            if position is not None and z != x and z != y:
+                third_bit = third_mask & (1 << position)
+                if third_bit:
+                    result[left] |= left_bit
+                    result[right] |= right_bit
+                    result[third] |= third_bit
+    counts["exact_removals"] = (
+        len(domains[left])
+        + len(domains[right])
+        + third_mask.bit_count()
+        - sum(result[i].bit_count() for i in active)
+    )
+    return (tuple(result) if all(result) else None), counts
+
+
+class DistinctSumState(NativeState):
+    """Run experimental filtering inside the existing numeric revision hook.
+
+    No cached supports or branch-local auxiliary state. Current masks are read
+    after native SUM filtering; reductions use the native trail/event queue.
+    Only unconditional ALLDIFF and SUM/equality with all coefficients +1 qualify.
+    Compiled numeric plans are required; other constraints retain native behavior.
+    """
+
+    def __init__(
+        self,
+        model,
+        *,
+        max_active=0,
+        max_candidates=0,
+        pair_fast=False,
+        exact_three=False,
+        max_pairs=0,
+    ):
+        if max_active < 0 or max_candidates < 0 or max_pairs < 0:
+            raise ValueError("limits must be nonnegative")
+        if max_pairs and not exact_three:
+            raise ValueError("max_pairs requires exact_three=True")
+        super().__init__(model)
+        scopes = [
+            frozenset(c.variables)
+            for c in model.constraints
+            if isinstance(c, AllDifferentConstraint)
+        ]
+        self.coupled = set()
+        for index, c in enumerate(model.constraints):
+            if isinstance(c, SumConstraint):
+                pass
+            elif not (
+                isinstance(c, LinearSumConstraint)
+                and c.operator is ConstraintOperator.EQUAL
+                and all(coefficient == 1 for coefficient, _ in c.terms)
+            ):
+                continue
+            if len(c.variables) >= 2 and any(
+                set(c.variables) <= scope for scope in scopes
+            ):
+                self.coupled.add(index)
+        self.max_active = max_active
+        self.max_candidates = max_candidates
+        self.pair_fast = pair_fast
+        self.exact_three = exact_three
+        # Zero preserves the previous 24-total-candidate exact gate. A positive
+        # budget limits the product of the two smallest current domain sizes.
+        self.max_pairs = max_pairs
+        # The fast pair rule historically takes precedence over both limits.
+        self._active_limit = (
+            max(max_active, 2) if max_active and pair_fast else max_active
+        )
+        self.stats = dict.fromkeys(
+            (
+                "eligible_revisions",
+                "gated",
+                "calls",
+                "fast_pair_calls",
+                "candidate_tests",
+                "bound_removals",
+                "pair_removals",
+                "fixed_exclusions",
+                "removed_values",
+                "contradictions",
+            ),
+            0,
+        )
+        self.stats["seconds"] = 0.0
+        if exact_three:
+            self.stats.update(exact_calls=0, pair_checks=0, exact_removals=0)
+        self._coupled_failure = False
+
+    def _revise_numeric(self, index, constraint, plan, cause):
+        if index not in self.coupled:
+            return super()._revise_numeric(index, constraint, plan, cause)
+        # Keep the native numeric revision's exact support tuple directly.
+        # This repeats its four-line body without rereading every domain mask
+        # afterward. No solver source or NumericPlan cache is modified.
+        masks = plan.supports(self.domains, constraint.target)
+        if masks is None:
+            return False
+        for column, mask in zip(plan.columns, masks, strict=True):
+            self.domains.retain_mask(column.variable, mask, cause)
+        self.stats["eligible_revisions"] += 1
+        active = []
+        candidate_count = 0
+        active_limit, candidate_limit = self._active_limit, self.max_candidates
+        if active_limit or candidate_limit:
+            for i, mask in enumerate(masks):
+                if not mask & (mask - 1):
+                    continue
+                active.append(i)
+                if active_limit and len(active) > active_limit:
+                    self.stats["gated"] += 1
+                    return True
+                if candidate_limit:
+                    candidate_count += mask.bit_count()
+                    if candidate_count > candidate_limit and (
+                        not self.pair_fast or len(active) > 2
+                    ):
+                        self.stats["gated"] += 1
+                        return True
+        else:
+            active = [i for i, mask in enumerate(masks) if mask & (mask - 1)]
+        if self.pair_fast and len(active) == 2:
+            return self._fast_pair(plan, masks, active, constraint.target, cause)
+        if len(active) < 2:
+            self.stats["gated"] += 1
+            return True
+        if self.max_pairs and len(active) == 3:
+            sizes = sorted(masks[i].bit_count() for i in active)
+            if sizes[0] * sizes[1] > self.max_pairs:
+                self.stats["gated"] += 1
+                return True
+        started = perf_counter()
+        self.stats["calls"] += 1
+        if (
+            self.exact_three
+            and len(active) == 3
+            and (self.max_pairs or sum(masks[i].bit_count() for i in active) <= 24)
+        ):
+            self.stats["exact_calls"] += 1
+            supported, counts = compiled_three_supports(
+                plan.columns, masks, constraint.target, active
+            )
+        else:
+            alphabets = tuple(c.values for c in plan.columns)
+            supported, counts = (
+                three_distinct_supports(
+                    alphabets,
+                    masks,
+                    constraint.target,
+                    active,
+                    bounds=(
+                        min(plan.columns[i].ordered[0] for i in active),
+                        max(plan.columns[i].ordered[-1] for i in active),
+                    ),
+                )
+                if len(active) == 3
+                else distinct_supports(alphabets, masks, constraint.target)
+            )
+        for name, count in counts.items():
+            self.stats[name] += count
+        if supported is None:
+            self.stats["contradictions"] += 1
+            self._coupled_failure = True
+        else:
+            for column, before, after in zip(
+                plan.columns, masks, supported, strict=True
+            ):
+                self.stats["removed_values"] += before.bit_count() - after.bit_count()
+                self.domains.retain_mask(column.variable, after, cause)
+        self.stats["seconds"] += perf_counter() - started
+        return supported is not None
+
+    def _fast_pair(self, plan, masks, active, target, cause):
+        started = perf_counter()
+        self.stats["calls"] += 1
+        self.stats["fast_pair_calls"] += 1
+        remaining = target - sum(
+            c.values[mask.bit_length() - 1]
+            for c, mask in zip(plan.columns, masks, strict=True)
+            if not mask & (mask - 1)
+        )
+        if remaining % 2 == 0:
+            half = remaining // 2
+            for i in active:
+                column = plan.columns[i]
+                position = column.positions.get(half)
+                self.stats["candidate_tests"] += 1
+                if position is not None and masks[i] & (1 << position):
+                    self.stats["pair_removals"] += 1
+                    self.stats["removed_values"] += 1
+                    # Both active domains had >=2 values, so removing this one
+                    # cannot empty them. SUM already verified all sum supports.
+                    self.domains.retain_mask(
+                        column.variable, masks[i] & ~(1 << position), cause
+                    )
+        self.stats["seconds"] += perf_counter() - started
+        return True
+
+    def propagate(self, **kwargs):
+        self._coupled_failure = False
+        result = super().propagate(**kwargs)
+        if self._coupled_failure:
+            # Joint failures have no unique original SUM/ALLDIFF owner. Do not
+            # increment an arbitrary original dom_wdeg constraint's weight.
+            self.failure = Atom("experimental_sum_distinct")
+        return result

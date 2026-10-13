@@ -569,3 +569,85 @@ unchanged. No uniform end-to-end speedup is claimed.
 The [complete cost report](../../benchmarks/results/magic_sum_distinct_cost_2026-10-13/README.md)
 contains the before/after sources, raw runs, equivalence checks, repeated
 measurements, limitations, and reproduction commands.
+
+## Follow-up: exact three-variable SUM + ALLDIFF, 13 October 2026
+
+The opt-in `exact` variant replaces distinct-union bounds with exact local joint
+supports when three variables remain and their domains contain at most 24
+candidates in total. It enumerates the two smallest domains and looks up the
+required third value, rejecting equal or fixed values: at most 64 pair checks.
+The native solver and saved search settings remain unchanged.
+
+Across three repetitions with the saved presets, 16×16 drops from 6.559401 s
+with `tiny` bounds to 5.447669 s with exact filtering (2,204 → 1,688 nodes).
+13×13 drops from 0.922902 s to 0.824180 s (343 → 228 nodes); 9×9 from 2.156573 s
+to 2.035361 s (2,535 → 2,268 nodes). 8×8 has fewer nodes but essentially unchanged
+time. These are whole-search comparisons, not equal-work kernel measurements.
+
+Two additional random seeds test 11×11, 12×12, 13×13 and 16×16 with a 1,000-node
+cap. The three completed size/seed pairs have fewer nodes and shorter times;
+five pairs remain unresolved at the cap, and several prefixes become slower.
+The saved 16×16 improvement therefore does not establish a universal gain.
+
+The archive contains 174 executions, 117 independently validated squares,
+57 node-limited prefixes and no timeouts. All 61 coupling tests pass, including
+17 new tests: 5,000 exact-mask oracle comparisons, complete enumeration of
+150 small models under two search policies, overlapping sums, rollback, huge
+integers, eligibility and budget boundaries. The combined SUM experiment suite
+has 98 passing tests. Existing non-exact modes preserve their archived behavior.
+
+Keep the exact filter optional. See the [readable experiment and reproduction
+commands](../../benchmarks/results/magic_sum_distinct_exact_2026-10-13/README.md).
+
+## Follow-up: compiled lookup, pair budget and matching, 13 October 2026
+
+The exact three-variable prototype can now use compiled immutable numeric maps
+instead of building a temporary third-domain lookup. It enumerates the two
+smallest current domains and consults the third map plus its current mask.
+Fixed values are excluded; no branch-local cache or witness is introduced.
+Support masks and deduction counts are preserved, while the actual number of
+pairs checked may differ when fixed exclusions change domain-size ordering.
+
+The opt-in `pairs` variant allows exact filtering when the product of the two
+smallest current domain sizes is at most 64, rather than limiting the total
+candidates to 24. This admits more unbalanced domains. Some saved presets use
+fewer nodes, but the extra filtering does not establish a consistent timing gain.
+
+A separate native ALLDIFF change returns from matching repair immediately when
+all retained edges validate and the matching is complete. Occupied-value
+construction and sorting are skipped. Graph filtering still runs when domains
+change, so new Hall sets are not missed. Repair behavior for incomplete matchings
+is unchanged. Saved search parameters and default SUM behavior are unchanged.
+
+The non-slow core gate passes 1,221 tests; the slow gate passes 56 tests, with
+skips reported separately. All 111 SUM experiment tests pass, including 5,000
+new compiled-support oracle cases, complete-solution checks for the expanded
+budget, and exact-mask search/rollback trace comparisons with the archived
+three-variable filter. Two additional core tests cover a retained matching with
+a new Hall set and repair across failed siblings and widening.
+
+See the [benchmark tables, source snapshots and reproduction commands](../../benchmarks/results/magic_sum_lookup_matching_2026-10-13/README.md).
+The SUM + ALLDIFF changes remain experimental; end-to-end effects of these
+refinements are small and mixed.
+
+## Follow-up: basic domain and propagation operations, 13 October 2026
+
+The native solver now records removed bits and decodes public explanations on
+demand, retaining the already decoded prefix across subsequent observations.
+Domain masks, sizes and immutable alphabets use stable variable IDs; compiled
+SUM/ALLDIFF plans read by index only in their original store. Empty/complete
+checks use maintained counters, and decisions retain a singleton bit directly.
+The mixed coordinator checks the reduction count without decoding its history.
+
+SUM/ALLDIFF apply only changed support masks. Queue membership uses byte flags
+and variable incidence lists use integer IDs, while preserving event order,
+off-scope guard scheduling and objective-cut priority. The optional joint filter
+also skips unchanged masks; its arithmetic and eligibility are unchanged.
+
+All 1,297 core tests and 111 SUM experiment tests pass across the separate
+non-slow, slow and experimental gates. Twenty new regression tests compare
+random domain histories and full search traces against the archived baseline,
+including sibling rollback, explanations, mixed rules, guards and objectives.
+
+See the [timing tables, component tradeoffs, source snapshots and reproduction
+commands](../../benchmarks/results/magic_domain_ops_2026-10-13/README.md).

@@ -28,93 +28,129 @@ class FiniteDomains:
     """Stable value indexes with trailed masks and explicit changed-variable events."""
 
     def __init__(self, variables: tuple[FiniteVariable, ...]) -> None:
-        self._values: dict[Term, tuple[Term, ...]] = {
+        alphabets: dict[Term, tuple[Term, ...]] = {
             variable.name: variable.domain for variable in variables
         }
-        self._bits = {
-            variable: {value: 1 << i for i, value in enumerate(values)}
-            for variable, values in self._values.items()
-        }
-        self._masks = {
-            var: (1 << len(values)) - 1 for var, values in self._values.items()
-        }
-        # One immutable projection per variable, keyed by the actual mask.
-        # Comparing the mask also handles rollback and sibling branches without
-        # trailing a cache or accumulating projections for past search states.
-        self._value_cache = {
-            var: (self._masks[var], values) for var, values in self._values.items()
-        }
-        self._trail: list[tuple[Term, int]] = []
+        self._variables = tuple(alphabets)
+        self._indices = {variable: i for i, variable in enumerate(self._variables)}
+        self._values = tuple(alphabets.values())
+        self._bits = tuple(
+            {value: 1 << i for i, value in enumerate(values)} for values in self._values
+        )
+        self._sizes = [len(values) for values in self._values]
+        self._masks = [(1 << size) - 1 for size in self._sizes]
+        # Projections are tagged with the actual mask, including after rollback.
+        self._value_cache = list(zip(self._masks, self._values, strict=True))
+        self._trail: list[tuple[int, int]] = []
         self._checkpoints: list[DomainCheckpoint] = []
         self._owner = object()
         self._token = 0
-        self._removals: list[DomainRemoval] = []
-        self._changed = set(self._values)
+        self._removals: list[tuple[int, int, Atom]] = []
+        self._removal_cache: tuple[DomainRemoval, ...] | None = None
+        self._decoded_removals: list[DomainRemoval] = []
+        self._empty_count = sum(size == 0 for size in self._sizes)
+        self._unfixed_count = sum(size != 1 for size in self._sizes)
+        # Preserve the original dict-to-set construction and event iteration.
+        self._changed = set(alphabets)
 
     def values(self, variable: Term) -> tuple[Term, ...]:
-        mask = self._masks[variable]
-        cached_mask, cached_values = self._value_cache[variable]
+        index = self._indices[variable]
+        mask = self._masks[index]
+        cached_mask, cached_values = self._value_cache[index]
         if cached_mask == mask:
             return cached_values
         original_mask = mask
-        values = self._values[variable]
+        values = self._values[index]
         selected = []
         while mask:
             bit = mask & -mask
             selected.append(values[bit.bit_length() - 1])
             mask ^= bit
         result = tuple(selected)
-        self._value_cache[variable] = (original_mask, result)
+        self._value_cache[index] = (original_mask, result)
         return result
 
     def size(self, variable: Term) -> int:
-        return self._masks[variable].bit_count()
+        return self._sizes[self._indices[variable]]
+
+    def index(self, variable: Term) -> int:
+        """Stable store-local variable ID for compiled propagators."""
+        return self._indices[variable]
+
+    def masks_at(self, indices: tuple[int, ...]) -> tuple[int, ...]:
+        """Read compiled variable IDs without repeated symbolic lookups."""
+        masks = self._masks
+        return tuple(masks[index] for index in indices)
 
     def mask(self, variable: Term) -> int:
         """Current domain in stable candidate-index coordinates."""
-        return self._masks[variable]
+        return self._masks[self._indices[variable]]
 
     def alphabet(self, variable: Term) -> tuple[Term, ...]:
         """Immutable original candidates, in mask-bit order."""
-        return self._values[variable]
+        return self._values[self._indices[variable]]
 
     def retain_mask(self, variable: Term, supported: int, cause: Atom) -> bool:
         """Intersect a support mask, preserving the ordinary trail and events."""
-        previous = self._masks[variable]
+        index = self._indices[variable]
+        previous = self._masks[index]
         mask = previous & supported
         if mask == previous:
             return False
-        removed_bits = previous ^ mask
-        values = self._values[variable]
-        removed = []
-        while removed_bits:
-            bit = removed_bits & -removed_bits
-            removed_bits ^= bit
-            removed.append(values[bit.bit_length() - 1])
         if self._checkpoints:
-            self._trail.append((variable, previous))
-        self._masks[variable] = mask
-        self._removals.append(DomainRemoval(variable, frozenset(removed), cause))
+            self._trail.append((index, previous))
+        old_size = self._sizes[index]
+        size = mask.bit_count()
+        self._empty_count += (size == 0) - (old_size == 0)
+        self._unfixed_count += (size != 1) - (old_size != 1)
+        self._sizes[index] = size
+        self._masks[index] = mask
+        self._removals.append((index, previous ^ mask, cause))
+        self._removal_cache = None
         self._changed.add(variable)
         return True
 
     @property
     def empty(self) -> bool:
-        return any(mask == 0 for mask in self._masks.values())
+        return self._empty_count != 0
 
     @property
     def complete(self) -> bool:
-        return all(mask.bit_count() == 1 for mask in self._masks.values())
+        return self._unfixed_count == 0
 
     @property
     def removals(self) -> tuple[DomainRemoval, ...]:
-        return tuple(self._removals)
+        if self._removal_cache is None:
+            decoded = self._decoded_removals
+            for index, mask, cause in self._removals[len(decoded) :]:
+                alphabet = self._values[index]
+                values = []
+                while mask:
+                    bit = mask & -mask
+                    mask ^= bit
+                    values.append(alphabet[bit.bit_length() - 1])
+                decoded.append(
+                    DomainRemoval(self._variables[index], frozenset(values), cause)
+                )
+            self._removal_cache = tuple(decoded)
+        return self._removal_cache
+
+    @property
+    def removal_count(self) -> int:
+        """Number of reduction events without decoding their explanation values."""
+        return len(self._removals)
+
+    def assign(self, variable: Term, value: Term, cause: Atom) -> bool:
+        """Retain one candidate without constructing a temporary support set."""
+        return self.retain_mask(
+            variable, self._bits[self._indices[variable]].get(value, 0), cause
+        )
 
     def snapshot(self) -> Mapping[Term, frozenset[Term]]:
         from types import MappingProxyType
 
         return MappingProxyType(
-            {var: frozenset(self.values(var)) for var in self._values}
+            {var: frozenset(self.values(var)) for var in self._variables}
         )
 
     def take_changed(self) -> set[Term]:
@@ -126,21 +162,10 @@ class FiniteDomains:
         self, variable: Term, supported: set[Term] | frozenset[Term], cause: Atom
     ) -> bool:
         mask = 0
+        bits = self._bits[self._indices[variable]]
         for value in supported:
-            mask |= self._bits[variable].get(value, 0)
-        previous = self._masks[variable]
-        mask &= previous
-        if mask == previous:
-            return False
-        removed = frozenset(
-            value for value in self.values(variable) if value not in supported
-        )
-        if self._checkpoints:
-            self._trail.append((variable, previous))
-        self._masks[variable] = mask
-        self._removals.append(DomainRemoval(variable, removed, cause))
-        self._changed.add(variable)
-        return True
+            mask |= bits.get(value, 0)
+        return self.retain_mask(variable, mask, cause)
 
     def checkpoint(self) -> DomainCheckpoint:
         checkpoint = DomainCheckpoint(
@@ -154,10 +179,17 @@ class FiniteDomains:
         if checkpoint.owner is not self._owner or checkpoint not in self._checkpoints:
             raise ValueError("checkpoint is foreign, released, or abandoned")
         while len(self._trail) > checkpoint.trail_position:
-            variable, mask = self._trail.pop()
-            self._masks[variable] = mask
-            self._changed.add(variable)
+            index, mask = self._trail.pop()
+            old_size = self._sizes[index]
+            size = mask.bit_count()
+            self._empty_count += (size == 0) - (old_size == 0)
+            self._unfixed_count += (size != 1) - (old_size != 1)
+            self._sizes[index] = size
+            self._masks[index] = mask
+            self._changed.add(self._variables[index])
         del self._removals[checkpoint.removal_position :]
+        del self._decoded_removals[checkpoint.removal_position :]
+        self._removal_cache = None
         del self._checkpoints[self._checkpoints.index(checkpoint) + 1 :]
 
     def release(self, checkpoint: DomainCheckpoint) -> None:

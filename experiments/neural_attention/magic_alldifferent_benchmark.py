@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import argparse
 import hashlib
+import importlib.machinery
 import importlib.util
 import json
 from pathlib import Path
@@ -12,7 +13,7 @@ from statistics import median
 from time import perf_counter
 
 from benchmarks.alice_magic import validate
-from snarky.finite.alldifferent import MaskColumn
+from snarky.finite.alldifferent import AllDifferentPlan, MaskColumn
 from snarky.finite.model import Query
 from snarky.finite.numeric import NumericPlan
 from snarky.finite.search import search
@@ -27,7 +28,7 @@ def main():
         "--candidate", type=Path, help="optional experimental kernel source"
     )
     parser.add_argument(
-        "--kernel", choices=["alldifferent", "sum"], default="alldifferent"
+        "--kernel", choices=["alldifferent", "matching", "sum"], default="alldifferent"
     )
     parser.add_argument(
         "--presets",
@@ -41,13 +42,17 @@ def main():
     if args.repeats < 1 or any(n < 3 for n in args.sizes):
         parser.error("require positive repeats and sizes at least three")
     args.output.mkdir(parents=True, exist_ok=False)
-    module_spec = importlib.util.spec_from_file_location(
-        f"snarky.finite._{args.kernel}_before", args.before
+    loader = importlib.machinery.SourceFileLoader(
+        f"snarky.finite._{args.kernel}_before", str(args.before)
     )
+    module_spec = importlib.util.spec_from_loader(loader.name, loader)
     module = importlib.util.module_from_spec(module_spec)
     module_spec.loader.exec_module(module)
-    kernel_class = NumericPlan if args.kernel == "sum" else MaskColumn
-    method = "_equality_supports" if args.kernel == "sum" else "decode"
+    kernel_class, method = {
+        "sum": (NumericPlan, "_equality_supports"),
+        "alldifferent": (MaskColumn, "decode"),
+        "matching": (AllDifferentPlan, "_match"),
+    }[args.kernel]
     original_method = getattr(kernel_class, method)
     optimized = original_method
     if args.candidate:

@@ -110,7 +110,7 @@ class MixedState:
         objective_cut: LinearSumConstraint | None = None,
     ) -> bool:
         while True:
-            before_removals = len(self.domains.removals)
+            before_removals = self.domains.removal_count
             before_events = self.session.event_count
             if not self._native.propagate(
                 deadline=deadline,
@@ -128,7 +128,7 @@ class MixedState:
                     self._native.failure = constraint.name
                     return False
             if (
-                len(self.domains.removals) == before_removals
+                self.domains.removal_count == before_removals
                 and self.session.event_count == before_events
             ):
                 return True
