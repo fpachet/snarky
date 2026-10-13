@@ -1,0 +1,295 @@
+"""Isolated weighted-degree, propagation-order and ALLDIFF graph experiments."""
+
+from __future__ import annotations
+
+import argparse
+import cProfile
+import gc
+import hashlib
+import importlib
+import importlib.machinery
+import importlib.util
+import io
+import json
+import os
+import platform
+import pstats
+import sys
+from functools import cache
+from pathlib import Path
+from random import Random
+from statistics import median
+from time import perf_counter
+
+from benchmarks.alice_magic import validate
+from snarky.finite.model import Query
+
+from .domain_ops_benchmark import coupled_class, load_runtime, logical_result
+from .magic_search_tuning import RankedDomains, RankedState, prepare
+
+ARCHIVE = (
+    Path(__file__).resolve().parents[2]
+    / "benchmarks/results/magic_scheduler_graph_2026-10-13"
+)
+VARIANTS = (
+    "before",
+    "weights",
+    "batch",
+    "group",
+    "complement",
+    "graph",
+    "weights_group",
+    "weights_graph",
+    "combined",
+)
+
+
+@cache
+def runtime(variant):
+    package = load_runtime(ARCHIVE / variant)
+    for name in ["bounds", "oracle", "product_objective"]:
+        sys.modules[f"{package.__name__}.{name}"] = importlib.import_module(
+            f"snarky.finite.{name}"
+        )
+    loader = importlib.machinery.SourceFileLoader(
+        package.__name__ + ".search", str(ARCHIVE / variant / "search.py.txt")
+    )
+    spec = importlib.util.spec_from_loader(loader.name, loader)
+    module = importlib.util.module_from_spec(spec)
+    sys.modules[loader.name] = module
+    loader.exec_module(module)
+    package.search = module
+    return package
+
+
+def audit_state(native):
+    counts = dict(alldifferent_calls=0, numeric_calls=0)
+    ad, numeric = native._revise_alldifferent, native._revise_numeric
+
+    def counted_ad(*args):
+        counts["alldifferent_calls"] += 1
+        return ad(*args)
+
+    def counted_numeric(*args):
+        counts["numeric_calls"] += 1
+        return numeric(*args)
+
+    native._revise_alldifferent = counted_ad
+    native._revise_numeric = counted_numeric
+    return counts
+
+
+def main():
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("--variants", nargs="+", choices=VARIANTS, default=VARIANTS)
+    parser.add_argument("--sizes", nargs="+", type=int, default=[8, 9, 11, 13, 16])
+    parser.add_argument("--repeats", type=int, default=3)
+    parser.add_argument("--mode", choices=["native", "exact"], default="native")
+    parser.add_argument("--limit", type=float, default=20)
+    parser.add_argument("--max-nodes", type=int)
+    parser.add_argument("--seed", type=int)
+    parser.add_argument("--audit", action="store_true")
+    parser.add_argument("--profile", action="store_true")
+    parser.add_argument("--output", type=Path, required=True)
+    args = parser.parse_args()
+    if args.repeats < 1 or args.limit <= 0 or any(n < 3 for n in args.sizes):
+        parser.error("invalid repeats, limit or size")
+    args.output.mkdir(parents=True, exist_ok=False)
+    presets_path = Path(__file__).with_name("magic_best_parameters.json")
+    presets = json.loads(presets_path.read_text())
+    paths = [
+        *Path("src/snarky").rglob("*.py"),
+        Path(__file__),
+        presets_path,
+        Path(__file__).with_name("domain_ops_benchmark.py"),
+        Path(__file__).with_name("magic_search_tuning.py"),
+        Path(__file__).with_name("optimize_magic6.py"),
+        Path("benchmarks/alice_magic.py"),
+        *(p for v in args.variants for p in (ARCHIVE / v).glob("*.py.txt")),
+    ]
+    hashes = {str(p): hashlib.sha256(p.read_bytes()).hexdigest() for p in paths}
+    packages = {v: runtime(v) for v in args.variants}
+    classes = {
+        v: coupled_class(packages[v], ARCHIVE / v / "sum_distinct.py.txt")
+        if args.mode == "exact"
+        else packages[v].propagation.NativeState
+        for v in args.variants
+    }
+    schedule = [
+        (n, v, r)
+        for n in args.sizes
+        for v in args.variants
+        for r in range(args.repeats)
+    ]
+    Random(131050).shuffle(schedule)
+    frozen = dict(
+        source_hashes=hashes,
+        schedule=schedule,
+        presets=presets,
+        python=platform.python_version(),
+        platform=platform.platform(),
+        pythonhashseed=os.environ.get("PYTHONHASHSEED"),
+        config={k: str(v) if isinstance(v, Path) else v for k, v in vars(args).items()},
+        scope=(
+            "Sequential shuffled runs; model/state construction, search and solution "
+            "explanations included. Imports/validation/previous-run cleanup and "
+            "gc.collect excluded. Audit/profile runs are diagnostic only. "
+            "15 default cap80, >=17 cap30; no full-solve claims for prefixes. "
+            "Weights and graph require exactly equal logical results/explanations "
+            "to the baseline; batch changes order and is independently validated."
+        ),
+    )
+    (args.output / "frozen.json").write_text(json.dumps(frozen, indent=2) + "\n")
+    (args.output / "scheduler_graph_benchmark.py.txt").write_bytes(
+        Path(__file__).read_bytes()
+    )
+    rows, signatures, equivalent = [], {}, []
+    for size, variant, repeat in schedule:
+        settings = {
+            **presets["default"],
+            **presets["known_size_overrides"].get(str(size), {}),
+        }
+        if args.seed is not None:
+            settings["seed"] = args.seed
+        cap = (
+            args.max_nodes
+            if args.max_nodes is not None
+            else (80 if size == 15 else 30 if size >= 17 else None)
+        )
+        gc.collect()
+        profile = cProfile.Profile() if args.profile else None
+        if profile:
+            profile.enable()
+        started = perf_counter()
+        original, model = prepare(
+            size,
+            settings["order"],
+            settings["tie"],
+            settings["symmetry"],
+            seed=settings.get("seed", 0),
+        )
+        state = RankedState.__new__(RankedState)
+        kwargs = (
+            dict(max_active=3, max_candidates=24, pair_fast=True, exact_three=True)
+            if args.mode == "exact"
+            else {}
+        )
+        state.native = classes[variant](model, **kwargs)
+        state.model = model
+        state.domains = RankedDomains(state.native.domains, model, settings["order"])
+        audit = audit_state(state.native) if args.audit else {}
+        result = packages[variant].search.search(
+            state,
+            Query(time_limit_seconds=args.limit, max_nodes=cap),
+            policy=settings["policy"],
+        )
+        seconds = perf_counter() - started
+        if profile:
+            profile.disable()
+            output = io.StringIO()
+            stats = pstats.Stats(profile, stream=output)
+            stats.sort_stats("tottime").print_stats(45)
+            stats.sort_stats("cumulative").print_stats(45)
+            (args.output / f"profile_{size}_{variant}_{repeat}.txt").write_text(
+                output.getvalue()
+            )
+        squares = [validate(size, s.assignment, original) for s in result.solutions]
+        signature = logical_result(result)
+        if result.termination.value != "time_limit":
+            signatures.setdefault(size, {})[variant, repeat] = signature
+        reductions = [
+            [
+                (repr(r.variable), sorted(map(repr, r.values)), repr(r.cause))
+                for r in s.reductions
+            ]
+            for s in result.solutions
+        ]
+        row = dict(
+            size=size,
+            variant=variant,
+            repeat=repeat,
+            mode=args.mode,
+            settings=settings,
+            total_seconds=seconds,
+            nodes=result.explored_nodes,
+            failures=result.failed_branches,
+            revisions=result.constraint_revisions,
+            termination=result.termination.value,
+            squares=squares,
+            reductions_sha256=hashlib.sha256(
+                json.dumps(reductions).encode()
+            ).hexdigest(),
+            reduction_events=[len(s.reductions) for s in result.solutions],
+            stats=state.native.stats if args.mode == "exact" else {},
+            audit=audit,
+        )
+        rows.append(row)
+        with (args.output / "runs.jsonl").open("a") as f:
+            f.write(json.dumps(row) + "\n")
+        print(
+            json.dumps(
+                {
+                    k: v
+                    for k, v in row.items()
+                    if k not in ["squares", "settings", "stats"]
+                }
+            ),
+            flush=True,
+        )
+        del original, model, state, result, signature, reductions, profile
+    for n, results in signatures.items():
+        preserving = [
+            s for (v, _), s in results.items() if v not in ["batch", "combined"]
+        ]
+        assert all(s == preserving[0] for s in preserving), (n, "changed search")
+        for variant in args.variants:
+            repeated = [s for (v, _), s in results.items() if v == variant]
+            assert all(s == repeated[0] for s in repeated), (
+                n,
+                variant,
+                "unstable search",
+            )
+        equivalent.append(
+            dict(
+                size=n,
+                exact_search_variants=[
+                    v for v in args.variants if v not in ["batch", "combined"]
+                ],
+            )
+        )
+    summary = [
+        dict(
+            size=n,
+            variants={
+                v: dict(
+                    median_seconds=median(
+                        r["total_seconds"]
+                        for r in rows
+                        if r["size"] == n and r["variant"] == v
+                    ),
+                    nodes=[
+                        r["nodes"] for r in rows if r["size"] == n and r["variant"] == v
+                    ],
+                    terminations=[
+                        r["termination"]
+                        for r in rows
+                        if r["size"] == n and r["variant"] == v
+                    ],
+                )
+                for v in args.variants
+            },
+        )
+        for n in args.sizes
+    ]
+    (args.output / "summary.json").write_text(json.dumps(summary, indent=2) + "\n")
+    (args.output / "equivalence.json").write_text(
+        json.dumps(equivalent, indent=2) + "\n"
+    )
+    assert all(
+        hashlib.sha256(Path(p).read_bytes()).hexdigest() == sha
+        for p, sha in hashes.items()
+    )
+
+
+if __name__ == "__main__":
+    main()

@@ -1,9 +1,15 @@
 # Archived benchmark results
 
 **Magic squares:** the
-[13 October results README](magic_sum_dense_2026-10-13/README.md)
+[latest results README](magic_scheduler_graph_2026-10-13/README.md)
 contains timing tables, source/evidence links, reproduction commands, and links
-to the earlier experiments.
+to the earlier experiments. Selective ALLDIFF graph aggregation is enabled;
+native three-run medians improve 8×8 by 11.8%, 11×11 by 20.8% and 16×16 by
+13.8%, with identical search counts and explanations. 9×9 improves by only 1.0%.
+The larger node-limited prefixes remain separate from completed solves.
+
+The [earlier dense-domain SUM report](magic_sum_dense_2026-10-13/README.md)
+preserves the preceding measurements and optimization history.
 
 The [partial sum-certification experiment](magic_sum_partial_2026-10-13/README.md)
 records two exact prototypes that were tested and retained for opt-in use;
@@ -44,6 +50,11 @@ implements deferred explanations, indexed storage, constant-time domain status,
 direct assignment, changed-mask application and cheaper queue membership.
 Its paired comparisons require identical searches and explanations; component
 measurements and instrumented call counts are reported separately.
+
+The [weighted-degree, scheduling and ALLDIFF graph follow-up](magic_scheduler_graph_2026-10-13/README.md)
+tests three further ideas independently. Selective aggregation of repeated
+domain rows is enabled after exact-search comparisons; weighted-degree totals,
+two-queue scheduling and complementary-edge construction remain experimental.
 
 Workforce task symmetry and workload propagation:
 [scheduling_symmetry_2026-09-28.json](scheduling_symmetry_2026-09-28.json) records

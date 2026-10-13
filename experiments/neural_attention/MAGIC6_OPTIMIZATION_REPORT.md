@@ -651,3 +651,31 @@ including sibling rollback, explanations, mixed rules, guards and objectives.
 
 See the [timing tables, component tradeoffs, source snapshots and reproduction
 commands](../../benchmarks/results/magic_domain_ops_2026-10-13/README.md).
+
+## Follow-up: variable scores, propagation order and ALLDIFF graph, 13 October 2026
+
+Three isolated experiments compare cached dom/wdeg totals, running ordinary
+constraints before ALLDIFF, and building the ALLDIFF reverse graph with repeated
+domain rows aggregated. Dense complementary-edge emission is tested separately.
+All variants start from `b8e06c1`, with fixed `PYTHONHASHSEED=0` and saved presets.
+
+Only selective reverse-graph aggregation is enabled in production. Rows with
+at most eight candidates emit their edges directly; larger identical rows
+combine their matching-source bits before emitting destinations. Each revision
+rebuilds this temporary structure from current masks. Matching, SCC filtering,
+search order, explanations and saved settings remain unchanged.
+
+Three-repeat native medians improve 8×8 from 0.110352 s to 0.097281 s, 11×11
+from 0.426527 s to 0.337799 s, and 16×16 from 6.171570 s to 5.320453 s. 9×9
+improves by only about 1%. With the optional exact joint filter, 13×13 drops
+from 0.755692 s to 0.523022 s and 16×16 from 5.074033 s to 4.116761 s. Every
+paired comparison retains identical search counts, solutions and explanations.
+
+Cached weighted-degree totals add little in repeated timings. Two-queue
+scheduling has mixed effects: the 13×13 pilot grows from 1,488 to 5,011 nodes
+and from 2.118 s to 5.530 s. These variants remain archived experiments. Larger
+15–20×20 node-limited prefixes become substantially cheaper with graph
+aggregation, but they remain unresolved prefixes, not full-solve timings.
+
+See the [readable report, raw runs, profiles, source snapshots and reproduction
+commands](../../benchmarks/results/magic_scheduler_graph_2026-10-13/README.md).

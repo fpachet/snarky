@@ -191,16 +191,29 @@ class AllDifferentPlan:
         reverse = [0] * len(self.owners)
         matched = 0
         edges = 0
+        groups: dict[int, int] = {}
         for value, mask in zip(self.matching, masks, strict=True):
             own = 1 << value
             matched |= own
             graph[value] = mask
-            edges += mask.bit_count()
-            pending = mask
+            size = mask.bit_count()
+            edges += size
+            if size <= 8:
+                # Tiny rows are cheaper to emit directly than to aggregate.
+                pending = mask
+                while pending:
+                    bit = pending & -pending
+                    pending ^= bit
+                    reverse[bit.bit_length() - 1] |= own
+            else:
+                groups[mask] = groups.get(mask, 0) | own
+        # Identical outgoing rows have the same destinations. OR all their
+        # source bits together once per destination, rather than once per edge.
+        for pending, sources in groups.items():
             while pending:
                 bit = pending & -pending
                 pending ^= bit
-                reverse[bit.bit_length() - 1] |= own
+                reverse[bit.bit_length() - 1] |= sources
         reaches_free = _bit_reachable(reverse, universe & ~matched, universe)
         if reaches_free == universe:
             result = local

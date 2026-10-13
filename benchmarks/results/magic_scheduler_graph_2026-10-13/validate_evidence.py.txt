@@ -1,0 +1,72 @@
+"""Check frozen measurements, exact-work signatures and every square witness."""
+import hashlib
+import json
+import tarfile
+from collections import Counter
+from pathlib import Path
+from statistics import median
+
+base=Path('benchmarks/results/magic_scheduler_graph_2026-10-13')
+with tarfile.open(base/'baseline_sources.tar.gz') as tar:
+ baseline={m.name:tar.extractfile(m).read() for m in tar.getmembers() if m.isfile()}
+def local_source(path):
+ p=Path(path)
+ if p.is_absolute():
+  for marker in ['/experiments/', '/benchmarks/', '/src/']:
+   if marker in path:
+    return Path(marker.lstrip('/') + path.split(marker,1)[1])
+ return p
+
+counts=Counter()
+reports={}
+for name in ['profile','pilot','main','selective','exact','controls','audit','after_profile']:
+ folder=base/("selective_runs" if name=="selective" else name)
+ frozen=json.loads((folder/'frozen.json').read_text())
+ assert frozen['pythonhashseed']=='0'
+ rows=[json.loads(line) for line in (folder/'runs.jsonl').read_text().splitlines()]
+ assert len(rows)==len(frozen['schedule'])
+ assert {(r['size'],r['variant'],r['repeat']) for r in rows}=={tuple(x) for x in frozen['schedule']}
+ for path,digest in frozen['source_hashes'].items():
+  if path.startswith('src/snarky/'):
+   payload=baseline[path]
+  elif path.endswith('/scheduler_graph_benchmark.py'):
+   payload=(folder/'scheduler_graph_benchmark.py.txt').read_bytes()
+  else:
+   payload=local_source(path).read_bytes()
+  assert hashlib.sha256(payload).hexdigest()==digest,(name,path)
+ signatures={}
+ for row in rows:
+  assert row['termination'] in ['solution_limit','node_limit'],(name,row)
+  n=row['size']
+  if row['variant'] not in ['batch','combined']:
+   sig=(row['settings'],row['nodes'],row['failures'],row['revisions'],row['termination'],row['squares'],row['reductions_sha256'],row['reduction_events'],{k:v for k,v in row['stats'].items() if k!='seconds'})
+   if n in signatures: assert signatures[n]==sig,(name,n)
+   signatures[n]=sig
+  for square in row['squares']:
+   assert sorted(square)==list(range(1,n*n+1))
+   target=n*(n*n+1)//2
+   lines=[square[i*n:(i+1)*n] for i in range(n)] + [square[i::n] for i in range(n)] + [square[::n+1],square[n-1:n*n-1:n-1]]
+   assert len(lines)==2*n+2 and all(len(xs)==n and sum(xs)==target for xs in lines)
+   counts['validated_squares']+=1
+  counts['runs']+=1
+  counts[row['termination']]+=1
+ summary=json.loads((folder/'summary.json').read_text())
+ for row in summary:
+  for variant, stats in row['variants'].items():
+   assert stats['median_seconds']==median(r['total_seconds'] for r in rows if r['size']==row['size'] and r['variant']==variant)
+ reports[name]=summary
+for name in ['initial','selective']:
+ micro=json.loads((base/f'micro_{name}.json').read_text())
+ for path,digest in micro['source_hashes'].items():
+  source=base/'micro_initial.py.txt' if name=='initial' and path.endswith('/scheduler_graph_micro.py') else local_source(path)
+  assert hashlib.sha256(source.read_bytes()).hexdigest()==digest,(name,path)
+ counts['micro_trials']+=len(micro['runs'])
+ for row in micro['summary']:
+  for v,seconds in row['medians'].items():
+   assert seconds==median(r['seconds'] for r in micro['runs'] if r['case']==row['case'] and r['variant']==v)
+assert Path('src/snarky/finite/alldifferent.py').read_bytes()==(base/'selective/alldifferent.py.txt').read_bytes()
+assert Path('src/snarky/finite/search.py').read_bytes()==(base/'before/search.py.txt').read_bytes()
+assert Path('src/snarky/finite/propagation.py').read_bytes()==(base/'before/propagation.py.txt').read_bytes()
+output=dict(counts=counts,baseline_commit='b8e06c1',production_changes=['selective ALLDIFF reverse-graph aggregation only'],checks=['frozen source hashes and all scheduled rows','fixed hash seed in every process','identical search/solution/explanation signatures for non-batching variants','identical integer coupled-filter statistics','independent normal magic-square witness validation','recomputed medians','live source matches selected graph snapshot; search and scheduling unchanged'],series=reports)
+(base/'validation.json').write_text(json.dumps(output,indent=2)+'\n')
+print(json.dumps(counts,indent=2))

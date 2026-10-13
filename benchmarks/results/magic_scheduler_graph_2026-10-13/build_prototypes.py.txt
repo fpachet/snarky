@@ -1,0 +1,188 @@
+"""Freeze independent prototypes against b8e06c1 without modifying the solver."""
+from pathlib import Path
+
+ARCHIVE=Path('benchmarks/results/magic_scheduler_graph_2026-10-13')
+NAMES=('domains','numeric','alldifferent','propagation','mixed','search')
+base={name:Path(f'src/snarky/finite/{name}.py').read_text() for name in NAMES}
+
+def replace(source,old,new):
+ assert source.count(old)==1,old
+ return source.replace(old,new)
+
+weights=replace(base['search'],'''    weights = {constraint.name: 1 for constraint in model.constraints}
+    # Visit each scope once, preserving constraint order and the old membership
+    # semantics for scopes with repeated references (e.g. predicates).
+    incident: dict[Term, list[Atom]] = {var: [] for var in names}
+    for constraint in model.constraints:
+        for var in dict.fromkeys(constraint.variables):
+            incident[var].append(constraint.name)
+''','''    # Only dom/wdeg needs these scores. A failure increases every incident
+    # variable's total by one; totals remain global across sibling branches,
+    # just like the constraint weights they replace.
+    degrees: dict[Term, int] = dict.fromkeys(names, 0)
+    failure_scopes: dict[Atom, tuple[Term, ...]] = {}
+    if policy == "dom_wdeg" and variable_order is None:
+        for constraint in model.constraints:
+            scope = tuple(dict.fromkeys(constraint.variables))
+            failure_scopes[constraint.name] = scope
+            for var in scope:
+                degrees[var] += 1
+''')
+weights=replace(weights,'''                if state.failure in weights:
+                    weights[state.failure] += 1
+''','''                failure = state.failure
+                if failure is not None:
+                    for var in failure_scopes.get(failure, ()):
+                        degrees[var] += 1
+''')
+weights=replace(weights,'max(1, sum(weights[c] for c in incident[var]))','max(1, degrees[var])')
+
+batch=replace(base['propagation'],'''        self._initialized = False
+
+    def checkpoint''','''        self._expensive = bytearray(
+            isinstance(c.constraint if isinstance(c, GuardedConstraint) else c,
+                       AllDifferentConstraint)
+            for c in model.constraints
+        )
+        self._expensive.append(0)  # incumbent cut stays in the ordinary queue
+        self._initialized = False
+
+    def checkpoint''')
+batch=replace(batch,'''        pending = deque(
+            ([cut_index] if objective_cut is not None else []) + sorted(indices)
+        )
+        queued = bytearray(cut_index + 1)
+        for index in pending:
+            queued[index] = 1
+        while pending:
+''','''        initial = ([cut_index] if objective_cut is not None else []) + sorted(indices)
+        pending, expensive = deque(), deque()
+        queues = (pending, expensive)
+        queued = bytearray(cut_index + 1)
+        for index in initial:
+            queues[self._expensive[index]].append(index)
+            queued[index] = 1
+        while pending or expensive:
+''')
+batch=replace(batch,'            index = pending.popleft()','            index = (pending if pending else expensive).popleft()')
+assert batch.count('pending.append(incident)')==2
+batch=batch.replace('pending.append(incident)','queues[self._expensive[incident]].append(incident)')
+
+old='''        graph = [0] * len(self.owners)
+        reverse = [0] * len(self.owners)
+        matched = 0
+        edges = 0
+        for value, mask in zip(self.matching, masks, strict=True):
+            own = 1 << value
+            matched |= own
+            graph[value] = mask
+            edges += mask.bit_count()
+            pending = mask
+            while pending:
+                bit = pending & -pending
+                pending ^= bit
+                reverse[bit.bit_length() - 1] |= own
+'''
+group='''        graph = [0] * len(self.owners)
+        reverse = [0] * len(self.owners)
+        matched = 0
+        edges = 0
+        groups: dict[int, int] = {}
+        for value, mask in zip(self.matching, masks, strict=True):
+            own = 1 << value
+            matched |= own
+            graph[value] = mask
+            edges += mask.bit_count()
+            groups[mask] = groups.get(mask, 0) | own
+        # Identical outgoing rows have the same destinations. OR all their
+        # source bits together once per destination, rather than once per edge.
+        for pending, sources in groups.items():
+            while pending:
+                bit = pending & -pending
+                pending ^= bit
+                reverse[bit.bit_length() - 1] |= sources
+'''
+complement='''        graph = [0] * len(self.owners)
+        matched = 0
+        edges = 0
+        dense = 0
+        half = universe.bit_count() // 2
+        for value, mask in zip(self.matching, masks, strict=True):
+            own = 1 << value
+            matched |= own
+            graph[value] = mask
+            size = mask.bit_count()
+            edges += size
+            if size > half:
+                dense |= own
+        # Dense rows initially reach every current value. Remove just their
+        # missing edges; sparse rows add their present edges normally.
+        reverse = [dense] * len(self.owners)
+        unused = ((1 << len(self.owners)) - 1) ^ universe
+        while unused:
+            bit = unused & -unused
+            unused ^= bit
+            reverse[bit.bit_length() - 1] = 0
+        for value, mask in zip(self.matching, masks, strict=True):
+            own = 1 << value
+            if dense & own:
+                pending = universe & ~mask
+                while pending:
+                    bit = pending & -pending
+                    pending ^= bit
+                    reverse[bit.bit_length() - 1] ^= own
+            else:
+                pending = mask
+                while pending:
+                    bit = pending & -pending
+                    pending ^= bit
+                    reverse[bit.bit_length() - 1] |= own
+'''
+both='''        graph = [0] * len(self.owners)
+        matched = 0
+        edges = 0
+        groups: dict[int, int] = {}
+        for value, mask in zip(self.matching, masks, strict=True):
+            own = 1 << value
+            matched |= own
+            graph[value] = mask
+            edges += mask.bit_count()
+            groups[mask] = groups.get(mask, 0) | own
+        half = universe.bit_count() // 2
+        dense = 0
+        for mask, sources in groups.items():
+            if mask.bit_count() > half:
+                dense |= sources
+        reverse = [dense] * len(self.owners)
+        unused = ((1 << len(self.owners)) - 1) ^ universe
+        while unused:
+            bit = unused & -unused
+            unused ^= bit
+            reverse[bit.bit_length() - 1] = 0
+        for mask, sources in groups.items():
+            if sources & dense:
+                pending = universe & ~mask
+                while pending:
+                    bit = pending & -pending
+                    pending ^= bit
+                    reverse[bit.bit_length() - 1] ^= sources
+            else:
+                pending = mask
+                while pending:
+                    bit = pending & -pending
+                    pending ^= bit
+                    reverse[bit.bit_length() - 1] |= sources
+'''
+variants={
+ 'before':{}, 'weights':{'search':weights}, 'batch':{'propagation':batch},
+ 'group':{'alldifferent':replace(base['alldifferent'],old,group)},
+ 'complement':{'alldifferent':replace(base['alldifferent'],old,complement)},
+ 'graph':{'alldifferent':replace(base['alldifferent'],old,both)},
+ 'combined':{'search':weights,'propagation':batch,'alldifferent':replace(base['alldifferent'],old,both)},
+}
+for variant,overrides in variants.items():
+ folder=ARCHIVE/variant;folder.mkdir(parents=True,exist_ok=False)
+ for name in NAMES:
+  (folder/f'{name}.py.txt').write_text(overrides.get(name,base[name]))
+ (folder/'sum_distinct.py.txt').write_bytes(Path('experiments/neural_attention/sum_distinct.py').read_bytes())
+print(ARCHIVE)

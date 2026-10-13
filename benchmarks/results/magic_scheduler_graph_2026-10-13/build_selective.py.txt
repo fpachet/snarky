@@ -1,0 +1,28 @@
+"""Limit repeated-mask aggregation to rows where its cost can pay off."""
+from pathlib import Path
+import shutil
+base=Path('benchmarks/results/magic_scheduler_graph_2026-10-13')
+source=(base/'group/alldifferent.py.txt').read_text()
+old='''            edges += mask.bit_count()
+            groups[mask] = groups.get(mask, 0) | own
+'''
+new='''            size = mask.bit_count()
+            edges += size
+            if size <= 8:
+                # Tiny rows are cheaper to emit directly than to aggregate.
+                pending = mask
+                while pending:
+                    bit = pending & -pending
+                    pending ^= bit
+                    reverse[bit.bit_length() - 1] |= own
+            else:
+                groups[mask] = groups.get(mask, 0) | own
+'''
+assert source.count(old)==1
+source=source.replace(old,new)
+for variant in ['selective','weights_selective']:
+ shutil.copytree(base/'group',base/variant)
+ (base/variant/'alldifferent.py.txt').write_text(source)
+ if variant.startswith('weights'):
+  shutil.copyfile(base/'weights/search.py.txt',base/variant/'search.py.txt')
+shutil.copyfile(__file__,base/'build_selective.py.txt')

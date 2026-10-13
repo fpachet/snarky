@@ -9,8 +9,22 @@ hardware, operating system, background load, and benchmark parameters.
 Algorithmic counters and output equivalence are usually more portable.
 
 For the latest **magic-square benchmarks**, start with the
-[readable results and reproduction guide](results/magic_sum_dense_2026-10-13/README.md).
-It separates completed solves from bounded search prefixes and links the raw data.
+[ALLDIFF graph results and reproduction guide](results/magic_scheduler_graph_2026-10-13/README.md).
+The latest production change groups identical large domain rows while building
+the reverse graph. Three-run native medians, including model construction:
+
+| Size | Before | After | Time reduction |
+|---|---:|---:|---:|
+| 8×8 | 0.110352 s | 0.097281 s | 11.8% |
+| 9×9 | 1.949828 s | 1.930853 s | 1.0% |
+| 11×11 | 0.426527 s | 0.337799 s | 20.8% |
+| 16×16 | 6.171570 s | 5.320453 s | 13.8% |
+
+Each before/after pair preserves search counts, solutions and explanations.
+The report also covers the optional joint SUM+ALLDIFF filter, raw samples,
+source snapshots and the experiments left disabled. Larger 15–20×20 results
+are node-limited prefixes, not completed solves. The
+[results index](results/README.md) links the earlier optimization stages.
 
 For the upcoming redesign, use the [performance baseline and comparison
 ledger](../docs/performance_baseline.md). It defines a fixed non-Bach portfolio

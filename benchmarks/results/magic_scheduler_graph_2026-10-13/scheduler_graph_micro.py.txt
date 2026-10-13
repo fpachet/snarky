@@ -1,0 +1,111 @@
+"""Compare exact graph construction on dense, repeated and sparse domain rows."""
+
+import argparse
+import gc
+import hashlib
+import json
+from pathlib import Path
+from random import Random
+from statistics import median
+from time import perf_counter
+
+from .scheduler_graph_benchmark import ARCHIVE
+
+
+def graph_builder(variant):
+    source = (ARCHIVE / variant / "alldifferent.py.txt").read_text()
+    start = source.index("        graph = [0] * len(self.owners)")
+    end = source.index("        reaches_free =", start)
+    body = (
+        source[start:end]
+        .replace("len(self.owners)", "count")
+        .replace("self.matching", "matching")
+    )
+    body = "\n".join(line[4:] for line in body.splitlines())
+    namespace = {}
+    exec(
+        "def build(matching, masks, universe, count):\n"
+        + body
+        + "\n    return graph, reverse, matched, edges\n",
+        namespace,
+    )
+    return namespace["build"]
+
+
+def main():
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("--output", type=Path, required=True)
+    args = parser.parse_args()
+    variants = ["before", "group", "complement", "graph", "selective"]
+    builders = {v: graph_builder(v) for v in variants}
+    rng = Random(131054)
+    specs = {}
+    for n in [32, 128, 256]:
+        matching = tuple(range(n))
+        full = (1 << n) - 1
+        block = max(1, n // 4)
+        specs[f"full_{n}"] = (matching, (full,) * n, full, n)
+        repeated = tuple(((1 << block) - 1) << (i // block * block) for i in range(n))
+        specs[f"repeated_blocks_{n}"] = (matching, repeated, full, n)
+        for case, size in [("sparse", 4), ("medium", n // 2), ("dense", n * 9 // 10)]:
+            masks = tuple(
+                sum(1 << j for j in set(rng.sample(range(n), size)) | {i})
+                for i in range(n)
+            )
+            universe = 0
+            for mask in masks:
+                universe |= mask
+            specs[f"{case}_{n}"] = (matching, masks, universe, n)
+    # Unused value IDs and more values than variables exercise a non-full universe.
+    matching = tuple(range(0, 128, 2))
+    universe = sum(1 << i for i in range(0, 256, 2))
+    specs["gapped_free_values"] = (matching, (universe,) * len(matching), universe, 256)
+    for case, spec in specs.items():
+        expected = builders["before"](*spec)
+        assert all(fn(*spec) == expected for fn in builders.values()), case
+    schedule = [(case, v, r) for case in specs for v in variants for r in range(7)]
+    rng.shuffle(schedule)
+    rows = []
+    for case, variant, repeat in schedule:
+        gc.collect()
+        started = perf_counter()
+        for _ in range(20):
+            actual = builders[variant](*specs[case])
+        seconds = perf_counter() - started
+        assert actual == builders["before"](*specs[case]), (case, variant)
+        rows.append(dict(case=case, variant=variant, repeat=repeat, seconds=seconds))
+        del actual
+    paths = [Path(__file__), *(ARCHIVE / v / "alldifferent.py.txt" for v in variants)]
+    output = dict(
+        iterations=20,
+        repeats=7,
+        scope=(
+            "Extracted graph-building code only; imports, inputs, GC and "
+            "validation excluded. No whole-solver speedup claim."
+        ),
+        source_hashes={
+            str(p): hashlib.sha256(p.read_bytes()).hexdigest() for p in paths
+        },
+        runs=rows,
+        summary=[
+            dict(
+                case=case,
+                medians={
+                    v: median(
+                        r["seconds"]
+                        for r in rows
+                        if r["case"] == case and r["variant"] == v
+                    )
+                    for v in variants
+                },
+            )
+            for case in specs
+        ],
+    )
+    with args.output.open("x") as f:
+        f.write(json.dumps(output, indent=2) + "\n")
+    print(json.dumps(output["summary"], indent=2))
+
+
+if __name__ == "__main__":
+    main()

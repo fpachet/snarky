@@ -246,3 +246,56 @@ def test_matching_repairs_after_failed_sibling_and_widening():
     for state, checkpoint in zip((fast, slow), roots, strict=True):
         state.rollback(checkpoint)
         state.release(checkpoint)
+
+
+def test_reverse_graph_matches_edgewise_transpose_for_repeated_and_tiny_rows(
+    monkeypatch,
+):
+    rng = Random(131056)
+    original_reachable = alldifferent._bit_reachable
+    for n in [16, 32, 64]:
+        alphabet = tuple(Number(i) for i in range(n + 7))
+        alphabets = [rng.sample(alphabet, len(alphabet)) for _ in range(n)]
+        state = NativeState(model_for(alphabets))
+        plan = state._alldifferent.get(0, state.model.constraints[0])
+        root = state.checkpoint()
+        observed = []
+
+        def check_transpose(graph, seeds, allowed, plan=plan, observed=observed):
+            encoded = [
+                c.encode(m) for c, m in zip(plan.columns, plan.input_masks, strict=True)
+            ]
+            expected = [0] * len(plan.owners)
+            for source, mask in zip(plan.matching, encoded, strict=True):
+                assert source >= 0
+                while mask:
+                    bit = mask & -mask
+                    mask ^= bit
+                    expected[bit.bit_length() - 1] |= 1 << source
+            assert graph == expected
+            observed.append(True)
+            return original_reachable(graph, seeds, allowed)
+
+        full = (1 << len(alphabet)) - 1
+        rows = [
+            [full] * n,
+            [full ^ (1 << ((i + 3) % n)) for i in range(n)],
+            [(1 << i) | (1 << ((i + 1) % n)) for i in range(n)],
+            [sum(1 << j for j in set(rng.sample(range(n), 9)) | {i}) for i in range(n)],
+            [((1 << (n // 2)) - 1) << (i // (n // 2) * (n // 2)) for i in range(n)],
+            [(1 << i) | (1 << (n + 1)) for i in range(n)],
+        ]
+        with monkeypatch.context() as patch:
+            patch.setattr(alldifferent, "_bit_reachable", check_transpose)
+            for masks in rows + list(reversed(rows)):
+                state.rollback(root)
+                for variable, mask in zip(state.model.variables, masks, strict=True):
+                    state.domains.retain(
+                        variable.name,
+                        {v for i, v in enumerate(alphabet) if mask & (1 << i)},
+                        Atom("branch"),
+                    )
+                assert state.propagate()
+        assert len(observed) >= len(rows)
+        state.rollback(root)
+        state.release(root)

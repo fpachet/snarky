@@ -1,0 +1,1519 @@
+{
+  "counts": {
+    "runs": 245,
+    "node_limit": 31,
+    "validated_squares": 214,
+    "solution_limit": 214,
+    "micro_trials": 1008
+  },
+  "baseline_commit": "b8e06c1",
+  "production_changes": [
+    "selective ALLDIFF reverse-graph aggregation only"
+  ],
+  "checks": [
+    "frozen source hashes and all scheduled rows",
+    "fixed hash seed in every process",
+    "identical search/solution/explanation signatures for non-batching variants",
+    "identical integer coupled-filter statistics",
+    "independent normal magic-square witness validation",
+    "recomputed medians",
+    "live source matches selected graph snapshot; search and scheduling unchanged"
+  ],
+  "series": {
+    "profile": [
+      {
+        "size": 9,
+        "variants": {
+          "before": {
+            "median_seconds": 0.2870478748809546,
+            "nodes": [
+              80
+            ],
+            "terminations": [
+              "node_limit"
+            ]
+          }
+        }
+      },
+      {
+        "size": 16,
+        "variants": {
+          "before": {
+            "median_seconds": 2.4219260839745402,
+            "nodes": [
+              80
+            ],
+            "terminations": [
+              "node_limit"
+            ]
+          }
+        }
+      }
+    ],
+    "pilot": [
+      {
+        "size": 8,
+        "variants": {
+          "before": {
+            "median_seconds": 0.11146324989385903,
+            "nodes": [
+              161
+            ],
+            "terminations": [
+              "solution_limit"
+            ]
+          },
+          "weights": {
+            "median_seconds": 0.11167879099957645,
+            "nodes": [
+              161
+            ],
+            "terminations": [
+              "solution_limit"
+            ]
+          },
+          "batch": {
+            "median_seconds": 0.10593666695058346,
+            "nodes": [
+              161
+            ],
+            "terminations": [
+              "solution_limit"
+            ]
+          },
+          "group": {
+            "median_seconds": 0.09946233406662941,
+            "nodes": [
+              161
+            ],
+            "terminations": [
+              "solution_limit"
+            ]
+          },
+          "complement": {
+            "median_seconds": 0.10434049996547401,
+            "nodes": [
+              161
+            ],
+            "terminations": [
+              "solution_limit"
+            ]
+          },
+          "graph": {
+            "median_seconds": 0.1013951669447124,
+            "nodes": [
+              161
+            ],
+            "terminations": [
+              "solution_limit"
+            ]
+          },
+          "weights_graph": {
+            "median_seconds": 0.10131391696631908,
+            "nodes": [
+              161
+            ],
+            "terminations": [
+              "solution_limit"
+            ]
+          },
+          "combined": {
+            "median_seconds": 0.09688691701740026,
+            "nodes": [
+              161
+            ],
+            "terminations": [
+              "solution_limit"
+            ]
+          }
+        }
+      },
+      {
+        "size": 9,
+        "variants": {
+          "before": {
+            "median_seconds": 1.956521209096536,
+            "nodes": [
+              2962
+            ],
+            "terminations": [
+              "solution_limit"
+            ]
+          },
+          "weights": {
+            "median_seconds": 1.986847624881193,
+            "nodes": [
+              2962
+            ],
+            "terminations": [
+              "solution_limit"
+            ]
+          },
+          "batch": {
+            "median_seconds": 1.7645698750857264,
+            "nodes": [
+              2962
+            ],
+            "terminations": [
+              "solution_limit"
+            ]
+          },
+          "group": {
+            "median_seconds": 1.963385917013511,
+            "nodes": [
+              2962
+            ],
+            "terminations": [
+              "solution_limit"
+            ]
+          },
+          "complement": {
+            "median_seconds": 2.012935125036165,
+            "nodes": [
+              2962
+            ],
+            "terminations": [
+              "solution_limit"
+            ]
+          },
+          "graph": {
+            "median_seconds": 2.015698916045949,
+            "nodes": [
+              2962
+            ],
+            "terminations": [
+              "solution_limit"
+            ]
+          },
+          "weights_graph": {
+            "median_seconds": 1.9888672500383109,
+            "nodes": [
+              2962
+            ],
+            "terminations": [
+              "solution_limit"
+            ]
+          },
+          "combined": {
+            "median_seconds": 1.7910382919944823,
+            "nodes": [
+              2962
+            ],
+            "terminations": [
+              "solution_limit"
+            ]
+          }
+        }
+      },
+      {
+        "size": 11,
+        "variants": {
+          "before": {
+            "median_seconds": 0.4293101669754833,
+            "nodes": [
+              258
+            ],
+            "terminations": [
+              "solution_limit"
+            ]
+          },
+          "weights": {
+            "median_seconds": 0.43356349994428456,
+            "nodes": [
+              258
+            ],
+            "terminations": [
+              "solution_limit"
+            ]
+          },
+          "batch": {
+            "median_seconds": 0.4540147501975298,
+            "nodes": [
+              321
+            ],
+            "terminations": [
+              "solution_limit"
+            ]
+          },
+          "group": {
+            "median_seconds": 0.3471582499332726,
+            "nodes": [
+              258
+            ],
+            "terminations": [
+              "solution_limit"
+            ]
+          },
+          "complement": {
+            "median_seconds": 0.37980512506328523,
+            "nodes": [
+              258
+            ],
+            "terminations": [
+              "solution_limit"
+            ]
+          },
+          "graph": {
+            "median_seconds": 0.3501479998230934,
+            "nodes": [
+              258
+            ],
+            "terminations": [
+              "solution_limit"
+            ]
+          },
+          "weights_graph": {
+            "median_seconds": 0.35116858407855034,
+            "nodes": [
+              258
+            ],
+            "terminations": [
+              "solution_limit"
+            ]
+          },
+          "combined": {
+            "median_seconds": 0.3909800830297172,
+            "nodes": [
+              321
+            ],
+            "terminations": [
+              "solution_limit"
+            ]
+          }
+        }
+      },
+      {
+        "size": 13,
+        "variants": {
+          "before": {
+            "median_seconds": 2.1175517081283033,
+            "nodes": [
+              1488
+            ],
+            "terminations": [
+              "solution_limit"
+            ]
+          },
+          "weights": {
+            "median_seconds": 2.1178495418280363,
+            "nodes": [
+              1488
+            ],
+            "terminations": [
+              "solution_limit"
+            ]
+          },
+          "batch": {
+            "median_seconds": 5.5302408339921385,
+            "nodes": [
+              5011
+            ],
+            "terminations": [
+              "solution_limit"
+            ]
+          },
+          "group": {
+            "median_seconds": 1.9300620830617845,
+            "nodes": [
+              1488
+            ],
+            "terminations": [
+              "solution_limit"
+            ]
+          },
+          "complement": {
+            "median_seconds": 1.9997691249009222,
+            "nodes": [
+              1488
+            ],
+            "terminations": [
+              "solution_limit"
+            ]
+          },
+          "graph": {
+            "median_seconds": 1.9776449159253389,
+            "nodes": [
+              1488
+            ],
+            "terminations": [
+              "solution_limit"
+            ]
+          },
+          "weights_graph": {
+            "median_seconds": 1.96502058301121,
+            "nodes": [
+              1488
+            ],
+            "terminations": [
+              "solution_limit"
+            ]
+          },
+          "combined": {
+            "median_seconds": 5.4707899580243975,
+            "nodes": [
+              5011
+            ],
+            "terminations": [
+              "solution_limit"
+            ]
+          }
+        }
+      },
+      {
+        "size": 16,
+        "variants": {
+          "before": {
+            "median_seconds": 6.358222125098109,
+            "nodes": [
+              2536
+            ],
+            "terminations": [
+              "solution_limit"
+            ]
+          },
+          "weights": {
+            "median_seconds": 6.196928957942873,
+            "nodes": [
+              2536
+            ],
+            "terminations": [
+              "solution_limit"
+            ]
+          },
+          "batch": {
+            "median_seconds": 5.826508500147611,
+            "nodes": [
+              2854
+            ],
+            "terminations": [
+              "solution_limit"
+            ]
+          },
+          "group": {
+            "median_seconds": 5.6671245829202235,
+            "nodes": [
+              2536
+            ],
+            "terminations": [
+              "solution_limit"
+            ]
+          },
+          "complement": {
+            "median_seconds": 5.9378459171857685,
+            "nodes": [
+              2536
+            ],
+            "terminations": [
+              "solution_limit"
+            ]
+          },
+          "graph": {
+            "median_seconds": 5.763307207962498,
+            "nodes": [
+              2536
+            ],
+            "terminations": [
+              "solution_limit"
+            ]
+          },
+          "weights_graph": {
+            "median_seconds": 5.829253500094637,
+            "nodes": [
+              2536
+            ],
+            "terminations": [
+              "solution_limit"
+            ]
+          },
+          "combined": {
+            "median_seconds": 5.096458417130634,
+            "nodes": [
+              2854
+            ],
+            "terminations": [
+              "solution_limit"
+            ]
+          }
+        }
+      }
+    ],
+    "main": [
+      {
+        "size": 8,
+        "variants": {
+          "before": {
+            "median_seconds": 0.11044404213316739,
+            "nodes": [
+              161,
+              161,
+              161
+            ],
+            "terminations": [
+              "solution_limit",
+              "solution_limit",
+              "solution_limit"
+            ]
+          },
+          "weights": {
+            "median_seconds": 0.10989462491124868,
+            "nodes": [
+              161,
+              161,
+              161
+            ],
+            "terminations": [
+              "solution_limit",
+              "solution_limit",
+              "solution_limit"
+            ]
+          },
+          "group": {
+            "median_seconds": 0.09846620890311897,
+            "nodes": [
+              161,
+              161,
+              161
+            ],
+            "terminations": [
+              "solution_limit",
+              "solution_limit",
+              "solution_limit"
+            ]
+          },
+          "weights_group": {
+            "median_seconds": 0.09868533280678093,
+            "nodes": [
+              161,
+              161,
+              161
+            ],
+            "terminations": [
+              "solution_limit",
+              "solution_limit",
+              "solution_limit"
+            ]
+          }
+        }
+      },
+      {
+        "size": 9,
+        "variants": {
+          "before": {
+            "median_seconds": 1.9556232090108097,
+            "nodes": [
+              2962,
+              2962,
+              2962
+            ],
+            "terminations": [
+              "solution_limit",
+              "solution_limit",
+              "solution_limit"
+            ]
+          },
+          "weights": {
+            "median_seconds": 1.9562437089625746,
+            "nodes": [
+              2962,
+              2962,
+              2962
+            ],
+            "terminations": [
+              "solution_limit",
+              "solution_limit",
+              "solution_limit"
+            ]
+          },
+          "group": {
+            "median_seconds": 1.947093915892765,
+            "nodes": [
+              2962,
+              2962,
+              2962
+            ],
+            "terminations": [
+              "solution_limit",
+              "solution_limit",
+              "solution_limit"
+            ]
+          },
+          "weights_group": {
+            "median_seconds": 1.9567763330414891,
+            "nodes": [
+              2962,
+              2962,
+              2962
+            ],
+            "terminations": [
+              "solution_limit",
+              "solution_limit",
+              "solution_limit"
+            ]
+          }
+        }
+      },
+      {
+        "size": 11,
+        "variants": {
+          "before": {
+            "median_seconds": 0.43500429205596447,
+            "nodes": [
+              258,
+              258,
+              258
+            ],
+            "terminations": [
+              "solution_limit",
+              "solution_limit",
+              "solution_limit"
+            ]
+          },
+          "weights": {
+            "median_seconds": 0.4253521671053022,
+            "nodes": [
+              258,
+              258,
+              258
+            ],
+            "terminations": [
+              "solution_limit",
+              "solution_limit",
+              "solution_limit"
+            ]
+          },
+          "group": {
+            "median_seconds": 0.34491708292625844,
+            "nodes": [
+              258,
+              258,
+              258
+            ],
+            "terminations": [
+              "solution_limit",
+              "solution_limit",
+              "solution_limit"
+            ]
+          },
+          "weights_group": {
+            "median_seconds": 0.3432284160517156,
+            "nodes": [
+              258,
+              258,
+              258
+            ],
+            "terminations": [
+              "solution_limit",
+              "solution_limit",
+              "solution_limit"
+            ]
+          }
+        }
+      },
+      {
+        "size": 13,
+        "variants": {
+          "before": {
+            "median_seconds": 2.0952500829007477,
+            "nodes": [
+              1488,
+              1488,
+              1488
+            ],
+            "terminations": [
+              "solution_limit",
+              "solution_limit",
+              "solution_limit"
+            ]
+          },
+          "weights": {
+            "median_seconds": 2.0889331251382828,
+            "nodes": [
+              1488,
+              1488,
+              1488
+            ],
+            "terminations": [
+              "solution_limit",
+              "solution_limit",
+              "solution_limit"
+            ]
+          },
+          "group": {
+            "median_seconds": 1.9199512500781566,
+            "nodes": [
+              1488,
+              1488,
+              1488
+            ],
+            "terminations": [
+              "solution_limit",
+              "solution_limit",
+              "solution_limit"
+            ]
+          },
+          "weights_group": {
+            "median_seconds": 1.9267879168037325,
+            "nodes": [
+              1488,
+              1488,
+              1488
+            ],
+            "terminations": [
+              "solution_limit",
+              "solution_limit",
+              "solution_limit"
+            ]
+          }
+        }
+      },
+      {
+        "size": 16,
+        "variants": {
+          "before": {
+            "median_seconds": 6.205425624968484,
+            "nodes": [
+              2536,
+              2536,
+              2536
+            ],
+            "terminations": [
+              "solution_limit",
+              "solution_limit",
+              "solution_limit"
+            ]
+          },
+          "weights": {
+            "median_seconds": 6.1903618751093745,
+            "nodes": [
+              2536,
+              2536,
+              2536
+            ],
+            "terminations": [
+              "solution_limit",
+              "solution_limit",
+              "solution_limit"
+            ]
+          },
+          "group": {
+            "median_seconds": 5.578371125040576,
+            "nodes": [
+              2536,
+              2536,
+              2536
+            ],
+            "terminations": [
+              "solution_limit",
+              "solution_limit",
+              "solution_limit"
+            ]
+          },
+          "weights_group": {
+            "median_seconds": 5.61569937504828,
+            "nodes": [
+              2536,
+              2536,
+              2536
+            ],
+            "terminations": [
+              "solution_limit",
+              "solution_limit",
+              "solution_limit"
+            ]
+          }
+        }
+      }
+    ],
+    "selective": [
+      {
+        "size": 8,
+        "variants": {
+          "before": {
+            "median_seconds": 0.11035154201090336,
+            "nodes": [
+              161,
+              161,
+              161
+            ],
+            "terminations": [
+              "solution_limit",
+              "solution_limit",
+              "solution_limit"
+            ]
+          },
+          "group": {
+            "median_seconds": 0.09867787500843406,
+            "nodes": [
+              161,
+              161,
+              161
+            ],
+            "terminations": [
+              "solution_limit",
+              "solution_limit",
+              "solution_limit"
+            ]
+          },
+          "selective": {
+            "median_seconds": 0.09728091582655907,
+            "nodes": [
+              161,
+              161,
+              161
+            ],
+            "terminations": [
+              "solution_limit",
+              "solution_limit",
+              "solution_limit"
+            ]
+          },
+          "weights_selective": {
+            "median_seconds": 0.09723162511363626,
+            "nodes": [
+              161,
+              161,
+              161
+            ],
+            "terminations": [
+              "solution_limit",
+              "solution_limit",
+              "solution_limit"
+            ]
+          }
+        }
+      },
+      {
+        "size": 9,
+        "variants": {
+          "before": {
+            "median_seconds": 1.9498278750106692,
+            "nodes": [
+              2962,
+              2962,
+              2962
+            ],
+            "terminations": [
+              "solution_limit",
+              "solution_limit",
+              "solution_limit"
+            ]
+          },
+          "group": {
+            "median_seconds": 1.9522169579286128,
+            "nodes": [
+              2962,
+              2962,
+              2962
+            ],
+            "terminations": [
+              "solution_limit",
+              "solution_limit",
+              "solution_limit"
+            ]
+          },
+          "selective": {
+            "median_seconds": 1.9308527910616249,
+            "nodes": [
+              2962,
+              2962,
+              2962
+            ],
+            "terminations": [
+              "solution_limit",
+              "solution_limit",
+              "solution_limit"
+            ]
+          },
+          "weights_selective": {
+            "median_seconds": 1.9397057499736547,
+            "nodes": [
+              2962,
+              2962,
+              2962
+            ],
+            "terminations": [
+              "solution_limit",
+              "solution_limit",
+              "solution_limit"
+            ]
+          }
+        }
+      },
+      {
+        "size": 11,
+        "variants": {
+          "before": {
+            "median_seconds": 0.4265266249421984,
+            "nodes": [
+              258,
+              258,
+              258
+            ],
+            "terminations": [
+              "solution_limit",
+              "solution_limit",
+              "solution_limit"
+            ]
+          },
+          "group": {
+            "median_seconds": 0.343260208144784,
+            "nodes": [
+              258,
+              258,
+              258
+            ],
+            "terminations": [
+              "solution_limit",
+              "solution_limit",
+              "solution_limit"
+            ]
+          },
+          "selective": {
+            "median_seconds": 0.33779854187741876,
+            "nodes": [
+              258,
+              258,
+              258
+            ],
+            "terminations": [
+              "solution_limit",
+              "solution_limit",
+              "solution_limit"
+            ]
+          },
+          "weights_selective": {
+            "median_seconds": 0.33748079207725823,
+            "nodes": [
+              258,
+              258,
+              258
+            ],
+            "terminations": [
+              "solution_limit",
+              "solution_limit",
+              "solution_limit"
+            ]
+          }
+        }
+      },
+      {
+        "size": 13,
+        "variants": {
+          "before": {
+            "median_seconds": 2.0888573329430073,
+            "nodes": [
+              1488,
+              1488,
+              1488
+            ],
+            "terminations": [
+              "solution_limit",
+              "solution_limit",
+              "solution_limit"
+            ]
+          },
+          "group": {
+            "median_seconds": 1.9166129999794066,
+            "nodes": [
+              1488,
+              1488,
+              1488
+            ],
+            "terminations": [
+              "solution_limit",
+              "solution_limit",
+              "solution_limit"
+            ]
+          },
+          "selective": {
+            "median_seconds": 1.8418034589849412,
+            "nodes": [
+              1488,
+              1488,
+              1488
+            ],
+            "terminations": [
+              "solution_limit",
+              "solution_limit",
+              "solution_limit"
+            ]
+          },
+          "weights_selective": {
+            "median_seconds": 1.8455924589652568,
+            "nodes": [
+              1488,
+              1488,
+              1488
+            ],
+            "terminations": [
+              "solution_limit",
+              "solution_limit",
+              "solution_limit"
+            ]
+          }
+        }
+      },
+      {
+        "size": 16,
+        "variants": {
+          "before": {
+            "median_seconds": 6.171570250065997,
+            "nodes": [
+              2536,
+              2536,
+              2536
+            ],
+            "terminations": [
+              "solution_limit",
+              "solution_limit",
+              "solution_limit"
+            ]
+          },
+          "group": {
+            "median_seconds": 5.572346707805991,
+            "nodes": [
+              2536,
+              2536,
+              2536
+            ],
+            "terminations": [
+              "solution_limit",
+              "solution_limit",
+              "solution_limit"
+            ]
+          },
+          "selective": {
+            "median_seconds": 5.320452625164762,
+            "nodes": [
+              2536,
+              2536,
+              2536
+            ],
+            "terminations": [
+              "solution_limit",
+              "solution_limit",
+              "solution_limit"
+            ]
+          },
+          "weights_selective": {
+            "median_seconds": 5.331999875139445,
+            "nodes": [
+              2536,
+              2536,
+              2536
+            ],
+            "terminations": [
+              "solution_limit",
+              "solution_limit",
+              "solution_limit"
+            ]
+          }
+        }
+      }
+    ],
+    "exact": [
+      {
+        "size": 8,
+        "variants": {
+          "before": {
+            "median_seconds": 0.10545791685581207,
+            "nodes": [
+              115,
+              115,
+              115
+            ],
+            "terminations": [
+              "solution_limit",
+              "solution_limit",
+              "solution_limit"
+            ]
+          },
+          "selective": {
+            "median_seconds": 0.0920795421116054,
+            "nodes": [
+              115,
+              115,
+              115
+            ],
+            "terminations": [
+              "solution_limit",
+              "solution_limit",
+              "solution_limit"
+            ]
+          }
+        }
+      },
+      {
+        "size": 9,
+        "variants": {
+          "before": {
+            "median_seconds": 1.707986833062023,
+            "nodes": [
+              2268,
+              2268,
+              2268
+            ],
+            "terminations": [
+              "solution_limit",
+              "solution_limit",
+              "solution_limit"
+            ]
+          },
+          "selective": {
+            "median_seconds": 1.676739958813414,
+            "nodes": [
+              2268,
+              2268,
+              2268
+            ],
+            "terminations": [
+              "solution_limit",
+              "solution_limit",
+              "solution_limit"
+            ]
+          }
+        }
+      },
+      {
+        "size": 11,
+        "variants": {
+          "before": {
+            "median_seconds": 0.41834458289667964,
+            "nodes": [
+              206,
+              206,
+              206
+            ],
+            "terminations": [
+              "solution_limit",
+              "solution_limit",
+              "solution_limit"
+            ]
+          },
+          "selective": {
+            "median_seconds": 0.3278585420921445,
+            "nodes": [
+              206,
+              206,
+              206
+            ],
+            "terminations": [
+              "solution_limit",
+              "solution_limit",
+              "solution_limit"
+            ]
+          }
+        }
+      },
+      {
+        "size": 13,
+        "variants": {
+          "before": {
+            "median_seconds": 0.7556924170348793,
+            "nodes": [
+              228,
+              228,
+              228
+            ],
+            "terminations": [
+              "solution_limit",
+              "solution_limit",
+              "solution_limit"
+            ]
+          },
+          "selective": {
+            "median_seconds": 0.5230217089410871,
+            "nodes": [
+              228,
+              228,
+              228
+            ],
+            "terminations": [
+              "solution_limit",
+              "solution_limit",
+              "solution_limit"
+            ]
+          }
+        }
+      },
+      {
+        "size": 16,
+        "variants": {
+          "before": {
+            "median_seconds": 5.074033375130966,
+            "nodes": [
+              1688,
+              1688,
+              1688
+            ],
+            "terminations": [
+              "solution_limit",
+              "solution_limit",
+              "solution_limit"
+            ]
+          },
+          "selective": {
+            "median_seconds": 4.116760957986116,
+            "nodes": [
+              1688,
+              1688,
+              1688
+            ],
+            "terminations": [
+              "solution_limit",
+              "solution_limit",
+              "solution_limit"
+            ]
+          }
+        }
+      }
+    ],
+    "controls": [
+      {
+        "size": 6,
+        "variants": {
+          "before": {
+            "median_seconds": 0.046261959010735154,
+            "nodes": [
+              90,
+              90,
+              90
+            ],
+            "terminations": [
+              "solution_limit",
+              "solution_limit",
+              "solution_limit"
+            ]
+          },
+          "selective": {
+            "median_seconds": 0.04351616697385907,
+            "nodes": [
+              90,
+              90,
+              90
+            ],
+            "terminations": [
+              "solution_limit",
+              "solution_limit",
+              "solution_limit"
+            ]
+          }
+        }
+      },
+      {
+        "size": 10,
+        "variants": {
+          "before": {
+            "median_seconds": 0.2540326660964638,
+            "nodes": [
+              246,
+              246,
+              246
+            ],
+            "terminations": [
+              "solution_limit",
+              "solution_limit",
+              "solution_limit"
+            ]
+          },
+          "selective": {
+            "median_seconds": 0.20307204220443964,
+            "nodes": [
+              246,
+              246,
+              246
+            ],
+            "terminations": [
+              "solution_limit",
+              "solution_limit",
+              "solution_limit"
+            ]
+          }
+        }
+      },
+      {
+        "size": 12,
+        "variants": {
+          "before": {
+            "median_seconds": 0.5218062908388674,
+            "nodes": [
+              182,
+              182,
+              182
+            ],
+            "terminations": [
+              "solution_limit",
+              "solution_limit",
+              "solution_limit"
+            ]
+          },
+          "selective": {
+            "median_seconds": 0.3615759580861777,
+            "nodes": [
+              182,
+              182,
+              182
+            ],
+            "terminations": [
+              "solution_limit",
+              "solution_limit",
+              "solution_limit"
+            ]
+          }
+        }
+      },
+      {
+        "size": 14,
+        "variants": {
+          "before": {
+            "median_seconds": 1.1258392077870667,
+            "nodes": [
+              219,
+              219,
+              219
+            ],
+            "terminations": [
+              "solution_limit",
+              "solution_limit",
+              "solution_limit"
+            ]
+          },
+          "selective": {
+            "median_seconds": 0.749133792007342,
+            "nodes": [
+              219,
+              219,
+              219
+            ],
+            "terminations": [
+              "solution_limit",
+              "solution_limit",
+              "solution_limit"
+            ]
+          }
+        }
+      },
+      {
+        "size": 15,
+        "variants": {
+          "before": {
+            "median_seconds": 0.5277152080088854,
+            "nodes": [
+              80,
+              80,
+              80
+            ],
+            "terminations": [
+              "node_limit",
+              "node_limit",
+              "node_limit"
+            ]
+          },
+          "selective": {
+            "median_seconds": 0.16103358287364244,
+            "nodes": [
+              80,
+              80,
+              80
+            ],
+            "terminations": [
+              "node_limit",
+              "node_limit",
+              "node_limit"
+            ]
+          }
+        }
+      },
+      {
+        "size": 18,
+        "variants": {
+          "before": {
+            "median_seconds": 0.5982762081548572,
+            "nodes": [
+              30,
+              30,
+              30
+            ],
+            "terminations": [
+              "node_limit",
+              "node_limit",
+              "node_limit"
+            ]
+          },
+          "selective": {
+            "median_seconds": 0.21928258403204381,
+            "nodes": [
+              30,
+              30,
+              30
+            ],
+            "terminations": [
+              "node_limit",
+              "node_limit",
+              "node_limit"
+            ]
+          }
+        }
+      },
+      {
+        "size": 20,
+        "variants": {
+          "before": {
+            "median_seconds": 0.940088750096038,
+            "nodes": [
+              30,
+              30,
+              30
+            ],
+            "terminations": [
+              "node_limit",
+              "node_limit",
+              "node_limit"
+            ]
+          },
+          "selective": {
+            "median_seconds": 0.3252875830512494,
+            "nodes": [
+              30,
+              30,
+              30
+            ],
+            "terminations": [
+              "node_limit",
+              "node_limit",
+              "node_limit"
+            ]
+          }
+        }
+      }
+    ],
+    "audit": [
+      {
+        "size": 9,
+        "variants": {
+          "before": {
+            "median_seconds": 0.1008722500409931,
+            "nodes": [
+              80
+            ],
+            "terminations": [
+              "node_limit"
+            ]
+          },
+          "batch": {
+            "median_seconds": 0.10508558410219848,
+            "nodes": [
+              80
+            ],
+            "terminations": [
+              "node_limit"
+            ]
+          },
+          "selective": {
+            "median_seconds": 0.07723974995315075,
+            "nodes": [
+              80
+            ],
+            "terminations": [
+              "node_limit"
+            ]
+          }
+        }
+      },
+      {
+        "size": 13,
+        "variants": {
+          "before": {
+            "median_seconds": 0.406642833026126,
+            "nodes": [
+              80
+            ],
+            "terminations": [
+              "node_limit"
+            ]
+          },
+          "batch": {
+            "median_seconds": 0.39954804186709225,
+            "nodes": [
+              80
+            ],
+            "terminations": [
+              "node_limit"
+            ]
+          },
+          "selective": {
+            "median_seconds": 0.2190911672078073,
+            "nodes": [
+              80
+            ],
+            "terminations": [
+              "node_limit"
+            ]
+          }
+        }
+      },
+      {
+        "size": 16,
+        "variants": {
+          "before": {
+            "median_seconds": 0.9250456660520285,
+            "nodes": [
+              80
+            ],
+            "terminations": [
+              "node_limit"
+            ]
+          },
+          "batch": {
+            "median_seconds": 0.8668463341891766,
+            "nodes": [
+              80
+            ],
+            "terminations": [
+              "node_limit"
+            ]
+          },
+          "selective": {
+            "median_seconds": 0.35138783301226795,
+            "nodes": [
+              80
+            ],
+            "terminations": [
+              "node_limit"
+            ]
+          }
+        }
+      }
+    ],
+    "after_profile": [
+      {
+        "size": 9,
+        "variants": {
+          "selective": {
+            "median_seconds": 0.2216107500717044,
+            "nodes": [
+              80
+            ],
+            "terminations": [
+              "node_limit"
+            ]
+          }
+        }
+      },
+      {
+        "size": 16,
+        "variants": {
+          "selective": {
+            "median_seconds": 1.147119333036244,
+            "nodes": [
+              80
+            ],
+            "terminations": [
+              "node_limit"
+            ]
+          }
+        }
+      }
+    ]
+  }
+}
