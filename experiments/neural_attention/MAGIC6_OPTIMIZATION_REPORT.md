@@ -342,3 +342,92 @@ PYTHONHASHSEED=0 PYTHONPATH=src:. .venv/bin/python \
 Use `magic_scaling --sizes 12 13 16 --repeats 3 --limit 30` to repeat the saved
 winning settings. Every output directory must be fresh. To reproduce the initial
 short portfolio, explicitly pass `--transfer-limit 10 --slice 4`.
+
+## Follow-up: exact dense-sum fast paths, 13 October 2026
+
+Two arithmetic fast paths now precede reachable-sum table construction for
+compiled equalities with at least three unfixed variables. Contiguous current
+integer contribution domains use interval bounds, which give exact supports.
+Holey domains can use a sufficient certificate that every current candidate has
+support. Uncertified cases retain the original exact prefix/backward bitsets.
+Direct one/two-variable supports, compilation budgets, declared candidate order,
+and the reference fallback remain in place. No persistent reachability cache or
+extra model constraints are introduced.
+
+The certificate uses a small amount of arithmetic on current masks and extrema.
+Normalize each domain to minimum zero, let its width be its maximum, and count
+the missing integers inside that range. Two domains of widths `a,b` with `h`
+holes in total support every sum in `[h,a+b-h]` when `h <= min(a,b)`:
+each such sum has at least `h+1` possible integer pairs and at most `h` can be
+blocked by holes. Adding another domain extends a certified interval across its
+extrema if that interval's width is at least the added domain's hole count.
+
+Three anchor domains leave a pair after excluding any one variable. Conservative
+common bounds on their hole counts and widths establish an interior interval
+for every sum of the other variables. If every possible residual for the excluded
+variable lies inside that interval, all its candidates have witnesses. The fast
+path returns the current masks only when those checks succeed. This proves exact
+sum support in isolation; the normal propagation queue handles interactions with
+other constraints. Current-mask checks and existing tagged caches handle rollback.
+
+A frozen before/after comparison changes only `NumericPlan._equality_supports`.
+Both variants use the current all-different decoder and the same saved search
+settings. Three sequential repetitions per variant include model/state setup
+and search, excluding interpreter imports and solution validation. All 72 runs
+have identical nodes, failures, revisions, termination, and returned squares for
+their workload; all 54 returned squares pass independent original-model checks.
+
+| Size | Previous sum kernel | New sum kernel | Speedup |
+|---|---:|---:|---:|
+| 6 | 0.063 s | 0.061 s | 1.03× |
+| 8 | 0.171 s | 0.126 s | 1.36× |
+| 9 | 2.272 s | 2.314 s | 0.98× |
+| 10 | 0.457 s | 0.277 s | 1.65× |
+| 11 | 0.813 s | 0.474 s | 1.71× |
+| 12 | 1.179 s | 0.563 s | 2.10× |
+| 13 | 3.388 s | 2.390 s | 1.42× |
+| 14 | 2.759 s | 1.224 s | 2.25× |
+| 16 | 11.108 s | 6.938 s | 1.60× |
+| 15, first 80 nodes | 3.272 s | 0.699 s | 4.68× |
+| 18, first 30 nodes | 4.137 s | 0.786 s | 5.26× |
+| 20, first 30 nodes | 8.535 s | 1.206 s | 7.08× |
+
+The bounded-prefix rows are not completed solves. 9×9 shows no useful gain
+and its median is about 1.9% slower; the checks add overhead when they cannot
+avoid table construction. These results concern individual blank squares and
+do not establish generalization to clued puzzles or other CSPs.
+Separate outcome counting finds that the new fast paths succeed on 589 of
+35,058 eligible revisions for 9×9 (1.7%), versus 1,396 of 2,973 for 12×12 (47%).
+The archived counts are diagnostic runs, excluded from latency measurements.
+
+Fresh wall attribution on the optimized first eighty nodes of 15×15 and 16×16
+puts sum revisions at about 6% and 11% of search time. All-different now accounts
+for about 82% and 80% respectively. Uninstrumented, wall-timed, and CPU-profiled
+runs preserve the same search signatures. These percentages apply to those
+prefixes, not the complete 16×16 solve or arbitrary search states.
+
+The non-slow redesign gate passes 1,219 tests, with four skips and 58 slow tests
+deselected; the 37 experiment helper/path tests also pass. New independent
+enumeration checks cover interval filtering, missing values near the extrema,
+parity holes, narrow anchors mixed with very sparse wide domains, negative
+coefficients, huge translations, target changes, and sibling rollback between
+certified and fallback states. Mypy checks all 103 runtime files. The slow release
+suite was not rerun for this change.
+
+Portable evidence is in
+[`benchmarks/results/magic_sum_dense_2026-10-13/`](../../benchmarks/results/magic_sum_dense_2026-10-13/summary.json),
+including both source snapshots, raw runs, frozen hashes, presets, and the new
+profiles. The executable baseline snapshot is the numeric source at `3309951`;
+historical runner and optimized source snapshots are retained as text fixtures.
+The existing comparison tool now accepts `--kernel sum` as well as its default
+all-different decoder comparison:
+
+```sh
+PYTHONHASHSEED=0 PYTHONPATH=src:. .venv/bin/python \
+  -m experiments.neural_attention.magic_alldifferent_benchmark \
+  --kernel sum \
+  --before benchmarks/results/magic_sum_dense_2026-10-13/numeric_before.py \
+  --presets benchmarks/results/magic_sum_dense_2026-10-13/presets.json \
+  --sizes 6 8 9 10 11 12 13 14 15 16 18 20 --repeats 3 \
+  --output generated/neural_attention/magic_sum_dense_NEW
+```

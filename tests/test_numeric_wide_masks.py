@@ -264,3 +264,120 @@ def test_every_fixed_term_pattern_matches_reference_under_sibling_rollback():
         state.rollback(root)
         state.release(root)
         assert state.domains.snapshot() == model.domains
+
+
+@pytest.mark.parametrize(
+    "values,coefficients",
+    [
+        ([list(range(-3, 4))] * 4, [1, -1, 1, -1]),
+        ([[0, 2, 3, 4, 5]] * 3, [1, 1, 1]),
+        ([[0, 1, 3, 4, 5]] * 4, [1, -1, 1, -1]),
+        ([[0, 2, 4, 6]] * 3, [1, 1, 1]),
+        ([[0, 1]] * 3 + [[0, 99]], [1, 1, 1, 1]),
+        ([[0, 1]] * 3 + [[0, 10]] * 3, [1] * 6),
+        ([[0, 1, 2], [0, 1, 2], [0, 1, 2], [0, 30]], [1, -1, 2, 1]),
+    ],
+)
+def test_dense_and_holey_boundaries_match_enumeration_for_every_target(
+    values, coefficients
+):
+    # Cover the fringes where plain interval bounds would retain unsupported
+    # candidates, parity holes, and narrow domains mixed with a wide sparse one.
+    model = make_model(values, coefficients, 0)
+    state = NativeState(model)
+    plan = state._numeric.get(0, model.constraints[0])
+    assert plan is not None
+    rows_by_sum = {}
+    for row in product(*values):
+        total = sum(c * v for c, v in zip(coefficients, row, strict=True))
+        rows_by_sum.setdefault(total, []).append(row)
+    targets = list(range(min(rows_by_sum) - 1, max(rows_by_sum) + 2))
+    Random(13).shuffle(targets)
+    for target in targets:
+        rows = rows_by_sum.get(target, [])
+        expected = (
+            tuple(
+                sum(
+                    1 << j
+                    for j, v in enumerate(alphabet)
+                    if any(row[i] == v for row in rows)
+                )
+                for i, alphabet in enumerate(values)
+            )
+            if rows
+            else None
+        )
+        assert plan.supports(state.domains, target) == expected
+
+
+def test_dense_holey_certificates_and_interval_filtering_survive_sibling_restores():
+    values = [[v + 10**40 for v in (4, 0, 5, 3, 2)]] + [[0, 2, 3, 4, 5]] * 3
+    model = make_model(values, [-1, 1, 1, 1], 5 - 10**40)
+    fast, slow = NativeState(model), NativeState(model, numeric_masks=False)
+    roots = [s.checkpoint() for s in (fast, slow)]
+    # Go from broad holey domains to dense intervals, singletons, and sparse
+    # siblings, repeatedly returning to the original support-cache masks.
+    for masks in (
+        (31, 31, 31, 31),
+        (29, 14, 14, 14),
+        (1, 31, 31, 31),
+        (31, 3, 3, 3),
+        (31, 31, 31, 31),
+    ):
+        for state, root in zip((fast, slow), roots, strict=True):
+            state.rollback(root)
+            for variable, mask in zip(model.variables, masks, strict=True):
+                state.domains.retain_mask(variable.name, mask, Atom("branch"))
+        assert fast.propagate() == slow.propagate()
+        assert fast.domains.snapshot() == slow.domains.snapshot()
+        assert fast.domains.removals == slow.domains.removals
+        assert fast.revisions == slow.revisions
+    for state, root in zip((fast, slow), roots, strict=True):
+        state.rollback(root)
+        state.release(root)
+        assert state.domains.snapshot() == model.domains
+
+
+def test_random_dense_holey_sums_match_enumeration_with_signed_translations():
+    rng = Random(131026)
+    for case in range(200):
+        count = rng.randrange(3, 6)
+        values = []
+        for _ in range(count):
+            low = rng.randrange(-4, 3)
+            alphabet = list(range(low, low + rng.randrange(3, 7)))
+            if case % 3 and len(alphabet) > 3:
+                alphabet.remove(rng.choice(alphabet[1:-1]))
+            rng.shuffle(alphabet)
+            values.append(alphabet)
+        coefficients = [rng.choice((-1, 1)) for _ in values]
+        if case % 7 == 0:
+            values[0] = [v + 10**40 for v in values[0]]
+        totals = {}
+        for row in product(*values):
+            total = sum(c * v for c, v in zip(coefficients, row, strict=True))
+            totals.setdefault(total, []).append(row)
+        model = make_model(values, coefficients, 0)
+        state = NativeState(model)
+        plan = state._numeric.get(0, model.constraints[0])
+        assert plan is not None
+        for target in (
+            min(totals) - 1,
+            min(totals),
+            max(totals),
+            rng.choice(list(totals)),
+        ):
+            rows = totals.get(target, [])
+            expected = (
+                tuple(
+                    sum(
+                        1 << j
+                        for j, v in enumerate(alphabet)
+                        if any(row[i] == v for row in rows)
+                    )
+                    for i, alphabet in enumerate(values)
+                )
+                if rows
+                else None
+            )
+            assert plan.supports(state.domains, target) == expected

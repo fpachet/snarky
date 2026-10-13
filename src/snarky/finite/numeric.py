@@ -227,6 +227,44 @@ class NumericPlan:
                         result[left] |= bit
                         result[right] |= other
             return tuple(result) if result[left] else None
+        widths = [high - low for low, high in extrema]
+        holes = [
+            width + 1 - mask.bit_count()
+            for width, mask in zip(widths, masks, strict=True)
+        ]
+        if not any(holes):
+            # Sums of integer intervals are intervals. Bounds are therefore
+            # exact supports here, even for signed or translated contributions.
+            upper = lower + span
+            return tuple(
+                column.threshold(
+                    column.threshold(mask, target - lower + low, True),
+                    target - upper + high,
+                    False,
+                )
+                for column, mask, (low, high) in zip(
+                    self.columns, masks, extrema, strict=True
+                )
+            )
+        widest = max(widths)
+        if widest <= residual <= span - widest:
+            # For two domains of widths a,b with h missing integers in total,
+            # their sum contains [h,a+b-h] if h <= min(a,b): each interior sum
+            # has at least h+1 possible pairs and only h can be blocked.
+            # An interval of width w plus another domain stays an interval
+            # across its extrema when that domain has at most w holes.
+            # Three anchors leave a qualifying pair after excluding any one
+            # variable. The common conservative margin proves every current
+            # candidate supported; otherwise retain the exact bitset fallback.
+            anchors = sorted(active, key=lambda i: (holes[i], -widths[i]))[:3]
+            margin = sum(holes[i] for i in anchors) - min(holes[i] for i in anchors)
+            anchor_widths = sorted(widths[i] for i in anchors)
+            if (
+                margin <= anchor_widths[0]
+                and anchor_widths[0] + anchor_widths[1] - 2 * margin >= max(holes)
+                and widest + margin <= residual <= span - widest - margin
+            ):
+                return masks
         # Normalizing current minima handles signed coefficients and enormous
         # translations without using absolute integer magnitudes as bit indexes.
         reflect = residual > span - residual

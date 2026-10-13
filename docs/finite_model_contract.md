@@ -22,7 +22,11 @@ branch-and-bound.
 Native and mixed states lazily share compiled integer contribution columns for
 linear inequalities and integer equalities. Fixed terms reduce the residual;
 equalities with one or two unfixed variables use direct supports. Larger
-residual equalities use exact reachable-prefix and reflected-suffix
+residual equalities first use exact interval bounds when every current contribution
+domain is contiguous. For holey domains, a conservative arithmetic certificate
+can prove that every current candidate has sum support, avoiding table construction.
+It uses actual widths, missing-integer counts, and three anchor domains; an
+uncertified case retains exact reachable-prefix and reflected-suffix
 bitsets when the original total contribution span is at most 16,384 and the
 prefix representation fits its separate 1,048,576-bit budget. Current contribution
 minima normalize signed values and arbitrary-size translations. Supports are

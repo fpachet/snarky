@@ -1,0 +1,150 @@
+{
+  "date": "2026-10-13",
+  "baseline_commit": "33099511be15fd8fd78bbd154fb7d14b5b4c98f9",
+  "scope": "Blank normal magic squares; same saved search settings for both kernels. Three sequential timing repetitions per variant; setup included, imports/validation excluded. Bounded node prefixes are not complete solves.",
+  "comparisons": [
+    {
+      "size": 6,
+      "baseline": 0.06275724992156029,
+      "optimized": 0.06085091712884605,
+      "speedup": 1.0313279221195264,
+      "solved": true,
+      "max_nodes": null,
+      "nodes": 90
+    },
+    {
+      "size": 8,
+      "baseline": 0.17101158294826746,
+      "optimized": 0.12603308400139213,
+      "speedup": 1.3568785077605379,
+      "solved": true,
+      "max_nodes": null,
+      "nodes": 161
+    },
+    {
+      "size": 9,
+      "baseline": 2.2716008329298347,
+      "optimized": 2.314069665968418,
+      "speedup": 0.9816475563967905,
+      "solved": true,
+      "max_nodes": null,
+      "nodes": 2962
+    },
+    {
+      "size": 10,
+      "baseline": 0.4571847498882562,
+      "optimized": 0.2770568751730025,
+      "speedup": 1.650147644243719,
+      "solved": true,
+      "max_nodes": null,
+      "nodes": 246
+    },
+    {
+      "size": 11,
+      "baseline": 0.8126502919476479,
+      "optimized": 0.4743448330555111,
+      "speedup": 1.7132057425669185,
+      "solved": true,
+      "max_nodes": null,
+      "nodes": 258
+    },
+    {
+      "size": 12,
+      "baseline": 1.179092250065878,
+      "optimized": 0.5626907499972731,
+      "speedup": 2.095453408593605,
+      "solved": true,
+      "max_nodes": null,
+      "nodes": 182
+    },
+    {
+      "size": 13,
+      "baseline": 3.388167457887903,
+      "optimized": 2.3902104578446597,
+      "speedup": 1.4175184644381222,
+      "solved": true,
+      "max_nodes": null,
+      "nodes": 1488
+    },
+    {
+      "size": 14,
+      "baseline": 2.7585165419150144,
+      "optimized": 1.223509500036016,
+      "speedup": 2.2545934803398033,
+      "solved": true,
+      "max_nodes": null,
+      "nodes": 219
+    },
+    {
+      "size": 15,
+      "baseline": 3.2716389999259263,
+      "optimized": 0.6987998329568654,
+      "speedup": 4.6817970549341466,
+      "solved": false,
+      "max_nodes": 80,
+      "nodes": 80
+    },
+    {
+      "size": 16,
+      "baseline": 11.107673791935667,
+      "optimized": 6.937869542045519,
+      "speedup": 1.6010208500779548,
+      "solved": true,
+      "max_nodes": null,
+      "nodes": 2536
+    },
+    {
+      "size": 18,
+      "baseline": 4.136766999959946,
+      "optimized": 0.7861547500360757,
+      "speedup": 5.262026337397458,
+      "solved": false,
+      "max_nodes": 30,
+      "nodes": 30
+    },
+    {
+      "size": 20,
+      "baseline": 8.534658124903217,
+      "optimized": 1.2060777919832617,
+      "speedup": 7.07637449394447,
+      "solved": false,
+      "max_nodes": 30,
+      "nodes": 30
+    }
+  ],
+  "profiles_after": [
+    {
+      "size": 15,
+      "max_nodes": 80,
+      "sum_percent": 6.000139048453663,
+      "alldifferent_percent": 82.36082898484955
+    },
+    {
+      "size": 16,
+      "max_nodes": 80,
+      "sum_percent": 10.64781743577078,
+      "alldifferent_percent": 79.80242597606123
+    }
+  ],
+  "checks": {
+    "core_passed": 1219,
+    "core_skipped": 4,
+    "slow_deselected": 58,
+    "experiment_passed": 37,
+    "benchmark_runs": 72,
+    "boards_validated": 54,
+    "all_signatures_identical": true,
+    "mypy_files": 103
+  },
+  "source_archives": {
+    "src/snarky/finite/numeric.py": "numeric_after.py.txt",
+    "experiments/neural_attention/magic_alldifferent_benchmark.py": "runner_snapshot.py.txt",
+    "generated/neural_attention/sum_dense_20261013/numeric_before.py": "numeric_before.py",
+    "generated/neural_attention/sum_dense_20261013/presets.json": "presets.json"
+  },
+  "notes": [
+    "9x9 median was about 1.9% slower; gains are workload-dependent.",
+    "New fast paths add no persistent reachability cache. Existing bitset filtering handles uncertified cases.",
+    "No changed search settings, learned constraints, or reference completions."
+  ]
+}

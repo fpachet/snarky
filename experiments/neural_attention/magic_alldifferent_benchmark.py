@@ -1,4 +1,4 @@
-"""Compare decoding implementations on identical deterministic magic searches."""
+"""Compare individual propagation kernels on identical deterministic magic searches."""
 
 from __future__ import annotations
 
@@ -14,6 +14,7 @@ from time import perf_counter
 from benchmarks.alice_magic import validate
 from snarky.finite.alldifferent import MaskColumn
 from snarky.finite.model import Query
+from snarky.finite.numeric import NumericPlan
 from snarky.finite.search import search
 
 from .magic_search_tuning import RankedState, prepare
@@ -22,6 +23,9 @@ from .magic_search_tuning import RankedState, prepare
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--before", type=Path, required=True)
+    parser.add_argument(
+        "--kernel", choices=["alldifferent", "sum"], default="alldifferent"
+    )
     parser.add_argument(
         "--presets",
         type=Path,
@@ -35,12 +39,17 @@ def main():
         parser.error("require positive repeats and sizes at least three")
     args.output.mkdir(parents=True, exist_ok=False)
     module_spec = importlib.util.spec_from_file_location(
-        "snarky.finite._alldifferent_before", args.before
+        f"snarky.finite._{args.kernel}_before", args.before
     )
     module = importlib.util.module_from_spec(module_spec)
     module_spec.loader.exec_module(module)
-    optimized = MaskColumn.decode
-    implementations = dict(baseline=module.MaskColumn.decode, optimized=optimized)
+    kernel_class = NumericPlan if args.kernel == "sum" else MaskColumn
+    method = "_equality_supports" if args.kernel == "sum" else "decode"
+    optimized = getattr(kernel_class, method)
+    implementations = dict(
+        baseline=getattr(getattr(module, kernel_class.__name__), method),
+        optimized=optimized,
+    )
     preset = json.loads(args.presets.read_text())
     files = [
         *Path("src/snarky").rglob("*.py"),
@@ -65,10 +74,11 @@ def main():
                 source_hashes=hashes,
                 schedule=specs,
                 presets=preset,
+                kernel=f"{kernel_class.__name__}.{method}",
                 scope=(
                     "Sequential timing, model/state setup included, imports and "
-                    "validation excluded. Only MaskColumn.decode is swapped. "
-                    "15x15 is the first 80 nodes."
+                    "validation excluded. Only the recorded kernel method is swapped. "
+                    "15x15 is the first 80 nodes; sizes >=17 are the first 30 nodes."
                 ),
             ),
             indent=2,
@@ -82,7 +92,7 @@ def main():
                 **preset["default"],
                 **preset["known_size_overrides"].get(str(size), {}),
             }
-            MaskColumn.decode = implementations[variant]
+            setattr(kernel_class, method, implementations[variant])
             started = perf_counter()
             original, model = prepare(
                 size,
@@ -94,7 +104,10 @@ def main():
             state = RankedState(model, settings["order"])
             result = search(
                 state,
-                Query(max_nodes=80 if size == 15 else None, time_limit_seconds=60),
+                Query(
+                    max_nodes=80 if size == 15 else 30 if size >= 17 else None,
+                    time_limit_seconds=60,
+                ),
                 policy=settings["policy"],
             )
             seconds = perf_counter() - started
@@ -107,7 +120,7 @@ def main():
                 squares,
             )
             if size in signatures:
-                assert signatures[size] == signature, "decoding changed search work"
+                assert signatures[size] == signature, "kernel changed search work"
             signatures[size] = signature
             row = dict(
                 size=size,
@@ -131,7 +144,7 @@ def main():
                 flush=True,
             )
     finally:
-        MaskColumn.decode = optimized
+        setattr(kernel_class, method, optimized)
     summary = [
         dict(
             size=size,
