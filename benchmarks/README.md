@@ -8,6 +8,10 @@ They are not universal performance claims. Wall-clock values depend on Python,
 hardware, operating system, background load, and benchmark parameters.
 Algorithmic counters and output equivalence are usually more portable.
 
+For the latest **magic-square benchmarks**, start with the
+[readable results and reproduction guide](results/magic_sum_dense_2026-10-13/README.md).
+It separates completed solves from bounded search prefixes and links the raw data.
+
 For the upcoming redesign, use the [performance baseline and comparison
 ledger](../docs/performance_baseline.md). It defines a fixed non-Bach portfolio
 collected by `python -m benchmarks.redesign_baseline`, with raw samples and

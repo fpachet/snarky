@@ -1,5 +1,10 @@
 # Archived benchmark results
 
+**Magic squares:** the
+[13 October results README](magic_sum_dense_2026-10-13/README.md)
+contains timing tables, source/evidence links, reproduction commands, and links
+to the earlier experiments.
+
 Workforce task symmetry and workload propagation:
 [scheduling_symmetry_2026-09-28.json](scheduling_symmetry_2026-09-28.json) records
 24 fresh-process runs across four ablations and two model sizes, plus separate
