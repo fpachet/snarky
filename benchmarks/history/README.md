@@ -16,7 +16,21 @@ to match every historical version.
 ## Magic-square experiment history
 
 **Current overview:** [Magic squares](../README.md#magic-squares).
-**Latest experiment:** [Reusable residual kernels](magic_residual_reuse_2026-10-14/report.json).
+**Latest profiling:** [Current CP and residual-hybrid profiles](magic_native_profile_2026-10-14/report.json).
+Fresh complete searches at `8245d27` prioritize a SUM support kernel before
+ALLDIFF: hybrid 16×16 spends 52%/23% in their revisions; 14×14 spends 77%/11%.
+The archive separates uninstrumented timings, wall attribution and cProfile,
+and includes a startup-heavy 20×20 prefix with no complete solution.
+
+**Latest experiment:** [Exact native SUM supports](magic_sum_kernel_2026-10-14/report.json).
+The opt-in kernel preserves exact support masks and search behavior, reducing
+16×16 time 35.5% in ordinary CP and 42.0% in the residual hybrid; 14×14 improves
+60.5%/58.9%. A 1,000-node 20×20 prefix is about four times faster, but a
+30-second solve attempt remains incomplete. The short startup prefix regresses;
+the [overview](../README.md#magic-squares) records all timings and limits.
+
+The preceding [reusable residual kernels](magic_residual_reuse_2026-10-14/report.json)
+established bitset enumeration and persistent library caching.
 Arithmetic candidate filtering and bitsets reduce time a further 16–44% on
 five of six tested sizes compared with the previous hybrid; 14×14 is 2% slower.
 A controlled replay isolates a 1.4–2.0× bitset kernel speedup at identical work
@@ -95,6 +109,8 @@ that must be selected explicitly, not a default native-solver feature.
 | [SUM boundary processing](magic_sum_boundaries_2026-10-13/summary.json) | Avoid redundant prefix/backward work while preserving exact supports; modest additional per-node gain | Enabled |
 | [ALLDIFF identity layouts](magic_identity_layout_2026-10-14/summary.json) | Skip input-mask translation for aligned layouts; small gain on eligible magic-square presets | Enabled |
 | [ALLDIFF matching repair](magic_matching_repairs_2026-10-14/summary.json) | Sort only unmatched rows while preserving repair order and the intact-matching fast path | Enabled |
+| [Exact native SUM supports](magic_sum_kernel_2026-10-14/report.json) | Identical-search gains on all six completed sizes; larger 20×20 prefix improves, but no solution within 30 seconds | Opt-in exact propagator experiment |
+| [Fresh CP/hybrid profiles](magic_native_profile_2026-10-14/report.json) | SUM support computation is the next native-kernel priority on most completed hybrid workloads | Diagnostic profiles; no new propagator kernel |
 | [Reusable residual kernels](magic_residual_reuse_2026-10-14/report.json) | Bitset candidate filtering helps five sizes; persistent library caching removes repeat compilation | Experimental first-solution prototype |
 | [Residual enumeration and local compilation](magic_residual_enumeration_2026-10-14/report.json) | Native bounded residual solving helps several sizes; compiling each state costs too much on the observed traces | Experimental first-solution prototype |
 

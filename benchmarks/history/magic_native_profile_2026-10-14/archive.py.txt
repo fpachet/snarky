@@ -1,0 +1,49 @@
+import hashlib,json,shutil
+from pathlib import Path
+root=Path('benchmarks/history/magic_native_profile_2026-10-14')
+root.mkdir(parents=True,exist_ok=False)
+for stage,name in [('smoke','magic_profile_smoke_20261014'),('profile','magic_profile_latest_20261014')]:
+ shutil.copytree(Path('generated/neural_attention')/name,root/stage,ignore=shutil.ignore_patterns('*.so','*.dll','*.dylib','__pycache__'))
+ shutil.copyfile(Path('/tmp')/(name+'.log'),root/(stage+'.log'))
+for name in ['magic_residual_profile.py','magic_profile.py']:
+ shutil.copyfile(Path('experiments/neural_attention')/name,root/(name+'.txt'))
+shutil.copyfile('experiments/neural_attention/magic_residual_profile_validate.py',root/'validate.py.txt')
+shutil.copyfile(__file__,root/'archive.py.txt')
+rows=json.loads((root/'profile/summary.json').read_text())
+report=dict(date='2026-10-14',git_head=json.loads((root/'profile/frozen.json').read_text())['git_head'],
+ decision='Prioritize an opt-in SUM equality-support kernel experiment before ALLDIFF; leave production semantics and defaults unchanged.',
+ scope='Current main solver and residual mode-4 hybrid; six complete blank-square workloads plus a 30-node 20x20 prefix; all current presets unchanged.',
+ primary_runs=70,smoke_runs=10,
+ timing='Three uninstrumented search repetitions per size/variant. Separate single wall-attribution and cProfile runs. Search excludes model/state setup, imports, compilation, output and independent validation. Percentages refer to instrumented search, not whole-query benchmark times.',
+ results=[dict(size=r['size'],variant=r['variant'],solved=r['solved'],termination=r['termination'],
+  median_search_seconds=r['median_search_seconds'],median_setup_seconds=r['median_setup_seconds'],wall_seconds=r['wall_seconds'],
+  percentages={k:v['percent'] for k,v in r['attribution'].items()}) for r in rows],
+ observations=[
+ 'Ordinary CP: SUM+ALLDIFF revision consumes about 80-90% of completed search time.',
+ 'Hybrid SUM revision:52.0% at16,76.5% at14,43.0% at13; ALLDIFF23.2%,11.4%,22.2% respectively. This reverses the earlier suggestion to start with ALLDIFF.',
+ 'Hybrid9 is different:59.4% in the residual call,18.2% SUM and8.2% ALLDIFF. Python propagator kernels have a smaller ceiling there.',
+ 'Hybrid16 residual extraction6.7%,encoding1.5%,call5.1%; state operations3.7%,propagation other3.5%. Tiny domain helpers are lower priority.',
+ 'cProfile locates SUM cost in NumericPlan._equality_supports and its candidate/reachability/support loops. Existing bigint operations run natively; moving surrounding loops may help but requires direct measurement.',
+ 'cProfile20 shows one-time lazy numeric/ALLDIFF plan construction dominates the short prefix. The CP propagation-other category includes plan construction, not just queue management. No20 solution or steady-state performance conclusion.',
+ ],
+ proposed_experiment=[
+ 'Native input:compiled immutable integer contributions/value layouts and current domain masks; output:supported masks or failure.',
+ 'Port SUM equality-support computation with the current interval/dense certificates and exact fallback behavior; preserve complete supports rather than weaken to bounds.',
+ 'Keep domain updates, causes, checkpoints, rollback, deadline contract and search policies in Python for the first experiment.',
+ 'Use bounded native representation and checked arithmetic; fall back to current Python for unsupported spans, large coefficients or values. Retain arbitrary-precision Python semantics.',
+ 'Validate every native support result against Python over random signed/holey domains, fixed terms, contradictions and rollback states before timing representative complete searches.',
+ 'Then consider a full ALLDIFF support kernel; defer native domain/trail/queue integration until measured conversion overhead justifies it.',
+ ],
+ limitations=[
+ 'Single wall-attribution pass per workload; percentages are directional and include instrumentation overhead.',
+ 'cProfile perturbs runtime substantially; its absolute seconds are not benchmark results and C internals are opaque.',
+ 'Residual-call timing includes ctypes and Python result construction, not only C instructions.',
+ 'SUM/ALLDIFF revision categories include support application; plan compilation sits outside those categories.',
+ 'The complete new profiling run preserves nodes,failures,revisions,termination,solutions and deterministic residual counters across baseline/wall/cProfile passes.',
+ 'No new SUM/ALLDIFF kernel has been implemented or benchmarked in this study.',
+ ],
+)
+(root/'report.json').write_text(json.dumps(report,indent=2)+'\n')
+manifest={str(p.relative_to(root)):hashlib.sha256(p.read_bytes()).hexdigest() for p in sorted(root.rglob('*')) if p.is_file()}
+(root/'manifest.json').write_text(json.dumps(manifest,indent=2)+'\n')
+print('Archived',len(manifest),'files')

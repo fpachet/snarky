@@ -5,3 +5,6 @@ third_party/test_rulebases/** -text
 # Keep the historical binary presentation unchanged.
 *.ppt binary
 *.pdf binary
+
+# Preserve generated profiler output, including its trailing blank lines.
+benchmarks/history/**/magic[0-9]*_*.txt whitespace=-blank-at-eof

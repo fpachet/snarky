@@ -78,10 +78,10 @@ For current results, use the [benchmark guide](../benchmarks/README.md).
 The [results archive](../benchmarks/history/README.md) indexes prior experiments,
 including which magic-square ideas were enabled, left opt-in or rejected.
 
-The [native residual experiment](../benchmarks/README.md#reusable-residual-kernels--14-october-2026-experimental)
-is retained as an opt-in comparison baseline, outside the production solver.
-Its setup, commands, first-solution restrictions and cache behavior are described
-in that same benchmark guide.
+The [native kernel experiments](../benchmarks/README.md#magic-squares) cover exact
+SUM support computation and residual enumeration. They remain opt-in, outside
+the production solver. Their setup, commands, supported scopes and cache
+behavior are described in that same benchmark guide.
 
 <details>
 <summary>Dated performance and implementation reports</summary>

@@ -1,0 +1,125 @@
+[
+  {
+    "size": 8,
+    "variant": "cp",
+    "solved": true,
+    "termination": "solution_limit",
+    "nodes": 161,
+    "median_search_seconds": 0.07444320782087743,
+    "median_setup_seconds": 0.010225167032331228,
+    "wall_seconds": 0.07789604109711945,
+    "attribution": {
+      "sum_filtering": {
+        "seconds": 0.036385871935635805,
+        "percent": 46.71081023266705
+      },
+      "alldiff_filtering": {
+        "seconds": 0.02679354208521545,
+        "percent": 34.39653890986542
+      },
+      "cp_propagation_other": {
+        "seconds": 0.007363374112173915,
+        "percent": 9.452822002845288
+      },
+      "residual_extraction": {
+        "seconds": 0,
+        "percent": 0.0
+      },
+      "residual_encoding": {
+        "seconds": 0,
+        "percent": 0.0
+      },
+      "residual_call": {
+        "seconds": 0,
+        "percent": 0.0
+      },
+      "residual_adapter_other": {
+        "seconds": 0,
+        "percent": 0.0
+      },
+      "state_operations": {
+        "seconds": 0.0030353746842592955,
+        "percent": 3.896699551745951
+      },
+      "search_other": {
+        "seconds": 0.004317878279834986,
+        "percent": 5.54312930287629
+      }
+    },
+    "stats": {},
+    "calls": {
+      "checkpoint": 77,
+      "propagation": 161,
+      "AllDifferentConstraint:mask": 452,
+      "SumConstraint:mask": 2466,
+      "LinearSumConstraint:mask": 26,
+      "rollback": 237,
+      "restrict": 160,
+      "release": 77
+    }
+  },
+  {
+    "size": 8,
+    "variant": "hybrid",
+    "solved": true,
+    "termination": "solution_limit",
+    "nodes": 38,
+    "median_search_seconds": 0.028836040990427136,
+    "median_setup_seconds": 0.010173375019803643,
+    "wall_seconds": 0.03041391703300178,
+    "attribution": {
+      "sum_filtering": {
+        "seconds": 0.015965881990268826,
+        "percent": 52.495316446561084
+      },
+      "alldiff_filtering": {
+        "seconds": 0.006110088666900992,
+        "percent": 20.08977883470586
+      },
+      "cp_propagation_other": {
+        "seconds": 0.003911490086466074,
+        "percent": 12.860856042389287
+      },
+      "residual_extraction": {
+        "seconds": 0.00011120806448161602,
+        "percent": 0.3656486086976086
+      },
+      "residual_encoding": {
+        "seconds": 0.0001089591532945633,
+        "percent": 0.35825425964150887
+      },
+      "residual_call": {
+        "seconds": 0.00013629207387566566,
+        "percent": 0.4481240404771827
+      },
+      "residual_adapter_other": {
+        "seconds": 8.040806278586388e-06,
+        "percent": 0.02643791745029555
+      },
+      "state_operations": {
+        "seconds": 0.0008319653570652008,
+        "percent": 2.735475855222611
+      },
+      "search_other": {
+        "seconds": 0.0032299908343702555,
+        "percent": 10.620107994854562
+      }
+    },
+    "stats": {
+      "attempts": 1,
+      "enum_seconds": 0.00036450009793043137,
+      "visits": 7163,
+      "witnesses": 1
+    },
+    "calls": {
+      "checkpoint": 38,
+      "propagation": 38,
+      "AllDifferentConstraint:mask": 89,
+      "SumConstraint:mask": 686,
+      "LinearSumConstraint:mask": 26,
+      "rollback": 75,
+      "restrict": 57,
+      "release": 38
+    }
+  }
+]

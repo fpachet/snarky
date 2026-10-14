@@ -1,0 +1,200 @@
+{
+  "date": "2026-10-14",
+  "stages": [
+    "audit_pilot",
+    "audit",
+    "pilot",
+    "confirmation",
+    "large_audit",
+    "large"
+  ],
+  "runs": 264,
+  "validated_squares": 212,
+  "decision": "Keep exact SUM support kernel as an opt-in experiment. Substantial identical-search gains justify further native work; production defaults unchanged.",
+  "confirmation": [
+    {
+      "size": 8,
+      "strategy": "cp",
+      "solved": true,
+      "python": 0.08484445884823799,
+      "native": 0.06287945806980133,
+      "time_reduction_percent": 25.888550739330718
+    },
+    {
+      "size": 8,
+      "strategy": "hybrid",
+      "solved": true,
+      "python": 0.040133167058229446,
+      "native": 0.03185000014491379,
+      "time_reduction_percent": 20.639205725522626
+    },
+    {
+      "size": 9,
+      "strategy": "cp",
+      "solved": true,
+      "python": 1.566714207874611,
+      "native": 1.0183020001277328,
+      "time_reduction_percent": 35.00397232567699
+    },
+    {
+      "size": 9,
+      "strategy": "hybrid",
+      "solved": true,
+      "python": 0.6298475421499461,
+      "native": 0.555732375010848,
+      "time_reduction_percent": 11.767159856829867
+    },
+    {
+      "size": 11,
+      "strategy": "cp",
+      "solved": true,
+      "python": 0.3038322499487549,
+      "native": 0.21564537496306002,
+      "time_reduction_percent": 29.02485664394372
+    },
+    {
+      "size": 11,
+      "strategy": "hybrid",
+      "solved": true,
+      "python": 0.20763049996457994,
+      "native": 0.1320422920398414,
+      "time_reduction_percent": 36.40515624517268
+    },
+    {
+      "size": 13,
+      "strategy": "cp",
+      "solved": true,
+      "python": 1.5308966671582311,
+      "native": 1.045992375118658,
+      "time_reduction_percent": 31.674527905249803
+    },
+    {
+      "size": 13,
+      "strategy": "hybrid",
+      "solved": true,
+      "python": 0.7746217919047922,
+      "native": 0.509690250037238,
+      "time_reduction_percent": 34.20140572292557
+    },
+    {
+      "size": 14,
+      "strategy": "cp",
+      "solved": true,
+      "python": 0.7304339581169188,
+      "native": 0.2886902920436114,
+      "time_reduction_percent": 60.47687969109982
+    },
+    {
+      "size": 14,
+      "strategy": "hybrid",
+      "solved": true,
+      "python": 0.7381029580719769,
+      "native": 0.3034600419923663,
+      "time_reduction_percent": 58.88648884634682
+    },
+    {
+      "size": 16,
+      "strategy": "cp",
+      "solved": true,
+      "python": 4.318242499837652,
+      "native": 2.785473082913086,
+      "time_reduction_percent": 35.49521401315911
+    },
+    {
+      "size": 16,
+      "strategy": "hybrid",
+      "solved": true,
+      "python": 2.666362249990925,
+      "native": 1.5464240422006696,
+      "time_reduction_percent": 42.00247763761534
+    },
+    {
+      "size": 20,
+      "strategy": "cp",
+      "solved": false,
+      "python": 0.36956558283418417,
+      "native": 0.41947558405809104,
+      "time_reduction_percent": -13.505045800301275
+    },
+    {
+      "size": 20,
+      "strategy": "hybrid",
+      "solved": false,
+      "python": 0.3752748330589384,
+      "native": 0.41969587514176965,
+      "time_reduction_percent": -11.836936071824123
+    }
+  ],
+  "large_prefix": [
+    {
+      "size": 20,
+      "strategy": "cp",
+      "solved": false,
+      "python": 8.098109249956906,
+      "native": 2.026588291861117,
+      "time_reduction_percent": 74.97454986950316
+    },
+    {
+      "size": 20,
+      "strategy": "hybrid",
+      "solved": false,
+      "python": 8.050945875002071,
+      "native": 2.0466941660270095,
+      "time_reduction_percent": 74.57821481098352
+    }
+  ],
+  "attempt20": {
+    "nodes": 34530,
+    "failures": 28181,
+    "revisions": 620729,
+    "termination": "time_limit",
+    "search_seconds": 30.027510416926816,
+    "min_unfixed": 55,
+    "sum_stats": {
+      "compiled_plans": 42,
+      "calls": 507440,
+      "path_4": 51,
+      "path_5": 78265,
+      "path_3": 561,
+      "path_2": 224,
+      "path_6": 426027,
+      "path_1": 421,
+      "path_0": 1891
+    },
+    "residual_stats": {}
+  },
+  "implementation": [
+    "Exact equality support masks for SUM and LINEAR_SUM; intervals, dense-hole certificate, fixed/one/two active terms, reflected forward/backward DP.",
+    "C11 shared library called with ctypes and cached across invocations. One scratch workspace per numeric plan; no allocations in the C support computation.",
+    "Immutable integer contributions normalized in arbitrary-precision Python before C conversion. Large translations/coefficients are safe if the normalized spans fit.",
+    "C limits:3-64 columns in adapter,4096 candidates per column,total original span<=16384,plus original Python plan eligibility limits. One/two-column constraints remain Python.",
+    "Unsupported plans/calls retain Python support computation; domain retention, causes, checkpoints, rollback, search and policy remain Python.",
+    "Native support computation runs at all search depths when explicitly enabled, independently of the <=20-variable residual switch."
+  ],
+  "timing": "Five paired shuffled repetitions per size/strategy in confirmation. Whole timing includes model/state construction, lazy C workspace preparation, mask encoding/decoding, propagation, residual work and fallback. Imports, library compilation/loading, validation and reduction auditing excluded. Audits are separate and not performance claims.",
+  "equivalence": "Within each strategy, Python and C preserve nodes,failures,revisions,termination,solutions,residual counters and all audited ordered reduction hashes. C support outputs compared to Python on every audited call.",
+  "safety": [
+    "14 SUM tests plus23 residual tests pass: exhaustive support oracles with signed,holey,large-translation data; max spans/word edges; certificates and DP; fixpoint cache; fallback; causes and rollback.",
+    "ASan/UBSan standalone randomized exhaustive oracle passes10006 checks including large candidate masks and maximum span.",
+    "C -Wall -Wextra -Werror syntax checks pass.",
+    "Repository-wide ruff,mypy src,Markdown link checks and git diff --check passed.",
+    "Archive validator passes264 audit/timing runs,212 complete squares,244124 audited support computations and839 source checks. Prior profiling/residual archives still validate."
+  ],
+  "limitations": [
+    "Opt-in source-checkout experiment; no production module/default/wheel change. Current solve benchmarking covers pure feasibility.",
+    "A30-node20 prefix is slower from lazy numeric-plan/native-workspace setup; a1000-node prefix is about4x faster. These prefixes do not establish complete20 solving.",
+    "The30-second20 attempt still has no solution, reaching34530 nodes and never below55 unfixed variables. Residual enumeration does not activate.",
+    "Masks still cross the Python/C boundary per uncached support computation. Matching, scheduler, trail and unsupported constraints remain Python.",
+    "Kernel returns the existing SUM supports, not stronger joint SUM+ALLDIFF deductions."
+  ],
+  "provenance": [
+    "All stages preserve frozen sources and exact schedules. Initial reduction recorder used a nonexistent Atom.value attribute and aborted before recording runs; corrected str(cause) recorder used by retained audits.",
+    "An ASan compile/run may overlap the first audit pilot; audit timings are not benchmark evidence. Pilot and confirmation timing batches ran sequentially without tests/compilation."
+  ],
+  "reproduce": {
+    "timing": "PYTHONHASHSEED=0 PYTHONPATH=src:. python -m experiments.neural_attention.magic_sum_kernel timing --repeats 5 --output generated/neural_attention/sum_native_NEW",
+    "audit": "PYTHONHASHSEED=0 PYTHONPATH=src:. python -m experiments.neural_attention.magic_sum_kernel audit --output generated/neural_attention/sum_native_audit_NEW",
+    "large": "PYTHONHASHSEED=0 PYTHONPATH=src:. python -m experiments.neural_attention.magic_sum_kernel timing --sizes 20 --large-nodes 1000 --repeats 3 --output generated/neural_attention/sum_native_20_NEW",
+    "sanitizer": "cc -std=c11 -Wall -Wextra -Werror -O1 -g -fsanitize=address,undefined experiments/neural_attention/sum_kernel_sanitize.c -o /tmp/sum_sanitize && /tmp/sum_sanitize"
+  }
+}

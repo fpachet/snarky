@@ -1,0 +1,315 @@
+{
+  "date": "2026-10-14",
+  "git_head": "8245d27f0474577d9f66f07207f7dbc187baebc8",
+  "decision": "Prioritize an opt-in SUM equality-support kernel experiment before ALLDIFF; leave production semantics and defaults unchanged.",
+  "scope": "Current main solver and residual mode-4 hybrid; six complete blank-square workloads plus a 30-node 20x20 prefix; all current presets unchanged.",
+  "primary_runs": 70,
+  "smoke_runs": 10,
+  "timing": "Three uninstrumented search repetitions per size/variant. Separate single wall-attribution and cProfile runs. Search excludes model/state setup, imports, compilation, output and independent validation. Percentages refer to instrumented search, not whole-query benchmark times.",
+  "results": [
+    {
+      "size": 8,
+      "variant": "cp",
+      "solved": true,
+      "termination": "solution_limit",
+      "median_search_seconds": 0.07507887505926192,
+      "median_setup_seconds": 0.010364917106926441,
+      "wall_seconds": 0.07750420784577727,
+      "percentages": {
+        "sum_filtering": 46.161023095191396,
+        "alldiff_filtering": 33.9523038765327,
+        "cp_propagation_other": 9.399830697151609,
+        "residual_extraction": 0.0,
+        "residual_encoding": 0.0,
+        "residual_call": 0.0,
+        "residual_adapter_other": 0.0,
+        "state_operations": 3.7996838349545907,
+        "search_other": 6.687158496169699
+      }
+    },
+    {
+      "size": 8,
+      "variant": "hybrid",
+      "solved": true,
+      "termination": "solution_limit",
+      "median_search_seconds": 0.0287522089201957,
+      "median_setup_seconds": 0.010727540822699666,
+      "wall_seconds": 0.029464083025231957,
+      "percentages": {
+        "sum_filtering": 52.13057653166497,
+        "alldiff_filtering": 20.526409130918214,
+        "cp_propagation_other": 12.982020560806554,
+        "residual_extraction": 0.3846483519245808,
+        "residual_encoding": 0.38521414839180296,
+        "residual_call": 0.4364052949604058,
+        "residual_adapter_other": 0.030549848355878834,
+        "state_operations": 2.7967943647430475,
+        "search_other": 10.327381768234547
+      }
+    },
+    {
+      "size": 9,
+      "variant": "cp",
+      "solved": true,
+      "termination": "solution_limit",
+      "median_search_seconds": 1.5354737921152264,
+      "median_setup_seconds": 0.00978445797227323,
+      "wall_seconds": 1.5852820000145584,
+      "percentages": {
+        "sum_filtering": 49.31680146201974,
+        "alldiff_filtering": 38.70710254594314,
+        "cp_propagation_other": 6.246503820674472,
+        "residual_extraction": 0.0,
+        "residual_encoding": 0.0,
+        "residual_call": 0.0,
+        "residual_adapter_other": 0.0,
+        "state_operations": 3.8972213564898603,
+        "search_other": 1.8323708148727897
+      }
+    },
+    {
+      "size": 9,
+      "variant": "hybrid",
+      "solved": true,
+      "termination": "solution_limit",
+      "median_search_seconds": 0.6167059168219566,
+      "median_setup_seconds": 0.009279082994908094,
+      "wall_seconds": 0.6195212919265032,
+      "percentages": {
+        "sum_filtering": 18.19226701051528,
+        "alldiff_filtering": 8.196650194584407,
+        "cp_propagation_other": 2.100464876799458,
+        "residual_extraction": 6.492613538398415,
+        "residual_encoding": 2.5633167769663965,
+        "residual_call": 59.41442389173439,
+        "residual_adapter_other": 0.049558751522960735,
+        "state_operations": 1.5052699726266117,
+        "search_other": 1.4854349868520864
+      }
+    },
+    {
+      "size": 11,
+      "variant": "cp",
+      "solved": true,
+      "termination": "solution_limit",
+      "median_search_seconds": 0.27678445912897587,
+      "median_setup_seconds": 0.03399587492458522,
+      "wall_seconds": 0.27381941699422896,
+      "percentages": {
+        "sum_filtering": 49.88689812029126,
+        "alldiff_filtering": 34.14228727918686,
+        "cp_propagation_other": 7.343534015706456,
+        "residual_extraction": 0.0,
+        "residual_encoding": 0.0,
+        "residual_call": 0.0,
+        "residual_adapter_other": 0.0,
+        "state_operations": 2.88850318327113,
+        "search_other": 5.7387774015443
+      }
+    },
+    {
+      "size": 11,
+      "variant": "hybrid",
+      "solved": true,
+      "termination": "solution_limit",
+      "median_search_seconds": 0.16843300010077655,
+      "median_setup_seconds": 0.05625833407975733,
+      "wall_seconds": 0.17203058302402496,
+      "percentages": {
+        "sum_filtering": 54.49531311865097,
+        "alldiff_filtering": 20.88330560650933,
+        "cp_propagation_other": 8.691904437608454,
+        "residual_extraction": 0.6773264492246147,
+        "residual_encoding": 0.26468016121056304,
+        "residual_call": 3.3713231045952643,
+        "residual_adapter_other": 0.007194541306428007,
+        "state_operations": 2.2337626952430525,
+        "search_other": 9.37518988565132
+      }
+    },
+    {
+      "size": 13,
+      "variant": "cp",
+      "solved": true,
+      "termination": "solution_limit",
+      "median_search_seconds": 1.465711458120495,
+      "median_setup_seconds": 0.033526250161230564,
+      "wall_seconds": 1.5049980839248747,
+      "percentages": {
+        "sum_filtering": 44.395640528491015,
+        "alldiff_filtering": 43.807854039875885,
+        "cp_propagation_other": 4.830923577478038,
+        "residual_extraction": 0.0,
+        "residual_encoding": 0.0,
+        "residual_call": 0.0,
+        "residual_adapter_other": 0.0,
+        "state_operations": 3.7868371474220246,
+        "search_other": 3.178744706733033
+      }
+    },
+    {
+      "size": 13,
+      "variant": "hybrid",
+      "solved": true,
+      "termination": "solution_limit",
+      "median_search_seconds": 0.7301241671666503,
+      "median_setup_seconds": 0.03771083406172693,
+      "wall_seconds": 0.725095166824758,
+      "percentages": {
+        "sum_filtering": 42.98306477187974,
+        "alldiff_filtering": 22.191566368458684,
+        "cp_propagation_other": 4.672728599784089,
+        "residual_extraction": 5.806746783316451,
+        "residual_encoding": 1.6283222834339381,
+        "residual_call": 14.616767479507335,
+        "residual_adapter_other": 0.04473255243540634,
+        "state_operations": 3.0726631732628076,
+        "search_other": 4.983407987921553
+      }
+    },
+    {
+      "size": 14,
+      "variant": "cp",
+      "solved": true,
+      "termination": "solution_limit",
+      "median_search_seconds": 0.626204416854307,
+      "median_setup_seconds": 0.07413837499916553,
+      "wall_seconds": 0.6385432088281959,
+      "percentages": {
+        "sum_filtering": 76.34945269589775,
+        "alldiff_filtering": 11.71023002537964,
+        "cp_propagation_other": 5.049553474917925,
+        "residual_extraction": 0.0,
+        "residual_encoding": 0.0,
+        "residual_call": 0.0,
+        "residual_adapter_other": 0.0,
+        "state_operations": 1.8396577434595272,
+        "search_other": 5.051106060345147
+      }
+    },
+    {
+      "size": 14,
+      "variant": "hybrid",
+      "solved": true,
+      "termination": "solution_limit",
+      "median_search_seconds": 0.6259679170325398,
+      "median_setup_seconds": 0.07772554084658623,
+      "wall_seconds": 0.632272417191416,
+      "percentages": {
+        "sum_filtering": 76.47942841360837,
+        "alldiff_filtering": 11.419404172550015,
+        "cp_propagation_other": 5.013822609057113,
+        "residual_extraction": 0.06021930368784322,
+        "residual_encoding": 0.02740778899076506,
+        "residual_call": 0.5086941801289739,
+        "residual_adapter_other": 0.0008104318117016745,
+        "state_operations": 1.7509181912929241,
+        "search_other": 4.739294908872293
+      }
+    },
+    {
+      "size": 16,
+      "variant": "cp",
+      "solved": true,
+      "termination": "solution_limit",
+      "median_search_seconds": 4.128733833087608,
+      "median_setup_seconds": 0.12945354101248085,
+      "wall_seconds": 4.14019054081291,
+      "percentages": {
+        "sum_filtering": 47.21666143320835,
+        "alldiff_filtering": 42.781589471651415,
+        "cp_propagation_other": 3.726930939274549,
+        "residual_extraction": 0.0,
+        "residual_encoding": 0.0,
+        "residual_call": 0.0,
+        "residual_adapter_other": 0.0,
+        "state_operations": 3.457604154542995,
+        "search_other": 2.8172140013226867
+      }
+    },
+    {
+      "size": 16,
+      "variant": "hybrid",
+      "solved": true,
+      "termination": "solution_limit",
+      "median_search_seconds": 2.4711025420110673,
+      "median_setup_seconds": 0.1410829999949783,
+      "wall_seconds": 2.639100749976933,
+      "percentages": {
+        "sum_filtering": 52.02762688848912,
+        "alldiff_filtering": 23.158527991121055,
+        "cp_propagation_other": 3.538937048396837,
+        "residual_extraction": 6.689123945615248,
+        "residual_encoding": 1.4896356543434148,
+        "residual_call": 5.127172416082485,
+        "residual_adapter_other": 0.042206146566114336,
+        "state_operations": 3.6617155171579414,
+        "search_other": 4.265054392227793
+      }
+    },
+    {
+      "size": 20,
+      "variant": "cp",
+      "solved": false,
+      "termination": "node_limit",
+      "median_search_seconds": 0.15444354200735688,
+      "median_setup_seconds": 0.18222079193219543,
+      "wall_seconds": 0.1651587919332087,
+      "percentages": {
+        "sum_filtering": 11.384734715693392,
+        "alldiff_filtering": 20.22861666585912,
+        "cp_propagation_other": 59.676899302448895,
+        "residual_extraction": 0.0,
+        "residual_encoding": 0.0,
+        "residual_call": 0.0,
+        "residual_adapter_other": 0.0,
+        "state_operations": 2.03753439003261,
+        "search_other": 6.6722149259659815
+      }
+    },
+    {
+      "size": 20,
+      "variant": "hybrid",
+      "solved": false,
+      "termination": "node_limit",
+      "median_search_seconds": 0.15159775014035404,
+      "median_setup_seconds": 0.2245597499422729,
+      "wall_seconds": 0.15947595797479153,
+      "percentages": {
+        "sum_filtering": 11.477689598763474,
+        "alldiff_filtering": 21.568168904850538,
+        "cp_propagation_other": 60.898500079475106,
+        "residual_extraction": 0.0,
+        "residual_encoding": 0.0,
+        "residual_call": 0.0,
+        "residual_adapter_other": 0.0,
+        "state_operations": 2.263163478596902,
+        "search_other": 3.7924779383139784
+      }
+    }
+  ],
+  "observations": [
+    "Ordinary CP: SUM+ALLDIFF revision consumes about 80-90% of completed search time.",
+    "Hybrid SUM revision:52.0% at16,76.5% at14,43.0% at13; ALLDIFF23.2%,11.4%,22.2% respectively. This reverses the earlier suggestion to start with ALLDIFF.",
+    "Hybrid9 is different:59.4% in the residual call,18.2% SUM and8.2% ALLDIFF. Python propagator kernels have a smaller ceiling there.",
+    "Hybrid16 residual extraction6.7%,encoding1.5%,call5.1%; state operations3.7%,propagation other3.5%. Tiny domain helpers are lower priority.",
+    "cProfile locates SUM cost in NumericPlan._equality_supports and its candidate/reachability/support loops. Existing bigint operations run natively; moving surrounding loops may help but requires direct measurement.",
+    "cProfile20 shows one-time lazy numeric/ALLDIFF plan construction dominates the short prefix. The CP propagation-other category includes plan construction, not just queue management. No20 solution or steady-state performance conclusion."
+  ],
+  "proposed_experiment": [
+    "Native input:compiled immutable integer contributions/value layouts and current domain masks; output:supported masks or failure.",
+    "Port SUM equality-support computation with the current interval/dense certificates and exact fallback behavior; preserve complete supports rather than weaken to bounds.",
+    "Keep domain updates, causes, checkpoints, rollback, deadline contract and search policies in Python for the first experiment.",
+    "Use bounded native representation and checked arithmetic; fall back to current Python for unsupported spans, large coefficients or values. Retain arbitrary-precision Python semantics.",
+    "Validate every native support result against Python over random signed/holey domains, fixed terms, contradictions and rollback states before timing representative complete searches.",
+    "Then consider a full ALLDIFF support kernel; defer native domain/trail/queue integration until measured conversion overhead justifies it."
+  ],
+  "limitations": [
+    "Single wall-attribution pass per workload; percentages are directional and include instrumentation overhead.",
+    "cProfile perturbs runtime substantially; its absolute seconds are not benchmark results and C internals are opaque.",
+    "Residual-call timing includes ctypes and Python result construction, not only C instructions.",
+    "SUM/ALLDIFF revision categories include support application; plan compilation sits outside those categories.",
+    "The complete new profiling run preserves nodes,failures,revisions,termination,solutions and deterministic residual counters across baseline/wall/cProfile passes.",
+    "No new SUM/ALLDIFF kernel has been implemented or benchmarked in this study."
+  ]
+}

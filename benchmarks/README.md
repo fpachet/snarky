@@ -16,6 +16,140 @@ comparison; an archived experiment's defaults apply to its recorded version.
 
 This is the stable entry point for the current magic-square benchmark summary.
 
+### Native SUM support kernel — 14 October 2026 (experimental)
+
+An opt-in C kernel now computes the same exact equality supports as Python for
+eligible `SUM`/`LINEAR_SUM` constraints. It preserves interval and dense-domain
+certificates, fixed/one/two-active-variable cases, and the reflected forward/
+backward reachability algorithm. It adds no stronger deductions or search
+heuristics. Python continues applying reductions, recording causes, trailing
+domains and controlling search. Paired runs preserve nodes, failures, revisions,
+solutions, residual counters and ordered domain-reduction hashes.
+
+Five paired shuffled whole-solve repetitions give:
+
+| Size | Python CP | CP + C SUM | Reduction | Residual hybrid | Hybrid + C SUM | Reduction |
+|---|---:|---:|---:|---:|---:|---:|
+| 8×8 | 0.0848 s | 0.0629 s | 25.9% | 0.0401 s | 0.0319 s | 20.6% |
+| 9×9 | 1.5667 s | 1.0183 s | 35.0% | 0.6298 s | 0.5557 s | 11.8% |
+| 11×11 | 0.3038 s | 0.2156 s | 29.0% | 0.2076 s | 0.1320 s | 36.4% |
+| 13×13 | 1.5309 s | 1.0460 s | 31.7% | 0.7746 s | 0.5097 s | 34.2% |
+| 14×14 | 0.7304 s | 0.2887 s | 60.5% | 0.7381 s | 0.3035 s | 58.9% |
+| 16×16 | 4.3182 s | 2.7855 s | 35.5% | 2.6664 s | 1.5464 s | 42.0% |
+
+Times include model/state setup, lazy native-workspace creation, mask encoding/
+decoding, propagation, residual work and fallback. Imports, library compilation/
+loading, validation and reduction auditing are excluded. Audited passes are
+separate from timing. Comparisons within each strategy use identical search;
+CP and the residual hybrid still have different search trees as described below.
+
+The first 30 nodes of 20×20 are slower with C SUM: 0.370 → 0.420 s for ordinary
+CP (13.5% slower), mainly from setup. A separate three-pair, 1,000-node prefix
+amortizes setup: ordinary CP takes 8.098 → 2.027 s (75.0% less time); hybrid
+takes 8.051 → 2.047 s (74.6%). Prefix counters and reduction hashes match.
+Neither prefix finds a solution. A subsequent 30-second hybrid+C-SUM attempt
+reaches 34,530 nodes without a solution and never drops below 55 unfixed
+variables; residual enumeration does not activate. This does not prove
+infeasibility of 20×20.
+
+Unlike residual enumeration, C SUM can run at **any search depth**. It supports
+equality scopes of 3–64 variables, alphabets up to 4,096 candidates, and a total
+original contribution span up to 16,384, subject to the existing Python plan
+limits. Python normalizes contributions before conversion, preserving large
+signed integers and translations when their span fits. Unsupported cases and
+inequalities keep the Python implementation. One/two-variable constraint scopes
+retain their existing Python fast paths. Native immutable tables and scratch
+buffers are prepared once per numeric plan; the C support call allocates no
+heap memory. The generic library uses the existing persistent compiler cache
+under `generated/neural_attention/sum_kernel_cache/`.
+
+The [report and frozen evidence](history/magic_sum_kernel_2026-10-14/report.json)
+retain 264 audit/timing passes, the interrupted 20×20 attempt and all sources.
+Its [read-only validator](history/magic_sum_kernel_2026-10-14/validate.py.txt)
+checks 212 complete squares, 244,124 Python/C audited support calls, reduction
+hashes, schedules, counters and medians. Fourteen SUM tests cover exhaustive
+signed/holey support oracles, large translations, span and word boundaries,
+certificates, fallback, causes, rollback and fixpoint caches. All 37 SUM/residual
+tests pass; a standalone ASan/UBSan exhaustive driver passes 10,006 cases.
+
+This remains a source-checkout experiment, with no change to public solver
+defaults or installed-package dependencies. Use a local C11 compiler and fresh
+output paths:
+
+```sh
+PYTHONHASHSEED=0 PYTHONPATH=src:. .venv/bin/python -m experiments.neural_attention.magic_sum_kernel timing \
+  --repeats 5 --output generated/neural_attention/sum_native_NEW
+PYTHONHASHSEED=0 PYTHONPATH=src:. .venv/bin/python -m experiments.neural_attention.magic_sum_kernel audit \
+  --output generated/neural_attention/sum_native_audit_NEW
+PYTHONHASHSEED=0 PYTHONPATH=src:. .venv/bin/python -m experiments.neural_attention.magic_sum_kernel timing \
+  --sizes 20 --large-nodes 1000 --repeats 3 \
+  --output generated/neural_attention/sum_native_20_NEW
+python -m pytest experiments/neural_attention/test_sum_kernel.py
+python benchmarks/history/magic_sum_kernel_2026-10-14/validate.py.txt
+```
+
+The experiment is enabled explicitly with `sum_kernel.enable(state.native, kernel)`
+before the state's first propagation. `kernel` is the `SumKernel` instance
+returned by `SumKernel.build(output_path)`; imports live under
+`experiments.neural_attention`. The benchmark runner provides the complete
+CP/residual comparisons and records compilation/cache metadata.
+
+### Fresh solver profiles — 14 October 2026
+
+Profiles regenerated at `8245d27` cover the current Python solver and mode-4
+residual hybrid on 8, 9, 11, 13, 14 and 16 to completion, plus a 30-node
+20×20 prefix. Three uninstrumented search runs per case establish timing;
+wall attribution and cProfile use separate runs. All five passes preserve
+nodes, failures, revisions, solutions, termination and residual counters.
+Search timings exclude model/state setup, compilation and result validation.
+Instrumented percentages below are search attribution, not whole-query gains.
+
+| Hybrid workload | SUM revision | ALLDIFF revision | Residual call |
+|---|---:|---:|---:|
+| 9×9 | 18.2% | 8.2% | 59.4% |
+| 13×13 | 43.0% | 22.2% | 14.6% |
+| 14×14 | 76.5% | 11.4% | 0.5% |
+| 16×16 | 52.0% | 23.2% | 5.1% |
+
+These profiles prioritized **SUM equality-support computation first, then
+ALLDIFF**, leading to the opt-in SUM experiment above. This revised the earlier
+ALLDIFF-first suggestion:
+the hybrid removes much of the work that previously favored that ordering.
+In ordinary 16×16 CP, SUM and ALLDIFF still take 47.2% and 42.8% respectively.
+cProfile points to `NumericPlan._equality_supports` and its candidate,
+reachability and backward-support loops. Python bigint operations already run
+natively, so the benefit of moving surrounding loops must be measured.
+
+The first kernel boundary should accept compiled integer contributions and
+current masks, and return supported masks or failure. Python should retain
+domain updates, causes, rollback and search control. Exact support equivalence,
+signed arithmetic, holes, fixed variables, representation limits and Python
+fallback must be verified before claiming a speedup. These profiles implement
+no new SUM or ALLDIFF kernel.
+
+On hybrid 16×16, residual extraction/encoding take 6.7%/1.5%, while state
+operations take 3.7%; those are lower priorities than SUM. On 9×9, much of the
+remaining time is already in the residual call, so Python propagator kernels
+have a smaller ceiling. The residual-call category includes ctypes and result
+decoding. The short 20×20 prefix is dominated by lazy plan construction;
+its propagation-other category should not be read as steady-state queue cost.
+It establishes no complete 20×20 solution.
+
+The [profile report](history/magic_native_profile_2026-10-14/report.json)
+retains 70 primary passes, ten smoke-check passes, wall attribution, raw
+cProfile files, text reports and frozen sources. Its
+[read-only validator](history/magic_native_profile_2026-10-14/validate.py.txt)
+checks source hashes, schedules, search equivalence, squares and attribution.
+cProfile absolute times and the single-pass instrumented percentages are
+diagnostic; current whole-solve benchmark medians remain below.
+
+```sh
+PYTHONHASHSEED=0 PYTHONPATH=src:. .venv/bin/python -m experiments.neural_attention.magic_residual_profile \
+  --sizes 8 9 11 13 14 16 20 --repeats 3 \
+  --output generated/neural_attention/magic_profile_NEW
+python benchmarks/history/magic_native_profile_2026-10-14/validate.py.txt
+```
+
 ### Reusable residual kernels — 14 October 2026 (experimental)
 
 The residual prototype now offers arithmetic candidate filtering and bitset

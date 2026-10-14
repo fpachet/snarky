@@ -1,0 +1,31 @@
+import json,sys
+from pathlib import Path
+from time import perf_counter
+from benchmarks.alice_magic import validate
+from snarky.finite.model import Query
+from snarky.finite.search import search
+from experiments.neural_attention.magic_residual_enumeration import Kernel
+from experiments.neural_attention.magic_residual_evaluation import HybridState
+from experiments.neural_attention.magic_residual_study import freeze,settings
+from experiments.neural_attention.magic_search_tuning import prepare
+from experiments.neural_attention.sum_kernel import SumKernel,enable
+out=Path('generated/neural_attention/magic20_sum_attempt_20261014')
+freeze(out,dict(size=20,limit=30,remaining=20,mode=4,work_limit=200000,scope='First-solution attempt; no hints or constructed square; cached generic libraries; query limit excludes setup.'),extra_files=[Path(__file__),Path('experiments/neural_attention/sum_kernel.py'),Path('experiments/neural_attention/sum_support.c')])
+r,rc=Kernel.build(out/'residual.so'); s,sc=SumKernel.build(out/'sum.so')
+(out/'compile.json').write_text(json.dumps(dict(residual=rc,sums=sc),indent=2)+'\n')
+spec=settings(20);start=perf_counter();original,model=prepare(20,spec['order'],spec['tie'],spec['symmetry'],seed=spec.get('seed',0))
+state=HybridState(model,spec['order'],r,20,4,200000);enable(state.native,s)
+setup=perf_counter()-start
+milestones=[];best=[400];last=[0.0];started=perf_counter()
+def progress(event):
+ best[0]=min(best[0],state.native.domains._unfixed_count)
+ now=perf_counter()-started
+ if now-last[0]>=1:
+  row=dict(seconds=now,nodes=event.explored_nodes,depth=event.depth,min_unfixed=best[0])
+  milestones.append(row);last[0]=now;print(json.dumps(row),flush=True)
+result=search(state,Query(time_limit_seconds=30),policy=spec['policy'],on_progress=progress)
+seconds=perf_counter()-started
+squares=[validate(20,a.assignment,original) for a in result.solutions]
+assert state.native.domains.snapshot()==model.domains
+row=dict(size=20,settings=spec,setup_seconds=setup,search_seconds=seconds,nodes=result.explored_nodes,failures=result.failed_branches,revisions=result.constraint_revisions,termination=result.termination.value,squares=squares,min_unfixed=best[0],sum_stats=dict(state.native._numeric.stats),residual_stats=dict(state.stats),milestones=milestones,restored=True)
+(out/'result.json').write_text(json.dumps(row,indent=2)+'\n');print(json.dumps({k:v for k,v in row.items() if k not in ['squares','milestones']}),flush=True)

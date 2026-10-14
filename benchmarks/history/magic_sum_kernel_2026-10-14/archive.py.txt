@@ -1,0 +1,62 @@
+import hashlib,json,shutil
+from pathlib import Path
+root=Path('benchmarks/history/magic_sum_kernel_2026-10-14')
+root.mkdir(parents=True,exist_ok=False)
+stages={
+ 'audit_pilot':'magic_sum_kernel_audit_pilot_fixed_20261014',
+ 'audit':'magic_sum_kernel_audit_20261014',
+ 'pilot':'magic_sum_kernel_pilot_20261014',
+ 'confirmation':'magic_sum_kernel_confirmation_20261014',
+ 'large_audit':'magic_sum_kernel_large_audit_20261014',
+ 'large':'magic_sum_kernel_large_20261014',
+}
+for name,directory in stages.items():
+ shutil.copytree(Path('generated/neural_attention')/directory,root/name,ignore=shutil.ignore_patterns('*.so','*.dll','*.dylib','__pycache__'))
+ shutil.copyfile(Path('/tmp')/(directory+'.log'),root/(name+'.log'))
+shutil.copytree('generated/neural_attention/magic20_sum_attempt_20261014',root/'attempt20',ignore=shutil.ignore_patterns('*.so','*.dll','*.dylib','__pycache__'))
+shutil.copyfile('/tmp/magic20_sum_attempt_20261014.log',root/'attempt20.log')
+shutil.copyfile('/tmp/try_magic20_sum_20261014.py',root/'try20.py.txt')
+for name in ['sum_support.c','sum_kernel.py','sum_kernel_sanitize.c','test_sum_kernel.py','magic_sum_kernel.py']:
+ shutil.copyfile(Path('experiments/neural_attention')/name,root/(name+'.txt'))
+shutil.copyfile('experiments/neural_attention/magic_sum_kernel_validate.py',root/'validate.py.txt')
+shutil.copyfile('/tmp/sum_kernel_final_tests_20261014.log',root/'tests.log')
+shutil.copyfile('/tmp/sum_kernel_final_sanitize_20261014.log',root/'sanitize.log')
+shutil.copyfile(__file__,root/'archive.py.txt')
+rows=[json.loads(line) for stage in stages for line in (root/stage/'runs.jsonl').read_text().splitlines()]
+confirmation=json.loads((root/'confirmation/summary.json').read_text())
+large=json.loads((root/'large/summary.json').read_text())
+attempt=json.loads((root/'attempt20/result.json').read_text())
+report=dict(date='2026-10-14',stages=list(stages),runs=len(rows),validated_squares=sum(len(r['squares']) for r in rows),
+ decision='Keep exact SUM support kernel as an opt-in experiment. Substantial identical-search gains justify further native work; production defaults unchanged.',
+ confirmation=confirmation,large_prefix=large,
+ attempt20={k:attempt[k] for k in ['nodes','failures','revisions','termination','search_seconds','min_unfixed','sum_stats','residual_stats']},
+ implementation=[
+ 'Exact equality support masks for SUM and LINEAR_SUM; intervals, dense-hole certificate, fixed/one/two active terms, reflected forward/backward DP.',
+ 'C11 shared library called with ctypes and cached across invocations. One scratch workspace per numeric plan; no allocations in the C support computation.',
+ 'Immutable integer contributions normalized in arbitrary-precision Python before C conversion. Large translations/coefficients are safe if the normalized spans fit.',
+ 'C limits:3-64 columns in adapter,4096 candidates per column,total original span<=16384,plus original Python plan eligibility limits. One/two-column constraints remain Python.',
+ 'Unsupported plans/calls retain Python support computation; domain retention, causes, checkpoints, rollback, search and policy remain Python.',
+ 'Native support computation runs at all search depths when explicitly enabled, independently of the <=20-variable residual switch.',
+ ],
+ timing='Five paired shuffled repetitions per size/strategy in confirmation. Whole timing includes model/state construction, lazy C workspace preparation, mask encoding/decoding, propagation, residual work and fallback. Imports, library compilation/loading, validation and reduction auditing excluded. Audits are separate and not performance claims.',
+ equivalence='Within each strategy, Python and C preserve nodes,failures,revisions,termination,solutions,residual counters and all audited ordered reduction hashes. C support outputs compared to Python on every audited call.',
+ safety=['14 SUM tests plus23 residual tests pass: exhaustive support oracles with signed,holey,large-translation data; max spans/word edges; certificates and DP; fixpoint cache; fallback; causes and rollback.',
+ 'ASan/UBSan standalone randomized exhaustive oracle passes10006 checks including large candidate masks and maximum span.',
+ 'C -Wall -Wextra -Werror syntax checks pass.'],
+ limitations=[
+ 'Opt-in source-checkout experiment; no production module/default/wheel change. Current solve benchmarking covers pure feasibility.',
+ 'A30-node20 prefix is slower from lazy numeric-plan/native-workspace setup; a1000-node prefix is about4x faster. These prefixes do not establish complete20 solving.',
+ 'The30-second20 attempt still has no solution, reaching34530 nodes and never below55 unfixed variables. Residual enumeration does not activate.',
+ 'Masks still cross the Python/C boundary per uncached support computation. Matching, scheduler, trail and unsupported constraints remain Python.',
+ 'Kernel returns the existing SUM supports, not stronger joint SUM+ALLDIFF deductions.',
+ ],
+ provenance=['All stages preserve frozen sources and exact schedules. Initial reduction recorder used a nonexistent Atom.value attribute and aborted before recording runs; corrected str(cause) recorder used by retained audits.',
+ 'An ASan compile/run may overlap the first audit pilot; audit timings are not benchmark evidence. Pilot and confirmation timing batches ran sequentially without tests/compilation.'],
+ reproduce=dict(timing='PYTHONHASHSEED=0 PYTHONPATH=src:. python -m experiments.neural_attention.magic_sum_kernel timing --repeats 5 --output generated/neural_attention/sum_native_NEW',
+ audit='PYTHONHASHSEED=0 PYTHONPATH=src:. python -m experiments.neural_attention.magic_sum_kernel audit --output generated/neural_attention/sum_native_audit_NEW',
+ large='PYTHONHASHSEED=0 PYTHONPATH=src:. python -m experiments.neural_attention.magic_sum_kernel timing --sizes 20 --large-nodes 1000 --repeats 3 --output generated/neural_attention/sum_native_20_NEW',
+ sanitizer='cc -std=c11 -Wall -Wextra -Werror -O1 -g -fsanitize=address,undefined experiments/neural_attention/sum_kernel_sanitize.c -o /tmp/sum_sanitize && /tmp/sum_sanitize'))
+(root/'report.json').write_text(json.dumps(report,indent=2)+'\n')
+manifest={str(p.relative_to(root)):hashlib.sha256(p.read_bytes()).hexdigest() for p in sorted(root.rglob('*')) if p.is_file()}
+(root/'manifest.json').write_text(json.dumps(manifest,indent=2)+'\n')
+print('Archived',len(manifest),'files;',len(rows),'runs')
