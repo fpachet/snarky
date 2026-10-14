@@ -1,0 +1,88 @@
+{
+  "date": "2026-10-14",
+  "commit": "8e9b9e4eec83c94ddfcd8c68fe83498723d8729d",
+  "experiment": "20x20, five-minute first-solution attempt with C SUM and C ALLDIFF",
+  "nodes": 498126,
+  "search_seconds": 300.0313148749992,
+  "nodes_per_second": 1660.2466986072175,
+  "termination": "time_limit",
+  "solved": false,
+  "checkpoints": [
+    {
+      "event": "node",
+      "seconds": 30.003201874904335,
+      "nodes": 48941,
+      "failures": 40031,
+      "revisions": 877134,
+      "depth": 317,
+      "max_depth": 320,
+      "min_unfixed_before_propagation": 55,
+      "average_nodes_per_second": 1631.1925708481087,
+      "interval_nodes_per_second": 1717.324280416772
+    },
+    {
+      "event": "node",
+      "seconds": 60.00496591697447,
+      "nodes": 100097,
+      "failures": 82170,
+      "revisions": 1788934,
+      "depth": 318,
+      "max_depth": 320,
+      "min_unfixed_before_propagation": 55,
+      "average_nodes_per_second": 1668.1452688182283,
+      "interval_nodes_per_second": 1681.957530542679
+    },
+    {
+      "event": "node",
+      "seconds": 120.00879666698165,
+      "nodes": 200711,
+      "failures": 165718,
+      "revisions": 3566079,
+      "depth": 318,
+      "max_depth": 320,
+      "min_unfixed_before_propagation": 55,
+      "average_nodes_per_second": 1672.4690653882888,
+      "interval_nodes_per_second": 1719.139400335011
+    },
+    {
+      "event": "node",
+      "seconds": 180.01624787505716,
+      "nodes": 299818,
+      "failures": 248413,
+      "revisions": 5321686,
+      "depth": 318,
+      "max_depth": 320,
+      "min_unfixed_before_propagation": 55,
+      "average_nodes_per_second": 1665.5052171073633,
+      "interval_nodes_per_second": 1703.531475390668
+    },
+    {
+      "event": "node",
+      "seconds": 240.02106699999422,
+      "nodes": 398882,
+      "failures": 330968,
+      "revisions": 7073589,
+      "depth": 319,
+      "max_depth": 320,
+      "min_unfixed_before_propagation": 55,
+      "average_nodes_per_second": 1661.8624564318332,
+      "interval_nodes_per_second": 1684.9490161537658
+    },
+    {
+      "event": "finished",
+      "seconds": 300.0313315829262,
+      "nodes": 498126,
+      "failures": 413432,
+      "revisions": 8825860,
+      "depth": 319,
+      "max_depth": 320,
+      "min_unfixed_before_propagation": 55,
+      "average_nodes_per_second": 1660.2466061526045,
+      "interval_nodes_per_second": 1644.04967903121
+    }
+  ],
+  "meaning": "Entered DFS nodes, including a potentially unfinished final node; not C enumeration visits. A time limit without a solution establishes neither infeasibility nor an estimated remaining runtime.",
+  "timing": "One sequential run with five-second progress sampling. Query wall time includes lazy workspace creation, propagation, search, progress callbacks and final rollback. Model/state setup, library compilation/loading, result validation and final output are excluded.",
+  "residual": "The residual enumerator did not activate. Minimum observed number of unfixed variables immediately before propagation was 55; the trigger threshold was 20. This observation is not a lower bound on every transient propagation state.",
+  "source_notes": "All runtime sources were frozen and checked unchanged at the end of the run. The live runner subsequently wraps two metadata string literals for lint; frozen sources preserve the actual executed bytes."
+}

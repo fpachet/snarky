@@ -1,0 +1,19 @@
+{
+  "scope": "Opt-in native finite-search experiments on blank normal magic squares; exploratory settings, not an optimality or general-performance claim.",
+  "known_size_overrides": {
+    "20": {
+      "policy": "dom_wdeg",
+      "order": "random",
+      "tie": "row_major",
+      "symmetry": false,
+      "seed": 1,
+      "sum_mode": "budget",
+      "exact_work_budget": 20000,
+      "delta_alldiff": true,
+      "shared_domains": true
+    }
+  },
+  "value_order": "Each variable's original alphabet is independently shuffled once by Python's Random(seed), before search; this differs from Gecode's per-choice indomain_random.",
+  "evidence": "benchmarks/history/magic_native_variants_2026-10-14/confirmation/replays20.jsonl",
+  "legacy_presets": "magic_best_parameters.json remains unchanged for historical-prefix comparisons."
+}

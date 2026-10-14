@@ -14,7 +14,7 @@ own dated protocols and promotion decisions.
 | [Sudoku](../sudoku/README.md) | Explainable reference techniques plus optional search | Reference puzzles and explanation replay |
 | [Harmonizer](../harmonizer/README.md) | C-major SATB prototype with documented limits | Conformance checks and expensive integration examples |
 | [Probabilistic extension](probabilistic_constraint_learning_spec.md) | Generic finite inference and optional regular-BP adapter implemented in `snarky.finite`; learning remains research | Partition/marginal/conditional-mass agreement and explicit arithmetic/capabilities; separate from frozen CHOICE semantics |
-| [Native kernel experiments](../benchmarks/README.md#magic-squares) | Opt-in checkout-only C kernels for exact SUM/ALLDIFF supports and bounded residual feasibility; no change to solver defaults or installed dependencies | Exhaustive support and rollback oracles, sanitizer checks, equivalent searches/reductions, cache invalidation and validated benchmark archives |
+| [Native kernel experiments](../benchmarks/README.md#magic-squares) | Opt-in checkout-only C kernels for exact SUM/ALLDIFF supports, batched/generated model propagation, native finite DFS and bounded residual feasibility; no change to solver defaults or installed dependencies | Exhaustive support, enumeration and rollback oracles, sanitizer checks, matched Python/C search and generic/generated execution, cache invalidation and validated benchmark archives |
 
 ## Bach side project
 

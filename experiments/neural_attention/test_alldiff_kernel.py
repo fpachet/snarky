@@ -11,7 +11,7 @@ import pytest
 from snarky import Atom, Number
 from snarky.finite.alldifferent import AllDifferentPlan, MaskColumn
 from snarky.finite.constraints import AllDifferentConstraint
-from snarky.finite.model import FiniteModel, FiniteVariable, Query
+from snarky.finite.model import FiniteModel, FiniteVariable, Query, QueryKind
 from snarky.finite.propagation import NativeState
 from snarky.finite.search import search
 
@@ -138,9 +138,12 @@ def test_symbolic_values_propagation_causes_rollback_and_complete_search(kernel)
             assert (
                 python.domains.snapshot() == native.domains.snapshot() == model.domains
             )
-        a = search(NativeState(model), Query(max_solutions=None))
+        a = search(
+            NativeState(model), Query(kind=QueryKind.ENUMERATE, max_solutions=None)
+        )
         b = search(
-            enable(NativeState(model), kernel, audit=True), Query(max_solutions=None)
+            enable(NativeState(model), kernel, audit=True),
+            Query(kind=QueryKind.ENUMERATE, max_solutions=None),
         )
         assert replace(a, elapsed_seconds=0) == replace(b, elapsed_seconds=0)
     with pytest.raises(ValueError, match="before propagation"):

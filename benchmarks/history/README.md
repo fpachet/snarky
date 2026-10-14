@@ -16,6 +16,33 @@ to match every historical version.
 ## Magic-square experiment history
 
 **Current overview:** [Magic squares](../README.md#magic-squares).
+**Latest Python experiment:** [Compiler-free adaptive SUM policy](python_sum_policy_2026-10-14/report.json).
+Five-run whole medians improve 20×20 from 10.391 to 6.315 s and 16×16 from
+4.278 to 3.952 s. Small-span gating leaves 8×8/9×9 essentially unchanged.
+The selected comparisons preserve search counters, witnesses and audited
+reduction sequences. Installed defaults remain exact; the helper is opt-in.
+
+**Latest 20×20 result: solved.** The
+[incremental native experiment](magic_native_variants_2026-10-14/report.json)
+confirms a 3,365-node solution with dom/wdeg and static random candidate ordering,
+seed 1. The budgeted SUM/delta ALLDIFF/shared-domain variant takes 0.613 s whole
+time / 0.320 s search as five-run medians. The earlier C engine also solves
+with this ordering (1.232 s whole / 0.953 s search), so the ordering discovery
+and kernel gains are distinct. The archive retains all 30 solved 20×20 replays
+and the [validated square](magic_native_variants_2026-10-14/magic20.txt).
+
+**Preceding 20×20 attempt:** [Native finite DFS, one minute](magic_native_search_2026-10-14/attempt20.json).
+The native MRV/middle/row-major search enters 443,350 nodes in 60.002 s
+(7,389 nodes/s), without a solution. This is an unknown result, not infeasibility.
+
+The preceding [Python-controlled kernels, five minutes](magic20_native_300s_2026-10-14/report.json)
+use a different propagation queue and observation window.
+The recorded MRV/middle/row-major preset enters 498,126 nodes in 300.03 s
+(1,660 nodes/s), without a solution. Residual enumeration never activates.
+The archive retains frozen sources, five-second progress samples, native
+counters and a read-only validator; no feasibility conclusion follows from
+the timeout.
+
 **Latest profiling:** [Remaining costs after C SUM](magic_post_sum_profile_2026-10-14/report.json).
 With C SUM enabled at `9516ccc`, ALLDIFF takes 66% of ordinary 16×16 search
 and 41% of the hybrid. Residual preparation takes 14% of hybrid search. The
@@ -25,7 +52,35 @@ and records different native bottlenecks on 9×9 and a 20×20 prefix.
 The [pre-SUM profiles](magic_native_profile_2026-10-14/report.json) prioritized
 the implemented SUM kernel; they remain frozen evidence for that decision.
 
-**Latest experiment:** [Full native ALLDIFF supports](magic_alldiff_kernel_2026-10-14/report.json).
+**Latest experiment:** [Incremental native propagation and 20×20 discovery](magic_native_variants_2026-10-14/report.json).
+Bounds-only and narrow staged SUM policies regress on completed smaller squares.
+The work-budget policy improves the selected 20×20 solve while retaining its
+recorded search work. ALLDIFF graph updates are incremental; connectivity remains
+a full check. Shared C domains remove whole-store handoffs. Policies remain
+opt-in; no installed defaults change. The archive validator checks both stages,
+270 passes and 165 independently validated squares.
+
+The preceding [native finite search](magic_native_search_2026-10-14/report.json)
+experiment isolated the remaining Python search overhead.
+Moving branching, selection, word trails and rollback into C improves whole-run
+time 1.73–3.99× over Python-controlled native batches. Forty runs in twenty pairs
+preserve nodes, failures, revisions, supports, reductions, cache hits, work
+digests and witnesses, including dom/wdeg. The C engine supports the explicit
+SUM/linear/ALLDIFF feasibility subset and remains opt-in. C was chosen for reuse
+of existing kernels; this is not a C-versus-Rust benchmark.
+
+The preceding [native batching and model-specific compilation](magic_model_compilation_2026-10-14/report.json)
+experiment established the batched propagation engine.
+Moving the propagation loop and shared domains into a native episode cuts
+whole-run CP time by 35–56% on completed sizes and about 27% on the 5,000-node
+20×20 prefix. Additional generated specialization gives small/mixed warm
+gains and does not amortize compilation on the short solves. The archive
+retains 640 audited episodes, 208 audit/timing passes, 114 squares and generated
+sources. The [overview](../README.md#magic-squares) separates native batching
+from specialization, records changed 16×16 dom/wdeg work, and gives commands.
+
+The preceding [full native ALLDIFF supports](magic_alldiff_kernel_2026-10-14/report.json)
+established the exact ALLDIFF C kernel.
 With C SUM already enabled, the final five-pair 16×16 confirmation reduces
 whole-solve time 46.6% for ordinary CP and 25.9% for the residual hybrid.
 The broad batch improves all six completed sizes; hybrid and 14×14 gains are
@@ -122,6 +177,10 @@ that must be selected explicitly, not a default native-solver feature.
 | [SUM boundary processing](magic_sum_boundaries_2026-10-13/summary.json) | Avoid redundant prefix/backward work while preserving exact supports; modest additional per-node gain | Enabled |
 | [ALLDIFF identity layouts](magic_identity_layout_2026-10-14/summary.json) | Skip input-mask translation for aligned layouts; small gain on eligible magic-square presets | Enabled |
 | [ALLDIFF matching repair](magic_matching_repairs_2026-10-14/summary.json) | Sort only unmatched rows while preserving repair order and the intact-matching fast path | Enabled |
+| [Native model batching and generation](magic_model_compilation_2026-10-14/report.json) | Batched fixpoints give substantial gains; current specialization adds little and cold compilation does not amortize | Opt-in experiment; no generated search or during-search JIT |
+| [Native finite DFS](magic_native_search_2026-10-14/report.json) | Matched native search improves whole time 1.73–3.99× over Python-controlled native batching; 20×20 remains unknown at 60 s, averaging 7,389 nodes/s | Opt-in SUM/linear/ALLDIFF feasibility backend; no installed default changes |
+| [Incremental native propagation](magic_native_variants_2026-10-14/report.json) | New search ordering solves 20×20 in 3,365 nodes; budgeted SUM with delta ALLDIFF and shared domains reduces whole time 1.232 → 0.613 s at that ordering | Opt-in native policy; smaller cases can regress; native settings saved separately |
+| [Compiler-free Python SUM policy](python_sum_policy_2026-10-14/report.json) | Selected bounds/exact policy improves fully Python 20×20 10.391 → 6.315 s and 16×16 4.278 → 3.952 s with identical audited reductions | Opt-in Python helper; small-span sums stay exact; no compiler required |
 | [Full native ALLDIFF supports](magic_alldiff_kernel_2026-10-14/report.json) | Whole support pipeline in C; final 16×16 confirmation improves 46.6% CP / 25.9% hybrid on top of C SUM, with identical filtering/search | Opt-in exact propagator experiment |
 | [Post-SUM CP/hybrid profiles](magic_post_sum_profile_2026-10-14/report.json) | Full ALLDIFF support pipeline is the next broad Python bottleneck; residual and native costs vary by workload | Diagnostic profiles with C SUM enabled |
 | [Exact native SUM supports](magic_sum_kernel_2026-10-14/report.json) | Identical-search gains on all six completed sizes; larger 20×20 prefix improves, but no solution within 30 seconds | Opt-in exact propagator experiment |

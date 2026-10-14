@@ -79,9 +79,14 @@ The [results archive](../benchmarks/history/README.md) indexes prior experiments
 including which magic-square ideas were enabled, left opt-in or rejected.
 
 The [native kernel experiments](../benchmarks/README.md#magic-squares) cover exact
-SUM/ALLDIFF support computation and residual enumeration. They remain opt-in, outside
+SUM/ALLDIFF supports, batched model propagation, model-specific code generation,
+native finite search and residual enumeration. They remain opt-in, outside
 the production solver. Their setup, commands, supported scopes and cache
 behavior are described in that same benchmark guide.
+The latest native experiment validates a 20×20 magic square and separates
+the search-order discovery from incremental SUM/ALLDIFF and shared-domain gains.
+A separate compiler-free Python SUM policy reduces the measured 20×20 solve
+from 10.39 to 6.31 s while preserving its audited search reductions; it remains opt-in.
 
 <details>
 <summary>Dated performance and implementation reports</summary>

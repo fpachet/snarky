@@ -68,10 +68,15 @@ The required runtime is Python 3.12 or newer. PyYAML is the only mandatory
 third-party dependency.
 
 [Opt-in native experiments](benchmarks/README.md#magic-squares) use cached C
-shared libraries for exact SUM and ALLDIFF filtering and small residual searches. They run
-from the source checkout and require a local C compiler; they are not enabled
+shared libraries for exact SUM/ALLDIFF filtering, batched model propagation,
+model-specialized code generation, a native finite DFS engine with incremental
+SUM/ALLDIFF experiments and shared domains, and small residual
+searches. They run from the source checkout and require a local C compiler;
+they are not enabled
 by `snarky.finite.solve` or included in the installed package. Their measured
 gains, supported scopes and exceptions are recorded in the benchmark guide.
+An [opt-in pure Python SUM policy](benchmarks/README.md#magic-squares) also runs
+without a compiler, using bounds filtering and selectively retained exact supports.
 
 ## Install from source
 
@@ -117,6 +122,10 @@ Choose the test scope explicitly:
 | Native residual experiment (requires `cc`) | `pytest experiments/neural_attention/test_magic_residual_enumeration.py` |
 | Native SUM experiment (requires `cc`) | `pytest experiments/neural_attention/test_sum_kernel.py` |
 | Native ALLDIFF experiment (requires `cc`) | `pytest experiments/neural_attention/test_alldiff_kernel.py` |
+| Native model compilation experiment (requires `cc`) | `pytest experiments/neural_attention/test_model_batch.py` |
+| Native finite search experiment (requires `cc`) | `pytest experiments/neural_attention/test_native_search.py` |
+| Native propagation variants (requires `cc`) | `pytest experiments/neural_attention/test_native_variants.py` |
+| Python SUM policy (no compiler) | `pytest experiments/neural_attention/test_python_sum_policy.py` |
 
 Research tests additionally require `python -m pip install -e ".[dev,research]"`.
 They run separately in CI. For a locked environment, use

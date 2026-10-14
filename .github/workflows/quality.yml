@@ -101,13 +101,32 @@ jobs:
           tests/test_official_manual_rulebase.py --durations=10
       - name: Test opt-in native kernel experiments
         run: |
-          pytest experiments/neural_attention/test_magic_residual_enumeration.py experiments/neural_attention/test_sum_kernel.py experiments/neural_attention/test_alldiff_kernel.py
+          pytest experiments/neural_attention/test_magic_residual_enumeration.py experiments/neural_attention/test_sum_kernel.py experiments/neural_attention/test_alldiff_kernel.py experiments/neural_attention/test_model_batch.py experiments/neural_attention/test_native_search.py experiments/neural_attention/test_native_variants.py
           python benchmarks/history/magic_residual_enumeration_2026-10-14/validate.py.txt
           python benchmarks/history/magic_residual_reuse_2026-10-14/validate.py.txt
           python benchmarks/history/magic_native_profile_2026-10-14/validate.py.txt
           python benchmarks/history/magic_sum_kernel_2026-10-14/validate.py.txt
           python benchmarks/history/magic_post_sum_profile_2026-10-14/validate.py.txt
           python benchmarks/history/magic_alldiff_kernel_2026-10-14/validate.py.txt
+          python benchmarks/history/magic20_native_300s_2026-10-14/validate.py.txt
+          python benchmarks/history/magic_model_compilation_2026-10-14/validate.py.txt
+          python benchmarks/history/magic_native_search_2026-10-14/validate.py.txt
+          python benchmarks/history/magic_native_variants_2026-10-14/validate.py.txt
+      - name: Test compiler-free Python SUM policy
+        run: |
+          pytest experiments/neural_attention/test_python_sum_policy.py
+          python benchmarks/history/python_sum_policy_2026-10-14/validate.py.txt
+      - name: Sanitize incremental native variants
+        run: |
+          for variant_mode in exact bounds staged budget; do
+            python -m experiments.neural_attention.native_variants_sanitize --mode "$variant_mode" --delta --shared --output "/tmp/native_${variant_mode}.c"
+            cc -std=c11 -Wall -Wextra -Werror -O1 -g -fsanitize=address,undefined "/tmp/native_${variant_mode}.c" -o "/tmp/native_${variant_mode}"
+            "/tmp/native_${variant_mode}"
+          done
+      - name: Sanitize native finite DFS
+        run: |
+          cc -std=c11 -Wall -Wextra -Werror -O1 -g -fsanitize=address,undefined experiments/neural_attention/native_search_sanitize.c -o /tmp/search_sanitize
+          /tmp/search_sanitize
       - name: Sanitize native SUM support computation
         run: |
           cc -std=c11 -Wall -Wextra -Werror -O1 -g -fsanitize=address,undefined experiments/neural_attention/sum_kernel_sanitize.c -o /tmp/sum_sanitize
@@ -116,3 +135,10 @@ jobs:
         run: |
           cc -std=c11 -Wall -Wextra -Werror -O1 -g -fsanitize=address,undefined experiments/neural_attention/alldiff_kernel_sanitize.c -o /tmp/alldiff_sanitize
           /tmp/alldiff_sanitize
+      - name: Sanitize generic and generated native fixpoints
+        run: |
+          cc -std=c11 -Wall -Wextra -Werror -O1 -g -fsanitize=address,undefined experiments/neural_attention/model_batch_sanitize.c -o /tmp/batch_sanitize
+          /tmp/batch_sanitize
+          python -m experiments.neural_attention.model_batch_sanitize --output /tmp/batch_special.c
+          cc -std=c11 -Wall -Wextra -Werror -O1 -g -fsanitize=address,undefined /tmp/batch_special.c -o /tmp/batch_special_sanitize
+          /tmp/batch_special_sanitize

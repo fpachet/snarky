@@ -16,6 +16,317 @@ comparison; an archived experiment's defaults apply to its recorded version.
 
 This is the stable entry point for the current magic-square benchmark summary.
 
+### Fully Python SUM policy — 14 October 2026 (opt-in experiment)
+
+The adaptive SUM policy is now available without C kernels or a compiler.
+Five shuffled repetitions compare the original Python solver with the selected
+Python policy, including model/state preparation and search:
+
+| Size | Original exact SUM | Selected Python policy | Result |
+|---|---:|---:|---|
+| 8×8 | 0.0842 s | 0.0846 s | Essentially unchanged |
+| 9×9 | 1.5704 s | 1.5771 s | Essentially unchanged |
+| 16×16 | 4.2777 s | 3.9517 s | 7.6% less time |
+| 20×20 | 10.3912 s | **6.3149 s** | **39.2% less time** |
+
+The 20×20 case uses dom/wdeg, row-major ties, no symmetry and static randomized
+candidate order, seed 1. Both Python variants visit 3,488 nodes with 2,596 failures.
+All timing repetitions preserve nodes, failures, revisions and witnesses; the
+separate audit also matches every ordered reduction's hash and event count.
+The C backend below visits 3,365 nodes because its propagation scheduler differs.
+
+The helper reuses Python's existing mask-tagged column extrema. It adds cached
+aggregate bounds, repeats local bounds filtering to a fixpoint, and invokes
+exact supports selectively. The selected policy keeps original exact plans for
+original contribution spans below 1,024; larger plans use a work threshold of
+2,000, estimated as live active candidates × (1 + reflected residual // 256).
+At most two unfixed columns go straight to the existing exact fast path.
+These thresholds were selected from the pilot, not copied from the C engine.
+Inequalities, small scopes, representation limits and reference fallbacks remain
+on their original paths; installed solver defaults are unchanged.
+
+The initial ungated policy regressed on 8×8/9×9, and bounds-only or overly
+aggressive thresholds failed to finish some cases. This remains a selectable
+experiment, not a general guarantee of faster search. Its weaker filtering can
+change the search on other models even though these selected runs match exactly.
+
+The initial fully Python profile attributes about 66% of search to SUM and 26%
+to ALLDIFF. Separate final attribution runs reduce SUM time 6.87 → 2.72 s;
+SUM and ALLDIFF each account for about 43% of the remaining search time.
+Profiler/audit runs and independent square validation are excluded from the
+timing table. Fifty-two tests pass, including 16 new policy tests with 400
+complete-assignment comparisons, warm widening/target/rollback checks, and wide
+integer fallback coverage. The
+[archive](history/python_sum_policy_2026-10-14/report.json) and
+[validator](history/python_sum_policy_2026-10-14/validate.py.txt) retain five stages,
+81 passes and 73 independently revalidated squares.
+
+Enable the helper before a state's first propagation:
+
+```python
+from snarky.finite.model import Query
+from snarky.finite.propagation import NativeState
+from snarky.finite.search import search
+from experiments.neural_attention.python_sum_policy import enable
+
+state = enable(NativeState(model), budget=2000, min_span=1024)
+result = search(state, Query(time_limit_seconds=60), policy="dom_wdeg")
+```
+
+```sh
+PYTHONHASHSEED=0 PYTHONPATH=src:. .venv/bin/python -m experiments.neural_attention.python_sum_policy_benchmark \
+  timing --variants exact selected --repeats 5 --seconds 60 --output generated/neural_attention/python_sum_NEW
+PYTHONPATH=src:. .venv/bin/python -m pytest experiments/neural_attention/test_python_sum_policy.py
+python benchmarks/history/python_sum_policy_2026-10-14/validate.py.txt
+```
+
+### 20×20 solved; incremental native propagation — 14 October 2026
+
+**The opt-in native backend now solves a blank normal 20×20 square in 0.613 s
+overall, or 0.320 s of search**, as five-run medians. Every replay explores
+3,365 nodes with 2,503 failures and returns the same independently validated
+[square](history/magic_native_variants_2026-10-14/magic20.txt).
+
+The decisive search change is dom/wdeg with row-major variable ties, no symmetry,
+and seed-1 randomized candidate order. Each variable's alphabet is shuffled once
+before search; this differs from Gecode's per-choice `indomain_random`.
+The earlier C engine and Python-controlled native batches also solve with this
+ordering. The new propagation work then reduces execution cost further:
+
+| 20×20, identical recorded search work | Search median | Model preparation + search |
+|---|---:|---:|
+| Python controller + native batches | 1.8953 s | 2.1955 s |
+| Earlier C search, exact SUM | 0.9530 s | 1.2323 s |
+| Delta ALLDIFF + shared C domains, exact SUM | 0.8544 s | 1.1488 s |
+| Same engine, budgeted SUM filtering | **0.3204 s** | **0.6131 s** |
+
+The final variant roughly halves whole time relative to the earlier C engine
+at this same ordering. All rows have identical nodes, failures, revisions,
+support calls, cache hits, reductions, work digest and witness. This observed
+equivalence of the budgeted policy is not guaranteed on other problems.
+Compilation/loading, warmups and independent validation are excluded. The
+library is generic across supported models and uses the persistent compiler
+cache; it is not compiled separately for each search state.
+
+Three opt-in changes are implemented:
+
+- SUM maintains contribution extrema and their aggregate bounds, using sorted
+  candidate ranks and reconciling actual masks after narrowing or rollback.
+  A budgeted policy invokes exact supports when at most two variables remain
+  active, or estimated bitset work is at most 20,000. This is a heuristic cost
+  estimate, not a timeout. Non-idempotent bounds passes revisit until fixpoint.
+- ALLDIFF reconciles canonical domain masks and residual graph/transpose arcs
+  from changes, including restored values. Matching is validated; reachability
+  and SCC are still fully recomputed. This is partial incrementalization.
+- Search and propagation share one authoritative C domain array. Branch and
+  propagation updates use the same word trail; sizes update incrementally.
+  Sparse rollback snapshots preserve the earlier initial propagation queue.
+
+**Cheaper filtering alone is not a general win.** Bounds-only fails to solve
+8×8, 9×9 or 16×16 within 50,000 nodes. A narrow staged policy also regresses.
+The budgeted combination improves measured 16×16 whole time 0.407 → 0.351 s,
+but regresses on 9×9, 0.065 → 0.073 s. Keep these policies selectable; installed
+solver defaults and legacy benchmark presets remain unchanged. The successful
+[native 20×20 settings](../experiments/neural_attention/native_best_parameters.json)
+are saved separately.
+
+The instrumented 20×20 solved case shows SUM falling from about 71% of earlier
+C search time to about 41% in the budgeted engine; ALLDIFF then takes about 41%.
+Profiles are separate from timing repetitions. Gecode's archived 1.617 s solve
+uses 461,563 nodes with different branching/filtering. This exploratory selected
+seed is not a held-out comparison or a universal solver ranking.
+
+The [archive](history/magic_native_variants_2026-10-14/report.json) retains pilot
+and confirmation sources, all ablations, profiles, compiler metadata and 30
+20×20 replays across six execution variants. Its
+[validator](history/magic_native_variants_2026-10-14/validate.py.txt) checks 270
+passes and 165 squares. Thirty native tests pass, including 600 mixed-policy
+oracle enumerations and warm widening/rollback checks; ASan/UBSan covers 32,768
+exhaustive domain/policy cases. The finite feasibility subset and POSIX/compiler
+requirements described below still apply.
+
+```sh
+PYTHONHASHSEED=0 PYTHONPATH=src:. .venv/bin/python -m experiments.neural_attention.magic_native_variants \
+  --repeats 5 --replays20 5 --attempt-seconds 5 --output generated/neural_attention/native_variants_NEW
+PYTHONPATH=src:. .venv/bin/python -m pytest experiments/neural_attention/test_native_variants.py
+python benchmarks/history/magic_native_variants_2026-10-14/validate.py.txt
+```
+
+### Native finite search — 14 October 2026 (experimental)
+
+The next prototype moves the entire finite DFS loop into C: variable selection
+(MRV or dom/wdeg), candidate enumeration, propagation, word-level reversible
+domain trails and rollback. Python builds the model and consumes solutions and
+statistics, with one native call per bounded search. The engine reuses the
+generic batch SUM/ALLDIFF propagators, queue and mask-validated caches. It still
+copies/scans the domain buffer internally per propagation episode; this is an
+experimental backend, not a fully tuned native solver.
+
+Five shuffled paired repetitions compare the Python search controller over
+native batching with the new C controller. Every pair has identical nodes,
+failures, revisions, support calls, cache hits, reductions, propagation-work
+digest and first witness. Both use the same compiled library. The 16×16
+dom/wdeg search is now matched too, with 2,540 nodes in both variants. Neither
+variant uses residual enumeration in this comparison.
+
+| Workload | Python search + native batching | Native search | Whole-run speedup |
+|---|---:|---:|---:|
+| 8×8, 161 nodes | 0.0266 s | 0.0143 s | 1.85× |
+| 9×9, 2,962 nodes | 0.2599 s | 0.0651 s | 3.99× |
+| 16×16, 2,540 nodes | 0.8526 s | 0.3964 s | 2.15× |
+| 20×20, first 5,000 nodes | 2.7283 s | 1.5743 s | 1.73× |
+
+These times include model construction, IR lowering, workspace creation,
+search and returning the witness; compilation/loading and independent square
+validation are excluded. Search alone has a larger benefit on the small
+completed cases; model preparation dominates the native 8×8 whole-run time.
+Cold compilation of the reusable generic library takes about 0.34 s, and its
+existing source/compiler/platform cache avoids rebuilding it for each model.
+The Python comparator also accumulates the propagation-work audit digest;
+the C comparator accumulates the same digest within the search loop.
+
+A fresh native 20×20 search using MRV, middle-first values, row-major ties and
+no symmetry reaches **443,350 nodes in 60.002 s (7,389 nodes/s)**, with 367,911
+failed branches and no solution. This is a time-limited unknown result. Its
+long-run throughput is higher than the first 5,000-node prefix because cost
+varies along the search. The previous five-minute Python-controlled C-kernel
+attempt averaged 1,660 nodes/s, but its propagation queue and observation
+window differ; use the paired table above to isolate the controller benefit.
+Gecode's archived 20×20 solve visits 461,563 nodes in about 1.617 s with different
+branching/filtering, so this prototype still leaves a substantial gap.
+
+The supported subset remains integer finite feasibility with SUM, linear
+equalities/inequalities and ALLDIFF within the existing kernel limits. Candidate
+order is the model's original alphabet order; dynamic value ranking, objectives,
+rules, guarded constraints, arbitrary Python predicates and residual hybrid
+search are unsupported. Calls can stop on node, time or solution limits and
+can enumerate solutions; calls start fresh rather than resume an interrupted
+search. A timeout/resource error is never an infeasibility certificate.
+Time budgets exclude model/workspace initialization and are checked between
+propagator calls; one filtering call can overrun the requested budget.
+The prototype requires a POSIX C11 compiler/monotonic clock (tested on macOS;
+Linux is included in the research CI), and remains checkout-only and opt-in.
+
+C was chosen to reuse the validated C propagators and compiler/cache workflow.
+This experiment does not compare languages or establish that C is faster than
+Rust. A Rust engine could reuse these kernels through their C ABI; Rust would
+offer stronger memory-safety guarantees for a larger backend.
+
+Validation includes 60 random signed linear/ALLDIFF enumeration comparisons
+against independent assignment oracles and Python search, multiword alphabets,
+cutoffs/workspace reuse, matched magic-square searches, and ASan/UBSan checks
+over 8,192 exhaustive domain/policy cases. The
+[archive](history/magic_native_search_2026-10-14/report.json) retains all 40
+timed runs, generated C, compiler metadata, frozen sources and a read-only
+[validator](history/magic_native_search_2026-10-14/validate.py.txt).
+
+```sh
+PYTHONHASHSEED=0 PYTHONPATH=src:. .venv/bin/python -m experiments.neural_attention.magic_native_search \
+  --repeats 5 --attempt-seconds 60 --output generated/neural_attention/native_search_NEW
+PYTHONPATH=src:. .venv/bin/python -m pytest experiments/neural_attention/test_native_search.py
+python benchmarks/history/magic_native_search_2026-10-14/validate.py.txt
+```
+
+### Problem-specific native propagation — 14 October 2026 (experimental)
+
+The first model-compilation experiment compares three execution paths:
+Python-controlled propagation using the existing C SUM/ALLDIFF kernels,
+a generic native fixpoint executor, and a model-specialized native executor.
+The two native executors share the same queue, domain storage, exact filtering,
+mask-tagged caches and reduction log. Generated code embeds constraint scopes,
+word-copy sizes, targets and adjacency dispatch; SUM clones have fixed column
+counts and immutable mask/contribution offsets. Contribution values, domain
+masks, matching and DP reachability remain runtime data. Search is not generated.
+
+Native batching is the substantial gain in this experiment. Additional
+specialization gives small, workload-dependent warm improvements, with no
+consistent large advantage at 20×20. Cold per-model compilation is too expensive
+for the short completed solves tested here. This is evidence about the current
+specializer, not a general result against partial evaluation.
+
+Five-pair shuffled whole-run medians, with compilation/loading excluded:
+
+| Workload | Python controller + C filters | Generic native batch | Generated native batch | Generated reduction vs generic |
+|---|---:|---:|---:|---:|
+| 8×8 CP | 0.0438 s | 0.0284 s | 0.0291 s | −2.5% |
+| 8×8 hybrid | 0.0254 s | 0.0216 s | 0.0225 s | −4.1% |
+| 9×9 CP | 0.6029 s | 0.2658 s | 0.2639 s | 0.7% |
+| 9×9 hybrid | 0.5091 s | 0.4783 s | 0.4825 s | −0.9% |
+| 16×16 CP | 1.5283 s | 0.9345 s | 0.9249 s | 1.0% |
+| 16×16 hybrid | 1.1599 s | 0.9731 s | 0.9761 s | −0.3% |
+| 20×20 CP, 5,000 nodes | 3.9763 s | 2.8884 s | 2.8481 s | 1.4% |
+| 20×20 hybrid, 5,000 nodes | 3.9618 s | 2.8989 s | 2.8576 s | 1.4% |
+
+Generic batching reduces measured CP time 35.2%, 55.9% and 38.9% on the
+three completed sizes, and about 27% on the 20×20 prefixes. Hybrid gains are
+15.0%, 6.1% and 16.1%, respectively. Whole timings include model building,
+IR lowering/validation, workspace creation, serialization, reduction-log
+return/application, causes, Python search/trail/rollback and residual work.
+Audits, independent validation and output are excluded.
+
+The generic/generated pair has identical search, native counters, witnesses
+and ordered reduction hashes. The Python controller uses a different queue
+order and revision count. On ordinary 16×16, dom/wdeg failure weights change
+slightly: native batching explores 2,540 nodes versus 2,536 for the controller.
+Its baseline comparison therefore includes a search change. Other recorded
+cases retain the same node/failure counts; specialization always compares
+identical native work. Neither 20×20 prefix finds a solution or activates
+residual enumeration. Prefix throughput should not be substituted for the
+separate five-minute attempt's average below.
+
+Cold generated compilation takes about 0.41, 0.42, 1.13 and 2.81 s for sizes
+8, 9, 16 and 20, respectively. This exceeds the measured warm savings of the
+completed solves and prefixes. A persistent source/compiler/platform cache
+reuses a generated library for the same model-coordinate IR; wrong-model
+libraries are rejected. Native binary sizes grow from approximately 51 KB
+generic to 68–150 KB generated. No during-search compilation is performed.
+
+A separate confirmation replays 96 captured states per size. Generic batching
+reduces preloaded propagation-only time 51–90% compared with Python-controlled
+C filters; generated execution adds 1–8% over that generic baseline. These
+microbenchmarks exclude encoding/decoding and returning reductions to Python,
+so they are not whole-solve speedups. An earlier pilot and this confirmation
+retain 640 audited episodes, compared against the original Python filtering
+with the same deterministic native queue. Successful fixpoints and failure
+results also agree with the original solver's captured states.
+
+The supported subset is pure integer finite feasibility with SUM/LINEAR_SUM
+equalities, bounded linear inequalities and ALLDIFF. Existing domain/span
+limits are checked; rules, facts, guards, objectives and measures are rejected
+before native execution. All negative native statuses represent interruption
+or errors and never establish infeasibility. Deadline checks run between
+native filter calls. Public solver defaults and installed dependencies remain
+unchanged; these are source-checkout experiments requiring a C11 compiler.
+
+The [report and frozen evidence](history/magic_model_compilation_2026-10-14/report.json)
+retain 208 audit/timing passes, 114 validated squares, captures, generated C,
+compilation/cache metadata and a
+[read-only validator](history/magic_model_compilation_2026-10-14/validate.py.txt).
+All 58 native experiment tests pass; seven new batch tests cover exhaustive
+small solution preservation, signed sums/inequalities, large translations,
+holes, widening, complete enumeration, causes, rollback, eligibility and
+interruption. Both generic and generated ASan/UBSan drivers pass 12,000 oracle
+cases. Final unused-helper warning cleanup has identical executable text,
+constant data and strings for all five measured libraries on the tested Mac;
+both the measured and final sources are preserved.
+
+```sh
+PYTHONHASHSEED=0 PYTHONPATH=src:. .venv/bin/python -m experiments.neural_attention.magic_model_batch \
+  --samples 96 --repeats 5 --output generated/neural_attention/model_replay_NEW
+PYTHONHASHSEED=0 PYTHONPATH=src:. .venv/bin/python -m experiments.neural_attention.magic_model_batch_search audit \
+  --output generated/neural_attention/model_search_audit_NEW
+PYTHONHASHSEED=0 PYTHONPATH=src:. .venv/bin/python -m experiments.neural_attention.magic_model_batch_search timing \
+  --repeats 5 --output generated/neural_attention/model_search_NEW
+python -m pytest experiments/neural_attention/test_model_batch.py
+python benchmarks/history/magic_model_compilation_2026-10-14/validate.py.txt
+```
+
+The current decision is to retain generic native batching as the substantial
+experimental improvement. The current specializer has no demonstrated large
+or cold-start advantage. Deeper partial evaluation or native DFS would require
+new evidence and a fresh comparison against a complete native backend such
+as Prune.
+
 ### Native ALLDIFF support kernel — 14 October 2026 (experimental)
 
 An opt-in C kernel now performs the **whole exact ALLDIFF support operation**:
@@ -46,7 +357,27 @@ is not a universal improvement for startup-heavy runs. A separate three-pair
 less time), and hybrid takes 2.0571 → 1.8082 s (12.1%). Neither finds a solution
 or reaches residual enumeration.
 
-Timings include model/state setup, workspace construction, serialization,
+A subsequent **five-minute 20×20 attempt with both native kernels** enters
+**498,126 nodes in 300.03 s**, averaging **1,660 nodes/s**, with 413,432 failed
+branches and 8,825,860 constraint revisions. It stops at the time limit without
+a solution. Throughput is stable after startup: cumulative averages at one,
+three and five minutes are 1,668, 1,666 and 1,660 nodes/s. These are entered DFS
+nodes, including a potentially unfinished final propagation, rather than
+native enumeration visits. Timing includes progress callbacks and rollback;
+model/state setup (0.214 s), compilation/loading and validation are excluded.
+
+This uses the saved 20×20 preset (MRV, middle-first values, row-major ties,
+no symmetry breaking), which has no verified winning configuration yet.
+The residual enumerator never activates: the minimum observed unfixed count
+immediately before propagation is 55, above its threshold of 20. This is not a
+bound on every transient propagation state. The
+[long-run report](history/magic20_native_300s_2026-10-14/report.json), frozen
+sources, five-second progress log and
+[read-only validator](history/magic20_native_300s_2026-10-14/validate.py.txt)
+preserve the attempt; it does not prove infeasibility or estimate remaining
+solve time.
+
+The paired CP/hybrid timings include model/state setup, workspace construction, serialization,
 propagation and search. Compilation/loading, auditing, validation and output
 are excluded. The existing presets and residual limits are unchanged. Audit
 passes separately compare every support result, matching and owner array with
@@ -85,6 +416,9 @@ PYTHONHASHSEED=0 PYTHONPATH=src:. .venv/bin/python -m experiments.neural_attenti
   --output generated/neural_attention/alldiff_large_NEW
 python -m pytest experiments/neural_attention/test_alldiff_kernel.py
 python benchmarks/history/magic_alldiff_kernel_2026-10-14/validate.py.txt
+PYTHONHASHSEED=0 PYTHONPATH=src:. .venv/bin/python -m experiments.neural_attention.magic_native_attempt \
+  --size 20 --limit 300 --output generated/neural_attention/magic20_attempt_NEW
+python benchmarks/history/magic20_native_300s_2026-10-14/validate.py.txt
 ```
 
 For other models, explicitly call `alldiff_kernel.enable(state.native, kernel)`
@@ -644,8 +978,8 @@ checks source identities and independently rechecks every completed square.
 
 ### Complete-solver comparison — 13 October 2026
 
-**Gecode completes 20×20 in 1.617 s median over three runs.** Snarky's largest
-completed square remains 16×16. This compares complete search implementations
+**Gecode completes 20×20 in 1.617 s median over three runs.** In that archived
+comparison, Snarky's largest completed square was 16×16. This compares complete search implementations
 on the same blank normal-square constraints, without constructed completions,
 solution hints or machine learning. All runs are sequential and single-threaded.
 Installed versions are Gecode 6.3.0, Chuffed 0.13.2 and MiniZinc 2.9.7.
