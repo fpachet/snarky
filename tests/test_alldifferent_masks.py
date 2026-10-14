@@ -121,6 +121,50 @@ def test_hall_sets_and_free_values_after_matching_repair():
     compare(*states)
 
 
+@pytest.mark.parametrize(
+    ("alphabets", "identity"),
+    [
+        (((1, 2, 3, 4),) * 4, True),
+        (((1, 2, 3, 4), (1, 2), (1, 2, 3), (1, 2, 3, 4)), True),
+        (((1, 2, 3, 4), (2, 3, 4), (1, 2), (1, 2, 3, 4)), False),
+        (((1, 2, 3, 4), (2, 1, 3, 4), (1, 2), (1, 2, 3, 4)), False),
+        (((1, 2, 3, 4), (1, 3, 4), (1, 2), (1, 2, 3, 4)), False),
+    ],
+)
+def test_identity_layout_and_conversion_fallback_match_oracle_on_restore(
+    monkeypatch, alphabets, identity
+):
+    model = model_for([tuple(map(Number, a)) for a in alphabets])
+    fast = NativeState(model)
+    slow = NativeState(model, alldifferent_masks=False)
+    plan = fast._alldifferent.get(0, model.constraints[0])
+    assert plan is not None and plan.identity_layout == identity
+    calls = []
+    original = MaskColumn.encode
+
+    def encode(column, mask):
+        calls.append(True)
+        return original(column, mask)
+
+    monkeypatch.setattr(MaskColumn, "encode", encode)
+    roots = [state.checkpoint() for state in (fast, slow)]
+    compare(fast, slow)
+    rng = Random(141026)
+    for _ in range(40):
+        for state, root in zip((fast, slow), roots, strict=True):
+            state.rollback(root)
+        for v in model.variables:
+            mask = rng.randrange(1, 1 << len(v.domain))
+            for state in (fast, slow):
+                state.domains.retain_mask(v.name, mask, Atom("branch"))
+        compare(fast, slow)
+    for state, root in zip((fast, slow), roots, strict=True):
+        state.rollback(root)
+        state.release(root)
+    compare(fast, slow)
+    assert bool(calls) == (not identity)
+
+
 def test_long_sparse_chain_and_cycle_are_exact_without_recursion():
     for cycle in (False, True):
         size = 700
@@ -248,6 +292,34 @@ def test_matching_repairs_after_failed_sibling_and_widening():
     for state, checkpoint in zip((fast, slow), roots, strict=True):
         state.rollback(checkpoint)
         state.release(checkpoint)
+
+
+@pytest.mark.parametrize("size", [4, 80])
+def test_matching_repair_preserves_stable_ties_and_valid_edges(size):
+    values = tuple(map(Number, range(size)))
+    model = model_for([values] * size)
+    plan = NativeState(model)._alldifferent.get(0, model.constraints[0])
+    assert plan is not None
+    fixed_masks = tuple(1 << i for i in range(4, size))
+    fixed_values = list(range(4, size))
+    for active_masks, valid, matching in (
+        ((15, 15, 15, 15), True, [0, 1, 2, 3]),
+        # Repair x1 by displacing x0 along an augmenting path.
+        ((3, 1, 12, 12), True, [1, 0, 2, 3]),
+        ((1, 1, 12, 12), False, [-1, 0, 2, 3]),
+        # Widening after the failure retains all surviving matched edges.
+        ((15, 15, 15, 15), True, [1, 0, 2, 3]),
+        # Equal-size unmatched rows are visited in original variable order.
+        ((12, 12, 3, 3), True, [2, 3, 0, 1]),
+        ((15, 15, 15, 15), True, [2, 3, 0, 1]),
+    ):
+        assert plan._match(active_masks + fixed_masks) == valid
+        assert plan.matching == matching + fixed_values
+        expected_owners = [-1] * size
+        for variable, value in enumerate(matching + fixed_values):
+            if value >= 0:
+                expected_owners[value] = variable
+        assert plan.owners == expected_owners
 
 
 def test_reverse_graph_matches_edgewise_transpose_for_repeated_and_tiny_rows(

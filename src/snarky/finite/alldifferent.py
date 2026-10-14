@@ -111,27 +111,34 @@ class AllDifferentPlan:
         )
         self.input_masks: tuple[int, ...] = ()
         self.columns = columns
+        # Layouts are immutable, including across rollback. Identity columns
+        # already use the graph's value coordinates and need no translation.
+        self.identity_layout = all(c.shifted and c.offset == 0 for c in columns)
         self.matching = [-1] * len(variables)
         self.owners = [-1] * count
         self.last_supported: tuple[int, ...] | None = None
 
     def _match(self, masks: tuple[int, ...]) -> bool:
-        # Retain valid matching edges across revisions and sibling branches.
+        # Collect repairs while validating retained edges. An intact matching
+        # needs no occupied-value construction or domain-size sorting.
+        unmatched = []
         for variable, value in enumerate(self.matching):
-            if value >= 0 and not masks[variable] & (1 << value):
+            if value >= 0 and masks[variable] & (1 << value):
+                continue
+            if value >= 0:
                 self.matching[variable] = -1
                 self.owners[value] = -1
-        # A complete validated matching needs no repair. supports() still
-        # recomputes the graph when domains change, even if every edge survives.
-        if -1 not in self.matching:
+            unmatched.append(variable)
+        # supports() still filters the graph when every matched edge survives.
+        if not unmatched:
             return True
         occupied = 0
         for value in self.matching:
             if value >= 0:
                 occupied |= 1 << value
-        for start in sorted(range(len(masks)), key=lambda i: masks[i].bit_count()):
-            if self.matching[start] >= 0:
-                continue
+        # Stable sorting preserves the original relative order of repair starts.
+        unmatched.sort(key=lambda i: masks[i].bit_count())
+        for start in unmatched:
             free = masks[start] & ~occupied
             if free:
                 bit = free & -free
@@ -181,7 +188,11 @@ class AllDifferentPlan:
             return None
         if local == self.last_supported:
             return local
-        masks = tuple(c.encode(m) for c, m in zip(self.columns, local, strict=True))
+        masks = (
+            local
+            if self.identity_layout
+            else tuple(c.encode(m) for c, m in zip(self.columns, local, strict=True))
+        )
         universe = 0
         for mask in masks:
             universe |= mask

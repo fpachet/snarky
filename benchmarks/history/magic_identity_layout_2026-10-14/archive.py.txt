@@ -1,0 +1,40 @@
+from pathlib import Path
+import hashlib
+import json
+import shutil
+import subprocess
+import tarfile
+
+root = Path('benchmarks/history/magic_identity_layout_2026-10-14')
+summary = []
+for stage, source in [
+    ('comparison', Path('generated/neural_attention/magic_identity_comparison_20261014')),
+    ('confirmation', Path('generated/neural_attention/magic_identity_confirmation_20261014')),
+]:
+    shutil.copytree(source, root / stage)
+    frozen = json.loads((source / 'frozen.json').read_text())
+    with tarfile.open(root / stage / 'sources.tar.gz', 'w:gz') as archive:
+        for path, digest in frozen['source_hashes'].items():
+            assert hashlib.sha256(Path(path).read_bytes()).hexdigest() == digest, path
+            archive.add(path, arcname=path.lstrip('/'))
+    shutil.copyfile(f'/tmp/magic_identity_{stage}_20261014.log', root / (stage + '.log'))
+    for group in json.loads((source / 'summary.json').read_text()):
+        b, a = (group['medians'][v] for v in ['baseline', 'optimized'])
+        summary.append(dict(stage=stage, **group, repeats=5, time_reduction_percent=100 * (1 - a / b)))
+(root / 'summary.json').write_text(json.dumps(summary, indent=2) + '\n')
+(root / 'delta.patch').write_bytes(subprocess.check_output(['git', 'diff', '--', 'src/snarky/finite/alldifferent.py', 'tests/test_alldifferent_masks.py']))
+(root / 'notes.json').write_text(json.dumps(dict(
+    scope='ALLDIFF supports bypasses encode when every compiled column is a contiguous zero-offset identity layout. One immutable flag is computed during plan construction. No change to matching, SCCs, decoding, propagation strength or branching.',
+    decision='Enabled: two independent five-pair batches give modest gains for eligible 8, 9 and 14 presets. No demonstrated gain claimed for noneligible 11 and 16 presets.',
+    timing='Fresh model and solver states per run; shuffled sequential schedule, model/state setup included, imports and validation/reduction audit excluded. The supports method alone is swapped; both variants share the new plan-construction flag, whose setup cost is not separately compared.',
+    baseline_commit='64bd2af93b932a84fc9b0b8505162dccc66b93b2',
+    provenance='Frozen metadata records dirty runtime source hashes. Each stage has a complete source tar; the before source is the baseline commit version. The same kernel runner is used in both stages.',
+    equivalence='Within each stage and size: exact nodes, failures, revisions, termination, squares and ordered solution-reduction SHA256 match for every run. All witnesses are independently checked by validate.py.txt.',
+    headline='Use the confirmation medians for eligible solved sizes 8, 9 and 14; retain comparison medians and all samples. Other solved presets use randomized value layouts and cannot use the shortcut.',
+    size20='Both variants stop after 30 nodes. This is a diagnostic prefix, not a completed square or a claim about total solving time.',
+    checks=dict(targeted_alldifferent_passed=22, ruff='passed', mypy='103 source files passed'),
+), indent=2) + '\n')
+shutil.copyfile(__file__, root / 'archive.py.txt')
+manifest = {str(p.relative_to(root)):hashlib.sha256(p.read_bytes()).hexdigest() for p in sorted(root.rglob('*')) if p.is_file() and p.name != 'source_manifest.json'}
+(root / 'source_manifest.json').write_text(json.dumps(manifest, indent=2) + '\n')
+print(json.dumps(summary, indent=2))

@@ -1,0 +1,82 @@
+diff --git a/src/snarky/finite/alldifferent.py b/src/snarky/finite/alldifferent.py
+index bc4ce9f..1eefe51 100644
+--- a/src/snarky/finite/alldifferent.py
++++ b/src/snarky/finite/alldifferent.py
+@@ -111,6 +111,9 @@ class AllDifferentPlan:
+         )
+         self.input_masks: tuple[int, ...] = ()
+         self.columns = columns
++        # Layouts are immutable, including across rollback. Identity columns
++        # already use the graph's value coordinates and need no translation.
++        self.identity_layout = all(c.shifted and c.offset == 0 for c in columns)
+         self.matching = [-1] * len(variables)
+         self.owners = [-1] * count
+         self.last_supported: tuple[int, ...] | None = None
+@@ -181,7 +184,11 @@ class AllDifferentPlan:
+             return None
+         if local == self.last_supported:
+             return local
+-        masks = tuple(c.encode(m) for c, m in zip(self.columns, local, strict=True))
++        masks = (
++            local
++            if self.identity_layout
++            else tuple(c.encode(m) for c, m in zip(self.columns, local, strict=True))
++        )
+         universe = 0
+         for mask in masks:
+             universe |= mask
+diff --git a/tests/test_alldifferent_masks.py b/tests/test_alldifferent_masks.py
+index 5011f76..338cab8 100644
+--- a/tests/test_alldifferent_masks.py
++++ b/tests/test_alldifferent_masks.py
+@@ -121,6 +121,50 @@ def test_hall_sets_and_free_values_after_matching_repair():
+     compare(*states)
+ 
+ 
++@pytest.mark.parametrize(
++    ("alphabets", "identity"),
++    [
++        (((1, 2, 3, 4),) * 4, True),
++        (((1, 2, 3, 4), (1, 2), (1, 2, 3), (1, 2, 3, 4)), True),
++        (((1, 2, 3, 4), (2, 3, 4), (1, 2), (1, 2, 3, 4)), False),
++        (((1, 2, 3, 4), (2, 1, 3, 4), (1, 2), (1, 2, 3, 4)), False),
++        (((1, 2, 3, 4), (1, 3, 4), (1, 2), (1, 2, 3, 4)), False),
++    ],
++)
++def test_identity_layout_and_conversion_fallback_match_oracle_on_restore(
++    monkeypatch, alphabets, identity
++):
++    model = model_for([tuple(map(Number, a)) for a in alphabets])
++    fast = NativeState(model)
++    slow = NativeState(model, alldifferent_masks=False)
++    plan = fast._alldifferent.get(0, model.constraints[0])
++    assert plan is not None and plan.identity_layout == identity
++    calls = []
++    original = MaskColumn.encode
++
++    def encode(column, mask):
++        calls.append(True)
++        return original(column, mask)
++
++    monkeypatch.setattr(MaskColumn, "encode", encode)
++    roots = [state.checkpoint() for state in (fast, slow)]
++    compare(fast, slow)
++    rng = Random(141026)
++    for _ in range(40):
++        for state, root in zip((fast, slow), roots, strict=True):
++            state.rollback(root)
++        for v in model.variables:
++            mask = rng.randrange(1, 1 << len(v.domain))
++            for state in (fast, slow):
++                state.domains.retain_mask(v.name, mask, Atom("branch"))
++        compare(fast, slow)
++    for state, root in zip((fast, slow), roots, strict=True):
++        state.rollback(root)
++        state.release(root)
++    compare(fast, slow)
++    assert bool(calls) == (not identity)
++
++
+ def test_long_sparse_chain_and_cycle_are_exact_without_recursion():
+     for cycle in (False, True):
+         size = 700

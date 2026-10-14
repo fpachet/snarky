@@ -1,0 +1,78 @@
+"""Compare every matching transition against the frozen baseline, untimed."""
+import argparse
+from collections import Counter
+from copy import copy
+import hashlib
+import importlib.machinery
+import importlib.util
+import json
+from pathlib import Path
+
+from benchmarks.alice_magic import validate
+from experiments.neural_attention.magic_search_tuning import RankedState, prepare
+from snarky.finite.alldifferent import AllDifferentPlan
+from snarky.finite.model import Query
+from snarky.finite.search import search
+
+parser = argparse.ArgumentParser(description=__doc__)
+parser.add_argument("--before", type=Path, required=True)
+parser.add_argument("--output", type=Path, required=True)
+args = parser.parse_args()
+loader = importlib.machinery.SourceFileLoader("snarky.finite._matching_oracle", str(args.before))
+spec = importlib.util.spec_from_loader(loader.name, loader)
+module = importlib.util.module_from_spec(spec)
+spec.loader.exec_module(module)
+baseline = module.AllDifferentPlan._match
+optimized = AllDifferentPlan._match
+histogram = Counter()
+stats = Counter()
+
+def audit(plan, masks):
+    broken = sum(value < 0 or not masks[i] & (1 << value)
+                 for i, value in enumerate(plan.matching))
+    histogram[broken] += 1
+    stats["calls"] += 1
+    if broken:
+        stats["repairs"] += 1
+        stats["baseline_sort_keys"] += len(masks)
+        stats["optimized_sort_keys"] += broken
+    shadow = copy(plan)
+    shadow.matching = plan.matching.copy()
+    shadow.owners = plan.owners.copy()
+    expected = baseline(shadow, masks)
+    actual = optimized(plan, masks)
+    assert actual == expected
+    assert plan.matching == shadow.matching
+    assert plan.owners == shadow.owners
+    stats["successful_calls" if actual else "failed_calls"] += 1
+    return actual
+
+presets = Path("experiments/neural_attention/magic_best_parameters.json")
+preset = json.loads(presets.read_text())
+settings = {**preset["default"], **preset["known_size_overrides"]["16"]}
+AllDifferentPlan._match = audit
+try:
+    original, model = prepare(16, settings["order"], settings["tie"],
+                              settings["symmetry"], seed=settings.get("seed", 0))
+    state = RankedState(model, settings["order"])
+    result = search(state, Query(time_limit_seconds=60), policy=settings["policy"])
+finally:
+    AllDifferentPlan._match = optimized
+squares = [validate(16, s.assignment, original) for s in result.solutions]
+assert squares and result.termination.value == "solution_limit"
+sources = [Path(__file__), args.before, presets,
+           *Path("src/snarky").rglob("*.py"),
+           Path("experiments/neural_attention/magic_search_tuning.py"),
+           Path("experiments/neural_attention/optimize_magic6.py"),
+           Path("benchmarks/alice_magic.py")]
+record = dict(
+    scope="Untimed differential audit; compare success/failure, matching and owners on every call. Timings from this instrumented solve are not reported.",
+    size=16, settings=settings, stats=dict(stats),
+    broken_matches_histogram=dict(sorted(histogram.items())),
+    nodes=result.explored_nodes, failures=result.failed_branches,
+    revisions=result.constraint_revisions, termination=result.termination.value,
+    squares=squares,
+    source_hashes={str(p): hashlib.sha256(p.read_bytes()).hexdigest() for p in sources},
+)
+args.output.write_text(json.dumps(record, indent=2) + "\n")
+print(json.dumps(stats, indent=2))

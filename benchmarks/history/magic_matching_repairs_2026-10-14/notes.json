@@ -1,0 +1,14 @@
+{
+  "decision": "Enable the collect variant: gather unmatched rows during retained-edge validation, return immediately for an intact matching, then sort only repair starts. Keep occupied-value construction after the intact-matching early return.",
+  "variants": "Separate variant gathers starts in a second enumerate scan. Fused variant also builds occupied values during validation; its five-pair 14x14 result regresses 4.6%, so it is not selected. All measurements, source snapshots and that prototype audit are retained.",
+  "baseline": "64bd2af plus the pending identity-layout shortcut. before.py.txt is the exact pre-matching-change source; dirty metadata and source hashes identify the measured runtime.",
+  "timing": "Shuffled sequential paired runs, fresh model/state, setup included; imports, validation and reduction audit excluded. Only AllDifferentPlan._match is swapped. Use confirmation for final 14/16 headline rows and collect for other final sizes.",
+  "equivalence": "Within every stage and size, nodes, failures, revisions, termination, witnesses and ordered solution-reduction hashes match. Two untimed audits compare every success/failure result, matching list and owner list with the baseline.",
+  "scope": "No change to support strength, augmenting paths, matching retention, value layouts or variable/value branching. Stable domain-size sorting preserves the same relative order of unmatched rows.",
+  "caveats": "Small gains vary by size. The rejected fused 14x14 confirmation is retained. Size20 stops after 30 nodes and is not a completed solve or a total solve-time claim. The optimized collect kernel also shows a slower 20-prefix sample.",
+  "checks": {
+    "targeted_alldifferent_passed": 24,
+    "ruff": "passed",
+    "mypy": "103 source files passed"
+  }
+}

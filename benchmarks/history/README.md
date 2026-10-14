@@ -16,7 +16,24 @@ to match every historical version.
 ## Magic-square experiment history
 
 **Current overview:** [Magic squares](../README.md#magic-squares).
-**Latest native optimization:** [SUM boundary processing](magic_sum_boundaries_2026-10-13/summary.json).
+**Latest native optimization:** [ALLDIFF matching repair](magic_matching_repairs_2026-10-14/summary.json).
+Collect unmatched variables during validation and sort only repair starts,
+preserving the intact-matching early return. A five-pair 16×16 confirmation
+gives 4.459 → 4.300 s (3.6%) with identical search. An untimed audit checks all
+6,799 matching transitions against the baseline; sort-key evaluations fall
+99.0%. The [current overview](../README.md#magic-squares) also records small
+or mixed gains elsewhere, a slower 20×20 prefix and the rejected full-scan
+prototype. All 194 timing runs and both differential audits are retained.
+
+The previous [ALLDIFF identity-layout shortcut](magic_identity_layout_2026-10-14/summary.json)
+skips input-mask translation when compiled value positions already agree.
+Two five-pair batches show modest gains for eligible 8×8, 9×9 and 14×14
+presets; confirmation medians improve by 4.6%, 3.1% and 1.4%. Randomized
+11×11/16×16 layouts cannot use the shortcut. Both batches preserve exact
+search work and reduction hashes; the 20×20 measurement is a 30-node prefix.
+
+The preceding [SUM boundary processing](magic_sum_boundaries_2026-10-13/summary.json)
+reduces exact equality-filter overhead.
 A dedicated five-pair 16×16 confirmation gives 4.575 → 4.462 s (2.5%), with
 identical work and reduction hashes. The initial three-pair estimate was 5.5%;
 both datasets and all preliminary kernels are retained. The
@@ -59,6 +76,8 @@ that must be selected explicitly, not a default native-solver feature.
 | [Weighted degrees, batching and graph construction](magic_scheduler_graph_2026-10-13/README.md) | Selective aggregation of repeated ALLDIFF rows gives a consistent gain | Graph aggregation enabled; other variants experimental |
 | [Singleton SCC exclusion](magic_alldiff_singletons_2026-10-13/summary.json) | Skip fixed-value components without changing filtering; lower cost per node on completed magic-square searches | Enabled |
 | [SUM boundary processing](magic_sum_boundaries_2026-10-13/summary.json) | Avoid redundant prefix/backward work while preserving exact supports; modest additional per-node gain | Enabled |
+| [ALLDIFF identity layouts](magic_identity_layout_2026-10-14/summary.json) | Skip input-mask translation for aligned layouts; small gain on eligible magic-square presets | Enabled |
+| [ALLDIFF matching repair](magic_matching_repairs_2026-10-14/summary.json) | Sort only unmatched rows while preserving repair order and the intact-matching fast path | Enabled |
 
 Each report links raw runs, source snapshots and reproduction commands. Times
 from different stages are not automatically comparable: check their source

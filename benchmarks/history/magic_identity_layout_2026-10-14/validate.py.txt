@@ -1,0 +1,69 @@
+"""Read-only checks of the identity-layout comparison and frozen sources."""
+import hashlib
+import json
+import statistics
+import sys
+import tarfile
+from pathlib import Path
+
+root = Path(sys.argv[1]) if len(sys.argv) > 1 else Path(__file__).resolve().parent
+manifest = json.loads((root / "source_manifest.json").read_text())
+for path, digest in manifest.items():
+    assert hashlib.sha256((root / path).read_bytes()).hexdigest() == digest, path
+source_checks = runs = witnesses = 0
+summary = json.loads((root / "summary.json").read_text())
+for stage in sorted({g["stage"] for g in summary}):
+    folder = root / stage
+    frozen = json.loads((folder / "frozen.json").read_text())
+    assert frozen["kernel"] == "AllDifferentPlan.supports"
+    assert frozen["audit_reductions"]
+    with tarfile.open(folder / "sources.tar.gz") as archive:
+        for path, digest in frozen["source_hashes"].items():
+            content = archive.extractfile(path.lstrip("/")).read()
+            assert hashlib.sha256(content).hexdigest() == digest, (stage, path)
+            source_checks += 1
+    rows = [json.loads(line) for line in (folder / "runs.jsonl").read_text().splitlines()]
+    assert sorted((r["size"], r["variant"], r["repeat"]) for r in rows) == sorted(
+        map(tuple, frozen["schedule"])
+    )
+    runs += len(rows)
+    recorded = json.loads((folder / "summary.json").read_text())
+    for group in recorded:
+        n = group["size"]
+        selected = [r for r in rows if r["size"] == n]
+        assert len({
+            (r["nodes"], r["failures"], r["revisions"], r["termination"],
+             json.dumps(r["squares"]), r["reduction_sha256"])
+            for r in selected
+        }) == 1
+        medians = {
+            v: statistics.median(r["total_seconds"] for r in selected if r["variant"] == v)
+            for v in ("baseline", "optimized")
+        }
+        assert medians == group["medians"]
+        enriched = next(g for g in summary if g["stage"] == stage and g["size"] == n)
+        assert enriched["medians"] == medians
+        assert enriched["time_reduction_percent"] == 100 * (
+            1 - medians["optimized"] / medians["baseline"]
+        )
+        for r in selected:
+            assert r["total_seconds"] > 0 and len(r["reduction_sha256"]) == 64
+            if n >= 17:
+                assert r["nodes"] == 30 and r["termination"] == "node_limit"
+                assert not r["squares"]
+            else:
+                assert r["termination"] == "solution_limit" and r["squares"]
+            for square in r["squares"]:
+                assert sorted(square) == list(range(1, n * n + 1))
+                target = n * (n * n + 1) // 2
+                assert all(sum(square[i * n:(i + 1) * n]) == target for i in range(n))
+                assert all(sum(square[j::n]) == target for j in range(n))
+                assert sum(square[::n + 1]) == target
+                assert sum(square[n - 1:n * n - 1:n - 1]) == target
+                if r["settings"]["symmetry"]:
+                    assert square[0] < min(square[n - 1], square[-n], square[-1])
+                    assert square[n - 1] < square[-n]
+                    assert square[0] <= (n * n + 1) // 2
+                witnesses += 1
+print(json.dumps(dict(runs=runs, validated_witnesses=witnesses,
+                     source_checks=source_checks, manifest_files=len(manifest)), indent=2))

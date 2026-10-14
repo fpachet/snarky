@@ -1,0 +1,69 @@
+"""Freeze all matching-repair variants and the final differential audit."""
+from pathlib import Path
+import difflib
+import hashlib
+import json
+import shutil
+import tarfile
+
+root = Path('benchmarks/history/magic_matching_repairs_2026-10-14')
+snapshots = [root / n for n in ('before.py.txt', 'separate.py.txt', 'fused.py.txt', 'collect.py.txt', 'after.py.txt')]
+
+def source_for(path, digest):
+    for candidate in [Path(path), *snapshots]:
+        if candidate.is_file() and hashlib.sha256(candidate.read_bytes()).hexdigest() == digest:
+            return candidate
+    raise AssertionError((path, digest))
+
+def freeze_sources(record, output):
+    with tarfile.open(output, 'w:gz') as archive:
+        for path, digest in record['source_hashes'].items():
+            archive.add(source_for(path, digest), arcname=path.lstrip('/'))
+
+shutil.copyfile('src/snarky/finite/alldifferent.py', root / 'after.py.txt')
+shutil.copyfile('/tmp/magic_unmatched_collect_tests_20261014.log', root / 'collect_tests.log')
+summary = []
+stages = [
+    ('comparison', 'magic_unmatched_comparison_20261014', 'magic_unmatched_comparison_20261014', 5, 'separate'),
+    ('fused', 'magic_unmatched_fused_20261014', 'magic_unmatched_fused_20261014', 3, 'fused'),
+    ('fused_confirmation', 'magic_unmatched_confirmation_20261014', 'magic_unmatched_confirmation_20261014', 5, 'fused'),
+    ('collect', 'magic_unmatched_collect_20261014', 'magic_unmatched_collect_20261014', 3, 'collect'),
+    ('confirmation', 'magic_unmatched_collect_confirmation_20261014', 'magic_unmatched_collect_confirmation_20261014', 5, 'collect'),
+]
+for stage, name, log, repeats, candidate in stages:
+    source = Path('generated/neural_attention') / name
+    shutil.copytree(source, root / stage)
+    frozen = json.loads((source / 'frozen.json').read_text())
+    freeze_sources(frozen, root / stage / 'sources.tar.gz')
+    shutil.copyfile('/tmp/' + log + '.log', root / (stage + '.log'))
+    for group in json.loads((source / 'summary.json').read_text()):
+        b, a = (group['medians'][v] for v in ('baseline', 'optimized'))
+        summary.append(dict(stage=stage, candidate=candidate, **group, repeats=repeats,
+                            time_reduction_percent=100 * (1 - a / b)))
+(root / 'summary.json').write_text(json.dumps(summary, indent=2) + '\n')
+for name in ('fused_audit', 'audit'):
+    record = json.loads((root / (name + '.json')).read_text())
+    freeze_sources(record, root / (name + '_sources.tar.gz'))
+for log, name in [('magic_unmatched_audit_20261014', 'fused_audit'),
+                  ('magic_unmatched_collect_audit_20261014', 'audit')]:
+    shutil.copyfile('/tmp/' + log + '.log', root / (name + '.log'))
+delta = ''.join(difflib.unified_diff(
+    (root / 'before.py.txt').read_text().splitlines(keepends=True),
+    (root / 'after.py.txt').read_text().splitlines(keepends=True),
+    fromfile='before/alldifferent.py', tofile='after/alldifferent.py'))
+(root / 'delta.patch').write_text(delta)
+(root / 'notes.json').write_text(json.dumps(dict(
+    decision='Enable the collect variant: gather unmatched rows during retained-edge validation, return immediately for an intact matching, then sort only repair starts. Keep occupied-value construction after the intact-matching early return.',
+    variants='Separate variant gathers starts in a second enumerate scan. Fused variant also builds occupied values during validation; its five-pair 14x14 result regresses 4.6%, so it is not selected. All measurements, source snapshots and that prototype audit are retained.',
+    baseline='64bd2af plus the pending identity-layout shortcut. before.py.txt is the exact pre-matching-change source; dirty metadata and source hashes identify the measured runtime.',
+    timing='Shuffled sequential paired runs, fresh model/state, setup included; imports, validation and reduction audit excluded. Only AllDifferentPlan._match is swapped. Use confirmation for final 14/16 headline rows and collect for other final sizes.',
+    equivalence='Within every stage and size, nodes, failures, revisions, termination, witnesses and ordered solution-reduction hashes match. Two untimed audits compare every success/failure result, matching list and owner list with the baseline.',
+    scope='No change to support strength, augmenting paths, matching retention, value layouts or variable/value branching. Stable domain-size sorting preserves the same relative order of unmatched rows.',
+    caveats='Small gains vary by size. The rejected fused 14x14 confirmation is retained. Size20 stops after 30 nodes and is not a completed solve or a total solve-time claim. The optimized collect kernel also shows a slower 20-prefix sample.',
+    checks=dict(targeted_alldifferent_passed=24, ruff='passed', mypy='103 source files passed'),
+), indent=2) + '\n')
+shutil.copyfile(__file__, root / 'archive.py.txt')
+manifest = {str(p.relative_to(root)):hashlib.sha256(p.read_bytes()).hexdigest()
+            for p in sorted(root.rglob('*')) if p.is_file() and p.name != 'source_manifest.json'}
+(root / 'source_manifest.json').write_text(json.dumps(manifest, indent=2) + '\n')
+print(json.dumps([g for g in summary if g['stage'] == 'confirmation'], indent=2))

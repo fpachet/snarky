@@ -15,7 +15,99 @@ comparison; an archived experiment's defaults apply to its recorded version.
 ## Magic squares
 
 This is the stable entry point for the current magic-square benchmark summary.
-The latest production change reduces work in exact SUM/LINEAR_SUM equality
+
+### ALLDIFF matching repair — 14 October 2026
+
+The latest production change collects unmatched variables while validating
+retained matching edges, then sorts only those repair starts. An intact
+matching returns before occupied-value construction or sorting. Stable sorting
+preserves the same repair order; augmenting paths, filtering and branching
+are unchanged. The earlier identity-layout shortcut is enabled in both versions.
+
+The final kernel's whole-solve medians include model and state setup. The
+14×14 and 16×16 rows use a dedicated five-pair confirmation; other rows use
+three pairs from the final multi-size batch.
+
+| Size | Pairs | Before | After | Time reduction |
+|---|---:|---:|---:|---:|
+| 8×8 | 3 | 0.092624 s | 0.084885 s | 8.4% |
+| 9×9 | 3 | 1.641654 s | 1.590257 s | 3.1% |
+| 11×11 | 3 | 0.311229 s | 0.309861 s | 0.4% |
+| 13×13 | 3 | 1.606674 s | 1.548799 s | 3.6% |
+| 14×14 | **5** | **0.742487 s** | **0.723370 s** | **2.6%** |
+| 16×16 | **5** | **4.459444 s** | **4.299802 s** | **3.6%** |
+
+All pairs preserve nodes, failures, revisions, solutions and ordered
+solution-reduction hashes. An untimed 16×16 differential audit additionally
+compares every matching and owner list against the baseline: all 6,799 calls
+agree, including failures. Sort-key evaluations fall from 1,409,536 to 13,585
+(99.0% fewer); this is separate from the whole-solve time reduction.
+
+Gains vary by batch: the final kernel's first 16×16 batch improved 2.3%, while
+14×14 was flat (-0.3%). Its 20×20 diagnostic stops after 30 nodes and was slower
+(0.334 → 0.350 s); no completed 20×20 solve or gain is claimed. An alternative
+that also built occupied values during every validation scan gave a 4.6% slower
+14×14 confirmation and was not selected. All variants and raw samples remain
+in the [summary and archive](history/magic_matching_repairs_2026-10-14/summary.json),
+with frozen sources, two differential audits and a
+[read-only validator](history/magic_matching_repairs_2026-10-14/validate.py.txt).
+Validation passed 24 ALLDIFF tests, including stable ties, augmenting paths,
+failure recovery, exhaustive supports and rollback. Lint and type checks passed.
+
+Reproduce the confirmation with a fresh output directory:
+
+```sh
+PYTHONHASHSEED=0 PYTHONPATH=src:. .venv/bin/python -m experiments.neural_attention.magic_alldifferent_benchmark \
+  --before benchmarks/history/magic_matching_repairs_2026-10-14/before.py.txt \
+  --kernel matching --sizes 14 16 --repeats 5 --audit-reductions \
+  --output generated/neural_attention/magic_matching_replay
+```
+
+### ALLDIFF layout shortcut — 14 October 2026
+
+The previous production change skips ALLDIFF input-mask translation when every
+compiled column already uses the graph's value positions. Eligibility is
+computed once from immutable layouts, so rollback needs no extra bookkeeping.
+Matching, graph filtering, output decoding and branching are unchanged.
+
+Two separate shuffled five-pair batches show a modest gain for eligible solved
+presets. The table uses the second batch's whole-solve medians, including model
+and state setup:
+
+| Size | Before | After | Time reduction |
+|---|---:|---:|---:|
+| 8×8 | 0.090411 s | 0.086257 s | 4.6% |
+| 9×9 | 1.669329 s | 1.618139 s | 3.1% |
+| 14×14 | 0.730522 s | 0.720285 s | 1.4% |
+
+The first batch measured 3.7%, 3.2% and 2.4%, respectively. Within each batch,
+every pair has identical nodes, failures, revisions, solutions and ordered
+solution-reduction hashes. The 11×11 and 16×16 presets have randomized layouts
+and cannot use the shortcut; their small timing changes establish no gain.
+The eligible 20×20 case stops after 30 nodes (0.356 → 0.348 s), so this does
+not establish an improvement in completed solving time.
+
+The [summary](history/magic_identity_layout_2026-10-14/summary.json) retains both
+batches. The [archive](history/magic_identity_layout_2026-10-14/notes.json)
+includes all 90 runs, layouts, source snapshots, checksums and a
+[read-only validator](history/magic_identity_layout_2026-10-14/validate.py.txt).
+Validation passed 22 ALLDIFF tests, including exhaustive support checks after
+random reductions and rollback for aligned, shifted, shuffled and sparse
+layouts. Lint and type checks passed. Both timing variants share the new
+plan-construction flag; only the `supports` method is swapped.
+
+Reproduce the confirmation with a fresh output directory:
+
+```sh
+PYTHONHASHSEED=0 PYTHONPATH=src:. .venv/bin/python -m experiments.neural_attention.magic_alldifferent_benchmark \
+  --before benchmarks/history/magic_identity_layout_2026-10-14/before.py.txt \
+  --kernel alldifferent_supports --sizes 8 9 14 --repeats 5 --audit-reductions \
+  --output generated/neural_attention/magic_identity_replay
+```
+
+### SUM boundary processing — 13 October 2026
+
+The preceding production change reduces work in exact SUM/LINEAR_SUM equality
 filtering. It combines candidate enumeration with prefix construction, checks
 the final domain directly, and skips the unused first backward table. The two
 largest domains occupy these cheaper arithmetic boundaries; returned masks
