@@ -94,7 +94,60 @@ returned by `SumKernel.build(output_path)`; imports live under
 `experiments.neural_attention`. The benchmark runner provides the complete
 CP/residual comparisons and records compilation/cache metadata.
 
-### Fresh solver profiles — 14 October 2026
+### Remaining costs after C SUM — 14 October 2026
+
+New profiles with C SUM enabled identify **the full ALLDIFF support pipeline**
+as the next broad Python-to-C target. On ordinary 16×16 CP it takes 66.1% of
+instrumented search; with the residual hybrid it takes 40.7%. Matching repair
+alone is a small part: value-coordinate conversion, graph construction and
+support decoding must be included in the kernel boundary.
+
+The current 16×16 hybrid search attribution is:
+
+| Operation | Share |
+|---|---:|
+| ALLDIFF revision | 40.7% |
+| Residual extraction and encoding | 14.3% |
+| SUM revision, including C and Python adapter/application | 14.4% |
+| Residual enumeration call | 9.1% |
+| Other CP propagation, including plan construction | 7.6% |
+| Checkpoint/rollback/restrict/release | 6.4% |
+
+Within SUM revision, the native call is only 7.5% of search, with 6.9% in
+Python projection, cache checks, serialization, decoding and application.
+After ALLDIFF, reducing residual preparation and batching native data transfer
+are better broad candidates than merely tuning the SUM C loop on 16×16.
+
+Workload differences matter. On hybrid 9×9, the residual call takes 67.4%,
+so enumeration/pruning is the main target there. On the 1,000-node 20×20 prefix,
+ALLDIFF takes 34.1% and the C SUM call takes 38.3%; native DP optimization remains
+relevant there. The prefix still produces no solution and does not enter
+residual enumeration. On 14×14 the single wall pass includes sizeable
+plan/explanation/other search costs, so small-workload shares are directional.
+
+The [post-SUM profile archive](history/magic_post_sum_profile_2026-10-14/report.json)
+contains 50 passes at SUM commit `9516ccc`: complete 9, 13, 14 and 16 searches,
+plus the 20×20 prefix, for both strategies. Three uninstrumented repetitions
+and separate wall/cProfile passes preserve search and native path counters.
+Percentages refer to single instrumented search passes; they exclude setup and
+are not new whole-solve timing claims. Native call timers include ctypes
+transitions, and cProfile cannot inspect C instructions. The
+[read-only validator](history/magic_post_sum_profile_2026-10-14/validate.py.txt)
+checks sources, schedules, 40 complete squares, counters and attribution.
+
+```sh
+PYTHONHASHSEED=0 PYTHONPATH=src:. .venv/bin/python -m experiments.neural_attention.magic_residual_profile \
+  --native-sum --sizes 9 13 14 16 --repeats 3 \
+  --output generated/neural_attention/post_sum_profile_NEW
+PYTHONHASHSEED=0 PYTHONPATH=src:. .venv/bin/python -m experiments.neural_attention.magic_residual_profile \
+  --native-sum --sizes 20 --large-nodes 1000 --repeats 3 \
+  --output generated/neural_attention/post_sum_large_NEW
+python benchmarks/history/magic_post_sum_profile_2026-10-14/validate.py.txt
+```
+
+<a id="fresh-solver-profiles--14-october-2026"></a>
+
+### Profiles before C SUM — 14 October 2026
 
 Profiles regenerated at `8245d27` cover the current Python solver and mode-4
 residual hybrid on 8, 9, 11, 13, 14 and 16 to completion, plus a 30-node

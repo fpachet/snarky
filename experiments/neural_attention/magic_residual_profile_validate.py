@@ -20,6 +20,7 @@ def signature(row):
         row["termination"],
         row["squares"],
         {k: v for k, v in row["stats"].items() if k != "enum_seconds"},
+        row.get("sum_stats", {}),
     )
 
 
@@ -44,7 +45,8 @@ def validate(root):
         assert path.resolve().is_relative_to(root.resolve())
         assert hashlib.sha256(path.read_bytes()).hexdigest() == digest, name
     records = sources = witnesses = 0
-    for stage in ("smoke", "profile"):
+    report = json.loads((root / "report.json").read_text())
+    for stage in report.get("stages", ("smoke", "profile")):
         folder = root / stage
         frozen = json.loads((folder / "frozen.json").read_text())
         with tarfile.open(folder / "sources.tar.gz") as archive:
@@ -68,7 +70,8 @@ def validate(root):
             assert row["termination"] == ("solution_limit" if n <= 16 else "node_limit")
             assert bool(row["squares"]) == (n <= 16)
             if n > 16:
-                assert row["nodes"] == 30 and not row["stats"]
+                assert row["nodes"] == frozen["config"].get("large_nodes", 30)
+                assert not row["stats"]
             for values in row["squares"]:
                 square(n, values)
                 witnesses += 1
@@ -107,6 +110,21 @@ def validate(root):
                     == categories["alldiff_filtering"]["seconds"]
                 )
                 assert row["calls"]["propagation"] > 0
+                if frozen["config"].get("native_sum"):
+                    split = row["sum_breakdown"]
+                    assert split["native_call_seconds"] == times["sum_native_call"]
+                    assert math.isclose(
+                        split["native_call_seconds"]
+                        + split["python_adapter_and_application_seconds"],
+                        numeric,
+                        abs_tol=1e-8,
+                    )
+                    for name in ("native_call", "python_adapter_and_application"):
+                        assert math.isclose(
+                            split[name + "_percent"],
+                            100 * split[name + "_seconds"] / row["search_seconds"],
+                            abs_tol=1e-8,
+                        )
         summary = json.loads((folder / "summary.json").read_text())
         assert len(summary) == len(groups)
         for item in summary:

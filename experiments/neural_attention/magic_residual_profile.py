@@ -59,6 +59,21 @@ class MeasuredKernel:
         return run
 
 
+class MeasuredSumKernel:
+    def __init__(self, kernel, times):
+        self.kernel, self.times = kernel, times
+
+    def __getattr__(self, name):
+        return getattr(self.kernel, name)
+
+    def function(self, *args):
+        started = perf_counter()
+        try:
+            return self.kernel.function(*args)
+        finally:
+            self.times["sum_native_call"] += perf_counter() - started
+
+
 def save(path, value):
     path.write_text(json.dumps(value, indent=2) + "\n")
 
@@ -71,6 +86,7 @@ def signature(row):
         row["termination"],
         row["squares"],
         {k: v for k, v in row["stats"].items() if k != "enum_seconds"},
+        row.get("sum_stats", {}),
     )
 
 
@@ -119,9 +135,24 @@ def main():
     )
     parser.add_argument("--repeats", type=int, default=3)
     parser.add_argument("--limit", type=float, default=60)
+    parser.add_argument("--large-nodes", type=int, default=30)
+    parser.add_argument("--native-sum", action="store_true")
     args = parser.parse_args()
-    if args.repeats < 1 or args.limit <= 0 or any(n < 3 for n in args.sizes):
+    if (
+        args.repeats < 1
+        or args.limit <= 0
+        or args.large_nodes < 1
+        or any(n < 3 for n in args.sizes)
+    ):
         parser.error("require positive repeats/time and square sizes >=3")
+    extra = [Path(__file__).with_name("magic_profile.py")]
+    if args.native_sum:
+        extra.extend(
+            [
+                Path(__file__).with_name("sum_kernel.py"),
+                Path(__file__).with_name("sum_support.c"),
+            ]
+        )
     freeze(
         args.output,
         dict(
@@ -129,18 +160,29 @@ def main():
             sizes=args.sizes,
             repeats=args.repeats,
             limit=args.limit,
+            native_sum=args.native_sum,
+            large_nodes=args.large_nodes,
             scope=(
                 "Search excludes model/state setup, imports, compilation, output "
                 "and validation. Separate wall timers/cProfile runs; "
                 "instrumented times are not benchmark medians."
             ),
             hybrid=dict(remaining=20, mode=4, work_limit=200000),
-            node_limits="5000 for sizes <=16;30 for larger sizes (prefix only)",
+            node_limits=(
+                f"5000 for sizes <=16;{args.large_nodes} "
+                "for larger sizes (prefix only)"
+            ),
         ),
-        extra_files=[Path(__file__).with_name("magic_profile.py")],
+        extra_files=extra,
     )
     kernel, compiled = Kernel.build(args.output / "enumerator.so")
     save(args.output / "compile.json", compiled)
+    sum_kernel = None
+    if args.native_sum:
+        from .sum_kernel import SumKernel
+
+        sum_kernel, compiled = SumKernel.build(args.output / "sum.so")
+        save(args.output / "sum_compile.json", compiled)
     schedule = [
         (n, v, "baseline", r)
         for n in args.sizes
@@ -174,6 +216,15 @@ def main():
             if variant == "hybrid":
                 state.compiler = MeasuredCompiler(state.compiler, state.native.times)
                 state.kernel = MeasuredKernel(kernel, state.native.times)
+        if sum_kernel is not None:
+            from .sum_kernel import enable
+
+            enable(
+                state.native,
+                MeasuredSumKernel(sum_kernel, state.native.times)
+                if phase == "wall_timers"
+                else sum_kernel,
+            )
         setup = perf_counter() - started
         profiler = cProfile.Profile() if phase == "cprofile" else None
         if profiler is not None:
@@ -181,7 +232,10 @@ def main():
         started = perf_counter()
         result = search(
             state,
-            Query(max_nodes=5000 if n <= 16 else 30, time_limit_seconds=args.limit),
+            Query(
+                max_nodes=5000 if n <= 16 else args.large_nodes,
+                time_limit_seconds=args.limit,
+            ),
             policy=spec["policy"],
         )
         seconds = perf_counter() - started
@@ -201,6 +255,9 @@ def main():
             termination=result.termination.value,
             squares=[validate(n, s.assignment, original) for s in result.solutions],
             stats=dict(state.stats) if variant == "hybrid" else {},
+            sum_stats=dict(state.native._numeric.stats)
+            if sum_kernel is not None
+            else {},
         )
         assert row["termination"] != "time_limit", (
             "profiling interrupted; search cannot be compared"
@@ -212,6 +269,18 @@ def main():
         if phase == "wall_timers":
             row.update(times=dict(state.native.times), calls=dict(state.native.calls))
             row["attribution"] = attribute(row)
+            if sum_kernel is not None:
+                call = row["times"].get("sum_native_call", 0)
+                total = row["attribution"]["sum_filtering"]["seconds"]
+                assert 0 <= call <= total
+                row["sum_breakdown"] = dict(
+                    native_call_seconds=call,
+                    native_call_percent=100 * call / seconds,
+                    python_adapter_and_application_seconds=total - call,
+                    python_adapter_and_application_percent=100
+                    * (total - call)
+                    / seconds,
+                )
         if profiler is not None:
             profiler.dump_stats(str(args.output / f"magic{n}_{variant}.prof"))
             stream = io.StringIO()
@@ -251,6 +320,7 @@ def main():
                     attribution=wall["attribution"],
                     stats=wall["stats"],
                     calls=wall["calls"],
+                    sum_breakdown=wall.get("sum_breakdown", {}),
                 )
             )
     save(args.output / "summary.json", summary)

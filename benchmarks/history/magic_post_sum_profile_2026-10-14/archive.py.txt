@@ -1,0 +1,37 @@
+import hashlib,json,shutil
+from pathlib import Path
+root=Path('benchmarks/history/magic_post_sum_profile_2026-10-14')
+root.mkdir(parents=True,exist_ok=False)
+for stage, directory in [('profile','magic_post_sum_profile_20261014'),('large','magic_post_sum_large_profile_20261014')]:
+ shutil.copytree(Path('generated/neural_attention')/directory,root/stage,ignore=shutil.ignore_patterns('*.so','*.dll','*.dylib','__pycache__'))
+ shutil.copyfile(Path('/tmp')/(directory+'.log'),root/(stage+'.log'))
+for name in ['magic_residual_profile.py','magic_profile.py']:
+ shutil.copyfile(Path('experiments/neural_attention')/name,root/(name+'.txt'))
+shutil.copyfile('experiments/neural_attention/magic_residual_profile_validate.py',root/'validate.py.txt')
+shutil.copyfile(__file__,root/'archive.py.txt')
+results=json.loads((root/'profile/summary.json').read_text())+json.loads((root/'large/summary.json').read_text())
+report=dict(date='2026-10-14',stages=['profile','large'],git_head=json.loads((root/'profile/frozen.json').read_text())['git_head'],
+ decision='Next broad Python-to-C candidate: full ALLDIFF support pipeline. Residual data preparation and Python SUM adapter/application follow; native hot spots depend on workload.',
+ scope='C SUM enabled for every recorded case. Complete9,13,14,16 searches for CP and residual hybrid;20 is the same1000-node prefix for both strategies.',
+ timing='Three uninstrumented search repetitions,one separate wall-attribution andone cProfile pass per case. Setup,compilation and validation excluded. Percentages refer to the single instrumented search,not whole-solve benchmark medians. cProfile seconds are not performance claims.',
+ results=results,
+ findings=[
+ 'ALLDIFF16:66.1% ordinaryCP and40.7% residual hybrid. Full support pipeline includes value-coordinate conversion,graph construction,matching,SCC and support decoding; matching-only is a much smaller target.',
+ 'Hybrid16:residual extraction11.7%+encoding2.6%;SUM revision14.4%,split into native call7.5% and Python adapter/application6.9%. Domain/state operations6.4%;other CP propagation7.6%.',
+ 'Hybrid9:residual call67.4%,ALLDIFF9.5%,SUM4.9%; prioritize native enumeration/pruning there rather than assume the16 profile applies universally.',
+ '20prefix:ALLDIFF34.1%,SUM46.3%,of which38.3% is already inside native SUM call. No residual enumeration and no complete solution. Optimizing native DP word ranges could be a subsequent candidate; no implementation claim.',
+ 'Hybrid14 has sizable search-other/plan/explanation overhead in the single wall pass; avoid overinterpreting small-workload percentages. ALLDIFF remains the largest individual revision category.',
+ ],
+ limits=['Native SUM call timing includes ctypes transition. The Python SUM remainder includes mask projection,cache checks,serialization,decoding and domain application; it is not solely packing overhead.',
+ 'SUM breakdown is nested inside sum_filtering,not an additional disjoint time category.',
+ 'Profiling preserves nodes,failures,revisions,solutions,termination,residual counters and native SUM path counters across all five passes.',
+ 'C internals are opaque to cProfile; neither the residual C algorithm nor C SUM instruction-level hot spots are established by Python profiles.',
+ 'No new ALLDIFF kernel implemented. Production defaults unchanged.'],
+ checks=['Main40passes and20prefix10passes completed with identical search counters and valid complete squares.',
+ 'Frozen source snapshots and compiled-library cache metadata retained.'],
+ reproduce=['PYTHONHASHSEED=0 PYTHONPATH=src:. python -m experiments.neural_attention.magic_residual_profile --native-sum --sizes 9 13 14 16 --repeats 3 --output generated/neural_attention/post_sum_profile_NEW',
+ 'PYTHONHASHSEED=0 PYTHONPATH=src:. python -m experiments.neural_attention.magic_residual_profile --native-sum --sizes 20 --large-nodes 1000 --repeats 3 --output generated/neural_attention/post_sum_large_NEW'])
+(root/'report.json').write_text(json.dumps(report,indent=2)+'\n')
+manifest={str(p.relative_to(root)):hashlib.sha256(p.read_bytes()).hexdigest() for p in sorted(root.rglob('*')) if p.is_file()}
+(root/'manifest.json').write_text(json.dumps(manifest,indent=2)+'\n')
+print('Archived',len(manifest),'files')

@@ -1,0 +1,706 @@
+{
+  "date": "2026-10-14",
+  "stages": [
+    "profile",
+    "large"
+  ],
+  "git_head": "9516ccca66158ecfd82e4dbb9241a038c05d47d0",
+  "decision": "Next broad Python-to-C candidate: full ALLDIFF support pipeline. Residual data preparation and Python SUM adapter/application follow; native hot spots depend on workload.",
+  "scope": "C SUM enabled for every recorded case. Complete9,13,14,16 searches for CP and residual hybrid;20 is the same1000-node prefix for both strategies.",
+  "timing": "Three uninstrumented search repetitions,one separate wall-attribution andone cProfile pass per case. Setup,compilation and validation excluded. Percentages refer to the single instrumented search,not whole-solve benchmark medians. cProfile seconds are not performance claims.",
+  "results": [
+    {
+      "size": 9,
+      "variant": "cp",
+      "solved": true,
+      "termination": "solution_limit",
+      "nodes": 2962,
+      "median_search_seconds": 1.063396415906027,
+      "median_setup_seconds": 0.010358250001445413,
+      "wall_seconds": 1.0952216249424964,
+      "attribution": {
+        "sum_filtering": {
+          "seconds": 0.2804482467472553,
+          "percent": 25.606529341673653
+        },
+        "alldiff_filtering": {
+          "seconds": 0.6196428833063692,
+          "percent": 56.576940154820534
+        },
+        "cp_propagation_other": {
+          "seconds": 0.09824614389799535,
+          "percent": 8.970434993296784
+        },
+        "residual_extraction": {
+          "seconds": 0,
+          "percent": 0.0
+        },
+        "residual_encoding": {
+          "seconds": 0,
+          "percent": 0.0
+        },
+        "residual_call": {
+          "seconds": 0,
+          "percent": 0.0
+        },
+        "residual_adapter_other": {
+          "seconds": 0,
+          "percent": 0.0
+        },
+        "state_operations": {
+          "seconds": 0.06526496447622776,
+          "percent": 5.95906463038058
+        },
+        "search_other": {
+          "seconds": 0.031619386514648795,
+          "percent": 2.8870308798284494
+        }
+      },
+      "stats": {},
+      "calls": {
+        "checkpoint": 767,
+        "propagation": 2962,
+        "AllDifferentConstraint:mask": 8633,
+        "SumConstraint:mask": 47745,
+        "rollback": 3728,
+        "restrict": 2961,
+        "release": 767
+      },
+      "sum_breakdown": {
+        "native_call_seconds": 0.051292838994413614,
+        "native_call_percent": 4.68332964089407,
+        "python_adapter_and_application_seconds": 0.2291554077528417,
+        "python_adapter_and_application_percent": 20.923199700779584
+      }
+    },
+    {
+      "size": 9,
+      "variant": "hybrid",
+      "solved": true,
+      "termination": "solution_limit",
+      "nodes": 572,
+      "median_search_seconds": 0.556542333913967,
+      "median_setup_seconds": 0.009835125179961324,
+      "wall_seconds": 0.5601254592183977,
+      "attribution": {
+        "sum_filtering": {
+          "seconds": 0.027545614633709192,
+          "percent": 4.917758009454971
+        },
+        "alldiff_filtering": {
+          "seconds": 0.05321412533521652,
+          "percent": 9.500393967000146
+        },
+        "cp_propagation_other": {
+          "seconds": 0.015877419617027044,
+          "percent": 2.834618451227424
+        },
+        "residual_extraction": {
+          "seconds": 0.043992538237944245,
+          "percent": 7.8540508227088415
+        },
+        "residual_encoding": {
+          "seconds": 0.019753721076995134,
+          "percent": 3.5266600994283657
+        },
+        "residual_call": {
+          "seconds": 0.3774737799540162,
+          "percent": 67.39093425261285
+        },
+        "residual_adapter_other": {
+          "seconds": 0.0005806693807244301,
+          "percent": 0.10366773571312031
+        },
+        "state_operations": {
+          "seconds": 0.010647532530128956,
+          "percent": 1.9009192235229913
+        },
+        "search_other": {
+          "seconds": 0.011040058452636003,
+          "percent": 1.9709974383312918
+        }
+      },
+      "stats": {
+        "attempts": 452,
+        "enum_seconds": 0.44180070864968,
+        "visits": 27190310,
+        "exhausted": 375,
+        "fallbacks": 76,
+        "witnesses": 1
+      },
+      "calls": {
+        "checkpoint": 141,
+        "propagation": 197,
+        "AllDifferentConstraint:mask": 620,
+        "SumConstraint:mask": 4414,
+        "rollback": 712,
+        "restrict": 591,
+        "release": 141
+      },
+      "sum_breakdown": {
+        "native_call_seconds": 0.00681066419929266,
+        "native_call_percent": 1.2159176283106823,
+        "python_adapter_and_application_seconds": 0.020734950434416533,
+        "python_adapter_and_application_percent": 3.701840381144289
+      }
+    },
+    {
+      "size": 13,
+      "variant": "cp",
+      "solved": true,
+      "termination": "solution_limit",
+      "nodes": 1488,
+      "median_search_seconds": 1.0498007910791785,
+      "median_setup_seconds": 0.057977291056886315,
+      "wall_seconds": 1.0664737089537084,
+      "attribution": {
+        "sum_filtering": {
+          "seconds": 0.18274495005607605,
+          "percent": 17.1354388319017
+        },
+        "alldiff_filtering": {
+          "seconds": 0.6834378084167838,
+          "percent": 64.08388717686141
+        },
+        "cp_propagation_other": {
+          "seconds": 0.08418419305235147,
+          "percent": 7.893696051348753
+        },
+        "residual_extraction": {
+          "seconds": 0,
+          "percent": 0.0
+        },
+        "residual_encoding": {
+          "seconds": 0,
+          "percent": 0.0
+        },
+        "residual_call": {
+          "seconds": 0,
+          "percent": 0.0
+        },
+        "residual_adapter_other": {
+          "seconds": 0,
+          "percent": 0.0
+        },
+        "state_operations": {
+          "seconds": 0.06163141131401062,
+          "percent": 5.778990217628122
+        },
+        "search_other": {
+          "seconds": 0.054475346114486456,
+          "percent": 5.107987722260018
+        }
+      },
+      "stats": {},
+      "calls": {
+        "checkpoint": 517,
+        "propagation": 1488,
+        "AllDifferentConstraint:mask": 3929,
+        "SumConstraint:mask": 22037,
+        "rollback": 2004,
+        "restrict": 1487,
+        "release": 517
+      },
+      "sum_breakdown": {
+        "native_call_seconds": 0.04400231223553419,
+        "native_call_percent": 4.125963149968675,
+        "python_adapter_and_application_seconds": 0.13874263782054186,
+        "python_adapter_and_application_percent": 13.009475681933022
+      }
+    },
+    {
+      "size": 13,
+      "variant": "hybrid",
+      "solved": true,
+      "termination": "solution_limit",
+      "nodes": 655,
+      "median_search_seconds": 0.4876135000959039,
+      "median_setup_seconds": 0.04004475008696318,
+      "wall_seconds": 0.4901518749538809,
+      "attribution": {
+        "sum_filtering": {
+          "seconds": 0.054026153637096286,
+          "percent": 11.02232928154762
+        },
+        "alldiff_filtering": {
+          "seconds": 0.16137611051090062,
+          "percent": 32.923695441557726
+        },
+        "cp_propagation_other": {
+          "seconds": 0.04542494914494455,
+          "percent": 9.267525325536834
+        },
+        "residual_extraction": {
+          "seconds": 0.04472132748924196,
+          "percent": 9.123973562979812
+        },
+        "residual_encoding": {
+          "seconds": 0.012860756134614348,
+          "percent": 2.6238308556555934
+        },
+        "residual_call": {
+          "seconds": 0.10867945128120482,
+          "percent": 22.172607478331205
+        },
+        "residual_adapter_other": {
+          "seconds": 0.00033135339617729187,
+          "percent": 0.06760218885390766
+        },
+        "state_operations": {
+          "seconds": 0.023982004029676318,
+          "percent": 4.892770028051575
+        },
+        "search_other": {
+          "seconds": 0.03874976933002472,
+          "percent": 7.905665837485726
+        }
+      },
+      "stats": {
+        "attempts": 350,
+        "enum_seconds": 0.16659288830123842,
+        "visits": 7357753,
+        "exhausted": 339,
+        "fallbacks": 10,
+        "witnesses": 1
+      },
+      "calls": {
+        "checkpoint": 260,
+        "propagation": 316,
+        "AllDifferentConstraint:mask": 806,
+        "SumConstraint:mask": 5920,
+        "rollback": 914,
+        "restrict": 673,
+        "release": 260
+      },
+      "sum_breakdown": {
+        "native_call_seconds": 0.021755931666120887,
+        "native_call_percent": 4.438610311991142,
+        "python_adapter_and_application_seconds": 0.0322702219709754,
+        "python_adapter_and_application_percent": 6.583718969556477
+      }
+    },
+    {
+      "size": 14,
+      "variant": "cp",
+      "solved": true,
+      "termination": "solution_limit",
+      "nodes": 219,
+      "median_search_seconds": 0.22714204201474786,
+      "median_setup_seconds": 0.10165216703899205,
+      "wall_seconds": 0.222955415956676,
+      "attribution": {
+        "sum_filtering": {
+          "seconds": 0.05566170928068459,
+          "percent": 24.96539904260527
+        },
+        "alldiff_filtering": {
+          "seconds": 0.076725535094738,
+          "percent": 34.41294967674033
+        },
+        "cp_propagation_other": {
+          "seconds": 0.04551808885298669,
+          "percent": 20.415780732517224
+        },
+        "residual_extraction": {
+          "seconds": 0,
+          "percent": 0.0
+        },
+        "residual_encoding": {
+          "seconds": 0,
+          "percent": 0.0
+        },
+        "residual_call": {
+          "seconds": 0,
+          "percent": 0.0
+        },
+        "residual_adapter_other": {
+          "seconds": 0,
+          "percent": 0.0
+        },
+        "state_operations": {
+          "seconds": 0.011567023349925876,
+          "percent": 5.188043223930269
+        },
+        "search_other": {
+          "seconds": 0.03348305937834084,
+          "percent": 15.0178273242069
+        }
+      },
+      "stats": {},
+      "calls": {
+        "checkpoint": 169,
+        "propagation": 219,
+        "AllDifferentConstraint:mask": 479,
+        "SumConstraint:mask": 4497,
+        "LinearSumConstraint:mask": 26,
+        "rollback": 387,
+        "restrict": 218,
+        "release": 169
+      },
+      "sum_breakdown": {
+        "native_call_seconds": 0.03475116100162268,
+        "native_call_percent": 15.58659647378802,
+        "python_adapter_and_application_seconds": 0.020910548279061913,
+        "python_adapter_and_application_percent": 9.37880256881725
+      }
+    },
+    {
+      "size": 14,
+      "variant": "hybrid",
+      "solved": true,
+      "termination": "solution_limit",
+      "nodes": 215,
+      "median_search_seconds": 0.2242398331873119,
+      "median_setup_seconds": 0.084080875152722,
+      "wall_seconds": 0.2614241249393672,
+      "attribution": {
+        "sum_filtering": {
+          "seconds": 0.05505403457209468,
+          "percent": 21.059278513359665
+        },
+        "alldiff_filtering": {
+          "seconds": 0.07467390247620642,
+          "percent": 28.564273665839274
+        },
+        "cp_propagation_other": {
+          "seconds": 0.04457561927847564,
+          "percent": 17.05107334252881
+        },
+        "residual_extraction": {
+          "seconds": 0.00036262511275708675,
+          "percent": 0.13871141878783813
+        },
+        "residual_encoding": {
+          "seconds": 0.0001621670089662075,
+          "percent": 0.062032151395292744
+        },
+        "residual_call": {
+          "seconds": 0.0032783339265733957,
+          "percent": 1.254028841957011
+        },
+        "residual_adapter_other": {
+          "seconds": 6.8729277700185776e-06,
+          "percent": 0.0026290334802163474
+        },
+        "state_operations": {
+          "seconds": 0.011481460183858871,
+          "percent": 4.391890070023874
+        },
+        "search_other": {
+          "seconds": 0.07182910945266485,
+          "percent": 27.47608296262802
+        }
+      },
+      "stats": {
+        "attempts": 2,
+        "enum_seconds": 0.0038099989760667086,
+        "visits": 239687,
+        "fallbacks": 1,
+        "witnesses": 1
+      },
+      "calls": {
+        "checkpoint": 165,
+        "propagation": 215,
+        "AllDifferentConstraint:mask": 462,
+        "SumConstraint:mask": 4421,
+        "LinearSumConstraint:mask": 26,
+        "rollback": 379,
+        "restrict": 233,
+        "release": 165
+      },
+      "sum_breakdown": {
+        "native_call_seconds": 0.03465172182768583,
+        "native_call_percent": 13.254982429690719,
+        "python_adapter_and_application_seconds": 0.020402312744408846,
+        "python_adapter_and_application_percent": 7.804296083668946
+      }
+    },
+    {
+      "size": 16,
+      "variant": "cp",
+      "solved": true,
+      "termination": "solution_limit",
+      "nodes": 2536,
+      "median_search_seconds": 2.7277067920658737,
+      "median_setup_seconds": 0.1437754170037806,
+      "wall_seconds": 2.7753567080944777,
+      "attribution": {
+        "sum_filtering": {
+          "seconds": 0.4760449936147779,
+          "percent": 17.152569694063722
+        },
+        "alldiff_filtering": {
+          "seconds": 1.8335829775314778,
+          "percent": 66.06656982807775
+        },
+        "cp_propagation_other": {
+          "seconds": 0.17933984752744436,
+          "percent": 6.461866577524612
+        },
+        "residual_extraction": {
+          "seconds": 0,
+          "percent": 0.0
+        },
+        "residual_encoding": {
+          "seconds": 0,
+          "percent": 0.0
+        },
+        "residual_call": {
+          "seconds": 0,
+          "percent": 0.0
+        },
+        "residual_adapter_other": {
+          "seconds": 0,
+          "percent": 0.0
+        },
+        "state_operations": {
+          "seconds": 0.15579589479602873,
+          "percent": 5.6135448946667506
+        },
+        "search_other": {
+          "seconds": 0.13059299462474883,
+          "percent": 4.705449005667175
+        }
+      },
+      "stats": {},
+      "calls": {
+        "checkpoint": 933,
+        "propagation": 2536,
+        "AllDifferentConstraint:mask": 7300,
+        "SumConstraint:mask": 46426,
+        "LinearSumConstraint:mask": 28,
+        "rollback": 3468,
+        "restrict": 2535,
+        "release": 933
+      },
+      "sum_breakdown": {
+        "native_call_seconds": 0.15014912490732968,
+        "native_call_percent": 5.410083845057165,
+        "python_adapter_and_application_seconds": 0.32589586870744824,
+        "python_adapter_and_application_percent": 11.742485849006556
+      }
+    },
+    {
+      "size": 16,
+      "variant": "hybrid",
+      "solved": true,
+      "termination": "solution_limit",
+      "nodes": 1729,
+      "median_search_seconds": 1.4763482499402016,
+      "median_setup_seconds": 0.13937541702762246,
+      "wall_seconds": 1.468175332993269,
+      "attribution": {
+        "sum_filtering": {
+          "seconds": 0.21083728084340692,
+          "percent": 14.360497421895694
+        },
+        "alldiff_filtering": {
+          "seconds": 0.5973579469136894,
+          "percent": 40.6870987061072
+        },
+        "cp_propagation_other": {
+          "seconds": 0.11158095323480666,
+          "percent": 7.599974657476296
+        },
+        "residual_extraction": {
+          "seconds": 0.1714548768941313,
+          "percent": 11.678092734644613
+        },
+        "residual_encoding": {
+          "seconds": 0.0374426853377372,
+          "percent": 2.5502870465341663
+        },
+        "residual_call": {
+          "seconds": 0.1334858771879226,
+          "percent": 9.091957492282333
+        },
+        "residual_adapter_other": {
+          "seconds": 0.0010132675524801016,
+          "percent": 0.06901543226545592
+        },
+        "state_operations": {
+          "seconds": 0.09445766848511994,
+          "percent": 6.433677665224266
+        },
+        "search_other": {
+          "seconds": 0.11054477654397488,
+          "percent": 7.529398843569979
+        }
+      },
+      "stats": {
+        "attempts": 1017,
+        "enum_seconds": 0.3433967069722712,
+        "visits": 8416768,
+        "exhausted": 1011,
+        "fallbacks": 5,
+        "witnesses": 1
+      },
+      "calls": {
+        "checkpoint": 634,
+        "propagation": 718,
+        "AllDifferentConstraint:mask": 2037,
+        "SumConstraint:mask": 16636,
+        "LinearSumConstraint:mask": 28,
+        "rollback": 2362,
+        "restrict": 1747,
+        "release": 634
+      },
+      "sum_breakdown": {
+        "native_call_seconds": 0.11015360010787845,
+        "native_call_percent": 7.5027551296139,
+        "python_adapter_and_application_seconds": 0.10068368073552847,
+        "python_adapter_and_application_percent": 6.857742292281794
+      }
+    },
+    {
+      "size": 20,
+      "variant": "cp",
+      "solved": false,
+      "termination": "node_limit",
+      "nodes": 1000,
+      "median_search_seconds": 1.8000564579851925,
+      "median_setup_seconds": 0.21805662498809397,
+      "wall_seconds": 1.819025665987283,
+      "attribution": {
+        "sum_filtering": {
+          "seconds": 0.8630446898750961,
+          "percent": 47.44543774244523
+        },
+        "alldiff_filtering": {
+          "seconds": 0.5937425324227661,
+          "percent": 32.640690207112065
+        },
+        "cp_propagation_other": {
+          "seconds": 0.20723629463464022,
+          "percent": 11.392708663193158
+        },
+        "residual_extraction": {
+          "seconds": 0,
+          "percent": 0.0
+        },
+        "residual_encoding": {
+          "seconds": 0,
+          "percent": 0.0
+        },
+        "residual_call": {
+          "seconds": 0,
+          "percent": 0.0
+        },
+        "residual_adapter_other": {
+          "seconds": 0,
+          "percent": 0.0
+        },
+        "state_operations": {
+          "seconds": 0.09487142064608634,
+          "percent": 5.2155075335121515
+        },
+        "search_other": {
+          "seconds": 0.06013072840869427,
+          "percent": 3.3056558537373957
+        }
+      },
+      "stats": {},
+      "calls": {
+        "checkpoint": 430,
+        "propagation": 1000,
+        "AllDifferentConstraint:mask": 2086,
+        "SumConstraint:mask": 21861,
+        "rollback": 1430,
+        "restrict": 1000,
+        "release": 430
+      },
+      "sum_breakdown": {
+        "native_call_seconds": 0.7107497176621109,
+        "native_call_percent": 39.073100009083646,
+        "python_adapter_and_application_seconds": 0.15229497221298516,
+        "python_adapter_and_application_percent": 8.372337733361585
+      }
+    },
+    {
+      "size": 20,
+      "variant": "hybrid",
+      "solved": false,
+      "termination": "node_limit",
+      "nodes": 1000,
+      "median_search_seconds": 1.8176072500646114,
+      "median_setup_seconds": 0.22554983384907246,
+      "wall_seconds": 1.8409555000253022,
+      "attribution": {
+        "sum_filtering": {
+          "seconds": 0.8519555267412215,
+          "percent": 46.27789898938417
+        },
+        "alldiff_filtering": {
+          "seconds": 0.627993738045916,
+          "percent": 34.11238012202276
+        },
+        "cp_propagation_other": {
+          "seconds": 0.20740659395232797,
+          "percent": 11.266247008658132
+        },
+        "residual_extraction": {
+          "seconds": 0,
+          "percent": 0.0
+        },
+        "residual_encoding": {
+          "seconds": 0,
+          "percent": 0.0
+        },
+        "residual_call": {
+          "seconds": 0,
+          "percent": 0.0
+        },
+        "residual_adapter_other": {
+          "seconds": 0,
+          "percent": 0.0
+        },
+        "state_operations": {
+          "seconds": 0.0933188353665173,
+          "percent": 5.069043513829353
+        },
+        "search_other": {
+          "seconds": 0.06028080591931939,
+          "percent": 3.2744303661055842
+        }
+      },
+      "stats": {},
+      "calls": {
+        "checkpoint": 430,
+        "propagation": 1000,
+        "AllDifferentConstraint:mask": 2086,
+        "SumConstraint:mask": 21861,
+        "rollback": 1430,
+        "restrict": 1000,
+        "release": 430
+      },
+      "sum_breakdown": {
+        "native_call_seconds": 0.7056692340411246,
+        "native_call_percent": 38.3316834128487,
+        "python_adapter_and_application_seconds": 0.14628629270009696,
+        "python_adapter_and_application_percent": 7.946215576535468
+      }
+    }
+  ],
+  "findings": [
+    "ALLDIFF16:66.1% ordinaryCP and40.7% residual hybrid. Full support pipeline includes value-coordinate conversion,graph construction,matching,SCC and support decoding; matching-only is a much smaller target.",
+    "Hybrid16:residual extraction11.7%+encoding2.6%;SUM revision14.4%,split into native call7.5% and Python adapter/application6.9%. Domain/state operations6.4%;other CP propagation7.6%.",
+    "Hybrid9:residual call67.4%,ALLDIFF9.5%,SUM4.9%; prioritize native enumeration/pruning there rather than assume the16 profile applies universally.",
+    "20prefix:ALLDIFF34.1%,SUM46.3%,of which38.3% is already inside native SUM call. No residual enumeration and no complete solution. Optimizing native DP word ranges could be a subsequent candidate; no implementation claim.",
+    "Hybrid14 has sizable search-other/plan/explanation overhead in the single wall pass; avoid overinterpreting small-workload percentages. ALLDIFF remains the largest individual revision category."
+  ],
+  "limits": [
+    "Native SUM call timing includes ctypes transition. The Python SUM remainder includes mask projection,cache checks,serialization,decoding and domain application; it is not solely packing overhead.",
+    "SUM breakdown is nested inside sum_filtering,not an additional disjoint time category.",
+    "Profiling preserves nodes,failures,revisions,solutions,termination,residual counters and native SUM path counters across all five passes.",
+    "C internals are opaque to cProfile; neither the residual C algorithm nor C SUM instruction-level hot spots are established by Python profiles.",
+    "No new ALLDIFF kernel implemented. Production defaults unchanged."
+  ],
+  "checks": [
+    "Main40passes and20prefix10passes completed with identical search counters and valid complete squares.",
+    "Frozen source snapshots and compiled-library cache metadata retained."
+  ],
+  "reproduce": [
+    "PYTHONHASHSEED=0 PYTHONPATH=src:. python -m experiments.neural_attention.magic_residual_profile --native-sum --sizes 9 13 14 16 --repeats 3 --output generated/neural_attention/post_sum_profile_NEW",
+    "PYTHONHASHSEED=0 PYTHONPATH=src:. python -m experiments.neural_attention.magic_residual_profile --native-sum --sizes 20 --large-nodes 1000 --repeats 3 --output generated/neural_attention/post_sum_large_NEW"
+  ]
+}
