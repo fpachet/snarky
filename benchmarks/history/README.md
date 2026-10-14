@@ -25,7 +25,17 @@ and records different native bottlenecks on 9×9 and a 20×20 prefix.
 The [pre-SUM profiles](magic_native_profile_2026-10-14/report.json) prioritized
 the implemented SUM kernel; they remain frozen evidence for that decision.
 
-**Latest experiment:** [Exact native SUM supports](magic_sum_kernel_2026-10-14/report.json).
+**Latest experiment:** [Full native ALLDIFF supports](magic_alldiff_kernel_2026-10-14/report.json).
+With C SUM already enabled, the final five-pair 16×16 confirmation reduces
+whole-solve time 46.6% for ordinary CP and 25.9% for the residual hybrid.
+The broad batch improves all six completed sizes; hybrid and 14×14 gains are
+smaller. A 1,000-node 20×20 prefix improves 11–12% but finds no solution;
+the startup prefix regresses slightly. The archive validates 220 runs,
+184 squares and 29,865 exact support/matching transitions. The
+[overview](../README.md#magic-squares) records timings and opt-in usage.
+
+The preceding [exact native SUM supports](magic_sum_kernel_2026-10-14/report.json)
+established the numeric kernel.
 The opt-in kernel preserves exact support masks and search behavior, reducing
 16×16 time 35.5% in ordinary CP and 42.0% in the residual hybrid; 14×14 improves
 60.5%/58.9%. A 1,000-node 20×20 prefix is about four times faster, but a
@@ -112,6 +122,7 @@ that must be selected explicitly, not a default native-solver feature.
 | [SUM boundary processing](magic_sum_boundaries_2026-10-13/summary.json) | Avoid redundant prefix/backward work while preserving exact supports; modest additional per-node gain | Enabled |
 | [ALLDIFF identity layouts](magic_identity_layout_2026-10-14/summary.json) | Skip input-mask translation for aligned layouts; small gain on eligible magic-square presets | Enabled |
 | [ALLDIFF matching repair](magic_matching_repairs_2026-10-14/summary.json) | Sort only unmatched rows while preserving repair order and the intact-matching fast path | Enabled |
+| [Full native ALLDIFF supports](magic_alldiff_kernel_2026-10-14/report.json) | Whole support pipeline in C; final 16×16 confirmation improves 46.6% CP / 25.9% hybrid on top of C SUM, with identical filtering/search | Opt-in exact propagator experiment |
 | [Post-SUM CP/hybrid profiles](magic_post_sum_profile_2026-10-14/report.json) | Full ALLDIFF support pipeline is the next broad Python bottleneck; residual and native costs vary by workload | Diagnostic profiles with C SUM enabled |
 | [Exact native SUM supports](magic_sum_kernel_2026-10-14/report.json) | Identical-search gains on all six completed sizes; larger 20×20 prefix improves, but no solution within 30 seconds | Opt-in exact propagator experiment |
 | [Fresh CP/hybrid profiles](magic_native_profile_2026-10-14/report.json) | SUM support computation is the next native-kernel priority on most completed hybrid workloads | Diagnostic profiles; no new propagator kernel |

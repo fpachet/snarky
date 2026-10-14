@@ -16,6 +16,92 @@ comparison; an archived experiment's defaults apply to its recorded version.
 
 This is the stable entry point for the current magic-square benchmark summary.
 
+### Native ALLDIFF support kernel — 14 October 2026 (experimental)
+
+An opt-in C kernel now performs the **whole exact ALLDIFF support operation**:
+canonical-value encoding, matching validation/repair, alternating graph
+construction, free-value reachability, SCC filtering and local-mask decoding.
+The Python solver still applies reductions, records causes, trails domains and
+controls search. This changes execution cost, without adding deductions or
+changing variable/value choices. Both compared variants already use C SUM.
+
+The broad five-pair shuffled batch gives these whole-solve medians:
+
+| Size | CP + C SUM | + C ALLDIFF | Reduction | Hybrid + C SUM | + C ALLDIFF | Reduction |
+|---|---:|---:|---:|---:|---:|---:|
+| 8×8 | 0.0665 s | 0.0488 s | 26.6% | 0.0312 s | 0.0304 s | 2.5% |
+| 9×9 | 1.0829 s | 0.6498 s | 40.0% | 0.5806 s | 0.5389 s | 7.2% |
+| 11×11 | 0.2214 s | 0.1452 s | 34.4% | 0.1357 s | 0.1117 s | 17.7% |
+| 13×13 | 1.0993 s | 0.5996 s | 45.5% | 0.5333 s | 0.4500 s | 15.6% |
+| 14×14 | 0.3168 s | 0.2871 s | 9.4% | 0.3173 s | 0.3015 s | 5.0% |
+| 16×16 | 2.9565 s | 1.6000 s | 45.9% | 1.6540 s | 1.2381 s | 25.1% |
+
+A separate five-pair confirmation on the final adapter gives **3.0018 →
+1.6035 s at 16×16 CP (46.6%)** and **1.6634 → 1.2331 s for the hybrid
+(25.9%)**. At 14×14, confirmation gains shrink to 3.0% CP and 1.4% hybrid;
+this workload has little remaining ALLDIFF work and substantial setup cost.
+The short 30-node 20×20 prefix regresses 0.7% CP / 5.4% hybrid, so the kernel
+is not a universal improvement for startup-heavy runs. A separate three-pair
+1,000-node 20×20 prefix amortizes setup: CP takes 2.0468 → 1.8164 s (11.3%
+less time), and hybrid takes 2.0571 → 1.8082 s (12.1%). Neither finds a solution
+or reaches residual enumeration.
+
+Timings include model/state setup, workspace construction, serialization,
+propagation and search. Compilation/loading, auditing, validation and output
+are excluded. The existing presets and residual limits are unchanged. Audit
+passes separately compare every support result, matching and owner array with
+Python, plus ordered reduction hashes. Nodes, failures, revisions, solutions,
+SUM path counters and residual counters match within each strategy.
+
+The library is compiled once and persistently cached; each constraint owns
+immutable value-coordinate tables and reusable scratch buffers. Support calls
+allocate no heap memory. Matching edges are validated against current masks
+on every noncached call, including after rollback. SCCs and graphs are rebuilt
+on each noncached call: this experiment does not add an incremental graph cache.
+Arbitrary symbolic and large integer values are represented by canonical IDs.
+Eligibility retains the existing 2,048-value and cumulative 262,144-entry
+limits, with at most 2,048 variables per native plan. Empty or unsupported
+layouts, allocation rejection and non-little-endian hosts retain Python plans.
+
+The [report and frozen sources](history/magic_alldiff_kernel_2026-10-14/report.json)
+and [read-only validator](history/magic_alldiff_kernel_2026-10-14/validate.py.txt)
+preserve 220 audit/timing passes and 184 independently validated squares.
+All 51 ALLDIFF/SUM/residual
+tests pass. Fourteen ALLDIFF tests cover exhaustive support oracles, randomized
+shrinking/widening, failed augmentations, symbolic values, word boundaries,
+maximum workspace dimensions, causes, rollback and complete enumeration.
+ASan/UBSan passes 26,048 independent exhaustive and word-boundary cases.
+The whole-solve audit checks 29,865 support/matching transitions.
+
+This remains a checkout-only experiment with no change to public defaults:
+
+```sh
+PYTHONHASHSEED=0 PYTHONPATH=src:. .venv/bin/python -m experiments.neural_attention.magic_alldiff_kernel timing \
+  --repeats 5 --output generated/neural_attention/alldiff_native_NEW
+PYTHONHASHSEED=0 PYTHONPATH=src:. .venv/bin/python -m experiments.neural_attention.magic_alldiff_kernel audit \
+  --large-nodes 1000 --output generated/neural_attention/alldiff_audit_NEW
+PYTHONHASHSEED=0 PYTHONPATH=src:. .venv/bin/python -m experiments.neural_attention.magic_alldiff_kernel timing \
+  --sizes 20 --large-nodes 1000 --repeats 3 \
+  --output generated/neural_attention/alldiff_large_NEW
+python -m pytest experiments/neural_attention/test_alldiff_kernel.py
+python benchmarks/history/magic_alldiff_kernel_2026-10-14/validate.py.txt
+```
+
+For other models, explicitly call `alldiff_kernel.enable(state.native, kernel)`
+before propagation, where `kernel` is returned by `AllDiffKernel.build(path)`.
+Imports live under `experiments.neural_attention`. The adapter works
+independently of SUM and residual enumeration; the runner enables C SUM in
+both variants to measure the additional ALLDIFF benefit.
+
+A source review of Prune at `d82c64c` confirms concrete further ideas:
+incremental residual-graph/SCC updates, adaptive domain storage and word-level
+trailing. Its ALLDIFF code reconciles both removed and restored edges after
+backtracking. These warrant separate experiments after profiling the combined
+kernels; copying a native domain representation into Python is not automatically
+beneficial. The [existing Prune comparison](../docs/performance_prune_2026-09-16.md)
+records the repository and reproducible revision. This C implementation follows
+Snarky's existing filter and does not import Prune code.
+
 ### Native SUM support kernel — 14 October 2026 (experimental)
 
 An opt-in C kernel now computes the same exact equality supports as Python for

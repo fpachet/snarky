@@ -79,7 +79,7 @@ The [results archive](../benchmarks/history/README.md) indexes prior experiments
 including which magic-square ideas were enabled, left opt-in or rejected.
 
 The [native kernel experiments](../benchmarks/README.md#magic-squares) cover exact
-SUM support computation and residual enumeration. They remain opt-in, outside
+SUM/ALLDIFF support computation and residual enumeration. They remain opt-in, outside
 the production solver. Their setup, commands, supported scopes and cache
 behavior are described in that same benchmark guide.
 

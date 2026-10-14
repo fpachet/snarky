@@ -68,7 +68,7 @@ The required runtime is Python 3.12 or newer. PyYAML is the only mandatory
 third-party dependency.
 
 [Opt-in native experiments](benchmarks/README.md#magic-squares) use cached C
-shared libraries for exact SUM filtering and small residual searches. They run
+shared libraries for exact SUM and ALLDIFF filtering and small residual searches. They run
 from the source checkout and require a local C compiler; they are not enabled
 by `snarky.finite.solve` or included in the installed package. Their measured
 gains, supported scopes and exceptions are recorded in the benchmark guide.
@@ -116,6 +116,7 @@ Choose the test scope explicitly:
 | Research unit and fixture tests | `pytest harmonizer/bach_rule_induction/experiments` |
 | Native residual experiment (requires `cc`) | `pytest experiments/neural_attention/test_magic_residual_enumeration.py` |
 | Native SUM experiment (requires `cc`) | `pytest experiments/neural_attention/test_sum_kernel.py` |
+| Native ALLDIFF experiment (requires `cc`) | `pytest experiments/neural_attention/test_alldiff_kernel.py` |
 
 Research tests additionally require `python -m pip install -e ".[dev,research]"`.
 They run separately in CI. For a locked environment, use

@@ -101,13 +101,18 @@ jobs:
           tests/test_official_manual_rulebase.py --durations=10
       - name: Test opt-in native kernel experiments
         run: |
-          pytest experiments/neural_attention/test_magic_residual_enumeration.py experiments/neural_attention/test_sum_kernel.py
+          pytest experiments/neural_attention/test_magic_residual_enumeration.py experiments/neural_attention/test_sum_kernel.py experiments/neural_attention/test_alldiff_kernel.py
           python benchmarks/history/magic_residual_enumeration_2026-10-14/validate.py.txt
           python benchmarks/history/magic_residual_reuse_2026-10-14/validate.py.txt
           python benchmarks/history/magic_native_profile_2026-10-14/validate.py.txt
           python benchmarks/history/magic_sum_kernel_2026-10-14/validate.py.txt
           python benchmarks/history/magic_post_sum_profile_2026-10-14/validate.py.txt
+          python benchmarks/history/magic_alldiff_kernel_2026-10-14/validate.py.txt
       - name: Sanitize native SUM support computation
         run: |
           cc -std=c11 -Wall -Wextra -Werror -O1 -g -fsanitize=address,undefined experiments/neural_attention/sum_kernel_sanitize.c -o /tmp/sum_sanitize
           /tmp/sum_sanitize
+      - name: Sanitize native ALLDIFF support computation
+        run: |
+          cc -std=c11 -Wall -Wextra -Werror -O1 -g -fsanitize=address,undefined experiments/neural_attention/alldiff_kernel_sanitize.c -o /tmp/alldiff_sanitize
+          /tmp/alldiff_sanitize

@@ -1,0 +1,208 @@
+{
+  "experiment": "Full exact ALLDIFF C support kernel",
+  "date": "2026-10-14",
+  "stages": [
+    "audit",
+    "pilot",
+    "confirmation",
+    "large"
+  ],
+  "baseline": "Python ALLDIFF with native SUM; identical presets and residual settings",
+  "candidate": "C ALLDIFF with native SUM; unchanged support semantics",
+  "timing": "Whole solve including model/state/workspace setup and serialization; compilation/loading, audits, validation and output excluded",
+  "audit": "Exact Python/C supported masks, matching, owner arrays and last-supported caches; ordered domain-reduction digests; unchanged nodes/failures/revisions/solutions/SUM/residual counters",
+  "runs": 220,
+  "validated_squares": 184,
+  "audited_alldiff_calls": 29865,
+  "broad": [
+    {
+      "size": 8,
+      "strategy": "cp",
+      "solved": true,
+      "python": 0.06651300005614758,
+      "native": 0.04879583395086229,
+      "time_reduction_percent": 26.637147761083057
+    },
+    {
+      "size": 8,
+      "strategy": "hybrid",
+      "solved": true,
+      "python": 0.031232374953106046,
+      "native": 0.03044250002130866,
+      "time_reduction_percent": 2.5290261562988636
+    },
+    {
+      "size": 9,
+      "strategy": "cp",
+      "solved": true,
+      "python": 1.0829097910318524,
+      "native": 0.6498204998206347,
+      "time_reduction_percent": 39.99310882567123
+    },
+    {
+      "size": 9,
+      "strategy": "hybrid",
+      "solved": true,
+      "python": 0.5805936248507351,
+      "native": 0.5389250000007451,
+      "time_reduction_percent": 7.17690017018403
+    },
+    {
+      "size": 11,
+      "strategy": "cp",
+      "solved": true,
+      "python": 0.22143912501633167,
+      "native": 0.14515799982473254,
+      "time_reduction_percent": 34.44789857527355
+    },
+    {
+      "size": 11,
+      "strategy": "hybrid",
+      "solved": true,
+      "python": 0.13574412488378584,
+      "native": 0.11168199987150729,
+      "time_reduction_percent": 17.726089459030938
+    },
+    {
+      "size": 13,
+      "strategy": "cp",
+      "solved": true,
+      "python": 1.0993359580170363,
+      "native": 0.5996027919463813,
+      "time_reduction_percent": 45.45772949809312
+    },
+    {
+      "size": 13,
+      "strategy": "hybrid",
+      "solved": true,
+      "python": 0.5333287089597434,
+      "native": 0.4499930420424789,
+      "time_reduction_percent": 15.625573031650685
+    },
+    {
+      "size": 14,
+      "strategy": "cp",
+      "solved": true,
+      "python": 0.3167879581451416,
+      "native": 0.28711854107677937,
+      "time_reduction_percent": 9.365702295656298
+    },
+    {
+      "size": 14,
+      "strategy": "hybrid",
+      "solved": true,
+      "python": 0.3173432080075145,
+      "native": 0.30147279193624854,
+      "time_reduction_percent": 5.001025914785018
+    },
+    {
+      "size": 16,
+      "strategy": "cp",
+      "solved": true,
+      "python": 2.956461041001603,
+      "native": 1.5999795419629663,
+      "time_reduction_percent": 45.881933846795484
+    },
+    {
+      "size": 16,
+      "strategy": "hybrid",
+      "solved": true,
+      "python": 1.653975083027035,
+      "native": 1.2380770829040557,
+      "time_reduction_percent": 25.145360676281804
+    },
+    {
+      "size": 20,
+      "strategy": "cp",
+      "solved": false,
+      "python": 0.4463958749547601,
+      "native": 0.44936591596342623,
+      "time_reduction_percent": -0.6653379153575667
+    },
+    {
+      "size": 20,
+      "strategy": "hybrid",
+      "solved": false,
+      "python": 0.4460478750988841,
+      "native": 0.47012749989517033,
+      "time_reduction_percent": -5.39843952646295
+    }
+  ],
+  "confirmation": [
+    {
+      "size": 14,
+      "strategy": "cp",
+      "solved": true,
+      "python": 0.3152209168765694,
+      "native": 0.3057075410615653,
+      "time_reduction_percent": 3.0180027103751006
+    },
+    {
+      "size": 14,
+      "strategy": "hybrid",
+      "solved": true,
+      "python": 0.31630558404140174,
+      "native": 0.3117219579871744,
+      "time_reduction_percent": 1.4491132264131568
+    },
+    {
+      "size": 16,
+      "strategy": "cp",
+      "solved": true,
+      "python": 3.0018325408454984,
+      "native": 1.6035165421199054,
+      "time_reduction_percent": 46.58207877018158
+    },
+    {
+      "size": 16,
+      "strategy": "hybrid",
+      "solved": true,
+      "python": 1.6634459591004997,
+      "native": 1.2330786669626832,
+      "time_reduction_percent": 25.872033280271733
+    }
+  ],
+  "large_prefix": [
+    {
+      "size": 20,
+      "strategy": "cp",
+      "solved": false,
+      "python": 2.0468493329826742,
+      "native": 1.8164359999354929,
+      "time_reduction_percent": 11.256975749720787
+    },
+    {
+      "size": 20,
+      "strategy": "hybrid",
+      "solved": false,
+      "python": 2.057134292088449,
+      "native": 1.8082304580602795,
+      "time_reduction_percent": 12.099542309193467
+    }
+  ],
+  "tests": {
+    "native_tests": 51,
+    "alldiff_tests": 14,
+    "asan_ubsan_oracle_cases": 26048
+  },
+  "compiler_sanitizer_command": "cc -std=c11 -Wall -Wextra -Werror -O1 -g -fsanitize=address,undefined experiments/neural_attention/alldiff_kernel_sanitize.c -o /tmp/alldiff_sanitize",
+  "source_notes": "C source identical throughout. Final adapter adds formatting, an explicit strict=False zip and Python fallback on non-little-endian hosts; final tests also cover maximum workspace limits. The broad batch and audit use their frozen preceding adapter.",
+  "excluded": "generated/neural_attention/alldiff_final_20261014 and alldiff_large_20261014 are excluded because timing processes briefly overlapped. Retained confirmation and large-prefix batches ran sequentially without other heavy work.",
+  "prune_review": {
+    "repository": "git@github.com:ynosound-dev/prune.git",
+    "revision": "d82c64c29e823513845e56a54e22e21606c0698c",
+    "files": [
+      "docs/architecture.md",
+      "crates/prune-core/src/propagator.rs",
+      "crates/prune-core/src/domain.rs",
+      "crates/prune-core/src/engine.rs"
+    ],
+    "findings": [
+      "Delta-based ALLDIFF graph and SCC maintenance, including restored arcs after backtracking",
+      "Adaptive interval/bitset/sparse/range domains and word-level trailing",
+      "Event-specific duplicate-suppressed scheduling and reversible subsumption"
+    ],
+    "imported_code": false
+  },
+  "decision": "Retain opt-in, checkout-only; public Python solver defaults unchanged. Broad gains on completed CP workloads, smaller hybrid gains; startup-heavy 20x20 regresses slightly and no 20x20 solution is established."
+}
