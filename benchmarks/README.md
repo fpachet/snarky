@@ -16,6 +16,64 @@ comparison; an archived experiment's defaults apply to its recorded version.
 
 This is the stable entry point for the current magic-square benchmark summary.
 
+### Larger native squares: 21×21 through 25×25 — 14 October 2026
+
+**The opt-in C backend now has independently validated solutions for every size
+through 25×25.** The saved 20×20 strategy extends directly: dom/wdeg, row-major
+ties, no symmetry, static randomized candidate order, budgeted SUM, full ALLDIFF,
+delta graph updates and shared C domains. Five shuffled fresh repetitions with
+seed 1 give these medians:
+
+| Size | Search | Model preparation + search | Nodes |
+|---|---:|---:|---:|
+| 20×20, reference rerun | 0.3241 s | 0.6189 s | 3,365 |
+| 21×21 | 0.5421 s | 0.9119 s | 6,596 |
+| 22×22 | 0.1790 s | 0.6189 s | 471 |
+| 24×24 | 1.6775 s | 2.3060 s | 9,004 |
+| 25×25 | 2.4121 s | 3.1679 s | 18,305 |
+
+23×23 is the difficult exception for this ordering. Seed 1 does not finish in
+120 seconds of search (472,605 nodes), and seed 2 does not finish in 30 seconds.
+Seed 3 **does solve it**, in one observation: 29.1950 s search, 29.7249 s including
+preparation, 280,787 nodes. These are complete searches for a first solution;
+the successful witnesses use no constructed-square hints.
+
+Single-run probes of seeds 1–3 show substantial search-order sensitivity:
+
+| Size | Seed 1, whole time | Seed 2, whole time | Seed 3, whole time |
+|---|---:|---:|---:|
+| 21×21 | 0.910 s | 2.676 s | 1.852 s |
+| 22×22 | 0.629 s | 0.861 s | Timeout at 30 s search |
+| 23×23 | Timeout at 30 s search | Timeout at 30 s search | 29.725 s |
+| 24×24 | 2.312 s | 3.163 s | 1.504 s |
+| 25×25 | 3.165 s | 1.196 s | 1.647 s |
+
+Probe timings are exploratory single observations, with some validation activity
+running concurrently. The five-repeat confirmation above runs sequentially
+without concurrent tests or benchmark workers. All repeated solves preserve the
+same counters, propagation-work digest and witness. Compilation/loading,
+warmups and independent validation are excluded from both timing tables.
+
+Supporting 23×23–25×25 required raising the experimental domain-entry allocation
+guard from 262,144 to 1,048,576, with no filtering or search-policy changes.
+26×26 is rejected before search because its SUM contribution span is 17,550,
+above the current 16,384 workspace limit. This is an implementation capacity
+limit, not a failed solve. Installed solver defaults are unchanged.
+
+The [archive](history/magic_large_native_2026-10-14/report.json) retains 42 runs,
+38 independently validated squares, source snapshots, compiler identities and
+the [25×25 witness](history/magic_large_native_2026-10-14/magic25.txt).
+Its [standalone validator](history/magic_large_native_2026-10-14/validate.py.txt)
+checks the manifest, 530 frozen source records, repeated counters, medians and
+all witnesses. Sixty-six tests pass; ASan/UBSan checks 8,192 exhaustive small
+domain/policy cases plus a 529-variable ALLDIFF crossing the previous entry cap.
+
+```sh
+PYTHONHASHSEED=0 PYTHONPATH=src:. .venv/bin/python -m experiments.neural_attention.magic_large_native \
+  --output generated/neural_attention/large_NEW --sizes 20 21 22 24 25 --seeds 1 --repeats 5 --seconds 30
+python benchmarks/history/magic_large_native_2026-10-14/validate.py.txt
+```
+
 ### Fully Python SUM policy — 14 October 2026 (opt-in experiment)
 
 The adaptive SUM policy is now available without C kernels or a compiler.

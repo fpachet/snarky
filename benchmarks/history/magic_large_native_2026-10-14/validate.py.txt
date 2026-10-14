@@ -1,0 +1,105 @@
+"""Read-only source, timing, manifest and independent witness checks."""
+
+import hashlib
+import json
+import tarfile
+from pathlib import Path
+from statistics import median
+
+
+def load(path):
+    return json.loads(path.read_text())
+
+
+def square(values, n):
+    assert len(values) == n * n and all(type(v) is int for v in values)
+    assert sorted(values) == list(range(1, n * n + 1))
+    target = n * (n * n + 1) // 2
+    assert all(sum(values[r * n : (r + 1) * n]) == target for r in range(n))
+    assert all(sum(values[r * n + c] for r in range(n)) == target for c in range(n))
+    assert sum(values[i * n + i] for i in range(n)) == target
+    assert sum(values[i * n + n - 1 - i] for i in range(n)) == target
+
+
+root = Path(__file__).resolve().parent
+manifest = load(root / "manifest.json")
+actual = {str(p.relative_to(root)) for p in root.rglob("*") if p.is_file()}
+assert actual == set(manifest) | {"manifest.json"}
+for name, expected in manifest.items():
+    assert hashlib.sha256((root / name).read_bytes()).hexdigest() == expected
+
+total = solved = sources = 0
+signatures = {}
+for folder in sorted(root.iterdir()):
+    if not folder.is_dir():
+        continue
+    frozen = load(folder / "frozen.json")
+    with tarfile.open(folder / "sources.tar.gz") as archive:
+        for name, expected in frozen["source_hashes"].items():
+            data = archive.extractfile(name.lstrip("/")).read()
+            assert hashlib.sha256(data).hexdigest() == expected
+            sources += 1
+    compilation = load(folder / "compile.json")
+    assert (
+        hashlib.sha256((folder / "budget_both.c").read_bytes()).hexdigest()
+        == compilation["identity"]["source_sha256"]
+    )
+    rows = [
+        json.loads(line) for line in (folder / "runs.jsonl").read_text().splitlines()
+    ]
+    config = frozen["config"]
+    assert len(rows) == len(config["sizes"]) * len(config["seeds"]) * config.get(
+        "repeats", 1
+    )
+    for row in rows:
+        total += 1
+        assert row["settings"] == dict(
+            policy="dom_wdeg",
+            order="random",
+            tie="row_major",
+            symmetry=False,
+            seed=row["settings"]["seed"],
+        )
+        assert row["termination"] in ("solution_limit", "time_limit")
+        assert row["solution_count"] == len(row["squares"])
+        assert (row["termination"] == "solution_limit") == bool(row["squares"])
+        assert row["seconds"] >= row["search_seconds"] > 0
+        assert row["nodes_per_second"] == row["nodes"] / row["search_seconds"]
+        for witness in row["squares"]:
+            square(witness, row["size"])
+            solved += 1
+        if row["squares"]:
+            key = row["size"], row["settings"]["seed"]
+            signature = [
+                row[k]
+                for k in (
+                    "nodes",
+                    "failures",
+                    "revisions",
+                    "support_calls",
+                    "cache_hits",
+                    "reductions",
+                    "work_digest",
+                    "squares",
+                )
+            ]
+            assert key not in signatures or signatures[key] == signature
+            signatures[key] = signature
+    if (folder / "schedule.json").exists():
+        assert load(folder / "schedule.json") == [
+            [r["size"], r["settings"]["seed"], r["repeat"]] for r in rows
+        ]
+        for summary in load(folder / "summary.json"):
+            group = [
+                r
+                for r in rows
+                if r["size"] == summary["size"]
+                and r["settings"]["seed"] == summary["seed"]
+            ]
+            assert summary["repeats"] == len(group)
+            assert summary["solved"] == sum(bool(r["squares"]) for r in group)
+            for field in ("seconds", "search_seconds"):
+                assert summary[field] == median(r[field] for r in group)
+            assert summary["nodes"] == [r["nodes"] for r in group]
+            assert summary["terminations"] == [r["termination"] for r in group]
+print(json.dumps(dict(passes=total, validated_squares=solved, frozen_sources=sources)))

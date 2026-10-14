@@ -60,7 +60,7 @@ void *batch_create(int nv, int nc, const int *lengths, const int *starts,
         entries += lengths[v]; words += (lengths[v]+63)/64;
         if ((lengths[v]+63)/64 > max_words) max_words = (lengths[v]+63)/64;
     }
-    if (entries > 262144) return NULL;
+    if (entries > 1048576) return NULL;
     for (int c = 0; c < nc; ++c) {
         if (starts[c+1] <= starts[c] || starts[c+1] > 262144 ||
             kind[c] < 0 || kind[c] > 1 || ops[c] < 0 || ops[c] > 2 || !plans[c]) return NULL;

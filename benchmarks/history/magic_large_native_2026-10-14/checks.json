@@ -1,0 +1,8 @@
+{
+  "pytest_passed": 66,
+  "pytest_command": "PYTHONPATH=src:. .venv/bin/python -m pytest -q experiments/neural_attention/test_sum_kernel.py experiments/neural_attention/test_alldiff_kernel.py experiments/neural_attention/test_model_batch.py experiments/neural_attention/test_native_search.py experiments/neural_attention/test_native_variants.py",
+  "sanitizer_command": "cc -O1 -g -fsanitize=address,undefined -fno-omit-frame-pointer capacity_sanitize.c -o capacity_sanitize && ./capacity_sanitize",
+  "sanitizer_source_sha256": "c03a328ca574102f118555bfb0e9c7f4ca291b306c06495501e8312272003daf",
+  "sanitizer_cases": 8192,
+  "large_capacity_entries": 279841
+}

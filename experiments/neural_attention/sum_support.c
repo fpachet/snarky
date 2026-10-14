@@ -8,7 +8,7 @@
 #define MAX_SPAN 16384
 #define MAX_WORDS (MAX_SPAN / 64 + 1)
 #define MAX_COLUMN 4096
-#define MAX_ENTRIES 262144
+#define MAX_ENTRIES 1048576
 
 typedef struct {
     int n, entries, words, stride;

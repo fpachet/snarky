@@ -16,6 +16,14 @@ to match every historical version.
 ## Magic-square experiment history
 
 **Current overview:** [Magic squares](../README.md#magic-squares).
+**Largest native squares:** [21×21 through 25×25](magic_large_native_2026-10-14/report.json).
+All sizes through 25×25 now have validated solutions. Five-run seed-1 whole
+medians are 0.912 s (21), 0.619 s (22), 2.306 s (24) and 3.168 s (25).
+23×23 needs a different seed: seed 3 solves in one 29.725 s whole observation,
+while seed 1 remains unresolved after 120 s. The archive retains all 42 runs
+and 38 independently checked squares. 26×26 exceeds the current SUM workspace
+capacity and has not entered search.
+
 **Latest Python experiment:** [Compiler-free adaptive SUM policy](python_sum_policy_2026-10-14/report.json).
 Five-run whole medians improve 20×20 from 10.391 to 6.315 s and 16×16 from
 4.278 to 3.952 s. Small-span gating leaves 8×8/9×9 essentially unchanged.
@@ -52,7 +60,7 @@ and records different native bottlenecks on 9×9 and a 20×20 prefix.
 The [pre-SUM profiles](magic_native_profile_2026-10-14/report.json) prioritized
 the implemented SUM kernel; they remain frozen evidence for that decision.
 
-**Latest experiment:** [Incremental native propagation and 20×20 discovery](magic_native_variants_2026-10-14/report.json).
+**Preceding native optimization:** [Incremental native propagation and 20×20 discovery](magic_native_variants_2026-10-14/report.json).
 Bounds-only and narrow staged SUM policies regress on completed smaller squares.
 The work-budget policy improves the selected 20×20 solve while retaining its
 recorded search work. ALLDIFF graph updates are incremental; connectivity remains

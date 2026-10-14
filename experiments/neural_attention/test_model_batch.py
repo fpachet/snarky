@@ -27,6 +27,33 @@ def generic(tmp_path_factory):
     )[0]
 
 
+def test_large_alldiff_entry_capacity_and_widening(generic):
+    # 23x23's global ALLDIFF exceeds the former 262,144-entry guard.
+    count = 529
+    alphabet = tuple(map(Number, range(count)))
+    variables = tuple(FiniteVariable(Atom(f"x{i}"), alphabet) for i in range(count))
+    spec = ModelSpec(
+        FiniteModel(
+            "large",
+            variables,
+            (AllDifferentConstraint(Atom("a"), tuple(v.name for v in variables)),),
+        )
+    )
+    context = BatchContext(spec, generic, audit=True)
+    fixed = tuple(1 << i for i in range(count))
+    for masks, consistent in (
+        (spec.full, True),
+        (fixed, True),
+        ((1, 1, *fixed[2:]), False),
+        (spec.full, True),
+        (fixed, True),
+    ):
+        result = context.run(masks)
+        assert result["consistent"] is consistent
+        if consistent:
+            assert result["masks"] == masks
+
+
 def build(tmp_path, model, generic):
     spec = ModelSpec(model)
     special, _ = BatchKernel.build_model(tmp_path / f"{spec.key}.so", spec)

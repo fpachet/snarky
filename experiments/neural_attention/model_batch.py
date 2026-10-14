@@ -64,7 +64,7 @@ class ModelSpec:
                 raise ValueError("unsupported alphabet")
             self.alphabets.append(values)
         self.lengths = list(map(len, self.alphabets))
-        if sum(self.lengths) > 262144:
+        if sum(self.lengths) > 1048576:
             raise ValueError("model alphabet budget exceeded")
         self.word_lengths = [(n + 63) // 64 for n in self.lengths]
         self.word_offsets = offsets(self.word_lengths)
@@ -88,7 +88,7 @@ class ModelSpec:
                         if value not in canonical:
                             canonical[value] = len(canonical)
                         values.append(canonical[value])
-                if len(canonical) > 2048 or len(values) > 262144:
+                if len(canonical) > 2048 or len(values) > 1048576:
                     raise ValueError("ALLDIFF layout exceeds kernel limits")
                 row.update(kind=0, op=0, target=0, count=len(canonical), values=values)
             elif isinstance(constraint, (SumConstraint, LinearSumConstraint)):

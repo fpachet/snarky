@@ -7,7 +7,7 @@
 #include <string.h>
 
 #define MAX_VALUES 2048
-#define MAX_ENTRIES 262144
+#define MAX_ENTRIES 1048576
 #define BIT(v) (UINT64_C(1) << ((v) & 63))
 #define HAS(a,v) (((a)[(v) >> 6] & BIT(v)) != 0)
 #define SET(a,v) ((a)[(v) >> 6] |= BIT(v))
