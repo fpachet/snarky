@@ -1,0 +1,55 @@
+from pathlib import Path
+import hashlib,json,shutil
+
+root=Path('benchmarks/history/magic_residual_enumeration_2026-10-14')
+stages={
+ 'capture':'magic_residual_capture_20261014',
+ 'capture_wide':'magic_residual_capture_wide_20261014',
+ 'all16':'magic_residual_all16_20261014',
+ 'replay_pilot':'magic_residual_replay_20261014',
+ 'replay':'magic_residual_replay_final_20261014',
+ 'hybrid_pilot':'magic_residual_hybrid_pilot_20261014',
+ 'hybrid_50k':'magic_residual_hybrid_50k_20261014',
+ 'hybrid_200k':'magic_residual_hybrid_200k_20261014',
+ 'confirmation':'magic_residual_confirmation_20261014',
+ 'holdout':'magic_residual_holdout_20261014',
+ 'jit_pilot':'magic_residual_jit_20261014',
+ 'jit_confirmation':'magic_residual_jit_confirmation_20261014',
+ 'jit_final':'magic_residual_jit_final_20261014',
+}
+for stage,name in stages.items():
+ shutil.copytree(Path('generated/neural_attention')/name,root/stage,ignore=shutil.ignore_patterns('*.so','*.dylib','*.dll','__pycache__','*.pyc'))
+ shutil.copyfile('/tmp/'+name+'.log',root/(stage+'.log'))
+for source,name in [
+ ('experiments/neural_attention/magic_residual_study.py','capture.py.txt'),
+ ('experiments/neural_attention/magic_residual_enumeration.py','enumeration.py.txt'),
+ ('experiments/neural_attention/magic_residual_evaluation.py','evaluation.py.txt'),
+ ('experiments/neural_attention/magic_residual_jit.py','jit.py.txt'),
+ ('experiments/neural_attention/residual_enum.c','residual_enum.c.txt'),
+ ('experiments/neural_attention/test_magic_residual_enumeration.py','tests.py.txt'),
+ ('/tmp/magic_residual_final_tests_20261014.log','tests.log'),
+]:shutil.copyfile(source,root/name)
+headline=[]
+for stage in ('confirmation','holdout'):
+ for group in json.loads((root/stage/'summary.json').read_text()):
+  before=group['variants']['baseline']['median_seconds'];after=group['variants']['r20']['median_seconds']
+  headline.append(dict(stage=stage,size=group['size'],repeats=5 if stage=='confirmation' else 3,before_seconds=before,after_seconds=after,time_reduction_percent=100*(1-after/before),speedup=before/after))
+report=dict(
+ decision='Promising experimental bounded native residual solver, compiled once. Per-state local C compilation does not amortize on this trace. No production solver changes.',
+ selected=dict(max_remaining=20,mode=2,work_limit=200000,scope='First-solution feasibility, one global ALLDIFF covering all variables, integer SUM and LINEAR_SUM; no mixed facts, predicates, objective or general enumeration query.'),
+ timing='Sequential shuffled repeated whole solves. Model/state setup, residual extraction, ctypes encoding, native enumeration, fallbacks and final witness propagation included. Imports, compilation, output and independent square validation excluded. Compilation measured separately.',
+ semantics='Native mode0 checks distinctness incrementally and numeric constraints at complete tuples; mode1 checks closed constraints earlier; mode2 also applies static arithmetic bounds without maintaining propagated domains. Incomplete native searches fall back to ordinary CP. Joint UNSAT uses an aggregate failure label, so dom/wdeg updates and search trees can change. First-solution and exhaustive-failure correctness are tested; ordinary DFS-node counts exclude native candidate visits.',
+ experiments='The 10k pilot explores residual limits16/20/24. Three-repeat 50k and200k batches compare limits20/24. A single limit20, 200k policy is confirmed on8/9/13/16, then tested unchanged on11/14.',
+ headline=headline,
+ jitter='14x14 holdout is effectively flat; times are workload-specific and include Python extraction overhead. No multi-fold whole-solve improvement is claimed.',
+ compilation='Use jit_confirmation for uncontended compilation timings. The first JIT pilot could overlap correctness checks. Jit_final rechecks after adding constant-constraint handling; generated programs for the five captured cases retain the same source hashes.',
+ reuse='All2310 eligible baseline16 residuals are distinct after substituting fixed variables. Domain-length/constraint shapes occur at most9times; ignoring domain lengths gives a maximum11. These trace counts do not establish reuse rates for other problems.',
+ coverage20='In the observed10-second blank20 search, the minimum pre-propagation unresolved count is55: no residual qualifies for the selected limit20. This experiment does not solve20 or establish a speedup there.',
+ provenance='Every stage retains frozen source hashes and source tar. The preliminary replay omitted the entrypoint from its source-hash list; the final replay repeats all75 cases with complete entrypoint provenance and is used for conclusions. Historical stage sources may precede later CLI validation or formatting; snapshots preserve their actual bytes.',
+ checks=dict(experimental_tests_passed=11,ruff='passed',mypy='103 source files passed',c_warnings='-Wall -Wextra -Werror syntax check passed'),
+)
+(root/'report.json').write_text(json.dumps(report,indent=2)+'\n')
+shutil.copyfile(__file__,root/'archive.py.txt')
+manifest={str(p.relative_to(root)):hashlib.sha256(p.read_bytes()).hexdigest() for p in sorted(root.rglob('*')) if p.is_file() and p.name!='source_manifest.json'}
+(root/'source_manifest.json').write_text(json.dumps(manifest,indent=2)+'\n')
+print(json.dumps(headline,indent=2))

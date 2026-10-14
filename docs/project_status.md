@@ -14,6 +14,7 @@ own dated protocols and promotion decisions.
 | [Sudoku](../sudoku/README.md) | Explainable reference techniques plus optional search | Reference puzzles and explanation replay |
 | [Harmonizer](../harmonizer/README.md) | C-major SATB prototype with documented limits | Conformance checks and expensive integration examples |
 | [Probabilistic extension](probabilistic_constraint_learning_spec.md) | Generic finite inference and optional regular-BP adapter implemented in `snarky.finite`; learning remains research | Partition/marginal/conditional-mass agreement and explicit arithmetic/capabilities; separate from frozen CHOICE semantics |
+| [Native residual experiment](../benchmarks/README.md#reusable-residual-kernels--14-october-2026-experimental) | Opt-in checkout-only C kernel; bounded first-solution feasibility on integer sums and one global ALLDIFF; no change to solver defaults or installed dependencies | Exhaustive arithmetic and rollback oracles, equivalent array/bitset searches, cache invalidation and independently validated benchmark archives |
 
 ## Bach side project
 

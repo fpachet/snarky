@@ -99,3 +99,8 @@ jobs:
           pytest harmonizer/bach_rule_induction/experiments
           tests/test_learned_rule_generator.py tests/test_learned_rule_profiles.py
           tests/test_official_manual_rulebase.py --durations=10
+      - name: Test opt-in native residual experiment
+        run: |
+          pytest experiments/neural_attention/test_magic_residual_enumeration.py
+          python benchmarks/history/magic_residual_enumeration_2026-10-14/validate.py.txt
+          python benchmarks/history/magic_residual_reuse_2026-10-14/validate.py.txt

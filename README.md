@@ -67,6 +67,12 @@ behavior and modern extensions are documented separately.
 The required runtime is Python 3.12 or newer. PyYAML is the only mandatory
 third-party dependency.
 
+An [opt-in native residual experiment](benchmarks/README.md#reusable-residual-kernels--14-october-2026-experimental)
+uses a cached C shared library to finish small residual searches. It runs from
+the source checkout and requires a local C compiler; it is not enabled by
+`snarky.finite.solve` or included in the installed package. Its first-solution
+scope, measured gains and exceptions are recorded in the benchmark guide.
+
 ## Install from source
 
 ```sh
@@ -108,6 +114,7 @@ Choose the test scope explicitly:
 | Shorter feedback loop | `pytest -m "not slow"` |
 | Expensive harmonizer integrations | `pytest -m slow --durations=10` |
 | Research unit and fixture tests | `pytest harmonizer/bach_rule_induction/experiments` |
+| Native residual experiment (requires `cc`) | `pytest experiments/neural_attention/test_magic_residual_enumeration.py` |
 
 Research tests additionally require `python -m pip install -e ".[dev,research]"`.
 They run separately in CI. For a locked environment, use

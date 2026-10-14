@@ -16,6 +16,23 @@ to match every historical version.
 ## Magic-square experiment history
 
 **Current overview:** [Magic squares](../README.md#magic-squares).
+**Latest experiment:** [Reusable residual kernels](magic_residual_reuse_2026-10-14/report.json).
+Arithmetic candidate filtering and bitsets reduce time a further 16–44% on
+five of six tested sizes compared with the previous hybrid; 14×14 is 2% slower.
+A controlled replay isolates a 1.4–2.0× bitset kernel speedup at identical work
+and results. A persistent C library cache avoids recompilation across runs.
+The [current overview](../README.md#magic-squares) records all six five-run
+medians, build costs, changed ordering/budgets and experimental query limits.
+
+The preceding [residual enumeration and local compilation study](magic_residual_enumeration_2026-10-14/report.json)
+established the initial hybrid's benefits.
+A bounded native residual solver cuts first-solution time 24–43% on the four
+confirmation sizes; additional 11×11 improves 13%, while 14×14 is flat.
+Per-state unrolled programs execute faster but local compilation fails to
+amortize on the observed residuals. The prototype remains outside production;
+the current overview records its changed search trees, query limits, build cost
+and absence of a demonstrated 20×20 benefit.
+
 **Latest native optimization:** [ALLDIFF matching repair](magic_matching_repairs_2026-10-14/summary.json).
 Collect unmatched variables during validation and sort only repair starts,
 preserving the intact-matching early return. A five-pair 16×16 confirmation
@@ -78,6 +95,8 @@ that must be selected explicitly, not a default native-solver feature.
 | [SUM boundary processing](magic_sum_boundaries_2026-10-13/summary.json) | Avoid redundant prefix/backward work while preserving exact supports; modest additional per-node gain | Enabled |
 | [ALLDIFF identity layouts](magic_identity_layout_2026-10-14/summary.json) | Skip input-mask translation for aligned layouts; small gain on eligible magic-square presets | Enabled |
 | [ALLDIFF matching repair](magic_matching_repairs_2026-10-14/summary.json) | Sort only unmatched rows while preserving repair order and the intact-matching fast path | Enabled |
+| [Reusable residual kernels](magic_residual_reuse_2026-10-14/report.json) | Bitset candidate filtering helps five sizes; persistent library caching removes repeat compilation | Experimental first-solution prototype |
+| [Residual enumeration and local compilation](magic_residual_enumeration_2026-10-14/report.json) | Native bounded residual solving helps several sizes; compiling each state costs too much on the observed traces | Experimental first-solution prototype |
 
 Each report links raw runs, source snapshots and reproduction commands. Times
 from different stages are not automatically comparable: check their source

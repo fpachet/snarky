@@ -1,0 +1,161 @@
+{
+  "date": "2026-10-14",
+  "stages": [
+    "cache_initial",
+    "pilot_replay",
+    "pilot_whole",
+    "interval_replay",
+    "interval_whole",
+    "replay",
+    "whole",
+    "cache"
+  ],
+  "final_replay": "replay",
+  "final_whole": "whole",
+  "decision": "Retain mode 4 as an opt-in first-solution residual experiment with persistent C library caching; no production solver changes.",
+  "config": {
+    "remaining": 20,
+    "mode": 4,
+    "work_limit": 200000,
+    "repeats": 5,
+    "sizes": [
+      8,
+      9,
+      11,
+      13,
+      14,
+      16
+    ]
+  },
+  "whole_medians": [
+    {
+      "size": 8,
+      "cp": 0.08571016578935087,
+      "old2": 0.05095770908519626,
+      "equations3": 0.043666125042364,
+      "bitsets4": 0.04284550016745925,
+      "reduction_vs_old_hybrid_percent": 15.919492974407845,
+      "reduction_vs_cp_percent": 50.01118038581297
+    },
+    {
+      "size": 9,
+      "cp": 1.604722165968269,
+      "old2": 1.126988499891013,
+      "equations3": 0.8412540829740465,
+      "bitsets4": 0.632822124985978,
+      "reduction_vs_old_hybrid_percent": 43.848395520701764,
+      "reduction_vs_cp_percent": 60.56500381147654
+    },
+    {
+      "size": 11,
+      "cp": 0.31068162503652275,
+      "old2": 0.2512693330645561,
+      "equations3": 0.20942437485791743,
+      "bitsets4": 0.20117575000040233,
+      "reduction_vs_old_hybrid_percent": 19.936210461180217,
+      "reduction_vs_cp_percent": 35.24697510618701
+    },
+    {
+      "size": 13,
+      "cp": 1.5310260830447078,
+      "old2": 0.9765566249843687,
+      "equations3": 0.8725656669121236,
+      "bitsets4": 0.784601666033268,
+      "reduction_vs_old_hybrid_percent": 19.65630604924453,
+      "reduction_vs_cp_percent": 48.7532136308904
+    },
+    {
+      "size": 14,
+      "cp": 0.7133238329552114,
+      "old2": 0.7179864170029759,
+      "equations3": 0.7227102078031749,
+      "bitsets4": 0.7340185418725014,
+      "reduction_vs_old_hybrid_percent": -2.2329287142292875,
+      "reduction_vs_cp_percent": -2.901166056874116
+    },
+    {
+      "size": 16,
+      "cp": 4.332251750165597,
+      "old2": 3.1776309579145163,
+      "equations3": 2.709131416864693,
+      "bitsets4": 2.646668333094567,
+      "reduction_vs_old_hybrid_percent": 16.709386075733,
+      "reduction_vs_cp_percent": 38.90779008875926
+    }
+  ],
+  "controlled_bitset_speedups": [
+    {
+      "size": 8,
+      "speedup": 1.9467950503747287
+    },
+    {
+      "size": 9,
+      "speedup": 1.6968072936130585
+    },
+    {
+      "size": 13,
+      "speedup": 1.5998618281867132
+    },
+    {
+      "size": 16,
+      "speedup": 1.3755585645272654
+    }
+  ],
+  "cache_timings": {
+    "cold": {
+      "seconds": 0.13860108400695026,
+      "compile_seconds": 0.12112404103390872,
+      "cache_hit": false,
+      "loaded_reused": false
+    },
+    "same_process": {
+      "seconds": 0.01650554104708135,
+      "compile_seconds": 0.0,
+      "cache_hit": true,
+      "loaded_reused": true
+    },
+    "new_process": {
+      "seconds": 0.02875591698102653,
+      "compile_seconds": 0.0,
+      "cache_hit": true,
+      "loaded_reused": false
+    }
+  },
+  "whole_runs": 312,
+  "replay_states": 225,
+  "changes": [
+    "Arithmetic interval intersection before scanning candidates; exact last-variable elimination as a consequence of the equality bounds.",
+    "Contiguous C arrays plus 64-bit domain/occupied masks; word operations skip holes, used values and candidates outside the interval.",
+    "No allocation, Python call, propagation queue, matching or persistent domain mutation inside the native search.",
+    "Unit signed coefficients avoid integer division; original modes 0-2 retain their visitor.",
+    "Content-keyed native library cache checks source, compiler identity, flags, platform and relevant environment; SHA256 verifies the stored binary.",
+    "One loaded library instance per cache path/content within each Python process; cross-process reuse avoids compilation. Per-residual preparation only supplies arrays."
+  ],
+  "timing_scope": "Whole timing includes model/state construction, extraction, ctypes encoding, bounded native work and fallback. Excludes imports, compilation/cache loading, output and independent square validation. Cache timings include compiler identity lookup, integrity checks, loading/copying but not subprocess startup/imports.",
+  "semantic_limits": [
+    "First-solution pure integer feasibility, one global ALLDIFF, sums/linear equalities and inequalities; original residual limits remain 32 variables,64 constraints,values 0..4095.",
+    "Mode 4 uses ascending numeric value order, whereas modes 2/3 preserve input order. Whole-solve gains combine pruning, search order and representation changes.",
+    "The 200000-work budget counts candidates after interval/occupied filtering in final modes 3/4; old mode 2 counts raw candidate attempts. Budget numbers and native visits are not equal-work measures across old/new algorithms.",
+    "Residual failure uses an aggregate cause, changing dom/wdeg failure weighting. Nodes exclude native candidate visits.",
+    "On sorted-domain replay, final modes 3 and 4 have exactly the same statuses, visits, leaves, solution counts and first witness, including budget exhaustion. This isolates the representation effect.",
+    "Neither SIMD nor tighter future-variable extrema excluding used values is implemented. Future bounds are static; filtering is applied only to the current enumerated variable.",
+    "No additional experiment on 20x20; prior trace never entered the <=20-variable switch. No demonstrated gain or complete solution there.",
+    "Persistent cache remains experimental and requires a working local cc compiler for identity validation. Binaries are not included in the evidence archive."
+  ],
+  "provenance": [
+    "All measured stages preserve source snapshots; pilots are retained rather than substituted by confirmation results.",
+    "The first pilot whole batch may overlap brief correctness checks. Final whole timing is sequential and isolated from tests/compilation.",
+    "A preliminary replay invocation aborted before recording timings due to a keyword-only seed argument. The corrected invocation is pilot_replay.",
+    "Earlier residual study archive is immutable and used as the original C reference and replay feasibility oracle."
+  ],
+  "checks": [
+    "23 native residual correctness tests passed",
+    "C -Wall -Wextra -Werror syntax checks passed",
+    "Controlled replay on all 75 original sampled states passed",
+    "Repository-wide ruff checks passed",
+    "mypy src passed for all 103 files",
+    "Local Markdown link checks and git diff --check passed",
+    "Read-only archive validator passed: 312 whole solves, 225 replay states, 938 frozen-source checks",
+    "Original residual study archive validator still passes unchanged"
+  ]
+}

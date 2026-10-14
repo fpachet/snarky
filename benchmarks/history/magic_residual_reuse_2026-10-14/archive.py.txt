@@ -1,0 +1,73 @@
+import hashlib
+import json
+import shutil
+from pathlib import Path
+
+base=Path('generated/neural_attention')
+root=Path('benchmarks/history/magic_residual_reuse_2026-10-14')
+stages={
+ 'cache_initial':'magic_residual_cache_20261014',
+ 'pilot_replay':'magic_residual_reuse_replay_fixed_20261014',
+ 'pilot_whole':'magic_residual_reuse_whole_20261014',
+ 'interval_replay':'magic_residual_reuse_filtered_replay_20261014',
+ 'interval_whole':'magic_residual_reuse_filtered_whole_20261014',
+ 'replay':'magic_residual_reuse_final_replay_20261014',
+ 'whole':'magic_residual_reuse_final_whole_20261014',
+ 'cache':'magic_residual_reuse_final_cache_20261014',
+}
+root.mkdir(parents=True,exist_ok=False)
+for name,directory in stages.items():
+ shutil.copytree(base/directory,root/name,ignore=shutil.ignore_patterns('*.so','*.dylib','*.dll','cold_cache','__pycache__'))
+ logfile=Path('/tmp')/(directory+'.log')
+ if logfile.exists(): shutil.copyfile(logfile,root/(name+'.log'))
+for name in ['magic_residual_reuse.py','magic_residual_enumeration.py','magic_residual_evaluation.py','magic_residual_study.py','test_magic_residual_enumeration.py','residual_enum.c']:
+ shutil.copyfile(Path('experiments/neural_attention')/name,root/(name+'.txt'))
+shutil.copyfile('experiments/neural_attention/magic_residual_reuse_validate.py',root/'validate.py.txt')
+shutil.copyfile('benchmarks/history/magic_residual_enumeration_2026-10-14/residual_enum.c.txt',root/'reference.c.txt')
+shutil.copyfile('/tmp/magic_residual_reuse_final_tests_20261014.log',root/'tests.log')
+shutil.copyfile(__file__,root/'archive.py.txt')
+summary=json.loads((root/'whole/summary.json').read_text())
+medians=[dict(size=r['size'],**{k:v['median_seconds'] for k,v in r['variants'].items()}) for r in summary]
+for r in medians:
+ r['reduction_vs_old_hybrid_percent']=100*(1-r['bitsets4']/r['old2'])
+ r['reduction_vs_cp_percent']=100*(1-r['bitsets4']/r['cp'])
+replay=json.loads((root/'replay/summary.json').read_text())
+ratios=[dict(size=r['size'],speedup=r['variants']['sorted_array3']['total_kernel_seconds']/r['variants']['bitsets4']['total_kernel_seconds']) for r in replay]
+cache=json.loads((root/'cache/cache.json').read_text())
+report=dict(
+ date='2026-10-14', stages=list(stages),final_replay='replay',final_whole='whole',
+ decision='Retain mode 4 as an opt-in first-solution residual experiment with persistent C library caching; no production solver changes.',
+ config=dict(remaining=20,mode=4,work_limit=200000,repeats=5,sizes=[8,9,11,13,14,16]),
+ whole_medians=medians,controlled_bitset_speedups=ratios,
+ cache_timings={k:dict(seconds=v['seconds'],compile_seconds=v['compile_seconds'],cache_hit=v['cache_hit'],loaded_reused=v['loaded_reused']) for k,v in cache.items()},
+ whole_runs=sum(len((root/name/'runs.jsonl').read_text().splitlines()) for name in ['pilot_whole','interval_whole','whole']),
+ replay_states=225,
+ changes=[
+ 'Arithmetic interval intersection before scanning candidates; exact last-variable elimination as a consequence of the equality bounds.',
+ 'Contiguous C arrays plus 64-bit domain/occupied masks; word operations skip holes, used values and candidates outside the interval.',
+ 'No allocation, Python call, propagation queue, matching or persistent domain mutation inside the native search.',
+ 'Unit signed coefficients avoid integer division; original modes 0-2 retain their visitor.',
+ 'Content-keyed native library cache checks source, compiler identity, flags, platform and relevant environment; SHA256 verifies the stored binary.',
+ 'One loaded library instance per cache path/content within each Python process; cross-process reuse avoids compilation. Per-residual preparation only supplies arrays.',
+ ],
+ timing_scope='Whole timing includes model/state construction, extraction, ctypes encoding, bounded native work and fallback. Excludes imports, compilation/cache loading, output and independent square validation. Cache timings include compiler identity lookup, integrity checks, loading/copying but not subprocess startup/imports.',
+ semantic_limits=[
+ 'First-solution pure integer feasibility, one global ALLDIFF, sums/linear equalities and inequalities; original residual limits remain 32 variables,64 constraints,values 0..4095.',
+ 'Mode 4 uses ascending numeric value order, whereas modes 2/3 preserve input order. Whole-solve gains combine pruning, search order and representation changes.',
+ 'The 200000-work budget counts candidates after interval/occupied filtering in final modes 3/4; old mode 2 counts raw candidate attempts. Budget numbers and native visits are not equal-work measures across old/new algorithms.',
+ 'Residual failure uses an aggregate cause, changing dom/wdeg failure weighting. Nodes exclude native candidate visits.',
+ 'On sorted-domain replay, final modes 3 and 4 have exactly the same statuses, visits, leaves, solution counts and first witness, including budget exhaustion. This isolates the representation effect.',
+ 'Neither SIMD nor tighter future-variable extrema excluding used values is implemented. Future bounds are static; filtering is applied only to the current enumerated variable.',
+ 'No additional experiment on 20x20; prior trace never entered the <=20-variable switch. No demonstrated gain or complete solution there.',
+ 'Persistent cache remains experimental and requires a working local cc compiler for identity validation. Binaries are not included in the evidence archive.',
+ ],
+ provenance=['All measured stages preserve source snapshots; pilots are retained rather than substituted by confirmation results.',
+ 'The first pilot whole batch may overlap brief correctness checks. Final whole timing is sequential and isolated from tests/compilation.',
+ 'A preliminary replay invocation aborted before recording timings due to a keyword-only seed argument. The corrected invocation is pilot_replay.',
+ 'Earlier residual study archive is immutable and used as the original C reference and replay feasibility oracle.'],
+ checks=['23 native residual correctness tests passed','C -Wall -Wextra -Werror syntax checks passed','Controlled replay on all 75 original sampled states passed'],
+)
+(root/'report.json').write_text(json.dumps(report,indent=2)+'\n')
+manifest={str(p.relative_to(root)):hashlib.sha256(p.read_bytes()).hexdigest() for p in sorted(root.rglob('*')) if p.is_file()}
+(root/'manifest.json').write_text(json.dumps(manifest,indent=2)+'\n')
+print(json.dumps(dict(files=len(manifest),whole_medians=medians,cache=report['cache_timings']),indent=2))

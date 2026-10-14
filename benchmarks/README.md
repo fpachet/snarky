@@ -16,6 +16,173 @@ comparison; an archived experiment's defaults apply to its recorded version.
 
 This is the stable entry point for the current magic-square benchmark summary.
 
+### Reusable residual kernels — 14 October 2026 (experimental)
+
+The residual prototype now offers arithmetic candidate filtering and bitset
+iteration in one reusable C library. Before enumerating a variable, it
+intersects the intervals allowed by its incident sums. An equality with only
+that variable left determines its required value directly. Domain and occupied
+value masks then skip holes, consumed values and values outside the interval
+using 64-bit operations. Working data uses native arrays; there are no heap
+allocations or Python calls inside the search. Remaining-variable bounds stay
+static: this is lightweight filtering, without a propagation queue, matching
+or exported domain reductions. SIMD and stronger used-value-aware future
+bounds have not been implemented.
+
+Five shuffled runs per variant give these whole-solve medians, using the same
+switch at 20 unfixed variables and a 200,000-candidate budget:
+
+| Size | Native CP | Previous hybrid | New bitset hybrid | Reduction vs previous hybrid |
+|---|---:|---:|---:|---:|
+| 8×8 | 0.085710 s | 0.050958 s | 0.042846 s | 15.9% |
+| 9×9 | 1.604722 s | 1.126988 s | 0.632822 s | 43.8% |
+| 11×11 | 0.310682 s | 0.251269 s | 0.201176 s | 19.9% |
+| 13×13 | 1.531026 s | 0.976557 s | 0.784602 s | 19.7% |
+| 14×14 | 0.713324 s | 0.717986 s | 0.734019 s | **−2.2%** |
+| 16×16 | 4.332252 s | 3.177631 s | 2.646668 s | 16.7% |
+
+The new hybrid improves five sizes and is slightly slower on 14×14. Timings
+include setup, extraction, ctypes encoding, native work and fallback, but
+exclude imports, compilation/loading and independent result validation.
+These are algorithm comparisons: bitsets enumerate in ascending numeric order
+and the new budget counts candidates after interval/occupied filtering; the
+previous budget counts raw candidate attempts. Search trees and native visit
+counts can therefore differ. The earlier aggregate-failure weighting and
+first-solution query restrictions still apply. No additional 20×20 experiment
+or benefit is established.
+
+A separate replay controls for representation: with identical numeric order,
+filtering and budgets, array and bitset versions return identical statuses,
+visits, leaves, solution counts and witnesses on all 75 captured states.
+Summed median kernel times show bitsets about 1.4–2.0× faster than array
+scanning. This is an isolated kernel comparison, not an additional whole-solve
+speedup. The original mode-2 visitor also retains exactly the old replay results.
+
+The library is loaded once and reused across residuals and square sizes. A
+persistent cache keys binaries by C source, compiler identity, flags, platform
+and relevant environment, with SHA-256 integrity checks. Source changes trigger
+recompilation. The measured cold build/load takes 139 ms (121 ms compilation);
+a fresh-process cache hit takes 29 ms with zero compilation. Those startup
+measurements include compiler identity lookup, loading and an output copy, but
+exclude Python process startup/imports. Keeping the loaded kernel requires no
+further build or cache lookup during search.
+
+The [report and archive](history/magic_residual_reuse_2026-10-14/report.json)
+retain both earlier variants, all 312 whole-solve runs, three 75-state replays,
+cache evidence and frozen sources. The
+[read-only validator](history/magic_residual_reuse_2026-10-14/validate.py.txt)
+checks recorded squares, deterministic repeats, counters, medians and hashes.
+All 23 experimental tests pass, including exhaustive signed arithmetic,
+word boundaries, holes, bounded fallback, equivalent array/bitset searches,
+cross-process cache reuse and source invalidation. This remains an opt-in
+experiment; the production solver is unchanged.
+
+**Retention decision:** keep the tested prototype on main as an opt-in baseline
+for further native-solver experiments. It is not selected by `snarky.finite.solve`,
+does not change default solving, and is not shipped in the Python wheel. Run it
+from the repository root with Python 3.12+ and a local `cc` compiler supporting
+C11/shared libraries (tested locally with Clang; CI uses Linux). Python calls
+the loaded library through `ctypes`; only compilation invokes a subprocess.
+
+The switch runs before ordinary propagation when at most 20 variables remain
+unfixed. A native witness is checked by ordinary propagation; an exhausted
+search rejects the branch; reaching the candidate budget falls back without
+changing domains. In the five repeats, fallback counts per solve were 0/1
+(8×8), 76/452 (9×9), 0/9 (11×11), 10/350 (13×13), 1/2 (14×14) and 5/1,017
+(16×16). The cap is a work budget, not a wall-clock deadline.
+
+Cached libraries live in `generated/neural_attention/residual_kernel_cache/`
+and are not committed. Removing that directory while no experiment is running
+forces a rebuild on the next invocation. Each benchmark output directory
+contains compiler/cache metadata and source snapshots; use a fresh path for
+every run.
+
+Reproduce the new hybrid with a C compiler and a fresh output directory:
+
+```sh
+PYTHONHASHSEED=0 PYTHONPATH=src:. .venv/bin/python -m experiments.neural_attention.magic_residual_evaluation hybrid \
+  --sizes 8 9 11 13 14 16 --remaining 20 --mode 4 --work-limit 200000 --repeats 5 \
+  --output generated/neural_attention/magic_residual_bitset_replay
+```
+
+Run correctness and archived-evidence checks separately from timing runs:
+
+```sh
+PYTHONPATH=src:. python -m pytest experiments/neural_attention/test_magic_residual_enumeration.py
+python benchmarks/history/magic_residual_enumeration_2026-10-14/validate.py.txt
+python benchmarks/history/magic_residual_reuse_2026-10-14/validate.py.txt
+```
+
+For the full CP/previous-hybrid/array/bitset comparison, use
+`python -m experiments.neural_attention.magic_residual_reuse whole --repeats 5 --output generated/neural_attention/residual_comparison_NEW`.
+That module also offers `replay` for captured states and `cache` for cold,
+same-process and fresh-process library reuse. Defaults and frozen sources for
+the historical study remain in the linked archive.
+
+### Residual enumeration study — 14 October 2026 (experimental)
+
+A separate prototype switches from ordinary CP to a bounded native residual
+solver when at most 20 variables remain unfixed. The kernel uses a fixed
+variable order, distinctness checks and static arithmetic bounds; it maintains
+no propagated domains or matching/SCC structures. After 200,000 attempted
+values without a result, it falls back to ordinary CP. A witness is checked by
+the ordinary propagators and the independent magic-square validator.
+
+Five shuffled runs per variant confirm the following whole-solve medians with
+one shared switching policy. Times include model/state setup, Python residual
+extraction, ctypes encoding, native work and fallbacks. Imports, compilation
+and independent result validation are excluded.
+
+| Size | Native CP | Experimental hybrid | Time reduction |
+|---|---:|---:|---:|
+| 8×8 | 0.091235 s | 0.052395 s | 42.6% |
+| 9×9 | 1.585776 s | 1.126383 s | 29.0% |
+| 13×13 | 1.559506 s | 1.020433 s | 34.6% |
+| 16×16 | 4.359086 s | 3.329851 s | 23.6% |
+
+Two additional sizes were tested unchanged after choosing the policy, with
+three runs per variant: 11×11 improves 12.7% (0.305 → 0.267 s), while 14×14 is
+effectively flat (0.715 → 0.709 s). These are complete first-solution searches;
+whole-query enumeration, objectives, predicates and mixed fact inference are
+outside this prototype. Joint failure proofs use an aggregate cause and change
+`dom_wdeg` weight updates, so search trees and solutions can differ. Ordinary
+DFS-node counts exclude the native candidate visits recorded separately.
+
+Plain enumeration is insufficient: at the tested budget it finishes none of
+the 12 sampled 13×13 or 12 sampled 16×16 residuals. Early constraint checks
+and cheap bounds finish most of them. A switch based only on a small Cartesian
+product would miss the useful cases. The observed 10-second blank 20×20 search
+never gets below 55 unfixed variables, so this study establishes no gain there.
+
+The enumeration engine is compiled once; the measured confirmation build took
+0.078 s. Separately, five residuals were translated to unrolled C programs and
+compiled locally. Their kernels run about 1.5–2.7× faster, but compilation takes
+88–109 ms. Even ignoring code generation and loading, that requires roughly
+320–730 identical calls to break even. All 2,310 observed 16×16 residuals with
+at most 24 unfixed variables were distinct; even ignoring values and targets,
+the most frequent tested shapes occur only 9–11 times. The evidence supports
+reusing compiled kernels, without compiling each encountered state.
+These measurements cover a local C compiler; a lower-latency in-memory JIT
+has not been evaluated. For these five kernels, one-shot specialization would
+need to cost less than roughly 0.1–0.3 ms to recover its cost immediately.
+
+The [study report](history/magic_residual_enumeration_2026-10-14/report.json)
+and its archive retain all pilots, 140 whole-solve timing runs, 75
+replayed states, full trace data, generated C, compiler timings and frozen
+sources. Its [read-only validator](history/magic_residual_enumeration_2026-10-14/validate.py.txt)
+checks witnesses and recorded evidence. Eleven experimental tests cover native
+solution counts against exhaustive signed-arithmetic oracles, bounded fallback,
+hybrid first-solution correctness and generated programs. Lint, type checks
+and C warning checks passed. The production solver is unchanged by this study.
+
+Reproduce the confirmation with a C compiler available and a fresh directory:
+
+```sh
+PYTHONHASHSEED=0 PYTHONPATH=src:. .venv/bin/python -m experiments.neural_attention.magic_residual_evaluation hybrid \
+  --sizes 8 9 13 16 --remaining 20 --mode 2 --work-limit 200000 --repeats 5 \
+  --output generated/neural_attention/magic_residual_replay
+```
+
 ### ALLDIFF matching repair — 14 October 2026
 
 The latest production change collects unmatched variables while validating

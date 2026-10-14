@@ -1,0 +1,113 @@
+/* Experimental bounded enumeration. No domain propagation or solver hooks. */
+#include <stdint.h>
+#include <string.h>
+
+#define NV 32
+#define NC 64
+#define VALUES 4096
+
+typedef struct {
+    int n, m, mode, all, found, aborted;
+    const int *offsets, *values, *ops;
+    const int64_t *targets;
+    int x[NV], first[NV], last[NC], degree[NV];
+    int incident[NV][NC], coefficient[NV][NC];
+    unsigned char used[VALUES];
+    int64_t sum[NC], low[NC][NV + 1], high[NC][NV + 1];
+    uint64_t visits, leaves, solutions, limit;
+} Context;
+
+static int allowed(int op, int64_t low, int64_t high, int64_t target) {
+    return op == 0 ? low <= target && target <= high
+                   : op == 1 ? low <= target : high >= target;
+}
+
+static void visit(Context *c, int depth) {
+    if (depth == c->n) {
+        c->leaves++;
+        for (int q = 0; q < c->m; ++q)
+            if (!allowed(c->ops[q], c->sum[q], c->sum[q], c->targets[q])) return;
+        if (!c->found) memcpy(c->first, c->x, c->n * sizeof(int));
+        c->found = 1;
+        c->solutions++;
+        return;
+    }
+    for (int p = c->offsets[depth]; p < c->offsets[depth + 1]; ++p) {
+        if (c->visits >= c->limit) { c->aborted = 1; return; }
+        c->visits++;
+        int value = c->values[p];
+        if (c->used[value]) continue;
+        c->used[value] = 1;
+        c->x[depth] = value;
+        for (int z = 0; z < c->degree[depth]; ++z) {
+            int q = c->incident[depth][z];
+            c->sum[q] += (int64_t)c->coefficient[depth][z] * value;
+        }
+        int feasible = 1;
+        for (int z = 0; feasible && z < c->degree[depth]; ++z) {
+            int q = c->incident[depth][z];
+            if (c->mode == 2)
+                feasible = allowed(c->ops[q], c->sum[q] + c->low[q][depth + 1],
+                                   c->sum[q] + c->high[q][depth + 1], c->targets[q]);
+            else if (c->mode == 1 && c->last[q] == depth)
+                feasible = allowed(c->ops[q], c->sum[q], c->sum[q], c->targets[q]);
+        }
+        if (feasible) visit(c, depth + 1);
+        for (int z = 0; z < c->degree[depth]; ++z) {
+            int q = c->incident[depth][z];
+            c->sum[q] -= (int64_t)c->coefficient[depth][z] * value;
+        }
+        c->used[value] = 0;
+        if (c->aborted || (c->found && !c->all)) return;
+    }
+}
+
+/* status: 0 exhausted, 1 witness, 2 incomplete, -1 unsupported input.
+   counts: attempted values, complete tuples, valid tuples. */
+int residual_enum(int n, const int *offsets, const int *values,
+                  int m, const int *starts, const int *variables,
+                  const int *coefficients, const int *ops, const int64_t *targets,
+                  int mode, int all, uint64_t limit, int *first, uint64_t *counts) {
+    if (n < 0 || n > NV || m < 0 || m > NC || mode < 0 || mode > 2) return -1;
+    Context c = {0};
+    c.n = n; c.m = m; c.mode = mode; c.all = all; c.limit = limit;
+    c.offsets = offsets; c.values = values; c.ops = ops; c.targets = targets;
+    for (int i = 0; i < n; ++i) {
+        if (offsets[i] == offsets[i + 1]) { memset(counts, 0, 3 * sizeof(uint64_t)); return 0; }
+        for (int p = offsets[i]; p < offsets[i + 1]; ++p)
+            if (values[p] < 0 || values[p] >= VALUES) return -1;
+    }
+    for (int q = 0; q < m; ++q) {
+        c.last[q] = -1;
+        int coeff[NV] = {0};
+        for (int p = starts[q]; p < starts[q + 1]; ++p) {
+            int v = variables[p];
+            if (v < 0 || v >= n || c.degree[v] >= NC) return -1;
+            coeff[v] = coefficients[p];
+            int z = c.degree[v]++;
+            c.incident[v][z] = q;
+            c.coefficient[v][z] = coefficients[p];
+            if (v > c.last[q]) c.last[q] = v;
+        }
+        if (c.last[q] < 0 && !allowed(ops[q], 0, 0, targets[q])) {
+            memset(counts, 0, 3 * sizeof(uint64_t)); return 0;
+        }
+        for (int i = n - 1; i >= 0; --i) {
+            int64_t lo = 0, hi = 0;
+            if (coeff[i]) {
+                lo = hi = (int64_t)coeff[i] * values[offsets[i]];
+                for (int p = offsets[i] + 1; p < offsets[i + 1]; ++p) {
+                    int64_t value = (int64_t)coeff[i] * values[p];
+                    if (value < lo) lo = value;
+                    if (value > hi) hi = value;
+                }
+            }
+            c.low[q][i] = lo + c.low[q][i + 1];
+            c.high[q][i] = hi + c.high[q][i + 1];
+        }
+    }
+    visit(&c, 0);
+    counts[0] = c.visits; counts[1] = c.leaves; counts[2] = c.solutions;
+    if (c.found) memcpy(first, c.first, n * sizeof(int));
+    return c.aborted ? 2 : c.found ? 1 : 0;
+}

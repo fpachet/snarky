@@ -1,0 +1,25 @@
+import gzip,json,hashlib
+from collections import Counter
+from pathlib import Path
+from experiments.neural_attention.magic_residual_enumeration import Compiler
+from experiments.neural_attention.magic_search_tuning import prepare
+folder=Path('generated/neural_attention/magic_residual_all16_20261014')
+with gzip.open(folder/'states_16.json.gz','rt') as f:data=json.load(f)
+spec=data['settings']
+_,model=prepare(16,spec['order'],spec['tie'],spec['symmetry'],seed=spec.get('seed',0))
+compiler=Compiler(model)
+exact,shape,topology=Counter(),Counter(),Counter()
+invalid=0
+for sample in data['samples']:
+ r=compiler.extract(sample['masks'])
+ if r.invalid:invalid+=1;continue
+ exact[(r.domains,r.rows)]+=1
+ signature=tuple((op,terms) for op,terms,target in r.rows)
+ shape[(tuple(map(len,r.domains)),signature)]+=1
+ topology[(len(r.domains),signature)]+=1
+report=dict(captured=len(data['samples']),invalid=invalid,
+ groups={name:dict(unique=len(counts),maximum_calls=max(counts.values(),default=0),repeated_calls=sum(v-1 for v in counts.values()),top_frequencies=sorted(counts.values(),reverse=True)[:10]) for name,counts in [('exact',exact),('shape',shape),('topology',topology)]},
+ inputs=dict(states_sha256=hashlib.sha256((folder/'states_16.json.gz').read_bytes()).hexdigest(),script_sha256=hashlib.sha256(Path(__file__).read_bytes()).hexdigest()))
+(folder/'reuse.json').write_text(json.dumps(report,indent=2)+'\n')
+(folder/'reuse_analysis.py.txt').write_bytes(Path(__file__).read_bytes())
+print(json.dumps(report,indent=2))

@@ -1,0 +1,114 @@
+"""Read-only verification of residual-study records and source snapshots."""
+from pathlib import Path
+from collections import Counter
+import gzip
+import hashlib
+import json
+import statistics
+import sys
+import tarfile
+
+root = Path(sys.argv[1]) if len(sys.argv) > 1 else Path(__file__).resolve().parent
+manifest = json.loads((root / 'source_manifest.json').read_text())
+for path, digest in manifest.items():
+    assert hashlib.sha256((root / path).read_bytes()).hexdigest() == digest, path
+source_checks = witnesses = timing_runs = 0
+for path in root.glob('*/frozen.json'):
+    frozen = json.loads(path.read_text())
+    with tarfile.open(path.parent / 'sources.tar.gz') as archive:
+        for source, digest in frozen['source_hashes'].items():
+            assert hashlib.sha256(archive.extractfile(source.lstrip('/')).read()).hexdigest() == digest
+            source_checks += 1
+
+def square(n, values):
+    assert sorted(values) == list(range(1, n*n+1))
+    target = n*(n*n+1)//2
+    assert all(sum(values[i*n:(i+1)*n]) == target for i in range(n))
+    assert all(sum(values[i::n]) == target for i in range(n))
+    assert sum(values[::n+1]) == target
+    assert sum(values[n-1:n*n-1:n-1]) == target
+
+for stage in ('capture', 'capture_wide', 'all16'):
+    for report in json.loads((root / stage / 'summary.json').read_text()):
+        n = report['size']
+        with gzip.open(root / stage / f'states_{n}.json.gz', 'rt') as f:
+            data = json.load(f)
+        rows = data['nodes']
+        assert len(rows) in (report['nodes'], report['nodes']-1)
+        assert len(data['samples']) == report['samples']
+        assert report['failures'] == sum(not r['consistent'] for r in rows)
+        assert report['propagation_seconds'] == sum(r['propagation_seconds'] for r in rows)
+        for group in report['thresholds']:
+            selected = [r for r in rows if r['product'] is not None and r['product'] <= group['threshold']]
+            assert group['nodes'] == len(selected)
+            assert group['propagation_seconds'] == sum(r['propagation_seconds'] for r in selected)
+        for sample in data['samples']:
+            assert len(sample['masks']) == n*n
+            assert sample['remaining'] == sum(m.bit_count() != 1 for m in sample['masks'])
+            assert all(0 < m < (1 << (n*n)) for m in sample['masks'])
+        for values in report['squares']:
+            square(n, values); witnesses += 1
+
+report = json.loads((root / 'report.json').read_text())
+for stage in ('hybrid_pilot', 'hybrid_50k', 'hybrid_200k', 'confirmation', 'holdout'):
+    rows = [json.loads(s) for s in (root / stage / 'runs.jsonl').read_text().splitlines()]
+    schedule = json.loads((root / stage / 'schedule.json').read_text())
+    assert sorted((r['size'], r['variant'], r['repeat']) for r in rows) == sorted(map(tuple, schedule))
+    timing_runs += len(rows)
+    signatures = {}
+    for r in rows:
+        key = r['size'], r['variant']
+        signature = r['nodes'], r['failures'], r['revisions'], r['termination'], r['squares']
+        if key in signatures: assert signatures[key] == signature
+        signatures[key] = signature
+        assert r['termination'] == 'solution_limit' and r['squares']
+        if r['variant'] != 'baseline':
+            s = r['stats']
+            assert s['attempts'] == s.get('exhausted', 0) + s.get('fallbacks', 0) + s.get('witnesses', 0)
+            assert 0 <= s['enum_seconds'] <= r['seconds']
+        for values in r['squares']:
+            square(r['size'], values); witnesses += 1
+    for g in json.loads((root / stage / 'summary.json').read_text()):
+        for variant, summary in g['variants'].items():
+            selected = [r for r in rows if r['size'] == g['size'] and r['variant'] == variant]
+            assert summary['solved'] == len(selected)
+            assert summary['median_seconds'] == statistics.median(r['seconds'] for r in selected)
+        if stage in ('confirmation', 'holdout'):
+            h = next(h for h in report['headline'] if h['stage'] == stage and h['size'] == g['size'])
+            assert h['before_seconds'] == g['variants']['baseline']['median_seconds']
+            assert h['after_seconds'] == g['variants']['r20']['median_seconds']
+            assert h['time_reduction_percent'] == 100*(1-h['after_seconds']/h['before_seconds'])
+
+replays = [json.loads(s) for s in (root / 'replay/runs.jsonl').read_text().splitlines()]
+assert len(replays) == 75 and all(r['cp_termination'] != 'time_limit' for r in replays)
+for r in replays:
+    for a in r['variants'].values():
+        assert a['status'] in (0, 1, 2) and a['visits'] <= 200000
+        if a['status'] != 2:
+            assert bool(a['status']) == r['cp_solved']
+        assert (a['witness'] is not None) == bool(a['solutions'])
+
+for stage in ('jit_pilot', 'jit_confirmation', 'jit_final'):
+    data = json.loads((root / stage / 'summary.json').read_text())
+    assert len(data['cases']) == 5
+    for i, c in enumerate(data['cases']):
+        assert hashlib.sha256((root / stage / f'case_{i}.c').read_bytes()).hexdigest() == c['source_sha256']
+        g, s = c['generic_kernel_seconds'], c['specialized_kernel_seconds']
+        assert c['compile_seconds'] > 0 and g > 0 and s > 0
+        assert c['break_even_calls'] == (c['compile_seconds']/(g-s) if g > s else None)
+        ref = next(r for r in replays if r['size'] == c['size'] and r['node'] == c['node'])
+        assert c['status'] == ref['variants']['2']['status']
+        assert c['visits'] == ref['variants']['2']['visits']
+
+reuse = json.loads((root / 'all16/reuse.json').read_text())
+assert hashlib.sha256((root / 'all16/states_16.json.gz').read_bytes()).hexdigest() == reuse['inputs']['states_sha256']
+assert hashlib.sha256((root / 'all16/reuse_analysis.py.txt').read_bytes()).hexdigest() == reuse['inputs']['script_sha256']
+assert reuse['captured'] == 2310 and reuse['groups']['exact']['unique'] == 2310
+assert reuse['groups']['exact']['maximum_calls'] == 1
+codes = [json.loads((root / stage / 'summary.json').read_text())['cases']
+         for stage in ('jit_pilot', 'jit_confirmation', 'jit_final')]
+assert all([c['source_sha256'] for c in group] == [c['source_sha256'] for c in codes[0]]
+           for group in codes)
+print(json.dumps(dict(timing_runs=timing_runs, replay_states=len(replays),
+                     validated_witnesses=witnesses, source_checks=source_checks,
+                     manifest_files=len(manifest)), indent=2))

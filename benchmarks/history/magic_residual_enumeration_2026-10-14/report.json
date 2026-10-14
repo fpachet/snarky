@@ -1,0 +1,79 @@
+{
+  "decision": "Promising experimental bounded native residual solver, compiled once. Per-state local C compilation does not amortize on this trace. No production solver changes.",
+  "selected": {
+    "max_remaining": 20,
+    "mode": 2,
+    "work_limit": 200000,
+    "scope": "First-solution feasibility, one global ALLDIFF covering all variables, integer SUM and LINEAR_SUM; no mixed facts, predicates, objective or general enumeration query."
+  },
+  "timing": "Sequential shuffled repeated whole solves. Model/state setup, residual extraction, ctypes encoding, native enumeration, fallbacks and final witness propagation included. Imports, compilation, output and independent square validation excluded. Compilation measured separately.",
+  "semantics": "Native mode0 checks distinctness incrementally and numeric constraints at complete tuples; mode1 checks closed constraints earlier; mode2 also applies static arithmetic bounds without maintaining propagated domains. Incomplete native searches fall back to ordinary CP. Joint UNSAT uses an aggregate failure label, so dom/wdeg updates and search trees can change. First-solution and exhaustive-failure correctness are tested; ordinary DFS-node counts exclude native candidate visits.",
+  "experiments": "The 10k pilot explores residual limits16/20/24. Three-repeat 50k and200k batches compare limits20/24. A single limit20, 200k policy is confirmed on8/9/13/16, then tested unchanged on11/14.",
+  "headline": [
+    {
+      "stage": "confirmation",
+      "size": 8,
+      "repeats": 5,
+      "before_seconds": 0.09123458317480981,
+      "after_seconds": 0.052395000122487545,
+      "time_reduction_percent": 42.57111908748876,
+      "speedup": 1.7412841485165416
+    },
+    {
+      "stage": "confirmation",
+      "size": 9,
+      "repeats": 5,
+      "before_seconds": 1.585775583051145,
+      "after_seconds": 1.1263826661743224,
+      "time_reduction_percent": 28.969604639322167,
+      "speedup": 1.4078479993278996
+    },
+    {
+      "stage": "confirmation",
+      "size": 13,
+      "repeats": 5,
+      "before_seconds": 1.5595060409978032,
+      "after_seconds": 1.020432542078197,
+      "time_reduction_percent": 34.566938809335824,
+      "speedup": 1.5282794076928765
+    },
+    {
+      "stage": "confirmation",
+      "size": 16,
+      "repeats": 5,
+      "before_seconds": 4.359086209209636,
+      "after_seconds": 3.3298512920737267,
+      "time_reduction_percent": 23.611254004598457,
+      "speedup": 1.3090933578883441
+    },
+    {
+      "stage": "holdout",
+      "size": 11,
+      "repeats": 3,
+      "before_seconds": 0.30541779194027185,
+      "after_seconds": 0.266614958178252,
+      "time_reduction_percent": 12.70483736900574,
+      "speedup": 1.1455388475843777
+    },
+    {
+      "stage": "holdout",
+      "size": 14,
+      "repeats": 3,
+      "before_seconds": 0.7153435410000384,
+      "after_seconds": 0.7089697499759495,
+      "time_reduction_percent": 0.891011193751523,
+      "speedup": 1.0089902157663357
+    }
+  ],
+  "jitter": "14x14 holdout is effectively flat; times are workload-specific and include Python extraction overhead. No multi-fold whole-solve improvement is claimed.",
+  "compilation": "Use jit_confirmation for uncontended compilation timings. The first JIT pilot could overlap correctness checks. Jit_final rechecks after adding constant-constraint handling; generated programs for the five captured cases retain the same source hashes.",
+  "reuse": "All2310 eligible baseline16 residuals are distinct after substituting fixed variables. Domain-length/constraint shapes occur at most9times; ignoring domain lengths gives a maximum11. These trace counts do not establish reuse rates for other problems.",
+  "coverage20": "In the observed10-second blank20 search, the minimum pre-propagation unresolved count is55: no residual qualifies for the selected limit20. This experiment does not solve20 or establish a speedup there.",
+  "provenance": "Every stage retains frozen source hashes and source tar. The preliminary replay omitted the entrypoint from its source-hash list; the final replay repeats all75 cases with complete entrypoint provenance and is used for conclusions. Historical stage sources may precede later CLI validation or formatting; snapshots preserve their actual bytes.",
+  "checks": {
+    "experimental_tests_passed": 11,
+    "ruff": "passed",
+    "mypy": "103 source files passed",
+    "c_warnings": "-Wall -Wextra -Werror syntax check passed"
+  }
+}
