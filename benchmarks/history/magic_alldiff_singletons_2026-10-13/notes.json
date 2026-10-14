@@ -1,0 +1,17 @@
+{
+  "scope": "Exact ALLDIFF SCC shortcut only; fixed matched value vertices are self-loop sinks and cannot share SCCs with other vertices. Their matched edges remain explicitly supported. Recomputed per revision, no witness cache.",
+  "timing": "Sequential shuffled three-repeat pairs; same current runtime except AllDifferentPlan.supports swapped from the saved before snapshot. Model/state setup included; imports, witness checks and reduction hashing excluded. Size20 is a 30-node prefix, not a solution.",
+  "equivalence": "Every run per size has identical nodes, failures, revisions, termination, complete squares and ordered solution-reduction digests.",
+  "baseline": "Before snapshot is the production ALLDIFF source at the start of this experiment; frozen source hashes identify the dirty working tree and all helpers.",
+  "checks": {
+    "core_passed": 1255,
+    "core_skipped": 4,
+    "slow_passed": 56,
+    "slow_skipped": 3,
+    "experimental_passed": 104,
+    "ruff": "passed",
+    "mypy": "103 source files passed"
+  },
+  "prefix20": "Initial three-run medians were 0.348s before/0.378s after. A separate nine-repeat confirmation gives 0.362s/0.365s: no clear early-prefix improvement. Both stages retained; neither is a completed 20x20 solve.",
+  "profiles": "Separate wall timers and cProfile runs preserve the same completed 16x16 work. They attribute the improvement to ALLDIFF. Instrumented timings are not headline benchmark timings."
+}

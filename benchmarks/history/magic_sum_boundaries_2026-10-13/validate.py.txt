@@ -1,0 +1,90 @@
+"""Read-only verification of frozen kernel comparisons and replay evidence."""
+from pathlib import Path
+import ast
+import gzip
+import hashlib
+import json
+import statistics
+import sys
+import tarfile
+
+root=Path(sys.argv[1]) if len(sys.argv)>1 else Path(__file__).resolve().parent
+manifest=json.loads((root/'source_manifest.json').read_text())
+for path,digest in manifest.items():
+ assert hashlib.sha256((root/path).read_bytes()).hexdigest()==digest,path
+source_checks=0
+paired_runs=0
+witnesses=0
+
+def check_sources(stage):
+ global source_checks
+ frozen=json.loads((root/stage/'frozen.json').read_text())
+ with tarfile.open(root/stage/'sources.tar.gz') as archive:
+  for path,digest in frozen['source_hashes'].items():
+   assert hashlib.sha256(archive.extractfile(path.lstrip('/')).read()).hexdigest()==digest,(stage,path)
+   source_checks+=1
+ return frozen
+
+def check_square(n,flat,symmetry=False):
+ assert sorted(flat)==list(range(1,n*n+1))
+ target=n*(n*n+1)//2
+ assert all(sum(flat[i*n:(i+1)*n])==target for i in range(n))
+ assert all(sum(flat[i*n+j] for i in range(n))==target for j in range(n))
+ assert sum(flat[i*n+i] for i in range(n))==target
+ assert sum(flat[i*n+n-i-1] for i in range(n))==target
+ if symmetry:
+  assert flat[0]<min(flat[n-1],flat[-n],flat[-1])
+  assert flat[n-1]<flat[-n] and flat[0]<=(n*n+1)//2
+
+for stage in ['fused_pilot','tail_pilot','sorted_pilot','boundary_pilot','comparison','confirmation16']:
+ frozen=check_sources(stage)
+ assert frozen['kernel']=='NumericPlan._equality_supports' and frozen['audit_reductions']
+ rows=[json.loads(line) for line in (root/stage/'runs.jsonl').read_text().splitlines()]
+ assert sorted((r['size'],r['variant'],r['repeat']) for r in rows)==sorted(map(tuple,frozen['schedule']))
+ paired_runs+=len(rows)
+ for n in {r['size'] for r in rows}:
+  group=[r for r in rows if r['size']==n]
+  assert len({(r['nodes'],r['failures'],r['revisions'],r['termination'],json.dumps(r['squares']),r['reduction_sha256']) for r in group})==1
+  for r in group:
+   assert r['total_seconds']>=0 and len(r['reduction_sha256'])==64
+   if n==20:
+    assert r['nodes']==30 and r['termination']=='node_limit' and not r['squares']
+   else:
+    assert r['termination']=='solution_limit' and r['squares']
+   for square in r['squares']:
+    check_square(n,square,r['settings']['symmetry']); witnesses+=1
+ summary=json.loads((root/stage/'summary.json').read_text())
+ for g in summary:
+  assert g['medians']=={v:statistics.median(r['total_seconds'] for r in rows if r['size']==g['size'] and r['variant']==v) for v in ['baseline','optimized']}
+ if stage in ['comparison','confirmation16']:
+  enriched=[e for e in json.loads((root/'summary.json').read_text()) if e['stage']==stage]
+  for e in enriched:
+   g=next(g for g in summary if g['size']==e['size'])
+   assert g['medians']==e['medians']
+   assert e['time_reduction_percent']==100*(1-g['medians']['optimized']/g['medians']['baseline'])
+   assert e['repeats']==(5 if stage=='confirmation16' else 3)
+
+replay=check_sources('replay')
+with gzip.open(root/'replay/calls.json.gz','rt') as handle: data=json.load(handle)
+assert len(data['calls'])==data['equality_calls']//replay['config']['stride']==5005
+for p,masks,target,expected in data['calls']:
+ assert len(masks)==len(data['plans'][p]) and isinstance(target,int)
+ for c,mask in zip(data['plans'][p],masks,strict=True):
+  assert 0<mask<(1<<len(data['columns'][c]))
+ if expected is not None:
+  assert len(expected)==len(masks)
+  assert all(0<s<=m and s&m==s for s,m in zip(expected,masks,strict=True))
+for square in data['squares']:
+ check_square(data['size'],square,data['settings']['symmetry']); witnesses+=1
+runs=[json.loads(line) for line in (root/'replay/runs.jsonl').read_text().splitlines()]
+summary=json.loads((root/'replay/summary.json').read_text())
+assert len(runs)==18 and all(r['calls']==5005 for r in runs)
+for name,t in summary.items():
+ assert len([r for r in runs if r['variant']==name])==3
+ assert t==statistics.median(r['seconds'] for r in runs if r['variant']==name)
+
+def equality_ast(path):
+ tree=ast.parse(path.read_text())
+ return ast.dump(next(n for c in tree.body if isinstance(c,ast.ClassDef) and c.name=='NumericPlan' for n in c.body if isinstance(n,ast.FunctionDef) and n.name=='_equality_supports'))
+assert equality_ast(root/'production.py.txt')==equality_ast(root/'selected.py.txt')
+print(json.dumps(dict(paired_runs=paired_runs,validated_witnesses=witnesses,kernel_replays=len(runs),sampled_calls=len(data['calls']),source_checks=source_checks,manifest_files=len(manifest)),indent=2))

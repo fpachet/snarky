@@ -183,6 +183,39 @@ def test_signed_holey_shuffled_equalities_match_exhaustive_supports_and_restore(
             assert not state.domains.removals
 
 
+def test_sparse_boundary_domains_keep_original_masks_across_scope_orders():
+    base = [[30, -17, 0, 18], [7, 0], [11, 22, 2], [5]]
+    coefficients = [2, -3, 1, 1]
+    for translation in (-(10**40), 0, 10**40):
+        translated = [[v + translation for v in base[0]], *base[1:]]
+        for order in ((0, 1, 2, 3), (3, 2, 1, 0), (1, 3, 0, 2), (2, 0, 3, 1)):
+            values = [translated[i] for i in order]
+            coeffs = [coefficients[i] for i in order]
+            totals = {}
+            for row in product(*values):
+                total = sum(c * v for c, v in zip(coeffs, row, strict=True))
+                totals.setdefault(total, []).append(row)
+            model = make_model(values, coeffs, 0)
+            state = NativeState(model)
+            plan = state._numeric.get(0, model.constraints[0])
+            assert plan is not None
+            for target in range(min(totals) - 1, max(totals) + 2):
+                rows = totals.get(target, [])
+                expected = (
+                    tuple(
+                        sum(
+                            1 << j
+                            for j, value in enumerate(alphabet)
+                            if any(row[i] == value for row in rows)
+                        )
+                        for i, alphabet in enumerate(values)
+                    )
+                    if rows
+                    else None
+                )
+                assert plan.supports(state.domains, target) == expected
+
+
 @pytest.mark.parametrize("budget", ["_MAX_EQUALITY_SPAN", "_MAX_EQUALITY_TOTAL_BITS"])
 def test_wide_sum_budget_falls_back_exactly(monkeypatch, budget):
     monkeypatch.setattr(numeric, budget, 0)

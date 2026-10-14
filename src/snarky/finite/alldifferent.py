@@ -190,6 +190,7 @@ class AllDifferentPlan:
         graph = [0] * len(self.owners)
         reverse = [0] * len(self.owners)
         matched = 0
+        singletons = 0
         edges = 0
         groups: dict[int, int] = {}
         for value, mask in zip(self.matching, masks, strict=True):
@@ -198,6 +199,8 @@ class AllDifferentPlan:
             graph[value] = mask
             size = mask.bit_count()
             edges += size
+            if size == 1:
+                singletons |= own
             if size <= 8:
                 # Tiny rows are cheaper to emit directly than to aggregate.
                 pending = mask
@@ -223,7 +226,15 @@ class AllDifferentPlan:
                 if universe.bit_count() <= 64 or edges >= 4 * universe.bit_count()
                 else _sparse_components
             )
-            components = component_fn(graph, reverse, universe & ~reaches_free)
+            # A fixed variable's matched value has only its self-loop, so its
+            # SCC is a singleton even when other rows point into it. Removing
+            # these sink vertices cannot change any remaining SCC. Filtering
+            # already keeps each matched edge explicitly via (1 << value),
+            # so excluded vertices need no component entry. Recompute this
+            # mask on every revision, including after rollback and widening.
+            components = component_fn(
+                graph, reverse, universe & ~(reaches_free | singletons)
+            )
             result = tuple(
                 original
                 if mask & ~(reaches_free | components[value] | (1 << value)) == 0

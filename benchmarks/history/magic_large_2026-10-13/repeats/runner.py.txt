@@ -1,0 +1,38 @@
+"""Repeat only discovered settings; the input contains no completed squares."""
+import argparse
+import hashlib
+import json
+import platform
+from pathlib import Path
+from statistics import median
+
+from experiments.neural_attention.magic_large_search import trial
+
+parser=argparse.ArgumentParser()
+parser.add_argument('--settings',type=Path,required=True)
+parser.add_argument('--output',type=Path,required=True)
+args=parser.parse_args()
+args.output.mkdir(parents=True,exist_ok=False)
+specs=json.loads(args.settings.read_text())
+paths=[*Path('src/snarky').rglob('*.py'),Path(__file__),args.settings,Path('benchmarks/alice_magic.py')]
+paths += [Path('experiments/neural_attention')/name for name in ['magic_large_search.py','magic_portfolio.py','magic_search_tuning.py','optimize_magic6.py','sum_distinct.py']]
+hashes={str(p):hashlib.sha256(p.read_bytes()).hexdigest() for p in paths}
+(args.output/'frozen.json').write_text(json.dumps(dict(python=platform.python_version(),source_hashes=hashes,settings=specs,scope='Three fresh states, settings only; no completion hints. Same attempt clock as discovery; imports/validation/GC excluded. All replays retained.'),indent=2)+'\n')
+(args.output/'runner.py.txt').write_bytes(Path(__file__).read_bytes())
+rows=[]
+for spec in specs:
+ for repeat in range(3):
+  row=dict(repeat=repeat,**trial(spec['size'],spec['settings'],spec['mode'],spec['limit']))
+  rows.append(row)
+  with (args.output/'runs.jsonl').open('a') as f:f.write(json.dumps(row)+'\n')
+  print(json.dumps({k:v for k,v in row.items() if k not in ['squares','stats']}),flush=True)
+summary=[]
+for spec in specs:
+ group=[r for r in rows if r['size']==spec['size'] and r['mode']==spec['mode']]
+ complete=[r for r in group if r['solved']]
+ if len(complete)==3:
+  assert len({r['nodes'] for r in complete})==1
+  assert all(r['squares']==complete[0]['squares'] for r in complete)
+ summary.append(dict(size=spec['size'],mode=spec['mode'],settings=spec['settings'],completed=len(complete),attempted=len(group),median_total_seconds=median(r['total_seconds'] for r in complete) if len(complete)==3 else None,nodes=[r['nodes'] for r in group],square=complete[0]['squares'][0] if complete else None))
+(args.output/'summary.json').write_text(json.dumps(summary,indent=2)+'\n')
+assert all(hashlib.sha256(Path(p).read_bytes()).hexdigest()==sha for p,sha in hashes.items())

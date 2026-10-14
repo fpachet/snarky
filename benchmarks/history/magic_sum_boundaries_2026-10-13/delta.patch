@@ -1,0 +1,129 @@
+diff --git a/src/snarky/finite/numeric.py b/src/snarky/finite/numeric.py
+index 66dca4c..389467a 100644
+--- a/src/snarky/finite/numeric.py
++++ b/src/snarky/finite/numeric.py
+@@ -285,11 +285,20 @@ class NumericPlan:
+         reflect = residual > span - residual
+         if reflect:
+             residual = span - residual
++        # Boundary domains avoid one accumulation pass each. Put the two
++        # largest domains there, keeping smaller ones in the middle. This
++        # orders only internal arithmetic; returned masks keep scope order.
++        active.sort(key=lambda i: masks[i].bit_count())
++        active.insert(0, active.pop(-2))
++        limit = (1 << (residual + 1)) - 1
++        prefix = [1]
+         candidates = []
+-        for index in active:
++        for index in active[:-1]:
+             column, mask = self.columns[index], masks[index]
+             low, high = extrema[index]
+             offsets = []
++            previous = prefix[-1]
++            reachable = 0
+             while mask:
+                 bit = mask & -mask
+                 mask ^= bit
+@@ -297,19 +306,34 @@ class NumericPlan:
+                 shifted = high - value if reflect else value - low
+                 if shifted <= residual:
+                     offsets.append((bit, shifted))
++                    reachable |= previous << shifted
+             candidates.append(offsets)
+-        limit = (1 << (residual + 1)) - 1
+-        prefix = [1]
+-        for offsets in candidates:
+-            reachable = 0
+-            for _, shifted in offsets:
+-                reachable |= prefix[-1] << shifted
++            # Build reachability during candidate enumeration, avoiding a
++            # second Python pass and repeated prefix lookups for every value.
+             prefix.append(reachable & limit)
+-        if not prefix[-1] & (1 << residual):
+-            return None
+-        backward = 1 << residual
+         supported = list(masks)
+-        for index in range(len(active) - 1, -1, -1):
++        # The final prefix table is needed only to test the target. Instead,
++        # check the final domain directly against the preceding reachable sums
++        # and seed backward supports without allocating its candidate tuples.
++        last = active[-1]
++        column, pending = self.columns[last], masks[last]
++        low, high = extrema[last]
++        backward = 0
++        supported[last] = 0
++        previous = prefix[-1]
++        while pending:
++            bit = pending & -pending
++            pending ^= bit
++            value = column.values[bit.bit_length() - 1]
++            shifted = high - value if reflect else value - low
++            if shifted <= residual:
++                suffix = 1 << (residual - shifted)
++                if previous & suffix:
++                    supported[last] |= bit
++                    backward |= suffix
++        if not supported[last]:
++            return None
++        for index in range(len(active) - 2, 0, -1):
+             reachable = 0
+             variable = active[index]
+             supported[variable] = 0
+@@ -319,6 +343,13 @@ class NumericPlan:
+                     supported[variable] |= bit
+                     reachable |= suffix
+             backward = reachable
++        first = active[0]
++        supported[first] = 0
++        # prefix[0] is the empty-sum bit. Only membership tests are needed for
++        # the first domain; there is no earlier domain needing a backward table.
++        for bit, shifted in candidates[0]:
++            if backward & (1 << shifted):
++                supported[first] |= bit
+         return tuple(supported)
+ 
+ 
+diff --git a/tests/test_numeric_wide_masks.py b/tests/test_numeric_wide_masks.py
+index 473e709..1e9824d 100644
+--- a/tests/test_numeric_wide_masks.py
++++ b/tests/test_numeric_wide_masks.py
+@@ -183,6 +183,39 @@ def test_signed_holey_shuffled_equalities_match_exhaustive_supports_and_restore(
+             assert not state.domains.removals
+ 
+ 
++def test_sparse_boundary_domains_keep_original_masks_across_scope_orders():
++    base = [[30, -17, 0, 18], [7, 0], [11, 22, 2], [5]]
++    coefficients = [2, -3, 1, 1]
++    for translation in (-(10**40), 0, 10**40):
++        translated = [[v + translation for v in base[0]], *base[1:]]
++        for order in ((0, 1, 2, 3), (3, 2, 1, 0), (1, 3, 0, 2), (2, 0, 3, 1)):
++            values = [translated[i] for i in order]
++            coeffs = [coefficients[i] for i in order]
++            totals = {}
++            for row in product(*values):
++                total = sum(c * v for c, v in zip(coeffs, row, strict=True))
++                totals.setdefault(total, []).append(row)
++            model = make_model(values, coeffs, 0)
++            state = NativeState(model)
++            plan = state._numeric.get(0, model.constraints[0])
++            assert plan is not None
++            for target in range(min(totals) - 1, max(totals) + 2):
++                rows = totals.get(target, [])
++                expected = (
++                    tuple(
++                        sum(
++                            1 << j
++                            for j, value in enumerate(alphabet)
++                            if any(row[i] == value for row in rows)
++                        )
++                        for i, alphabet in enumerate(values)
++                    )
++                    if rows
++                    else None
++                )
++                assert plan.supports(state.domains, target) == expected
++
++
+ @pytest.mark.parametrize("budget", ["_MAX_EQUALITY_SPAN", "_MAX_EQUALITY_TOTAL_BITS"])
+ def test_wide_sum_budget_falls_back_exactly(monkeypatch, budget):
+     monkeypatch.setattr(numeric, budget, 0)

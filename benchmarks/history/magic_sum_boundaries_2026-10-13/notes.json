@@ -1,0 +1,8 @@
+{
+  "scope": "Exact SUM/LINEAR_SUM equality support computation. Existing small-active and dense/holey certificates unchanged. No additional inference, witness cache or changed variable/value heuristic.",
+  "selected": "Fuse candidate enumeration with prefix construction; avoid the last prefix/candidate row by direct target-membership checks; avoid the unused first backward table; arrange two largest domains at arithmetic boundaries, with smaller domains inside. Returned masks remain in original scope order.",
+  "selection": "Six variants replayed 5005 sampled calls from a completed 16x16 solve, three repetitions each, checking exact outputs. Selected kernel ~6.6% faster in this sampled workload; this is not whole-solver speedup. Sampling omits intervening cache transitions and uses one family/size.",
+  "paired": "Three shuffled repetitions per implementation/size, model/state setup included; imports, validation and reduction hashing excluded. Every pair preserves nodes, failures, revisions, termination, squares and ordered reduction hashes. 20x20 is a 30-node prefix only.",
+  "limits": "Initial three-pair 16x16 improvement was 5.5%; a dedicated five-pair confirmation measured 2.5%, used as the conservative headline. Other sizes show small differences apart from the initial 8x8 result. Initial pilots retained, including unsuccessful variants. Selected production function differs from measured prototype only by comments.",
+  "checks": "Full regression, compatibility, lint and mypy outcomes are retained in logs/tool results; numerical oracle suite covers signed, translated, shuffled and reflected targets."
+}

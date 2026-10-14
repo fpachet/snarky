@@ -1,0 +1,58 @@
+"""Read-only archive verification; independent of today's Snarky checkout."""
+from pathlib import Path
+import hashlib
+import json
+import statistics
+import sys
+import tarfile
+
+root = Path(sys.argv[1]) if len(sys.argv)>1 else Path(__file__).resolve().parent
+manifest=json.loads((root/'source_manifest.json').read_text())
+for name, digest in manifest.items():
+ assert hashlib.sha256((root/name).read_bytes()).hexdigest()==digest, name
+summary=json.loads((root/'summary.json').read_text())
+rows=[json.loads(line) for line in (root/'runs.jsonl').read_text().splitlines()]
+assert len(rows)==summary['attempts']
+assert sum(r['solved'] for r in rows)==summary['solutions']
+source_checks=0
+staged=[]
+for stage in sorted(p for p in root.iterdir() if p.is_dir()):
+ frozen=json.loads((stage/'frozen.json').read_text())
+ with tarfile.open(stage/'sources.tar.gz') as archive:
+  for name,digest in frozen['source_hashes'].items():
+   member=archive.extractfile(name.lstrip('/'))
+   assert member is not None
+   assert hashlib.sha256(member.read()).hexdigest()==digest, (stage.name,name)
+   source_checks+=1
+ raw=[json.loads(line) for line in (stage/'runs.jsonl').read_text().splitlines()] if (stage/'runs.jsonl').exists() else []
+ staged.extend(dict(stage=stage.name, **r) for r in raw)
+ brief=json.loads((stage/'summary.json').read_text()) if (stage/'summary.json').exists() else []
+ assert brief==[{k:v for k,v in r.items() if k not in ['squares','stdout','stderr','command']} for r in raw]
+ for r in raw:
+  assert r['solved']==bool(r['squares'])
+  assert r['statistics']['nodes']>=0
+  assert r['solve_process_seconds']>=0
+  assert abs(r['total_seconds']-r['prepare_seconds']-r['solve_process_seconds'])<1e-7
+  assert 'UNSATISFIABLE' not in r.get('statuses',[])
+  if r['solver']!='snarky':
+   for suffix in ['.mzn','.fzn','.ozn','.compile.json']:
+    assert (stage/f"{r['track']}_{r['size']}_{r['solver']}{suffix}").is_file()
+  for square in r['squares']:
+   n=r['size']; flat=sum(square,[]); target=n*(n*n+1)//2
+   assert len(square)==n and all(len(line)==n for line in square)
+   assert sorted(flat)==list(range(1,n*n+1))
+   assert all(sum(line)==target for line in square)
+   assert all(sum(square[i][j] for i in range(n))==target for j in range(n))
+   assert sum(square[i][i] for i in range(n))==target
+   assert sum(square[i][n-i-1] for i in range(n))==target
+   if r['symmetry']:
+    assert flat[0]<min(flat[n-1],flat[-n],flat[-1])
+    assert flat[n-1]<flat[-n] and flat[0]<=(n*n+1)//2
+assert sorted(staged,key=lambda r:(r['stage'],r['track'],r['size'],r['repeat'],r['solver'])) == sorted(rows,key=lambda r:(r['stage'],r['track'],r['size'],r['repeat'],r['solver']))
+for g in summary['groups']:
+ selected=[r for r in rows if (r['stage'],r['track'],r['solver'],r['size'])==(g['stage'],g['track'],g['solver'],g['size'])]
+ completed=[r for r in selected if r['solved']]
+ assert g['attempted']==len(selected) and g['solved']==len(completed)
+ for field, raw_field in [('median_solve_process_seconds','solve_process_seconds'),('median_total_seconds','total_seconds')]:
+  assert g[field]==(statistics.median(r[raw_field] for r in completed) if completed else None)
+print(json.dumps(dict(attempts=len(rows),validated_witnesses=summary['solutions'],source_checks=source_checks,manifest_files=len(manifest)),indent=2))

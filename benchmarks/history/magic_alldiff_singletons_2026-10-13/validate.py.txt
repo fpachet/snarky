@@ -1,0 +1,74 @@
+"""Read-only checks of frozen sources, paired work and magic-square witnesses."""
+from pathlib import Path
+import hashlib
+import json
+import statistics
+import sys
+import tarfile
+
+root=Path(sys.argv[1]) if len(sys.argv)>1 else Path(__file__).resolve().parent
+manifest=json.loads((root/'source_manifest.json').read_text())
+for name,digest in manifest.items():
+ assert hashlib.sha256((root/name).read_bytes()).hexdigest()==digest, name
+source_checks=0
+witnesses=0
+runs=0
+for stage in ['pilot','comparison','prefix20']:
+ frozen=json.loads((root/stage/'frozen.json').read_text())
+ assert frozen['kernel']=='AllDifferentPlan.supports' and frozen['audit_reductions']
+ with tarfile.open(root/stage/'sources.tar.gz') as archive:
+  for name,digest in frozen['source_hashes'].items():
+   data=archive.extractfile(name.lstrip('/')).read()
+   assert hashlib.sha256(data).hexdigest()==digest, (stage,name)
+   source_checks+=1
+ rows=[json.loads(line) for line in (root/stage/'runs.jsonl').read_text().splitlines()]
+ assert sorted((r['size'],r['variant'],r['repeat']) for r in rows)==sorted(map(tuple,frozen['schedule']))
+ runs+=len(rows)
+ sizes=sorted({r['size'] for r in rows})
+ for n in sizes:
+  selected=[r for r in rows if r['size']==n]
+  signatures={(r['nodes'],r['failures'],r['revisions'],r['termination'],
+              json.dumps(r['squares']),r['reduction_sha256']) for r in selected}
+  assert len(signatures)==1
+  assert all(r['reduction_sha256'] and len(r['reduction_sha256'])==64 for r in selected)
+  for r in selected:
+   assert r['total_seconds']>=0
+   if n>=17:
+    assert r['nodes']==30 and r['termination']=='node_limit' and not r['squares']
+   else:
+    assert r['termination']=='solution_limit' and r['squares']
+   for flat in r['squares']:
+    assert sorted(flat)==list(range(1,n*n+1))
+    target=n*(n*n+1)//2
+    assert all(sum(flat[i*n:(i+1)*n])==target for i in range(n))
+    assert all(sum(flat[i*n+j] for i in range(n))==target for j in range(n))
+    assert sum(flat[i*n+i] for i in range(n))==target
+    assert sum(flat[i*n+n-i-1] for i in range(n))==target
+    if r['settings']['symmetry']:
+     assert flat[0]<min(flat[n-1],flat[-n],flat[-1])
+     assert flat[n-1]<flat[-n] and flat[0]<=(n*n+1)//2
+    witnesses+=1
+ summary=json.loads((root/stage/'summary.json').read_text())
+ for group in summary:
+  assert group['medians']=={v:statistics.median(r['total_seconds'] for r in rows if r['size']==group['size'] and r['variant']==v) for v in ['baseline','optimized']}
+ if stage=='comparison':
+  enriched=json.loads((root/'summary.json').read_text())
+  for group,extra in zip(summary,enriched,strict=True):
+   assert group['size']==extra['size'] and group['medians']==extra['medians']
+   before,after=(group['medians'][v] for v in ['baseline','optimized'])
+   assert extra['time_reduction_percent']==100*(1-after/before)
+   assert extra['speedup']==before/after
+profile_signatures=[]
+for stage in ['profile_before','profile_after']:
+ frozen=json.loads((root/stage/'frozen.json').read_text())
+ with tarfile.open(root/stage/'sources.tar.gz') as archive:
+  for name,digest in frozen['source_hashes'].items():
+   assert hashlib.sha256(archive.extractfile(name.lstrip('/')).read()).hexdigest()==digest
+   source_checks+=1
+ profile=json.loads((root/stage/'summary.json').read_text())[0]
+ signatures=[tuple(profile[mode][k] for k in ['nodes','failures','revisions','termination','solved']) for mode in ['baseline','wall_timers','cprofile']]
+ assert len(set(signatures))==1
+ assert signatures[0][-1] and signatures[0][0]==2536
+ profile_signatures.append(signatures[0])
+assert profile_signatures[0]==profile_signatures[1]
+print(json.dumps(dict(runs=runs,validated_witnesses=witnesses,source_checks=source_checks,manifest_files=len(manifest)),indent=2))

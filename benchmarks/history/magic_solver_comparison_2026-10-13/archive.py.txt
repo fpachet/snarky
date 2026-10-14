@@ -1,0 +1,54 @@
+from pathlib import Path
+import hashlib
+import json
+import shutil
+import statistics
+
+root=Path('benchmarks/history/magic_solver_comparison_2026-10-13')
+root.mkdir(exist_ok=False)
+stages={'pilot':Path('generated/neural_attention/magic_solver_pilot_20261013')}
+follow=Path('generated/neural_attention/magic_solver_followup_20261013')
+stages.update({p.name:p for p in sorted(follow.iterdir()) if p.is_dir()})
+confirmation=Path('generated/neural_attention/magic_solver_confirmation_20261013')
+if confirmation.exists():
+ stages.update({f'confirmation_{p.name}':p for p in sorted(confirmation.iterdir()) if p.is_dir()})
+all_rows=[]
+for name, source in stages.items():
+ shutil.copytree(source, root/name)
+ rows=[json.loads(line) for line in (source/'runs.jsonl').read_text().splitlines()] if (source/'runs.jsonl').exists() else []
+ if rows:
+  assert json.loads((source/'summary.json').read_text())==[{k:v for k,v in r.items() if k not in ['squares','stdout','stderr','command']} for r in rows]
+ for row in rows:
+  all_rows.append(dict(stage=name, **row))
+(root/'runs.jsonl').write_text(''.join(json.dumps(row)+'\n' for row in all_rows))
+groups=[]
+for key in sorted({(r['stage'],r['track'],r['solver'],r['size']) for r in all_rows}):
+ selected=[r for r in all_rows if (r['stage'],r['track'],r['solver'],r['size'])==key]
+ completed=[r for r in selected if r['solved']]
+ groups.append(dict(zip(['stage','track','solver','size'],key), attempted=len(selected), solved=len(completed),
+  limit_seconds=selected[0]['limit_seconds'], symmetry=selected[0]['symmetry'],settings=selected[0]['settings'],
+  effective_policy='input_order' if any('Ignore variable selection annotation' in r.get('stdout','') for r in selected) else selected[0]['settings']['policy'],
+  median_solve_process_seconds=statistics.median(r['solve_process_seconds'] for r in completed) if completed else None,
+  median_total_seconds=statistics.median(r['total_seconds'] for r in completed) if completed else None,
+  median_reported_backend_solve_seconds=statistics.median(r['statistics']['solveTime'] for r in completed) if completed and all('solveTime' in r['statistics'] for r in completed) else None,
+  nodes=[r['statistics']['nodes'] for r in selected]))
+summary=dict(attempts=len(all_rows),solutions=sum(r['solved'] for r in all_rows),groups=groups,
+ notes=['Exploratory comparison, not a solver ranking or state-of-the-art record.',
+ 'Pilot uses initial harness; its statement that external initialization is charged to the cutoff is imprecise: Chuffed adds initialization to its search cutoff. Actual measured times and backend statistics are preserved.',
+ 'Models share normal-square domains, global ALLDIFF, all row/column/two-diagonal sums, and the same five symmetry restrictions when enabled.',
+ 'Controlled pilot uses MRV/ascending/row-major. Preset tracks use previously size-tuned Snarky settings; external solver annotations, propagators, branching alternatives and learning differ.',
+ 'No constructed square, reference completion, warm-start hint or ML model used.',
+ 'Process time excludes MiniZinc compilation. Total adds measured compilation/model preparation. Snarky is resident Python; external solver process startup is charged. Compilation recorded once per external case; total replay times reuse that preparation measurement.',
+ 'Nominal time cutoffs and backend initialization semantics differ slightly; actual times retained. No solutions means unknown, never an infeasibility proof.',
+ 'Early Chuffed dom_w_deg trials silently fell back to input_order; raw warnings retained and effective_policy marks the fallback. Supported first_fail runs are separate. One unsupported random-value trial and one free-search adapter flag error interrupted stages before a search result; logs retained, neither counted as a timeout or solved run.',
+ 'Counters across solvers are not equivalent. Parameters/seeds explored and all failures retained; repeated successful configurations selected after discovery are not held-out evaluation.'])
+for name in ['pilot','followup','continued','confirmation']:
+ log=Path(f'/tmp/magic_solver_{name}_20261013.log')
+ if log.exists(): shutil.copyfile(log,root/(name+'.log'))
+(root/'summary.json').write_text(json.dumps(summary,indent=2)+'\n')
+for name in ['magic_solver_comparison.py','test_magic_solver_comparison.py']:
+ shutil.copyfile(Path('experiments/neural_attention')/name,root/(name+'.txt'))
+shutil.copyfile('/tmp/archive_magic_solver_comparison_20261013.py', root/'archive.py.txt')
+print(json.dumps(dict(archive=str(root),attempts=len(all_rows),solutions=summary['solutions']),indent=2))
+for g in groups:
+ print(g['stage'],g['solver'],g['size'],f"{g['solved']}/{g['attempted']}",g['median_solve_process_seconds'])

@@ -1,0 +1,81 @@
+"""Validate complete discovery stages and aggregate their actual costs."""
+import hashlib
+import json
+import tarfile
+from pathlib import Path
+
+base=Path('benchmarks/history/magic_large_2026-10-13')
+stages=['native','long_native','exact20','exact17_19','more20','controls17_19']
+manifest=base/'source_manifest.json'
+if manifest.exists():
+ for relative,sha in json.loads(manifest.read_text()).items():
+  assert hashlib.sha256((base/relative).read_bytes()).hexdigest()==sha,relative
+available=set()
+for path in base.rglob('*'):
+ if not path.is_file() or '__pycache__' in path.parts:continue
+ available.add(hashlib.sha256(path.read_bytes()).hexdigest())
+ if path.name.endswith('.tar.gz'):
+  with tarfile.open(path) as tar:
+   for member in tar:
+    if member.isfile():available.add(hashlib.sha256(tar.extractfile(member).read()).hexdigest())
+records=[];by_size={};hash_checks=0
+for name in stages:
+ folder=base/name
+ if not (folder/'summary.json').exists():continue
+ frozen=json.loads((folder/'frozen.json').read_text())
+ for path,sha in frozen['source_hashes'].items():
+  assert sha in available or (Path(path).is_file() and hashlib.sha256(Path(path).read_bytes()).hexdigest()==sha),(name,path)
+  hash_checks+=1
+ rows=[json.loads(line) for line in (folder/'runs.jsonl').read_text().splitlines()]
+ summaries=json.loads((folder/'summary.json').read_text())
+ for row in rows:
+  assert row['solved']==bool(row['squares'])
+  assert row['termination'] in ['time_limit','solution_limit','setup_budget']
+  n=row['size']; target=n*(n*n+1)//2
+  for square in row['squares']:
+   assert sorted(square)==list(range(1,n*n+1))
+   lines=[square[i*n:(i+1)*n] for i in range(n)]+[square[i::n] for i in range(n)]+[square[::n+1],square[n-1:n*n-1:n-1]]
+   assert all(len(line)==n and sum(line)==target for line in lines)
+  records.append(dict(stage=name,**row))
+ for summary in summaries:
+  n=summary['size'];group=[r for r in rows if r['size']==n]
+  assert summary['attempts']==len(group)
+  assert summary['nodes']==sum(r['nodes'] for r in group)
+  assert summary['solved']==any(r['solved'] for r in group)
+  aggregate=by_size.setdefault(n,dict(size=n,solved=False,discovery_seconds=0,attempts=0,nodes=0,winner=None,stages=[]))
+  aggregate['discovery_seconds']+=summary['portfolio_seconds']
+  aggregate['attempts']+=len(group);aggregate['nodes']+=summary['nodes'];aggregate['stages'].append(name)
+  if summary['solved'] and aggregate['winner'] is None:
+   aggregate['solved']=True;aggregate['winner']=dict(stage=name,**summary['winner'])
+replays=json.loads((base/'repeats/summary.json').read_text()) if (base/'repeats/summary.json').exists() else []
+verification=[]
+for name in ['repeats','preset_smoke']:
+ folder=base/name
+ if not (folder/'runs.jsonl').exists():continue
+ frozen=json.loads((folder/'frozen.json').read_text())
+ for path,sha in frozen['source_hashes'].items():
+  assert sha in available or (Path(path).is_file() and hashlib.sha256(Path(path).read_bytes()).hexdigest()==sha),(name,path)
+  hash_checks+=1
+ rows=[json.loads(line) for line in (folder/'runs.jsonl').read_text().splitlines()]
+ for row in rows:
+  assert row['solved'] and row['termination']=='solution_limit'
+  n=row['size'];target=n*(n*n+1)//2
+  for square in row['squares']:
+   assert sorted(square)==list(range(1,n*n+1))
+   lines=[square[i*n:(i+1)*n] for i in range(n)]+[square[i::n] for i in range(n)]+[square[::n+1],square[n-1:n*n-1:n-1]]
+   assert all(len(line)==n and sum(line)==target for line in lines)
+ verification.append(dict(stage=name,completed=len(rows)))
+ if name=='repeats':
+  from statistics import median
+  for replay in replays:
+   group=[r for r in rows if r['size']==replay['size'] and r['mode']==replay['mode']]
+   assert len(group)==3 and replay['completed']==replay['attempted']==3
+   assert len({r['nodes'] for r in group})==1
+   assert all(r['squares'][0]==replay['square'] for r in group)
+   assert replay['median_total_seconds']==median(r['total_seconds'] for r in group)
+result=dict(replays=replays,verification=verification,baseline_commit='2026390',model='Unseeded blank normal squares; existing optional symmetry only; no constructed completion or reference solution',sizes=[by_size[n] for n in sorted(by_size)],counts=dict(attempts=len(records),validated_squares=sum(len(r['squares']) for r in records),timeouts=sum(r['termination']=='time_limit' for r in records),source_hash_checks=hash_checks),stages=stages)
+(base/'summary.json').write_text(json.dumps(result,indent=2)+'\n')
+(base/'runs.jsonl').write_text(''.join(json.dumps(r)+'\n' for r in records))
+print(json.dumps(result['counts'],indent=2))
+for r in result['sizes']:
+ print(r['size'],r['solved'],round(r['discovery_seconds'],3),r['attempts'],r['winner']['total_seconds'] if r['winner'] else None)

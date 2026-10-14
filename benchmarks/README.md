@@ -15,23 +15,168 @@ comparison; an archived experiment's defaults apply to its recorded version.
 ## Magic squares
 
 This is the stable entry point for the current magic-square benchmark summary.
-For the latest measured sources and full results, use the
-[ALLDIFF graph results and reproduction guide](history/magic_scheduler_graph_2026-10-13/README.md).
-The latest production change groups identical large domain rows while building
-the reverse graph. Three-run native medians, including model construction:
+The latest production change reduces work in exact SUM/LINEAR_SUM equality
+filtering. It combines candidate enumeration with prefix construction, checks
+the final domain directly, and skips the unused first backward table. The two
+largest domains occupy these cheaper arithmetic boundaries; returned masks
+keep their original scope order. Variable/value branching is unchanged.
 
-| Size | Before | After | Time reduction |
+The [paired measurements](history/magic_sum_boundaries_2026-10-13/summary.json)
+swap only `NumericPlan._equality_supports`, retaining the earlier ALLDIFF
+optimization in both versions. Native medians include model and state setup.
+The 16×16 row uses a dedicated five-pair confirmation; other rows use three
+pairs from the multi-size comparison.
+
+| Size | Pairs | Before | After | Time reduction |
+|---|---:|---:|---:|---:|
+| 8×8 | 3 | 0.098257 s | 0.089237 s | 9.2% |
+| 9×9 | 3 | 1.682819 s | 1.674495 s | 0.5% |
+| 11×11 | 3 | 0.321472 s | 0.317943 s | 1.1% |
+| 13×13 | 3 | 1.583678 s | 1.563625 s | 1.3% |
+| 14×14 | 3 | 0.750585 s | 0.728673 s | 2.9% |
+| 16×16 | **5** | **4.574959 s** | **4.461806 s** | **2.5%** |
+
+Every pair preserves nodes, failures, revisions, solutions and ordered
+solution-reduction hashes. Both 16×16 versions visit 2,536 nodes. Its initial
+three-pair batch measured 4.639 → 4.381 s (5.5%); the longer confirmation gives
+the more conservative headline above. Other sizes mostly changed little.
+The 20×20 diagnostic stops after 30 nodes: 0.345 → 0.351 s, with no completed
+square or demonstrated gain. No extra inference, probe or witness cache is added.
+
+Candidate selection used [5,005 sampled equality calls](history/magic_sum_boundaries_2026-10-13/replay/summary.json)
+from a real 16×16 solve. Six kernels were replayed three times with exact output
+checks; the selected kernel was about 6.6% faster in that sampled workload.
+Those kernel timings are separate from whole-solve results. The archive retains
+all preliminary variants, [multi-size runs](history/magic_sum_boundaries_2026-10-13/comparison/runs.jsonl),
+[five-pair confirmation](history/magic_sum_boundaries_2026-10-13/confirmation16/runs.jsonl),
+frozen source snapshots and a
+[read-only validator](history/magic_sum_boundaries_2026-10-13/validate.py.txt).
+Validation passed 1,312 regression tests and 104 experimental compatibility
+tests, including numeric oracles for signed coefficients, huge translations,
+reflected targets and reordered scopes. Lint and type checks passed.
+
+Reproduce the confirmation with a fresh output directory:
+
+```sh
+PYTHONHASHSEED=0 PYTHONPATH=src:. .venv/bin/python -m experiments.neural_attention.magic_alldifferent_benchmark \
+  --before benchmarks/history/magic_sum_boundaries_2026-10-13/before.py.txt \
+  --kernel sum --sizes 16 --repeats 5 --audit-reductions \
+  --output generated/neural_attention/magic_sum_boundaries_replay
+```
+
+For the original multi-size matrix, use `--sizes 8 9 11 13 14 16 20 --repeats 3`.
+The previous [ALLDIFF singleton measurements](history/magic_alldiff_singletons_2026-10-13/summary.json)
+preserve the earlier 16×16 gain of 5.468 → 4.655 s with identical search work.
+The [graph comparison](history/magic_scheduler_graph_2026-10-13/README.md) covers
+row aggregation and the optional joint SUM+ALLDIFF filters. The
+[history index](history/README.md) links earlier optimization stages.
+
+### Scaling toward 20×20 — 13 October 2026
+
+The largest completed unrestricted square remains **16×16**. A new search
+fills the previous 15×15 gap, but does not complete 17×17–20×20. These trials
+use the same blank normal-square model, with no constructed completion or
+solution hint. Optional symmetry and the tested joint filters are recorded
+per attempt.
+
+| Size | Outcome | Recorded discovery time | Attempts |
+|---|---|---:|---:|
+| 15×15 | Solved; three fresh replays: **1.135 s median**, 291 nodes each | 36.227 s | 7 |
+| 17×17 | Unresolved | 141.067 s | 15 |
+| 18×18 | Unresolved | 141.087 s | 15 |
+| 19×19 | Unresolved | 141.112 s | 15 |
+| 20×20 | Unresolved | 405.169 s | 28 |
+
+Discovery time includes the preceding failed attempts, setup, validation and
+recording across the sequential portfolios; it excludes interpreter imports
+and the later timing replays. Individual attempts range from about 5 to 60
+seconds. Timeouts establish no infeasibility and are not completed solve times.
+The recorded 20×20 work includes native search, the optional exact joint filter,
+its alternative pair-budget gate, balanced-line value ordering and fresh seeds.
+
+The saved 15×15 setting is randomized `dom_wdeg`, value and tie seed 1, with
+symmetry disabled. The [scaling summary](history/magic_large_2026-10-13/summary.json),
+[all discovery attempts](history/magic_large_2026-10-13/runs.jsonl) and
+[three timing replays](history/magic_large_2026-10-13/repeats/summary.json) preserve
+the witnesses, settings, failures and actual budgets. Source snapshots and
+per-stage `frozen.json` files are in the same directory. All 80 discovery
+attempts are retained: one solved and 79 timed out.
+
+Reproduce discovery with `python -m experiments.neural_attention.magic_large_search`;
+pass `--settings` with an archived settings JSON, `--mode native`, `exact` or
+`pairs`, and a fresh `--output` directory. For the confirmed preset, run
+`PYTHONHASHSEED=0 PYTHONPATH=src:. .venv/bin/python -m experiments.neural_attention.magic_scaling --sizes 15 --repeats 3 --limit 5 --output generated/neural_attention/magic15_replay`.
+
+The [archive validator](history/magic_large_2026-10-13/validate_discovery.py.txt)
+checks source identities and independently rechecks every completed square.
+
+### Complete-solver comparison — 13 October 2026
+
+**Gecode completes 20×20 in 1.617 s median over three runs.** Snarky's largest
+completed square remains 16×16. This compares complete search implementations
+on the same blank normal-square constraints, without constructed completions,
+solution hints or machine learning. All runs are sequential and single-threaded.
+Installed versions are Gecode 6.3.0, Chuffed 0.13.2 and MiniZinc 2.9.7.
+This cross-solver table predates the latest native optimizations above;
+its source snapshots and timings remain frozen.
+
+The table uses the selected settings with a nominal 10 s search cutoff. Every
+completed entry is a three-run median with fresh solver states. Times exclude
+model preparation/MiniZinc compilation; external process startup and output are
+included. “Unknown” means no solution within the cutoff, not infeasibility.
+
+| Size | Snarky native | Gecode | Chuffed |
 |---|---:|---:|---:|
-| 8×8 | 0.110352 s | 0.097281 s | 11.8% |
-| 9×9 | 1.949828 s | 1.930853 s | 1.0% |
-| 11×11 | 0.426527 s | 0.337799 s | 20.8% |
-| 16×16 | 6.171570 s | 5.320453 s | 13.8% |
+| 8×8 | 0.1084 s | 0.0176 s | 0.1121 s |
+| 11×11 | 0.3666 s | 0.0472 s | 0.4545 s |
+| 16×16 | 5.4957 s | 0.4622 s | Unknown at 10 s |
+| 20×20 | Unknown at 10 s | 1.6166 s | Unknown at 10 s |
 
-Each before/after pair preserves search counts, solutions and explanations.
-The report also covers the optional joint SUM+ALLDIFF filter, raw samples,
-source snapshots and the experiments left disabled. Larger 15–20×20 results
-are node-limited prefixes, not completed solves. The
-[results index](history/README.md) links the earlier optimization stages.
+The global ALLDIFF, every row/column sum and both diagonal sums are identical.
+For 8, 11 and 16, all solvers also receive the same five D4/complement symmetry
+restrictions; symmetry is disabled for all three at 20. Snarky uses its saved
+size-specific settings. Gecode uses the same `dom_w_deg` / `indomain_random`
+annotations, seed 1, and domain-consistent ALLDIFF at every size. Chuffed uses
+`first_fail` / `indomain_median`, seed 1, domain-consistent ALLDIFF requested,
+and free search (`-f`) to alternate annotated and activity-based search.
+Propagation algorithms, branching alternatives, learning and search trees differ.
+
+Preparation matters for small instances: adding the measured compilation/model
+preparation gives 8×8 totals of 0.1183 s (Snarky), 0.1408 s (Gecode) and
+0.2329 s (Chuffed). Gecode's 20×20 total is 1.7387 s. External compilation is
+measured once per case and reused for the three solves; these totals do not
+represent three independently repeated compilations. Cutoff semantics also
+differ slightly: Chuffed adds initialization time to its search cutoff, while
+Snarky charges initialization. Actual process and backend timings are retained.
+
+This is an exploratory comparison of implementations, not a state-of-the-art
+ranking or a held-out evaluation. Settings were selected after short pilots;
+Snarky's size presets had already been tuned. The initial common MRV/ascending
+pilot timed out at 8, 11, 16 and 20 for all three solvers under a 5 s cutoff.
+Early Chuffed `dom_w_deg` trials fell back to input-order search, and its random
+value annotation is unsupported; those warnings and adapter failures are
+preserved separately from the supported settings used above.
+
+The [comparison summary](history/magic_solver_comparison_2026-10-13/summary.json)
+and [all 85 measured runs](history/magic_solver_comparison_2026-10-13/runs.jsonl)
+retain discovery failures, settings, statistics and 38 validated witness records.
+The same archive contains MiniZinc/FlatZinc models, raw solver output, source
+snapshots and checksums. Its
+[read-only validator](history/magic_solver_comparison_2026-10-13/validate.py.txt)
+checks every witness, stage summary and archived source identity.
+
+Reproduce the Gecode settings with a fresh output directory:
+
+```sh
+PYTHONHASHSEED=0 PYTHONPATH=src:. .venv/bin/python -m experiments.neural_attention.magic_solver_comparison \
+  --sizes 8 11 16 20 --tracks preset --solvers gecode --external-values indomain_random \
+  --alldiff-domain --limit 10 --repeats 3 --output generated/neural_attention/gecode_replay
+```
+
+Use `--solvers snarky` for the saved native presets. For Chuffed, use
+`--solvers chuffed --external-values indomain_median --alldiff-domain --free-search`.
+The runner uses the installed MiniZincIDE bundle and rejects unsupported
+Chuffed search annotations before running.
 
 For the September 2026 redesign baseline and acceptance protocol, use the
 [performance baseline and comparison ledger](../docs/performance_baseline.md).

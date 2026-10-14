@@ -1,0 +1,498 @@
+"""Compiled integer contributions and exact supports in candidate-mask coordinates.
+
+Inequalities and bounded-span integer equalities use this path. Wider equalities
+and noninteger alphabets retain the reference kernels. Caches are mask-tagged,
+not search-depth-tagged, so rollback needs no cache trail.
+"""
+
+from __future__ import annotations
+
+from bisect import bisect_left, bisect_right
+
+from ..terms import Number, Term
+from .constraints import (
+    AnyOfConstraint,
+    ConstraintOperator,
+    LinearSumConstraint,
+    SumConstraint,
+)
+from .domains import FiniteDomains
+
+# Bound extra compiled entries, not the domain store or integer magnitudes.
+_MAX_COLUMN = 4096
+_MAX_ENTRIES = 262144
+_MAX_EQUALITY_SPAN = 16384
+_MAX_EQUALITY_TOTAL_BITS = 1_048_576
+
+
+class NumericColumn:
+    def __init__(
+        self,
+        variable: Term,
+        contributions: tuple[int, ...],
+        layout: NumericColumn | None = None,
+    ) -> None:
+        self.variable = variable
+        if layout is None:
+            self.values = contributions
+            self.positions = {value: i for i, value in enumerate(contributions)}
+            self.ascending = all(
+                a <= b for a, b in zip(contributions, contributions[1:], strict=False)
+            )
+            self.descending = all(
+                a >= b for a, b in zip(contributions, contributions[1:], strict=False)
+            )
+            self.ordered = contributions if self.ascending else contributions[::-1]
+            self.rank_indices: tuple[int, ...] = ()
+            self.ranks: tuple[int, ...] = ()
+            if not (self.ascending or self.descending):
+                self.rank_indices = tuple(
+                    sorted(range(len(contributions)), key=contributions.__getitem__)
+                )
+                ranks = [0] * len(contributions)
+                for rank, index in enumerate(self.rank_indices):
+                    ranks[index] = rank
+                self.ranks = tuple(ranks)
+                self.ordered = tuple(contributions[i] for i in self.rank_indices)
+        else:
+            # Only immutable layout data is shared. Every variable/coefficient
+            # keeps its own mask, extrema and numeric-rank cache below.
+            self.values = layout.values
+            self.positions = layout.positions
+            self.ascending = layout.ascending
+            self.descending = layout.descending
+            self.ordered = layout.ordered
+            self.rank_indices = layout.rank_indices
+            self.ranks = layout.ranks
+        # Candidate bits preserve declared branching order. A separate numeric
+        # rank mask gives constant-time extrema after updating only changed bits.
+        # XOR tags also handle rollback and siblings without a cache trail.
+        self.rank_mask = 0
+        self.last_mask = -1
+        self.last_extrema = (0, 0)
+        if not (self.ascending or self.descending):
+            self.rank_mask = self.last_mask = (1 << len(contributions)) - 1
+            self.last_extrema = (self.ordered[0], self.ordered[-1])
+
+    def extrema(self, mask: int) -> tuple[int, int]:
+        if mask != self.last_mask:
+            if self.ascending or self.descending:
+                first = self.values[(mask & -mask).bit_length() - 1]
+                last = self.values[mask.bit_length() - 1]
+                self.last_extrema = (first, last) if self.ascending else (last, first)
+            else:
+                pending = mask ^ self.last_mask
+                # A large shrink is cheaper to encode afresh than to remove
+                # almost every old candidate. Full restores need no conversion.
+                if mask == (1 << len(self.values)) - 1:
+                    self.rank_mask = mask
+                    pending = 0
+                elif mask.bit_count() < pending.bit_count():
+                    self.rank_mask = 0
+                    pending = mask
+                while pending:
+                    bit = pending & -pending
+                    pending ^= bit
+                    self.rank_mask ^= 1 << self.ranks[bit.bit_length() - 1]
+                self.last_extrema = (
+                    self.ordered[(self.rank_mask & -self.rank_mask).bit_length() - 1],
+                    self.ordered[self.rank_mask.bit_length() - 1],
+                )
+            self.last_mask = mask
+        return self.last_extrema
+
+    def threshold(self, mask: int, bound: int, upper: bool) -> int:
+        low, high = self.extrema(mask)
+        if (high <= bound) if upper else (low >= bound):
+            return mask
+        if self.ascending or self.descending:
+            count = (bisect_right if upper else bisect_left)(self.ordered, bound)
+            prefix = (1 << count) - 1
+            if self.descending:
+                prefix <<= len(self.values) - count
+            # Complement is intersected with the finite current mask.
+            return mask & (prefix if upper else ~prefix)
+        count = (bisect_right if upper else bisect_left)(self.ordered, bound)
+        prefix = (1 << count) - 1
+        removed = self.rank_mask & (~prefix if upper else prefix)
+        result = mask
+        while removed:
+            bit = removed & -removed
+            removed ^= bit
+            result ^= 1 << self.rank_indices[bit.bit_length() - 1]
+        return result
+
+
+class NumericPlan:
+    def __init__(
+        self,
+        columns: tuple[NumericColumn, ...],
+        operator: ConstraintOperator,
+        domains: FiniteDomains | None = None,
+    ) -> None:
+        self.columns = columns
+        self._domain_store = domains
+        self.indices = (
+            tuple(domains.index(c.variable) for c in columns)
+            if domains is not None
+            else None
+        )
+        self.input_masks: tuple[int, ...] = ()
+        self.operator = operator
+        self.last_masks = [-1] * len(columns)
+        self.extrema = [0] * len(columns)
+        self.total = 0
+        self.equal_masks: tuple[int, ...] | None = None
+        self.equal_target: int | None = None
+        self.equal_result: tuple[int, ...] | None = None
+
+    def supports(self, domains: FiniteDomains, target: int) -> tuple[int, ...] | None:
+        masks = (
+            domains.masks_at(self.indices)
+            if domains is self._domain_store and self.indices is not None
+            else tuple(domains.mask(c.variable) for c in self.columns)
+        )
+        self.input_masks = masks
+        if not all(masks):
+            return None
+        if self.operator is ConstraintOperator.EQUAL:
+            if len(masks) > 2:
+                if masks == self.equal_masks and target == self.equal_target:
+                    return self.equal_result
+                result = self._equality_supports(masks, target)
+                # Exact supports are a fixpoint. Tag successful results with the
+                # filtered masks, including after rollback or sibling visits.
+                self.equal_masks = masks if result is None else result
+                self.equal_target = target
+                self.equal_result = result
+                return result
+            if len(masks) == 1:
+                index = self.columns[0].positions.get(target)
+                mask = 0 if index is None else masks[0] & (1 << index)
+                return (mask,) if mask else None
+            left, right = (
+                (0, 1) if masks[0].bit_count() <= masks[1].bit_count() else (1, 0)
+            )
+            pending = masks[left]
+            supported = [0, 0]
+            while pending:
+                bit = pending & -pending
+                pending ^= bit
+                value = self.columns[left].values[bit.bit_length() - 1]
+                index = self.columns[right].positions.get(target - value)
+                if index is not None:
+                    other = (1 << index) & masks[right]
+                    if other:
+                        supported[left] |= bit
+                        supported[right] |= other
+            return tuple(supported) if all(supported) else None
+        upper = self.operator is ConstraintOperator.LESS_EQUAL
+        for i, (column, mask) in enumerate(zip(self.columns, masks, strict=True)):
+            if mask != self.last_masks[i]:
+                value = column.extrema(mask)[0 if upper else 1]
+                self.total += value - self.extrema[i]
+                self.extrema[i] = value
+                self.last_masks[i] = mask
+        if (self.total > target) if upper else (self.total < target):
+            return None
+        return tuple(
+            column.threshold(mask, target - self.total + own, upper)
+            for column, mask, own in zip(self.columns, masks, self.extrema, strict=True)
+        )
+
+    def _equality_supports(
+        self, masks: tuple[int, ...], target: int
+    ) -> tuple[int, ...] | None:
+        extrema = [c.extrema(m) for c, m in zip(self.columns, masks, strict=True)]
+        lower = sum(low for low, _ in extrema)
+        span = sum(high - low for low, high in extrema)
+        residual = target - lower
+        if not 0 <= residual <= span:
+            return None
+        # Fixed terms contribute only to the residual. Avoid building arithmetic
+        # tables for them, and use direct supports near a line's completion.
+        active = [i for i, mask in enumerate(masks) if mask & (mask - 1)]
+        if not active:
+            return masks
+        if len(active) == 1:
+            index = active[0]
+            position = self.columns[index].positions.get(
+                target - lower + extrema[index][0]
+            )
+            support_mask = 0 if position is None else masks[index] & (1 << position)
+            if not support_mask:
+                return None
+            result = list(masks)
+            result[index] = support_mask
+            return tuple(result)
+        if len(active) == 2:
+            left, right = sorted(active, key=lambda i: masks[i].bit_count())
+            remaining = target - lower + extrema[left][0] + extrema[right][0]
+            pending = masks[left]
+            result = list(masks)
+            result[left] = result[right] = 0
+            while pending:
+                bit = pending & -pending
+                pending ^= bit
+                value = self.columns[left].values[bit.bit_length() - 1]
+                position = self.columns[right].positions.get(remaining - value)
+                if position is not None:
+                    other = masks[right] & (1 << position)
+                    if other:
+                        result[left] |= bit
+                        result[right] |= other
+            return tuple(result) if result[left] else None
+        widths = [high - low for low, high in extrema]
+        holes = [
+            width + 1 - mask.bit_count()
+            for width, mask in zip(widths, masks, strict=True)
+        ]
+        if not any(holes):
+            # Sums of integer intervals are intervals. Bounds are therefore
+            # exact supports here, even for signed or translated contributions.
+            upper = lower + span
+            return tuple(
+                column.threshold(
+                    column.threshold(mask, target - lower + low, True),
+                    target - upper + high,
+                    False,
+                )
+                for column, mask, (low, high) in zip(
+                    self.columns, masks, extrema, strict=True
+                )
+            )
+        widest = max(widths)
+        if widest <= residual <= span - widest:
+            # For two domains of widths a,b with h missing integers in total,
+            # their sum contains [h,a+b-h] if h <= min(a,b): each interior sum
+            # has at least h+1 possible pairs and only h can be blocked.
+            # An interval of width w plus another domain stays an interval
+            # across its extrema when that domain has at most w holes.
+            # Three anchors leave a qualifying pair after excluding any one
+            # variable. The common conservative margin proves every current
+            # candidate supported; otherwise retain the exact bitset fallback.
+            anchors = sorted(active, key=lambda i: (holes[i], -widths[i]))[:3]
+            margin = sum(holes[i] for i in anchors) - min(holes[i] for i in anchors)
+            anchor_widths = sorted(widths[i] for i in anchors)
+            if (
+                margin <= anchor_widths[0]
+                and anchor_widths[0] + anchor_widths[1] - 2 * margin >= max(holes)
+                and widest + margin <= residual <= span - widest - margin
+            ):
+                return masks
+        # Normalizing current minima handles signed coefficients and enormous
+        # translations without using absolute integer magnitudes as bit indexes.
+        reflect = residual > span - residual
+        if reflect:
+            residual = span - residual
+        active.sort(key=lambda i: masks[i].bit_count())
+        limit = (1 << (residual + 1)) - 1
+        prefix = [1]
+        candidates = []
+        for index in active[:-1]:
+            column, mask = self.columns[index], masks[index]
+            low, high = extrema[index]
+            offsets = []
+            previous = prefix[-1]
+            reachable = 0
+            while mask:
+                bit = mask & -mask
+                mask ^= bit
+                value = column.values[bit.bit_length() - 1]
+                shifted = high - value if reflect else value - low
+                if shifted <= residual:
+                    offsets.append((bit, shifted))
+                    reachable |= previous << shifted
+            candidates.append(offsets)
+            # Build reachability during candidate enumeration, avoiding a
+            # second Python pass and repeated prefix lookups for every value.
+            prefix.append(reachable & limit)
+        supported = list(masks)
+        # The final prefix table is needed only to test the target. Instead,
+        # check the final domain directly against the preceding reachable sums
+        # and seed backward supports without allocating its candidate tuples.
+        last = active[-1]
+        column, pending = self.columns[last], masks[last]
+        low, high = extrema[last]
+        backward = 0
+        supported[last] = 0
+        previous = prefix[-1]
+        while pending:
+            bit = pending & -pending
+            pending ^= bit
+            value = column.values[bit.bit_length() - 1]
+            shifted = high - value if reflect else value - low
+            if shifted <= residual:
+                suffix = 1 << (residual - shifted)
+                if previous & suffix:
+                    supported[last] |= bit
+                    backward |= suffix
+        if not supported[last]:
+            return None
+        for index in range(len(active) - 2, -1, -1):
+            reachable = 0
+            variable = active[index]
+            supported[variable] = 0
+            for bit, shifted in candidates[index]:
+                suffix = backward >> shifted
+                if prefix[index] & suffix:
+                    supported[variable] |= bit
+                    reachable |= suffix
+            backward = reachable
+        return tuple(supported)
+
+
+class NumericPlans:
+    """Per-state immutable column sharing and bounded, lazy plan compilation."""
+
+    def __init__(self, domains: FiniteDomains) -> None:
+        self.domains = domains
+        self.columns: dict[tuple[Term, int], NumericColumn] = {}
+        self._layouts: dict[tuple[int, ...], NumericColumn] = {}
+        self.plans: dict[
+            int, tuple[LinearSumConstraint | SumConstraint, NumericPlan | None]
+        ] = {}
+        self.entries = 0
+        self.disjunctions: dict[
+            int, tuple[AnyOfConstraint, NumericDisjunction | None]
+        ] = {}
+
+    def get(
+        self, index: int, constraint: LinearSumConstraint | SumConstraint
+    ) -> NumericPlan | None:
+        if not isinstance(constraint.target, int):
+            return None
+        previous = self.plans.get(index)
+        if previous is not None and previous[0] is constraint:
+            return previous[1]
+        terms = (
+            constraint.terms
+            if isinstance(constraint, LinearSumConstraint)
+            else tuple((1, v) for v in constraint.variables)
+        )
+        operator = (
+            constraint.operator
+            if isinstance(constraint, LinearSumConstraint)
+            else ConstraintOperator.EQUAL
+        )
+        if (
+            previous is not None
+            and isinstance(previous[0], LinearSumConstraint)
+            and isinstance(constraint, LinearSumConstraint)
+            and previous[0].terms == terms
+            and previous[0].operator == operator
+        ):
+            # Incumbent targets change; their coefficients and candidate indexes do not.
+            plan = previous[1]
+        else:
+            plan = self._compile(terms, operator)
+        self.plans[index] = (constraint, plan)
+        return plan
+
+    def disjunction(
+        self, index: int, constraint: AnyOfConstraint
+    ) -> NumericDisjunction | None:
+        previous = self.disjunctions.get(index)
+        if previous is not None and previous[0] is constraint:
+            return previous[1]
+        plan = None
+        alternatives = constraint.alternatives
+        if len(alternatives) == 2 and all(
+            isinstance(c, LinearSumConstraint) for c in alternatives
+        ):
+            left, right = alternatives
+            assert isinstance(left, LinearSumConstraint)
+            assert isinstance(right, LinearSumConstraint)
+            if len(left.terms) == 2 and set(left.variables) == set(right.variables):
+                a = self._compile(left.terms, left.operator)
+                b = self._compile(right.terms, right.operator)
+                if a is not None and b is not None:
+                    plan = NumericDisjunction((a, b))
+        self.disjunctions[index] = (constraint, plan)
+        return plan
+
+    def _compile(
+        self, terms: tuple[tuple[int, Term], ...], operator: ConstraintOperator
+    ) -> NumericPlan | None:
+        if not terms:
+            return None
+        if operator is ConstraintOperator.EQUAL and len(terms) > 2:
+            # Preflight representation limits before publishing any columns.
+            # Sparse huge spans retain the existing exact sparse/GCD fallback.
+            span = 0
+            for coefficient, variable in terms:
+                alphabet = self.domains.alphabet(variable)
+                if not alphabet or any(
+                    not isinstance(v, Number) or not isinstance(v.value, int)
+                    for v in alphabet
+                ):
+                    return None
+                contributions = [
+                    coefficient * v.value
+                    for v in alphabet
+                    if isinstance(v, Number) and isinstance(v.value, int)
+                ]
+                span += max(contributions) - min(contributions)
+                if span > _MAX_EQUALITY_SPAN:
+                    return None
+            if (span + 1) * (len(terms) + 2) > _MAX_EQUALITY_TOTAL_BITS:
+                return None
+        columns = []
+        for coefficient, variable in terms:
+            key = (variable, coefficient)
+            column = self.columns.get(key)
+            if column is None:
+                alphabet = self.domains.alphabet(variable)
+                if (
+                    len(alphabet) > _MAX_COLUMN
+                    or self.entries + len(alphabet) > _MAX_ENTRIES
+                ):
+                    return None
+                # Decline, rather than validate early: an inactive guard or values
+                # removed before first revision must retain reference semantics.
+                if any(
+                    not isinstance(v, Number) or not isinstance(v.value, int)
+                    for v in alphabet
+                ):
+                    return None
+                values = tuple(
+                    coefficient * v.value
+                    for v in alphabet
+                    if isinstance(v, Number) and isinstance(v.value, int)
+                )
+                layout = self._layouts.get(values)
+                column = self.columns[key] = NumericColumn(variable, values, layout)
+                if layout is None:
+                    self._layouts[values] = column
+                self.entries += len(alphabet)
+            columns.append(column)
+        return NumericPlan(tuple(columns), operator, self.domains)
+
+
+class NumericDisjunction:
+    """Exact union of two local numeric support sets; never prune an OR branch.
+
+    Both alternatives must cover the same two variables. Keeping alternative
+    supports separate is essential: applying either to global domains would turn
+    a disjunction into a conjunction. Mask-tagged caches remain rollback-safe.
+    """
+
+    def __init__(self, plans: tuple[NumericPlan, NumericPlan]) -> None:
+        self.plans = plans
+        self.variables = tuple(c.variable for c in plans[0].columns)
+        self.positions = tuple(
+            tuple(self.variables.index(c.variable) for c in p.columns) for p in plans
+        )
+
+    def supports(
+        self, domains: FiniteDomains, targets: tuple[int, int]
+    ) -> tuple[int, ...] | None:
+        union = [0, 0]
+        for plan, positions, target in zip(
+            self.plans, self.positions, targets, strict=True
+        ):
+            supported = plan.supports(domains, target)
+            if supported is not None:
+                for position, mask in zip(positions, supported, strict=True):
+                    union[position] |= mask
+        return tuple(union) if all(union) else None

@@ -7,6 +7,8 @@ import hashlib
 import importlib.machinery
 import importlib.util
 import json
+import platform
+import subprocess
 from pathlib import Path
 from random import Random
 from statistics import median
@@ -28,7 +30,9 @@ def main():
         "--candidate", type=Path, help="optional experimental kernel source"
     )
     parser.add_argument(
-        "--kernel", choices=["alldifferent", "matching", "sum"], default="alldifferent"
+        "--kernel",
+        choices=["alldifferent", "alldifferent_supports", "matching", "sum"],
+        default="alldifferent",
     )
     parser.add_argument(
         "--presets",
@@ -37,6 +41,7 @@ def main():
     )
     parser.add_argument("--sizes", nargs="+", type=int, default=[8, 11, 12, 13, 15, 16])
     parser.add_argument("--repeats", type=int, default=3)
+    parser.add_argument("--audit-reductions", action="store_true")
     parser.add_argument("--output", type=Path, required=True)
     args = parser.parse_args()
     if args.repeats < 1 or any(n < 3 for n in args.sizes):
@@ -51,6 +56,7 @@ def main():
     kernel_class, method = {
         "sum": (NumericPlan, "_equality_supports"),
         "alldifferent": (MaskColumn, "decode"),
+        "alldifferent_supports": (AllDifferentPlan, "supports"),
         "matching": (AllDifferentPlan, "_match"),
     }[args.kernel]
     original_method = getattr(kernel_class, method)
@@ -93,9 +99,19 @@ def main():
                 schedule=specs,
                 presets=preset,
                 kernel=f"{kernel_class.__name__}.{method}",
+                audit_reductions=args.audit_reductions,
+                python=platform.python_version(),
+                platform=platform.platform(),
+                git_head=subprocess.check_output(
+                    ["git", "rev-parse", "HEAD"], text=True
+                ).strip(),
+                git_status=subprocess.check_output(
+                    ["git", "status", "--short"], text=True
+                ),
                 scope=(
                     "Sequential timing, model/state setup included, imports and "
-                    "validation excluded. Only the recorded kernel method is swapped. "
+                    "validation/reduction audit excluded. Only the recorded kernel "
+                    "method is swapped. "
                     "15x15 is the first 80 nodes; sizes >=17 are the first 30 nodes."
                 ),
             ),
@@ -130,12 +146,32 @@ def main():
             )
             seconds = perf_counter() - started
             squares = [validate(size, s.assignment, original) for s in result.solutions]
+            reduction_digest = (
+                hashlib.sha256(
+                    repr(
+                        tuple(
+                            tuple(
+                                (
+                                    repr(r.variable),
+                                    tuple(sorted(map(repr, r.values))),
+                                    repr(r.cause),
+                                )
+                                for r in s.reductions
+                            )
+                            for s in result.solutions
+                        )
+                    ).encode()
+                ).hexdigest()
+                if args.audit_reductions
+                else None
+            )
             signature = (
                 result.explored_nodes,
                 result.failed_branches,
                 result.constraint_revisions,
                 result.termination.value,
                 squares,
+                reduction_digest,
             )
             if size in signatures:
                 assert signatures[size] == signature, "kernel changed search work"
@@ -151,6 +187,7 @@ def main():
                 revisions=result.constraint_revisions,
                 termination=result.termination.value,
                 squares=squares,
+                reduction_sha256=reduction_digest,
             )
             rows.append(row)
             with (args.output / "runs.jsonl").open("a") as f:

@@ -1,0 +1,387 @@
+"""Exact support and rollback oracles for compiled all-different propagation."""
+
+from itertools import product
+from random import Random
+
+import pytest
+
+from snarky import Atom, Number
+from snarky.finite import (
+    FiniteModel,
+    FiniteVariable,
+    Query,
+    QueryKind,
+    alldifferent,
+    solve,
+)
+from snarky.finite.alldifferent import MaskColumn
+from snarky.finite.constraints import AllDifferentConstraint
+from snarky.finite.propagation import NativeState
+
+
+def test_decode_matches_value_oracle_across_sparse_removals_and_restores():
+    rng = Random(121026)
+    for positions in ((7, 3, 2047, 2, 19, 0), tuple(range(7, 13))):
+        column = MaskColumn(positions)
+        masks = list(range(64))
+        rng.shuffle(masks)
+        for mask in masks:
+            # Exercise cache transitions independently of the mask being decoded.
+            column.encode(rng.randrange(64))
+            for allowed in masks:
+                supported = (1 << 2046) | sum(
+                    1 << value
+                    for i, value in enumerate(positions)
+                    if allowed & (1 << i)
+                )
+                assert column.decode(mask, supported) == mask & allowed
+
+
+def model_for(alphabets):
+    variables = tuple(
+        FiniteVariable(Atom(f"x{i}"), tuple(a)) for i, a in enumerate(alphabets)
+    )
+    return FiniteModel(
+        "different",
+        variables,
+        (AllDifferentConstraint(Atom("distinct"), tuple(v.name for v in variables)),),
+    )
+
+
+def compare(fast, slow):
+    before = fast.domains.snapshot()
+    scope = tuple(before)
+    rows = [r for r in product(*(before[v] for v in scope)) if len(set(r)) == len(r)]
+    valid = fast.propagate()
+    assert valid == slow.propagate() == bool(rows)
+    assert fast.domains.snapshot() == slow.domains.snapshot()
+    assert fast.domains.removals == slow.domains.removals
+    assert fast.failure == slow.failure
+    assert fast.revisions == slow.revisions
+    if valid:
+        assert fast.domains.snapshot() == {
+            v: frozenset(r[i] for r in rows) for i, v in enumerate(scope)
+        }
+
+
+def test_random_exact_supports_nested_rollback_and_sibling_failures():
+    rng = Random(71691)
+    universe = (
+        Atom("a"),
+        Atom("b"),
+        Number(-(10**40)),
+        Number(0),
+        Number(7),
+        Number(10**40),
+    )
+    for _ in range(700):
+        model = model_for(
+            [rng.sample(universe, rng.randrange(6)) for _ in range(rng.randrange(1, 7))]
+        )
+        states = (NativeState(model), NativeState(model, alldifferent_masks=False))
+        roots = [s.checkpoint() for s in states]
+        compare(*states)
+        for _visit in range(3):
+            for state, root in zip(states, roots, strict=True):
+                state.rollback(root)
+            if model.variables:
+                v = rng.choice(model.variables)
+                mask = rng.randrange(1 << len(v.domain))
+                for state in states:
+                    state.domains.retain_mask(v.name, mask, Atom("branch"))
+            nested = [s.checkpoint() for s in states]
+            compare(*states)
+            for state, cp in zip(states, nested, strict=True):
+                state.rollback(cp)
+            compare(*states)
+            for state, cp in zip(states, nested, strict=True):
+                state.rollback(cp)
+                state.release(cp)
+        for state, root in zip(states, roots, strict=True):
+            state.rollback(root)
+            state.release(root)
+            assert state.domains.snapshot() == model.domains
+
+
+def test_hall_sets_and_free_values_after_matching_repair():
+    model = model_for(
+        [tuple(map(Number, a)) for a in ((1, 2), (1, 2), (1, 2, 3, 4), (3, 4, 5))]
+    )
+    states = (NativeState(model), NativeState(model, alldifferent_masks=False))
+    roots = [s.checkpoint() for s in states]
+    compare(*states)
+    for value in (1, 2):
+        for state, root in zip(states, roots, strict=True):
+            state.rollback(root)
+            state.restrict(Atom("x0"), Number(value))
+        compare(*states)
+    for state, root in zip(states, roots, strict=True):
+        state.rollback(root)
+        state.release(root)
+    compare(*states)
+
+
+def test_long_sparse_chain_and_cycle_are_exact_without_recursion():
+    for cycle in (False, True):
+        size = 700
+        values = tuple(map(Number, range(size)))
+        alphabets = [(values[i], values[(i + 1) % size]) for i in range(size - 1)]
+        alphabets.append((values[-1], values[0]) if cycle else (values[-1],))
+        model = model_for(alphabets)
+        fast = NativeState(model)
+        assert fast.propagate()
+        assert all(
+            fast.domains.size(v.name) == (2 if cycle else 1) for v in model.variables
+        )
+        assert fast._alldifferent.entries == 2 * size - (not cycle)
+
+
+def test_budget_and_value_limit_fallback_preserve_reference(monkeypatch):
+    model = model_for([tuple(map(Number, range(4)))] * 4)
+    for setting in ("_MAX_ENTRIES", "_MAX_VALUES"):
+        with monkeypatch.context() as patch:
+            patch.setattr(alldifferent, setting, 0)
+            fast = NativeState(model)
+            compare(fast, NativeState(model, alldifferent_masks=False))
+            assert fast._alldifferent.plans[0] is None
+            assert fast._alldifferent.entries == 0
+
+
+def test_complete_search_matches_reference_outputs_and_counters():
+    model = model_for(
+        [tuple(map(Number, a)) for a in ((3, 1, 2), (1, 2), (2, 3, 4), (3, 4, 5))]
+    )
+    fast = solve(model, Query(QueryKind.ENUMERATE))
+    slow = solve(model, Query(QueryKind.ENUMERATE), alldifferent_masks=False)
+    for attr in (
+        "status",
+        "solutions",
+        "explored_nodes",
+        "failed_branches",
+        "constraint_revisions",
+    ):
+        assert getattr(fast, attr) == getattr(slow, attr)
+
+
+def test_sparse_irregular_value_graphs_match_reference():
+    rng = Random(1731)
+    for _ in range(60):
+        values = tuple(Atom(f"value{i}") for i in range(90))
+        alphabets = [rng.sample(values, rng.randrange(1, 6)) for _ in range(75)]
+        # Include a feasible witness in most models; sparse alternating cycles
+        # and paths then matter, instead of testing only immediate failure.
+        if rng.randrange(4):
+            alphabets = [
+                tuple(dict.fromkeys((*a, values[i]))) for i, a in enumerate(alphabets)
+            ]
+        model = model_for(alphabets)
+        fast, slow = NativeState(model), NativeState(model, alldifferent_masks=False)
+        roots = [s.checkpoint() for s in (fast, slow)]
+        for visit in range(3):
+            for state, root in zip((fast, slow), roots, strict=True):
+                state.rollback(root)
+                if visit:
+                    state.restrict(
+                        model.variables[visit].name, model.variables[visit].domain[0]
+                    )
+            assert fast.propagate() == slow.propagate()
+            assert fast.domains.snapshot() == slow.domains.snapshot()
+            assert fast.domains.removals == slow.domains.removals
+        for state, root in zip((fast, slow), roots, strict=True):
+            state.rollback(root)
+            state.release(root)
+
+
+def test_guard_activation_and_failure_cause():
+    from snarky import Fact, Triple
+    from snarky.finite import GuardedConstraint
+
+    base = model_for([(Atom("a"), Atom("b"))] * 3)
+    guard = Fact(Triple(Atom("mode"), Atom("is"), Atom("active")))
+    model = FiniteModel(
+        "guarded",
+        base.variables,
+        (GuardedConstraint(Atom("outer"), guard, base.constraints[0]),),
+    )
+    for enabled in (False, True):
+        state = NativeState(model, alldifferent_masks=enabled)
+        root = state.checkpoint()
+        assert state.propagate()
+        assert not state.propagate(facts=frozenset((guard,)))
+        assert state.failure == Atom("outer")
+        assert not state.domains.removals
+        state.rollback(root)
+        assert state.propagate()
+        state.rollback(root)
+        state.release(root)
+
+
+def test_valid_retained_matching_still_filters_new_hall_set():
+    model = model_for([tuple(map(Number, range(3)))] * 3)
+    fast, slow = NativeState(model), NativeState(model, alldifferent_masks=False)
+    roots = [state.checkpoint() for state in (fast, slow)]
+    compare(fast, slow)
+    plan = fast._alldifferent.plans[0]
+    matching = tuple(plan.matching)
+    for state in (fast, slow):
+        for variable in model.variables[:2]:
+            state.domains.retain_mask(variable.name, 3, Atom("branch"))
+    compare(fast, slow)
+    assert tuple(plan.matching) == matching
+    assert fast.domains.values(model.variables[2].name) == (Number(2),)
+    for state, checkpoint in zip((fast, slow), roots, strict=True):
+        state.rollback(checkpoint)
+        state.release(checkpoint)
+    compare(fast, slow)
+
+
+def test_matching_repairs_after_failed_sibling_and_widening():
+    model = model_for([tuple(map(Number, range(3)))] * 3)
+    fast, slow = NativeState(model), NativeState(model, alldifferent_masks=False)
+    roots = [state.checkpoint() for state in (fast, slow)]
+    for masks in [(7, 7, 7), (1, 1, 6), (4, 3, 3), (3, 3, 7), (7, 7, 7)]:
+        for state, checkpoint in zip((fast, slow), roots, strict=True):
+            state.rollback(checkpoint)
+            for variable, mask in zip(model.variables, masks, strict=True):
+                state.domains.retain_mask(variable.name, mask, Atom("branch"))
+        compare(fast, slow)
+    for state, checkpoint in zip((fast, slow), roots, strict=True):
+        state.rollback(checkpoint)
+        state.release(checkpoint)
+
+
+def test_reverse_graph_matches_edgewise_transpose_for_repeated_and_tiny_rows(
+    monkeypatch,
+):
+    rng = Random(131056)
+    original_reachable = alldifferent._bit_reachable
+    for n in [16, 32, 64]:
+        alphabet = tuple(Number(i) for i in range(n + 7))
+        alphabets = [rng.sample(alphabet, len(alphabet)) for _ in range(n)]
+        state = NativeState(model_for(alphabets))
+        plan = state._alldifferent.get(0, state.model.constraints[0])
+        root = state.checkpoint()
+        observed = []
+
+        def check_transpose(graph, seeds, allowed, plan=plan, observed=observed):
+            encoded = [
+                c.encode(m) for c, m in zip(plan.columns, plan.input_masks, strict=True)
+            ]
+            expected = [0] * len(plan.owners)
+            for source, mask in zip(plan.matching, encoded, strict=True):
+                assert source >= 0
+                while mask:
+                    bit = mask & -mask
+                    mask ^= bit
+                    expected[bit.bit_length() - 1] |= 1 << source
+            assert graph == expected
+            observed.append(True)
+            return original_reachable(graph, seeds, allowed)
+
+        full = (1 << len(alphabet)) - 1
+        rows = [
+            [full] * n,
+            [full ^ (1 << ((i + 3) % n)) for i in range(n)],
+            [(1 << i) | (1 << ((i + 1) % n)) for i in range(n)],
+            [sum(1 << j for j in set(rng.sample(range(n), 9)) | {i}) for i in range(n)],
+            [((1 << (n // 2)) - 1) << (i // (n // 2) * (n // 2)) for i in range(n)],
+            [(1 << i) | (1 << (n + 1)) for i in range(n)],
+        ]
+        with monkeypatch.context() as patch:
+            patch.setattr(alldifferent, "_bit_reachable", check_transpose)
+            for masks in rows + list(reversed(rows)):
+                state.rollback(root)
+                for variable, mask in zip(state.model.variables, masks, strict=True):
+                    state.domains.retain(
+                        variable.name,
+                        {v for i, v in enumerate(alphabet) if mask & (1 << i)},
+                        Atom("branch"),
+                    )
+                assert state.propagate()
+        assert len(observed) >= len(rows)
+        state.rollback(root)
+        state.release(root)
+
+
+@pytest.mark.parametrize("active_count", [2, 12])
+@pytest.mark.parametrize("extra_values", [0, 3])
+def test_fixed_vertices_preserve_hall_filtering_free_paths_and_rollback(
+    monkeypatch, active_count, extra_values
+):
+    size = 80
+    fixed_count = size - active_count
+    values = tuple(map(Number, range(size + extra_values)))
+    rng = Random(131080)
+    model = model_for(
+        [(values[i],) for i in range(fixed_count)]
+        + [rng.sample(values, len(values)) for _ in range(active_count)]
+    )
+    fast, slow = NativeState(model), NativeState(model, alldifferent_masks=False)
+    roots = [state.checkpoint() for state in (fast, slow)]
+    observed = []
+
+    def observe(operation):
+        def check(graph, reverse, allowed):
+            pending = allowed
+            while pending:
+                bit = pending & -pending
+                pending ^= bit
+                assert graph[bit.bit_length() - 1] != bit
+            observed.append(allowed)
+            return operation(graph, reverse, allowed)
+
+        return check
+
+    monkeypatch.setattr(
+        alldifferent, "_bit_components", observe(alldifferent._bit_components)
+    )
+    monkeypatch.setattr(
+        alldifferent, "_sparse_components", observe(alldifferent._sparse_components)
+    )
+
+    def compare_states():
+        assert fast.propagate() == slow.propagate()
+        assert fast.domains.snapshot() == slow.domains.snapshot()
+        assert fast.domains.removals == slow.domains.removals
+        assert fast.revisions == slow.revisions
+        assert fast.failure == slow.failure
+
+    compare_states()
+    assert observed
+    expected = frozenset(values[fixed_count:])
+    assert all(
+        fast.domains.snapshot()[v.name] == expected
+        for v in model.variables[fixed_count:]
+    )
+    nested = [state.checkpoint() for state in (fast, slow)]
+    for value in (values[-1], values[fixed_count]):
+        for state, checkpoint in zip((fast, slow), nested, strict=True):
+            state.rollback(checkpoint)
+            state.restrict(model.variables[-1].name, value)
+        compare_states()
+    for state, checkpoint in zip((fast, slow), nested, strict=True):
+        state.rollback(checkpoint)
+        state.release(checkpoint)
+    compare_states()
+    for state, checkpoint in zip((fast, slow), roots, strict=True):
+        state.rollback(checkpoint)
+        state.release(checkpoint)
+    compare_states()
+
+
+@pytest.mark.parametrize("size", [8, 80])
+def test_all_fixed_domains_have_no_scc_vertices(monkeypatch, size):
+    model = model_for([(Number(i),) for i in range(size)])
+    observed = []
+
+    def no_components(graph, reverse, allowed):
+        assert allowed == 0
+        observed.append(True)
+        return [0] * len(graph)
+
+    monkeypatch.setattr(alldifferent, "_bit_components", no_components)
+    monkeypatch.setattr(alldifferent, "_sparse_components", no_components)
+    state = NativeState(model)
+    assert state.propagate()
+    assert observed
+    assert state.domains.snapshot() == model.domains

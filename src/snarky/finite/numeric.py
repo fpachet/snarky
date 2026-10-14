@@ -285,11 +285,20 @@ class NumericPlan:
         reflect = residual > span - residual
         if reflect:
             residual = span - residual
+        # Boundary domains avoid one accumulation pass each. Put the two
+        # largest domains there, keeping smaller ones in the middle. This
+        # orders only internal arithmetic; returned masks keep scope order.
+        active.sort(key=lambda i: masks[i].bit_count())
+        active.insert(0, active.pop(-2))
+        limit = (1 << (residual + 1)) - 1
+        prefix = [1]
         candidates = []
-        for index in active:
+        for index in active[:-1]:
             column, mask = self.columns[index], masks[index]
             low, high = extrema[index]
             offsets = []
+            previous = prefix[-1]
+            reachable = 0
             while mask:
                 bit = mask & -mask
                 mask ^= bit
@@ -297,19 +306,34 @@ class NumericPlan:
                 shifted = high - value if reflect else value - low
                 if shifted <= residual:
                     offsets.append((bit, shifted))
+                    reachable |= previous << shifted
             candidates.append(offsets)
-        limit = (1 << (residual + 1)) - 1
-        prefix = [1]
-        for offsets in candidates:
-            reachable = 0
-            for _, shifted in offsets:
-                reachable |= prefix[-1] << shifted
+            # Build reachability during candidate enumeration, avoiding a
+            # second Python pass and repeated prefix lookups for every value.
             prefix.append(reachable & limit)
-        if not prefix[-1] & (1 << residual):
-            return None
-        backward = 1 << residual
         supported = list(masks)
-        for index in range(len(active) - 1, -1, -1):
+        # The final prefix table is needed only to test the target. Instead,
+        # check the final domain directly against the preceding reachable sums
+        # and seed backward supports without allocating its candidate tuples.
+        last = active[-1]
+        column, pending = self.columns[last], masks[last]
+        low, high = extrema[last]
+        backward = 0
+        supported[last] = 0
+        previous = prefix[-1]
+        while pending:
+            bit = pending & -pending
+            pending ^= bit
+            value = column.values[bit.bit_length() - 1]
+            shifted = high - value if reflect else value - low
+            if shifted <= residual:
+                suffix = 1 << (residual - shifted)
+                if previous & suffix:
+                    supported[last] |= bit
+                    backward |= suffix
+        if not supported[last]:
+            return None
+        for index in range(len(active) - 2, 0, -1):
             reachable = 0
             variable = active[index]
             supported[variable] = 0
@@ -319,6 +343,13 @@ class NumericPlan:
                     supported[variable] |= bit
                     reachable |= suffix
             backward = reachable
+        first = active[0]
+        supported[first] = 0
+        # prefix[0] is the empty-sum bit. Only membership tests are needed for
+        # the first domain; there is no earlier domain needing a backward table.
+        for bit, shifted in candidates[0]:
+            if backward & (1 << shifted):
+                supported[first] |= bit
         return tuple(supported)
 
 

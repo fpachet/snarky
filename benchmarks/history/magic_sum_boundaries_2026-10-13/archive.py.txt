@@ -1,0 +1,72 @@
+from pathlib import Path
+import ast
+import hashlib
+import json
+import shutil
+import subprocess
+import tarfile
+
+root=Path('benchmarks/history/magic_sum_boundaries_2026-10-13')
+root.mkdir(exist_ok=False)
+snapshots={
+ 'before':Path('/tmp/snarky_numeric_before_fused_support_20261013.py'),
+ 'fused':Path('/tmp/snarky_numeric_fused_support_20261013.py'),
+ 'tail':Path('/tmp/snarky_numeric_tail_support_20261013.py'),
+ 'sorted':Path('/tmp/snarky_numeric_tail_sorted_20261013.py'),
+ 'boundary':Path('/tmp/snarky_numeric_boundary_support_20261013.py'),
+ 'selected':Path('/tmp/snarky_numeric_borders_support_20261013.py'),
+ 'production':Path('src/snarky/finite/numeric.py'),
+}
+by_hash={hashlib.sha256(p.read_bytes()).hexdigest():p for p in snapshots.values()}
+for name,p in snapshots.items(): shutil.copyfile(p,root/(name+'.py.txt'))
+stages={
+ 'fused_pilot':'magic_sum_fused_pilot_20261013',
+ 'tail_pilot':'magic_sum_tail_pilot_20261013',
+ 'sorted_pilot':'magic_sum_sorted_pilot_20261013',
+ 'boundary_pilot':'magic_sum_boundary_pilot_20261013',
+ 'comparison':'magic_sum_borders_comparison_20261013',
+ 'confirmation16':'magic_sum_confirmation16_20261013',
+ 'replay':'magic_sum_replay_20261013',
+}
+for name,directory in stages.items():
+ source=Path('generated/neural_attention')/directory
+ shutil.copytree(source,root/name)
+ if name=='replay': continue # recorded at capture time, before promotion
+ frozen=json.loads((source/'frozen.json').read_text())
+ with tarfile.open(root/name/'sources.tar.gz','w:gz') as archive:
+  for path,digest in frozen['source_hashes'].items():
+   p=Path(path)
+   if hashlib.sha256(p.read_bytes()).hexdigest()!=digest:
+    p=by_hash[digest]
+   assert hashlib.sha256(p.read_bytes()).hexdigest()==digest,path
+   archive.add(p,arcname=path)
+summary=json.loads((root/'comparison/summary.json').read_text())
+initial16=next(r['medians'] for r in summary if r['size']==16)
+confirmation=json.loads((root/'confirmation16/summary.json').read_text())[0]
+for row in summary:
+ row['stage']='confirmation16' if row['size']==16 else 'comparison'
+ row['repeats']=5 if row['size']==16 else 3
+ if row['size']==16:
+  row['initial_three_run_medians']=initial16
+  row['medians']=confirmation['medians']
+ a,b=(row['medians'][v] for v in ['baseline','optimized'])
+ row['time_reduction_percent']=100*(1-b/a)
+(root/'summary.json').write_text(json.dumps(summary,indent=2)+'\n')
+for path,name in [
+ ('experiments/neural_attention/magic_alldifferent_benchmark.py','runner.py.txt'),
+ ('experiments/neural_attention/numeric_kernel_replay.py','replay_runner.py.txt'),
+ ('tests/test_numeric_wide_masks.py','tests.py.txt')]: shutil.copyfile(path,root/name)
+(root/'delta.patch').write_bytes(subprocess.check_output(['git','diff','--','src/snarky/finite/numeric.py','tests/test_numeric_wide_masks.py']))
+for name in ['core_tests','compatibility_tests','fused_pilot','tail_pilot','sorted_pilot','boundary_pilot','borders_comparison','confirmation16','replay']:
+ shutil.copyfile(Path('/tmp')/f'magic_sum_{name}_20261013.log',root/(name+'.log'))
+notes=dict(
+ scope='Exact SUM/LINEAR_SUM equality support computation. Existing small-active and dense/holey certificates unchanged. No additional inference, witness cache or changed variable/value heuristic.',
+ selected='Fuse candidate enumeration with prefix construction; avoid the last prefix/candidate row by direct target-membership checks; avoid the unused first backward table; arrange two largest domains at arithmetic boundaries, with smaller domains inside. Returned masks remain in original scope order.',
+ selection='Six variants replayed 5005 sampled calls from a completed 16x16 solve, three repetitions each, checking exact outputs. Selected kernel ~6.6% faster in this sampled workload; this is not whole-solver speedup. Sampling omits intervening cache transitions and uses one family/size.',
+ paired='Three shuffled repetitions per implementation/size, model/state setup included; imports, validation and reduction hashing excluded. Every pair preserves nodes, failures, revisions, termination, squares and ordered reduction hashes. 20x20 is a 30-node prefix only.',
+ limits='Initial three-pair 16x16 improvement was 5.5%; a dedicated five-pair confirmation measured 2.5%, used as the conservative headline. Other sizes show small differences apart from the initial 8x8 result. Initial pilots retained, including unsuccessful variants. Selected production function differs from measured prototype only by comments.',
+ checks='Full regression, compatibility, lint and mypy outcomes are retained in logs/tool results; numerical oracle suite covers signed, translated, shuffled and reflected targets.'
+)
+(root/'notes.json').write_text(json.dumps(notes,indent=2)+'\n')
+shutil.copyfile('/tmp/archive_magic_sum_boundaries_20261013.py',root/'archive.py.txt')
+print(json.dumps(summary,indent=2))

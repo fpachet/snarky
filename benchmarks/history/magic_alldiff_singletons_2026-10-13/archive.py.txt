@@ -1,0 +1,46 @@
+from pathlib import Path
+import hashlib
+import json
+import shutil
+import subprocess
+import tarfile
+
+root=Path('benchmarks/history/magic_alldiff_singletons_2026-10-13')
+root.mkdir(exist_ok=False)
+for name, source in [('pilot',Path('generated/neural_attention/magic_singleton_pilot_20261013')),('comparison',Path('generated/neural_attention/magic_singleton_comparison_20261013')),('prefix20',Path('generated/neural_attention/magic_singleton_prefix20_20261013')),('profile_before',Path('generated/neural_attention/magic_cost_node_20261013')),('profile_after',Path('generated/neural_attention/magic_cost_node_singletons_20261013'))]:
+ shutil.copytree(source,root/name)
+ frozen=json.loads((source/'frozen.json').read_text())
+ with tarfile.open(root/name/'sources.tar.gz','w:gz') as archive:
+  for path,digest in frozen['source_hashes'].items():
+   p=Path(path)
+   if hashlib.sha256(p.read_bytes()).hexdigest()!=digest and path.endswith('src/snarky/finite/alldifferent.py'):
+    p=Path('/tmp/snarky_alldifferent_before_singletons_20261013.py')
+   assert hashlib.sha256(p.read_bytes()).hexdigest()==digest, path
+   archive.add(p,arcname=path)
+for source, name in [
+ (Path('/tmp/snarky_alldifferent_before_singletons_20261013.py'),'before.py.txt'),
+ (Path('src/snarky/finite/alldifferent.py'),'after.py.txt'),
+ (Path('tests/test_alldifferent_masks.py'),'tests.py.txt'),
+ (Path('experiments/neural_attention/magic_alldifferent_benchmark.py'),'runner.py.txt')]:
+ shutil.copyfile(source,root/name)
+(root/'delta.patch').write_bytes(subprocess.check_output(['git','diff','--','src/snarky/finite/alldifferent.py','tests/test_alldifferent_masks.py','experiments/neural_attention/magic_alldifferent_benchmark.py']))
+for name in ['core_tests','slow_tests','experiment_tests','pilot','comparison','prefix20','after_profile']:
+ p=Path(f'/tmp/magic_singleton_{name}_20261013.log')
+ shutil.copyfile(p,root/(name+'.log'))
+summary=json.loads((root/'comparison/summary.json').read_text())
+for group in summary:
+ before,after=(group['medians'][x] for x in ['baseline','optimized'])
+ group['time_reduction_percent']=100*(1-after/before)
+ group['speedup']=before/after
+(root/'summary.json').write_text(json.dumps(summary,indent=2)+'\n')
+(root/'notes.json').write_text(json.dumps(dict(
+ scope='Exact ALLDIFF SCC shortcut only; fixed matched value vertices are self-loop sinks and cannot share SCCs with other vertices. Their matched edges remain explicitly supported. Recomputed per revision, no witness cache.',
+ timing='Sequential shuffled three-repeat pairs; same current runtime except AllDifferentPlan.supports swapped from the saved before snapshot. Model/state setup included; imports, witness checks and reduction hashing excluded. Size20 is a 30-node prefix, not a solution.',
+ equivalence='Every run per size has identical nodes, failures, revisions, termination, complete squares and ordered solution-reduction digests.',
+ baseline='Before snapshot is the production ALLDIFF source at the start of this experiment; frozen source hashes identify the dirty working tree and all helpers.',
+ checks=dict(core_passed=1255, core_skipped=4, slow_passed=56, slow_skipped=3, experimental_passed=104, ruff='passed', mypy='103 source files passed'),
+ prefix20='Initial three-run medians were 0.348s before/0.378s after. A separate nine-repeat confirmation gives 0.362s/0.365s: no clear early-prefix improvement. Both stages retained; neither is a completed 20x20 solve.',
+ profiles='Separate wall timers and cProfile runs preserve the same completed 16x16 work. They attribute the improvement to ALLDIFF. Instrumented timings are not headline benchmark timings.'
+),indent=2)+'\n')
+shutil.copyfile('/tmp/archive_magic_singletons_20261013.py',root/'archive.py.txt')
+print(json.dumps(summary,indent=2))

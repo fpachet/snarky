@@ -1,0 +1,230 @@
+{
+  "config": {
+    "sizes": [
+      8,
+      11,
+      16
+    ],
+    "tracks": [
+      "preset"
+    ],
+    "solvers": [
+      "snarky"
+    ],
+    "limit": 10.0,
+    "repeats": 3,
+    "external_values": "indomain_min",
+    "external_policy": null,
+    "alldiff_domain": false,
+    "free_search": false,
+    "seed": 1,
+    "output": "generated/neural_attention/magic_solver_followup_20261013/native_replays"
+  },
+  "platform": "macOS-15.7.7-arm64-arm-64bit-Mach-O",
+  "python": "3.13.11",
+  "pythonhashseed": "0",
+  "preset": {
+    "scope": "Empirically selected first-solution settings for blank normal magic squares; not optimality guarantees or settings for clued puzzles.",
+    "default_basis": "Extrapolated from 9x9 and 10x10. No verified winner yet for 17-20; the 15x15 seed-1 setting is validated by three fresh replays.",
+    "default": {
+      "policy": "mrv",
+      "tie": "row_major",
+      "order": "middle",
+      "symmetry": false
+    },
+    "known_size_overrides": {
+      "6": {
+        "order": "middle",
+        "symmetry": true
+      },
+      "7": {
+        "order": "middle_high",
+        "symmetry": true
+      },
+      "8": {
+        "order": "middle_high",
+        "symmetry": true
+      },
+      "9": {
+        "order": "middle",
+        "tie": "row_major",
+        "symmetry": false
+      },
+      "10": {
+        "order": "middle",
+        "tie": "row_major",
+        "symmetry": false
+      },
+      "11": {
+        "policy": "dom_wdeg",
+        "order": "random",
+        "tie": "random",
+        "symmetry": true,
+        "seed": 1
+      },
+      "12": {
+        "policy": "dom_wdeg",
+        "order": "random",
+        "tie": "random",
+        "symmetry": true,
+        "seed": 1
+      },
+      "13": {
+        "policy": "dom_wdeg",
+        "order": "random",
+        "tie": "random",
+        "symmetry": false,
+        "seed": 0
+      },
+      "14": {
+        "order": "middle",
+        "tie": "degree",
+        "symmetry": true
+      },
+      "16": {
+        "policy": "dom_wdeg",
+        "order": "random",
+        "tie": "random",
+        "symmetry": true,
+        "seed": 1
+      },
+      "15": {
+        "policy": "dom_wdeg",
+        "order": "random",
+        "tie": "random",
+        "symmetry": false,
+        "seed": 1
+      }
+    },
+    "evidence": {
+      "9": "benchmarks/history/magic_numeric_2026-10-12/runs.jsonl",
+      "10": "benchmarks/history/magic_numeric_2026-10-12/runs.jsonl",
+      "11": "benchmarks/history/magic11_2026-10-12/runs.jsonl",
+      "12": "benchmarks/history/magic_portfolio_2026-10-12/repeats/runs.jsonl",
+      "13": "benchmarks/history/magic_portfolio_2026-10-12/repeats/runs.jsonl",
+      "14": "benchmarks/history/magic_numeric_2026-10-12/scaling_before.json",
+      "16": "benchmarks/history/magic_portfolio_2026-10-12/repeats/runs.jsonl",
+      "15": "benchmarks/history/magic_large_2026-10-13/repeats/runs.jsonl"
+    }
+  },
+  "source_hashes": {
+    "/Users/francoispachet/IdeaProjects/boojum/experiments/neural_attention/magic_best_parameters.json": "144b6e6e7bee84358e21bc135ef97d1cc840004f85823921a2fe3cefd664035b",
+    "/Users/francoispachet/IdeaProjects/boojum/experiments/neural_attention/magic_solver_comparison.py": "20aed4ea53d04ce1705bdf808dacd05669c459d089dfe06f129216cff13562f3",
+    "benchmarks/alice_magic.py": "a63f06834610610215e3c508910cb894df14454ddb6e81c2d6ada61a7be30d72",
+    "experiments/neural_attention/magic_scaling.py": "23d60e0c10f2ae9162aedeb86040ab2e69d33bc7cd5bc41e592550540d589794",
+    "experiments/neural_attention/magic_search_tuning.py": "707cc2461644d7db4b91f44ef57ea4a5264140cdce53da3917b6a6e01ada5396",
+    "experiments/neural_attention/optimize_magic6.py": "36fd8de4c77f69cfd91b2dafc25231babf534c81f1ea2c30bf51ebbf86b3e698",
+    "src/snarky/__init__.py": "169d10d79895ed483edc6063f1c243fa5ba1db515616c4594a2092103342d238",
+    "src/snarky/__main__.py": "9bff14ab8b3f46db184fd4acc7facb74c47b2f1ef4e572bc78a091fd7cb0b632",
+    "src/snarky/actions.py": "910cab225e92cb08b024f79d635cc9774071a97b9013249f407716d035ec89c6",
+    "src/snarky/api_stability.py": "8d21b6acc971fe05cfca8b9e502f48a2622d01de4eb36c8c59acb28461a4e3a8",
+    "src/snarky/choice.py": "ff87df17c973b20c3374a8a2c20557419be5eb0181ff407127530f145a6cd350",
+    "src/snarky/choice_fixed_point.py": "a7e64355ae156c2e50fa798d62f509cdd15814ca5714169b0ff8fde44de51870",
+    "src/snarky/choice_frontier.py": "49727487cfdb66fb06ed7dc6f1652ce83bb251da965c9c1a10b4ddc687a3a40f",
+    "src/snarky/choice_policies.py": "b134bab4ac4a7afe13688c04863b5e1d08caf53d8ba235ce767781ac2fc1459a",
+    "src/snarky/choice_production.py": "abb5952afc9b1346925cda9146e12c158fbab80e61bccf7a9ae80f3d6b2e0a87",
+    "src/snarky/choice_search.py": "fb82dbe0c1abaf9fea37936867d7c8b340473603bcbdd45c778b2b0bbc22b2a2",
+    "src/snarky/cli.py": "06c9510efcade5667c86750d61c05e3537fb0b37093c46133ab6ac43d3c88847",
+    "src/snarky/computed.py": "ddcaed355801e1a2b8ec8d0b7dc8a08b81d64292044c99db571fce03fbd39603",
+    "src/snarky/constraints.py": "8cacdf295fbda7011cf1f5c701cdb630497b1c8815543830ce9934aabc1797c8",
+    "src/snarky/engine/__init__.py": "67536474adc9807cc521c9a4e15d9ebe8cc125e07feda3474c9cc660238ab6eb",
+    "src/snarky/engine/agenda.py": "0f5479df42bcf85492b81c76c1538c5f64ede3453609c800fd05688cd0c7b99d",
+    "src/snarky/engine/conflict.py": "bc22350c9a2dcc86af9debd575ea72b88dc111036830f10cb94c951a708b38d7",
+    "src/snarky/engine/events.py": "0bcc864e9901f0f4c2740c4f2ab0dfac78ca6d3a43a0de60f9db9bb23aefd549",
+    "src/snarky/engine/forward.py": "14a3de9a9be8e2517dc2e9b0977be70e60b1785768b29d46f80f43af72bd5016",
+    "src/snarky/engine/group_execution.py": "b0184b2d86129ab3ff05dcb0098222721e3eb002d09274ad4681df1a7bea41bd",
+    "src/snarky/engine/mutations.py": "a678da1d1d4d7be57084b448d9bd2ef3c33e47509f3bbddb68c7ad936d5f43a2",
+    "src/snarky/engine/provenance.py": "19caee854982d64d74143afc059ba156b45893502a887a80f3738043a7eea4e7",
+    "src/snarky/engine/refraction.py": "48ce855654bea8253188c34d52ce95f6a608e7ca49e9757c39be61e4b76d644a",
+    "src/snarky/engine/session_state.py": "aaa3f399973d2ef59edd0e23c2fbf29d51c37bb566f8637fa1dda5c0e307f3e4",
+    "src/snarky/expressions.py": "c5b42a53d4f95b399595a381d3dc4b2c9aaf5306a7ee5e334cbb5b7ab07b740d",
+    "src/snarky/factors.py": "2716497b0025d4fdf7ca6fe5a2619ed9c823d122c87d2343eb6249a089c2bc68",
+    "src/snarky/facts.py": "3d597b94757d0f6db2edee812d29a0a11e6ad7eca273c6ce268ff5c23d82c267",
+    "src/snarky/finite/__init__.py": "b2ec37d4d020822bf8b323e58686f94508c05ed9be74a51e7282f22cbff37476",
+    "src/snarky/finite/alldifferent.py": "32b01879e224ac03288d4220fe470527ac8ebebdacd9bb00fdfb40687912e9f3",
+    "src/snarky/finite/bounds.py": "80680b2263c16c1b018daf26e61745e0ac055557fdaf4caea72d6e95383c1b41",
+    "src/snarky/finite/capacity.py": "abbd96d8a6279a044ed0198fa81e99b8fb86d98ee33528500db63d6ec91acebe",
+    "src/snarky/finite/cli.py": "bd99ac0223b6657e376f4ea8a22ae0659e2fa5ecd502eb11b4d45c272a53100f",
+    "src/snarky/finite/closure.py": "357fdf029c11781291a50930f5455f65568b3a7e5af0636db176840fa76e345d",
+    "src/snarky/finite/constraints.py": "9dc705a1b59678bad82143bfde85cb4bfd4e0ccd50cb8058018c0c943fc9b7e6",
+    "src/snarky/finite/domains.py": "8e39ea73c63dc60e9d9944b75808afe15f5b56b1460da1c4050b8948f99d89e0",
+    "src/snarky/finite/examples.py": "6cced54da964f1141ed91423fed98dcbf44487a33516ab4d49c8ebb966bf41e0",
+    "src/snarky/finite/factor_bounds.py": "2e0a7d3e512ecf3ea7d73469e22acb3abdb4d2df6981f8676af2070d850f17d8",
+    "src/snarky/finite/factors.py": "b971230e4b475d498712ba236e69ab23f51026f0255eb744fc96d3b1d207769b",
+    "src/snarky/finite/inference.py": "0280f74cd5b17efa3264b5db3261dfd759bb99529edf3dd8262f9a04cacf4957",
+    "src/snarky/finite/kernels.py": "fb3b78b1aca09c8eb705b52fde1017d00e3891895deedc2ab7e0952195b48ee9",
+    "src/snarky/finite/language.py": "be38cc0a66931fa3e692eaa227d5cdcaa89d73b3fef963c35a640cd01a262924",
+    "src/snarky/finite/markov.py": "d4e30a450c2bec3644a17bd6a1c3b346938746abe6d20036a5dbf5029df2d474",
+    "src/snarky/finite/measure.py": "729c603de0b3872ad6ac6ca0b1e5fad2052995375b147b448f5311677a6a3a4a",
+    "src/snarky/finite/mixed.py": "e10e65274dc5471765c524b450f404b71da7401488ddc8c0290a158cc1ceebfe",
+    "src/snarky/finite/model.py": "71b66c9d3177e000328660468390fff61d18d2ac9dcb4849814946521b8b6b09",
+    "src/snarky/finite/numeric.py": "ffb84a8e5a9549bed6fd94bd1c5ec9e07469d48e8fb76582e4e7e29ea5f946ab",
+    "src/snarky/finite/nvalue.py": "1c5196059fc6f49284acd47d1c9241d719063392f2ae62abb2c9367bf0c44d20",
+    "src/snarky/finite/oracle.py": "366867ad43317c25e39b4c2625d9f1c78f93598744afe36e44c72f10b0cde0e2",
+    "src/snarky/finite/predicates.py": "94e61874dae8379d35ebf3dff8a417d9f9168e273c0b4b40b3a98ee878bfbe74",
+    "src/snarky/finite/product_assignment.py": "41b3cd548322940260bb9250a25010e1accad97565c7e85acfaccd33823978bb",
+    "src/snarky/finite/product_objective.py": "3409bee3ecaef827c98e91ddd2102f9512d951f4c063601d73a2f2908138b801",
+    "src/snarky/finite/propagation.py": "485f12e879ca15a80f305a0fa2bd0fde1ee63618d841d056c8abacd1a3f9eabd",
+    "src/snarky/finite/regular.py": "f562909358abfe91dfc0aa2d9ba7f3d08625a25f42f011a30603a437d8907785",
+    "src/snarky/finite/scheduling.py": "3be554d495a8753c94063d556943be79d9bfaf5a9d17318186697a0f50d158bc",
+    "src/snarky/finite/scheduling_kernels.py": "1d58fd583b3ebca9be005824ba2f215732380767995abe28c0c016adc3d8df7a",
+    "src/snarky/finite/scheduling_search.py": "c1f20f0c5881db6c15599a46d600770b157303d9abf911d367425a34ee809d96",
+    "src/snarky/finite/scheduling_symmetry.py": "caa3252347b30f39adcccd98eb6b47e151b1a4c760b2af2e79f56fb0b0e624f2",
+    "src/snarky/finite/scheduling_windows.py": "71c1c872552e4086d17783f5ee56f247a05ad1f9683c50db07b1cd58838734a5",
+    "src/snarky/finite/search.py": "febc6b90679d818c80c62bb162d99dc3f5bafe65cfd5f77754e34cb85b8bff59",
+    "src/snarky/finite/sparse_chain.py": "a1caaa1754bb79b9c08d3b5150e4ebfc8ab602810561aa71a288b5c88175aec9",
+    "src/snarky/finite/variable_markov.py": "74b0d6b53a5c434632a50f5e7a214bbf8b93eb531075b4c24df4601fa9baed3b",
+    "src/snarky/formatting.py": "f54c308505904991f6b928f95cbd0eb71e3fb2623520a08a7fb4c3b9713f1013",
+    "src/snarky/group_templates.py": "d370c6dadbb19c57764e077006f3f89567abc8eca1b7c2cd5d40330f3839e8d9",
+    "src/snarky/instantiation/__init__.py": "9daf9687870a08f5036fccd02edf9dc7228165b2a4c8dabaeb90e499b0584fb7",
+    "src/snarky/instantiation/adaptive_selection.py": "b7a84f798b4e431420e497181a9ef0f03d35161dad9ad121491cee7a2f94216c",
+    "src/snarky/instantiation/base.py": "923b69570f14e86507b60ac792d0fc17badab1e0fe62cff5e34b4d95e3056bdb",
+    "src/snarky/instantiation/comparison_propagators.py": "ae0d962c8bce0593c0a57baa94d8a52e632b63b80ec78fd27718e6208f7ebe11",
+    "src/snarky/instantiation/compiled.py": "17407857cdf1686871fbce9c9cbff01d35246f84a31bff43117a62f6bfb49afa",
+    "src/snarky/instantiation/domain_filter.py": "2b64630dbaa1a6a689758ae5234298d4c3e3871c5a64aaa544a2bdb1dc8c6d76",
+    "src/snarky/instantiation/domain_planning.py": "399ffa9572eb55d1fcfce144e28693adc13da2369451b75058932a75d27c5d4c",
+    "src/snarky/instantiation/domain_tables.py": "b9809816ae4e5e97cc2130742110449c1d8157ead6cb0af93f021cc1a04b31f8",
+    "src/snarky/instantiation/event_rules.py": "b40b4d6e3c78a03672ee2c1c1e387739dbb65da373cdb6d8d4388e7b2b3c9088",
+    "src/snarky/instantiation/fact_index.py": "49476fc0fae4277e56eb446ac4ccb0c0cac3d316066eab2282632920a49efd65",
+    "src/snarky/instantiation/indexed.py": "8ee7104af0768dee65d32f9a9c8b5d90f5402a3698d72d1d5b006ea77646075f",
+    "src/snarky/instantiation/naive_join.py": "5876474781c7b77b78d9f3c1cbbded6eb06fca2c609e3edd9dc86c1c7359bbbb",
+    "src/snarky/instantiation/query_memory.py": "853d9ca40d833259c3845b9df9ce31e85c73490a45129ca2ad8df66a91d2fdc3",
+    "src/snarky/instantiation/semi_naive_join.py": "4d55b98d3d964ee40acf28eee56225c50937418369f0e3cafe28694b6d70a8c5",
+    "src/snarky/integrations/__init__.py": "cd767d15d031a91d7f5be216d6fc3dc5fdb9806eae9ca963da5943668e7d58d7",
+    "src/snarky/integrations/muses.py": "b2a423a82b2b9338c4fc4c9588cd5258e853505822537894d61f52e9247c760f",
+    "src/snarky/integrations/objects.py": "94cd17c0213d269b9faaaf30bf5e35242758d506d041dc837af58a152e764a8b",
+    "src/snarky/matching.py": "daaf2349ac62ae1874e09247fac91c3e8ba23095794577d0753c690fb370e0ba",
+    "src/snarky/parser.py": "3ab38966fe09be2b967844f7710bab0fbf8c2c72324e1b1531a4ba2d4d8c5aea",
+    "src/snarky/parser_actions.py": "3e5d982a69893cb95311eadf459df4335e73fb55291b8fb07bcdea804c1b90c2",
+    "src/snarky/parser_arithmetic.py": "746661b0bf82428d91879abb0d555023fc1a4854cd3100f351db8f8950e676c8",
+    "src/snarky/parser_factors.py": "e44533d3aa70e6e7cc9e5f367c9e73ae96bfe644ade24e0e261b772297b1b87f",
+    "src/snarky/parser_lexer.py": "86fb194d2398f7250769a688d3ee1d2e039c6c8f588f18ed116f9112ccf8c05e",
+    "src/snarky/parser_premises.py": "a9a705cc250e38499cf1d55d1c806efb1ee4363c309e019d4bddab245abfef45",
+    "src/snarky/parser_terms.py": "e5d85985d27a3bc822b5e322f4c3a4b0bd0e6cb8e39bc6e2d39c51456a82040b",
+    "src/snarky/plans.py": "4d10b0a0b48b2fcd53dfaaf000ebf36e6ecb0db6c8ef3afdd3b375e079287bd4",
+    "src/snarky/premises.py": "a05a9478a97af03e05d3984d4dd75abf151322f164bc862f3b2cc24028955cae",
+    "src/snarky/programs.py": "d79b0a79b48f6302acca2c5c9dc3c5439bcd9cdabb2746f5b4811480e2c7dee8",
+    "src/snarky/propagation.py": "c38054f12f0f5cd6c9459b7afd2726a39f085abda812c5fcd4d6d2373f6b8ceb",
+    "src/snarky/rules.py": "c3bd52396565cc3cff16327f22cdf85b9e84abfa4db0134b28d55188c3887fbb",
+    "src/snarky/search.py": "43c319ada7a215a4f39619646e49df94f7dab5ce0cdca91ec610e5e1342c309d",
+    "src/snarky/serialization/__init__.py": "05e6c306a5bc25b452de1e0a5a951190c3263ec9f096b55696a8076c93484622",
+    "src/snarky/serialization/yaml_format.py": "791bdcdd0d1fc52ccb99a161bf996ac980e8d9666f40c03dfd0f5267e7b3ba5b",
+    "src/snarky/spinoza.py": "ffb4f54d4f97e0fb699d06dda9b20360926934dba202a342d5ed7c3bfe6b558e",
+    "src/snarky/standard_rules.py": "f0e9e717cdd8d1736ca160dda5888f3b170edb7eaf622f1132c01162ca874b36",
+    "src/snarky/stores/__init__.py": "e2fb6b399a933bfe2f57f8b05e49760420b9e85bd3cae4f6b9d4d1025e5b1e51",
+    "src/snarky/stores/naive.py": "38cc7cf1991616b3041cd0b8480d956b7f4b1a6d8951c1b6222b9529b08a01df",
+    "src/snarky/substitutions.py": "91394074261bc6a484886f7ae25f7405a76afc8510208c736df4819b1a4934ed",
+    "src/snarky/terms.py": "f72622bb6730df24e1e309831b064688b4ed9c50b3df5aae7d12ef07feed2862",
+    "src/snarky/tooling.py": "e83891302281c1816dff92be935f3880c9a3e8462fafcac07c6d88e08eadea65",
+    "src/snarky/unification.py": "3fe417e4b812bbbe0366cc5ce4b762fe5461f2e9dcad66fd6db835c7a8f1c3f5"
+  },
+  "git_head": "20263904e97299ea0dd07df925339e33a8e77091",
+  "git_status": " M benchmarks/README.md\n M benchmarks/history/README.md\n M experiments/neural_attention/magic_best_parameters.json\n?? benchmarks/history/magic_large_2026-10-13/\n?? experiments/neural_attention/MAGIC6_OFFLINE_REPORT.md\n?? experiments/neural_attention/MAGIC_REPORT.md\n?? experiments/neural_attention/OFFLINE_NOGOODS_REPORT.md\n?? experiments/neural_attention/README.md\n?? experiments/neural_attention/REPORT.md\n?? experiments/neural_attention/TRAINING_REPORT.md\n?? experiments/neural_attention/analyze.py\n?? experiments/neural_attention/instances.py\n?? experiments/neural_attention/magic.py\n?? experiments/neural_attention/magic_diagnostics.py\n?? experiments/neural_attention/magic_large_search.py\n?? experiments/neural_attention/magic_learning.py\n?? experiments/neural_attention/magic_puzzles.py\n?? experiments/neural_attention/magic_solver_comparison.py\n?? experiments/neural_attention/offline_magic6.py\n?? experiments/neural_attention/offline_nogoods.py\n?? experiments/neural_attention/offline_transformer.py\n?? experiments/neural_attention/probing.py\n?? experiments/neural_attention/run.py\n?? experiments/neural_attention/run_offline_nogoods.py\n?? experiments/neural_attention/test_magic_large_search.py\n?? experiments/neural_attention/test_magic_learning.py\n?? experiments/neural_attention/test_magic_solver_comparison.py\n?? experiments/neural_attention/test_offline_magic6.py\n?? experiments/neural_attention/test_offline_nogoods.py\n?? experiments/neural_attention/test_probing.py\n?? experiments/neural_attention/train_magic.py\n",
+  "versions": "MiniZinc driver.\nAvailable solver configurations:\n  Chuffed 0.13.2 (org.chuffed.chuffed, cp, lcg, int)\n  COIN-BC 2.10.13/1.17.11 (org.minizinc.mip.coin-bc, mip, float, api, osicbc, coinbc, cbc)\n  CPLEX <unknown version> (org.minizinc.mip.cplex, mip, float, api)\n  findMUS 0.7.0 (org.minizinc.findmus)\n  Gecode 6.3.0 (org.gecode.gecode, default solver, cp, int, float, set, restart)\n  Gecode Gist 6.3.0 (org.gecode.gist, cp, int, float, set, restart)\n  Globalizer 0.1.7.2 (org.minizinc.globalizer, experimental, tool)\n  Gurobi <unknown version> (org.minizinc.mip.gurobi, mip, float, api)\n  HiGHS 1.14.0 (org.minizinc.mip.highs, mip, float, api, highs)\n  OR Tools CP-SAT 9.15 (cp-sat, cp-sat, cp, lcg, int)\n  SCIP <unknown version> (org.minizinc.mip.scip, mip, float, api)\n  Xpress <unknown version> (org.minizinc.mip.xpress, mip, float, api, float_times)\nSearch path for solver configurations:\n  /Applications/MiniZincIDE.app/Contents/Resources/share/minizinc/solvers\n  /usr/local/share/minizinc/solvers\n  /usr/share/minizinc/solvers\n  /opt/homebrew/share/minizinc/solvers\n",
+  "binary_hashes": {
+    "/Applications/MiniZincIDE.app/Contents/Resources/minizinc": "19e6b6ee56bdac4619717d5c31a32215017af5bd1f912cba1e7329871781bc77",
+    "/Applications/MiniZincIDE.app/Contents/Resources/bin/fzn-gecode": "d7f014009bb3646b9665f528604e91da7b108207f8a4cbd99cc245b17e451f09",
+    "/Applications/MiniZincIDE.app/Contents/Resources/bin/fzn-chuffed": "4e11b8f8643d36a1e1333ca66cadb110eb711c58887276a0b75d6d1ffa771288"
+  },
+  "protocol": "Sequential, one thread, first solution, no hints/construction. Controlled: MRV/first_fail, ascending values, row-major ties, five identical symmetry restrictions (unless external options override search). Preset: frozen Snarky size settings; Gecode dom_w_deg, Chuffed first_fail, configured value annotations, same symmetry but different branching. External compilation measured separately once per solver/case. Nominal search cutoffs exclude model preparation/compilation. Snarky charges initialization; external cutoffs are backend-specific (Chuffed adds initialization time). Actual process/init/search times retained. External process startup/output and Snarky solution explanations included. Imports and independent validation excluded. Counters are solver-specific, not directly equivalent. No speedup ratios for timeouts. Preset choices were tuned previously on these sizes."
+}

@@ -16,7 +16,31 @@ to match every historical version.
 ## Magic-square experiment history
 
 **Current overview:** [Magic squares](../README.md#magic-squares).
-**Latest detailed comparison:** [Selective ALLDIFF graph construction](magic_scheduler_graph_2026-10-13/README.md).
+**Latest native optimization:** [SUM boundary processing](magic_sum_boundaries_2026-10-13/summary.json).
+A dedicated five-pair 16×16 confirmation gives 4.575 → 4.462 s (2.5%), with
+identical work and reduction hashes. The initial three-pair estimate was 5.5%;
+both datasets and all preliminary kernels are retained. The
+[current overview](../README.md#magic-squares) separates whole-solve and replay
+timings, including the 20×20 prefix with no demonstrated gain.
+
+The previous [ALLDIFF singleton exclusion](magic_alldiff_singletons_2026-10-13/summary.json)
+records 5.468 → 4.655 s at 16×16. The
+[graph comparison](magic_scheduler_graph_2026-10-13/README.md) remains the
+detailed record of row aggregation and the earlier opt-in filters.
+
+**Latest scaling trial:** [Search toward 20×20](magic_large_2026-10-13/summary.json).
+15×15 now solves in 1.135 s over three fresh timing replays. The largest
+completed size remains 16×16; 17×17–20×20 remain unresolved in the recorded
+portfolios. The [current overview](../README.md#magic-squares)
+separates discovery cost, replay timings and timeouts.
+
+**Latest complete-solver comparison:**
+[Snarky / Gecode / Chuffed](magic_solver_comparison_2026-10-13/summary.json).
+Gecode solves 20×20 in 1.617 s median over three runs with the same logical
+model and symmetry choice as Snarky. The
+[current comparison](../README.md#complete-solver-comparison--13-october-2026)
+records timing boundaries, selected branching settings and limitations;
+85 measured runs and independently validated witnesses are archived.
 
 The table follows the optimization sequence. “Opt-in” means experimental code
 that must be selected explicitly, not a default native-solver feature.
@@ -33,6 +57,8 @@ that must be selected explicitly, not a default native-solver feature.
 | [Lookup, pair budget and matching](magic_sum_lookup_matching_2026-10-13/README.md) | Compiled lookups and expanded eligibility; validated matching fast path | Matching enabled; joint filtering opt-in |
 | [Domain storage and propagation](magic_domain_ops_2026-10-13/README.md) | Lazy explanations, integer IDs, changed-mask application and queue flags | Enabled |
 | [Weighted degrees, batching and graph construction](magic_scheduler_graph_2026-10-13/README.md) | Selective aggregation of repeated ALLDIFF rows gives a consistent gain | Graph aggregation enabled; other variants experimental |
+| [Singleton SCC exclusion](magic_alldiff_singletons_2026-10-13/summary.json) | Skip fixed-value components without changing filtering; lower cost per node on completed magic-square searches | Enabled |
+| [SUM boundary processing](magic_sum_boundaries_2026-10-13/summary.json) | Avoid redundant prefix/backward work while preserving exact supports; modest additional per-node gain | Enabled |
 
 Each report links raw runs, source snapshots and reproduction commands. Times
 from different stages are not automatically comparable: check their source

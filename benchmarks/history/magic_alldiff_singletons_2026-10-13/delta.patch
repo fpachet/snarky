@@ -1,0 +1,241 @@
+diff --git a/experiments/neural_attention/magic_alldifferent_benchmark.py b/experiments/neural_attention/magic_alldifferent_benchmark.py
+index 3049040..548f8a1 100644
+--- a/experiments/neural_attention/magic_alldifferent_benchmark.py
++++ b/experiments/neural_attention/magic_alldifferent_benchmark.py
+@@ -7,6 +7,8 @@ import hashlib
+ import importlib.machinery
+ import importlib.util
+ import json
++import platform
++import subprocess
+ from pathlib import Path
+ from random import Random
+ from statistics import median
+@@ -28,7 +30,9 @@ def main():
+         "--candidate", type=Path, help="optional experimental kernel source"
+     )
+     parser.add_argument(
+-        "--kernel", choices=["alldifferent", "matching", "sum"], default="alldifferent"
++        "--kernel",
++        choices=["alldifferent", "alldifferent_supports", "matching", "sum"],
++        default="alldifferent",
+     )
+     parser.add_argument(
+         "--presets",
+@@ -37,6 +41,7 @@ def main():
+     )
+     parser.add_argument("--sizes", nargs="+", type=int, default=[8, 11, 12, 13, 15, 16])
+     parser.add_argument("--repeats", type=int, default=3)
++    parser.add_argument("--audit-reductions", action="store_true")
+     parser.add_argument("--output", type=Path, required=True)
+     args = parser.parse_args()
+     if args.repeats < 1 or any(n < 3 for n in args.sizes):
+@@ -51,6 +56,7 @@ def main():
+     kernel_class, method = {
+         "sum": (NumericPlan, "_equality_supports"),
+         "alldifferent": (MaskColumn, "decode"),
++        "alldifferent_supports": (AllDifferentPlan, "supports"),
+         "matching": (AllDifferentPlan, "_match"),
+     }[args.kernel]
+     original_method = getattr(kernel_class, method)
+@@ -93,9 +99,19 @@ def main():
+                 schedule=specs,
+                 presets=preset,
+                 kernel=f"{kernel_class.__name__}.{method}",
++                audit_reductions=args.audit_reductions,
++                python=platform.python_version(),
++                platform=platform.platform(),
++                git_head=subprocess.check_output(
++                    ["git", "rev-parse", "HEAD"], text=True
++                ).strip(),
++                git_status=subprocess.check_output(
++                    ["git", "status", "--short"], text=True
++                ),
+                 scope=(
+                     "Sequential timing, model/state setup included, imports and "
+-                    "validation excluded. Only the recorded kernel method is swapped. "
++                    "validation/reduction audit excluded. Only the recorded kernel "
++                    "method is swapped. "
+                     "15x15 is the first 80 nodes; sizes >=17 are the first 30 nodes."
+                 ),
+             ),
+@@ -130,12 +146,32 @@ def main():
+             )
+             seconds = perf_counter() - started
+             squares = [validate(size, s.assignment, original) for s in result.solutions]
++            reduction_digest = (
++                hashlib.sha256(
++                    repr(
++                        tuple(
++                            tuple(
++                                (
++                                    repr(r.variable),
++                                    tuple(sorted(map(repr, r.values))),
++                                    repr(r.cause),
++                                )
++                                for r in s.reductions
++                            )
++                            for s in result.solutions
++                        )
++                    ).encode()
++                ).hexdigest()
++                if args.audit_reductions
++                else None
++            )
+             signature = (
+                 result.explored_nodes,
+                 result.failed_branches,
+                 result.constraint_revisions,
+                 result.termination.value,
+                 squares,
++                reduction_digest,
+             )
+             if size in signatures:
+                 assert signatures[size] == signature, "kernel changed search work"
+@@ -151,6 +187,7 @@ def main():
+                 revisions=result.constraint_revisions,
+                 termination=result.termination.value,
+                 squares=squares,
++                reduction_sha256=reduction_digest,
+             )
+             rows.append(row)
+             with (args.output / "runs.jsonl").open("a") as f:
+diff --git a/src/snarky/finite/alldifferent.py b/src/snarky/finite/alldifferent.py
+index 90d8b33..bc4ce9f 100644
+--- a/src/snarky/finite/alldifferent.py
++++ b/src/snarky/finite/alldifferent.py
+@@ -190,6 +190,7 @@ class AllDifferentPlan:
+         graph = [0] * len(self.owners)
+         reverse = [0] * len(self.owners)
+         matched = 0
++        singletons = 0
+         edges = 0
+         groups: dict[int, int] = {}
+         for value, mask in zip(self.matching, masks, strict=True):
+@@ -198,6 +199,8 @@ class AllDifferentPlan:
+             graph[value] = mask
+             size = mask.bit_count()
+             edges += size
++            if size == 1:
++                singletons |= own
+             if size <= 8:
+                 # Tiny rows are cheaper to emit directly than to aggregate.
+                 pending = mask
+@@ -223,7 +226,15 @@ class AllDifferentPlan:
+                 if universe.bit_count() <= 64 or edges >= 4 * universe.bit_count()
+                 else _sparse_components
+             )
+-            components = component_fn(graph, reverse, universe & ~reaches_free)
++            # A fixed variable's matched value has only its self-loop, so its
++            # SCC is a singleton even when other rows point into it. Removing
++            # these sink vertices cannot change any remaining SCC. Filtering
++            # already keeps each matched edge explicitly via (1 << value),
++            # so excluded vertices need no component entry. Recompute this
++            # mask on every revision, including after rollback and widening.
++            components = component_fn(
++                graph, reverse, universe & ~(reaches_free | singletons)
++            )
+             result = tuple(
+                 original
+                 if mask & ~(reaches_free | components[value] | (1 << value)) == 0
+diff --git a/tests/test_alldifferent_masks.py b/tests/test_alldifferent_masks.py
+index 2740923..5011f76 100644
+--- a/tests/test_alldifferent_masks.py
++++ b/tests/test_alldifferent_masks.py
+@@ -3,6 +3,8 @@
+ from itertools import product
+ from random import Random
+ 
++import pytest
++
+ from snarky import Atom, Number
+ from snarky.finite import (
+     FiniteModel,
+@@ -299,3 +301,87 @@ def test_reverse_graph_matches_edgewise_transpose_for_repeated_and_tiny_rows(
+         assert len(observed) >= len(rows)
+         state.rollback(root)
+         state.release(root)
++
++
++@pytest.mark.parametrize("active_count", [2, 12])
++@pytest.mark.parametrize("extra_values", [0, 3])
++def test_fixed_vertices_preserve_hall_filtering_free_paths_and_rollback(
++    monkeypatch, active_count, extra_values
++):
++    size = 80
++    fixed_count = size - active_count
++    values = tuple(map(Number, range(size + extra_values)))
++    rng = Random(131080)
++    model = model_for(
++        [(values[i],) for i in range(fixed_count)]
++        + [rng.sample(values, len(values)) for _ in range(active_count)]
++    )
++    fast, slow = NativeState(model), NativeState(model, alldifferent_masks=False)
++    roots = [state.checkpoint() for state in (fast, slow)]
++    observed = []
++
++    def observe(operation):
++        def check(graph, reverse, allowed):
++            pending = allowed
++            while pending:
++                bit = pending & -pending
++                pending ^= bit
++                assert graph[bit.bit_length() - 1] != bit
++            observed.append(allowed)
++            return operation(graph, reverse, allowed)
++
++        return check
++
++    monkeypatch.setattr(
++        alldifferent, "_bit_components", observe(alldifferent._bit_components)
++    )
++    monkeypatch.setattr(
++        alldifferent, "_sparse_components", observe(alldifferent._sparse_components)
++    )
++
++    def compare_states():
++        assert fast.propagate() == slow.propagate()
++        assert fast.domains.snapshot() == slow.domains.snapshot()
++        assert fast.domains.removals == slow.domains.removals
++        assert fast.revisions == slow.revisions
++        assert fast.failure == slow.failure
++
++    compare_states()
++    assert observed
++    expected = frozenset(values[fixed_count:])
++    assert all(
++        fast.domains.snapshot()[v.name] == expected
++        for v in model.variables[fixed_count:]
++    )
++    nested = [state.checkpoint() for state in (fast, slow)]
++    for value in (values[-1], values[fixed_count]):
++        for state, checkpoint in zip((fast, slow), nested, strict=True):
++            state.rollback(checkpoint)
++            state.restrict(model.variables[-1].name, value)
++        compare_states()
++    for state, checkpoint in zip((fast, slow), nested, strict=True):
++        state.rollback(checkpoint)
++        state.release(checkpoint)
++    compare_states()
++    for state, checkpoint in zip((fast, slow), roots, strict=True):
++        state.rollback(checkpoint)
++        state.release(checkpoint)
++    compare_states()
++
++
++@pytest.mark.parametrize("size", [8, 80])
++def test_all_fixed_domains_have_no_scc_vertices(monkeypatch, size):
++    model = model_for([(Number(i),) for i in range(size)])
++    observed = []
++
++    def no_components(graph, reverse, allowed):
++        assert allowed == 0
++        observed.append(True)
++        return [0] * len(graph)
++
++    monkeypatch.setattr(alldifferent, "_bit_components", no_components)
++    monkeypatch.setattr(alldifferent, "_sparse_components", no_components)
++    state = NativeState(model)
++    assert state.propagate()
++    assert observed
++    assert state.domains.snapshot() == model.domains

@@ -3,6 +3,8 @@
 from itertools import product
 from random import Random
 
+import pytest
+
 from snarky import Atom, Number
 from snarky.finite import (
     FiniteModel,
@@ -299,3 +301,87 @@ def test_reverse_graph_matches_edgewise_transpose_for_repeated_and_tiny_rows(
         assert len(observed) >= len(rows)
         state.rollback(root)
         state.release(root)
+
+
+@pytest.mark.parametrize("active_count", [2, 12])
+@pytest.mark.parametrize("extra_values", [0, 3])
+def test_fixed_vertices_preserve_hall_filtering_free_paths_and_rollback(
+    monkeypatch, active_count, extra_values
+):
+    size = 80
+    fixed_count = size - active_count
+    values = tuple(map(Number, range(size + extra_values)))
+    rng = Random(131080)
+    model = model_for(
+        [(values[i],) for i in range(fixed_count)]
+        + [rng.sample(values, len(values)) for _ in range(active_count)]
+    )
+    fast, slow = NativeState(model), NativeState(model, alldifferent_masks=False)
+    roots = [state.checkpoint() for state in (fast, slow)]
+    observed = []
+
+    def observe(operation):
+        def check(graph, reverse, allowed):
+            pending = allowed
+            while pending:
+                bit = pending & -pending
+                pending ^= bit
+                assert graph[bit.bit_length() - 1] != bit
+            observed.append(allowed)
+            return operation(graph, reverse, allowed)
+
+        return check
+
+    monkeypatch.setattr(
+        alldifferent, "_bit_components", observe(alldifferent._bit_components)
+    )
+    monkeypatch.setattr(
+        alldifferent, "_sparse_components", observe(alldifferent._sparse_components)
+    )
+
+    def compare_states():
+        assert fast.propagate() == slow.propagate()
+        assert fast.domains.snapshot() == slow.domains.snapshot()
+        assert fast.domains.removals == slow.domains.removals
+        assert fast.revisions == slow.revisions
+        assert fast.failure == slow.failure
+
+    compare_states()
+    assert observed
+    expected = frozenset(values[fixed_count:])
+    assert all(
+        fast.domains.snapshot()[v.name] == expected
+        for v in model.variables[fixed_count:]
+    )
+    nested = [state.checkpoint() for state in (fast, slow)]
+    for value in (values[-1], values[fixed_count]):
+        for state, checkpoint in zip((fast, slow), nested, strict=True):
+            state.rollback(checkpoint)
+            state.restrict(model.variables[-1].name, value)
+        compare_states()
+    for state, checkpoint in zip((fast, slow), nested, strict=True):
+        state.rollback(checkpoint)
+        state.release(checkpoint)
+    compare_states()
+    for state, checkpoint in zip((fast, slow), roots, strict=True):
+        state.rollback(checkpoint)
+        state.release(checkpoint)
+    compare_states()
+
+
+@pytest.mark.parametrize("size", [8, 80])
+def test_all_fixed_domains_have_no_scc_vertices(monkeypatch, size):
+    model = model_for([(Number(i),) for i in range(size)])
+    observed = []
+
+    def no_components(graph, reverse, allowed):
+        assert allowed == 0
+        observed.append(True)
+        return [0] * len(graph)
+
+    monkeypatch.setattr(alldifferent, "_bit_components", no_components)
+    monkeypatch.setattr(alldifferent, "_sparse_components", no_components)
+    state = NativeState(model)
+    assert state.propagate()
+    assert observed
+    assert state.domains.snapshot() == model.domains
